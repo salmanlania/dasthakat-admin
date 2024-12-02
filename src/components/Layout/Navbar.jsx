@@ -11,7 +11,7 @@ const Navbar = () => {
   const dispatch = useDispatch();
 
   return (
-    <nav className="h-14 border-b flex justify-between items-center px-4  bg-primary text-white sticky top-0">
+    <nav className="h-14 border-b flex justify-between items-center px-4 z-40  bg-primary text-white sticky top-0">
       <div className="flex gap-4 items-center">
         <Button
           icon={
