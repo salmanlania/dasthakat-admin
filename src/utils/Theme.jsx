@@ -16,6 +16,12 @@ const theme = {
     Table: {
       headerBorderRadius: 0,
     },
+    Menu: {
+      itemSelectedBg: "#ecede8",
+    },
+    Select: {
+      optionSelectedBg: "rgb(237,245,250)",
+    },
   },
 };
 

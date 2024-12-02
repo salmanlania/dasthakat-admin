@@ -6,6 +6,7 @@ import ErrorPage from "./pages/feedback/ErrorPage";
 import NotFound from "./pages/feedback/NotFound";
 
 const Login = lazy(() => import("./pages/Login"));
+const Session = lazy(() => import("./pages/Session"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const User = lazy(() => import("./pages/User"));
 const UserPermission = lazy(() => import("./pages/UserPermission"));
@@ -48,6 +49,14 @@ function Routes() {
       element: (
         <Suspense fallback={<PageLoader />}>
           <Login />
+        </Suspense>
+      ),
+    },
+    {
+      path: "/session",
+      element: (
+        <Suspense fallback={<PageLoader />}>
+          <Session />
         </Suspense>
       ),
     },
