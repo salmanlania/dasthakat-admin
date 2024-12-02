@@ -12,59 +12,64 @@ const User = lazy(() => import("./pages/User"));
 const UserPermission = lazy(() => import("./pages/UserPermission"));
 
 function Routes() {
-  const router = createBrowserRouter([
+  const router = createBrowserRouter(
+    [
+      {
+        path: "/",
+        element: <MainLayout />,
+        errorElement: <ErrorPage />,
+        children: [
+          {
+            index: true,
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Dashboard />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/user",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <User />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/user-permission",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <UserPermission />
+              </Suspense>
+            ),
+          },
+        ],
+      },
+      {
+        path: "/login",
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Login />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/session",
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Session />
+          </Suspense>
+        ),
+      },
+      {
+        path: "*",
+        element: <NotFound />,
+      },
+    ],
     {
-      path: "/",
-      element: <MainLayout />,
-      errorElement: <ErrorPage />,
-      children: [
-        {
-          index: true,
-          element: (
-            <Suspense fallback={<PageLoader />}>
-              <Dashboard />
-            </Suspense>
-          ),
-        },
-        {
-          path: "/user",
-          element: (
-            <Suspense fallback={<PageLoader />}>
-              <User />
-            </Suspense>
-          ),
-        },
-        {
-          path: "/user-permission",
-          element: (
-            <Suspense fallback={<PageLoader />}>
-              <UserPermission />
-            </Suspense>
-          ),
-        },
-      ],
-    },
-    {
-      path: "/login",
-      element: (
-        <Suspense fallback={<PageLoader />}>
-          <Login />
-        </Suspense>
-      ),
-    },
-    {
-      path: "/session",
-      element: (
-        <Suspense fallback={<PageLoader />}>
-          <Session />
-        </Suspense>
-      ),
-    },
-    {
-      path: "*",
-      element: <NotFound />,
-    },
-  ]);
+      basename: "/gms/",
+    }
+  );
 
   return <RouterProvider router={router} />;
 }
