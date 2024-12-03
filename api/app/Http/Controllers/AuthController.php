@@ -129,14 +129,14 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $this->validate($request, ['login_id' => 'required|string']);
+        $this->validate($request, ['user_id' => 'required|string']);
         $access_token = $request->header('Authorization');
         // remove key from access token
-        $access_token = str_replace('access_token ', '', $access_token);
-        $user = UserToken::where('access_token', $access_token)->where('login_id', $request->login_id);
+        $access_token = str_replace('api_token ', '', $access_token);
+        $user = UserToken::where('api_token', $access_token)->where('user_id', $request->user_id);
 
         if ($user) {
-            $user->update(['access_token' => null]);
+            $user->update(['api_token' => null]);
             return $this->jsonResponse([], 200, "Logout Successfully");
         } else {
             return $this->jsonResponse([], 401, "Logout Failed");

@@ -18,44 +18,41 @@ class UserController extends Controller
     
     public function index(Request $request)
     {
-    
         if(!isPermission('list','user',$request->permission_list)) 
 	 	return $this->jsonResponse('Permission Denied!',403,"No Permission");
 		
-         $name = $request->input('name','');
-	 $permission_id =  $request->input('permission_id','');
-	 $user_type =  $request->input('user_type','');
-	 $email =  $request->input('email','');
-	 
-	 $search = $request->input('search','');
-	 $page =  $request->input('page', 1); // Default to page 2 if not specified
-	 $perPage =  $request->input('limit', 10); // Default to 10 if not specified
-	 $sort_column = $request->input('sort_column','user.created_at');
-         $sort_direction = ($request->input('sort_direction')=='ascend') ? 'asc' : 'desc';
+		$login_name = $request->input('login_name','');
+		$user_name = $request->input('user_name','');
+		$email =  $request->input('email','');
 
-         $users = User::join('user_permission', 'user.permission_id', '=', 'user_permission.user_permission_id');
-	 $users = $users->where('user.is_deleted',0);
-	 if(!empty($name)) $users = $users->where('user.name', 'like', '%'.$name.'%');
-	 if(!empty($email)) $users = $users->where('email', 'like', '%'.$email.'%');
-	 if(!empty($permission_id)) $users = $users->where('permission_id', '=', $permission_id);
-	 if(!empty($user_type)) $users = $users->where('user_type', 'like', '%'.$user_type.'%');
+		$search = $request->input('search','');
+		$page =  $request->input('page', 1);
+		$perPage =  $request->input('limit', 10);
+		$sort_column = $request->input('sort_column','created_at');
+    	$sort_direction = ($request->input('sort_direction')=='ascend') ? 'asc' : 'desc';
+
+    	$users = User::query();
+		if(!empty($login_name)) $users = $users->where('login_name', 'like', '%'.$login_name.'%');
+	 	if(!empty($user_name)) $users = $users->where('user_name', 'like', '%'.$user_name.'%');
+	 	if(!empty($email)) $users = $users->where('email', 'like', '%'.$email.'%');
 	 
-	 if (!empty($search)) {
-            $search = strtolower($search);
-            $users = $users->where(function ($query) use ($search){		       	       
-		$query->where('user.name', 'like', '%' . $search . '%')
-		 ->orWhere('email', 'like', '%' . $search . '%')
-	    	  ->orWhere('user_type', 'like', '%' . $search . '%')
-                  ->orWhere('user.created_at', 'like', '%' . $search . '%');
-				
-	      });
-				      
-         }
-	  
-	 $users = $users->select('user.*','user_permission.name as permission_name');
-	 $users =  $users->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
-	 
-         return response()->json( $users);
+		if (!empty($search)) {
+				$search = strtolower($search);
+				$users = $users->where(function ($query) use ($search){		       	       
+				$query
+				->where('user_name', 'like', '%' . $search . '%')
+				->orWhere('login_name', 'like', '%' . $search . '%')
+				->orWhere('email', 'like', '%' . $search . '%')
+				->orWhere('created_at', 'like', '%' . $search . '%');
+					
+			});
+						
+			}
+		
+		$users = $users->select('*');
+		$users =  $users->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
+		
+        return response()->json( $users);
     }
     
     public function show($id,Request $request)
@@ -63,7 +60,7 @@ class UserController extends Controller
     	 if(!isPermission('edit','user',$request->permission_list)) 
 	 	return $this->jsonResponse('Permission Denied!',403,"No Permission");
 
-         $user = User::with('permission:user_permission_id,name','country')->where('id',$id)->first();
+         $user = User::with('permission:user_permission_id,name')->where('user_id',$id)->first();
 	 $user['image_url']  = !empty($user['image']) ?  url('public/uploads/'.$user['image']) : '';
          return $this->jsonResponse($user,200,"User Data");
     }
@@ -71,28 +68,17 @@ class UserController extends Controller
      public function validateRequest($request,$id=null) 
      {
       $rules = [
-            'user_type' => 'required',
-            'name' => 'required',
-	    'email' => [
-	            'required',
-		    'email',
-		     Rule::unique('user')->where('is_deleted',0)->ignore($id)
-		     ],
-	    'permission_id' => 'required',
-	    'phone_no' => 'required' 
+		  	'company_id' => 'required',
+			'login_name' => ['required',Rule::unique('user')->ignore($id, 'user_id')],
+		  	'user_name' => 'required',
+		  	'email' => 'required',
+	    	'permission_id' => 'required',
       ];
       
-      if(!empty($request['password']) || !$id){
-	  $rules['password'] = 'required|min:8';
+      if(!empty($request['login_password']) || !$id){
+	  $rules['login_password'] = 'required|min:8';
       }
       
-      if($request['user_type']=='Partner'){
-      	 $rules['organization'] = 'required';
-	 $rules['dealer_id'] = 'required';
-	 $rules['country_id'] = 'required';
-	 $rules['address'] = 'required';
-      }
-
    
      $validator = Validator::make($request, $rules);  
      $response = []; 
@@ -113,37 +99,28 @@ class UserController extends Controller
       $isError = $this->validateRequest($request->all());
       if(!empty($isError)) return $this->jsonResponse( $isError,400,"Request Failed!");
 	
-      try{
-	DB::beginTransaction();
+    //   try{
+	// DB::beginTransaction();
       
         $data      = $request->all();
  	$imageData = $data['image'] ?? "";
 	$image = "";
 	if(isset($imageData) && !empty($imageData))
  	   $image = $this->base64ToImage($imageData);
-      
 	$uuid = $this->get_uuid();
 	
 	$insertArr = [
-	    'id' => $uuid,
-            'name' => $request->name ?? "",
-	    'user_type' => $request->user_type,
-	    'email' => $request->email,
+		'company_id' => $request->company_id ?? "",
+	    'user_id' => $uuid,
 	    'permission_id' => $request->permission_id,
-	    'phone_no' => $request->phone_no,	    
-            'password'=> md5($request->password),
-	    'status'=> $request->status ?? 'Active',
+        'login_name' => $request->login_name ?? "",
+        'login_password'=> md5($request->password),
+        'user_name' => $request->user_name ?? "",
+	    'email' => $request->email,
+	    'status'=> $request->status ?? 0,
+	    'from_time' => $request->from_time,
+	    'to_time' => $request->to_time,
         ];
-	
-	
-	if($request['user_type']=='Partner'){
-		$insertArr['dealer_id'] = $request->dealer_id;
-		$insertArr['organization'] = $request->organization;
-		$insertArr['address'] = $request->address;
-		$insertArr['site_url'] = $request->site_url;
-		$insertArr['country_id'] = $request->country_id;
-		$insertArr['postal_code'] = $request->postal_code;
-	}
 	
 	if(isset($imageData) && !empty($imageData))
 	   $insertArr['image'] =  $image;
@@ -153,36 +130,37 @@ class UserController extends Controller
          $user = User::create($insertArr);
 	 
 	 // Email Generate update Settings
-	 $config = $this->SystemConfig("Create User");
-	 $message = $config['description'] ?? "";
-	 $message = html_entity_decode($message, ENT_QUOTES | ENT_HTML5);
+	//  $config = $this->SystemConfig("Create User");
+	//  $message = $config['description'] ?? "";
+	//  $message = html_entity_decode($message, ENT_QUOTES | ENT_HTML5);
 
      
-        $message = (str_replace('<Email>' , $insertArr['email'] , $message));
-	$message = (str_replace('<Password>' , $request->password , $message));
-	$message = (str_replace('<Link>' , '<a href="'.env("SITE_URL").'">'.env("SITE_ADDRESS").'</a>' , $message));
+    //     $message = (str_replace('<Email>' , $insertArr['email'] , $message));
+	// $message = (str_replace('<Password>' , $request->password , $message));
+	// $message = (str_replace('<Link>' , '<a href="'.env("SITE_URL").'">'.env("SITE_ADDRESS").'</a>' , $message));
 	 
-	  $data = [
-	        'email' => $insertArr['email'],
-	    	'name' => 'Welcome '.$insertArr['name'],
-		'subject' => $config['subject'],
-		'message' => $message];
+	//   $data = [
+	//         'email' => $insertArr['email'],
+	//     	'name' => 'Welcome '.$insertArr['name'],
+	// 	'subject' => $config['subject'],
+	// 	'message' => $message];
      
-		  $resp = $this->sentMail($data);
-		  if(!empty($resp )) exit;
+	// 	  $resp = $this->sentMail($data);
+	// 	  if(!empty($resp )) exit;
 		  
-	  DB::commit();
-	 }catch (\Exception $e) {
-	          DB::rollBack();
-    		Log::error('Email sending failed: ' . $e->getMessage());
-	       return $this->jsonResponse('Email Not Sent.Please Check Your Email or Contact to your Administrator!',400,"Email Not Sent!");
-         }
+	//   DB::commit();
+	//  }
+	//  catch (\Exception $e) {
+	//  	DB::rollBack();
+    //  	Log::error('Email sending failed: ' . $e->getMessage());
+	//     return $this->jsonResponse('Email Not Sent.Please Check Your Email or Contact to your Administrator!',400,"Email Not Sent!");
+    // }
       
          return $this->jsonResponse(['user_id'=>$uuid],200,"Add User Successfully!");
     }
     
     public function update( Request $request,$id)
-    {   
+    {  
        // Validation Rules
        $isError = $this->validateRequest($request->all(),$id);
        if(!empty($isError)) return $this->jsonResponse( $isError,400,"Request Failed!");
@@ -194,23 +172,16 @@ class UserController extends Controller
  	   $image = $this->base64ToImage($imageData);
 	
        
-        $user  = User::where('id',$id)->first();
-        $user->name  = $request->name ?? "";
-	$user->user_type = $request->user_type;
-	$user->email = $request->email;
-	$user->permission_id = $request->permission_id;
-	$user->phone_no = $request->phone_no;
+        $user  = User::where('user_id',$id)->first();
+        $user->company_id  = $request->company_id ?? "";
+        $user->login_name  = $request->login_name ?? "";
+        $user->user_name  = $request->user_name ?? "";
+		$user->email = $request->email;
+		$user->permission_id = $request->permission_id;
+		$user->status = $request->status ?? 0;
+		$user->from_time = $request->from_time ;
+		$user->to_time = $request->to_time ;
 
-	
-	if($request['user_type']=='Partner'){
-	        $user->country_id = $request->country_id;
-		$user->dealer_id = $request->dealer_id;
-		$user->organization = $request->organization;
-		$user->site_url = $request->site_url;
-		$user->postal_code = $request->postal_code;
-		$user->address = $request->address;
-	}
-	
 	 //Delete Images
 	 if(isset($request->delete_image) && !empty($request->delete_image)){
 	       $old_image = str_replace(env('SITE_URL').'/api/','',$request->delete_image);
@@ -223,11 +194,9 @@ class UserController extends Controller
 	   $user->image = $image;
 	
 	}
-	$user->status = $request->status;
     
-	$user->address = $request->address;
-	 if(!empty($request->password)){
-	    $user->password = md5($request->password);
+	 if(!empty($request->login_password)){
+	    $user->login_password = md5($request->login_password);
 	 }
 	
 	  $user->update();		
@@ -240,25 +209,23 @@ class UserController extends Controller
 	if(!isPermission('delete','user',$request->permission_list)) 
 	 	return $this->jsonResponse('Permission Denied!',403,"No Permission");
 		
-    	 $user  = User::where('id',$id)->first();
+    	 $user  = User::where('user_id',$id)->first();
 	 
 	 if(!$user) return $this->jsonResponse(['user_id'=>$id],404,"User Not Found!");
-	 
-	 $user->is_deleted=1;
-	 $user->save();
+
+	 $user->delete();
+
 	 return $this->jsonResponse(['user_id'=>$id],200,"Delete User Successfully!");
     }
     public function bulkDelete(Request $request) {
-    
     	if(!isPermission('delete','user',$request->permission_list)) 
 	 	return $this->jsonResponse('Permission Denied!',403,"No Permission");
 		
         try {
             if (isset($request->user_ids) && !empty($request->user_ids) && is_array($request->user_ids)) {
                 foreach ($request->user_ids as $user_id) {
-                    $user = User::where(['id' => $user_id])->first();
-		    $user->is_deleted = 1;
-		    $user->update();
+                    $user = User::where(['user_id' => $user_id])->first();
+					$user->delete();
                 }
             }
 	    

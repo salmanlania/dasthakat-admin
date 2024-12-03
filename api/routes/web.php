@@ -30,9 +30,9 @@ $router->get('test', 'Controller@testApi');
 $router->post('auth/login', 'AuthController@login');
 $router->post('auth/session', 'AuthController@session');
 $router->post('auth/logout', 'AuthController@logout');
-$router->post('auth/check-admin', 'AuthController@checkAdmin');
-$router->post('auth/refresh', 'AuthController@refresh');
-$router->post('auth/profile', 'AuthController@me');
+// $router->post('auth/check-admin', 'AuthController@checkAdmin');
+// $router->post('auth/refresh', 'AuthController@refresh');
+// $router->post('auth/profile', 'AuthController@me');
 
 // //forgot Password
 // $router->post('auth/verify-email', 'AuthController@verifyEmail');
@@ -47,14 +47,14 @@ $router->post('auth/profile', 'AuthController@me');
 // });
 
 // // Users
-// $router->group(['prefix' => 'user'], function ($router) {
-//  $router->get('/', 'UserController@index');
-//  $router->get('/{id}', 'UserController@show');
-//  $router->post('/', 'UserController@store');
-//  $router->put('/{id}', 'UserController@update');
-//  $router->delete('/{id}', 'UserController@delete');
-//  $router->post('/bulk-delete', 'UserController@bulkDelete');
-// });
+$router->group(['prefix' => 'user'], function ($router) {
+ $router->get('/', 'UserController@index');
+ $router->get('/{id}', 'UserController@show');
+ $router->post('/', 'UserController@store');
+ $router->put('/{id}', 'UserController@update');
+ $router->delete('/{id}', 'UserController@delete');
+ $router->post('/bulk-delete', 'UserController@bulkDelete');
+});
 // $router->post('change-password', 'UserController@changePassword');
 
 

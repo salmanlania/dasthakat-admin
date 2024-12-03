@@ -50,13 +50,13 @@ class Authenticate
      */
     public function handle($request, Closure $next, $guard = null)
     {
-    
-  
+        
+        
         if (in_array($request->path(), $this->except)) {
             return $next($request);
         }
-	
-         $access_token = $request->header('Authorization');
+        
+        $access_token = $request->header('Authorization');
          $access_token = str_replace('access_token ', '', $access_token);
 	     $access_token = str_replace('Bearer ', '', $access_token);
          $exist = UserToken::where('api_token', $access_token)->first();
@@ -69,14 +69,13 @@ class Authenticate
                  'status_code' => 401
              ], 401);
          }
-
-	// get Permission
-      $userPermission = UserPermission::where('user_permission_id',$token_get_permission_id)
-		->select('user_permission_id','permission')->first();
-	
-      $permission = (empty($userPermission))? null : json_decode($userPermission['permission'], true);
-      $request['permission_list'] = $permission;
-       //  $this->switchToYearlyDatabase( $db_name);
+         // get Permission
+         $userPermission = UserPermission::where('user_permission_id',$token_get_permission_id)
+         ->select('user_permission_id','permission')->first();
+         
+         $permission = (empty($userPermission))? null : json_decode($userPermission['permission'], true);
+         $request['permission_list'] = $permission;
+         //  $this->switchToYearlyDatabase( $db_name);
         return $next($request);
     }
     
