@@ -60,14 +60,14 @@ $router->group(['prefix' => 'user'], function ($router) {
 
 // // Permission 
 
-// $router->group(['prefix' => 'permission'], function ($router) {
-//    $router->get('/', 'PermissionController@index');
-//    $router->get('/{id}', 'PermissionController@show');
-//    $router->post('/', 'PermissionController@store');
-//    $router->put('/{id}', 'PermissionController@update');
-//    $router->delete('/{id}', 'PermissionController@delete');
-//    $router->post('/bulk-delete', 'PermissionController@bulkDelete');
-// });
+$router->group(['prefix' => 'permission'], function ($router) {
+   $router->get('/', 'PermissionController@index');
+   $router->get('/{id}', 'PermissionController@show');
+   $router->post('/', 'PermissionController@store');
+   $router->put('/{id}', 'PermissionController@update');
+   $router->delete('/{id}', 'PermissionController@delete');
+   $router->post('/bulk-delete', 'PermissionController@bulkDelete');
+});
 
 $router->get('lookups/company', 'LookUpsController@getCompany');
 $router->get('lookups/company-branch', 'LookUpsController@getCompanyBranch');

@@ -26,7 +26,7 @@ class PermissionController extends Controller
 	 $sort_column = $request->input('sort_column','created_at');
      $sort_direction = ($request->input('sort_direction')=='ascend') ? 'asc' : 'desc';
 
-     $user_permission = UserPermission::where('is_deleted',0);
+     $user_permission = UserPermission::query();
 
 	 if(!empty($name)) $user_permission = $user_permission->where('name', 'like', '%'.$name.'%');
 	 if(!empty($user_permission_id)) $user_permission = $user_permission->where('user_permission_id', '=', $user_permission_id);
@@ -122,7 +122,7 @@ class PermissionController extends Controller
 	
 	]);
 	
-	return $this->jsonResponse(['user_permission_id'=>$userPermissionId],200,"Add User Permission Successfully!");
+	return $this->jsonResponse(['user_permission_id'=>$uuid],200,"Add User Permission Successfully!");
     }
     
     public function update( Request $request,$id)
@@ -133,20 +133,19 @@ class PermissionController extends Controller
        
        
         $name  = $request->name;
-	$permission  = $request->permission;
-	$description = $request->description ?? "";
+        $permission  = $request->permission;
+        $description = $request->description ?? "";
 	
 	if (!(isset($request->permission)) || empty($permission) || !is_array($permission))
 	 return $this->jsonResponse( $isError,400,"Request Failed!");
 	
-	 $userPermission  = UserPermission::where('user_permission_id',$id)->first();
-    
-        $updateData = [];
+	    $userPermission  = UserPermission::where('user_permission_id',$id)->first();
+
         $userPermission->permission = json_encode($request->permission);
-	$userPermission->name = $request->name;
-	$userPermission->description = $request->description;
+        $userPermission->name = $request->name;
+    	$userPermission->description = $request->description;
         $userPermission->updated_at = date('Y-m-d H:i:s');
-	$userPermission->update();
+	    $userPermission->update();
 	
 
          return $this->jsonResponse(['user_permission_id'=>$id],200,"Update User Permission Successfully!");
@@ -156,9 +155,7 @@ class PermissionController extends Controller
     	$userPermission  = UserPermission::where('user_permission_id',$id)->first();
 	 
 	 if(!$userPermission) return $this->jsonResponse(['user_permission_id'=>$id],404,"User Permission Not Found!");
-	 
-	 $userPermission->is_deleted=1;
-	 $userPermission->save();
+	 $userPermission->delete();
 	 return $this->jsonResponse(['user_permision_id'=>$id],200,"Delete User Permission Successfully!");
     }
 
@@ -170,8 +167,7 @@ class PermissionController extends Controller
             if (isset($request->user_permission_ids) && !empty($request->user_permission_ids) && is_array($request->user_permission_ids)) {
                 foreach ($request->user_permission_ids as $user_permission_id) {
                     $permission = UserPermission::where(['user_permission_id' => $user_permission_id])->first();
-		    $permission->is_deleted = 1;
-		    $permission->update();
+		    $permission->delete();
                 }
             }
 
