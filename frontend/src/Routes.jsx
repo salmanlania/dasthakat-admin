@@ -8,7 +8,11 @@ import NotFound from "./pages/feedback/NotFound";
 const Login = lazy(() => import("./pages/Login"));
 const Session = lazy(() => import("./pages/Session"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+
 const User = lazy(() => import("./pages/User"));
+const CreateUser = lazy(() => import("./pages/User/CreateUser"));
+const EditUser = lazy(() => import("./pages/User/EditUser"));
+
 const UserPermission = lazy(() => import("./pages/UserPermission"));
 
 function Routes() {
@@ -32,6 +36,22 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <User />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/user/create",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreateUser />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/user/edit/:id",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditUser />
               </Suspense>
             ),
           },

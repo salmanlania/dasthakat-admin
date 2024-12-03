@@ -1,3 +1,5 @@
+import { Layout } from "antd";
+import { Content } from "antd/es/layout/layout";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import Footer from "../components/Layout/Footer";
 import Navbar from "../components/Layout/Navbar";
@@ -14,18 +16,19 @@ const MainLayout = () => {
       />
     );
   }
-
   return (
-    <div className="flex">
+    <Layout className="min-h-screen">
       <Sidebar />
-      <div className="flex flex-col w-full min-h-screen">
+      <Layout
+        className={`${window.innerWidth <= 1000 ? "!w-screen" : "w-full"}`}
+      >
         <Navbar />
-        <main className="flex-1 bg-neutral-50">
+        <Content className="bg-[#f2f2f2] p-4">
           <Outlet />
-        </main>
+        </Content>
         <Footer />
-      </div>
-    </div>
+      </Layout>
+    </Layout>
   );
 };
 export default MainLayout;
