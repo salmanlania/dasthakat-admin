@@ -1,5 +1,5 @@
 import { Avatar, Layout, Menu } from "antd";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BiChevronLeft } from "react-icons/bi";
 import { FaRegUser } from "react-icons/fa";
 import {
@@ -10,13 +10,53 @@ import { useDispatch, useSelector } from "react-redux";
 import { toggleSidebar } from "../../store/features/sidebarSlice";
 import { Link, useLocation } from "react-router-dom";
 
+const getLevelKeys = (items1) => {
+  const key = {};
+  const func = (items2, level = 1) => {
+    items2.forEach((item) => {
+      if (item.key) {
+        key[item.key] = level;
+      }
+      if (item.children) {
+        func(item.children, level + 1);
+      }
+    });
+  };
+  func(items1);
+  return key;
+};
+
 const Sidebar = () => {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const { isCollapsed } = useSelector((state) => state.sidebar);
+  const { user } = useSelector((state) => state.auth);
+  const [stateOpenKeys, setStateOpenKeys] = useState([]);
 
   const activeKey = pathname === "/" ? "/" : pathname.split("/")[1];
   let isSmallScreen = window.innerWidth <= 1000;
+
+  const onOpenChange = (openKeys) => {
+    const currentOpenKey = openKeys.find(
+      (key) => stateOpenKeys.indexOf(key) === -1
+    );
+    // open
+    if (currentOpenKey !== undefined) {
+      const repeatIndex = openKeys
+        .filter((key) => key !== currentOpenKey)
+        .findIndex((key) => levelKeys[key] === levelKeys[currentOpenKey]);
+      setStateOpenKeys(
+        openKeys
+          // remove repeat key
+          .filter((_, index) => index !== repeatIndex)
+          // remove current level all child
+          .filter((key) => levelKeys[key] <= levelKeys[currentOpenKey])
+      );
+    } else {
+      // close
+      setStateOpenKeys(openKeys);
+    }
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -40,16 +80,45 @@ const Sidebar = () => {
       icon: <MdOutlineAdminPanelSettings size={18} />,
       children: [
         {
-          key: "user",
-          label: <Link to="/user">User</Link>,
+          key: "general-setup",
+          label: "General Setup",
+          children: [
+            {
+              key: "company",
+              label: <Link to="/company">Company</Link>,
+            },
+            {
+              key: "company-branch",
+              label: <Link to="/company-branch">Company Branch</Link>,
+            },
+            {
+              key: "customer",
+              label: <Link to="/customer">Customer</Link>,
+            },
+            {
+              key: "supplier",
+              label: <Link to="/supplier">Supplier</Link>,
+            },
+          ],
         },
         {
-          key: "user-permission",
-          label: <Link to="/user-permission">User Permission</Link>,
+          key: "user-management",
+          label: "User Management",
+          children: [
+            {
+              key: "user",
+              label: <Link to="/user">User</Link>,
+            },
+            {
+              key: "user-permission",
+              label: <Link to="/user-permission">User Permission</Link>,
+            },
+          ],
         },
       ],
     },
   ];
+  const levelKeys = getLevelKeys(items);
 
   return (
     <Layout.Sider
@@ -71,11 +140,17 @@ const Sidebar = () => {
           </div>
         )}
         <div>
-          <Avatar size={56} icon={<FaRegUser />} />
+          <Avatar
+            size={56}
+            src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YXZhdGFyfGVufDB8fDB8fHww"
+            icon={<FaRegUser />}
+          />
         </div>
         <div className="text-center">
-          <p className="text-sm font-semibold text-gray-700">User Name</p>
-          <p className="text-xs text-gray-500">useremail@gmail.com</p>
+          <p className="text-sm font-semibold text-gray-700">
+            {user.user_name}
+          </p>
+          <p className="text-xs text-gray-500">{user.email}</p>
         </div>
       </div>
       <Menu
@@ -86,6 +161,8 @@ const Sidebar = () => {
         }}
         mode="inline"
         items={items}
+        openKeys={stateOpenKeys}
+        onOpenChange={onOpenChange}
       />
     </Layout.Sider>
   );

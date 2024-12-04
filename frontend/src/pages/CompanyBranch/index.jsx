@@ -1,99 +1,124 @@
-import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from "antd";
-import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import {
+  Breadcrumb,
+  Button,
+  Input,
+  Popconfirm,
+  Select,
+  Table,
+  Tag,
+  Tooltip,
+} from "antd";
+import { useState } from "react";
 import { GoTrash } from "react-icons/go";
 import { MdOutlineEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import PageHeading from "../../components/heading/PageHeading";
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
-import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
-import {
-  deleteUserPermission,
-  getUserPermissionList,
-  setUserPermissionListParams,
-} from "../../store/features/userPermissionSlice";
 
-const UserPermission = () => {
-  const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
-
-  const handleError = useError();
+const CompanyBranch = () => {
   const dispatch = useDispatch();
+  const handleError = useError();
+  const { list, params } = useSelector((state) => state.user);
 
-  const { params, paginationInfo, list, isLoading } = useSelector(
-    (state) => state.userPermission
-  );
-
-  const debouncedSearch = useDebounce(params.search, 500);
-  const debouncedName = useDebounce(params.name, 500);
-  const debouncedDesc = useDebounce(params.description, 500);
-
+  const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
-  useEffect(() => {
-    dispatch(getUserPermissionList(params)).unwrap().catch(handleError);
-  }, [
-    params.page,
-    params.limit,
-    debouncedSearch,
-    params.sort_column,
-    params.sort_direction,
-    debouncedName,
-    debouncedDesc,
-  ]);
-
-  const onUserPermissionDelete = async (id) => {
-    dispatch(deleteUserPermission(id))
-      .unwrap()
-      .then(() => {
-        toast.success("User permission deleted successfully");
-        dispatch(getUserPermissionList(params)).unwrap().catch(handleError);
-      })
-      .catch(handleError);
-  };
+  const dataSource = [
+    {
+      key: "1",
+      id: "1",
+      company_name: "Mike",
+      branch_name: "John",
+      branch_code: "001",
+      created_at: "01-01-2023 10:00 AM",
+    },
+    {
+      key: "2",
+      id: "2",
+      company_name: "Doe",
+      branch_name: "Alice",
+      branch_code: "002",
+      created_at: "01-01-2023 10:00 AM",
+    },
+    {
+      key: "3",
+      id: "3",
+      company_name: "John",
+      branch_name: "Bob",
+      branch_code: "003",
+      created_at: "01-01-2023 10:00 AM",
+    },
+  ];
 
   const columns = [
     {
       title: (
         <div>
-          <p>Name</p>
-          <Input
-            className="font-normal"
+          <p>Company</p>
+          <Select
+            className="w-full font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.name}
-            onChange={(e) =>
-              dispatch(setUserPermissionListParams({ name: e.target.value }))
-            }
+            options={[
+              {
+                value: "Company 1",
+                label: "Company 1",
+              },
+              {
+                value: "Company 2",
+                label: "Company 2",
+              },
+              {
+                value: "Company 3",
+                label: "Company 3",
+              },
+            ]}
+            allowClear
+            optionFilterProp="label"
+            showSearch
           />
         </div>
       ),
-      dataIndex: "name",
+      dataIndex: "company_name",
+      key: "company_name",
       sorter: true,
-      width: 200,
+      width: 150,
       ellipsis: true,
     },
     {
       title: (
         <div>
-          <p>Description</p>
+          <p>Branch Name</p>
           <Input
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.description}
-            onChange={(e) =>
-              dispatch(
-                setUserPermissionListParams({ description: e.target.value })
-              )
-            }
           />
         </div>
       ),
-      dataIndex: "description",
+      dataIndex: "branch_name",
+      key: "branch_name",
       sorter: true,
-      width: 300,
+      width: 150,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div>
+          <p>Branch Code</p>
+          <Input
+            className="font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      ),
+      dataIndex: "branch_code",
+      key: "branch_code",
+      sorter: true,
+      width: 100,
       ellipsis: true,
     },
     {
@@ -102,16 +127,14 @@ const UserPermission = () => {
       key: "created_at",
       sorter: true,
       width: 168,
-      render: (_, { created_at }) =>
-        dayjs(created_at).format("DD-MM-YYYY hh:mm A"),
     },
     {
       title: "Action",
       key: "action",
-      render: (_, { user_permission_id }) => (
+      render: (_, { id }) => (
         <div className="flex gap-2 items-center">
           <Tooltip title="Edit">
-            <Link to={`/user-permission/edit/${user_permission_id}`}>
+            <Link to={`/company-branch/edit/${id}`}>
               <Button
                 size="small"
                 type="primary"
@@ -127,7 +150,6 @@ const UserPermission = () => {
               okButtonProps={{ danger: true }}
               okText="Yes"
               cancelText="No"
-              onConfirm={() => onUserPermissionDelete(user_permission_id)}
             >
               <Button
                 size="small"
@@ -151,23 +173,16 @@ const UserPermission = () => {
   return (
     <>
       <div className="flex justify-between items-center flex-wrap">
-        <PageHeading>USER PERMISSION</PageHeading>
+        <PageHeading>COMPANY BRANCH</PageHeading>
         <Breadcrumb
-          items={[{ title: "User Permission" }, { title: "List" }]}
+          items={[{ title: "Company Branch" }, { title: "List" }]}
           separator=">"
         />
       </div>
 
       <div className="mt-4 bg-white p-2 rounded-md">
         <div className="flex justify-between items-center gap-2">
-          <Input
-            placeholder="Search..."
-            className="w-full sm:w-64"
-            value={params.search}
-            onChange={(e) =>
-              dispatch(setUserPermissionListParams({ search: e.target.value }))
-            }
-          />
+          <Input placeholder="Search..." className="w-full sm:w-64" />
 
           <div className="flex gap-2 items-center">
             <Button
@@ -177,44 +192,28 @@ const UserPermission = () => {
             >
               Delete
             </Button>
-            <Link to="/user-permission/create">
+            <Link to="/company-branch/create">
               <Button type="primary">Add New</Button>
             </Link>
           </div>
         </div>
 
         <Table
-          columns={columns}
-          loading={isLoading}
-          dataSource={list}
-          pagination={{
-            total: paginationInfo.total_records,
-            pageSize: params.limit,
-            current: params.page,
-            showTotal: (total) => `Total ${total} user permissions`,
-          }}
-          rowKey="user_permission_id"
           size="small"
           rowSelection={{
             type: "checkbox",
           }}
           className="mt-2"
           scroll={{ x: "calc(100% - 200px)" }}
+          pagination={{
+            pageSize: 50,
+          }}
+          dataSource={dataSource}
           showSorterTooltip={false}
+          columns={columns}
           sticky={{
             offsetHeader: 56,
           }}
-          onChange={(e, b, c, d) => {
-            dispatch(
-              setUserPermissionListParams({
-                page: e.current,
-                limit: e.pageSize,
-                sort_column: c.field,
-                sort_direction: c.order,
-              })
-            );
-          }}
-          sortDirections={["ascend", "descend"]}
         />
       </div>
 
@@ -222,11 +221,11 @@ const UserPermission = () => {
         open={deleteModalIsOpen ? true : false}
         onCancel={closeDeleteModal}
         onDelete={onBulkDelete}
-        title="Are you sure you want to delete these permissions?"
+        title="Are you sure you want to delete these branches?"
         description="After deleting, you will not be able to recover."
       />
     </>
   );
 };
 
-export default UserPermission;
+export default CompanyBranch;

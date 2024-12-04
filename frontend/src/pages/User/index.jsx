@@ -1,12 +1,28 @@
-import { Breadcrumb, Button, Input, Select, Table, Tag, Tooltip } from "antd";
+import {
+  Breadcrumb,
+  Button,
+  Input,
+  Popconfirm,
+  Select,
+  Table,
+  Tag,
+  Tooltip,
+} from "antd";
+import { useEffect, useState } from "react";
 import { GoTrash } from "react-icons/go";
 import { MdOutlineEdit } from "react-icons/md";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import PageHeading from "../../components/heading/PageHeading";
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
-import { useState } from "react";
+import useError from "../../hooks/useError";
+import { getUserList } from "../../store/features/userSlice";
 
 const User = () => {
+  const dispatch = useDispatch();
+  const handleError = useError();
+  const { list, params } = useSelector((state) => state.user);
+
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
@@ -393,7 +409,7 @@ const User = () => {
       dataIndex: "created_at",
       key: "created_at",
       sorter: true,
-      width: 155,
+      width: 168,
     },
     {
       title: "Action",
@@ -411,12 +427,20 @@ const User = () => {
             </Link>
           </Tooltip>
           <Tooltip title="Delete">
-            <Button
-              size="small"
-              type="primary"
-              danger
-              icon={<GoTrash size={14} />}
-            />
+            <Popconfirm
+              title="Are you sure you want to delete?"
+              description="After deleting, You will not be able to recover it."
+              okButtonProps={{ danger: true }}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button
+                size="small"
+                type="primary"
+                danger
+                icon={<GoTrash size={14} />}
+              />
+            </Popconfirm>
           </Tooltip>
         </div>
       ),
@@ -429,9 +453,13 @@ const User = () => {
     closeDeleteModal();
   };
 
+  useEffect(() => {
+    dispatch(getUserList(params)).unwrap().catch(handleError);
+  }, []);
+
   return (
     <>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center flex-wrap">
         <PageHeading>USER</PageHeading>
         <Breadcrumb
           items={[{ title: "User" }, { title: "List" }]}

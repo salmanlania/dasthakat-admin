@@ -5,7 +5,7 @@ import PageHeading from "../../components/heading/PageHeading";
 const EditUser = () => {
   return (
     <>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center flex-wrap">
         <PageHeading>EDIT USER</PageHeading>
         <Breadcrumb
           items={[{ title: "User" }, { title: "Edit" }]}

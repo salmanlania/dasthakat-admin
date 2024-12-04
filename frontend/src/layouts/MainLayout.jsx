@@ -8,7 +8,12 @@ import Sidebar from "../components/Layout/Sidebar";
 const MainLayout = () => {
   const location = useLocation();
 
-  if (!localStorage.getItem("token")) {
+  if (
+    !localStorage.getItem("token") ||
+    !localStorage.getItem("user") ||
+    !localStorage.getItem("company_id") ||
+    !localStorage.getItem("company_branch_id")
+  ) {
     return (
       <Navigate
         to="/login"
@@ -16,6 +21,7 @@ const MainLayout = () => {
       />
     );
   }
+
   return (
     <Layout className="min-h-screen">
       <Sidebar />

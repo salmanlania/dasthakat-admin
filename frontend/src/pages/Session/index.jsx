@@ -1,17 +1,48 @@
 import { Button, Form, Select } from "antd";
 import toast from "react-hot-toast";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import LOGO from "../../assets/logo.jpg";
+import { useDispatch, useSelector } from "react-redux";
+import useError from "../../hooks/useError";
+import { postSession } from "../../store/features/authSlice";
 
 const Session = () => {
-  const navigate = useNavigate();
+  const handleError = useError();
+  const dispatch = useDispatch();
   const location = useLocation();
 
-  const onSubmit = (values) => {
-    console.log(values);
-    localStorage.setItem("token", "fake_token"); // replace with actual token
-    navigate(location.state?.prevUrl || "/");
-    toast.success("Login successful!");
+  const [form] = Form.useForm();
+  const companyId = Form.useWatch("company_id", form);
+
+  const navigate = useNavigate();
+  const { sessionData, isSessionPosting } = useSelector((state) => state.auth);
+
+  if (!sessionData) return <Navigate to="/login" />;
+  const companies = sessionData.company_and_branches;
+
+  const onSubmit = async (values) => {
+    try {
+      await dispatch(
+        postSession({
+          ...values,
+          login_name: sessionData.login_name,
+          login_password: sessionData.login_password,
+          user_id: sessionData.user_id,
+        })
+      ).unwrap();
+
+      localStorage.setItem("company_id", values.company_id);
+      localStorage.setItem("company_branch_id", values.company_branch_id);
+      toast.success("Login successful");
+      navigate(location.state?.prevUrl || "/");
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const initialFormValues = {
+    company_id: companies[0]?.value,
+    company_branch_id: companies[0]?.branches[0]?.value,
   };
 
   return (
@@ -27,100 +58,51 @@ const Session = () => {
 
         <Form
           name="session"
-          autoComplete="off"
-          layout="vertical"
           onFinish={onSubmit}
+          autoComplete="off"
+          form={form}
+          layout="vertical"
+          initialValues={initialFormValues}
         >
           <Form.Item
             label="Company"
-            name="company"
-            rules={[
-              {
-                required: true,
-                message: "Please select company!",
-              },
-            ]}
+            name="company_id"
+            rules={[{ required: true, message: "Please select a company" }]}
           >
             <Select
               size="large"
-              options={[
-                {
-                  value: "Company 1",
-                  label: "Company 1",
-                },
-                {
-                  value: "Company 2",
-                  label: "Company 2",
-                },
-                {
-                  value: "Company 3",
-                  label: "Company 3",
-                },
-              ]}
+              options={companies}
               autoFocus
+              onChange={() => form.setFieldsValue({ company_branch_id: null })}
             />
           </Form.Item>
 
           <Form.Item
             label="Company Branch"
-            name="company_branch"
+            name="company_branch_id"
             rules={[
-              {
-                required: true,
-                message: "Please select company branch!",
-              },
+              { required: true, message: "Please select a company branch" },
             ]}
           >
             <Select
               size="large"
-              options={[
-                {
-                  value: "Branch 1",
-                  label: "Branch 1",
-                },
-                {
-                  value: "Branch 2",
-                  label: "Branch 2",
-                },
-                {
-                  value: "Branch 3",
-                  label: "Branch 3",
-                },
-              ]}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Fiscal Year"
-            name="fiscal_year"
-            rules={[
-              {
-                required: true,
-                message: "Please select fiscal year!",
-              },
-            ]}
-          >
-            <Select
-              size="large"
-              options={[
-                {
-                  value: "2004 - 2008",
-                  label: "2004 - 2008",
-                },
-                {
-                  value: "2008 - 2012",
-                  label: "2008 - 2012",
-                },
-                {
-                  value: "2012 - 2012",
-                  label: "2012 - 2012",
-                },
-              ]}
+              disabled={!companyId}
+              options={
+                companyId
+                  ? companies.find((c) => c.value === companyId)?.branches
+                  : null
+              }
             />
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" block size="large">
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              size="large"
+              loading={isSessionPosting}
+            >
               Submit
             </Button>
           </Form.Item>

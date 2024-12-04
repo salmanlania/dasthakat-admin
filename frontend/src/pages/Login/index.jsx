@@ -1,16 +1,30 @@
 import { Button, Form, Input } from "antd";
 import { FaRegUser } from "react-icons/fa6";
 import { MdLockOutline } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
-
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
 import LOGO from "../../assets/logo.jpg";
+import useError from "../../hooks/useError";
+import { loginHandler } from "../../store/features/authSlice";
 
 const Login = () => {
+  const dispatch = useDispatch();
+  const handleError = useError();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isLoggingIn } = useSelector((state) => state.auth);
 
-  const onSubmit = (values) => {
-    console.log(values);
-    navigate("/session");
+  const onSubmit = async (values) => {
+    try {
+      await dispatch(loginHandler(values)).unwrap();
+      navigate("/session", {
+        state: {
+          prevUrl: location.state?.prevUrl,
+        },
+      });
+    } catch (error) {
+      handleError(error);
+    }
   };
 
   return (
@@ -32,7 +46,7 @@ const Login = () => {
         >
           <Form.Item
             label="Email"
-            name="email"
+            name="login_name"
             rules={[
               {
                 required: true,
@@ -71,7 +85,13 @@ const Login = () => {
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" block size="large">
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              size="large"
+              loading={isLoggingIn}
+            >
               Login
             </Button>
           </Form.Item>

@@ -26,3 +26,11 @@
 .ant-form-item-explain-error {
   font-size: 11px;
 }
+
+.ant-menu-submenu > div {
+  @apply !pl-4;
+}
+
+.ant-menu-item {
+  @apply !pl-4;
+}

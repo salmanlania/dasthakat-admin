@@ -14,6 +14,32 @@ const CreateUser = lazy(() => import("./pages/User/CreateUser"));
 const EditUser = lazy(() => import("./pages/User/EditUser"));
 
 const UserPermission = lazy(() => import("./pages/UserPermission"));
+const CreateUserPermission = lazy(() =>
+  import("./pages/UserPermission/CreateUserPermission")
+);
+const EditUserPermission = lazy(() =>
+  import("./pages/UserPermission/EditUserPermission")
+);
+
+const Company = lazy(() => import("./pages/Company"));
+const CreateCompany = lazy(() => import("./pages/Company/CreateCompany"));
+const EditCompany = lazy(() => import("./pages/Company/EditCompany"));
+
+const CompanyBranch = lazy(() => import("./pages/CompanyBranch"));
+const CreateCompanyBranch = lazy(() =>
+  import("./pages/CompanyBranch/CreateCompanyBranch")
+);
+const EditCompanyBranch = lazy(() =>
+  import("./pages/CompanyBranch/EditCompanyBranch")
+);
+
+const Customer = lazy(() => import("./pages/Customer"));
+const CreateCustomer = lazy(() => import("./pages/Customer/CreateCustomer"));
+const EditCustomer = lazy(() => import("./pages/Customer/EditCustomer"));
+
+const Supplier = lazy(() => import("./pages/Supplier"));
+const CreateSupplier = lazy(() => import("./pages/Supplier/CreateSupplier"));
+const EditSupplier = lazy(() => import("./pages/Supplier/EditSupplier"));
 
 function Routes() {
   const router = createBrowserRouter(
@@ -60,6 +86,118 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <UserPermission />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/user-permission/create",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreateUserPermission />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/user-permission/edit/:id",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditUserPermission />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/company",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Company />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/company/create",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreateCompany />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/company/edit/:id",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditCompany />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/company-branch",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CompanyBranch />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/company-branch/create",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreateCompanyBranch />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/company-branch/edit/:id",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditCompanyBranch />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/customer",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Customer />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/customer/create",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreateCustomer />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/customer/edit/:id",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditCustomer />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/supplier",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Supplier />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/supplier/create",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreateSupplier />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/supplier/edit/:id",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditSupplier />
               </Suspense>
             ),
           },

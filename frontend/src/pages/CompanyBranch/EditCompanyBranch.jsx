@@ -1,23 +1,23 @@
 import { Breadcrumb } from "antd";
-import UserForm from "../../components/Form/UserForm";
+import CompanyBranchForm from "../../components/Form/CompanyBranchForm";
 import PageHeading from "../../components/heading/PageHeading";
 
-const CreateUser = () => {
+const EditCompanyBranch = () => {
   return (
     <>
       <div className="flex justify-between items-center flex-wrap">
-        <PageHeading>CREATE USER</PageHeading>
+        <PageHeading>EDIT COMPANY BRANCH</PageHeading>
         <Breadcrumb
-          items={[{ title: "User" }, { title: "Create" }]}
+          items={[{ title: "Company Branch" }, { title: "Edit" }]}
           separator=">"
         />
       </div>
 
       <div className="mt-4 bg-white sm:p-4 p-2 rounded-md">
-        <UserForm />
+        <CompanyBranchForm />
       </div>
     </>
   );
 };
 
-export default CreateUser;
+export default EditCompanyBranch;

@@ -22,7 +22,7 @@ const shortcuts = [
 
 const Dashboard = () => {
   return (
-    <div className="p-4">
+    <>
       <div className="flex gap-2 justify-between items-center">
         <PageHeading>DASHBOARD</PageHeading>
 
@@ -90,7 +90,7 @@ const Dashboard = () => {
           ))}
         </Row>
       </div>
-    </div>
+    </>
   );
 };
 
