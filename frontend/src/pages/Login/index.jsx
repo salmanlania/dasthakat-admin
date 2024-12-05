@@ -46,7 +46,7 @@ const Login = () => {
         >
           <Form.Item
             label="Email"
-            name="login_name"
+            name="email"
             rules={[
               {
                 required: true,
@@ -67,7 +67,7 @@ const Login = () => {
 
           <Form.Item
             label="Password"
-            name="login_password"
+            name="password"
             rules={[
               {
                 required: true,

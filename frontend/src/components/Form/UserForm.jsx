@@ -2,10 +2,19 @@ import { Button, Col, Form, Image, Input, Row, Select, TimePicker } from "antd";
 import { useRef, useState } from "react";
 import userImagePlaceholder from "../../assets/user-placeholder.jpg";
 import { Link } from "react-router-dom";
+import AsyncSelect from "../AsyncSelect";
+import dayjs from "dayjs";
+import { useSelector } from "react-redux";
+import UserCompanyTemplates from "./UserCompanyTemplates";
 
-const UserForm = () => {
+const UserForm = ({ mode = "create", onSubmit }) => {
   const fileInputRef = useRef(null);
-  const [imageSrc, setImageSrc] = useState(null);
+  const { isFormSubmitting, initialFormValues } = useSelector(
+    (state) => state.user
+  );
+  const [imageSrc, setImageSrc] = useState(
+    initialFormValues?.image_url || null
+  );
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -18,20 +27,49 @@ const UserForm = () => {
     }
   };
 
+  const onFinish = (formValues) => {
+    const data = {
+      ...formValues,
+      permission_id: formValues.permission_id.value,
+      image: initialFormValues?.image_url === imageSrc ? null : imageSrc,
+      from_time: formValues.from_time
+        ? dayjs(formValues.from_time).format("HH:mm:ss")
+        : null,
+      to_time: formValues.to_time
+        ? dayjs(formValues.to_time).format("HH:mm:ss")
+        : null,
+    };
+
+    if (
+      mode === "edit" &&
+      initialFormValues?.image_url &&
+      initialFormValues?.image_url !== imageSrc
+    ) {
+      data.delete_image = initialFormValues?.image;
+    }
+
+    onSubmit(data);
+  };
+
   return (
     <Form
       name="user"
+      onFinish={onFinish}
       layout="vertical"
       autoComplete="off"
-      initialValues={{
-        status: 0,
-      }}
+      initialValues={
+        mode === "create"
+          ? {
+              status: 0,
+            }
+          : initialFormValues
+      }
     >
       <div className="flex flex-col-reverse items-center justify-between gap-6 md:flex-row md:items-start">
         <Row gutter={[12, 12]}>
           <Col span={24} sm={12} md={12} lg={12}>
             <Form.Item
-              name="username"
+              name="user_name"
               label="User Name"
               rules={[
                 {
@@ -68,16 +106,38 @@ const UserForm = () => {
               label="Password"
               rules={[
                 {
-                  required: true,
+                  required: mode === "create",
                   whitespace: true,
                   message: "Password is required!",
+                },
+                {
+                  min: 8,
+                  message: "Password must be at least 8 characters!",
                 },
               ]}
             >
               <Input.Password />
             </Form.Item>
           </Col>
-
+          <Col span={24} sm={12} md={12} lg={12}>
+            <Form.Item
+              label="User Permission"
+              name="permission_id"
+              rules={[
+                {
+                  required: true,
+                  message: "User Permission is required!",
+                },
+              ]}
+            >
+              <AsyncSelect
+                endpoint="/permission"
+                valueKey="user_permission_id"
+                labelKey="name"
+                labelInValue
+              />
+            </Form.Item>
+          </Col>
           <Col span={24} sm={12} md={12} lg={12}>
             <Form.Item name="status" label="Status">
               <Select
@@ -148,11 +208,18 @@ const UserForm = () => {
         </div>
       </div>
 
+      {/* <UserCompanyTemplates /> */}
+
       <div className="mt-4 flex gap-2 justify-end items-center">
         <Link to="/user">
           <Button className="w-28">Cancel</Button>
         </Link>
-        <Button type="primary" htmlType="submit" className="w-28">
+        <Button
+          type="primary"
+          htmlType="submit"
+          className="w-28"
+          loading={isFormSubmitting}
+        >
           Save
         </Button>
       </div>

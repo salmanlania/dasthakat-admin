@@ -73,6 +73,19 @@ export const deleteUserPermission = createAsyncThunk(
   }
 );
 
+export const bulkDeleteUserPermission = createAsyncThunk(
+  "userPermission/bulkDelete",
+  async (ids, { rejectWithValue }) => {
+    try {
+      await api.post("/permission/bulk-delete", {
+        user_permission_ids: ids,
+      });
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 const initialState = {
   isLoading: false,
   isFormLoading: false,
@@ -81,6 +94,8 @@ const initialState = {
   list: [],
   initialFormValues: {},
   isSubmitting: false,
+  isBulkDeleting: false,
+  deleteIDs: [],
   params: {
     page: 1,
     limit: 50,
@@ -149,6 +164,10 @@ export const userPermissionSlice = createSlice({
     },
     setUserPermissionListParams: (state, action) => {
       state.params = { ...state.params, ...action.payload };
+    },
+
+    setUserPermissionDeleteIDs: (state, action) => {
+      state.deleteIDs = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -228,6 +247,16 @@ export const userPermissionSlice = createSlice({
     builder.addCase(getUserPermission.rejected, (state) => {
       state.isFormLoading = false;
     });
+
+    builder.addCase(bulkDeleteUserPermission.pending, (state) => {
+      state.isBulkDeleting = true;
+    });
+    builder.addCase(bulkDeleteUserPermission.fulfilled, (state) => {
+      state.isBulkDeleting = false;
+    });
+    builder.addCase(bulkDeleteUserPermission.rejected, (state) => {
+      state.isBulkDeleting = false;
+    });
   },
 });
 
@@ -235,6 +264,7 @@ export const {
   changeCheckbox,
   changeAllSubsection,
   checkAllSection,
+  setUserPermissionDeleteIDs,
   setUserPermissionListParams,
 } = userPermissionSlice.actions;
 export default userPermissionSlice.reducer;

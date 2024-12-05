@@ -24,7 +24,7 @@ const CreateUserPermission = () => {
     dispatch(createUserPermission({ ...values, permission: permissionsGroup }))
       .unwrap()
       .then(() => {
-        toast.success("User permission created successfully");
+        toast.success("Permission created successfully");
         navigate("/user-permission");
       })
       .catch(handleError);

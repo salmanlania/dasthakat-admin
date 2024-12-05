@@ -23,19 +23,17 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
 
-      if (config.method === "post" || config.method === "put") {
-        const company_id = localStorage.getItem("company_id");
-        const company_branch_id = localStorage.getItem("company_branch_id");
-        const login_id = localStorage.getItem("user")
-          ? JSON.parse(localStorage.getItem("user")).user_id
-          : null;
-        config.params = {
-          ...config.params,
-          company_id,
-          company_branch_id,
-          login_id,
-        };
-      }
+      const company_id = localStorage.getItem("company_id");
+      const company_branch_id = localStorage.getItem("company_branch_id");
+      const login_id = localStorage.getItem("user")
+        ? JSON.parse(localStorage.getItem("user")).user_id
+        : null;
+      config.params = {
+        ...config.params,
+        company_id,
+        company_branch_id,
+        login_id,
+      };
     }
     return config;
   },

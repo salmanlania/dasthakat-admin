@@ -10,10 +10,13 @@ import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
 import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
 import {
+  bulkDeleteUserPermission,
   deleteUserPermission,
   getUserPermissionList,
+  setUserPermissionDeleteIDs,
   setUserPermissionListParams,
 } from "../../store/features/userPermissionSlice";
+import toast from "react-hot-toast";
 
 const UserPermission = () => {
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
@@ -21,9 +24,8 @@ const UserPermission = () => {
   const handleError = useError();
   const dispatch = useDispatch();
 
-  const { params, paginationInfo, list, isLoading } = useSelector(
-    (state) => state.userPermission
-  );
+  const { params, paginationInfo, list, isLoading, isBulkDeleting, deleteIDs } =
+    useSelector((state) => state.userPermission);
 
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedName = useDebounce(params.name, 500);
@@ -44,13 +46,13 @@ const UserPermission = () => {
   ]);
 
   const onUserPermissionDelete = async (id) => {
-    dispatch(deleteUserPermission(id))
-      .unwrap()
-      .then(() => {
-        toast.success("User permission deleted successfully");
-        dispatch(getUserPermissionList(params)).unwrap().catch(handleError);
-      })
-      .catch(handleError);
+    try {
+      await dispatch(deleteUserPermission(id)).unwrap();
+      toast.success("Permission deleted successfully");
+      dispatch(getUserPermissionList(params)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
   };
 
   const columns = [
@@ -144,8 +146,15 @@ const UserPermission = () => {
     },
   ];
 
-  const onBulkDelete = () => {
-    closeDeleteModal();
+  const onBulkDelete = async () => {
+    try {
+      await dispatch(bulkDeleteUserPermission(deleteIDs)).unwrap();
+      toast.success("Permissions deleted successfully");
+      closeDeleteModal();
+      await dispatch(getUserPermissionList(params)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
   };
 
   return (
@@ -174,6 +183,7 @@ const UserPermission = () => {
               type="primary"
               danger
               onClick={() => setDeleteModalIsOpen(true)}
+              disabled={!deleteIDs.length}
             >
               Delete
             </Button>
@@ -191,18 +201,21 @@ const UserPermission = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} user permissions`,
+            showTotal: (total) => `Total ${total} permissions`,
           }}
           rowKey="user_permission_id"
           size="small"
-          rowSelection={{
-            type: "checkbox",
-          }}
           className="mt-2"
           scroll={{ x: "calc(100% - 200px)" }}
           showSorterTooltip={false}
           sticky={{
             offsetHeader: 56,
+          }}
+          rowSelection={{
+            type: "checkbox",
+            selectedRowKeys: deleteIDs,
+            onChange: (selectedRowKeys) =>
+              dispatch(setUserPermissionDeleteIDs(selectedRowKeys)),
           }}
           onChange={(e, b, c, d) => {
             dispatch(
@@ -221,6 +234,7 @@ const UserPermission = () => {
       <DeleteConfirmModal
         open={deleteModalIsOpen ? true : false}
         onCancel={closeDeleteModal}
+        isDeleting={isBulkDeleting}
         onDelete={onBulkDelete}
         title="Are you sure you want to delete these permissions?"
         description="After deleting, you will not be able to recover."

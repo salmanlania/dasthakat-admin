@@ -34,7 +34,7 @@ const EditUserPermission = () => {
     )
       .unwrap()
       .then(() => {
-        toast.success("User permission updated successfully");
+        toast.success("Permission updated successfully");
         navigate("/user-permission");
       })
       .catch(handleError);

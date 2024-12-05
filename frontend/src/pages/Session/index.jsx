@@ -25,8 +25,8 @@ const Session = () => {
       await dispatch(
         postSession({
           ...values,
-          login_name: sessionData.login_name,
-          login_password: sessionData.login_password,
+          email: sessionData.email,
+          password: sessionData.password,
           user_id: sessionData.user_id,
         })
       ).unwrap();
