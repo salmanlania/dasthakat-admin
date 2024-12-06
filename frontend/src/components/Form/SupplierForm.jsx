@@ -7,7 +7,7 @@ const SupplierForm = () => {
       name="supplier"
       layout="vertical"
       autoComplete="off"
-      initialValues={{ status: 0 }}
+      initialValues={{ status: 1 }}
     >
       <Row gutter={[12, 12]}>
         <Col span={24} sm={12} md={8} lg={8}>
@@ -44,6 +44,11 @@ const SupplierForm = () => {
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="location" label="Location">
             <Input.TextArea rows={1} />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="contact_person" label="Contact Person">
+            <Input />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>

@@ -2,6 +2,7 @@ import { Avatar, Button, Dropdown, Form, Input, Modal } from "antd";
 import { useState } from "react";
 import { FaRegUser } from "react-icons/fa";
 import { MdLockOutline, MdLogout } from "react-icons/md";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const Logout = () => {
@@ -145,6 +146,7 @@ const ChangePassword = () => {
 };
 
 const ProfileMenu = () => {
+  const { user } = useSelector((state) => state.auth);
   return (
     <Dropdown
       menu={{
@@ -162,11 +164,7 @@ const ProfileMenu = () => {
       }}
       arrow
     >
-      <Avatar
-        src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YXZhdGFyfGVufDB8fDB8fHww"
-        icon={<FaRegUser />}
-        size={40}
-      />
+      <Avatar src={user.image_url} icon={<FaRegUser />} size={40} />
     </Dropdown>
   );
 };

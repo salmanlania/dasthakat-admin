@@ -1,28 +1,29 @@
 import { Button, Col, Form, Input, Row, Select } from "antd";
+import ReactInputMask from "react-input-mask";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
-const CustomerForm = () => {
+const CustomerForm = ({ mode, onSubmit }) => {
+  const { isFormSubmitting, initialFormValues } = useSelector(
+    (state) => state.customer
+  );
+
+  const onFinish = (formValues) => {
+    onSubmit(formValues);
+  };
+
   return (
     <Form
       name="customer"
       layout="vertical"
       autoComplete="off"
-      initialValues={{ status: 0 }}
+      initialValues={mode === "edit" ? initialFormValues : { status: 1 }}
+      onFinish={onFinish}
     >
       <Row gutter={[12, 12]}>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item
-            name="code"
-            label="Code"
-            rules={[
-              {
-                required: true,
-                whitespace: true,
-                message: "Code is required!",
-              },
-            ]}
-          >
-            <Input />
+          <Form.Item name="customer_code" label="Code">
+            <Input disabled placeholder="Auto" />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
@@ -58,7 +59,9 @@ const CustomerForm = () => {
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="phone_no" label="Phone No">
-            <Input />
+            <ReactInputMask mask="+99 999 9999999">
+              {(inputProps) => <Input {...inputProps} />}
+            </ReactInputMask>
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
@@ -98,7 +101,12 @@ const CustomerForm = () => {
         <Link to="/customer">
           <Button className="w-28">Cancel</Button>
         </Link>
-        <Button type="primary" htmlType="submit" className="w-28">
+        <Button
+          type="primary"
+          htmlType="submit"
+          className="w-28"
+          loading={isFormSubmitting}
+        >
           Save
         </Button>
       </div>

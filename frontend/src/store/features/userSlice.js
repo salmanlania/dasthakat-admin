@@ -147,7 +147,6 @@ export const userSlice = createSlice({
 
     changeAllCompanyTemplates: (state, action) => {
       const { value, companyID } = action.payload;
-      console.log(value, companyID);
       state.selectedTemplates = state.selectedTemplates.filter(
         (item) => item.company_id !== companyID
       );
@@ -156,8 +155,7 @@ export const userSlice = createSlice({
         const findCompany = state.templates.find(
           (company) => company.company_id === companyID
         );
-
-        const makeNewTemplates = findCompany.templates.map((template) => ({
+        const makeNewTemplates = findCompany.branches.map((template) => ({
           company_id: companyID,
           branch_id: template.branch_id,
         }));
@@ -222,6 +220,8 @@ export const userSlice = createSlice({
         image: data.image,
         image_url: data.image_url,
       };
+
+      state.selectedTemplates = data.company_access;
     });
     addCase(getUser.rejected, (state) => {
       state.isItemLoading = false;
@@ -251,7 +251,6 @@ export const userSlice = createSlice({
     });
 
     addCase(getCompanyTemplatesHandler.fulfilled, (state, action) => {
-      console.log(action.payload);
       state.templates = action.payload;
     });
   },

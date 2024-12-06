@@ -1,53 +1,62 @@
-import {
-  Breadcrumb,
-  Button,
-  Input,
-  Popconfirm,
-  Select,
-  Table,
-  Tag,
-  Tooltip,
-} from "antd";
-import { useState } from "react";
+import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from "antd";
+import dayjs from "dayjs";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { GoTrash } from "react-icons/go";
 import { MdOutlineEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import AsyncSelect from "../../components/AsyncSelect";
 import PageHeading from "../../components/heading/PageHeading";
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
+import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
+import {
+  bulkDeleteCompany,
+  deleteCompany,
+  getCompanyList,
+  setCompanyDeleteIDs,
+  setCompanyListParams,
+} from "../../store/features/companySlice";
 
 const Company = () => {
   const dispatch = useDispatch();
   const handleError = useError();
-  const { list, params } = useSelector((state) => state.user);
+  const {
+    list,
+    isListLoading,
+    params,
+    paginationInfo,
+    isBulkDeleting,
+    deleteIDs,
+  } = useSelector((state) => state.company);
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
-  const dataSource = [
-    {
-      key: "1",
-      id: "1",
-      company_name: "Mike",
-      default_currency: "USD",
-      created_at: "01-01-2023 10:00 AM",
-    },
-    {
-      key: "2",
-      id: "2",
-      company_name: "Alice",
-      default_currency: "USD",
-      created_at: "01-01-2023 10:00 AM",
-    },
-    {
-      key: "3",
-      id: "3",
-      company_name: "Bob",
-      default_currency: "USD",
-      created_at: "01-01-2023 10:00 AM",
-    },
-  ];
+  const debouncedSearch = useDebounce(params.search, 500);
+  const debouncedName = useDebounce(params.name, 500);
+
+  const onCompanyDelete = async (id) => {
+    try {
+      await dispatch(deleteCompany(id)).unwrap();
+      toast.success("Company deleted successfully");
+      dispatch(getCompanyList(params)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const onBulkDelete = async () => {
+    try {
+      await dispatch(bulkDeleteCompany(deleteIDs)).unwrap();
+      toast.success("Companies deleted successfully");
+      closeDeleteModal();
+      await dispatch(getCompanyList(params)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
+  };
 
   const columns = [
     {
@@ -58,28 +67,38 @@ const Company = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            value={params.name}
+            onChange={(e) =>
+              dispatch(setCompanyListParams({ name: e.target.value }))
+            }
           />
         </div>
       ),
-      dataIndex: "company_name",
-      key: "company_name",
+      dataIndex: "name",
+      key: "name",
       sorter: true,
       width: 150,
       ellipsis: true,
     },
     {
       title: (
-        <div>
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Default Currency</p>
-          <Input
-            className="font-normal"
+          <AsyncSelect
+            endpoint="/currency"
+            valueKey="currency_id"
+            labelKey="name"
             size="small"
-            onClick={(e) => e.stopPropagation()}
+            className="w-full font-normal"
+            value={params.currency_id}
+            onChange={(value) =>
+              dispatch(setCompanyListParams({ currency_id: value }))
+            }
           />
         </div>
       ),
-      dataIndex: "default_currency",
-      key: "default_currency",
+      dataIndex: "currency_name",
+      key: "currency_name",
       sorter: true,
       width: 150,
       ellipsis: true,
@@ -90,14 +109,16 @@ const Company = () => {
       key: "created_at",
       sorter: true,
       width: 168,
+      render: (_, { created_at }) =>
+        dayjs(created_at).format("DD-MM-YYYY hh:mm A"),
     },
     {
       title: "Action",
       key: "action",
-      render: (_, { id }) => (
+      render: (_, { company_id }) => (
         <div className="flex gap-2 items-center">
           <Tooltip title="Edit">
-            <Link to={`/company/edit/${id}`}>
+            <Link to={`/company/edit/${company_id}`}>
               <Button
                 size="small"
                 type="primary"
@@ -113,6 +134,7 @@ const Company = () => {
               okButtonProps={{ danger: true }}
               okText="Yes"
               cancelText="No"
+              onConfirm={() => onCompanyDelete(company_id)}
             >
               <Button
                 size="small"
@@ -129,9 +151,17 @@ const Company = () => {
     },
   ];
 
-  const onBulkDelete = () => {
-    closeDeleteModal();
-  };
+  useEffect(() => {
+    dispatch(getCompanyList(params)).unwrap().catch(handleError);
+  }, [
+    params.page,
+    params.limit,
+    params.sort_column,
+    params.sort_direction,
+    debouncedSearch,
+    debouncedName,
+    params.currency_id,
+  ]);
 
   return (
     <>
@@ -145,13 +175,21 @@ const Company = () => {
 
       <div className="mt-4 bg-white p-2 rounded-md">
         <div className="flex justify-between items-center gap-2">
-          <Input placeholder="Search..." className="w-full sm:w-64" />
+          <Input
+            placeholder="Search..."
+            className="w-full sm:w-64"
+            value={params.search}
+            onChange={(e) =>
+              dispatch(setCompanyListParams({ search: e.target.value }))
+            }
+          />
 
           <div className="flex gap-2 items-center">
             <Button
               type="primary"
               danger
               onClick={() => setDeleteModalIsOpen(true)}
+              disabled={!deleteIDs.length}
             >
               Delete
             </Button>
@@ -165,13 +203,31 @@ const Company = () => {
           size="small"
           rowSelection={{
             type: "checkbox",
+            selectedRowKeys: deleteIDs,
+            onChange: (selectedRowKeys) =>
+              dispatch(setCompanyDeleteIDs(selectedRowKeys)),
           }}
+          loading={isListLoading}
           className="mt-2"
+          rowKey="company_id"
           scroll={{ x: "calc(100% - 200px)" }}
           pagination={{
-            pageSize: 50,
+            total: paginationInfo.total_records,
+            pageSize: params.limit,
+            current: params.page,
+            showTotal: (total) => `Total ${total} companies`,
           }}
-          dataSource={dataSource}
+          onChange={(e, b, c, d) => {
+            dispatch(
+              setCompanyListParams({
+                page: e.current,
+                limit: e.pageSize,
+                sort_column: c.field,
+                sort_direction: c.order,
+              })
+            );
+          }}
+          dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
@@ -183,6 +239,7 @@ const Company = () => {
       <DeleteConfirmModal
         open={deleteModalIsOpen ? true : false}
         onCancel={closeDeleteModal}
+        isDeleting={isBulkDeleting}
         onDelete={onBulkDelete}
         title="Are you sure you want to delete these companies?"
         description="After deleting, you will not be able to recover."

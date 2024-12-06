@@ -5,52 +5,65 @@ import {
   Popconfirm,
   Select,
   Table,
-  Tag,
   Tooltip,
 } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { GoTrash } from "react-icons/go";
 import { MdOutlineEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import PageHeading from "../../components/heading/PageHeading";
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
+import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
+import {
+  bulkDeleteCompanyBranch,
+  deleteCompanyBranch,
+  getCompanyBranchList,
+  setCompanyBranchDeleteIDs,
+  setCompanyBranchListParams,
+} from "../../store/features/companyBranchSlice";
+import dayjs from "dayjs";
 
 const CompanyBranch = () => {
   const dispatch = useDispatch();
   const handleError = useError();
-  const { list, params } = useSelector((state) => state.user);
+  const {
+    list,
+    isListLoading,
+    params,
+    paginationInfo,
+    isBulkDeleting,
+    deleteIDs,
+  } = useSelector((state) => state.companyBranch);
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
-  const dataSource = [
-    {
-      key: "1",
-      id: "1",
-      company_name: "Mike",
-      branch_name: "John",
-      branch_code: "001",
-      created_at: "01-01-2023 10:00 AM",
-    },
-    {
-      key: "2",
-      id: "2",
-      company_name: "Doe",
-      branch_name: "Alice",
-      branch_code: "002",
-      created_at: "01-01-2023 10:00 AM",
-    },
-    {
-      key: "3",
-      id: "3",
-      company_name: "John",
-      branch_name: "Bob",
-      branch_code: "003",
-      created_at: "01-01-2023 10:00 AM",
-    },
-  ];
+  const debouncedSearch = useDebounce(params.search, 500);
+  const debouncedName = useDebounce(params.name, 500);
+
+  const onCompanyBranchDelete = async (id) => {
+    try {
+      await dispatch(deleteCompanyBranch(id)).unwrap();
+      toast.success("Company deleted successfully");
+      dispatch(getCompanyBranchList(params)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const onBulkDelete = async () => {
+    try {
+      await dispatch(bulkDeleteCompanyBranch(deleteIDs)).unwrap();
+      toast.success("Branches deleted successfully");
+      closeDeleteModal();
+      await dispatch(getCompanyBranchList(params)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
+  };
 
   const columns = [
     {
@@ -98,8 +111,8 @@ const CompanyBranch = () => {
           />
         </div>
       ),
-      dataIndex: "branch_name",
-      key: "branch_name",
+      dataIndex: "name",
+      key: "name",
       sorter: true,
       width: 150,
       ellipsis: true,
@@ -118,7 +131,7 @@ const CompanyBranch = () => {
       dataIndex: "branch_code",
       key: "branch_code",
       sorter: true,
-      width: 100,
+      width: 130,
       ellipsis: true,
     },
     {
@@ -127,14 +140,16 @@ const CompanyBranch = () => {
       key: "created_at",
       sorter: true,
       width: 168,
+      render: (_, { created_at }) =>
+        dayjs(created_at).format("DD-MM-YYYY hh:mm A"),
     },
     {
       title: "Action",
       key: "action",
-      render: (_, { id }) => (
+      render: (_, { company_branch_id }) => (
         <div className="flex gap-2 items-center">
           <Tooltip title="Edit">
-            <Link to={`/company-branch/edit/${id}`}>
+            <Link to={`/company-branch/edit/${company_branch_id}`}>
               <Button
                 size="small"
                 type="primary"
@@ -150,6 +165,7 @@ const CompanyBranch = () => {
               okButtonProps={{ danger: true }}
               okText="Yes"
               cancelText="No"
+              onConfirm={() => onCompanyBranchDelete(company_branch_id)}
             >
               <Button
                 size="small"
@@ -166,9 +182,17 @@ const CompanyBranch = () => {
     },
   ];
 
-  const onBulkDelete = () => {
-    closeDeleteModal();
-  };
+  useEffect(() => {
+    dispatch(getCompanyBranchList(params)).unwrap().catch(handleError);
+  }, [
+    params.page,
+    params.limit,
+    params.sort_column,
+    params.sort_direction,
+    debouncedSearch,
+    debouncedName,
+    params.currency_id,
+  ]);
 
   return (
     <>
@@ -182,13 +206,21 @@ const CompanyBranch = () => {
 
       <div className="mt-4 bg-white p-2 rounded-md">
         <div className="flex justify-between items-center gap-2">
-          <Input placeholder="Search..." className="w-full sm:w-64" />
+          <Input
+            placeholder="Search..."
+            className="w-full sm:w-64"
+            value={params.search}
+            onChange={(e) =>
+              dispatch(setCompanyBranchListParams({ search: e.target.value }))
+            }
+          />
 
           <div className="flex gap-2 items-center">
             <Button
               type="primary"
               danger
               onClick={() => setDeleteModalIsOpen(true)}
+              disabled={!deleteIDs.length}
             >
               Delete
             </Button>
@@ -202,13 +234,31 @@ const CompanyBranch = () => {
           size="small"
           rowSelection={{
             type: "checkbox",
+            selectedRowKeys: deleteIDs,
+            onChange: (selectedRowKeys) =>
+              dispatch(setCompanyBranchDeleteIDs(selectedRowKeys)),
           }}
+          loading={isListLoading}
           className="mt-2"
+          rowKey="company_branch_id"
           scroll={{ x: "calc(100% - 200px)" }}
           pagination={{
-            pageSize: 50,
+            total: paginationInfo.total_records,
+            pageSize: params.limit,
+            current: params.page,
+            showTotal: (total) => `Total ${total} branches`,
           }}
-          dataSource={dataSource}
+          onChange={(e, b, c, d) => {
+            dispatch(
+              setCompanyBranchListParams({
+                page: e.current,
+                limit: e.pageSize,
+                sort_column: c.field,
+                sort_direction: c.order,
+              })
+            );
+          }}
+          dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
@@ -221,6 +271,7 @@ const CompanyBranch = () => {
         open={deleteModalIsOpen ? true : false}
         onCancel={closeDeleteModal}
         onDelete={onBulkDelete}
+        isDeleting={isBulkDeleting}
         title="Are you sure you want to delete these branches?"
         description="After deleting, you will not be able to recover."
       />

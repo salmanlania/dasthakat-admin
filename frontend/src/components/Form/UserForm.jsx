@@ -9,9 +9,8 @@ import UserCompanyTemplates from "./UserCompanyTemplates";
 
 const UserForm = ({ mode = "create", onSubmit }) => {
   const fileInputRef = useRef(null);
-  const { isFormSubmitting, initialFormValues } = useSelector(
-    (state) => state.user
-  );
+  const { isFormSubmitting, initialFormValues, selectedTemplates } =
+    useSelector((state) => state.user);
   const [imageSrc, setImageSrc] = useState(
     initialFormValues?.image_url || null
   );
@@ -38,6 +37,7 @@ const UserForm = ({ mode = "create", onSubmit }) => {
       to_time: formValues.to_time
         ? dayjs(formValues.to_time).format("HH:mm:ss")
         : null,
+      company_access: selectedTemplates,
     };
 
     if (
@@ -60,7 +60,7 @@ const UserForm = ({ mode = "create", onSubmit }) => {
       initialValues={
         mode === "create"
           ? {
-              status: 0,
+              status: 1,
             }
           : initialFormValues
       }
@@ -208,7 +208,7 @@ const UserForm = ({ mode = "create", onSubmit }) => {
         </div>
       </div>
 
-      {/* <UserCompanyTemplates /> */}
+      <UserCompanyTemplates />
 
       <div className="mt-4 flex gap-2 justify-end items-center">
         <Link to="/user">

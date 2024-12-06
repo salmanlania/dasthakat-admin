@@ -8,175 +8,71 @@ import {
   Tag,
   Tooltip,
 } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { GoTrash } from "react-icons/go";
 import { MdOutlineEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import PageHeading from "../../components/heading/PageHeading";
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
+import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
+import {
+  bulkDeleteCustomer,
+  deleteCustomer,
+  getCustomerList,
+  setCustomerDeleteIDs,
+  setCustomerListParams,
+} from "../../store/features/customerSlice";
+import dayjs from "dayjs";
 
 const Customer = () => {
   const dispatch = useDispatch();
   const handleError = useError();
-  const { list, params } = useSelector((state) => state.user);
+  const {
+    list,
+    isListLoading,
+    params,
+    paginationInfo,
+    isBulkDeleting,
+    deleteIDs,
+  } = useSelector((state) => state.customer);
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
-  const dataSource = [
-    {
-      key: "1",
-      id: "1",
-      code: "001",
-      name: "John Brown",
-      status: 1,
-      salesman: "Mark",
-      country: "Ukraine",
-      address: "Kiev, 2nd Avenue, 14/2, 5th Floor",
-      phone_no: "+380999999999",
-      email_sales: "Vj4o9@example.com",
-      email_accounting: "M8i5v@example.com",
-      billing_address: "Kiev, 2nd Avenue, 14/2, 5th Floor",
-      created_at: "01-01-2023 10:00 AM",
-    },
-    {
-      key: "2",
-      id: "2",
-      code: "002",
-      name: "Alice Green",
-      status: 1,
-      salesman: "Lisa",
-      country: "USA",
-      address: "New York, 5th Avenue, 101",
-      phone_no: "+12135551234",
-      email_sales: "AliceG@example.com",
-      email_accounting: "AliceAcc@example.com",
-      billing_address: "New York, 5th Avenue, 101",
-      created_at: "02-01-2023 11:00 AM",
-    },
-    {
-      key: "3",
-      id: "3",
-      code: "003",
-      name: "Michael Smith",
-      status: 0,
-      salesman: "Tom",
-      country: "Canada",
-      address: "Toronto, Bloor Street, 22",
-      phone_no: "+14165557890",
-      email_sales: "MichaelS@example.com",
-      email_accounting: "MichaelAcc@example.com",
-      billing_address: "Toronto, Bloor Street, 22",
-      created_at: "03-01-2023 09:30 AM",
-    },
-    {
-      key: "4",
-      id: "4",
-      code: "004",
-      name: "Emma Watson",
-      status: 1,
-      salesman: "Sophia",
-      country: "UK",
-      address: "London, Baker Street, 221B",
-      phone_no: "+442071234567",
-      email_sales: "EmmaW@example.com",
-      email_accounting: "EmmaAcc@example.com",
-      billing_address: "London, Baker Street, 221B",
-      created_at: "04-01-2023 02:00 PM",
-    },
-    {
-      key: "5",
-      id: "5",
-      code: "005",
-      name: "Liam Johnson",
-      status: 1,
-      salesman: "James",
-      country: "Australia",
-      address: "Sydney, George Street, 10",
-      phone_no: "+61298765432",
-      email_sales: "LiamJ@example.com",
-      email_accounting: "LiamAcc@example.com",
-      billing_address: "Sydney, George Street, 10",
-      created_at: "05-01-2023 03:15 PM",
-    },
-    {
-      key: "6",
-      id: "6",
-      code: "006",
-      name: "Olivia Martinez",
-      status: 0,
-      salesman: "Anna",
-      country: "Spain",
-      address: "Madrid, Gran Via, 45",
-      phone_no: "+34912345678",
-      email_sales: "OliviaM@example.com",
-      email_accounting: "OliviaAcc@example.com",
-      billing_address: "Madrid, Gran Via, 45",
-      created_at: "06-01-2023 01:00 PM",
-    },
-    {
-      key: "7",
-      id: "7",
-      code: "007",
-      name: "Noah Davis",
-      status: 1,
-      salesman: "Liam",
-      country: "Germany",
-      address: "Berlin, Alexanderplatz, 15",
-      phone_no: "+493012345678",
-      email_sales: "NoahD@example.com",
-      email_accounting: "NoahAcc@example.com",
-      billing_address: "Berlin, Alexanderplatz, 15",
-      created_at: "07-01-2023 11:45 AM",
-    },
-    {
-      key: "8",
-      id: "8",
-      code: "008",
-      name: "Sophia Wilson",
-      status: 1,
-      salesman: "Emma",
-      country: "France",
-      address: "Paris, Champs-Elysees, 8",
-      phone_no: "+33123456789",
-      email_sales: "SophiaW@example.com",
-      email_accounting: "SophiaAcc@example.com",
-      billing_address: "Paris, Champs-Elysees, 8",
-      created_at: "08-01-2023 10:30 AM",
-    },
-    {
-      key: "9",
-      id: "9",
-      code: "009",
-      name: "James Taylor",
-      status: 0,
-      salesman: "Michael",
-      country: "Italy",
-      address: "Rome, Via Veneto, 7",
-      phone_no: "+390612345678",
-      email_sales: "JamesT@example.com",
-      email_accounting: "JamesAcc@example.com",
-      billing_address: "Rome, Via Veneto, 7",
-      created_at: "09-01-2023 02:45 PM",
-    },
-    {
-      key: "10",
-      id: "10",
-      code: "010",
-      name: "Charlotte Moore",
-      status: 1,
-      salesman: "Olivia",
-      country: "Japan",
-      address: "Tokyo, Shibuya, 9-3",
-      phone_no: "+81312345678",
-      email_sales: "CharlotteM@example.com",
-      email_accounting: "CharlotteAcc@example.com",
-      billing_address: "Tokyo, Shibuya, 9-3",
-      created_at: "10-01-2023 03:30 PM",
-    },
-  ];
+  const debouncedSearch = useDebounce(params.search, 500);
+  const debouncedCode = useDebounce(params.customer_code, 500);
+  const debouncedName = useDebounce(params.name, 500);
+  const debouncedSalesman = useDebounce(params.salesman, 500);
+  const debouncedCountry = useDebounce(params.country, 500);
+  const debouncedAddress = useDebounce(params.address, 500);
+  const debouncedPhone = useDebounce(params.phone_no, 500);
+  const debouncedEmailSales = useDebounce(params.email_sales, 500);
+  const debouncedEmailAccounting = useDebounce(params.email_accounting, 500);
+  const debouncedBillingAddress = useDebounce(params.billing_address, 500);
+
+  const onCustomerDelete = async (id) => {
+    try {
+      await dispatch(deleteCustomer(id)).unwrap();
+      toast.success("Customer deleted successfully");
+      dispatch(getCustomerList(params)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const onBulkDelete = async () => {
+    try {
+      await dispatch(bulkDeleteCustomer(deleteIDs)).unwrap();
+      toast.success("Companies deleted successfully");
+      closeDeleteModal();
+      await dispatch(getCustomerList(params)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
+  };
 
   const columns = [
     {
@@ -187,11 +83,15 @@ const Customer = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            value={params.customer_code}
+            onChange={(e) =>
+              dispatch(setCustomerListParams({ customer_code: e.target.value }))
+            }
           />
         </div>
       ),
-      dataIndex: "code",
-      key: "code",
+      dataIndex: "customer_code",
+      key: "customer_code",
       sorter: true,
       width: 120,
       ellipsis: true,
@@ -204,6 +104,10 @@ const Customer = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            value={params.name}
+            onChange={(e) =>
+              dispatch(setCustomerListParams({ name: e.target.value }))
+            }
           />
         </div>
       ),
@@ -232,6 +136,10 @@ const Customer = () => {
               },
             ]}
             allowClear
+            value={params.status}
+            onChange={(value) =>
+              dispatch(setCustomerListParams({ status: value }))
+            }
           />
         </div>
       ),
@@ -258,6 +166,10 @@ const Customer = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            value={params.salesman}
+            onChange={(e) =>
+              dispatch(setCustomerListParams({ salesman: e.target.value }))
+            }
           />
         </div>
       ),
@@ -275,6 +187,10 @@ const Customer = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            value={params.country}
+            onChange={(e) =>
+              dispatch(setCustomerListParams({ country: e.target.value }))
+            }
           />
         </div>
       ),
@@ -292,6 +208,10 @@ const Customer = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            value={params.address}
+            onChange={(e) =>
+              dispatch(setCustomerListParams({ address: e.target.value }))
+            }
           />
         </div>
       ),
@@ -309,6 +229,10 @@ const Customer = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            value={params.phone_no}
+            onChange={(e) =>
+              dispatch(setCustomerListParams({ phone_no: e.target.value }))
+            }
           />
         </div>
       ),
@@ -326,6 +250,10 @@ const Customer = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            value={params.email_sales}
+            onChange={(e) =>
+              dispatch(setCustomerListParams({ email_sales: e.target.value }))
+            }
           />
         </div>
       ),
@@ -343,6 +271,12 @@ const Customer = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            value={params.email_accounting}
+            onChange={(e) =>
+              dispatch(
+                setCustomerListParams({ email_accounting: e.target.value })
+              )
+            }
           />
         </div>
       ),
@@ -360,6 +294,12 @@ const Customer = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            value={params.billing_address}
+            onChange={(e) =>
+              dispatch(
+                setCustomerListParams({ billing_address: e.target.value })
+              )
+            }
           />
         </div>
       ),
@@ -375,14 +315,16 @@ const Customer = () => {
       key: "created_at",
       sorter: true,
       width: 168,
+      render: (_, { created_at }) =>
+        dayjs(created_at).format("DD-MM-YYYY hh:mm A"),
     },
     {
       title: "Action",
       key: "action",
-      render: (_, { id }) => (
+      render: (_, { customer_id }) => (
         <div className="flex gap-2 items-center">
           <Tooltip title="Edit">
-            <Link to={`/customer/edit/${id}`}>
+            <Link to={`/customer/edit/${customer_id}`}>
               <Button
                 size="small"
                 type="primary"
@@ -398,6 +340,7 @@ const Customer = () => {
               okButtonProps={{ danger: true }}
               okText="Yes"
               cancelText="No"
+              onConfirm={() => onCustomerDelete(customer_id)}
             >
               <Button
                 size="small"
@@ -414,9 +357,25 @@ const Customer = () => {
     },
   ];
 
-  const onBulkDelete = () => {
-    closeDeleteModal();
-  };
+  useEffect(() => {
+    dispatch(getCustomerList(params)).unwrap().catch(handleError);
+  }, [
+    params.page,
+    params.limit,
+    params.sort_column,
+    params.sort_direction,
+    params.status,
+    debouncedSearch,
+    debouncedCode,
+    debouncedName,
+    debouncedSalesman,
+    debouncedCountry,
+    debouncedAddress,
+    debouncedPhone,
+    debouncedEmailSales,
+    debouncedEmailAccounting,
+    debouncedBillingAddress,
+  ]);
 
   return (
     <>
@@ -430,13 +389,21 @@ const Customer = () => {
 
       <div className="mt-4 bg-white p-2 rounded-md">
         <div className="flex justify-between items-center gap-2">
-          <Input placeholder="Search..." className="w-full sm:w-64" />
+          <Input
+            placeholder="Search..."
+            className="w-full sm:w-64"
+            value={params.search}
+            onChange={(e) =>
+              dispatch(setCustomerListParams({ search: e.target.value }))
+            }
+          />
 
           <div className="flex gap-2 items-center">
             <Button
               type="primary"
               danger
               onClick={() => setDeleteModalIsOpen(true)}
+              disabled={!deleteIDs.length}
             >
               Delete
             </Button>
@@ -450,13 +417,31 @@ const Customer = () => {
           size="small"
           rowSelection={{
             type: "checkbox",
+            selectedRowKeys: deleteIDs,
+            onChange: (selectedRowKeys) =>
+              dispatch(setCustomerDeleteIDs(selectedRowKeys)),
           }}
+          loading={isListLoading}
           className="mt-2"
+          rowKey="customer_id"
           scroll={{ x: "calc(100% - 200px)" }}
           pagination={{
-            pageSize: 50,
+            total: paginationInfo.total_records,
+            pageSize: params.limit,
+            current: params.page,
+            showTotal: (total) => `Total ${total} customers`,
           }}
-          dataSource={dataSource}
+          onChange={(e, b, c, d) => {
+            dispatch(
+              setCustomerListParams({
+                page: e.current,
+                limit: e.pageSize,
+                sort_column: c.field,
+                sort_direction: c.order,
+              })
+            );
+          }}
+          dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
@@ -469,6 +454,7 @@ const Customer = () => {
         open={deleteModalIsOpen ? true : false}
         onCancel={closeDeleteModal}
         onDelete={onBulkDelete}
+        isDeleting={isBulkDeleting}
         title="Are you sure you want to delete these customers?"
         description="After deleting, you will not be able to recover."
       />
