@@ -175,6 +175,7 @@ export const userSlice = createSlice({
     addCase(getUserList.pending, (state) => {
       state.isListLoading = true;
       state.initialFormValues = null;
+      state.selectedTemplates = [];
     });
     addCase(getUserList.fulfilled, (state, action) => {
       state.isListLoading = false;

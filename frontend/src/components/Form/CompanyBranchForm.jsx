@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import companyImagePlaceholder from "../../assets/img-placeholder.png";
 import AsyncSelect from "../AsyncSelect";
 import ReactInputMask from "react-input-mask";
+import AsyncSelectNoPaginate from "../AsyncSelect/AsyncSelectNoPaginate";
 
 const CompanyBranchForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues } = useSelector(
@@ -65,12 +66,7 @@ const CompanyBranchForm = ({ mode, onSubmit }) => {
                 },
               ]}
             >
-              <AsyncSelect
-                endpoint="/company"
-                valueKey="company_id"
-                labelKey="name"
-                labelInValue
-              />
+              <AsyncSelectNoPaginate endpoint="/lookups/company" labelInValue />
             </Form.Item>
           </Col>
           <Col span={24} sm={12} md={12} lg={12}>

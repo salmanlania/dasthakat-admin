@@ -1,18 +1,12 @@
-import {
-  Breadcrumb,
-  Button,
-  Input,
-  Popconfirm,
-  Select,
-  Table,
-  Tooltip,
-} from "antd";
+import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from "antd";
+import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { GoTrash } from "react-icons/go";
 import { MdOutlineEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import AsyncSelectNoPaginate from "../../components/AsyncSelect/AsyncSelectNoPaginate";
 import PageHeading from "../../components/heading/PageHeading";
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
 import useDebounce from "../../hooks/useDebounce";
@@ -24,7 +18,6 @@ import {
   setCompanyBranchDeleteIDs,
   setCompanyBranchListParams,
 } from "../../store/features/companyBranchSlice";
-import dayjs from "dayjs";
 
 const CompanyBranch = () => {
   const dispatch = useDispatch();
@@ -43,6 +36,7 @@ const CompanyBranch = () => {
 
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedName = useDebounce(params.name, 500);
+  const debouncedCode = useDebounce(params.branch_code, 500);
 
   const onCompanyBranchDelete = async (id) => {
     try {
@@ -68,29 +62,16 @@ const CompanyBranch = () => {
   const columns = [
     {
       title: (
-        <div>
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Company</p>
-          <Select
-            className="w-full font-normal"
+          <AsyncSelectNoPaginate
+            endpoint="/lookups/company"
             size="small"
-            onClick={(e) => e.stopPropagation()}
-            options={[
-              {
-                value: "Company 1",
-                label: "Company 1",
-              },
-              {
-                value: "Company 2",
-                label: "Company 2",
-              },
-              {
-                value: "Company 3",
-                label: "Company 3",
-              },
-            ]}
-            allowClear
-            optionFilterProp="label"
-            showSearch
+            className="w-full font-normal"
+            value={params.company}
+            onChange={(value) =>
+              dispatch(setCompanyBranchListParams({ company: value }))
+            }
           />
         </div>
       ),
@@ -108,6 +89,10 @@ const CompanyBranch = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            value={params.name}
+            onChange={(e) =>
+              dispatch(setCompanyBranchListParams({ name: e.target.value }))
+            }
           />
         </div>
       ),
@@ -125,6 +110,12 @@ const CompanyBranch = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            value={params.branch_code}
+            onChange={(e) =>
+              dispatch(
+                setCompanyBranchListParams({ branch_code: e.target.value })
+              )
+            }
           />
         </div>
       ),
@@ -191,7 +182,8 @@ const CompanyBranch = () => {
     params.sort_direction,
     debouncedSearch,
     debouncedName,
-    params.currency_id,
+    debouncedCode,
+    params.company,
   ]);
 
   return (

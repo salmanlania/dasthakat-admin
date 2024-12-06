@@ -25,6 +25,18 @@ export const postSession = createAsyncThunk(
   }
 );
 
+export const resetPassword = createAsyncThunk(
+  "auth/resetPassword",
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await api.post("/reset-password", data);
+      return res.data.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 const user = localStorage.getItem("user")
   ? JSON.parse(localStorage.getItem("user"))
   : null;
@@ -33,6 +45,7 @@ const initialState = {
   isSessionPosting: false,
   sessionData: null,
   user,
+  isPasswordResetting: false,
 };
 
 export const authSlice = createSlice({
@@ -67,6 +80,16 @@ export const authSlice = createSlice({
     });
     addCase(postSession.rejected, (state) => {
       state.isSessionPosting = false;
+    });
+
+    addCase(resetPassword.pending, (state) => {
+      state.isPasswordResetting = true;
+    });
+    addCase(resetPassword.fulfilled, (state) => {
+      state.isPasswordResetting = false;
+    });
+    addCase(resetPassword.rejected, (state) => {
+      state.isPasswordResetting = false;
     });
   },
 });

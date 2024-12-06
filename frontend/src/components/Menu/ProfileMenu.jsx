@@ -1,9 +1,12 @@
 import { Avatar, Button, Dropdown, Form, Input, Modal } from "antd";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { FaRegUser } from "react-icons/fa";
 import { MdLockOutline, MdLogout } from "react-icons/md";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { resetPassword } from "../../store/features/authSlice";
+import useError from "../../hooks/useError";
 
 const Logout = () => {
   const navigate = useNavigate();
@@ -22,16 +25,26 @@ const Logout = () => {
 };
 
 const ChangePassword = () => {
+  const dispatch = useDispatch();
+  const handleError = useError();
   const [form] = Form.useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isPasswordResetting } = useSelector((state) => state.auth);
 
   const onClose = () => {
     setIsModalOpen(false);
     form.resetFields();
   };
 
-  const onFinish = (values) => {
-    console.log(values);
+  const onFinish = async (values) => {
+    try {
+      await dispatch(resetPassword(values)).unwrap();
+      toast.success("Password updated successfully");
+      setIsModalOpen(false);
+      form.resetFields();
+    } catch (error) {
+      handleError(error);
+    }
   };
 
   return (
@@ -82,6 +95,10 @@ const ChangePassword = () => {
                 whitespace: true,
                 message: "Please enter your new password",
               },
+              {
+                min: 8,
+                message: "Password must be at least 8 characters!",
+              },
               ({ getFieldValue }) => ({
                 validator(_, value) {
                   if (value && getFieldValue("old_password") === value) {
@@ -101,7 +118,7 @@ const ChangePassword = () => {
           </Form.Item>
 
           <Form.Item
-            name="confirm_new_password"
+            name="confirm_password"
             label="Confirm New Password"
             dependencies={["new_password"]}
             rules={[
@@ -109,6 +126,10 @@ const ChangePassword = () => {
                 required: true,
                 whitespace: true,
                 message: "Please enter your confirm password",
+              },
+              {
+                min: 8,
+                message: "Password must be at least 8 characters!",
               },
               ({ getFieldValue }) => ({
                 validator(_, value) {
@@ -121,6 +142,7 @@ const ChangePassword = () => {
                 },
               }),
             ]}
+            validateFirst
           >
             <Input.Password />
           </Form.Item>
@@ -135,7 +157,12 @@ const ChangePassword = () => {
             >
               Cancel
             </Button>
-            <Button type="primary" htmlType="submit" className="w-full">
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="w-full"
+              loading={isPasswordResetting}
+            >
               Update
             </Button>
           </div>
