@@ -1,0 +1,42 @@
+import { Breadcrumb } from "antd";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import EventForm from "../../components/Form/EventForm";
+import PageHeading from "../../components/heading/PageHeading";
+import useError from "../../hooks/useError";
+import { createCompany } from "../../store/features/companySlice";
+
+const CreateEvent = () => {
+  const navigate = useNavigate();
+  const handleError = useError();
+  const dispatch = useDispatch();
+
+  const onEventCreate = async (data) => {
+    try {
+      await dispatch(createCompany(data)).unwrap();
+      toast.success("Event created successfully");
+      navigate("/event");
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  return (
+    <>
+      <div className="flex justify-between items-center flex-wrap">
+        <PageHeading>CREATE EVENT</PageHeading>
+        <Breadcrumb
+          items={[{ title: "Event" }, { title: "Create" }]}
+          separator=">"
+        />
+      </div>
+
+      <div className="mt-4 bg-white sm:p-4 p-2 rounded-md">
+        <EventForm onSubmit={onEventCreate} />
+      </div>
+    </>
+  );
+};
+
+export default CreateEvent;

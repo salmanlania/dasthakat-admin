@@ -118,6 +118,14 @@ const Sidebar = () => {
               key: "class",
               label: <Link to="/class">Class</Link>,
             },
+            {
+              key: "vessel",
+              label: <Link to="/vessel">Vessel</Link>,
+            },
+            {
+              key: "event",
+              label: <Link to="/event">Event</Link>,
+            },
           ],
         },
         {

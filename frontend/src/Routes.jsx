@@ -44,6 +44,14 @@ const EditSupplier = lazy(() => import("./pages/Supplier/EditSupplier"));
 const Flag = lazy(() => import("./pages/Flag"));
 const Class = lazy(() => import("./pages/Class"));
 
+const Vessel = lazy(() => import("./pages/Vessel"));
+const CreateVessel = lazy(() => import("./pages/Vessel/CreateVessel"));
+const EditVessel = lazy(() => import("./pages/Vessel/EditVessel"));
+
+const Event = lazy(() => import("./pages/Event"));
+const CreateEvent = lazy(() => import("./pages/Event/CreateEvent"));
+const EditEvent = lazy(() => import("./pages/Event/EditEvent"));
+
 function Routes() {
   const router = createBrowserRouter(
     [
@@ -217,6 +225,54 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Class />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/vessel",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Vessel />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/vessel/create",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreateVessel />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/vessel/edit/:id",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditVessel />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/event",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Event />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/event/create",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreateEvent />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/event/edit/:id",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditEvent />
               </Suspense>
             ),
           },
