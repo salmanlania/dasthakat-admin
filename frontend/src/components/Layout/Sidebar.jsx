@@ -110,6 +110,14 @@ const Sidebar = () => {
               label: <Link to="/supplier">Supplier</Link>,
               disabled: !permissions?.supplier?.list,
             },
+            {
+              key: "flag",
+              label: <Link to="/flag">Flag</Link>,
+            },
+            {
+              key: "class",
+              label: <Link to="/class">Class</Link>,
+            },
           ],
         },
         {

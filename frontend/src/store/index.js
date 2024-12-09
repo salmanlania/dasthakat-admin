@@ -8,6 +8,8 @@ import sidebarReducer from "./features/sidebarSlice";
 import supplierReducer from "./features/supplierSlice";
 import userPermissionReducer from "./features/userPermissionSlice";
 import userReducer from "./features/userSlice";
+import flagReducer from "./features/flagSlice";
+import classReducer from "./features/classSlice";
 
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
@@ -18,6 +20,8 @@ const rootReducer = combineReducers({
   companyBranch: companyBranchReducer,
   customer: customerReducer,
   supplier: supplierReducer,
+  flag: flagReducer,
+  class: classReducer,
 });
 
 export const store = configureStore({

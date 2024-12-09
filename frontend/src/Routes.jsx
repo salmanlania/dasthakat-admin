@@ -41,6 +41,9 @@ const Supplier = lazy(() => import("./pages/Supplier"));
 const CreateSupplier = lazy(() => import("./pages/Supplier/CreateSupplier"));
 const EditSupplier = lazy(() => import("./pages/Supplier/EditSupplier"));
 
+const Flag = lazy(() => import("./pages/Flag"));
+const Class = lazy(() => import("./pages/Class"));
+
 function Routes() {
   const router = createBrowserRouter(
     [
@@ -198,6 +201,22 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditSupplier />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/flag",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Flag />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/class",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Class />
               </Suspense>
             ),
           },
