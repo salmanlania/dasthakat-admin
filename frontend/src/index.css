@@ -34,3 +34,8 @@
 .ant-menu-item {
   @apply !pl-4;
 }
+
+.ant-menu-item-disabled,
+.ant-menu-submenu-disabled {
+  @apply !hidden;
+}

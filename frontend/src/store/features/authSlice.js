@@ -58,7 +58,6 @@ export const authSlice = createSlice({
     });
     addCase(loginHandler.fulfilled, (state, action) => {
       state.isLoggingIn = false;
-      console.log(action.payload);
       state.sessionData = {
         company_and_branches: action.payload,
         ...action.meta.arg,

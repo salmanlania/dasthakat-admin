@@ -146,7 +146,6 @@ export const supplierSlice = createSlice({
     addCase(getSupplier.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
-      console.log(data);
 
       state.initialFormValues = {
         supplier_code: data.supplier_code,

@@ -33,6 +33,8 @@ const Sidebar = () => {
   const { user } = useSelector((state) => state.auth);
   const [stateOpenKeys, setStateOpenKeys] = useState([]);
 
+  const permissions = user?.permission;
+
   const activeKey = pathname === "/" ? "/" : pathname.split("/")[1];
   let isSmallScreen = window.innerWidth <= 1000;
 
@@ -82,36 +84,49 @@ const Sidebar = () => {
         {
           key: "general-setup",
           label: "General Setup",
+          disabled:
+            !permissions?.company?.list &&
+            !permissions?.company_branch?.list &&
+            !permissions?.customer?.list &&
+            !permissions?.supplier?.list,
           children: [
             {
               key: "company",
               label: <Link to="/company">Company</Link>,
+              disabled: !permissions?.company?.list,
             },
             {
               key: "company-branch",
               label: <Link to="/company-branch">Company Branch</Link>,
+              disabled: !permissions?.company_branch?.list,
             },
             {
               key: "customer",
               label: <Link to="/customer">Customer</Link>,
+              disabled: !permissions?.customer?.list,
             },
             {
               key: "supplier",
               label: <Link to="/supplier">Supplier</Link>,
+              disabled: !permissions?.supplier?.list,
             },
           ],
         },
         {
           key: "user-management",
           label: "User Management",
+          disabled:
+            !permissions?.user?.list && !permissions?.user_permission?.list,
           children: [
             {
               key: "user",
               label: <Link to="/user">User</Link>,
+              disabled: !permissions?.user?.list,
             },
             {
               key: "user-permission",
               label: <Link to="/user-permission">User Permission</Link>,
+              disabled: !permissions.user_permission?.list,
             },
           ],
         },

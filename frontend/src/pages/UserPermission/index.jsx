@@ -1,6 +1,7 @@
 import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { GoTrash } from "react-icons/go";
 import { MdOutlineEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,7 +17,6 @@ import {
   setUserPermissionDeleteIDs,
   setUserPermissionListParams,
 } from "../../store/features/userPermissionSlice";
-import toast from "react-hot-toast";
 
 const UserPermission = () => {
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
@@ -26,6 +26,8 @@ const UserPermission = () => {
 
   const { params, paginationInfo, list, isLoading, isBulkDeleting, deleteIDs } =
     useSelector((state) => state.userPermission);
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user.permission.company;
 
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedName = useDebounce(params.name, 500);
@@ -112,39 +114,47 @@ const UserPermission = () => {
       key: "action",
       render: (_, { user_permission_id }) => (
         <div className="flex gap-2 items-center">
-          <Tooltip title="Edit">
-            <Link to={`/user-permission/edit/${user_permission_id}`}>
-              <Button
-                size="small"
-                type="primary"
-                className="bg-gray-500 hover:!bg-gray-400"
-                icon={<MdOutlineEdit size={14} />}
-              />
-            </Link>
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Popconfirm
-              title="Are you sure you want to delete?"
-              description="After deleting, You will not be able to recover it."
-              okButtonProps={{ danger: true }}
-              okText="Yes"
-              cancelText="No"
-              onConfirm={() => onUserPermissionDelete(user_permission_id)}
-            >
-              <Button
-                size="small"
-                type="primary"
-                danger
-                icon={<GoTrash size={14} />}
-              />
-            </Popconfirm>
-          </Tooltip>
+          {permissions.edit ? (
+            <Tooltip title="Edit">
+              <Link to={`/user-permission/edit/${user_permission_id}`}>
+                <Button
+                  size="small"
+                  type="primary"
+                  className="bg-gray-500 hover:!bg-gray-400"
+                  icon={<MdOutlineEdit size={14} />}
+                />
+              </Link>
+            </Tooltip>
+          ) : null}
+          {permissions.delete ? (
+            <Tooltip title="Delete">
+              <Popconfirm
+                title="Are you sure you want to delete?"
+                description="After deleting, You will not be able to recover it."
+                okButtonProps={{ danger: true }}
+                okText="Yes"
+                cancelText="No"
+                onConfirm={() => onUserPermissionDelete(user_permission_id)}
+              >
+                <Button
+                  size="small"
+                  type="primary"
+                  danger
+                  icon={<GoTrash size={14} />}
+                />
+              </Popconfirm>
+            </Tooltip>
+          ) : null}
         </div>
       ),
       width: 70,
       fixed: "right",
     },
   ];
+
+  if (!permissions.edit && !permissions.delete) {
+    columns.pop();
+  }
 
   const onBulkDelete = async () => {
     try {
@@ -179,17 +189,21 @@ const UserPermission = () => {
           />
 
           <div className="flex gap-2 items-center">
-            <Button
-              type="primary"
-              danger
-              onClick={() => setDeleteModalIsOpen(true)}
-              disabled={!deleteIDs.length}
-            >
-              Delete
-            </Button>
-            <Link to="/user-permission/create">
-              <Button type="primary">Add New</Button>
-            </Link>
+            {permissions.delete ? (
+              <Button
+                type="primary"
+                danger
+                onClick={() => setDeleteModalIsOpen(true)}
+                disabled={!deleteIDs.length}
+              >
+                Delete
+              </Button>
+            ) : null}
+            {permissions.add ? (
+              <Link to="/user-permission/create">
+                <Button type="primary">Add New</Button>
+              </Link>
+            ) : null}
           </div>
         </div>
 
@@ -211,12 +225,16 @@ const UserPermission = () => {
           sticky={{
             offsetHeader: 56,
           }}
-          rowSelection={{
-            type: "checkbox",
-            selectedRowKeys: deleteIDs,
-            onChange: (selectedRowKeys) =>
-              dispatch(setUserPermissionDeleteIDs(selectedRowKeys)),
-          }}
+          rowSelection={
+            permissions.delete
+              ? {
+                  type: "checkbox",
+                  selectedRowKeys: deleteIDs,
+                  onChange: (selectedRowKeys) =>
+                    dispatch(setUserPermissionDeleteIDs(selectedRowKeys)),
+                }
+              : null
+          }
           onChange={(e, b, c, d) => {
             dispatch(
               setUserPermissionListParams({

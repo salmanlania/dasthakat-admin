@@ -38,6 +38,8 @@ const Customer = () => {
     isBulkDeleting,
     deleteIDs,
   } = useSelector((state) => state.customer);
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user.permission.customer;
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
@@ -323,33 +325,37 @@ const Customer = () => {
       key: "action",
       render: (_, { customer_id }) => (
         <div className="flex gap-2 items-center">
-          <Tooltip title="Edit">
-            <Link to={`/customer/edit/${customer_id}`}>
-              <Button
-                size="small"
-                type="primary"
-                className="bg-gray-500 hover:!bg-gray-400"
-                icon={<MdOutlineEdit size={14} />}
-              />
-            </Link>
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Popconfirm
-              title="Are you sure you want to delete?"
-              description="After deleting, You will not be able to recover it."
-              okButtonProps={{ danger: true }}
-              okText="Yes"
-              cancelText="No"
-              onConfirm={() => onCustomerDelete(customer_id)}
-            >
-              <Button
-                size="small"
-                type="primary"
-                danger
-                icon={<GoTrash size={14} />}
-              />
-            </Popconfirm>
-          </Tooltip>
+          {permissions.edit ? (
+            <Tooltip title="Edit">
+              <Link to={`/customer/edit/${customer_id}`}>
+                <Button
+                  size="small"
+                  type="primary"
+                  className="bg-gray-500 hover:!bg-gray-400"
+                  icon={<MdOutlineEdit size={14} />}
+                />
+              </Link>
+            </Tooltip>
+          ) : null}
+          {permissions.delete ? (
+            <Tooltip title="Delete">
+              <Popconfirm
+                title="Are you sure you want to delete?"
+                description="After deleting, You will not be able to recover it."
+                okButtonProps={{ danger: true }}
+                okText="Yes"
+                cancelText="No"
+                onConfirm={() => onCustomerDelete(customer_id)}
+              >
+                <Button
+                  size="small"
+                  type="primary"
+                  danger
+                  icon={<GoTrash size={14} />}
+                />
+              </Popconfirm>
+            </Tooltip>
+          ) : null}
         </div>
       ),
       width: 70,
@@ -399,28 +405,36 @@ const Customer = () => {
           />
 
           <div className="flex gap-2 items-center">
-            <Button
-              type="primary"
-              danger
-              onClick={() => setDeleteModalIsOpen(true)}
-              disabled={!deleteIDs.length}
-            >
-              Delete
-            </Button>
-            <Link to="/customer/create">
-              <Button type="primary">Add New</Button>
-            </Link>
+            {permissions.delete ? (
+              <Button
+                type="primary"
+                danger
+                onClick={() => setDeleteModalIsOpen(true)}
+                disabled={!deleteIDs.length}
+              >
+                Delete
+              </Button>
+            ) : null}
+            {permissions.add ? (
+              <Link to="/customer/create">
+                <Button type="primary">Add New</Button>
+              </Link>
+            ) : null}
           </div>
         </div>
 
         <Table
           size="small"
-          rowSelection={{
-            type: "checkbox",
-            selectedRowKeys: deleteIDs,
-            onChange: (selectedRowKeys) =>
-              dispatch(setCustomerDeleteIDs(selectedRowKeys)),
-          }}
+          rowSelection={
+            permissions.delete
+              ? {
+                  type: "checkbox",
+                  selectedRowKeys: deleteIDs,
+                  onChange: (selectedRowKeys) =>
+                    dispatch(setCustomerDeleteIDs(selectedRowKeys)),
+                }
+              : null
+          }
           loading={isListLoading}
           className="mt-2"
           rowKey="customer_id"
