@@ -1,12 +1,13 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
-import sidebarReducer from "./features/sidebarSlice";
 import authReducer from "./features/authSlice";
-import userReducer from "./features/userSlice";
-import userPermissionReducer from "./features/userPermissionSlice";
-import companyReducer from "./features/companySlice";
 import companyBranchReducer from "./features/companyBranchSlice";
+import companyReducer from "./features/companySlice";
 import customerReducer from "./features/customerSlice";
+import sidebarReducer from "./features/sidebarSlice";
+import supplierReducer from "./features/supplierSlice";
+import userPermissionReducer from "./features/userPermissionSlice";
+import userReducer from "./features/userSlice";
 
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
   company: companyReducer,
   companyBranch: companyBranchReducer,
   customer: customerReducer,
+  supplier: supplierReducer,
 });
 
 export const store = configureStore({

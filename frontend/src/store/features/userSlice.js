@@ -246,6 +246,7 @@ export const userSlice = createSlice({
     });
     addCase(bulkDeleteUser.fulfilled, (state) => {
       state.isBulkDeleting = false;
+      state.deleteIDs = [];
     });
     addCase(bulkDeleteUser.rejected, (state) => {
       state.isBulkDeleting = false;

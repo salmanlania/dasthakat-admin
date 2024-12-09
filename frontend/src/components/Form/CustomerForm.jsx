@@ -9,7 +9,7 @@ const CustomerForm = ({ mode, onSubmit }) => {
   );
 
   const onFinish = (formValues) => {
-    onSubmit(formValues);
+    onSubmit({ ...formValues, phone_no: formValues.phone_no?.slice(0, 13) });
   };
 
   return (
@@ -59,7 +59,7 @@ const CustomerForm = ({ mode, onSubmit }) => {
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="phone_no" label="Phone No">
-            <ReactInputMask mask="+99 999 9999999">
+            <ReactInputMask mask="+999999999999">
               {(inputProps) => <Input {...inputProps} />}
             </ReactInputMask>
           </Form.Item>

@@ -1,11 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../axiosInstance";
 
-export const getCustomerList = createAsyncThunk(
-  "customer/list",
+export const getSupplierList = createAsyncThunk(
+  "supplier/list",
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get("/customer", {
+      const res = await api.get("/supplier", {
         params,
       });
       return res.data;
@@ -15,33 +15,33 @@ export const getCustomerList = createAsyncThunk(
   }
 );
 
-export const deleteCustomer = createAsyncThunk(
-  "customer/delete",
+export const deleteSupplier = createAsyncThunk(
+  "supplier/delete",
   async (id, { rejectWithValue }) => {
     try {
-      await api.delete(`/customer/${id}`);
+      await api.delete(`/supplier/${id}`);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const createCustomer = createAsyncThunk(
-  "customer/create",
+export const createSupplier = createAsyncThunk(
+  "supplier/create",
   async (data, { rejectWithValue }) => {
     try {
-      await api.post("/customer", data);
+      await api.post("/supplier", data);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const getCustomer = createAsyncThunk(
-  "customer/get",
+export const getSupplier = createAsyncThunk(
+  "supplier/get",
   async (id, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/customer/${id}`);
+      const res = await api.get(`/supplier/${id}`);
       return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);
@@ -49,23 +49,23 @@ export const getCustomer = createAsyncThunk(
   }
 );
 
-export const updateCustomer = createAsyncThunk(
-  "customer/update",
+export const updateSupplier = createAsyncThunk(
+  "supplier/update",
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      await api.put(`/customer/${id}`, data);
+      await api.put(`/supplier/${id}`, data);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const bulkDeleteCustomer = createAsyncThunk(
-  "customer/bulkDelete",
+export const bulkDeleteSupplier = createAsyncThunk(
+  "supplier/bulkDelete",
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post("/customer/bulk-delete", {
-        customer_ids: ids,
+      await api.post("/supplier/bulk-delete", {
+        supplier_ids: ids,
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -97,27 +97,27 @@ const initialState = {
   },
 };
 
-export const customerSlice = createSlice({
-  name: "customer",
+export const supplierSlice = createSlice({
+  name: "supplier",
   initialState,
   reducers: {
-    setCustomerListParams: (state, action) => {
+    setSupplierListParams: (state, action) => {
       state.params = {
         ...state.params,
         ...action.payload,
       };
     },
 
-    setCustomerDeleteIDs: (state, action) => {
+    setSupplierDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
     },
   },
   extraReducers: ({ addCase }) => {
-    addCase(getCustomerList.pending, (state) => {
+    addCase(getSupplierList.pending, (state) => {
       state.isListLoading = true;
       state.initialFormValues = null;
     });
-    addCase(getCustomerList.fulfilled, (state, action) => {
+    addCase(getSupplierList.fulfilled, (state, action) => {
       state.isListLoading = false;
       const { data, ...rest } = action.payload;
       state.list = data;
@@ -126,69 +126,69 @@ export const customerSlice = createSlice({
         total_pages: rest.last_page,
       };
     });
-    addCase(getCustomerList.rejected, (state) => {
+    addCase(getSupplierList.rejected, (state) => {
       state.isListLoading = false;
     });
 
-    addCase(createCustomer.pending, (state) => {
+    addCase(createSupplier.pending, (state) => {
       state.isFormSubmitting = true;
     });
-    addCase(createCustomer.fulfilled, (state) => {
+    addCase(createSupplier.fulfilled, (state) => {
       state.isFormSubmitting = false;
     });
-    addCase(createCustomer.rejected, (state) => {
+    addCase(createSupplier.rejected, (state) => {
       state.isFormSubmitting = false;
     });
 
-    addCase(getCustomer.pending, (state) => {
+    addCase(getSupplier.pending, (state) => {
       state.isItemLoading = true;
     });
-    addCase(getCustomer.fulfilled, (state, action) => {
+    addCase(getSupplier.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
+      console.log(data);
 
       state.initialFormValues = {
+        supplier_code: data.supplier_code,
         name: data.name,
-        customer_code: data.customer_code,
-        salesman: data.salesman,
-        country: data.country,
+        location: data.location,
+        contact_person: data.contact_person,
+        contact1: data.contact1,
+        contact2: data.contact2,
+        email: data.email,
         address: data.address,
-        billing_address: data.billing_address,
-        phone_no: data.phone_no,
-        email_sales: data.email_sales,
-        email_accounting: data.email_accounting,
         status: data.status,
       };
     });
-    addCase(getCustomer.rejected, (state) => {
+    addCase(getSupplier.rejected, (state) => {
       state.isItemLoading = false;
       state.initialFormValues = null;
     });
 
-    addCase(updateCustomer.pending, (state) => {
+    addCase(updateSupplier.pending, (state) => {
       state.isFormSubmitting = true;
     });
-    addCase(updateCustomer.fulfilled, (state) => {
+    addCase(updateSupplier.fulfilled, (state) => {
       state.isFormSubmitting = false;
       state.initialFormValues = null;
     });
-    addCase(updateCustomer.rejected, (state) => {
+    addCase(updateSupplier.rejected, (state) => {
       state.isFormSubmitting = false;
     });
 
-    addCase(bulkDeleteCustomer.pending, (state) => {
+    addCase(bulkDeleteSupplier.pending, (state) => {
       state.isBulkDeleting = true;
     });
-    addCase(bulkDeleteCustomer.fulfilled, (state) => {
+    addCase(bulkDeleteSupplier.fulfilled, (state) => {
       state.isBulkDeleting = false;
       state.deleteIDs = [];
     });
-    addCase(bulkDeleteCustomer.rejected, (state) => {
+    addCase(bulkDeleteSupplier.rejected, (state) => {
       state.isBulkDeleting = false;
     });
   },
 });
 
-export const { setCustomerListParams, setCustomerDeleteIDs } =
-  customerSlice.actions;
-export default customerSlice.reducer;
+export const { setSupplierListParams, setSupplierDeleteIDs } =
+  supplierSlice.actions;
+export default supplierSlice.reducer;

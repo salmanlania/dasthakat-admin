@@ -183,6 +183,7 @@ export const companyBranchSlice = createSlice({
     });
     addCase(bulkDeleteCompanyBranch.fulfilled, (state) => {
       state.isBulkDeleting = false;
+      state.deleteIDs = [];
     });
     addCase(bulkDeleteCompanyBranch.rejected, (state) => {
       state.isBulkDeleting = false;

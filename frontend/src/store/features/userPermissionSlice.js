@@ -253,6 +253,7 @@ export const userPermissionSlice = createSlice({
     });
     builder.addCase(bulkDeleteUserPermission.fulfilled, (state) => {
       state.isBulkDeleting = false;
+      state.deleteIDs = [];
     });
     builder.addCase(bulkDeleteUserPermission.rejected, (state) => {
       state.isBulkDeleting = false;

@@ -8,155 +8,69 @@ import {
   Tag,
   Tooltip,
 } from "antd";
-import { useState } from "react";
+import dayjs from "dayjs";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { GoTrash } from "react-icons/go";
 import { MdOutlineEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import PageHeading from "../../components/heading/PageHeading";
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
+import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
+import {
+  bulkDeleteSupplier,
+  deleteSupplier,
+  getSupplierList,
+  setSupplierDeleteIDs,
+  setSupplierListParams,
+} from "../../store/features/supplierSlice";
 
 const Supplier = () => {
   const dispatch = useDispatch();
   const handleError = useError();
-  const { list, params } = useSelector((state) => state.user);
+  const {
+    list,
+    isListLoading,
+    params,
+    paginationInfo,
+    isBulkDeleting,
+    deleteIDs,
+  } = useSelector((state) => state.supplier);
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
-  const dataSource = [
-    {
-      key: "1",
-      id: "1",
-      code: "001",
-      name: "John Brown",
-      status: 1,
-      location: "New York, 5th Avenue, 101",
-      contact_1: "123-456-7890",
-      contact_2: "123-456-7890",
-      address: "Kiev, 2nd Avenue, 14/2, 5th Floor",
-      email: "Vj4o9@example.com",
-      created_at: "01-01-2023 10:00 AM",
-    },
-    {
-      key: "2",
-      id: "2",
-      code: "002",
-      name: "Sarah Smith",
-      status: 0,
-      location: "Los Angeles, Sunset Blvd, 202",
-      contact_1: "987-654-3210",
-      contact_2: "987-654-3211",
-      address: "Berlin, Alexanderplatz, 3rd Floor",
-      email: "sarah.smith@example.com",
-      created_at: "02-01-2023 11:00 AM",
-    },
-    {
-      key: "3",
-      id: "3",
-      code: "003",
-      name: "Michael Johnson",
-      status: 1,
-      location: "Chicago, Michigan Avenue, 303",
-      contact_1: "555-123-4567",
-      contact_2: "555-123-4568",
-      address: "London, Baker Street, 221B",
-      email: "m.johnson@example.com",
-      created_at: "03-01-2023 12:00 PM",
-    },
-    {
-      key: "4",
-      id: "4",
-      code: "004",
-      name: "Emily Davis",
-      status: 1,
-      location: "Houston, Main Street, 404",
-      contact_1: "444-987-6543",
-      contact_2: "444-987-6544",
-      address: "Paris, Champs-Élysées, Building 10",
-      email: "emily.d@example.com",
-      created_at: "04-01-2023 01:00 PM",
-    },
-    {
-      key: "5",
-      id: "5",
-      code: "005",
-      name: "David Wilson",
-      status: 0,
-      location: "Miami, Ocean Drive, 505",
-      contact_1: "222-333-4444",
-      contact_2: "222-333-4445",
-      address: "Rome, Piazza Venezia, Office 8",
-      email: "david.w@example.com",
-      created_at: "05-01-2023 02:00 PM",
-    },
-    {
-      key: "6",
-      id: "6",
-      code: "006",
-      name: "Sophia Martinez",
-      status: 1,
-      location: "San Francisco, Market Street, 606",
-      contact_1: "666-777-8888",
-      contact_2: "666-777-8889",
-      address: "Tokyo, Shibuya, Tower 7",
-      email: "s.martinez@example.com",
-      created_at: "06-01-2023 03:00 PM",
-    },
-    {
-      key: "7",
-      id: "7",
-      code: "007",
-      name: "James Anderson",
-      status: 0,
-      location: "Seattle, Pine Street, 707",
-      contact_1: "333-444-5555",
-      contact_2: "333-444-5556",
-      address: "Moscow, Red Square, Building 2",
-      email: "j.anderson@example.com",
-      created_at: "07-01-2023 04:00 PM",
-    },
-    {
-      key: "8",
-      id: "8",
-      code: "008",
-      name: "Isabella Taylor",
-      status: 1,
-      location: "Boston, Beacon Street, 808",
-      contact_1: "777-888-9999",
-      contact_2: "777-888-9990",
-      address: "Sydney, George Street, Suite 15",
-      email: "isabella.t@example.com",
-      created_at: "08-01-2023 05:00 PM",
-    },
-    {
-      key: "9",
-      id: "9",
-      code: "009",
-      name: "Ethan Thomas",
-      status: 1,
-      location: "Dallas, Elm Street, 909",
-      contact_1: "111-222-3333",
-      contact_2: "111-222-3334",
-      address: "Madrid, Gran Via, Floor 4",
-      email: "ethan.t@example.com",
-      created_at: "09-01-2023 06:00 PM",
-    },
-    {
-      key: "10",
-      id: "10",
-      code: "010",
-      name: "Olivia Harris",
-      status: 0,
-      location: "Denver, Broadway, 1010",
-      contact_1: "999-000-1111",
-      contact_2: "999-000-1112",
-      address: "Dubai, Sheikh Zayed Road, Building 5",
-      email: "olivia.h@example.com",
-      created_at: "10-01-2023 07:00 PM",
-    },
-  ];
+  const debouncedSearch = useDebounce(params.search, 500);
+  const debouncedSupplierCode = useDebounce(params.supplier_code, 500);
+  const debouncedName = useDebounce(params.name, 500);
+  const debouncedLocation = useDebounce(params.location, 500);
+  const debouncedContact1 = useDebounce(params.contact1, 500);
+  const debouncedContact2 = useDebounce(params.contact2, 500);
+  const debouncedEmail = useDebounce(params.email, 500);
+  const debouncedAddress = useDebounce(params.address, 500);
+
+  const onSupplierDelete = async (id) => {
+    try {
+      await dispatch(deleteSupplier(id)).unwrap();
+      toast.success("Supplier deleted successfully");
+      dispatch(getSupplierList(params)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const onBulkDelete = async () => {
+    try {
+      await dispatch(bulkDeleteSupplier(deleteIDs)).unwrap();
+      toast.success("Suppliers deleted successfully");
+      closeDeleteModal();
+      await dispatch(getSupplierList(params)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
+  };
 
   const columns = [
     {
@@ -167,11 +81,15 @@ const Supplier = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            value={params.supplier_code}
+            onChange={(e) =>
+              dispatch(setSupplierListParams({ supplier_code: e.target.value }))
+            }
           />
         </div>
       ),
-      dataIndex: "code",
-      key: "code",
+      dataIndex: "supplier_code",
+      key: "supplier_code",
       sorter: true,
       width: 120,
       ellipsis: true,
@@ -184,6 +102,10 @@ const Supplier = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            value={params.name}
+            onChange={(e) =>
+              dispatch(setSupplierListParams({ name: e.target.value }))
+            }
           />
         </div>
       ),
@@ -212,6 +134,10 @@ const Supplier = () => {
               },
             ]}
             allowClear
+            value={params.status}
+            onChange={(value) =>
+              dispatch(setSupplierListParams({ status: value }))
+            }
           />
         </div>
       ),
@@ -238,6 +164,10 @@ const Supplier = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            value={params.location}
+            onChange={(e) =>
+              dispatch(setSupplierListParams({ location: e.target.value }))
+            }
           />
         </div>
       ),
@@ -255,11 +185,15 @@ const Supplier = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            value={params.contact1}
+            onChange={(e) =>
+              dispatch(setSupplierListParams({ contact1: e.target.value }))
+            }
           />
         </div>
       ),
-      dataIndex: "contact_1",
-      key: "contact_1",
+      dataIndex: "contact1",
+      key: "contact1",
       sorter: true,
       width: 150,
       ellipsis: true,
@@ -272,11 +206,15 @@ const Supplier = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            value={params.contact2}
+            onChange={(e) =>
+              dispatch(setSupplierListParams({ contact2: e.target.value }))
+            }
           />
         </div>
       ),
-      dataIndex: "contact_2",
-      key: "contact_2",
+      dataIndex: "contact2",
+      key: "contact2",
       sorter: true,
       width: 150,
       ellipsis: true,
@@ -289,6 +227,10 @@ const Supplier = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            value={params.email}
+            onChange={(e) =>
+              dispatch(setSupplierListParams({ email: e.target.value }))
+            }
           />
         </div>
       ),
@@ -306,6 +248,10 @@ const Supplier = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            value={params.address}
+            onChange={(e) =>
+              dispatch(setSupplierListParams({ address: e.target.value }))
+            }
           />
         </div>
       ),
@@ -321,14 +267,16 @@ const Supplier = () => {
       key: "created_at",
       sorter: true,
       width: 168,
+      render: (_, { created_at }) =>
+        dayjs(created_at).format("DD-MM-YYYY hh:mm A"),
     },
     {
       title: "Action",
       key: "action",
-      render: (_, { id }) => (
+      render: (_, { supplier_id }) => (
         <div className="flex gap-2 items-center">
           <Tooltip title="Edit">
-            <Link to={`/supplier/edit/${id}`}>
+            <Link to={`/supplier/edit/${supplier_id}`}>
               <Button
                 size="small"
                 type="primary"
@@ -344,6 +292,7 @@ const Supplier = () => {
               okButtonProps={{ danger: true }}
               okText="Yes"
               cancelText="No"
+              onConfirm={() => onSupplierDelete(supplier_id)}
             >
               <Button
                 size="small"
@@ -360,9 +309,23 @@ const Supplier = () => {
     },
   ];
 
-  const onBulkDelete = () => {
-    closeDeleteModal();
-  };
+  useEffect(() => {
+    dispatch(getSupplierList(params)).unwrap().catch(handleError);
+  }, [
+    params.page,
+    params.limit,
+    params.sort_column,
+    params.sort_direction,
+    params.status,
+    debouncedSearch,
+    debouncedSupplierCode,
+    debouncedName,
+    debouncedLocation,
+    debouncedContact1,
+    debouncedContact2,
+    debouncedEmail,
+    debouncedAddress,
+  ]);
 
   return (
     <>
@@ -376,13 +339,21 @@ const Supplier = () => {
 
       <div className="mt-4 bg-white p-2 rounded-md">
         <div className="flex justify-between items-center gap-2">
-          <Input placeholder="Search..." className="w-full sm:w-64" />
+          <Input
+            placeholder="Search..."
+            className="w-full sm:w-64"
+            value={params.search}
+            onChange={(e) =>
+              dispatch(setSupplierListParams({ search: e.target.value }))
+            }
+          />
 
           <div className="flex gap-2 items-center">
             <Button
               type="primary"
               danger
               onClick={() => setDeleteModalIsOpen(true)}
+              disabled={!deleteIDs.length}
             >
               Delete
             </Button>
@@ -396,13 +367,31 @@ const Supplier = () => {
           size="small"
           rowSelection={{
             type: "checkbox",
+            selectedRowKeys: deleteIDs,
+            onChange: (selectedRowKeys) =>
+              dispatch(setSupplierDeleteIDs(selectedRowKeys)),
           }}
+          loading={isListLoading}
           className="mt-2"
+          rowKey="supplier_id"
           scroll={{ x: "calc(100% - 200px)" }}
           pagination={{
-            pageSize: 50,
+            total: paginationInfo.total_records,
+            pageSize: params.limit,
+            current: params.page,
+            showTotal: (total) => `Total ${total} suppliers`,
           }}
-          dataSource={dataSource}
+          onChange={(e, b, c, d) => {
+            dispatch(
+              setSupplierListParams({
+                page: e.current,
+                limit: e.pageSize,
+                sort_column: c.field,
+                sort_direction: c.order,
+              })
+            );
+          }}
+          dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
@@ -415,6 +404,7 @@ const Supplier = () => {
         open={deleteModalIsOpen ? true : false}
         onCancel={closeDeleteModal}
         onDelete={onBulkDelete}
+        isDeleting={isBulkDeleting}
         title="Are you sure you want to delete these suppliers?"
         description="After deleting, you will not be able to recover."
       />

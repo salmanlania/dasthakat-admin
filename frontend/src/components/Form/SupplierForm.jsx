@@ -1,28 +1,33 @@
 import { Button, Col, Form, Input, Row, Select } from "antd";
+import ReactInputMask from "react-input-mask";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
-const SupplierForm = () => {
+const SupplierForm = ({ mode, onSubmit }) => {
+  const { isFormSubmitting, initialFormValues } = useSelector(
+    (state) => state.supplier
+  );
+
+  const onFinish = (formValues) => {
+    onSubmit({
+      ...formValues,
+      contact1: formValues.contact1?.slice(0, 13),
+      contact2: formValues.contact1?.slice(0, 13),
+    });
+  };
+
   return (
     <Form
       name="supplier"
       layout="vertical"
       autoComplete="off"
-      initialValues={{ status: 1 }}
+      initialValues={mode === "edit" ? initialFormValues : { status: 1 }}
+      onFinish={onFinish}
     >
       <Row gutter={[12, 12]}>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item
-            name="code"
-            label="Code"
-            rules={[
-              {
-                required: true,
-                whitespace: true,
-                message: "Code is required!",
-              },
-            ]}
-          >
-            <Input />
+          <Form.Item name="supplier_code" label="Code">
+            <Input disabled placeholder="Auto" />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
@@ -53,16 +58,24 @@ const SupplierForm = () => {
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="contact1" label="Contact 1">
-            <Input />
+            <ReactInputMask mask="+999999999999">
+              {(inputProps) => <Input {...inputProps} />}
+            </ReactInputMask>
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="contact2" label="Contact 2">
-            <Input />
+            <ReactInputMask mask="+999999999999">
+              {(inputProps) => <Input {...inputProps} />}
+            </ReactInputMask>
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="email" label="Email">
+          <Form.Item
+            name="email"
+            label="Email"
+            rules={[{ type: "email", message: "Please enter a valid email" }]}
+          >
             <Input />
           </Form.Item>
         </Col>
@@ -93,7 +106,12 @@ const SupplierForm = () => {
         <Link to="/supplier">
           <Button className="w-28">Cancel</Button>
         </Link>
-        <Button type="primary" htmlType="submit" className="w-28">
+        <Button
+          type="primary"
+          htmlType="submit"
+          className="w-28"
+          loading={isFormSubmitting}
+        >
           Save
         </Button>
       </div>

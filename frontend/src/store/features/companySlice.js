@@ -181,6 +181,7 @@ export const companySlice = createSlice({
     });
     addCase(bulkDeleteCompany.fulfilled, (state) => {
       state.isBulkDeleting = false;
+      state.deleteIDs = [];
     });
     addCase(bulkDeleteCompany.rejected, (state) => {
       state.isBulkDeleting = false;
