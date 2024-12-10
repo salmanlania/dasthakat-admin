@@ -18,6 +18,8 @@ const theme = {
     },
     Menu: {
       itemSelectedBg: "#ecede8",
+      fontSize: 13,
+      itemHeight: 32,
     },
     Select: {
       optionSelectedBg: "rgb(237,245,250)",

@@ -1,4 +1,4 @@
-import { Col, Row, Select } from "antd";
+import { Col, DatePicker, Row, Select } from "antd";
 import {
   FaArrowDown,
   FaArrowUp,
@@ -20,30 +20,38 @@ const shortcuts = [
   { title: "Trial Balance" },
 ];
 
+const months = [
+  { label: "January", value: "01" },
+  { label: "February", value: "02" },
+  { label: "March", value: "03" },
+  { label: "April", value: "04" },
+  { label: "May", value: "05" },
+  { label: "June", value: "06" },
+  { label: "July", value: "07" },
+  { label: "August", value: "08" },
+  { label: "September", value: "09" },
+  { label: "October", value: "10" },
+  { label: "November", value: "11" },
+  { label: "December", value: "12" },
+];
+
 const Dashboard = () => {
   return (
     <>
-      <div className="flex gap-2 justify-between items-center">
+      <div className="flex gap-2 justify-between items-center flex-wrap">
         <PageHeading>DASHBOARD</PageHeading>
 
-        <Select
-          options={[
-            {
-              value: "Today",
-              label: "Today",
-            },
-            {
-              value: "This Month",
-              label: "This Month",
-            },
-            {
-              value: "This Year",
-              label: "This Year",
-            },
-          ]}
-          defaultValue="Today"
-          className="w-44"
-        />
+        <div className="flex items-center gap-2">
+          <DatePicker picker="year" />
+          <Select
+            options={months}
+            className="w-40"
+            placeholder="Select Month"
+            optionFilterProp="label"
+            showSearch
+            allowClear
+          />
+        </div>
       </div>
 
       <Row gutter={[12, 12]} className="mt-4">

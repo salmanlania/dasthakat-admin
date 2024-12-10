@@ -52,6 +52,13 @@ const Event = lazy(() => import("./pages/Event"));
 const CreateEvent = lazy(() => import("./pages/Event/CreateEvent"));
 const EditEvent = lazy(() => import("./pages/Event/EditEvent"));
 
+const Validity = lazy(() => import("./pages/Validity"));
+const Payment = lazy(() => import("./pages/Payment"));
+
+const Quotation = lazy(() => import("./pages/Quotation"));
+const CreateQuotation = lazy(() => import("./pages/Quotation/CreateQuotation"));
+const EditQuotation = lazy(() => import("./pages/Quotation/EditQuotation"));
+
 function Routes() {
   const router = createBrowserRouter(
     [
@@ -273,6 +280,46 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditEvent />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/quotation",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Quotation />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/validity",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Validity />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/payment",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Payment />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/quotation/create",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreateQuotation />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/quotation/edit/:id",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditQuotation />
               </Suspense>
             ),
           },

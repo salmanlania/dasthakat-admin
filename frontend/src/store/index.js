@@ -10,6 +10,8 @@ import userPermissionReducer from "./features/userPermissionSlice";
 import userReducer from "./features/userSlice";
 import flagReducer from "./features/flagSlice";
 import classReducer from "./features/classSlice";
+import validityReducer from "./features/validitySlice";
+import paymentReducer from "./features/paymentSlice";
 
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
@@ -22,6 +24,8 @@ const rootReducer = combineReducers({
   vendor: vendorReducer,
   flag: flagReducer,
   class: classReducer,
+  validity: validityReducer,
+  payment: paymentReducer,
 });
 
 export const store = configureStore({

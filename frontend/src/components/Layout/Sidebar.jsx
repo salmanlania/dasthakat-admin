@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { BiChevronLeft } from "react-icons/bi";
 import { FaRegUser } from "react-icons/fa";
 import {
+  MdInventory,
   MdOutlineAdminPanelSettings,
   MdOutlineDashboard,
 } from "react-icons/md";
@@ -148,6 +149,37 @@ const Sidebar = () => {
         },
       ],
     },
+    {
+      key: "inventory-management",
+      label: "Inventory Management",
+      icon: <MdInventory size={16} />,
+      children: [
+        {
+          key: "inventory-setup",
+          label: "Inventory Setup",
+          children: [
+            {
+              key: "validity",
+              label: <Link to="/validity">Validity</Link>,
+            },
+            {
+              key: "payment",
+              label: <Link to="/payment">Payment</Link>,
+            },
+          ],
+        },
+        {
+          key: "sale-management",
+          label: "Sale Management",
+          children: [
+            {
+              key: "quotation",
+              label: <Link to="/quotation">Quotation</Link>,
+            },
+          ],
+        },
+      ],
+    },
   ];
   const levelKeys = getLevelKeys(items);
 
@@ -159,7 +191,7 @@ const Sidebar = () => {
       className={`${isSmallScreen ? "!fixed" : "!sticky"} ${
         isCollapsed ? "" : "border-r"
       } h-screen overflow-y-auto !left-0 !top-0 z-50 scrollbar`}
-      width={230}
+      width={240}
     >
       <div className="p-4 px-2 flex flex-col justify-center items-center gap-2 bg-zinc-100 m-2 rounded-2xl">
         {isSmallScreen && (
