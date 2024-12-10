@@ -20,14 +20,14 @@ import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
 import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
 import {
-  bulkDeleteSupplier,
-  deleteSupplier,
-  getSupplierList,
-  setSupplierDeleteIDs,
-  setSupplierListParams,
-} from "../../store/features/supplierSlice";
+  bulkDeleteVendor,
+  deleteVendor,
+  getVendorList,
+  setVendorDeleteIDs,
+  setVendorListParams,
+} from "../../store/features/vendorSlice";
 
-const Supplier = () => {
+const Vendor = () => {
   const dispatch = useDispatch();
   const handleError = useError();
   const {
@@ -37,7 +37,7 @@ const Supplier = () => {
     paginationInfo,
     isBulkDeleting,
     deleteIDs,
-  } = useSelector((state) => state.supplier);
+  } = useSelector((state) => state.vendor);
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.supplier;
 
@@ -53,11 +53,11 @@ const Supplier = () => {
   const debouncedEmail = useDebounce(params.email, 500);
   const debouncedAddress = useDebounce(params.address, 500);
 
-  const onSupplierDelete = async (id) => {
+  const onVendorDelete = async (id) => {
     try {
-      await dispatch(deleteSupplier(id)).unwrap();
-      toast.success("Supplier deleted successfully");
-      dispatch(getSupplierList(params)).unwrap();
+      await dispatch(deleteVendor(id)).unwrap();
+      toast.success("Vendor deleted successfully");
+      dispatch(getVendorList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -65,10 +65,10 @@ const Supplier = () => {
 
   const onBulkDelete = async () => {
     try {
-      await dispatch(bulkDeleteSupplier(deleteIDs)).unwrap();
-      toast.success("Suppliers deleted successfully");
+      await dispatch(bulkDeleteVendor(deleteIDs)).unwrap();
+      toast.success("Vendors deleted successfully");
       closeDeleteModal();
-      await dispatch(getSupplierList(params)).unwrap();
+      await dispatch(getVendorList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -85,7 +85,7 @@ const Supplier = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.supplier_code}
             onChange={(e) =>
-              dispatch(setSupplierListParams({ supplier_code: e.target.value }))
+              dispatch(setVendorListParams({ supplier_code: e.target.value }))
             }
           />
         </div>
@@ -106,7 +106,7 @@ const Supplier = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.name}
             onChange={(e) =>
-              dispatch(setSupplierListParams({ name: e.target.value }))
+              dispatch(setVendorListParams({ name: e.target.value }))
             }
           />
         </div>
@@ -138,7 +138,7 @@ const Supplier = () => {
             allowClear
             value={params.status}
             onChange={(value) =>
-              dispatch(setSupplierListParams({ status: value }))
+              dispatch(setVendorListParams({ status: value }))
             }
           />
         </div>
@@ -168,7 +168,7 @@ const Supplier = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.location}
             onChange={(e) =>
-              dispatch(setSupplierListParams({ location: e.target.value }))
+              dispatch(setVendorListParams({ location: e.target.value }))
             }
           />
         </div>
@@ -189,7 +189,7 @@ const Supplier = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.contact1}
             onChange={(e) =>
-              dispatch(setSupplierListParams({ contact1: e.target.value }))
+              dispatch(setVendorListParams({ contact1: e.target.value }))
             }
           />
         </div>
@@ -210,7 +210,7 @@ const Supplier = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.contact2}
             onChange={(e) =>
-              dispatch(setSupplierListParams({ contact2: e.target.value }))
+              dispatch(setVendorListParams({ contact2: e.target.value }))
             }
           />
         </div>
@@ -231,7 +231,7 @@ const Supplier = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.email}
             onChange={(e) =>
-              dispatch(setSupplierListParams({ email: e.target.value }))
+              dispatch(setVendorListParams({ email: e.target.value }))
             }
           />
         </div>
@@ -252,7 +252,7 @@ const Supplier = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.address}
             onChange={(e) =>
-              dispatch(setSupplierListParams({ address: e.target.value }))
+              dispatch(setVendorListParams({ address: e.target.value }))
             }
           />
         </div>
@@ -279,7 +279,7 @@ const Supplier = () => {
         <div className="flex gap-2 items-center">
           {permissions.edit ? (
             <Tooltip title="Edit">
-              <Link to={`/supplier/edit/${supplier_id}`}>
+              <Link to={`/vendor/edit/${supplier_id}`}>
                 <Button
                   size="small"
                   type="primary"
@@ -297,7 +297,7 @@ const Supplier = () => {
                 okButtonProps={{ danger: true }}
                 okText="Yes"
                 cancelText="No"
-                onConfirm={() => onSupplierDelete(supplier_id)}
+                onConfirm={() => onVendorDelete(supplier_id)}
               >
                 <Button
                   size="small"
@@ -320,7 +320,7 @@ const Supplier = () => {
   }
 
   useEffect(() => {
-    dispatch(getSupplierList(params)).unwrap().catch(handleError);
+    dispatch(getVendorList(params)).unwrap().catch(handleError);
   }, [
     params.page,
     params.limit,
@@ -340,9 +340,9 @@ const Supplier = () => {
   return (
     <>
       <div className="flex justify-between items-center flex-wrap">
-        <PageHeading>SUPPLIER</PageHeading>
+        <PageHeading>VENDOR</PageHeading>
         <Breadcrumb
-          items={[{ title: "Supplier" }, { title: "List" }]}
+          items={[{ title: "Vendor" }, { title: "List" }]}
           separator=">"
         />
       </div>
@@ -354,7 +354,7 @@ const Supplier = () => {
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) =>
-              dispatch(setSupplierListParams({ search: e.target.value }))
+              dispatch(setVendorListParams({ search: e.target.value }))
             }
           />
 
@@ -370,7 +370,7 @@ const Supplier = () => {
               </Button>
             ) : null}
             {permissions.add ? (
-              <Link to="/supplier/create">
+              <Link to="/vendor/create">
                 <Button type="primary">Add New</Button>
               </Link>
             ) : null}
@@ -385,7 +385,7 @@ const Supplier = () => {
                   type: "checkbox",
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) =>
-                    dispatch(setSupplierDeleteIDs(selectedRowKeys)),
+                    dispatch(setVendorDeleteIDs(selectedRowKeys)),
                 }
               : null
           }
@@ -397,11 +397,11 @@ const Supplier = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} suppliers`,
+            showTotal: (total) => `Total ${total} vendors`,
           }}
           onChange={(e, b, c, d) => {
             dispatch(
-              setSupplierListParams({
+              setVendorListParams({
                 page: e.current,
                 limit: e.pageSize,
                 sort_column: c.field,
@@ -423,11 +423,11 @@ const Supplier = () => {
         onCancel={closeDeleteModal}
         onDelete={onBulkDelete}
         isDeleting={isBulkDeleting}
-        title="Are you sure you want to delete these suppliers?"
+        title="Are you sure you want to delete these vendors?"
         description="After deleting, you will not be able to recover."
       />
     </>
   );
 };
 
-export default Supplier;
+export default Vendor;

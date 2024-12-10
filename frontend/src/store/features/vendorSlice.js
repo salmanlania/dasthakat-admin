@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../axiosInstance";
 
-export const getSupplierList = createAsyncThunk(
+export const getVendorList = createAsyncThunk(
   "supplier/list",
   async (params, { rejectWithValue }) => {
     try {
@@ -15,7 +15,7 @@ export const getSupplierList = createAsyncThunk(
   }
 );
 
-export const deleteSupplier = createAsyncThunk(
+export const deleteVendor = createAsyncThunk(
   "supplier/delete",
   async (id, { rejectWithValue }) => {
     try {
@@ -26,7 +26,7 @@ export const deleteSupplier = createAsyncThunk(
   }
 );
 
-export const createSupplier = createAsyncThunk(
+export const createVendor = createAsyncThunk(
   "supplier/create",
   async (data, { rejectWithValue }) => {
     try {
@@ -37,7 +37,7 @@ export const createSupplier = createAsyncThunk(
   }
 );
 
-export const getSupplier = createAsyncThunk(
+export const getVendor = createAsyncThunk(
   "supplier/get",
   async (id, { rejectWithValue }) => {
     try {
@@ -49,7 +49,7 @@ export const getSupplier = createAsyncThunk(
   }
 );
 
-export const updateSupplier = createAsyncThunk(
+export const updateVendor = createAsyncThunk(
   "supplier/update",
   async ({ id, data }, { rejectWithValue }) => {
     try {
@@ -60,7 +60,7 @@ export const updateSupplier = createAsyncThunk(
   }
 );
 
-export const bulkDeleteSupplier = createAsyncThunk(
+export const bulkDeleteVendor = createAsyncThunk(
   "supplier/bulkDelete",
   async (ids, { rejectWithValue }) => {
     try {
@@ -97,27 +97,27 @@ const initialState = {
   },
 };
 
-export const supplierSlice = createSlice({
-  name: "supplier",
+export const vendorSlice = createSlice({
+  name: "vendor",
   initialState,
   reducers: {
-    setSupplierListParams: (state, action) => {
+    setVendorListParams: (state, action) => {
       state.params = {
         ...state.params,
         ...action.payload,
       };
     },
 
-    setSupplierDeleteIDs: (state, action) => {
+    setVendorDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
     },
   },
   extraReducers: ({ addCase }) => {
-    addCase(getSupplierList.pending, (state) => {
+    addCase(getVendorList.pending, (state) => {
       state.isListLoading = true;
       state.initialFormValues = null;
     });
-    addCase(getSupplierList.fulfilled, (state, action) => {
+    addCase(getVendorList.fulfilled, (state, action) => {
       state.isListLoading = false;
       const { data, ...rest } = action.payload;
       state.list = data;
@@ -126,24 +126,24 @@ export const supplierSlice = createSlice({
         total_pages: rest.last_page,
       };
     });
-    addCase(getSupplierList.rejected, (state) => {
+    addCase(getVendorList.rejected, (state) => {
       state.isListLoading = false;
     });
 
-    addCase(createSupplier.pending, (state) => {
+    addCase(createVendor.pending, (state) => {
       state.isFormSubmitting = true;
     });
-    addCase(createSupplier.fulfilled, (state) => {
+    addCase(createVendor.fulfilled, (state) => {
       state.isFormSubmitting = false;
     });
-    addCase(createSupplier.rejected, (state) => {
+    addCase(createVendor.rejected, (state) => {
       state.isFormSubmitting = false;
     });
 
-    addCase(getSupplier.pending, (state) => {
+    addCase(getVendor.pending, (state) => {
       state.isItemLoading = true;
     });
-    addCase(getSupplier.fulfilled, (state, action) => {
+    addCase(getVendor.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
 
@@ -159,35 +159,34 @@ export const supplierSlice = createSlice({
         status: data.status,
       };
     });
-    addCase(getSupplier.rejected, (state) => {
+    addCase(getVendor.rejected, (state) => {
       state.isItemLoading = false;
       state.initialFormValues = null;
     });
 
-    addCase(updateSupplier.pending, (state) => {
+    addCase(updateVendor.pending, (state) => {
       state.isFormSubmitting = true;
     });
-    addCase(updateSupplier.fulfilled, (state) => {
+    addCase(updateVendor.fulfilled, (state) => {
       state.isFormSubmitting = false;
       state.initialFormValues = null;
     });
-    addCase(updateSupplier.rejected, (state) => {
+    addCase(updateVendor.rejected, (state) => {
       state.isFormSubmitting = false;
     });
 
-    addCase(bulkDeleteSupplier.pending, (state) => {
+    addCase(bulkDeleteVendor.pending, (state) => {
       state.isBulkDeleting = true;
     });
-    addCase(bulkDeleteSupplier.fulfilled, (state) => {
+    addCase(bulkDeleteVendor.fulfilled, (state) => {
       state.isBulkDeleting = false;
       state.deleteIDs = [];
     });
-    addCase(bulkDeleteSupplier.rejected, (state) => {
+    addCase(bulkDeleteVendor.rejected, (state) => {
       state.isBulkDeleting = false;
     });
   },
 });
 
-export const { setSupplierListParams, setSupplierDeleteIDs } =
-  supplierSlice.actions;
-export default supplierSlice.reducer;
+export const { setVendorListParams, setVendorDeleteIDs } = vendorSlice.actions;
+export default vendorSlice.reducer;

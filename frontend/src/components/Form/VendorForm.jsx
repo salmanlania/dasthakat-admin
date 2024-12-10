@@ -3,9 +3,9 @@ import ReactInputMask from "react-input-mask";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
-const SupplierForm = ({ mode, onSubmit }) => {
+const VendorForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues } = useSelector(
-    (state) => state.supplier
+    (state) => state.vendor
   );
 
   const onFinish = (formValues) => {
@@ -18,7 +18,7 @@ const SupplierForm = ({ mode, onSubmit }) => {
 
   return (
     <Form
-      name="supplier"
+      name="vendor"
       layout="vertical"
       autoComplete="off"
       initialValues={mode === "edit" ? initialFormValues : { status: 1 }}
@@ -103,7 +103,7 @@ const SupplierForm = ({ mode, onSubmit }) => {
       </Row>
 
       <div className="mt-4 flex gap-2 justify-end items-center">
-        <Link to="/supplier">
+        <Link to="/vendor">
           <Button className="w-28">Cancel</Button>
         </Link>
         <Button
@@ -119,4 +119,4 @@ const SupplierForm = ({ mode, onSubmit }) => {
   );
 };
 
-export default SupplierForm;
+export default VendorForm;

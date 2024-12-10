@@ -49,10 +49,10 @@ const MainLayout = () => {
   if (href.startsWith("/customer/edit") && !permissions.customer.edit)
     return <NotFound />;
 
-  if (href === "/supplier" && !permissions.supplier.list) return <NotFound />;
-  if (href === "/supplier/create" && !permissions.supplier.add)
+  if (href === "/vendor" && !permissions.supplier.list) return <NotFound />;
+  if (href === "/vendor/create" && !permissions.supplier.add)
     return <NotFound />;
-  if (href.startsWith("/supplier/edit") && !permissions.supplier.edit)
+  if (href.startsWith("/vendor/edit") && !permissions.supplier.edit)
     return <NotFound />;
 
   if (href === "/user" && !permissions.user.list) return <NotFound />;

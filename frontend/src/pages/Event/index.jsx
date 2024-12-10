@@ -70,20 +70,20 @@ const Event = () => {
     {
       title: (
         <div>
-          <p>Unique Number</p>
+          <p>Event Code</p>
           <Input
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.unique_number}
+            value={params.event_code}
             onChange={(e) =>
-              dispatch(setCompanyListParams({ unique_number: e.target.value }))
+              dispatch(setCompanyListParams({ event_code: e.target.value }))
             }
           />
         </div>
       ),
-      dataIndex: "unique_number",
-      key: "unique_number",
+      dataIndex: "event_code",
+      key: "event_code",
       sorter: true,
       width: 150,
       ellipsis: true,
@@ -184,7 +184,7 @@ const Event = () => {
     {
       id: "1",
       key: "1",
-      unique_number: "123",
+      event_code: "123",
       customer: "Customer 1",
       vessel: "Vessel 2",
       created_at: "01-01-2023 10:00 AM",

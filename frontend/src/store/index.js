@@ -5,7 +5,7 @@ import companyBranchReducer from "./features/companyBranchSlice";
 import companyReducer from "./features/companySlice";
 import customerReducer from "./features/customerSlice";
 import sidebarReducer from "./features/sidebarSlice";
-import supplierReducer from "./features/supplierSlice";
+import vendorReducer from "./features/vendorSlice";
 import userPermissionReducer from "./features/userPermissionSlice";
 import userReducer from "./features/userSlice";
 import flagReducer from "./features/flagSlice";
@@ -19,7 +19,7 @@ const rootReducer = combineReducers({
   company: companyReducer,
   companyBranch: companyBranchReducer,
   customer: customerReducer,
-  supplier: supplierReducer,
+  vendor: vendorReducer,
   flag: flagReducer,
   class: classReducer,
 });

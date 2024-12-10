@@ -106,8 +106,8 @@ const Sidebar = () => {
               disabled: !permissions?.customer?.list,
             },
             {
-              key: "supplier",
-              label: <Link to="/supplier">Supplier</Link>,
+              key: "vendor",
+              label: <Link to="/vendor">Vendor</Link>,
               disabled: !permissions?.supplier?.list,
             },
             {

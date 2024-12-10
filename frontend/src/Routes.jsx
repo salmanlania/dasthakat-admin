@@ -37,9 +37,9 @@ const Customer = lazy(() => import("./pages/Customer"));
 const CreateCustomer = lazy(() => import("./pages/Customer/CreateCustomer"));
 const EditCustomer = lazy(() => import("./pages/Customer/EditCustomer"));
 
-const Supplier = lazy(() => import("./pages/Supplier"));
-const CreateSupplier = lazy(() => import("./pages/Supplier/CreateSupplier"));
-const EditSupplier = lazy(() => import("./pages/Supplier/EditSupplier"));
+const Vendor = lazy(() => import("./pages/Vendor"));
+const CreateVendor = lazy(() => import("./pages/Vendor/CreateVendor"));
+const EditVendor = lazy(() => import("./pages/Vendor/EditVendor"));
 
 const Flag = lazy(() => import("./pages/Flag"));
 const Class = lazy(() => import("./pages/Class"));
@@ -189,26 +189,26 @@ function Routes() {
             ),
           },
           {
-            path: "/supplier",
+            path: "/vendor",
             element: (
               <Suspense fallback={<PageLoader />}>
-                <Supplier />
+                <Vendor />
               </Suspense>
             ),
           },
           {
-            path: "/supplier/create",
+            path: "/vendor/create",
             element: (
               <Suspense fallback={<PageLoader />}>
-                <CreateSupplier />
+                <CreateVendor />
               </Suspense>
             ),
           },
           {
-            path: "/supplier/edit/:id",
+            path: "/vendor/edit/:id",
             element: (
               <Suspense fallback={<PageLoader />}>
-                <EditSupplier />
+                <EditVendor />
               </Suspense>
             ),
           },

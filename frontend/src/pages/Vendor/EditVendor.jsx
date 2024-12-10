@@ -3,43 +3,40 @@ import { useEffect } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import SupplierForm from "../../components/Form/SupplierForm";
+import VendorForm from "../../components/Form/VendorForm";
 import PageHeading from "../../components/heading/PageHeading";
 import useError from "../../hooks/useError";
-import {
-  getSupplier,
-  updateSupplier,
-} from "../../store/features/supplierSlice";
+import { getVendor, updateVendor } from "../../store/features/vendorSlice";
 
-const EditSupplier = () => {
+const EditVendor = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();
   const { id } = useParams();
   const { isItemLoading, initialFormValues } = useSelector(
-    (state) => state.supplier
+    (state) => state.vendor
   );
 
-  const onSupplierUpdate = async (data) => {
+  const onVendorUpdate = async (data) => {
     try {
-      await dispatch(updateSupplier({ id, data })).unwrap();
-      toast.success("Supplier updated successfully");
-      navigate("/supplier");
+      await dispatch(updateVendor({ id, data })).unwrap();
+      toast.success("Vendor updated successfully");
+      navigate("/vendor");
     } catch (error) {
       handleError(error);
     }
   };
 
   useEffect(() => {
-    dispatch(getSupplier(id)).unwrap().catch(handleError);
+    dispatch(getVendor(id)).unwrap().catch(handleError);
   }, []);
 
   return (
     <>
       <div className="flex justify-between items-center flex-wrap">
-        <PageHeading>EDIT SUPPLIER</PageHeading>
+        <PageHeading>EDIT VENDOR</PageHeading>
         <Breadcrumb
-          items={[{ title: "Supplier" }, { title: "Edit" }]}
+          items={[{ title: "Vendor" }, { title: "Edit" }]}
           separator=">"
         />
       </div>
@@ -52,11 +49,11 @@ const EditSupplier = () => {
 
       {!isItemLoading && initialFormValues ? (
         <div className="mt-4 bg-white sm:p-4 p-2 rounded-md">
-          <SupplierForm mode="edit" onSubmit={onSupplierUpdate} />
+          <VendorForm mode="edit" onSubmit={onVendorUpdate} />
         </div>
       ) : null}
     </>
   );
 };
 
-export default EditSupplier;
+export default EditVendor;

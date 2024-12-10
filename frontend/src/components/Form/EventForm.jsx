@@ -26,7 +26,7 @@ const EventForm = ({ mode, onSubmit }) => {
     >
       <Row gutter={[12, 12]} className="w-full">
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="unique_number" label="Unique Number">
+          <Form.Item name="event_code" label="Event Code">
             <Input disabled placeholder="Auto" />
           </Form.Item>
         </Col>
