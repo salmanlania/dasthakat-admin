@@ -12,6 +12,7 @@ import flagReducer from "./features/flagSlice";
 import classReducer from "./features/classSlice";
 import validityReducer from "./features/validitySlice";
 import paymentReducer from "./features/paymentSlice";
+import salesmanReducer from "./features/salesmanSlice";
 
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
@@ -26,6 +27,7 @@ const rootReducer = combineReducers({
   class: classReducer,
   validity: validityReducer,
   payment: paymentReducer,
+  salesman: salesmanReducer,
 });
 
 export const store = configureStore({

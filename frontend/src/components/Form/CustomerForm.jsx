@@ -2,6 +2,7 @@ import { Button, Col, Form, Input, Row, Select } from "antd";
 import ReactInputMask from "react-input-mask";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import AsyncSelect from "../AsyncSelect";
 
 const CustomerForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues } = useSelector(
@@ -9,7 +10,11 @@ const CustomerForm = ({ mode, onSubmit }) => {
   );
 
   const onFinish = (formValues) => {
-    onSubmit({ ...formValues, phone_no: formValues.phone_no?.slice(0, 13) });
+    onSubmit({
+      ...formValues,
+      salesman_id: formValues.salesman_id ? formValues.salesman_id.value : null,
+      phone_no: formValues.phone_no?.slice(0, 13),
+    });
   };
 
   return (
@@ -43,8 +48,13 @@ const CustomerForm = ({ mode, onSubmit }) => {
         </Col>
 
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="salesman" label="Salesman">
-            <Input />
+          <Form.Item name="salesman_id" label="Salesman">
+            <AsyncSelect
+              endpoint="/salesman"
+              valueKey="salesman_id"
+              labelKey="name"
+              labelInValue
+            />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>

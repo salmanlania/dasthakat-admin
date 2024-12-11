@@ -26,6 +26,7 @@ import {
   setCustomerListParams,
 } from "../../store/features/customerSlice";
 import dayjs from "dayjs";
+import AsyncSelect from "../../components/AsyncSelect";
 
 const Customer = () => {
   const dispatch = useDispatch();
@@ -47,7 +48,6 @@ const Customer = () => {
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedCode = useDebounce(params.customer_code, 500);
   const debouncedName = useDebounce(params.name, 500);
-  const debouncedSalesman = useDebounce(params.salesman, 500);
   const debouncedCountry = useDebounce(params.country, 500);
   const debouncedAddress = useDebounce(params.address, 500);
   const debouncedPhone = useDebounce(params.phone_no, 500);
@@ -162,21 +162,23 @@ const Customer = () => {
     },
     {
       title: (
-        <div>
-          <p>Sales Man</p>
-          <Input
-            className="font-normal"
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Salesman</p>
+          <AsyncSelect
+            endpoint="/salesman"
+            valueKey="salesman_id"
+            labelKey="name"
             size="small"
-            onClick={(e) => e.stopPropagation()}
-            value={params.salesman}
-            onChange={(e) =>
-              dispatch(setCustomerListParams({ salesman: e.target.value }))
+            className="w-full font-normal"
+            value={params.salesman_id}
+            onChange={(value) =>
+              dispatch(setCustomerListParams({ salesman_id: value }))
             }
           />
         </div>
       ),
-      dataIndex: "salesman",
-      key: "salesman",
+      dataIndex: "salesman_name",
+      key: "salesman_name",
       sorter: true,
       width: 150,
       ellipsis: true,
@@ -363,6 +365,10 @@ const Customer = () => {
     },
   ];
 
+  if (!permissions.edit && !permissions.delete) {
+    columns.pop();
+  }
+
   useEffect(() => {
     dispatch(getCustomerList(params)).unwrap().catch(handleError);
   }, [
@@ -371,10 +377,10 @@ const Customer = () => {
     params.sort_column,
     params.sort_direction,
     params.status,
+    params.salesman_id,
     debouncedSearch,
     debouncedCode,
     debouncedName,
-    debouncedSalesman,
     debouncedCountry,
     debouncedAddress,
     debouncedPhone,

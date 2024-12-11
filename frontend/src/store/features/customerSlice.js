@@ -150,7 +150,12 @@ export const customerSlice = createSlice({
       state.initialFormValues = {
         name: data.name,
         customer_code: data.customer_code,
-        salesman: data.salesman,
+        salesman_id: data.salesman_id
+          ? {
+              value: data.salesman_id,
+              label: data.salesman_name,
+            }
+          : null,
         country: data.country,
         address: data.address,
         billing_address: data.billing_address,

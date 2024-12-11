@@ -102,6 +102,11 @@ const Sidebar = () => {
               disabled: !permissions?.company_branch?.list,
             },
             {
+              key: "salesman",
+              label: <Link to="/salesman">Salesman</Link>,
+              disabled: !permissions?.salesman?.list,
+            },
+            {
               key: "customer",
               label: <Link to="/customer">Customer</Link>,
               disabled: !permissions?.customer?.list,

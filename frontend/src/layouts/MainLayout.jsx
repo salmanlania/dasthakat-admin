@@ -43,6 +43,7 @@ const MainLayout = () => {
   )
     return <NotFound />;
 
+  if (href === "/salesman" && !permissions.salesman.list) return <NotFound />;
   if (href === "/customer" && !permissions.customer.list) return <NotFound />;
   if (href === "/customer/create" && !permissions.customer.add)
     return <NotFound />;
