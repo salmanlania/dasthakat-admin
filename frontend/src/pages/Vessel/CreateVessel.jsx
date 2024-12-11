@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import VesselForm from "../../components/Form/VesselForm";
 import PageHeading from "../../components/heading/PageHeading";
 import useError from "../../hooks/useError";
-import { createCompany } from "../../store/features/companySlice";
+import { createVessel } from "../../store/features/vesselSlice";
 
 const CreateVessel = () => {
   const navigate = useNavigate();
@@ -14,7 +14,7 @@ const CreateVessel = () => {
 
   const onVesselCreate = async (data) => {
     try {
-      await dispatch(createCompany(data)).unwrap();
+      await dispatch(createVessel(data)).unwrap();
       toast.success("Vessel created successfully");
       navigate("/vessel");
     } catch (error) {

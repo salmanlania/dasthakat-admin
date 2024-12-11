@@ -37,18 +37,6 @@ export const createClass = createAsyncThunk(
   }
 );
 
-export const getClass = createAsyncThunk(
-  "class/get",
-  async (id, { rejectWithValue }) => {
-    try {
-      const res = await api.get(`/class/${id}`);
-      return res.data.data;
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
-  }
-);
-
 export const updateClass = createAsyncThunk(
   "class/update",
   async ({ id, data }, { rejectWithValue }) => {
@@ -75,42 +63,10 @@ export const bulkDeleteClass = createAsyncThunk(
 
 const initialState = {
   isListLoading: false,
-  isFormSubmitting: false,
+  isSubmitting: false,
   isBulkDeleting: false,
-  initialFormValues: null,
   isItemLoading: false,
-  list: [
-    {
-      key: "1",
-      class_id: "1",
-      name: "Class 1",
-      created_at: "01-01-2023 10:00 AM",
-    },
-    {
-      key: "2",
-      class_id: "2",
-      name: "Class 2",
-      created_at: "01-01-2023 10:00 AM",
-    },
-    {
-      key: "3",
-      class_id: "3",
-      name: "Class 3",
-      created_at: "01-01-2023 10:00 AM",
-    },
-    {
-      key: "4",
-      class_id: "4",
-      name: "Class 4",
-      created_at: "01-01-2023 10:00 AM",
-    },
-    {
-      key: "5",
-      class_id: "5",
-      name: "Class 5",
-      created_at: "01-01-2023 10:00 AM",
-    },
-  ],
+  list: [],
   deleteIDs: [],
   params: {
     page: 1,
@@ -141,8 +97,17 @@ export const classSlice = createSlice({
     },
 
     addNewClass: (state) => {
+      const ifAlreadyNew = state.list.some((item) => item.class_id === "new");
+      if (ifAlreadyNew) return;
+
+      state.list = state.list.map((item) => {
+        return {
+          ...item,
+          editable: false,
+        };
+      });
+
       state.list.unshift({
-        key: "new",
         class_id: "new",
         name: "",
         editable: true,
@@ -151,15 +116,53 @@ export const classSlice = createSlice({
     },
 
     removeNewClass: (state) => {
-      state.list = state.list.filter((item) => item.key !== "new");
+      state.list = state.list.filter((item) => item.class_id !== "new");
     },
 
     setClassEditable: (state, action) => {
+      const { id, editable } = action.payload;
+
+      // if record is new then simply update editable field for this item
+      if (id === "new") {
+        state.list = state.list.map((item) => ({
+          ...item,
+          editable,
+        }));
+        return;
+      }
+
+      // Filter out items with class_id as "new"
+      state.list = state.list.filter((item) => item.class_id !== "new");
+
+      // Update the list
       state.list = state.list.map((item) => {
-        if (item.key === action.payload.key) {
+        if (item.class_id === id) {
+          return item.editable
+            ? {
+                ...item.prevRecord,
+                editable: false,
+              }
+            : {
+                ...item,
+                editable: true,
+                prevRecord: { ...item },
+              };
+        }
+
+        // If any other item is editable, reset it
+        return item.editable
+          ? { ...item.prevRecord, editable: false }
+          : { ...item, editable: false };
+      });
+    },
+
+    updateClassListValue: (state, action) => {
+      const { id, field, value } = action.payload;
+      state.list = state.list.map((item) => {
+        if (item.class_id === id) {
           return {
             ...item,
-            editable: action.payload.editable,
+            [field]: value,
           };
         }
         return item;
@@ -169,7 +172,6 @@ export const classSlice = createSlice({
   extraReducers: ({ addCase }) => {
     addCase(getClassList.pending, (state) => {
       state.isListLoading = true;
-      state.initialFormValues = null;
     });
     addCase(getClassList.fulfilled, (state, action) => {
       state.isListLoading = false;
@@ -185,39 +187,24 @@ export const classSlice = createSlice({
     });
 
     addCase(createClass.pending, (state) => {
-      state.isFormSubmitting = true;
+      state.isSubmitting = "new";
     });
     addCase(createClass.fulfilled, (state) => {
-      state.isFormSubmitting = false;
+      state.isSubmitting = false;
     });
     addCase(createClass.rejected, (state) => {
-      state.isFormSubmitting = false;
+      state.isSubmitting = false;
+      state.list = state.list.filter((item) => item.class_id !== "new");
     });
 
-    addCase(getClass.pending, (state) => {
-      state.isItemLoading = true;
-    });
-    addCase(getClass.fulfilled, (state, action) => {
-      state.isItemLoading = false;
-      const data = action.payload;
-      console.log(data);
-
-      state.initialFormValues = {};
-    });
-    addCase(getClass.rejected, (state) => {
-      state.isItemLoading = false;
-      state.initialFormValues = null;
-    });
-
-    addCase(updateClass.pending, (state) => {
-      state.isFormSubmitting = true;
+    addCase(updateClass.pending, (state, action) => {
+      state.isSubmitting = action.meta.arg.id;
     });
     addCase(updateClass.fulfilled, (state) => {
-      state.isFormSubmitting = false;
-      state.initialFormValues = null;
+      state.isSubmitting = false;
     });
     addCase(updateClass.rejected, (state) => {
-      state.isFormSubmitting = false;
+      state.isSubmitting = false;
     });
 
     addCase(bulkDeleteClass.pending, (state) => {
@@ -239,5 +226,6 @@ export const {
   addNewClass,
   removeNewClass,
   setClassEditable,
+  updateClassListValue,
 } = classSlice.actions;
 export default classSlice.reducer;

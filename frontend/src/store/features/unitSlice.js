@@ -1,11 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../axiosInstance";
 
-export const getValidityList = createAsyncThunk(
-  "validity/list",
+export const getUnitList = createAsyncThunk(
+  "unit/list",
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get("/validity", {
+      const res = await api.get("/unit", {
         params,
       });
       return res.data;
@@ -15,45 +15,45 @@ export const getValidityList = createAsyncThunk(
   }
 );
 
-export const deleteValidity = createAsyncThunk(
-  "validity/delete",
+export const deleteUnit = createAsyncThunk(
+  "unit/delete",
   async (id, { rejectWithValue }) => {
     try {
-      await api.delete(`/validity/${id}`);
+      await api.delete(`/unit/${id}`);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const createValidity = createAsyncThunk(
-  "validity/create",
+export const createUnit = createAsyncThunk(
+  "unit/create",
   async (data, { rejectWithValue }) => {
     try {
-      await api.post("/validity", data);
+      await api.post("/unit", data);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const updateValidity = createAsyncThunk(
-  "validity/update",
+export const updateUnit = createAsyncThunk(
+  "unit/update",
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      await api.put(`/validity/${id}`, data);
+      await api.put(`/unit/${id}`, data);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const bulkDeleteValidity = createAsyncThunk(
-  "validity/bulkDelete",
+export const bulkDeleteUnit = createAsyncThunk(
+  "unit/bulkDelete",
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post("/validity/bulk-delete", {
-        validity_ids: ids,
+      await api.post("/unit/bulk-delete", {
+        unit_ids: ids,
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -81,25 +81,23 @@ const initialState = {
   },
 };
 
-export const validitySlice = createSlice({
-  name: "validity",
+export const unitSlice = createSlice({
+  name: "unit",
   initialState,
   reducers: {
-    setValidityListParams: (state, action) => {
+    setUnitListParams: (state, action) => {
       state.params = {
         ...state.params,
         ...action.payload,
       };
     },
 
-    setValidityDeleteIDs: (state, action) => {
+    setUnitDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
     },
 
-    addNewValidity: (state) => {
-      const ifAlreadyNew = state.list.some(
-        (item) => item.validity_id === "new"
-      );
+    addNewUnit: (state) => {
+      const ifAlreadyNew = state.list.some((item) => item.unit_id === "new");
       if (ifAlreadyNew) return;
 
       state.list = state.list.map((item) => {
@@ -110,18 +108,18 @@ export const validitySlice = createSlice({
       });
 
       state.list.unshift({
-        validity_id: "new",
+        unit_id: "new",
         name: "",
         editable: true,
         created_at: null,
       });
     },
 
-    removeNewValidity: (state) => {
-      state.list = state.list.filter((item) => item.validity_id !== "new");
+    removeNewUnit: (state) => {
+      state.list = state.list.filter((item) => item.unit_id !== "new");
     },
 
-    setValidityEditable: (state, action) => {
+    setUnitEditable: (state, action) => {
       const { id, editable } = action.payload;
 
       // if record is new then simply update editable field for this item
@@ -133,12 +131,12 @@ export const validitySlice = createSlice({
         return;
       }
 
-      // Filter out items with validity_id as "new"
-      state.list = state.list.filter((item) => item.validity_id !== "new");
+      // Filter out items with unit_id as "new"
+      state.list = state.list.filter((item) => item.unit_id !== "new");
 
       // Update the list
       state.list = state.list.map((item) => {
-        if (item.validity_id === id) {
+        if (item.unit_id === id) {
           return item.editable
             ? {
                 ...item.prevRecord,
@@ -158,10 +156,10 @@ export const validitySlice = createSlice({
       });
     },
 
-    updateValidityListValue: (state, action) => {
+    updateUnitListValue: (state, action) => {
       const { id, field, value } = action.payload;
       state.list = state.list.map((item) => {
-        if (item.validity_id === id) {
+        if (item.unit_id === id) {
           return {
             ...item,
             [field]: value,
@@ -172,10 +170,10 @@ export const validitySlice = createSlice({
     },
   },
   extraReducers: ({ addCase }) => {
-    addCase(getValidityList.pending, (state) => {
+    addCase(getUnitList.pending, (state) => {
       state.isListLoading = true;
     });
-    addCase(getValidityList.fulfilled, (state, action) => {
+    addCase(getUnitList.fulfilled, (state, action) => {
       state.isListLoading = false;
       const { data, ...rest } = action.payload;
       state.list = data;
@@ -184,50 +182,50 @@ export const validitySlice = createSlice({
         total_pages: rest.last_page,
       };
     });
-    addCase(getValidityList.rejected, (state) => {
+    addCase(getUnitList.rejected, (state) => {
       state.isListLoading = false;
     });
 
-    addCase(createValidity.pending, (state) => {
+    addCase(createUnit.pending, (state) => {
       state.isSubmitting = "new";
     });
-    addCase(createValidity.fulfilled, (state) => {
+    addCase(createUnit.fulfilled, (state) => {
       state.isSubmitting = false;
     });
-    addCase(createValidity.rejected, (state) => {
+    addCase(createUnit.rejected, (state) => {
       state.isSubmitting = false;
-      state.list = state.list.filter((item) => item.validity_id !== "new");
+      state.list = state.list.filter((item) => item.unit_id !== "new");
     });
 
-    addCase(updateValidity.pending, (state, action) => {
+    addCase(updateUnit.pending, (state, action) => {
       state.isSubmitting = action.meta.arg.id;
     });
-    addCase(updateValidity.fulfilled, (state) => {
+    addCase(updateUnit.fulfilled, (state) => {
       state.isSubmitting = false;
     });
-    addCase(updateValidity.rejected, (state) => {
+    addCase(updateUnit.rejected, (state) => {
       state.isSubmitting = false;
     });
 
-    addCase(bulkDeleteValidity.pending, (state) => {
+    addCase(bulkDeleteUnit.pending, (state) => {
       state.isBulkDeleting = true;
     });
-    addCase(bulkDeleteValidity.fulfilled, (state) => {
+    addCase(bulkDeleteUnit.fulfilled, (state) => {
       state.isBulkDeleting = false;
       state.deleteIDs = [];
     });
-    addCase(bulkDeleteValidity.rejected, (state) => {
+    addCase(bulkDeleteUnit.rejected, (state) => {
       state.isBulkDeleting = false;
     });
   },
 });
 
 export const {
-  setValidityListParams,
-  setValidityDeleteIDs,
-  addNewValidity,
-  removeNewValidity,
-  setValidityEditable,
-  updateValidityListValue,
-} = validitySlice.actions;
-export default validitySlice.reducer;
+  setUnitListParams,
+  setUnitDeleteIDs,
+  addNewUnit,
+  removeNewUnit,
+  setUnitEditable,
+  updateUnitListValue,
+} = unitSlice.actions;
+export default unitSlice.reducer;

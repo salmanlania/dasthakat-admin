@@ -20,12 +20,12 @@ import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
 import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
 import {
-  bulkDeleteCompany,
-  deleteCompany,
-  getCompanyList,
-  setCompanyDeleteIDs,
-  setCompanyListParams,
-} from "../../store/features/companySlice";
+  bulkDeleteVessel,
+  deleteVessel,
+  getVesselList,
+  setVesselDeleteIDs,
+  setVesselListParams,
+} from "../../store/features/vesselSlice";
 
 const Vessel = () => {
   const dispatch = useDispatch();
@@ -37,19 +37,22 @@ const Vessel = () => {
     paginationInfo,
     isBulkDeleting,
     deleteIDs,
-  } = useSelector((state) => state.company);
+  } = useSelector((state) => state.vessel);
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user.permission.vessel;
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
+  const debouncedIMO = useDebounce(params.imo, 500);
   const debouncedName = useDebounce(params.name, 500);
 
   const onVesselDelete = async (id) => {
     try {
-      await dispatch(deleteCompany(id)).unwrap();
+      await dispatch(deleteVessel(id)).unwrap();
       toast.success("Vessel deleted successfully");
-      dispatch(getCompanyList(params)).unwrap();
+      dispatch(getVesselList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -57,10 +60,10 @@ const Vessel = () => {
 
   const onBulkDelete = async () => {
     try {
-      // await dispatch(bulkDeleteCompany(deleteIDs)).unwrap();
-      // toast.success("Vessels deleted successfully");
+      await dispatch(bulkDeleteVessel(deleteIDs)).unwrap();
+      toast.success("Vessels deleted successfully");
       closeDeleteModal();
-      // await dispatch(getCompanyList(params)).unwrap();
+      await dispatch(getVesselList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -77,7 +80,7 @@ const Vessel = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.imo}
             onChange={(e) =>
-              dispatch(setCompanyListParams({ imo: e.target.value }))
+              dispatch(setVesselListParams({ imo: e.target.value }))
             }
           />
         </div>
@@ -98,7 +101,7 @@ const Vessel = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.name}
             onChange={(e) =>
-              dispatch(setCompanyListParams({ name: e.target.value }))
+              dispatch(setVesselListParams({ name: e.target.value }))
             }
           />
         </div>
@@ -113,20 +116,22 @@ const Vessel = () => {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Flag</p>
-          {/* <AsyncSelectNoPaginate
-            endpoint="/lookups/company"
+          <AsyncSelect
+            endpoint="/flag"
             size="small"
+            labelKey="name"
+            valueKey="flag_id"
             className="w-full font-normal"
-            value={params.company}
+            value={params.flag_id}
             onChange={(value) =>
-              dispatch(setCompanyBranchListParams({ company: value }))
+              dispatch(setVesselListParams({ flag_id: value }))
             }
-          /> */}
+          />
           <Select size="small" className="w-full font-normal" />
         </div>
       ),
-      dataIndex: "flag",
-      key: "flag",
+      dataIndex: "flag_name",
+      key: "flag_name",
       sorter: true,
       width: 200,
       ellipsis: true,
@@ -135,20 +140,22 @@ const Vessel = () => {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Class 1</p>
-          {/* <AsyncSelectNoPaginate
-            endpoint="/lookups/company"
+          <AsyncSelect
+            endpoint="/class"
             size="small"
             className="w-full font-normal"
-            value={params.company}
+            valueKey="class_id"
+            labelKey="name"
+            value={params.class1_id}
             onChange={(value) =>
-              dispatch(setCompanyBranchListParams({ company: value }))
+              dispatch(setVesselListParams({ class1_id: value }))
             }
-          /> */}
+          />
           <Select size="small" className="w-full font-normal" />
         </div>
       ),
-      dataIndex: "class1",
-      key: "class1",
+      dataIndex: "class1_name",
+      key: "class1_name",
       sorter: true,
       width: 200,
       ellipsis: true,
@@ -157,20 +164,22 @@ const Vessel = () => {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Class 2</p>
-          {/* <AsyncSelectNoPaginate
-            endpoint="/lookups/company"
+          <AsyncSelect
+            endpoint="/class"
             size="small"
+            valueKey="class_id"
+            labelKey="name"
             className="w-full font-normal"
-            value={params.company}
+            value={params.class2_id}
             onChange={(value) =>
-              dispatch(setCompanyBranchListParams({ company: value }))
+              dispatch(setVesselListParams({ class2_id: value }))
             }
-          /> */}
+          />
           <Select size="small" className="w-full font-normal" />
         </div>
       ),
-      dataIndex: "class2",
-      key: "class2",
+      dataIndex: "class2_name",
+      key: "class2_name",
       sorter: true,
       width: 200,
       ellipsis: true,
@@ -187,35 +196,39 @@ const Vessel = () => {
     {
       title: "Action",
       key: "action",
-      render: (_, { company_id }) => (
+      render: (_, { vessel_id }) => (
         <div className="flex gap-2 items-center">
-          <Tooltip title="Edit">
-            <Link to={`/vessel/edit/${company_id}`}>
-              <Button
-                size="small"
-                type="primary"
-                className="bg-gray-500 hover:!bg-gray-400"
-                icon={<MdOutlineEdit size={14} />}
-              />
-            </Link>
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Popconfirm
-              title="Are you sure you want to delete?"
-              description="After deleting, You will not be able to recover it."
-              okButtonProps={{ danger: true }}
-              okText="Yes"
-              cancelText="No"
-              onConfirm={() => onCompanyDelete(company_id)}
-            >
-              <Button
-                size="small"
-                type="primary"
-                danger
-                icon={<GoTrash size={14} />}
-              />
-            </Popconfirm>
-          </Tooltip>
+          {permissions.edit ? (
+            <Tooltip title="Edit">
+              <Link to={`/vessel/edit/${vessel_id}`}>
+                <Button
+                  size="small"
+                  type="primary"
+                  className="bg-gray-500 hover:!bg-gray-400"
+                  icon={<MdOutlineEdit size={14} />}
+                />
+              </Link>
+            </Tooltip>
+          ) : null}
+          {permissions.delete ? (
+            <Tooltip title="Delete">
+              <Popconfirm
+                title="Are you sure you want to delete?"
+                description="After deleting, You will not be able to recover it."
+                okButtonProps={{ danger: true }}
+                okText="Yes"
+                cancelText="No"
+                onConfirm={() => onVesselDelete(vessel_id)}
+              >
+                <Button
+                  size="small"
+                  type="primary"
+                  danger
+                  icon={<GoTrash size={14} />}
+                />
+              </Popconfirm>
+            </Tooltip>
+          ) : null}
         </div>
       ),
       width: 70,
@@ -223,28 +236,23 @@ const Vessel = () => {
     },
   ];
 
-  const dataSource = [
-    {
-      id: "1",
-      key: "1",
-      imo: "IMO 1",
-      name: "Vessel 1",
-      flag: "Pakistan",
-      class1: "Class 1",
-      class2: "Class 2",
-      created_at: "01-01-2023 10:00 AM",
-    },
-  ];
+  if (!permissions.edit && !permissions.delete) {
+    columns.pop();
+  }
 
   useEffect(() => {
-    // dispatch(getCompanyList(params)).unwrap().catch(handleError);
+    dispatch(getVesselList(params)).unwrap().catch(handleError);
   }, [
     params.page,
     params.limit,
     params.sort_column,
     params.sort_direction,
+    params.flag_id,
+    params.class1_id,
+    params.class2_id,
     debouncedSearch,
     debouncedName,
+    debouncedIMO,
   ]);
 
   return (
@@ -264,7 +272,7 @@ const Vessel = () => {
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) =>
-              dispatch(setCompanyListParams({ search: e.target.value }))
+              dispatch(setVesselListParams({ search: e.target.value }))
             }
           />
 
@@ -277,23 +285,29 @@ const Vessel = () => {
             >
               Delete
             </Button>
-            <Link to="/vessel/create">
-              <Button type="primary">Add New</Button>
-            </Link>
+            {permissions.add ? (
+              <Link to="/vessel/create">
+                <Button type="primary">Add New</Button>
+              </Link>
+            ) : null}
           </div>
         </div>
 
         <Table
           size="small"
-          rowSelection={{
-            type: "checkbox",
-            selectedRowKeys: deleteIDs,
-            onChange: (selectedRowKeys) =>
-              dispatch(setCompanyDeleteIDs(selectedRowKeys)),
-          }}
+          rowSelection={
+            permissions.delete
+              ? {
+                  type: "checkbox",
+                  selectedRowKeys: deleteIDs,
+                  onChange: (selectedRowKeys) =>
+                    dispatch(setVesselDeleteIDs(selectedRowKeys)),
+                }
+              : null
+          }
           loading={isListLoading}
           className="mt-2"
-          rowKey="id"
+          rowKey="vessel_id"
           scroll={{ x: "calc(100% - 200px)" }}
           pagination={{
             total: paginationInfo.total_records,
@@ -303,7 +317,7 @@ const Vessel = () => {
           }}
           onChange={(e, b, c, d) => {
             dispatch(
-              setCompanyListParams({
+              setVesselListParams({
                 page: e.current,
                 limit: e.pageSize,
                 sort_column: c.field,
@@ -311,7 +325,7 @@ const Vessel = () => {
               })
             );
           }}
-          dataSource={dataSource}
+          dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{

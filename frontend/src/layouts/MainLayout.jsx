@@ -27,6 +27,21 @@ const MainLayout = () => {
     );
   }
 
+  if (href === "/user" && !permissions.user.list) return <NotFound />;
+  if (href === "/user/create" && !permissions.user.add) return <NotFound />;
+  if (href.startsWith("/user/edit") && !permissions.user.edit)
+    return <NotFound />;
+
+  if (href === "/user-permission" && !permissions.user_permission.list)
+    return <NotFound />;
+  if (href === "/user-permission/create" && !permissions.user_permission.add)
+    return <NotFound />;
+  if (
+    href.startsWith("/user-permission/edit") &&
+    !permissions.user_permission.edit
+  )
+    return <NotFound />;
+
   if (href === "/company" && !permissions.company.list) return <NotFound />;
   if (href === "/company/create" && !permissions.company.add)
     return <NotFound />;
@@ -56,20 +71,23 @@ const MainLayout = () => {
   if (href.startsWith("/vendor/edit") && !permissions.supplier.edit)
     return <NotFound />;
 
-  if (href === "/user" && !permissions.user.list) return <NotFound />;
-  if (href === "/user/create" && !permissions.user.add) return <NotFound />;
-  if (href.startsWith("/user/edit") && !permissions.user.edit)
+  if (href === "/flag" && !permissions.flag.list) return <NotFound />;
+  if (href === "/class" && !permissions.class.list) return <NotFound />;
+
+  if (href === "/vessel" && !permissions.vessel.list) return <NotFound />;
+  if (href === "/vessel/create" && !permissions.vessel.add) return <NotFound />;
+  if (href.startsWith("/vessel/edit") && !permissions.vessel.edit)
     return <NotFound />;
 
-  if (href === "/user-permission" && !permissions.user_permission.list)
+  if (href === "/event" && !permissions.event.list) return <NotFound />;
+  if (href === "/event/create" && !permissions.event.add) return <NotFound />;
+  if (href.startsWith("/event/edit") && !permissions.event.edit)
     return <NotFound />;
-  if (href === "/user-permission/create" && !permissions.user_permission.add)
-    return <NotFound />;
-  if (
-    href.startsWith("/user-permission/edit") &&
-    !permissions.user_permission.edit
-  )
-    return <NotFound />;
+
+  if (href === "/category" && !permissions.category.list) return <NotFound />;
+  if (href === "/brand" && !permissions.brand.list) return <NotFound />;
+  if (href === "/unit" && !permissions.unit.list) return <NotFound />;
+  if (href === "/validity" && !permissions.validity.list) return <NotFound />;
 
   return (
     <Layout className="min-h-screen">

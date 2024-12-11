@@ -13,6 +13,11 @@ import classReducer from "./features/classSlice";
 import validityReducer from "./features/validitySlice";
 import paymentReducer from "./features/paymentSlice";
 import salesmanReducer from "./features/salesmanSlice";
+import categoryReducer from "./features/categorySlice";
+import brandReducer from "./features/brandSlice";
+import unitReducer from "./features/unitSlice";
+import vesselReducer from "./features/vesselSlice";
+import eventReducer from "./features/eventSlice";
 
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
@@ -28,6 +33,11 @@ const rootReducer = combineReducers({
   validity: validityReducer,
   payment: paymentReducer,
   salesman: salesmanReducer,
+  category: categoryReducer,
+  brand: brandReducer,
+  unit: unitReducer,
+  vessel: vesselReducer,
+  event: eventReducer,
 });
 
 export const store = configureStore({

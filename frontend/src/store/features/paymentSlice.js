@@ -37,18 +37,6 @@ export const createPayment = createAsyncThunk(
   }
 );
 
-export const getPayment = createAsyncThunk(
-  "payment/get",
-  async (id, { rejectWithValue }) => {
-    try {
-      const res = await api.get(`/payment/${id}`);
-      return res.data.data;
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
-  }
-);
-
 export const updatePayment = createAsyncThunk(
   "payment/update",
   async ({ id, data }, { rejectWithValue }) => {
@@ -75,42 +63,10 @@ export const bulkDeletePayment = createAsyncThunk(
 
 const initialState = {
   isListLoading: false,
-  isFormSubmitting: false,
+  isSubmitting: false,
   isBulkDeleting: false,
-  initialFormValues: null,
   isItemLoading: false,
-  list: [
-    {
-      key: "1",
-      payment_id: "1",
-      name: "30 Days",
-      created_at: "01-01-2023 10:00 AM",
-    },
-    {
-      key: "2",
-      payment_id: "2",
-      name: "60 Days",
-      created_at: "01-01-2023 10:00 AM",
-    },
-    {
-      key: "3",
-      payment_id: "3",
-      name: "90 Days",
-      created_at: "01-01-2023 10:00 AM",
-    },
-    {
-      key: "4",
-      payment_id: "4",
-      name: "120 Days",
-      created_at: "01-01-2023 10:00 AM",
-    },
-    {
-      key: "5",
-      payment_id: "5",
-      name: "180 Days",
-      created_at: "01-01-2023 10:00 AM",
-    },
-  ],
+  list: [],
   deleteIDs: [],
   params: {
     page: 1,
@@ -141,8 +97,17 @@ export const paymentSlice = createSlice({
     },
 
     addNewPayment: (state) => {
+      const ifAlreadyNew = state.list.some((item) => item.payment_id === "new");
+      if (ifAlreadyNew) return;
+
+      state.list = state.list.map((item) => {
+        return {
+          ...item,
+          editable: false,
+        };
+      });
+
       state.list.unshift({
-        key: "new",
         payment_id: "new",
         name: "",
         editable: true,
@@ -151,15 +116,53 @@ export const paymentSlice = createSlice({
     },
 
     removeNewPayment: (state) => {
-      state.list = state.list.filter((item) => item.key !== "new");
+      state.list = state.list.filter((item) => item.payment_id !== "new");
     },
 
     setPaymentEditable: (state, action) => {
+      const { id, editable } = action.payload;
+
+      // if record is new then simply update editable field for this item
+      if (id === "new") {
+        state.list = state.list.map((item) => ({
+          ...item,
+          editable,
+        }));
+        return;
+      }
+
+      // Filter out items with payment_id as "new"
+      state.list = state.list.filter((item) => item.payment_id !== "new");
+
+      // Update the list
       state.list = state.list.map((item) => {
-        if (item.key === action.payload.key) {
+        if (item.payment_id === id) {
+          return item.editable
+            ? {
+                ...item.prevRecord,
+                editable: false,
+              }
+            : {
+                ...item,
+                editable: true,
+                prevRecord: { ...item },
+              };
+        }
+
+        // If any other item is editable, reset it
+        return item.editable
+          ? { ...item.prevRecord, editable: false }
+          : { ...item, editable: false };
+      });
+    },
+
+    updatePaymentListValue: (state, action) => {
+      const { id, field, value } = action.payload;
+      state.list = state.list.map((item) => {
+        if (item.payment_id === id) {
           return {
             ...item,
-            editable: action.payload.editable,
+            [field]: value,
           };
         }
         return item;
@@ -169,7 +172,6 @@ export const paymentSlice = createSlice({
   extraReducers: ({ addCase }) => {
     addCase(getPaymentList.pending, (state) => {
       state.isListLoading = true;
-      state.initialFormValues = null;
     });
     addCase(getPaymentList.fulfilled, (state, action) => {
       state.isListLoading = false;
@@ -185,39 +187,24 @@ export const paymentSlice = createSlice({
     });
 
     addCase(createPayment.pending, (state) => {
-      state.isFormSubmitting = true;
+      state.isSubmitting = "new";
     });
     addCase(createPayment.fulfilled, (state) => {
-      state.isFormSubmitting = false;
+      state.isSubmitting = false;
     });
     addCase(createPayment.rejected, (state) => {
-      state.isFormSubmitting = false;
+      state.isSubmitting = false;
+      state.list = state.list.filter((item) => item.payment_id !== "new");
     });
 
-    addCase(getPayment.pending, (state) => {
-      state.isItemLoading = true;
-    });
-    addCase(getPayment.fulfilled, (state, action) => {
-      state.isItemLoading = false;
-      const data = action.payload;
-      console.log(data);
-
-      state.initialFormValues = {};
-    });
-    addCase(getPayment.rejected, (state) => {
-      state.isItemLoading = false;
-      state.initialFormValues = null;
-    });
-
-    addCase(updatePayment.pending, (state) => {
-      state.isFormSubmitting = true;
+    addCase(updatePayment.pending, (state, action) => {
+      state.isSubmitting = action.meta.arg.id;
     });
     addCase(updatePayment.fulfilled, (state) => {
-      state.isFormSubmitting = false;
-      state.initialFormValues = null;
+      state.isSubmitting = false;
     });
     addCase(updatePayment.rejected, (state) => {
-      state.isFormSubmitting = false;
+      state.isSubmitting = false;
     });
 
     addCase(bulkDeletePayment.pending, (state) => {
@@ -239,5 +226,6 @@ export const {
   addNewPayment,
   removeNewPayment,
   setPaymentEditable,
+  updatePaymentListValue,
 } = paymentSlice.actions;
 export default paymentSlice.reducer;

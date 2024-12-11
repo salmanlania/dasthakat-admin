@@ -11,21 +11,21 @@ import PageHeading from "../../components/heading/PageHeading";
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
 import useError from "../../hooks/useError";
 import {
-  addNewPayment,
-  bulkDeletePayment,
-  createPayment,
-  deletePayment,
-  getPaymentList,
-  removeNewPayment,
-  setPaymentDeleteIDs,
-  setPaymentEditable,
-  setPaymentListParams,
-  updatePayment,
-  updatePaymentListValue,
-} from "../../store/features/paymentSlice";
+  addNewCategory,
+  bulkDeleteCategory,
+  createCategory,
+  deleteCategory,
+  getCategoryList,
+  removeNewCategory,
+  setCategoryDeleteIDs,
+  setCategoryEditable,
+  setCategoryListParams,
+  updateCategory,
+  updateCategoryListValue,
+} from "../../store/features/categorySlice";
 import useDebounce from "../../hooks/useDebounce";
 
-const Payment = () => {
+const Category = () => {
   const dispatch = useDispatch();
   const handleError = useError();
   const {
@@ -36,9 +36,9 @@ const Payment = () => {
     isBulkDeleting,
     isSubmitting,
     deleteIDs,
-  } = useSelector((state) => state.payment);
+  } = useSelector((state) => state.category);
   const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.payment;
+  const permissions = user.permission.category;
 
   const debouncedSearch = useDebounce(params.search, 500);
 
@@ -46,7 +46,7 @@ const Payment = () => {
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const onChange = (id, field, value) => {
-    dispatch(updatePaymentListValue({ id, field, value }));
+    dispatch(updateCategoryListValue({ id, field, value }));
   };
 
   const onCreate = async (record) => {
@@ -54,41 +54,41 @@ const Payment = () => {
     if (!name) return toast.error("Name field is required");
 
     try {
-      await dispatch(createPayment({ name })).unwrap();
-      await dispatch(getPaymentList(params)).unwrap();
+      await dispatch(createCategory({ name })).unwrap();
+      await dispatch(getCategoryList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
   };
 
   const onUpdate = async (record) => {
-    const { payment_id, name } = record;
+    const { category_id, name } = record;
 
     if (!name) return toast.error("Name field is required");
 
     try {
       await dispatch(
-        updatePayment({
-          id: payment_id,
+        updateCategory({
+          id: category_id,
           data: { name },
         })
       ).unwrap();
-      await dispatch(getPaymentList(params)).unwrap();
+      await dispatch(getCategoryList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
   };
 
   const onCancel = async (id) => {
-    if (id === "new") return dispatch(removeNewPayment());
-    dispatch(setPaymentEditable({ id, editable: false }));
+    if (id === "new") return dispatch(removeNewCategory());
+    dispatch(setCategoryEditable({ id, editable: false }));
   };
 
-  const onPaymentDelete = async (id) => {
+  const onCategoryDelete = async (id) => {
     try {
-      await dispatch(deletePayment(id)).unwrap();
-      toast.success("Payment deleted successfully");
-      dispatch(getPaymentList(params)).unwrap();
+      await dispatch(deleteCategory(id)).unwrap();
+      toast.success("Category deleted successfully");
+      dispatch(getCategoryList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -96,10 +96,10 @@ const Payment = () => {
 
   const onBulkDelete = async () => {
     try {
-      await dispatch(bulkDeletePayment(deleteIDs)).unwrap();
-      toast.success("Payment deleted successfully");
+      await dispatch(bulkDeleteCategory(deleteIDs)).unwrap();
+      toast.success("Category deleted successfully");
       closeDeleteModal();
-      await dispatch(getPaymentList(params)).unwrap();
+      await dispatch(getCategoryList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -113,12 +113,12 @@ const Payment = () => {
       sorter: true,
       width: 120,
       ellipsis: true,
-      render: (_, { name, editable, payment_id }) =>
+      render: (_, { name, editable, category_id }) =>
         editable ? (
           <Input
             autoFocus
             defaultValue={name}
-            onBlur={(e) => onChange(payment_id, "name", e.target.value)}
+            onBlur={(e) => onChange(category_id, "name", e.target.value)}
           />
         ) : (
           <span>{name}</span>
@@ -141,12 +141,12 @@ const Payment = () => {
       title: "Action",
       key: "action",
       render: (_, record) => {
-        const { payment_id, editable } = record;
+        const { category_id, editable } = record;
 
         if (editable) {
           return (
             <div className="flex gap-2 items-center">
-              <Tooltip title="Cancel" onClick={() => onCancel(payment_id)}>
+              <Tooltip title="Cancel" onClick={() => onCancel(category_id)}>
                 <Button danger icon={<FcCancel size={20} />} size="small" />
               </Tooltip>
               <Tooltip title="Save">
@@ -154,9 +154,9 @@ const Payment = () => {
                   type="primary"
                   size="small"
                   icon={<FaRegSave size={16} />}
-                  loading={isSubmitting === payment_id}
+                  loading={isSubmitting === category_id}
                   onClick={() =>
-                    payment_id === "new" ? onCreate(record) : onUpdate(record)
+                    category_id === "new" ? onCreate(record) : onUpdate(record)
                   }
                 />
               </Tooltip>
@@ -175,8 +175,8 @@ const Payment = () => {
                   icon={<MdOutlineEdit size={14} />}
                   onClick={() =>
                     dispatch(
-                      setPaymentEditable({
-                        id: payment_id,
+                      setCategoryEditable({
+                        id: category_id,
                         editable: true,
                       })
                     )
@@ -192,7 +192,7 @@ const Payment = () => {
                   okButtonProps={{ danger: true }}
                   okText="Yes"
                   cancelText="No"
-                  onConfirm={() => onPaymentDelete(payment_id)}
+                  onConfirm={() => onCategoryDelete(category_id)}
                 >
                   <Button
                     size="small"
@@ -216,7 +216,7 @@ const Payment = () => {
   }
 
   useEffect(() => {
-    dispatch(getPaymentList(params)).unwrap().catch(handleError);
+    dispatch(getCategoryList(params)).unwrap().catch(handleError);
   }, [
     params.page,
     params.limit,
@@ -228,9 +228,9 @@ const Payment = () => {
   return (
     <>
       <div className="flex justify-between items-center flex-wrap">
-        <PageHeading>PAYMENT</PageHeading>
+        <PageHeading>CATEGORY</PageHeading>
         <Breadcrumb
-          items={[{ title: "Payment" }, { title: "List" }]}
+          items={[{ title: "Category" }, { title: "List" }]}
           separator=">"
         />
       </div>
@@ -242,7 +242,7 @@ const Payment = () => {
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) =>
-              dispatch(setPaymentListParams({ search: e.target.value }))
+              dispatch(setCategoryListParams({ search: e.target.value }))
             }
           />
 
@@ -256,7 +256,7 @@ const Payment = () => {
               Delete
             </Button>
             {permissions.add ? (
-              <Button type="primary" onClick={() => dispatch(addNewPayment())}>
+              <Button type="primary" onClick={() => dispatch(addNewCategory())}>
                 Add New
               </Button>
             ) : null}
@@ -271,13 +271,13 @@ const Payment = () => {
                   type: "checkbox",
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) =>
-                    dispatch(setPaymentDeleteIDs(selectedRowKeys)),
+                    dispatch(setCategoryDeleteIDs(selectedRowKeys)),
                 }
               : null
           }
           onChange={(e, b, c, d) => {
             dispatch(
-              setPaymentListParams({
+              setCategoryListParams({
                 page: e.current,
                 limit: e.pageSize,
                 sort_column: c.field,
@@ -286,14 +286,14 @@ const Payment = () => {
             );
           }}
           loading={isListLoading}
-          rowKey="payment_id"
+          rowKey="category_id"
           className="mt-2"
           scroll={{ x: "calc(100% - 200px)" }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} payment`,
+            showTotal: (total) => `Total ${total} category`,
           }}
           dataSource={list}
           showSorterTooltip={false}
@@ -309,11 +309,11 @@ const Payment = () => {
         onCancel={closeDeleteModal}
         onDelete={onBulkDelete}
         isDeleting={isBulkDeleting}
-        title="Are you sure you want to delete these payment?"
+        title="Are you sure you want to delete these category?"
         description="After deleting, you will not be able to recover."
       />
     </>
   );
 };
 
-export default Payment;
+export default Category;

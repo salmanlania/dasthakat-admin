@@ -6,7 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import VesselForm from "../../components/Form/VesselForm";
 import PageHeading from "../../components/heading/PageHeading";
 import useError from "../../hooks/useError";
-import { getCompany, updateCompany } from "../../store/features/companySlice";
+import { getVessel, updateVessel } from "../../store/features/vesselSlice";
 
 const EditVessel = () => {
   const dispatch = useDispatch();
@@ -14,12 +14,12 @@ const EditVessel = () => {
   const handleError = useError();
   const { id } = useParams();
   const { isItemLoading, initialFormValues } = useSelector(
-    (state) => state.company
+    (state) => state.vessel
   );
 
   const onVesselUpdate = async (data) => {
     try {
-      await dispatch(updateCompany({ id, data })).unwrap();
+      await dispatch(updateVessel({ id, data })).unwrap();
       toast.success("Vessel updated successfully");
       navigate("/vessel");
     } catch (error) {
@@ -27,9 +27,9 @@ const EditVessel = () => {
     }
   };
 
-  // useEffect(() => {
-  //   dispatch(getCompany(id)).unwrap().catch(handleError);
-  // }, []);
+  useEffect(() => {
+    dispatch(getVessel(id)).unwrap().catch(handleError);
+  }, []);
 
   return (
     <>
@@ -47,15 +47,11 @@ const EditVessel = () => {
         </div>
       )}
 
-      {/* {!isItemLoading && initialFormValues ? (
+      {!isItemLoading && initialFormValues ? (
         <div className="mt-4 bg-white sm:p-4 p-2 rounded-md">
           <VesselForm mode="edit" onSubmit={onVesselUpdate} />
         </div>
-      ) : null} */}
-
-      <div className="mt-4 bg-white sm:p-4 p-2 rounded-md">
-        <VesselForm mode="edit" onSubmit={onVesselUpdate} />
-      </div>
+      ) : null}
     </>
   );
 };

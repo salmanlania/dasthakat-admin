@@ -1,19 +1,22 @@
-import { Button, Col, Form, Input, Row, Select } from "antd";
+import { Button, Col, Form, Input, Row } from "antd";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import AsyncSelect from "../AsyncSelect";
 
 const VesselForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues } = useSelector(
-    (state) => state.company
+    (state) => state.vessel
   );
 
-  const onFinish = (formValues) => {
+  const onFinish = (values) => {
     const data = {
-      ...formValues,
+      ...values,
+      flag_id: values.flag_id ? values.flag_id.value : null,
+      class1_id: values.class1_id ? values.class1_id.value : null,
+      class2_id: values.class2_id ? values.class2_id.value : null,
     };
 
-    // onSubmit(data);
+    onSubmit(data);
   };
 
   return (
@@ -22,7 +25,7 @@ const VesselForm = ({ mode, onSubmit }) => {
       layout="vertical"
       autoComplete="off"
       onFinish={onFinish}
-      initialValues={initialFormValues}
+      initialValues={mode === "edit" ? initialFormValues : null}
     >
       <Row gutter={[12, 12]} className="w-full">
         <Col span={24} sm={12} md={8} lg={8}>
@@ -36,36 +39,33 @@ const VesselForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="flag" label="Flag">
-            {/* <AsyncSelect
-                endpoint="/currency"
-                valueKey="currency_id"
-                labelKey="name"
-                labelInValue
-              /> */}
-            <Select />
+          <Form.Item name="flag_id" label="Flag">
+            <AsyncSelect
+              endpoint="/flag"
+              valueKey="flag_id"
+              labelKey="name"
+              labelInValue
+            />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="class1" label="Class 1">
-            {/* <AsyncSelect
-                endpoint="/currency"
-                valueKey="currency_id"
-                labelKey="name"
-                labelInValue
-              /> */}
-            <Select />
+          <Form.Item name="class1_id" label="Class 1">
+            <AsyncSelect
+              endpoint="/class"
+              valueKey="class_id"
+              labelKey="name"
+              labelInValue
+            />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="class2" label="Class 2">
-            {/* <AsyncSelect
-                endpoint="/currency"
-                valueKey="currency_id"
-                labelKey="name"
-                labelInValue
-              /> */}
-            <Select />
+          <Form.Item name="class2_id" label="Class 2">
+            <AsyncSelect
+              endpoint="/class"
+              valueKey="class_id"
+              labelKey="name"
+              labelInValue
+            />
           </Form.Item>
         </Col>
       </Row>

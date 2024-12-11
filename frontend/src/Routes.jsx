@@ -54,6 +54,9 @@ const Event = lazy(() => import("./pages/Event"));
 const CreateEvent = lazy(() => import("./pages/Event/CreateEvent"));
 const EditEvent = lazy(() => import("./pages/Event/EditEvent"));
 
+const Category = lazy(() => import("./pages/Category"));
+const Brand = lazy(() => import("./pages/Brand"));
+const Unit = lazy(() => import("./pages/Unit"));
 const Validity = lazy(() => import("./pages/Validity"));
 const Payment = lazy(() => import("./pages/Payment"));
 
@@ -298,6 +301,30 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Quotation />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/category",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Category />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/brand",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Brand />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/unit",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Unit />
               </Suspense>
             ),
           },

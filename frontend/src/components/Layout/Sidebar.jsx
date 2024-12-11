@@ -88,8 +88,13 @@ const Sidebar = () => {
           disabled:
             !permissions?.company?.list &&
             !permissions?.company_branch?.list &&
+            !permissions?.salesman?.list &&
             !permissions?.customer?.list &&
-            !permissions?.supplier?.list,
+            !permissions?.supplier?.list &&
+            !permissions?.flag?.list &&
+            !permissions?.class?.list &&
+            !permissions?.vessel?.list &&
+            !permissions?.event?.list,
           children: [
             {
               key: "company",
@@ -119,18 +124,22 @@ const Sidebar = () => {
             {
               key: "flag",
               label: <Link to="/flag">Flag</Link>,
+              disabled: !permissions?.flag?.list,
             },
             {
               key: "class",
               label: <Link to="/class">Class</Link>,
+              disabled: !permissions?.class?.list,
             },
             {
               key: "vessel",
               label: <Link to="/vessel">Vessel</Link>,
+              disabled: !permissions?.vessel?.list,
             },
             {
               key: "event",
               label: <Link to="/event">Event</Link>,
+              disabled: !permissions?.event?.list,
             },
           ],
         },
@@ -158,18 +167,41 @@ const Sidebar = () => {
       key: "inventory-management",
       label: "Inventory Management",
       icon: <MdInventory size={16} />,
+      disabled:
+        !permissions?.category?.list &&
+        !permissions?.brand?.list &&
+        !permissions?.unit?.list &&
+        !permissions?.validity?.list &&
+        !permissions?.payment?.list,
       children: [
         {
           key: "inventory-setup",
           label: "Inventory Setup",
           children: [
             {
+              key: "category",
+              label: <Link to="/category">Category</Link>,
+              disabled: !permissions?.category?.list,
+            },
+            {
+              key: "brand",
+              label: <Link to="/brand">Brand</Link>,
+              disabled: !permissions?.brand?.list,
+            },
+            {
+              key: "unit",
+              label: <Link to="/unit">Unit</Link>,
+              disabled: !permissions?.unit?.list,
+            },
+            {
               key: "validity",
               label: <Link to="/validity">Validity</Link>,
+              disabled: !permissions?.validity?.list,
             },
             {
               key: "payment",
               label: <Link to="/payment">Payment</Link>,
+              disabled: !permissions?.permissions?.list,
             },
           ],
         },

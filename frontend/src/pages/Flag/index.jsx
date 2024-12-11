@@ -1,5 +1,9 @@
 import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from "antd";
-import { useState } from "react";
+import dayjs from "dayjs";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { FaRegSave } from "react-icons/fa";
+import { FcCancel } from "react-icons/fc";
 import { GoTrash } from "react-icons/go";
 import { MdOutlineEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,29 +12,97 @@ import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
 import useError from "../../hooks/useError";
 import {
   addNewFlag,
+  bulkDeleteFlag,
+  createFlag,
+  deleteFlag,
+  getFlagList,
   removeNewFlag,
   setFlagDeleteIDs,
   setFlagEditable,
+  setFlagListParams,
+  updateFlag,
+  updateFlagListValue,
 } from "../../store/features/flagSlice";
+import useDebounce from "../../hooks/useDebounce";
 
 const Flag = () => {
   const dispatch = useDispatch();
   const handleError = useError();
-  const { list, params, deleteIDs } = useSelector((state) => state.flag);
+  const {
+    list,
+    isListLoading,
+    params,
+    paginationInfo,
+    isBulkDeleting,
+    isSubmitting,
+    deleteIDs,
+  } = useSelector((state) => state.flag);
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user.permission.flag;
+
+  const debouncedSearch = useDebounce(params.search, 500);
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
-  const onSubmit = (id, value, prevValue) => {
-    if (id === "new") {
-      return dispatch(removeNewFlag());
+  const onChange = (id, field, value) => {
+    dispatch(updateFlagListValue({ id, field, value }));
+  };
+
+  const onCreate = async (record) => {
+    const { name } = record;
+    if (!name) return toast.error("Name field is required");
+
+    try {
+      await dispatch(createFlag({ name })).unwrap();
+      await dispatch(getFlagList(params)).unwrap();
+    } catch (error) {
+      handleError(error);
     }
+  };
 
-    // if (value === prevValue || !value) {
-    //   return dispatch(setFlagEditable({ key: id, editable: false }));
-    // }
+  const onUpdate = async (record) => {
+    const { flag_id, name } = record;
 
-    return dispatch(setFlagEditable({ key: id, editable: false }));
+    if (!name) return toast.error("Name field is required");
+
+    try {
+      await dispatch(
+        updateFlag({
+          id: flag_id,
+          data: { name },
+        })
+      ).unwrap();
+      await dispatch(getFlagList(params)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const onCancel = async (id) => {
+    if (id === "new") return dispatch(removeNewFlag());
+    dispatch(setFlagEditable({ id, editable: false }));
+  };
+
+  const onFlagDelete = async (id) => {
+    try {
+      await dispatch(deleteFlag(id)).unwrap();
+      toast.success("Flag deleted successfully");
+      dispatch(getFlagList(params)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const onBulkDelete = async () => {
+    try {
+      await dispatch(bulkDeleteFlag(deleteIDs)).unwrap();
+      toast.success("Flag deleted successfully");
+      closeDeleteModal();
+      await dispatch(getFlagList(params)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
   };
 
   const columns = [
@@ -46,8 +118,7 @@ const Flag = () => {
           <Input
             autoFocus
             defaultValue={name}
-            onPressEnter={(e) => onSubmit(flag_id, e.target.value, name)}
-            onBlur={(e) => onSubmit(flag_id, e.target.value, name)}
+            onBlur={(e) => onChange(flag_id, "name", e.target.value)}
           />
         ) : (
           <span>{name}</span>
@@ -61,7 +132,7 @@ const Flag = () => {
       width: 168,
       render: (_, { created_at }) =>
         created_at ? (
-          <span>{created_at}</span>
+          dayjs(created_at).format("DD-MM-YYYY hh:mm A")
         ) : (
           <span className="text-gray-400">AUTO</span>
         ),
@@ -69,50 +140,90 @@ const Flag = () => {
     {
       title: "Action",
       key: "action",
-      render: (_, { flag_id }) => (
-        <div className="flex gap-2 items-center">
-          <Tooltip title="Edit">
-            <Button
-              size="small"
-              type="primary"
-              className="bg-gray-500 hover:!bg-gray-400"
-              icon={<MdOutlineEdit size={14} />}
-              onClick={() =>
-                dispatch(
-                  setFlagEditable({
-                    key: flag_id,
-                    editable: true,
-                  })
-                )
-              }
-            />
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Popconfirm
-              title="Are you sure you want to delete?"
-              description="After deleting, You will not be able to recover it."
-              okButtonProps={{ danger: true }}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button
-                size="small"
-                type="primary"
-                danger
-                icon={<GoTrash size={14} />}
-              />
-            </Popconfirm>
-          </Tooltip>
-        </div>
-      ),
+      render: (_, record) => {
+        const { flag_id, editable } = record;
+
+        if (editable) {
+          return (
+            <div className="flex gap-2 items-center">
+              <Tooltip title="Cancel" onClick={() => onCancel(flag_id)}>
+                <Button danger icon={<FcCancel size={20} />} size="small" />
+              </Tooltip>
+              <Tooltip title="Save">
+                <Button
+                  type="primary"
+                  size="small"
+                  icon={<FaRegSave size={16} />}
+                  loading={isSubmitting === flag_id}
+                  onClick={() =>
+                    flag_id === "new" ? onCreate(record) : onUpdate(record)
+                  }
+                />
+              </Tooltip>
+            </div>
+          );
+        }
+
+        return (
+          <div className="flex gap-2 items-center">
+            {permissions.edit ? (
+              <Tooltip title="Edit">
+                <Button
+                  size="small"
+                  type="primary"
+                  className="bg-gray-500 hover:!bg-gray-400"
+                  icon={<MdOutlineEdit size={14} />}
+                  onClick={() =>
+                    dispatch(
+                      setFlagEditable({
+                        id: flag_id,
+                        editable: true,
+                      })
+                    )
+                  }
+                />
+              </Tooltip>
+            ) : null}
+            {permissions.delete ? (
+              <Tooltip title="Delete">
+                <Popconfirm
+                  title="Are you sure you want to delete?"
+                  description="After deleting, You will not be able to recover it."
+                  okButtonProps={{ danger: true }}
+                  okText="Yes"
+                  cancelText="No"
+                  onConfirm={() => onFlagDelete(flag_id)}
+                >
+                  <Button
+                    size="small"
+                    type="primary"
+                    danger
+                    icon={<GoTrash size={14} />}
+                  />
+                </Popconfirm>
+              </Tooltip>
+            ) : null}
+          </div>
+        );
+      },
       width: 70,
       fixed: "right",
     },
   ];
 
-  const onBulkDelete = () => {
-    closeDeleteModal();
-  };
+  if (!permissions.edit && !permissions.delete) {
+    columns.pop();
+  }
+
+  useEffect(() => {
+    dispatch(getFlagList(params)).unwrap().catch(handleError);
+  }, [
+    params.page,
+    params.limit,
+    params.sort_column,
+    params.sort_direction,
+    debouncedSearch,
+  ]);
 
   return (
     <>
@@ -126,7 +237,14 @@ const Flag = () => {
 
       <div className="mt-4 bg-white p-2 rounded-md">
         <div className="flex justify-between items-center gap-2">
-          <Input placeholder="Search..." className="w-full sm:w-64" />
+          <Input
+            placeholder="Search..."
+            className="w-full sm:w-64"
+            value={params.search}
+            onChange={(e) =>
+              dispatch(setFlagListParams({ search: e.target.value }))
+            }
+          />
 
           <div className="flex gap-2 items-center">
             <Button
@@ -137,24 +255,45 @@ const Flag = () => {
             >
               Delete
             </Button>
-            <Button type="primary" onClick={() => dispatch(addNewFlag())}>
-              Add New
-            </Button>
+            {permissions.add ? (
+              <Button type="primary" onClick={() => dispatch(addNewFlag())}>
+                Add New
+              </Button>
+            ) : null}
           </div>
         </div>
 
         <Table
           size="small"
-          rowSelection={{
-            type: "checkbox",
-            selectedRowKeys: deleteIDs,
-            onChange: (selectedRowKeys) =>
-              dispatch(setFlagDeleteIDs(selectedRowKeys)),
+          rowSelection={
+            permissions.delete
+              ? {
+                  type: "checkbox",
+                  selectedRowKeys: deleteIDs,
+                  onChange: (selectedRowKeys) =>
+                    dispatch(setFlagDeleteIDs(selectedRowKeys)),
+                }
+              : null
+          }
+          onChange={(e, b, c, d) => {
+            dispatch(
+              setFlagListParams({
+                page: e.current,
+                limit: e.pageSize,
+                sort_column: c.field,
+                sort_direction: c.order,
+              })
+            );
           }}
+          loading={isListLoading}
+          rowKey="flag_id"
           className="mt-2"
           scroll={{ x: "calc(100% - 200px)" }}
           pagination={{
-            pageSize: 50,
+            total: paginationInfo.total_records,
+            pageSize: params.limit,
+            current: params.page,
+            showTotal: (total) => `Total ${total} flag`,
           }}
           dataSource={list}
           showSorterTooltip={false}
@@ -169,7 +308,8 @@ const Flag = () => {
         open={deleteModalIsOpen ? true : false}
         onCancel={closeDeleteModal}
         onDelete={onBulkDelete}
-        title="Are you sure you want to delete these flags?"
+        isDeleting={isBulkDeleting}
+        title="Are you sure you want to delete these flag?"
         description="After deleting, you will not be able to recover."
       />
     </>

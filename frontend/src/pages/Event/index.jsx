@@ -38,6 +38,8 @@ const Event = () => {
     isBulkDeleting,
     deleteIDs,
   } = useSelector((state) => state.company);
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user.permission.event;
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
@@ -146,39 +148,47 @@ const Event = () => {
       key: "action",
       render: (_, { id }) => (
         <div className="flex gap-2 items-center">
-          <Tooltip title="Edit">
-            <Link to={`/event/edit/${id}`}>
-              <Button
-                size="small"
-                type="primary"
-                className="bg-gray-500 hover:!bg-gray-400"
-                icon={<MdOutlineEdit size={14} />}
-              />
-            </Link>
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Popconfirm
-              title="Are you sure you want to delete?"
-              description="After deleting, You will not be able to recover it."
-              okButtonProps={{ danger: true }}
-              okText="Yes"
-              cancelText="No"
-              onConfirm={() => onVesselDelete(id)}
-            >
-              <Button
-                size="small"
-                type="primary"
-                danger
-                icon={<GoTrash size={14} />}
-              />
-            </Popconfirm>
-          </Tooltip>
+          {permissions.edit ? (
+            <Tooltip title="Edit">
+              <Link to={`/event/edit/${id}`}>
+                <Button
+                  size="small"
+                  type="primary"
+                  className="bg-gray-500 hover:!bg-gray-400"
+                  icon={<MdOutlineEdit size={14} />}
+                />
+              </Link>
+            </Tooltip>
+          ) : null}
+          {permissions.delete ? (
+            <Tooltip title="Delete">
+              <Popconfirm
+                title="Are you sure you want to delete?"
+                description="After deleting, You will not be able to recover it."
+                okButtonProps={{ danger: true }}
+                okText="Yes"
+                cancelText="No"
+                onConfirm={() => onVesselDelete(id)}
+              >
+                <Button
+                  size="small"
+                  type="primary"
+                  danger
+                  icon={<GoTrash size={14} />}
+                />
+              </Popconfirm>
+            </Tooltip>
+          ) : null}
         </div>
       ),
       width: 70,
       fixed: "right",
     },
   ];
+
+  if (!permissions.edit && !permissions.delete) {
+    columns.pop();
+  }
 
   const dataSource = [
     {
@@ -232,20 +242,26 @@ const Event = () => {
             >
               Delete
             </Button>
-            <Link to="/event/create">
-              <Button type="primary">Add New</Button>
-            </Link>
+            {permissions.add ? (
+              <Link to="/event/create">
+                <Button type="primary">Add New</Button>
+              </Link>
+            ) : null}
           </div>
         </div>
 
         <Table
           size="small"
-          rowSelection={{
-            type: "checkbox",
-            selectedRowKeys: deleteIDs,
-            onChange: (selectedRowKeys) =>
-              dispatch(setCompanyDeleteIDs(selectedRowKeys)),
-          }}
+          rowSelection={
+            permissions.delete
+              ? {
+                  type: "checkbox",
+                  selectedRowKeys: deleteIDs,
+                  onChange: (selectedRowKeys) =>
+                    dispatch(setCompanyDeleteIDs(selectedRowKeys)),
+                }
+              : null
+          }
           loading={isListLoading}
           className="mt-2"
           rowKey="id"

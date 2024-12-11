@@ -37,18 +37,6 @@ export const createFlag = createAsyncThunk(
   }
 );
 
-export const getFlag = createAsyncThunk(
-  "flag/get",
-  async (id, { rejectWithValue }) => {
-    try {
-      const res = await api.get(`/flag/${id}`);
-      return res.data.data;
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
-  }
-);
-
 export const updateFlag = createAsyncThunk(
   "flag/update",
   async ({ id, data }, { rejectWithValue }) => {
@@ -75,42 +63,10 @@ export const bulkDeleteFlag = createAsyncThunk(
 
 const initialState = {
   isListLoading: false,
-  isFormSubmitting: false,
+  isSubmitting: false,
   isBulkDeleting: false,
-  initialFormValues: null,
   isItemLoading: false,
-  list: [
-    {
-      key: "1",
-      flag_id: "1",
-      name: "Pakistan",
-      created_at: "01-01-2023 10:00 AM",
-    },
-    {
-      key: "2",
-      flag_id: "2",
-      name: "India",
-      created_at: "01-01-2023 10:00 AM",
-    },
-    {
-      key: "3",
-      flag_id: "3",
-      name: "Australia",
-      created_at: "01-01-2023 10:00 AM",
-    },
-    {
-      key: "4",
-      flag_id: "4",
-      name: "America",
-      created_at: "01-01-2023 10:00 AM",
-    },
-    {
-      key: "5",
-      flag_id: "5",
-      name: "New Zealand",
-      created_at: "01-01-2023 10:00 AM",
-    },
-  ],
+  list: [],
   deleteIDs: [],
   params: {
     page: 1,
@@ -141,8 +97,17 @@ export const flagSlice = createSlice({
     },
 
     addNewFlag: (state) => {
+      const ifAlreadyNew = state.list.some((item) => item.flag_id === "new");
+      if (ifAlreadyNew) return;
+
+      state.list = state.list.map((item) => {
+        return {
+          ...item,
+          editable: false,
+        };
+      });
+
       state.list.unshift({
-        key: "new",
         flag_id: "new",
         name: "",
         editable: true,
@@ -151,15 +116,53 @@ export const flagSlice = createSlice({
     },
 
     removeNewFlag: (state) => {
-      state.list = state.list.filter((item) => item.key !== "new");
+      state.list = state.list.filter((item) => item.flag_id !== "new");
     },
 
     setFlagEditable: (state, action) => {
+      const { id, editable } = action.payload;
+
+      // if record is new then simply update editable field for this item
+      if (id === "new") {
+        state.list = state.list.map((item) => ({
+          ...item,
+          editable,
+        }));
+        return;
+      }
+
+      // Filter out items with flag_id as "new"
+      state.list = state.list.filter((item) => item.flag_id !== "new");
+
+      // Update the list
       state.list = state.list.map((item) => {
-        if (item.key === action.payload.key) {
+        if (item.flag_id === id) {
+          return item.editable
+            ? {
+                ...item.prevRecord,
+                editable: false,
+              }
+            : {
+                ...item,
+                editable: true,
+                prevRecord: { ...item },
+              };
+        }
+
+        // If any other item is editable, reset it
+        return item.editable
+          ? { ...item.prevRecord, editable: false }
+          : { ...item, editable: false };
+      });
+    },
+
+    updateFlagListValue: (state, action) => {
+      const { id, field, value } = action.payload;
+      state.list = state.list.map((item) => {
+        if (item.flag_id === id) {
           return {
             ...item,
-            editable: action.payload.editable,
+            [field]: value,
           };
         }
         return item;
@@ -169,7 +172,6 @@ export const flagSlice = createSlice({
   extraReducers: ({ addCase }) => {
     addCase(getFlagList.pending, (state) => {
       state.isListLoading = true;
-      state.initialFormValues = null;
     });
     addCase(getFlagList.fulfilled, (state, action) => {
       state.isListLoading = false;
@@ -185,39 +187,24 @@ export const flagSlice = createSlice({
     });
 
     addCase(createFlag.pending, (state) => {
-      state.isFormSubmitting = true;
+      state.isSubmitting = "new";
     });
     addCase(createFlag.fulfilled, (state) => {
-      state.isFormSubmitting = false;
+      state.isSubmitting = false;
     });
     addCase(createFlag.rejected, (state) => {
-      state.isFormSubmitting = false;
+      state.isSubmitting = false;
+      state.list = state.list.filter((item) => item.flag_id !== "new");
     });
 
-    addCase(getFlag.pending, (state) => {
-      state.isItemLoading = true;
-    });
-    addCase(getFlag.fulfilled, (state, action) => {
-      state.isItemLoading = false;
-      const data = action.payload;
-      console.log(data);
-
-      state.initialFormValues = {};
-    });
-    addCase(getFlag.rejected, (state) => {
-      state.isItemLoading = false;
-      state.initialFormValues = null;
-    });
-
-    addCase(updateFlag.pending, (state) => {
-      state.isFormSubmitting = true;
+    addCase(updateFlag.pending, (state, action) => {
+      state.isSubmitting = action.meta.arg.id;
     });
     addCase(updateFlag.fulfilled, (state) => {
-      state.isFormSubmitting = false;
-      state.initialFormValues = null;
+      state.isSubmitting = false;
     });
     addCase(updateFlag.rejected, (state) => {
-      state.isFormSubmitting = false;
+      state.isSubmitting = false;
     });
 
     addCase(bulkDeleteFlag.pending, (state) => {
@@ -239,5 +226,6 @@ export const {
   addNewFlag,
   removeNewFlag,
   setFlagEditable,
+  updateFlagListValue,
 } = flagSlice.actions;
 export default flagSlice.reducer;
