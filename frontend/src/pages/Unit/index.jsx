@@ -51,7 +51,7 @@ const Unit = () => {
 
   const onCreate = async (record) => {
     const { name } = record;
-    if (!name) return toast.error("Name field is required");
+    if (!name.trim()) return toast.error("Name field is required");
 
     try {
       await dispatch(createUnit({ name })).unwrap();
@@ -64,7 +64,7 @@ const Unit = () => {
   const onUpdate = async (record) => {
     const { unit_id, name } = record;
 
-    if (!name) return toast.error("Name field is required");
+    if (!name.trim()) return toast.error("Name field is required");
 
     try {
       await dispatch(
@@ -272,6 +272,9 @@ const Unit = () => {
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) =>
                     dispatch(setUnitDeleteIDs(selectedRowKeys)),
+                  getCheckboxProps: (record) => ({
+                    disabled: record.unit_id === "new",
+                  }),
                 }
               : null
           }

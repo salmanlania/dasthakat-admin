@@ -9,23 +9,23 @@ import { MdOutlineEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import PageHeading from "../../components/heading/PageHeading";
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
+import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
 import {
-  addNewBrand,
-  bulkDeleteBrand,
-  createBrand,
-  deleteBrand,
-  getBrandList,
-  removeNewBrand,
-  setBrandDeleteIDs,
-  setBrandEditable,
-  setBrandListParams,
-  updateBrand,
-  updateBrandListValue,
-} from "../../store/features/brandSlice";
-import useDebounce from "../../hooks/useDebounce";
+  addNewTerms,
+  bulkDeleteTerms,
+  createTerms,
+  deleteTerms,
+  getTermsList,
+  removeNewTerms,
+  setTermsDeleteIDs,
+  setTermsEditable,
+  setTermsListParams,
+  updateTerms,
+  updateTermsListValue,
+} from "../../store/features/termsSlice";
 
-const Brand = () => {
+const Terms = () => {
   const dispatch = useDispatch();
   const handleError = useError();
   const {
@@ -36,9 +36,9 @@ const Brand = () => {
     isBulkDeleting,
     isSubmitting,
     deleteIDs,
-  } = useSelector((state) => state.brand);
+  } = useSelector((state) => state.terms);
   const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.brand;
+  const permissions = user.permission.terms;
 
   const debouncedSearch = useDebounce(params.search, 500);
 
@@ -46,7 +46,7 @@ const Brand = () => {
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const onChange = (id, field, value) => {
-    dispatch(updateBrandListValue({ id, field, value }));
+    dispatch(updateTermsListValue({ id, field, value }));
   };
 
   const onCreate = async (record) => {
@@ -54,41 +54,41 @@ const Brand = () => {
     if (!name.trim()) return toast.error("Name field is required");
 
     try {
-      await dispatch(createBrand({ name })).unwrap();
-      await dispatch(getBrandList(params)).unwrap();
+      await dispatch(createTerms({ name })).unwrap();
+      await dispatch(getTermsList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
   };
 
   const onUpdate = async (record) => {
-    const { brand_id, name } = record;
+    const { term_id, name } = record;
 
     if (!name.trim()) return toast.error("Name field is required");
 
     try {
       await dispatch(
-        updateBrand({
-          id: brand_id,
+        updateTerms({
+          id: term_id,
           data: { name },
         })
       ).unwrap();
-      await dispatch(getBrandList(params)).unwrap();
+      await dispatch(getTermsList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
   };
 
   const onCancel = async (id) => {
-    if (id === "new") return dispatch(removeNewBrand());
-    dispatch(setBrandEditable({ id, editable: false }));
+    if (id === "new") return dispatch(removeNewTerms());
+    dispatch(setTermsEditable({ id, editable: false }));
   };
 
-  const onBrandDelete = async (id) => {
+  const onTermsDelete = async (id) => {
     try {
-      await dispatch(deleteBrand(id)).unwrap();
-      toast.success("Brand deleted successfully");
-      dispatch(getBrandList(params)).unwrap();
+      await dispatch(deleteTerms(id)).unwrap();
+      toast.success("Terms deleted successfully");
+      dispatch(getTermsList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -96,10 +96,10 @@ const Brand = () => {
 
   const onBulkDelete = async () => {
     try {
-      await dispatch(bulkDeleteBrand(deleteIDs)).unwrap();
-      toast.success("Brand deleted successfully");
+      await dispatch(bulkDeleteTerms(deleteIDs)).unwrap();
+      toast.success("Terms deleted successfully");
       closeDeleteModal();
-      await dispatch(getBrandList(params)).unwrap();
+      await dispatch(getTermsList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -113,12 +113,12 @@ const Brand = () => {
       sorter: true,
       width: 120,
       ellipsis: true,
-      render: (_, { name, editable, brand_id }) =>
+      render: (_, { name, editable, term_id }) =>
         editable ? (
           <Input
             autoFocus
             defaultValue={name}
-            onBlur={(e) => onChange(brand_id, "name", e.target.value)}
+            onBlur={(e) => onChange(term_id, "name", e.target.value)}
           />
         ) : (
           <span>{name}</span>
@@ -141,12 +141,12 @@ const Brand = () => {
       title: "Action",
       key: "action",
       render: (_, record) => {
-        const { brand_id, editable } = record;
+        const { term_id, editable } = record;
 
         if (editable) {
           return (
             <div className="flex gap-2 items-center">
-              <Tooltip title="Cancel" onClick={() => onCancel(brand_id)}>
+              <Tooltip title="Cancel" onClick={() => onCancel(term_id)}>
                 <Button danger icon={<FcCancel size={20} />} size="small" />
               </Tooltip>
               <Tooltip title="Save">
@@ -154,9 +154,9 @@ const Brand = () => {
                   type="primary"
                   size="small"
                   icon={<FaRegSave size={16} />}
-                  loading={isSubmitting === brand_id}
+                  loading={isSubmitting === term_id}
                   onClick={() =>
-                    brand_id === "new" ? onCreate(record) : onUpdate(record)
+                    term_id === "new" ? onCreate(record) : onUpdate(record)
                   }
                 />
               </Tooltip>
@@ -175,8 +175,8 @@ const Brand = () => {
                   icon={<MdOutlineEdit size={14} />}
                   onClick={() =>
                     dispatch(
-                      setBrandEditable({
-                        id: brand_id,
+                      setTermsEditable({
+                        id: term_id,
                         editable: true,
                       })
                     )
@@ -192,7 +192,7 @@ const Brand = () => {
                   okButtonProps={{ danger: true }}
                   okText="Yes"
                   cancelText="No"
-                  onConfirm={() => onBrandDelete(brand_id)}
+                  onConfirm={() => onTermsDelete(term_id)}
                 >
                   <Button
                     size="small"
@@ -216,7 +216,7 @@ const Brand = () => {
   }
 
   useEffect(() => {
-    dispatch(getBrandList(params)).unwrap().catch(handleError);
+    dispatch(getTermsList(params)).unwrap().catch(handleError);
   }, [
     params.page,
     params.limit,
@@ -228,9 +228,9 @@ const Brand = () => {
   return (
     <>
       <div className="flex justify-between items-center flex-wrap">
-        <PageHeading>BRAND</PageHeading>
+        <PageHeading>TERMS</PageHeading>
         <Breadcrumb
-          items={[{ title: "Brand" }, { title: "List" }]}
+          items={[{ title: "Terms" }, { title: "List" }]}
           separator=">"
         />
       </div>
@@ -242,7 +242,7 @@ const Brand = () => {
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) =>
-              dispatch(setBrandListParams({ search: e.target.value }))
+              dispatch(setTermsListParams({ search: e.target.value }))
             }
           />
 
@@ -256,7 +256,7 @@ const Brand = () => {
               Delete
             </Button>
             {permissions.add ? (
-              <Button type="primary" onClick={() => dispatch(addNewBrand())}>
+              <Button type="primary" onClick={() => dispatch(addNewTerms())}>
                 Add New
               </Button>
             ) : null}
@@ -271,16 +271,16 @@ const Brand = () => {
                   type: "checkbox",
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) =>
-                    dispatch(setBrandDeleteIDs(selectedRowKeys)),
+                    dispatch(setTermsDeleteIDs(selectedRowKeys)),
                   getCheckboxProps: (record) => ({
-                    disabled: record.brand_id === "new",
+                    disabled: record.term_id === "new",
                   }),
                 }
               : null
           }
           onChange={(e, b, c, d) => {
             dispatch(
-              setBrandListParams({
+              setTermsListParams({
                 page: e.current,
                 limit: e.pageSize,
                 sort_column: c.field,
@@ -289,14 +289,14 @@ const Brand = () => {
             );
           }}
           loading={isListLoading}
-          rowKey="brand_id"
+          rowKey="term_id"
           className="mt-2"
           scroll={{ x: "calc(100% - 200px)" }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} brand`,
+            showTotal: (total) => `Total ${total} terms`,
           }}
           dataSource={list}
           showSorterTooltip={false}
@@ -312,11 +312,11 @@ const Brand = () => {
         onCancel={closeDeleteModal}
         onDelete={onBulkDelete}
         isDeleting={isBulkDeleting}
-        title="Are you sure you want to delete these brand?"
+        title="Are you sure you want to delete these terms?"
         description="After deleting, you will not be able to recover."
       />
     </>
   );
 };
 
-export default Brand;
+export default Terms;

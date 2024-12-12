@@ -51,7 +51,7 @@ const Payment = () => {
 
   const onCreate = async (record) => {
     const { name } = record;
-    if (!name) return toast.error("Name field is required");
+    if (!name.trim()) return toast.error("Name field is required");
 
     try {
       await dispatch(createPayment({ name })).unwrap();
@@ -64,7 +64,7 @@ const Payment = () => {
   const onUpdate = async (record) => {
     const { payment_id, name } = record;
 
-    if (!name) return toast.error("Name field is required");
+    if (!name.trim()) return toast.error("Name field is required");
 
     try {
       await dispatch(
@@ -272,6 +272,9 @@ const Payment = () => {
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) =>
                     dispatch(setPaymentDeleteIDs(selectedRowKeys)),
+                  getCheckboxProps: (record) => ({
+                    disabled: record.payment_id === "new",
+                  }),
                 }
               : null
           }

@@ -71,6 +71,7 @@ const MainLayout = () => {
   if (href.startsWith("/vendor/edit") && !permissions.supplier.edit)
     return <NotFound />;
 
+  if (href === "/terms" && !permissions.terms.list) return <NotFound />;
   if (href === "/flag" && !permissions.flag.list) return <NotFound />;
   if (href === "/class" && !permissions.class.list) return <NotFound />;
 
@@ -85,6 +86,8 @@ const MainLayout = () => {
     return <NotFound />;
 
   if (href === "/category" && !permissions.category.list) return <NotFound />;
+  if (href === "/sub-category" && !permissions.sub_category.list)
+    return <NotFound />;
   if (href === "/brand" && !permissions.brand.list) return <NotFound />;
   if (href === "/unit" && !permissions.unit.list) return <NotFound />;
   if (href === "/validity" && !permissions.validity.list) return <NotFound />;

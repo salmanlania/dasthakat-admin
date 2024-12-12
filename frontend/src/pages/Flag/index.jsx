@@ -51,7 +51,7 @@ const Flag = () => {
 
   const onCreate = async (record) => {
     const { name } = record;
-    if (!name) return toast.error("Name field is required");
+    if (!name.trim()) return toast.error("Name field is required");
 
     try {
       await dispatch(createFlag({ name })).unwrap();
@@ -64,7 +64,7 @@ const Flag = () => {
   const onUpdate = async (record) => {
     const { flag_id, name } = record;
 
-    if (!name) return toast.error("Name field is required");
+    if (!name.trim()) return toast.error("Name field is required");
 
     try {
       await dispatch(
@@ -272,6 +272,9 @@ const Flag = () => {
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) =>
                     dispatch(setFlagDeleteIDs(selectedRowKeys)),
+                  getCheckboxProps: (record) => ({
+                    disabled: record.flag_id === "new",
+                  }),
                 }
               : null
           }

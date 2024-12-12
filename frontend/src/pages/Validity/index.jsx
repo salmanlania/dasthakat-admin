@@ -51,7 +51,7 @@ const Validity = () => {
 
   const onCreate = async (record) => {
     const { name } = record;
-    if (!name) return toast.error("Name field is required");
+    if (!name.trim()) return toast.error("Name field is required");
 
     try {
       await dispatch(createValidity({ name })).unwrap();
@@ -64,7 +64,7 @@ const Validity = () => {
   const onUpdate = async (record) => {
     const { validity_id, name } = record;
 
-    if (!name) return toast.error("Name field is required");
+    if (!name.trim()) return toast.error("Name field is required");
 
     try {
       await dispatch(
@@ -272,6 +272,9 @@ const Validity = () => {
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) =>
                     dispatch(setValidityDeleteIDs(selectedRowKeys)),
+                  getCheckboxProps: (record) => ({
+                    disabled: record.validity_id === "new",
+                  }),
                 }
               : null
           }

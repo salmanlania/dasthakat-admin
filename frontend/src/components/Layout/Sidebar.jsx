@@ -122,6 +122,11 @@ const Sidebar = () => {
               disabled: !permissions?.supplier?.list,
             },
             {
+              key: "terms",
+              label: <Link to="/terms">Terms</Link>,
+              disabled: !permissions?.terms?.list,
+            },
+            {
               key: "flag",
               label: <Link to="/flag">Flag</Link>,
               disabled: !permissions?.flag?.list,
@@ -169,6 +174,7 @@ const Sidebar = () => {
       icon: <MdInventory size={16} />,
       disabled:
         !permissions?.category?.list &&
+        !permissions?.sub_category?.list &&
         !permissions?.brand?.list &&
         !permissions?.unit?.list &&
         !permissions?.validity?.list &&
@@ -182,6 +188,11 @@ const Sidebar = () => {
               key: "category",
               label: <Link to="/category">Category</Link>,
               disabled: !permissions?.category?.list,
+            },
+            {
+              key: "sub-category",
+              label: <Link to="/sub-category">Sub Category</Link>,
+              disabled: !permissions?.sub_category?.list,
             },
             {
               key: "brand",
@@ -201,7 +212,7 @@ const Sidebar = () => {
             {
               key: "payment",
               label: <Link to="/payment">Payment</Link>,
-              disabled: !permissions?.permissions?.list,
+              disabled: !permissions?.payment?.list,
             },
           ],
         },

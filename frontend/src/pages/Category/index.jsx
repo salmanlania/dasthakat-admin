@@ -51,7 +51,7 @@ const Category = () => {
 
   const onCreate = async (record) => {
     const { name } = record;
-    if (!name) return toast.error("Name field is required");
+    if (!name.trim()) return toast.error("Name field is required");
 
     try {
       await dispatch(createCategory({ name })).unwrap();
@@ -64,7 +64,7 @@ const Category = () => {
   const onUpdate = async (record) => {
     const { category_id, name } = record;
 
-    if (!name) return toast.error("Name field is required");
+    if (!name.trim()) return toast.error("Name field is required");
 
     try {
       await dispatch(
@@ -272,6 +272,9 @@ const Category = () => {
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) =>
                     dispatch(setCategoryDeleteIDs(selectedRowKeys)),
+                  getCheckboxProps: (record) => ({
+                    disabled: record.category_id === "new",
+                  }),
                 }
               : null
           }

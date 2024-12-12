@@ -53,7 +53,7 @@ const Salesman = () => {
 
   const onCreate = async (record) => {
     const { name, commission_percentage } = record;
-    if (!name) return toast.error("Name field is required");
+    if (!name.trim()) return toast.error("Name field is required");
 
     try {
       await dispatch(createSalesman({ name, commission_percentage })).unwrap();
@@ -66,7 +66,7 @@ const Salesman = () => {
   const onUpdate = async (record) => {
     const { salesman_id, name, commission_percentage } = record;
 
-    if (!name) return toast.error("Name field is required");
+    if (!name.trim()) return toast.error("Name field is required");
 
     try {
       await dispatch(
@@ -323,6 +323,9 @@ const Salesman = () => {
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) =>
                     dispatch(setSalesmanDeleteIDs(selectedRowKeys)),
+                  getCheckboxProps: (record) => ({
+                    disabled: record.salesman_id === "new",
+                  }),
                 }
               : null
           }

@@ -148,7 +148,33 @@ export const eventSlice = createSlice({
       const data = action.payload;
       console.log(data);
 
-      state.initialFormValues = {};
+      state.initialFormValues = {
+        event_code: data.event_code,
+        customer_id: data.customer_id
+          ? {
+              value: data.customer_id,
+              label: data.customer_name,
+            }
+          : null,
+        vessel_id: data.vessel_id
+          ? {
+              value: data.vessel_id,
+              label: data.vessel_name,
+            }
+          : null,
+        class1_id: data.class1_id
+          ? {
+              value: data.class1_id,
+              label: data.class1_name,
+            }
+          : null,
+        class2_id: data.class2_id
+          ? {
+              value: data.class2_id,
+              label: data.class2_name,
+            }
+          : null,
+      };
     });
     addCase(getEvent.rejected, (state) => {
       state.isItemLoading = false;

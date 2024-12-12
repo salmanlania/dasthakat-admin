@@ -11,21 +11,22 @@ import PageHeading from "../../components/heading/PageHeading";
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
 import useError from "../../hooks/useError";
 import {
-  addNewBrand,
-  bulkDeleteBrand,
-  createBrand,
-  deleteBrand,
-  getBrandList,
-  removeNewBrand,
-  setBrandDeleteIDs,
-  setBrandEditable,
-  setBrandListParams,
-  updateBrand,
-  updateBrandListValue,
-} from "../../store/features/brandSlice";
+  addNewSubCategory,
+  bulkDeleteSubCategory,
+  createSubCategory,
+  deleteSubCategory,
+  getSubCategoryList,
+  removeNewSubCategory,
+  setSubCategoryDeleteIDs,
+  setSubCategoryEditable,
+  setSubCategoryListParams,
+  updateSubCategory,
+  updateSubCategoryListValue,
+} from "../../store/features/subCategorySlice";
 import useDebounce from "../../hooks/useDebounce";
+import AsyncSelect from "../../components/AsyncSelect";
 
-const Brand = () => {
+const SubCategory = () => {
   const dispatch = useDispatch();
   const handleError = useError();
   const {
@@ -36,59 +37,70 @@ const Brand = () => {
     isBulkDeleting,
     isSubmitting,
     deleteIDs,
-  } = useSelector((state) => state.brand);
+  } = useSelector((state) => state.subCategory);
   const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.brand;
+  const permissions = user.permission.sub_category;
 
   const debouncedSearch = useDebounce(params.search, 500);
+  const debouncedName = useDebounce(params.name, 500);
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const onChange = (id, field, value) => {
-    dispatch(updateBrandListValue({ id, field, value }));
+    dispatch(updateSubCategoryListValue({ id, field, value }));
   };
 
   const onCreate = async (record) => {
-    const { name } = record;
+    const { name, category_id } = record;
+
     if (!name.trim()) return toast.error("Name field is required");
+    if (!category_id) return toast.error("Category field is required");
 
     try {
-      await dispatch(createBrand({ name })).unwrap();
-      await dispatch(getBrandList(params)).unwrap();
+      await dispatch(
+        createSubCategory({
+          name,
+          category_id: category_id,
+        })
+      ).unwrap();
+      await dispatch(getSubCategoryList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
   };
 
   const onUpdate = async (record) => {
-    const { brand_id, name } = record;
+    const { sub_category_id, name, category_id } = record;
 
     if (!name.trim()) return toast.error("Name field is required");
+    if (!category_id) return toast.error("Category field is required");
+
+    console.log(name, category_id);
 
     try {
       await dispatch(
-        updateBrand({
-          id: brand_id,
-          data: { name },
+        updateSubCategory({
+          id: sub_category_id,
+          data: { name, category_id: category_id },
         })
       ).unwrap();
-      await dispatch(getBrandList(params)).unwrap();
+      await dispatch(getSubCategoryList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
   };
 
   const onCancel = async (id) => {
-    if (id === "new") return dispatch(removeNewBrand());
-    dispatch(setBrandEditable({ id, editable: false }));
+    if (id === "new") return dispatch(removeNewSubCategory());
+    dispatch(setSubCategoryEditable({ id, editable: false }));
   };
 
-  const onBrandDelete = async (id) => {
+  const onSubCategoryDelete = async (id) => {
     try {
-      await dispatch(deleteBrand(id)).unwrap();
-      toast.success("Brand deleted successfully");
-      dispatch(getBrandList(params)).unwrap();
+      await dispatch(deleteSubCategory(id)).unwrap();
+      toast.success("SubCategory deleted successfully");
+      dispatch(getSubCategoryList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -96,10 +108,10 @@ const Brand = () => {
 
   const onBulkDelete = async () => {
     try {
-      await dispatch(bulkDeleteBrand(deleteIDs)).unwrap();
-      toast.success("Brand deleted successfully");
+      await dispatch(bulkDeleteSubCategory(deleteIDs)).unwrap();
+      toast.success("SubCategory deleted successfully");
       closeDeleteModal();
-      await dispatch(getBrandList(params)).unwrap();
+      await dispatch(getSubCategoryList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -107,21 +119,80 @@ const Brand = () => {
 
   const columns = [
     {
-      title: "Name",
+      title: (
+        <div>
+          <p>Name</p>
+          <Input
+            className="font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            value={params.name}
+            onChange={(e) =>
+              dispatch(setSubCategoryListParams({ name: e.target.value }))
+            }
+          />
+        </div>
+      ),
       dataIndex: "name",
       key: "name",
       sorter: true,
       width: 120,
       ellipsis: true,
-      render: (_, { name, editable, brand_id }) =>
+      render: (_, { name, editable, sub_category_id }) =>
         editable ? (
           <Input
             autoFocus
             defaultValue={name}
-            onBlur={(e) => onChange(brand_id, "name", e.target.value)}
+            onBlur={(e) => onChange(sub_category_id, "name", e.target.value)}
           />
         ) : (
           <span>{name}</span>
+        ),
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Category</p>
+          <AsyncSelect
+            endpoint="/category"
+            valueKey="category_id"
+            labelKey="name"
+            size="small"
+            className="w-full font-normal"
+            value={params.category_id}
+            onChange={(value) =>
+              dispatch(setSubCategoryListParams({ category_id: value }))
+            }
+          />
+        </div>
+      ),
+      dataIndex: "category_name",
+      key: "category_name",
+      sorter: true,
+      width: 120,
+      ellipsis: true,
+      render: (_, { category_id, editable, category_name, sub_category_id }) =>
+        editable ? (
+          <AsyncSelect
+            endpoint="/category"
+            valueKey="category_id"
+            className="w-full"
+            labelKey="name"
+            defaultValue={{
+              value: category_id,
+              label: category_name,
+            }}
+            labelInValue
+            onChange={(selected) =>
+              onChange(
+                sub_category_id,
+                "category_id",
+                selected ? selected.value : null
+              )
+            }
+          />
+        ) : (
+          <span>{category_name}</span>
         ),
     },
     {
@@ -141,12 +212,12 @@ const Brand = () => {
       title: "Action",
       key: "action",
       render: (_, record) => {
-        const { brand_id, editable } = record;
+        const { sub_category_id, editable } = record;
 
         if (editable) {
           return (
             <div className="flex gap-2 items-center">
-              <Tooltip title="Cancel" onClick={() => onCancel(brand_id)}>
+              <Tooltip title="Cancel" onClick={() => onCancel(sub_category_id)}>
                 <Button danger icon={<FcCancel size={20} />} size="small" />
               </Tooltip>
               <Tooltip title="Save">
@@ -154,9 +225,11 @@ const Brand = () => {
                   type="primary"
                   size="small"
                   icon={<FaRegSave size={16} />}
-                  loading={isSubmitting === brand_id}
+                  loading={isSubmitting === sub_category_id}
                   onClick={() =>
-                    brand_id === "new" ? onCreate(record) : onUpdate(record)
+                    sub_category_id === "new"
+                      ? onCreate(record)
+                      : onUpdate(record)
                   }
                 />
               </Tooltip>
@@ -175,8 +248,8 @@ const Brand = () => {
                   icon={<MdOutlineEdit size={14} />}
                   onClick={() =>
                     dispatch(
-                      setBrandEditable({
-                        id: brand_id,
+                      setSubCategoryEditable({
+                        id: sub_category_id,
                         editable: true,
                       })
                     )
@@ -192,7 +265,7 @@ const Brand = () => {
                   okButtonProps={{ danger: true }}
                   okText="Yes"
                   cancelText="No"
-                  onConfirm={() => onBrandDelete(brand_id)}
+                  onConfirm={() => onSubCategoryDelete(sub_category_id)}
                 >
                   <Button
                     size="small"
@@ -216,21 +289,23 @@ const Brand = () => {
   }
 
   useEffect(() => {
-    dispatch(getBrandList(params)).unwrap().catch(handleError);
+    dispatch(getSubCategoryList(params)).unwrap().catch(handleError);
   }, [
     params.page,
     params.limit,
     params.sort_column,
     params.sort_direction,
+    params.category_id,
     debouncedSearch,
+    debouncedName,
   ]);
 
   return (
     <>
       <div className="flex justify-between items-center flex-wrap">
-        <PageHeading>BRAND</PageHeading>
+        <PageHeading>SUB CATEGORY</PageHeading>
         <Breadcrumb
-          items={[{ title: "Brand" }, { title: "List" }]}
+          items={[{ title: "SubCategory" }, { title: "List" }]}
           separator=">"
         />
       </div>
@@ -242,7 +317,7 @@ const Brand = () => {
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) =>
-              dispatch(setBrandListParams({ search: e.target.value }))
+              dispatch(setSubCategoryListParams({ search: e.target.value }))
             }
           />
 
@@ -256,7 +331,10 @@ const Brand = () => {
               Delete
             </Button>
             {permissions.add ? (
-              <Button type="primary" onClick={() => dispatch(addNewBrand())}>
+              <Button
+                type="primary"
+                onClick={() => dispatch(addNewSubCategory())}
+              >
                 Add New
               </Button>
             ) : null}
@@ -271,16 +349,16 @@ const Brand = () => {
                   type: "checkbox",
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) =>
-                    dispatch(setBrandDeleteIDs(selectedRowKeys)),
+                    dispatch(setSubCategoryDeleteIDs(selectedRowKeys)),
                   getCheckboxProps: (record) => ({
-                    disabled: record.brand_id === "new",
+                    disabled: record.sub_category_id === "new",
                   }),
                 }
               : null
           }
           onChange={(e, b, c, d) => {
             dispatch(
-              setBrandListParams({
+              setSubCategoryListParams({
                 page: e.current,
                 limit: e.pageSize,
                 sort_column: c.field,
@@ -289,14 +367,14 @@ const Brand = () => {
             );
           }}
           loading={isListLoading}
-          rowKey="brand_id"
+          rowKey="sub_category_id"
           className="mt-2"
           scroll={{ x: "calc(100% - 200px)" }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} brand`,
+            showTotal: (total) => `Total ${total} subCategory`,
           }}
           dataSource={list}
           showSorterTooltip={false}
@@ -312,11 +390,11 @@ const Brand = () => {
         onCancel={closeDeleteModal}
         onDelete={onBulkDelete}
         isDeleting={isBulkDeleting}
-        title="Are you sure you want to delete these brand?"
+        title="Are you sure you want to delete these subCategory?"
         description="After deleting, you will not be able to recover."
       />
     </>
   );
 };
 
-export default Brand;
+export default SubCategory;

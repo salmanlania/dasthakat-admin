@@ -3,10 +3,10 @@ import { useEffect } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import EventForm from "../../components/Form/EventForm";
 import PageHeading from "../../components/heading/PageHeading";
 import useError from "../../hooks/useError";
-import { getCompany, updateCompany } from "../../store/features/companySlice";
-import EventForm from "../../components/Form/EventForm";
+import { getEvent, updateEvent } from "../../store/features/eventSlice";
 
 const EditEvent = () => {
   const dispatch = useDispatch();
@@ -14,12 +14,12 @@ const EditEvent = () => {
   const handleError = useError();
   const { id } = useParams();
   const { isItemLoading, initialFormValues } = useSelector(
-    (state) => state.company
+    (state) => state.event
   );
 
   const onEventUpdate = async (data) => {
     try {
-      await dispatch(updateCompany({ id, data })).unwrap();
+      await dispatch(updateEvent({ id, data })).unwrap();
       toast.success("Event updated successfully");
       navigate("/event");
     } catch (error) {
@@ -27,9 +27,9 @@ const EditEvent = () => {
     }
   };
 
-  // useEffect(() => {
-  //   dispatch(getCompany(id)).unwrap().catch(handleError);
-  // }, []);
+  useEffect(() => {
+    dispatch(getEvent(id)).unwrap().catch(handleError);
+  }, []);
 
   return (
     <>
@@ -47,15 +47,11 @@ const EditEvent = () => {
         </div>
       )}
 
-      {/* {!isItemLoading && initialFormValues ? (
+      {!isItemLoading && initialFormValues ? (
         <div className="mt-4 bg-white sm:p-4 p-2 rounded-md">
-          <VesselForm mode="edit" onSubmit={onVesselUpdate} />
+          <EventForm mode="edit" onSubmit={onEventUpdate} />
         </div>
-      ) : null} */}
-
-      <div className="mt-4 bg-white sm:p-4 p-2 rounded-md">
-        <EventForm mode="edit" onSubmit={onEventUpdate} />
-      </div>
+      ) : null}
     </>
   );
 };

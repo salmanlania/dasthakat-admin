@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import EventForm from "../../components/Form/EventForm";
 import PageHeading from "../../components/heading/PageHeading";
 import useError from "../../hooks/useError";
-import { createCompany } from "../../store/features/companySlice";
+import { createEvent } from "../../store/features/eventSlice";
 
 const CreateEvent = () => {
   const navigate = useNavigate();
@@ -14,7 +14,7 @@ const CreateEvent = () => {
 
   const onEventCreate = async (data) => {
     try {
-      await dispatch(createCompany(data)).unwrap();
+      await dispatch(createEvent(data)).unwrap();
       toast.success("Event created successfully");
       navigate("/event");
     } catch (error) {

@@ -20,12 +20,12 @@ import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
 import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
 import {
-  bulkDeleteCompany,
-  deleteCompany,
-  getCompanyList,
-  setCompanyDeleteIDs,
-  setCompanyListParams,
-} from "../../store/features/companySlice";
+  bulkDeleteEvent,
+  deleteEvent,
+  getEventList,
+  setEventDeleteIDs,
+  setEventListParams,
+} from "../../store/features/eventSlice";
 
 const Event = () => {
   const dispatch = useDispatch();
@@ -37,7 +37,7 @@ const Event = () => {
     paginationInfo,
     isBulkDeleting,
     deleteIDs,
-  } = useSelector((state) => state.company);
+  } = useSelector((state) => state.event);
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.event;
 
@@ -45,13 +45,13 @@ const Event = () => {
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
-  const debouncedName = useDebounce(params.name, 500);
+  const debouncedCode = useDebounce(params.event_code, 500);
 
   const onEventDelete = async (id) => {
     try {
-      await dispatch(deleteCompany(id)).unwrap();
+      await dispatch(deleteEvent(id)).unwrap();
       toast.success("Event deleted successfully");
-      dispatch(getCompanyList(params)).unwrap();
+      dispatch(getEventList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -59,10 +59,10 @@ const Event = () => {
 
   const onBulkDelete = async () => {
     try {
-      // await dispatch(bulkDeleteCompany(deleteIDs)).unwrap();
-      // toast.success("Events deleted successfully");
+      await dispatch(bulkDeleteEvent(deleteIDs)).unwrap();
+      toast.success("Events deleted successfully");
       closeDeleteModal();
-      // await dispatch(getCompanyList(params)).unwrap();
+      await dispatch(getEventList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -79,7 +79,7 @@ const Event = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.event_code}
             onChange={(e) =>
-              dispatch(setCompanyListParams({ event_code: e.target.value }))
+              dispatch(setEventListParams({ event_code: e.target.value }))
             }
           />
         </div>
@@ -94,20 +94,21 @@ const Event = () => {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Customer</p>
-          {/* <AsyncSelectNoPaginate
-            endpoint="/lookups/company"
+          <AsyncSelect
+            endpoint="/customer"
             size="small"
             className="w-full font-normal"
-            value={params.company}
+            valueKey="customer_id"
+            labelKey="name"
+            value={params.customer_id}
             onChange={(value) =>
-              dispatch(setCompanyBranchListParams({ company: value }))
+              dispatch(setEventListParams({ customer_id: value }))
             }
-          /> */}
-          <Select size="small" className="w-full font-normal" />
+          />
         </div>
       ),
-      dataIndex: "customer",
-      key: "customer",
+      dataIndex: "customer_name",
+      key: "customer_name",
       sorter: true,
       width: 200,
       ellipsis: true,
@@ -116,20 +117,21 @@ const Event = () => {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Vessel</p>
-          {/* <AsyncSelectNoPaginate
-            endpoint="/lookups/company"
+          <AsyncSelect
+            endpoint="/vessel"
             size="small"
             className="w-full font-normal"
-            value={params.company}
+            valueKey="vessel_id"
+            labelKey="name"
+            value={params.vessel_id}
             onChange={(value) =>
-              dispatch(setCompanyBranchListParams({ company: value }))
+              dispatch(setEventListParams({ vessel_id: value }))
             }
-          /> */}
-          <Select size="small" className="w-full font-normal" />
+          />
         </div>
       ),
-      dataIndex: "vessel",
-      key: "vessel",
+      dataIndex: "vessel_name",
+      key: "vessel_name",
       sorter: true,
       width: 200,
       ellipsis: true,
@@ -146,11 +148,11 @@ const Event = () => {
     {
       title: "Action",
       key: "action",
-      render: (_, { id }) => (
+      render: (_, { event_id }) => (
         <div className="flex gap-2 items-center">
           {permissions.edit ? (
             <Tooltip title="Edit">
-              <Link to={`/event/edit/${id}`}>
+              <Link to={`/event/edit/${event_id}`}>
                 <Button
                   size="small"
                   type="primary"
@@ -168,7 +170,7 @@ const Event = () => {
                 okButtonProps={{ danger: true }}
                 okText="Yes"
                 cancelText="No"
-                onConfirm={() => onVesselDelete(id)}
+                onConfirm={() => onEventDelete(event_id)}
               >
                 <Button
                   size="small"
@@ -190,26 +192,17 @@ const Event = () => {
     columns.pop();
   }
 
-  const dataSource = [
-    {
-      id: "1",
-      key: "1",
-      event_code: "123",
-      customer: "Customer 1",
-      vessel: "Vessel 2",
-      created_at: "01-01-2023 10:00 AM",
-    },
-  ];
-
   useEffect(() => {
-    // dispatch(getCompanyList(params)).unwrap().catch(handleError);
+    dispatch(getEventList(params)).unwrap().catch(handleError);
   }, [
     params.page,
     params.limit,
     params.sort_column,
     params.sort_direction,
+    params.customer_id,
+    params.vessel_id,
     debouncedSearch,
-    debouncedName,
+    debouncedCode,
   ]);
 
   return (
@@ -229,7 +222,7 @@ const Event = () => {
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) =>
-              dispatch(setCompanyListParams({ search: e.target.value }))
+              dispatch(setEventListParams({ search: e.target.value }))
             }
           />
 
@@ -258,13 +251,13 @@ const Event = () => {
                   type: "checkbox",
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) =>
-                    dispatch(setCompanyDeleteIDs(selectedRowKeys)),
+                    dispatch(setEventDeleteIDs(selectedRowKeys)),
                 }
               : null
           }
           loading={isListLoading}
           className="mt-2"
-          rowKey="id"
+          rowKey="event_id"
           scroll={{ x: "calc(100% - 200px)" }}
           pagination={{
             total: paginationInfo.total_records,
@@ -274,7 +267,7 @@ const Event = () => {
           }}
           onChange={(e, b, c, d) => {
             dispatch(
-              setCompanyListParams({
+              setEventListParams({
                 page: e.current,
                 limit: e.pageSize,
                 sort_column: c.field,
@@ -282,7 +275,7 @@ const Event = () => {
               })
             );
           }}
-          dataSource={dataSource}
+          dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{

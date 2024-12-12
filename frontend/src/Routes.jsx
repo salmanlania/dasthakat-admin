@@ -43,6 +43,7 @@ const Vendor = lazy(() => import("./pages/Vendor"));
 const CreateVendor = lazy(() => import("./pages/Vendor/CreateVendor"));
 const EditVendor = lazy(() => import("./pages/Vendor/EditVendor"));
 
+const Terms = lazy(() => import("./pages/Terms"));
 const Flag = lazy(() => import("./pages/Flag"));
 const Class = lazy(() => import("./pages/Class"));
 
@@ -55,6 +56,7 @@ const CreateEvent = lazy(() => import("./pages/Event/CreateEvent"));
 const EditEvent = lazy(() => import("./pages/Event/EditEvent"));
 
 const Category = lazy(() => import("./pages/Category"));
+const SubCategory = lazy(() => import("./pages/SubCategory"));
 const Brand = lazy(() => import("./pages/Brand"));
 const Unit = lazy(() => import("./pages/Unit"));
 const Validity = lazy(() => import("./pages/Validity"));
@@ -233,6 +235,14 @@ function Routes() {
             ),
           },
           {
+            path: "/terms",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Terms />
+              </Suspense>
+            ),
+          },
+          {
             path: "/flag",
             element: (
               <Suspense fallback={<PageLoader />}>
@@ -309,6 +319,14 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Category />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/sub-category",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <SubCategory />
               </Suspense>
             ),
           },

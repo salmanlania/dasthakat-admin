@@ -1,23 +1,25 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
 import authReducer from "./features/authSlice";
+import brandReducer from "./features/brandSlice";
+import categoryReducer from "./features/categorySlice";
+import classReducer from "./features/classSlice";
 import companyBranchReducer from "./features/companyBranchSlice";
 import companyReducer from "./features/companySlice";
 import customerReducer from "./features/customerSlice";
-import sidebarReducer from "./features/sidebarSlice";
-import vendorReducer from "./features/vendorSlice";
-import userPermissionReducer from "./features/userPermissionSlice";
-import userReducer from "./features/userSlice";
+import eventReducer from "./features/eventSlice";
 import flagReducer from "./features/flagSlice";
-import classReducer from "./features/classSlice";
-import validityReducer from "./features/validitySlice";
 import paymentReducer from "./features/paymentSlice";
 import salesmanReducer from "./features/salesmanSlice";
-import categoryReducer from "./features/categorySlice";
-import brandReducer from "./features/brandSlice";
+import sidebarReducer from "./features/sidebarSlice";
+import subCategoryReducer from "./features/subCategorySlice";
+import termsReducer from "./features/termsSlice";
 import unitReducer from "./features/unitSlice";
+import userPermissionReducer from "./features/userPermissionSlice";
+import userReducer from "./features/userSlice";
+import validityReducer from "./features/validitySlice";
+import vendorReducer from "./features/vendorSlice";
 import vesselReducer from "./features/vesselSlice";
-import eventReducer from "./features/eventSlice";
 
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
@@ -28,11 +30,13 @@ const rootReducer = combineReducers({
   companyBranch: companyBranchReducer,
   customer: customerReducer,
   vendor: vendorReducer,
+  terms: termsReducer,
   flag: flagReducer,
   class: classReducer,
   validity: validityReducer,
   payment: paymentReducer,
   salesman: salesmanReducer,
+  subCategory: subCategoryReducer,
   category: categoryReducer,
   brand: brandReducer,
   unit: unitReducer,
