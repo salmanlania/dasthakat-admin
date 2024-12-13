@@ -10,6 +10,7 @@ import customerReducer from "./features/customerSlice";
 import eventReducer from "./features/eventSlice";
 import flagReducer from "./features/flagSlice";
 import paymentReducer from "./features/paymentSlice";
+import productReducer from "./features/productSlice";
 import salesmanReducer from "./features/salesmanSlice";
 import sidebarReducer from "./features/sidebarSlice";
 import subCategoryReducer from "./features/subCategorySlice";
@@ -20,6 +21,7 @@ import userReducer from "./features/userSlice";
 import validityReducer from "./features/validitySlice";
 import vendorReducer from "./features/vendorSlice";
 import vesselReducer from "./features/vesselSlice";
+import quotationReducer from "./features/quotationSlice";
 
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
@@ -42,6 +44,8 @@ const rootReducer = combineReducers({
   unit: unitReducer,
   vessel: vesselReducer,
   event: eventReducer,
+  product: productReducer,
+  quotation: quotationReducer,
 });
 
 export const store = configureStore({

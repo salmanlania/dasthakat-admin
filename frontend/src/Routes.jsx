@@ -59,6 +59,11 @@ const Category = lazy(() => import("./pages/Category"));
 const SubCategory = lazy(() => import("./pages/SubCategory"));
 const Brand = lazy(() => import("./pages/Brand"));
 const Unit = lazy(() => import("./pages/Unit"));
+
+const Product = lazy(() => import("./pages/Product"));
+const CreateProduct = lazy(() => import("./pages/Product/CreateProduct"));
+const EditProduct = lazy(() => import("./pages/Product/EditProduct"));
+
 const Validity = lazy(() => import("./pages/Validity"));
 const Payment = lazy(() => import("./pages/Payment"));
 
@@ -283,26 +288,26 @@ function Routes() {
             ),
           },
           {
-            path: "/event",
+            path: "/product",
             element: (
               <Suspense fallback={<PageLoader />}>
-                <Event />
+                <Product />
               </Suspense>
             ),
           },
           {
-            path: "/event/create",
+            path: "/product/create",
             element: (
               <Suspense fallback={<PageLoader />}>
-                <CreateEvent />
+                <CreateProduct />
               </Suspense>
             ),
           },
           {
-            path: "/event/edit/:id",
+            path: "/product/edit/:id",
             element: (
               <Suspense fallback={<PageLoader />}>
-                <EditEvent />
+                <EditProduct />
               </Suspense>
             ),
           },
@@ -343,6 +348,30 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Unit />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/event",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Event />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/event/create",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreateEvent />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/event/edit/:id",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditEvent />
               </Suspense>
             ),
           },

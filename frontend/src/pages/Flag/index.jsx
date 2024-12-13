@@ -9,6 +9,7 @@ import { MdOutlineEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import PageHeading from "../../components/heading/PageHeading";
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
+import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
 import {
   addNewFlag,
@@ -23,7 +24,6 @@ import {
   updateFlag,
   updateFlagListValue,
 } from "../../store/features/flagSlice";
-import useDebounce from "../../hooks/useDebounce";
 
 const Flag = () => {
   const dispatch = useDispatch();

@@ -20,14 +20,15 @@ import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
 import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
 import {
-  bulkDeleteEvent,
-  deleteEvent,
-  getEventList,
-  setEventDeleteIDs,
-  setEventListParams,
-} from "../../store/features/eventSlice";
+  bulkDeleteProduct,
+  deleteProduct,
+  getProductList,
+  setProductDeleteIDs,
+  setProductListParams,
+} from "../../store/features/productSlice";
+import { productTypeOptions } from "../../components/Form/ProductForm";
 
-const Event = () => {
+const Product = () => {
   const dispatch = useDispatch();
   const handleError = useError();
   const {
@@ -37,21 +38,25 @@ const Event = () => {
     paginationInfo,
     isBulkDeleting,
     deleteIDs,
-  } = useSelector((state) => state.event);
+  } = useSelector((state) => state.product);
   const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.event;
+  const permissions = user.permission.product;
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
-  const debouncedCode = useDebounce(params.event_code, 500);
+  const debouncedCode = useDebounce(params.product_code, 500);
+  const debouncedName = useDebounce(params.name, 500);
+  const debouncedIMPA = useDebounce(params.impa_code, 500);
+  const debouncedCost = useDebounce(params.cost_price, 500);
+  const debouncedSale = useDebounce(params.sale_price, 500);
 
-  const onEventDelete = async (id) => {
+  const onProductDelete = async (id) => {
     try {
-      await dispatch(deleteEvent(id)).unwrap();
-      toast.success("Event deleted successfully");
-      dispatch(getEventList(params)).unwrap();
+      await dispatch(deleteProduct(id)).unwrap();
+      toast.success("Product deleted successfully");
+      dispatch(getProductList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -59,10 +64,10 @@ const Event = () => {
 
   const onBulkDelete = async () => {
     try {
-      await dispatch(bulkDeleteEvent(deleteIDs)).unwrap();
-      toast.success("Events deleted successfully");
+      await dispatch(bulkDeleteProduct(deleteIDs)).unwrap();
+      toast.success("Products deleted successfully");
       closeDeleteModal();
-      await dispatch(getEventList(params)).unwrap();
+      await dispatch(getProductList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -72,20 +77,107 @@ const Event = () => {
     {
       title: (
         <div>
-          <p>Event Code</p>
+          <p>Code</p>
           <Input
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.event_code}
+            value={params.product_code}
             onChange={(e) =>
-              dispatch(setEventListParams({ event_code: e.target.value }))
+              dispatch(setProductListParams({ product_code: e.target.value }))
             }
           />
         </div>
       ),
-      dataIndex: "event_code",
-      key: "event_code",
+      dataIndex: "product_code",
+      key: "product_code",
+      sorter: true,
+      width: 150,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div>
+          <p>Type</p>
+          <Select
+            className="w-full font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            options={productTypeOptions}
+            value={params.product_type}
+            onChange={(value) =>
+              dispatch(setProductListParams({ product_type: value }))
+            }
+            allowClear
+          />
+        </div>
+      ),
+      dataIndex: "product_type",
+      key: "product_type",
+      sorter: true,
+      width: 160,
+    },
+    {
+      title: (
+        <div>
+          <p>Name</p>
+          <Input
+            className="font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            value={params.name}
+            onChange={(e) =>
+              dispatch(setProductListParams({ name: e.target.value }))
+            }
+          />
+        </div>
+      ),
+      dataIndex: "name",
+      key: "name",
+      sorter: true,
+      width: 200,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div>
+          <p>IMPA Code</p>
+          <Input
+            className="font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            value={params.impa_code}
+            onChange={(e) =>
+              dispatch(setProductListParams({ impa_code: e.target.value }))
+            }
+          />
+        </div>
+      ),
+      dataIndex: "impa_code",
+      key: "impa_code",
+      sorter: true,
+      width: 140,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Category</p>
+          <AsyncSelect
+            endpoint="/category"
+            valueKey="category_id"
+            labelKey="name"
+            size="small"
+            className="w-full font-normal"
+            value={params.category_id}
+            onChange={(value) =>
+              dispatch(setProductListParams({ category_id: value }))
+            }
+          />
+        </div>
+      ),
+      dataIndex: "category_name",
+      key: "category_name",
       sorter: true,
       width: 150,
       ellipsis: true,
@@ -93,93 +185,112 @@ const Event = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
-          <p>Customer</p>
+          <p>Sub Category</p>
           <AsyncSelect
-            endpoint="/customer"
+            endpoint="/sub-category"
+            valueKey="sub_category_id"
+            labelKey="name"
             size="small"
             className="w-full font-normal"
-            valueKey="customer_id"
-            labelKey="name"
-            value={params.customer_id}
+            value={params.sub_category_id}
             onChange={(value) =>
-              dispatch(setEventListParams({ customer_id: value }))
+              dispatch(setProductListParams({ sub_category_id: value }))
             }
           />
         </div>
       ),
-      dataIndex: "customer_name",
-      key: "customer_name",
+      dataIndex: "sub_category_name",
+      key: "sub_category_name",
       sorter: true,
-      width: 200,
+      width: 150,
       ellipsis: true,
     },
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
-          <p>Vessel</p>
+          <p>Brand</p>
           <AsyncSelect
-            endpoint="/vessel"
+            endpoint="/brand"
+            valueKey="brand_id"
+            labelKey="name"
             size="small"
             className="w-full font-normal"
-            valueKey="vessel_id"
-            labelKey="name"
-            value={params.vessel_id}
+            value={params.brand_id}
             onChange={(value) =>
-              dispatch(setEventListParams({ vessel_id: value }))
+              dispatch(setProductListParams({ brand_id: value }))
             }
           />
         </div>
       ),
-      dataIndex: "vessel_name",
-      key: "vessel_name",
+      dataIndex: "brand_name",
+      key: "brand_name",
       sorter: true,
-      width: 200,
+      width: 150,
       ellipsis: true,
     },
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
-          <p>Class 1</p>
+          <p>Unit</p>
           <AsyncSelect
-            endpoint="/class"
+            endpoint="/unit"
+            valueKey="unit_id"
+            labelKey="name"
             size="small"
             className="w-full font-normal"
-            valueKey="class_id"
-            labelKey="name"
-            value={params.class1_id}
+            value={params.unit_id}
             onChange={(value) =>
-              dispatch(setEventListParams({ class1_id: value }))
+              dispatch(setProductListParams({ unit_id: value }))
             }
           />
         </div>
       ),
-      dataIndex: "class1_name",
-      key: "class1_name",
+      dataIndex: "unit_name",
+      key: "unit_name",
       sorter: true,
-      width: 200,
+      width: 150,
       ellipsis: true,
     },
     {
       title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Class 2</p>
-          <AsyncSelect
-            endpoint="/class"
+        <div>
+          <p>Cost Price</p>
+          <Input
+            className="font-normal"
             size="small"
-            className="w-full font-normal"
-            valueKey="class_id"
-            labelKey="name"
-            value={params.class2_id}
-            onChange={(value) =>
-              dispatch(setEventListParams({ class2_id: value }))
+            onClick={(e) => e.stopPropagation()}
+            value={params.cost_price}
+            onChange={(e) =>
+              dispatch(setProductListParams({ cost_price: e.target.value }))
             }
           />
         </div>
       ),
-      dataIndex: "class2_name",
-      key: "class2_name",
+      dataIndex: "cost_price",
+      key: "cost_price",
       sorter: true,
-      width: 200,
+      width: 150,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div>
+          <p>Sale Price</p>
+          <Input
+            className="font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            value={params.sale_price}
+            onChange={(e) =>
+              dispatch(setProductListParams({ sale_price: e.target.value }))
+            }
+          />
+        </div>
+      ),
+      dataIndex: "sale_price",
+      key: "sale_price",
+      sorter: true,
+      width: 150,
       ellipsis: true,
     },
     {
@@ -194,11 +305,11 @@ const Event = () => {
     {
       title: "Action",
       key: "action",
-      render: (_, { event_id }) => (
+      render: (_, { product_id }) => (
         <div className="flex gap-2 items-center">
           {permissions.edit ? (
             <Tooltip title="Edit">
-              <Link to={`/event/edit/${event_id}`}>
+              <Link to={`/product/edit/${product_id}`}>
                 <Button
                   size="small"
                   type="primary"
@@ -216,7 +327,7 @@ const Event = () => {
                 okButtonProps={{ danger: true }}
                 okText="Yes"
                 cancelText="No"
-                onConfirm={() => onEventDelete(event_id)}
+                onConfirm={() => onProductDelete(product_id)}
               >
                 <Button
                   size="small"
@@ -238,29 +349,32 @@ const Event = () => {
     columns.pop();
   }
 
-  console.log(params);
-
   useEffect(() => {
-    dispatch(getEventList(params)).unwrap().catch(handleError);
+    dispatch(getProductList(params)).unwrap().catch(handleError);
   }, [
     params.page,
     params.limit,
     params.sort_column,
     params.sort_direction,
-    params.customer_id,
-    params.vessel_id,
-    params.class1_id,
-    params.class2_id,
     debouncedSearch,
     debouncedCode,
+    debouncedName,
+    debouncedIMPA,
+    debouncedCost,
+    debouncedSale,
+    params.product_type,
+    params.category_id,
+    params.sub_category_id,
+    params.brand_id,
+    params.unit_id,
   ]);
 
   return (
     <>
       <div className="flex justify-between items-center flex-wrap">
-        <PageHeading>EVENT</PageHeading>
+        <PageHeading>PRODUCT</PageHeading>
         <Breadcrumb
-          items={[{ title: "Event" }, { title: "List" }]}
+          items={[{ title: "Product" }, { title: "List" }]}
           separator=">"
         />
       </div>
@@ -272,21 +386,23 @@ const Event = () => {
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) =>
-              dispatch(setEventListParams({ search: e.target.value }))
+              dispatch(setProductListParams({ search: e.target.value }))
             }
           />
 
           <div className="flex gap-2 items-center">
-            <Button
-              type="primary"
-              danger
-              onClick={() => setDeleteModalIsOpen(true)}
-              disabled={!deleteIDs.length}
-            >
-              Delete
-            </Button>
+            {permissions.delete ? (
+              <Button
+                type="primary"
+                danger
+                onClick={() => setDeleteModalIsOpen(true)}
+                disabled={!deleteIDs.length}
+              >
+                Delete
+              </Button>
+            ) : null}
             {permissions.add ? (
-              <Link to="/event/create">
+              <Link to="/product/create">
                 <Button type="primary">Add New</Button>
               </Link>
             ) : null}
@@ -301,23 +417,23 @@ const Event = () => {
                   type: "checkbox",
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) =>
-                    dispatch(setEventDeleteIDs(selectedRowKeys)),
+                    dispatch(setProductDeleteIDs(selectedRowKeys)),
                 }
               : null
           }
           loading={isListLoading}
           className="mt-2"
-          rowKey="event_id"
+          rowKey="product_id"
           scroll={{ x: "calc(100% - 200px)" }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} events`,
+            showTotal: (total) => `Total ${total} companies`,
           }}
           onChange={(e, b, c, d) => {
             dispatch(
-              setEventListParams({
+              setProductListParams({
                 page: e.current,
                 limit: e.pageSize,
                 sort_column: c.field,
@@ -339,11 +455,11 @@ const Event = () => {
         onCancel={closeDeleteModal}
         isDeleting={isBulkDeleting}
         onDelete={onBulkDelete}
-        title="Are you sure you want to delete these events?"
+        title="Are you sure you want to delete these companies?"
         description="After deleting, you will not be able to recover."
       />
     </>
   );
 };
 
-export default Event;
+export default Product;

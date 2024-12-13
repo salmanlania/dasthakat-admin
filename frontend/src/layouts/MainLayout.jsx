@@ -90,7 +90,15 @@ const MainLayout = () => {
     return <NotFound />;
   if (href === "/brand" && !permissions.brand.list) return <NotFound />;
   if (href === "/unit" && !permissions.unit.list) return <NotFound />;
+
+  if (href === "/product" && !permissions.product.list) return <NotFound />;
+  if (href === "/product/create" && !permissions.product.add)
+    return <NotFound />;
+  if (href.startsWith("/product/edit") && !permissions.product.edit)
+    return <NotFound />;
+
   if (href === "/validity" && !permissions.validity.list) return <NotFound />;
+  if (href === "/payment" && !permissions.payment.list) return <NotFound />;
 
   return (
     <Layout className="min-h-screen">

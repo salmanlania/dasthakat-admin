@@ -12,12 +12,17 @@ import {
 import { BiPlus } from "react-icons/bi";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { addQuotationDetail } from "../../store/features/quotationSlice";
+
+// when product select automatically set product name and id (dropdown), unit, cost price
+// when markup or cost price change then calculate rate by using formula (markup/100*cost_price) + cost_price = rate, ;
 
 const QuotationForm = ({ mode, onSubmit }) => {
-  const { isFormSubmitting, initialFormValues } = useSelector(
-    (state) => state.company
+  const dispatch = useDispatch();
+  const { isFormSubmitting, initialFormValues, quotationDetails } = useSelector(
+    (state) => state.quotation
   );
 
   const onFinish = (formValues) => {
@@ -48,6 +53,15 @@ const QuotationForm = ({ mode, onSubmit }) => {
             />
           </div>
         );
+      },
+      width: 40,
+    },
+    {
+      title: "Sr.",
+      dataIndex: "sr",
+      key: "sr",
+      render: (_, record, index) => {
+        return <>{index + 1}.</>;
       },
       width: 40,
     },
@@ -92,7 +106,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       dataIndex: "stock_quantity",
       key: "stock_quantity",
       render: (_, { stock_quantity }) => {
-        return <Input value={stock_quantity} />;
+        return <Input value={stock_quantity} disabled />;
       },
       width: 200,
     },
@@ -141,12 +155,49 @@ const QuotationForm = ({ mode, onSubmit }) => {
       },
       width: 200,
     },
+
     {
-      title: "Rate",
+      title: "Sale in Price",
       dataIndex: "rate",
       key: "rate",
       render: (_, { rate }) => {
         return <Input value={rate} />;
+      },
+      width: 200,
+    },
+    {
+      title: "Amount",
+      dataIndex: "amount",
+      key: "amount",
+      render: (_, { amount }) => {
+        return <Input value={amount} disabled />;
+      },
+      width: 200,
+    },
+    {
+      title: "Discount Percent",
+      dataIndex: "discount_percent",
+      key: "discount_percent",
+      render: (_, { discount_percent }) => {
+        return <Input value={discount_percent} />;
+      },
+      width: 200,
+    },
+    {
+      title: "Discount Amount",
+      dataIndex: "discount_amount",
+      key: "discount_amount",
+      render: (_, { discount_amount }) => {
+        return <Input value={discount_amount} disabled />;
+      },
+      width: 200,
+    },
+    {
+      title: "Gross Amount",
+      dataIndex: "gross_amount",
+      key: "gross_amount",
+      render: (_, { gross_amount }) => {
+        return <Input value={gross_amount} disabled />;
       },
       width: 200,
     },
@@ -157,6 +208,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           type="primary"
           className="!w-8"
           icon={<BiPlus size={14} />}
+          onClick={() => dispatch(addQuotationDetail())}
         />
       ),
       key: "action",
@@ -189,33 +241,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
       ),
       width: 50,
       fixed: "right",
-    },
-  ];
-
-  const dataSource = [
-    {
-      id: "1",
-      key: "1",
-    },
-    {
-      id: "2",
-      key: "2",
-    },
-    {
-      id: "3",
-      key: "3",
-    },
-    {
-      id: "4",
-      key: "4",
-    },
-    {
-      id: "5",
-      key: "5",
-    },
-    {
-      id: "6",
-      key: "6",
     },
   ];
 
@@ -305,7 +330,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="delivery_date" label="Delivery">
-            <DatePicker format="DD-MM-YYYY" className="w-full" />
+            <Input />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
@@ -337,46 +362,26 @@ const QuotationForm = ({ mode, onSubmit }) => {
 
       <Table
         columns={columns}
-        dataSource={dataSource}
+        dataSource={quotationDetails}
         rowKey="id"
         size="small"
         scroll={{ x: "calc(100% - 200px)", y: 220 }}
         pagination={false}
       />
 
-      <div className="mt-4">
-        <Row gutter={16}>
-          <Col xs={24} sm={12} md={8} lg={4}>
-            <Form.Item name="total_quantity" label="Total Quantity">
-              <Input disabled />
-            </Form.Item>
-          </Col>
-          <Col xs={24} sm={12} md={8} lg={4}>
-            <Form.Item name="total_amount" label="Total Amount">
-              <Input disabled />
-            </Form.Item>
-          </Col>
-          <Col xs={24} sm={12} md={8} lg={4}>
-            <Form.Item name="tax_all" label="Tax All">
-              <Input disabled />
-            </Form.Item>
-          </Col>
-          <Col xs={24} sm={12} md={8} lg={4}>
-            <Form.Item name="discount_amount" label="Discount Amount">
-              <Input disabled />
-            </Form.Item>
-          </Col>
-          <Col xs={24} sm={12} md={8} lg={4}>
-            <Form.Item name="total_tax" label="Total Tax">
-              <Input disabled />
-            </Form.Item>
-          </Col>
-          <Col xs={24} sm={12} md={8} lg={4}>
-            <Form.Item name="total_net" label="Total Net">
-              <Input disabled />
-            </Form.Item>
-          </Col>
-        </Row>
+      <div className="mt-4 flex justify-end gap-2 flex-wrap items-center">
+        <Form.Item name="total_quantity" label="Total Quantity">
+          <Input disabled className="w-40" />
+        </Form.Item>
+        <Form.Item name="total_amount" label="Total Amount">
+          <Input disabled className="w-40" />
+        </Form.Item>
+        <Form.Item name="discount_amount" label="Discount Amount">
+          <Input disabled className="w-40" />
+        </Form.Item>
+        <Form.Item name="total_net" label="Total Net">
+          <Input disabled className="w-40" />
+        </Form.Item>
       </div>
 
       <div className="mt-4 flex gap-2 justify-end items-center">

@@ -1,10 +1,14 @@
 import { Button, Col, Form, Input, Row } from "antd";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import AsyncSelect from "../AsyncSelect";
+import useError from "../../hooks/useError";
+import { getVessel } from "../../store/features/vesselSlice";
 
 const EventForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
+  const dispatch = useDispatch();
+  const handleError = useError();
 
   const { isFormSubmitting, initialFormValues } = useSelector(
     (state) => state.event
@@ -23,11 +27,22 @@ const EventForm = ({ mode, onSubmit }) => {
   };
 
   const onVesselSelect = async (selected) => {
-    if (selected) {
+    if (!selected) {
       form.setFieldsValue({
-        class1_id: { value: selected.class1_id, label: selected.class1_name },
-        class2_id: { value: selected.class1_id, label: selected.class2_name },
+        class1_id: null,
+        class2_id: null,
       });
+      return;
+    }
+
+    try {
+      const data = await dispatch(getVessel(selected.value)).unwrap();
+      form.setFieldsValue({
+        class1_id: { value: data.class1_id, label: data.class1_name },
+        class2_id: { value: data.class2_id, label: data.class2_name },
+      });
+    } catch (error) {
+      handleError(error);
     }
   };
 

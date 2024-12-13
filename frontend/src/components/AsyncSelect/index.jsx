@@ -41,7 +41,6 @@ const AsyncSelect = ({
         optionsData = response.data.data.map((item) => ({
           value: item[valueKey],
           label: item[labelKey],
-          ...item,
         }));
       } else {
         optionsData = response.data.data;
@@ -90,10 +89,7 @@ const AsyncSelect = ({
       onFocus={() => setIsClicked(true)}
       {...props}
       onChange={(v) => {
-        if (props.onChange) {
-          const findElement = options.find((item) => item.value === v.value);
-          props.onChange(findElement);
-        }
+        props.onChange && props.onChange(v);
         setSearchValue("");
       }}
       onPopupScroll={handleScroll}

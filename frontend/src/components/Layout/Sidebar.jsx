@@ -177,6 +177,7 @@ const Sidebar = () => {
         !permissions?.sub_category?.list &&
         !permissions?.brand?.list &&
         !permissions?.unit?.list &&
+        !permissions?.product?.list &&
         !permissions?.validity?.list &&
         !permissions?.payment?.list,
       children: [
@@ -203,6 +204,11 @@ const Sidebar = () => {
               key: "unit",
               label: <Link to="/unit">Unit</Link>,
               disabled: !permissions?.unit?.list,
+            },
+            {
+              key: "product",
+              label: <Link to="/product">Product</Link>,
+              disabled: !permissions?.product?.list,
             },
             {
               key: "validity",
