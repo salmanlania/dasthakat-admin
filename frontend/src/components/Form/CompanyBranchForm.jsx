@@ -72,7 +72,7 @@ const CompanyBranchForm = ({ mode, onSubmit }) => {
           </Col>
           <Col span={24} sm={12} md={12} lg={12}>
             <Form.Item name="branch_code" label="Branch Code">
-              <Input disabled placeholder="AUTO" />
+              <Input />
             </Form.Item>
           </Col>
           <Col span={24} sm={12} md={12} lg={12}>

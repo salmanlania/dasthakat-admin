@@ -137,6 +137,52 @@ const Event = () => {
       ellipsis: true,
     },
     {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Class 1</p>
+          <AsyncSelect
+            endpoint="/class"
+            size="small"
+            className="w-full font-normal"
+            valueKey="class_id"
+            labelKey="name"
+            value={params.class1_id}
+            onChange={(value) =>
+              dispatch(setEventListParams({ class1_id: value }))
+            }
+          />
+        </div>
+      ),
+      dataIndex: "class1_name",
+      key: "class1_name",
+      sorter: true,
+      width: 200,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Class 2</p>
+          <AsyncSelect
+            endpoint="/class"
+            size="small"
+            className="w-full font-normal"
+            valueKey="class_id"
+            labelKey="name"
+            value={params.class2_id}
+            onChange={(value) =>
+              dispatch(setEventListParams({ class2_id: value }))
+            }
+          />
+        </div>
+      ),
+      dataIndex: "class2_name",
+      key: "class2_name",
+      sorter: true,
+      width: 200,
+      ellipsis: true,
+    },
+    {
       title: "Created At",
       dataIndex: "created_at",
       key: "created_at",
