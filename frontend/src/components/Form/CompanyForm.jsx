@@ -28,7 +28,7 @@ const CompanyForm = ({ mode, onSubmit }) => {
   const onFinish = (formValues) => {
     const data = {
       ...formValues,
-      currency_id: formValues.currency_id.value,
+      currency_id: formValues.currency_id ? formValues.currency_id.value : null,
       image: initialFormValues?.image_url === imageSrc ? null : imageSrc,
     };
 

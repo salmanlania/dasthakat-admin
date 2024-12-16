@@ -39,3 +39,7 @@
 .ant-menu-submenu-disabled {
   @apply !hidden;
 }
+
+.ant-select .ant-select-arrow {
+  @apply !pointer-events-auto;
+}

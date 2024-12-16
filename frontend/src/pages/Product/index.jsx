@@ -15,7 +15,12 @@ import { MdOutlineEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import AsyncSelect from "../../components/AsyncSelect";
+import { productTypeOptions } from "../../components/Form/ProductForm";
 import PageHeading from "../../components/heading/PageHeading";
+import {
+  formatThreeDigitCommas,
+  removeCommas,
+} from "../../components/Input/CommaSepratedInput";
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
 import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
@@ -26,7 +31,6 @@ import {
   setProductDeleteIDs,
   setProductListParams,
 } from "../../store/features/productSlice";
-import { productTypeOptions } from "../../components/Form/ProductForm";
 
 const Product = () => {
   const dispatch = useDispatch();
@@ -52,11 +56,17 @@ const Product = () => {
   const debouncedCost = useDebounce(params.cost_price, 500);
   const debouncedSale = useDebounce(params.sale_price, 500);
 
+  const formattedParams = {
+    ...params,
+    cost_price: removeCommas(params.cost_price),
+    sale_price: removeCommas(params.sale_price),
+  };
+
   const onProductDelete = async (id) => {
     try {
       await dispatch(deleteProduct(id)).unwrap();
       toast.success("Product deleted successfully");
-      dispatch(getProductList(params)).unwrap();
+      dispatch(getProductList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -67,7 +77,7 @@ const Product = () => {
       await dispatch(bulkDeleteProduct(deleteIDs)).unwrap();
       toast.success("Products deleted successfully");
       closeDeleteModal();
-      await dispatch(getProductList(params)).unwrap();
+      await dispatch(getProductList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -271,6 +281,7 @@ const Product = () => {
       sorter: true,
       width: 150,
       ellipsis: true,
+      render: (_, { cost_price }) => formatThreeDigitCommas(cost_price),
     },
     {
       title: (
@@ -292,6 +303,7 @@ const Product = () => {
       sorter: true,
       width: 150,
       ellipsis: true,
+      render: (_, { sale_price }) => formatThreeDigitCommas(sale_price),
     },
     {
       title: "Created At",
@@ -350,7 +362,7 @@ const Product = () => {
   }
 
   useEffect(() => {
-    dispatch(getProductList(params)).unwrap().catch(handleError);
+    dispatch(getProductList(formattedParams)).unwrap().catch(handleError);
   }, [
     params.page,
     params.limit,

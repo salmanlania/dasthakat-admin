@@ -27,6 +27,13 @@ import {
   setCompanyDeleteIDs,
   setCompanyListParams,
 } from "../../store/features/companySlice";
+import {
+  bulkDeleteQuotation,
+  deleteQuotation,
+  getQuotationList,
+  setQuotationDeleteIDs,
+  setQuotationListParams,
+} from "../../store/features/quotationSlice";
 
 const Quotation = () => {
   const dispatch = useDispatch();
@@ -38,7 +45,7 @@ const Quotation = () => {
     paginationInfo,
     isBulkDeleting,
     deleteIDs,
-  } = useSelector((state) => state.company);
+  } = useSelector((state) => state.quotation);
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
@@ -48,9 +55,9 @@ const Quotation = () => {
 
   const onQuotationDelete = async (id) => {
     try {
-      await dispatch(deleteCompany(id)).unwrap();
+      await dispatch(deleteQuotation(id)).unwrap();
       toast.success("Quotation deleted successfully");
-      dispatch(getCompanyList(params)).unwrap();
+      dispatch(getQuotationList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -58,10 +65,10 @@ const Quotation = () => {
 
   const onBulkDelete = async () => {
     try {
-      // await dispatch(bulkDeleteCompany(deleteIDs)).unwrap();
-      // toast.success("Events deleted successfully");
+      await dispatch(bulkDeleteQuotation(deleteIDs)).unwrap();
+      toast.success("Quotations deleted successfully");
       closeDeleteModal();
-      // await dispatch(getCompanyList(params)).unwrap();
+      await dispatch(getQuotationList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -78,7 +85,7 @@ const Quotation = () => {
               value={params.document_data}
               className="font-normal"
               onChange={(date) =>
-                dispatch(setCompanyListParams({ document_data: date }))
+                dispatch(setQuotationListParams({ document_data: date }))
               }
               format="DD-MM-YYYY"
             />
@@ -101,7 +108,7 @@ const Quotation = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.document_no}
             onChange={(e) =>
-              dispatch(setCompanyListParams({ document_no: e.target.value }))
+              dispatch(setQuotationListParams({ document_no: e.target.value }))
             }
           />
         </div>
@@ -116,20 +123,46 @@ const Quotation = () => {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Customer</p>
-          {/* <AsyncSelectNoPaginate
-            endpoint="/lookups/company"
+          <AsyncSelect
+            endpoint="/customer"
             size="small"
             className="w-full font-normal"
-            value={params.company}
+            valueKey="customer_id"
+            labelKey="name"
+            value={params.customer_id}
             onChange={(value) =>
-              dispatch(setCompanyBranchListParams({ company: value }))
+              dispatch(setQuotationListParams({ customer_id: value }))
             }
-          /> */}
+          />
           <Select size="small" className="w-full font-normal" />
         </div>
       ),
-      dataIndex: "customer",
-      key: "customer",
+      dataIndex: "customer_name",
+      key: "customer_name",
+      sorter: true,
+      width: 200,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Vessel</p>
+          <AsyncSelect
+            endpoint="/vessel"
+            size="small"
+            className="w-full font-normal"
+            valueKey="vessel_id"
+            labelKey="name"
+            value={params.vessel_id}
+            onChange={(value) =>
+              dispatch(setQuotationListParams({ vessel_id: value }))
+            }
+          />
+          <Select size="small" className="w-full font-normal" />
+        </div>
+      ),
+      dataIndex: "vessel_name",
+      key: "vessel_name",
       sorter: true,
       width: 200,
       ellipsis: true,
@@ -146,10 +179,10 @@ const Quotation = () => {
     {
       title: "Action",
       key: "action",
-      render: (_, { id }) => (
+      render: (_, { quotation_id }) => (
         <div className="flex gap-2 items-center">
           <Tooltip title="Edit">
-            <Link to={`/quotation/edit/${id}`}>
+            <Link to={`/quotation/edit/${quotation_id}`}>
               <Button
                 size="small"
                 type="primary"
@@ -165,7 +198,7 @@ const Quotation = () => {
               okButtonProps={{ danger: true }}
               okText="Yes"
               cancelText="No"
-              onConfirm={() => onVesselDelete(id)}
+              onConfirm={() => onVesselDelete(quotation_id)}
             >
               <Button
                 size="small"
@@ -182,19 +215,8 @@ const Quotation = () => {
     },
   ];
 
-  const dataSource = [
-    {
-      id: "1",
-      key: "1",
-      document_date: "01-01-2023",
-      document_no: "123",
-      customer: "Customer 1",
-      created_at: "01-01-2023 10:00 AM",
-    },
-  ];
-
   useEffect(() => {
-    // dispatch(getCompanyList(params)).unwrap().catch(handleError);
+    dispatch(getQuotationList(params)).unwrap().catch(handleError);
   }, [
     params.page,
     params.limit,
@@ -221,7 +243,7 @@ const Quotation = () => {
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) =>
-              dispatch(setCompanyListParams({ search: e.target.value }))
+              dispatch(setQuotationListParams({ search: e.target.value }))
             }
           />
 
@@ -246,11 +268,11 @@ const Quotation = () => {
             type: "checkbox",
             selectedRowKeys: deleteIDs,
             onChange: (selectedRowKeys) =>
-              dispatch(setCompanyDeleteIDs(selectedRowKeys)),
+              dispatch(setQuotationDeleteIDs(selectedRowKeys)),
           }}
           loading={isListLoading}
           className="mt-2"
-          rowKey="id"
+          rowKey="quotation_id"
           scroll={{ x: "calc(100% - 200px)" }}
           pagination={{
             total: paginationInfo.total_records,
@@ -260,7 +282,7 @@ const Quotation = () => {
           }}
           onChange={(e, b, c, d) => {
             dispatch(
-              setCompanyListParams({
+              setQuotationListParams({
                 page: e.current,
                 limit: e.pageSize,
                 sort_column: c.field,
@@ -268,7 +290,7 @@ const Quotation = () => {
               })
             );
           }}
-          dataSource={dataSource}
+          dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{

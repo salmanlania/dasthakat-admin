@@ -3,10 +3,13 @@ import { useEffect } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import QuotationForm from "../../components/Form/QuotationForm";
 import PageHeading from "../../components/heading/PageHeading";
 import useError from "../../hooks/useError";
-import { getCompany, updateCompany } from "../../store/features/companySlice";
-import QuotationForm from "../../components/Form/QuotationForm";
+import {
+  getQuotation,
+  updateQuotation,
+} from "../../store/features/quotationSlice";
 
 const EditQuotation = () => {
   const dispatch = useDispatch();
@@ -14,12 +17,12 @@ const EditQuotation = () => {
   const handleError = useError();
   const { id } = useParams();
   const { isItemLoading, initialFormValues } = useSelector(
-    (state) => state.company
+    (state) => state.quotation
   );
 
   const onQuotationUpdate = async (data) => {
     try {
-      await dispatch(updateCompany({ id, data })).unwrap();
+      await dispatch(updateQuotation({ id, data })).unwrap();
       toast.success("Quotation updated successfully");
       navigate("/quotation");
     } catch (error) {
@@ -27,9 +30,9 @@ const EditQuotation = () => {
     }
   };
 
-  // useEffect(() => {
-  //   dispatch(getCompany(id)).unwrap().catch(handleError);
-  // }, []);
+  useEffect(() => {
+    dispatch(getQuotation(id)).unwrap().catch(handleError);
+  }, []);
 
   return (
     <>
@@ -47,15 +50,11 @@ const EditQuotation = () => {
         </div>
       )}
 
-      {/* {!isItemLoading && initialFormValues ? (
+      {!isItemLoading && initialFormValues ? (
         <div className="mt-4 bg-white sm:p-4 p-2 rounded-md">
-          <VesselForm mode="edit" onSubmit={onVesselUpdate} />
+          <QuotationForm mode="edit" onSubmit={onQuotationUpdate} />
         </div>
-      ) : null} */}
-
-      <div className="mt-4 bg-white sm:p-4 p-2 rounded-md">
-        <QuotationForm mode="edit" onSubmit={onQuotationUpdate} />
-      </div>
+      ) : null}
     </>
   );
 };

@@ -2,6 +2,7 @@ import { Select, Spin } from "antd";
 import React, { useEffect, useState } from "react";
 import api from "../../axiosInstance";
 import useError from "../../hooks/useError";
+import { MdOutlineAddCircle } from "react-icons/md";
 
 const AsyncSelectNoPaginate = ({
   endpoint,
@@ -10,12 +11,15 @@ const AsyncSelectNoPaginate = ({
   labelInValue = false,
   valueKey,
   labelKey,
+  addNewLink,
   ...props
 }) => {
   const [isClicked, setIsClicked] = useState(false);
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const handleError = useError();
+
+  const isAddNewVisible = addNewLink && !props?.disabled;
 
   const fetchData = async () => {
     setLoading(true);
@@ -56,6 +60,21 @@ const AsyncSelectNoPaginate = ({
           <div className="text-center">
             <Spin size="small" />
           </div>
+        ) : null
+      }
+      suffixIcon={
+        isAddNewVisible ? (
+          <MdOutlineAddCircle
+            className="text-primary cursor-pointer hover:text-blue-700 absolute !-top-4 bg-white"
+            size={18}
+            onClick={(e) => {
+              window.open(
+                `/gms${addNewLink}`,
+                "_blank",
+                "toolbar=yes,scrollbars=yes,top=100,left=400,width=600,height=600"
+              );
+            }}
+          />
         ) : null
       }
       optionFilterProp="label"

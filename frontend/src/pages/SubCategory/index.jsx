@@ -190,6 +190,7 @@ const SubCategory = () => {
                 selected ? selected.value : null
               )
             }
+            addNewLink="/category"
           />
         ) : (
           <span>{category_name}</span>

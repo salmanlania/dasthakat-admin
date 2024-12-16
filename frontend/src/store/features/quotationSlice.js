@@ -111,6 +111,8 @@ export const quotationSlice = createSlice({
     },
 
     addQuotationDetail: (state, action) => {
+      const index = action.payload;
+
       const newDetail = {
         id: Date.now(),
         product_code: null,
@@ -128,7 +130,45 @@ export const quotationSlice = createSlice({
         discount_percent: null,
         gross_amount: null,
       };
-      state.quotationDetails.push(newDetail);
+
+      // If index is provided, insert the new detail after that index, otherwise push it to the end
+      if (index) {
+        state.quotationDetails.splice(index + 1, 0, newDetail);
+      } else {
+        state.quotationDetails.push(newDetail);
+      }
+    },
+
+    copyQuotationDetail: (state, action) => {
+      const index = action.payload;
+
+      const detail = state.quotationDetails[index];
+      const newDetail = {
+        ...detail,
+        id: Date.now(),
+      };
+
+      state.quotationDetails.splice(index + 1, 0, newDetail);
+    },
+
+    removeQuotationDetail: (state, action) => {
+      state.quotationDetails = state.quotationDetails.filter(
+        (item) => item.id !== action.payload
+      );
+    },
+
+    // Change the order of quotation details, from is the index of the item to be moved, to is the index of the item to be moved to
+    changeQuotationDetailOrder: (state, action) => {
+      const { from, to } = action.payload;
+      const temp = state.quotationDetails[from];
+      state.quotationDetails[from] = state.quotationDetails[to];
+      state.quotationDetails[to] = temp;
+    },
+
+    changeQuotationDetailValue: (state, action) => {
+      const { id, key, value } = action.payload;
+      const detail = state.quotationDetails.find((item) => item.id === id);
+      detail[key] = value;
     },
   },
   extraReducers: ({ addCase }) => {
@@ -201,5 +241,9 @@ export const {
   setQuotationListParams,
   setQuotationDeleteIDs,
   addQuotationDetail,
+  removeQuotationDetail,
+  copyQuotationDetail,
+  changeQuotationDetailOrder,
+  changeQuotationDetailValue,
 } = quotationSlice.actions;
 export default quotationSlice.reducer;

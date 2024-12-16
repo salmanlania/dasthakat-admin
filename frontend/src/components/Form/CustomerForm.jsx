@@ -54,6 +54,7 @@ const CustomerForm = ({ mode, onSubmit }) => {
               valueKey="salesman_id"
               labelKey="name"
               labelInValue
+              addNewLink="/salesman"
             />
           </Form.Item>
         </Col>

@@ -104,7 +104,7 @@ const MainLayout = () => {
     <Layout className="min-h-screen">
       <Sidebar />
       <Layout
-        className={`${window.innerWidth <= 1000 ? "!w-screen" : "w-full"}`}
+      // className={`${window.innerWidth <= 1000 ? "!w-screen" : "w-full"}`}
       >
         <Navbar />
         <Content className="bg-[#f2f2f2] p-4">

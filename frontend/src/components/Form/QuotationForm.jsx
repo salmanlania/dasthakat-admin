@@ -14,12 +14,23 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { addQuotationDetail } from "../../store/features/quotationSlice";
+import {
+  addQuotationDetail,
+  changeQuotationDetailOrder,
+  changeQuotationDetailValue,
+  copyQuotationDetail,
+  removeQuotationDetail,
+} from "../../store/features/quotationSlice";
+import AsyncSelect from "../AsyncSelect";
+import { getEvent } from "../../store/features/eventSlice";
+import useError from "../../hooks/useError";
 
 // when product select automatically set product name and id (dropdown), unit, cost price
 // when markup or cost price change then calculate rate by using formula (markup/100*cost_price) + cost_price = rate, ;
 
 const QuotationForm = ({ mode, onSubmit }) => {
+  const [form] = Form.useForm();
+  const handleError = useError();
   const dispatch = useDispatch();
   const { isFormSubmitting, initialFormValues, quotationDetails } = useSelector(
     (state) => state.quotation
@@ -38,18 +49,30 @@ const QuotationForm = ({ mode, onSubmit }) => {
       key: "order",
       dataIndex: "order",
       fixed: "left",
-      render: (_, index) => {
+      render: (_, record, index) => {
         return (
           <div className="flex flex-col gap-1">
             <Button
               className="h-4"
               size="small"
               icon={<IoMdArrowDropup size={16} />}
+              disabled={index === 0}
+              onClick={() => {
+                dispatch(
+                  changeQuotationDetailOrder({ from: index, to: index - 1 })
+                );
+              }}
             />
             <Button
               className="h-4"
               size="small"
               icon={<IoMdArrowDropdown size={16} />}
+              disabled={index === quotationDetails.length - 1}
+              onClick={() => {
+                dispatch(
+                  changeQuotationDetailOrder({ from: index, to: index + 1 })
+                );
+              }}
             />
           </div>
         );
@@ -69,8 +92,21 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: "Product Code",
       dataIndex: "product_code",
       key: "product_code",
-      render: (_, { product_code }) => {
-        return <Input value={product_code} />;
+      render: (_, { id, product_code }) => {
+        return (
+          <Input
+            value={product_code}
+            onChange={(e) =>
+              dispatch(
+                changeQuotationDetailValue({
+                  id,
+                  key: "product_code",
+                  value: e.target.value,
+                })
+              )
+            }
+          />
+        );
       },
       width: 140,
     },
@@ -78,8 +114,21 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: "Product Name",
       dataIndex: "product_name",
       key: "product_name",
-      render: (_, { product_name }) => {
-        return <Input value={product_name} />;
+      render: (_, { id, product_name }) => {
+        return (
+          <Input
+            value={product_name}
+            onChange={(e) =>
+              dispatch(
+                changeQuotationDetailValue({
+                  id,
+                  key: "product_name",
+                  value: e.target.value,
+                })
+              )
+            }
+          />
+        );
       },
       width: 200,
     },
@@ -87,8 +136,21 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: "Description",
       dataIndex: "description",
       key: "description",
-      render: (_, { description }) => {
-        return <Input value={description} />;
+      render: (_, { id, description }) => {
+        return (
+          <Input
+            value={description}
+            onChange={(e) =>
+              dispatch(
+                changeQuotationDetailValue({
+                  id,
+                  key: "description",
+                  value: e.target.value,
+                })
+              )
+            }
+          />
+        );
       },
       width: 240,
     },
@@ -96,8 +158,21 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: "Delivery",
       dataIndex: "delivery",
       key: "delivery",
-      render: (_, { delivery }) => {
-        return <Input value={delivery} />;
+      render: (_, { id, delivery }) => {
+        return (
+          <Input
+            value={delivery}
+            onChange={(e) =>
+              dispatch(
+                changeQuotationDetailValue({
+                  id,
+                  key: "delivery",
+                  value: e.target.value,
+                })
+              )
+            }
+          />
+        );
       },
       width: 200,
     },
@@ -105,7 +180,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: "Stock Quantity",
       dataIndex: "stock_quantity",
       key: "stock_quantity",
-      render: (_, { stock_quantity }) => {
+      render: (_, { id, stock_quantity }) => {
         return <Input value={stock_quantity} disabled />;
       },
       width: 200,
@@ -114,8 +189,21 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: "Quantity",
       dataIndex: "quantity",
       key: "quantity",
-      render: (_, { quantity }) => {
-        return <Input value={quantity} />;
+      render: (_, { id, quantity }) => {
+        return (
+          <Input
+            value={quantity}
+            onChange={(e) =>
+              dispatch(
+                changeQuotationDetailValue({
+                  id,
+                  key: "quantity",
+                  value: e.target.value,
+                })
+              )
+            }
+          />
+        );
       },
       width: 200,
     },
@@ -123,17 +211,48 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: "Unit",
       dataIndex: "unit",
       key: "unit",
-      render: (_, { unit }) => {
-        return <Input value={unit} />;
+      render: (_, { id, unit }) => {
+        return (
+          <Input
+            value={unit}
+            onChange={(e) =>
+              dispatch(
+                changeQuotationDetailValue({
+                  id,
+                  key: "unit",
+                  value: e.target.value,
+                })
+              )
+            }
+          />
+        );
       },
       width: 200,
     },
     {
-      title: "Vender",
-      dataIndex: "vender",
-      key: "vender",
-      render: (_, { vender }) => {
-        return <Select value={vender} className="w-full" />;
+      title: "Vendor",
+      dataIndex: "vendor",
+      key: "vendor",
+      render: (_, { id, vender }) => {
+        return (
+          <AsyncSelect
+            endpoint="/supplier"
+            valueKey="supplier_id"
+            labelKey="name"
+            labelInValue
+            className="w-full"
+            onChange={(selected) =>
+              dispatch(
+                changeQuotationDetailValue({
+                  id,
+                  key: "supplier_id",
+                  value: selected,
+                })
+              )
+            }
+            addNewLink="/vendor/create"
+          />
+        );
       },
       width: 240,
     },
@@ -141,8 +260,21 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: "Cost Price",
       dataIndex: "cost_price",
       key: "cost_price",
-      render: (_, { cost_price }) => {
-        return <Input value={cost_price} />;
+      render: (_, { id, cost_price }) => {
+        return (
+          <Input
+            value={cost_price}
+            onChange={(e) =>
+              dispatch(
+                changeQuotationDetailValue({
+                  id,
+                  key: "cost_price",
+                  value: e.target.value,
+                })
+              )
+            }
+          />
+        );
       },
       width: 200,
     },
@@ -150,8 +282,21 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: "Markup %",
       dataIndex: "markup",
       key: "markup",
-      render: (_, { markup }) => {
-        return <Input value={markup} />;
+      render: (_, { id, markup }) => {
+        return (
+          <Input
+            value={markup}
+            onChange={(e) =>
+              dispatch(
+                changeQuotationDetailValue({
+                  id,
+                  key: "markup",
+                  value: e.target.value,
+                })
+              )
+            }
+          />
+        );
       },
       width: 200,
     },
@@ -160,8 +305,21 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: "Sale in Price",
       dataIndex: "rate",
       key: "rate",
-      render: (_, { rate }) => {
-        return <Input value={rate} />;
+      render: (_, { id, rate }) => {
+        return (
+          <Input
+            value={rate}
+            onChange={(e) =>
+              dispatch(
+                changeQuotationDetailValue({
+                  id,
+                  key: "rate",
+                  value: e.target.value,
+                })
+              )
+            }
+          />
+        );
       },
       width: 200,
     },
@@ -169,7 +327,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: "Amount",
       dataIndex: "amount",
       key: "amount",
-      render: (_, { amount }) => {
+      render: (_, { id, amount }) => {
         return <Input value={amount} disabled />;
       },
       width: 200,
@@ -178,8 +336,21 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: "Discount Percent",
       dataIndex: "discount_percent",
       key: "discount_percent",
-      render: (_, { discount_percent }) => {
-        return <Input value={discount_percent} />;
+      render: (_, { id, discount_percent }) => {
+        return (
+          <Input
+            value={discount_percent}
+            onChange={(e) =>
+              dispatch(
+                changeQuotationDetailValue({
+                  id,
+                  key: "discount_percent",
+                  value: e.target.value,
+                })
+              )
+            }
+          />
+        );
       },
       width: 200,
     },
@@ -187,7 +358,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: "Discount Amount",
       dataIndex: "discount_amount",
       key: "discount_amount",
-      render: (_, { discount_amount }) => {
+      render: (_, { id, discount_amount }) => {
         return <Input value={discount_amount} disabled />;
       },
       width: 200,
@@ -196,7 +367,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: "Gross Amount",
       dataIndex: "gross_amount",
       key: "gross_amount",
-      render: (_, { gross_amount }) => {
+      render: (_, { id, gross_amount }) => {
         return <Input value={gross_amount} disabled />;
       },
       width: 200,
@@ -212,7 +383,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
         />
       ),
       key: "action",
-      render: (_, { id }) => (
+      render: (_, { id }, index) => (
         <Dropdown
           trigger={["click"]}
           arrow
@@ -221,15 +392,18 @@ const QuotationForm = ({ mode, onSubmit }) => {
               {
                 key: "1",
                 label: "Add",
+                onClick: () => dispatch(addQuotationDetail(index)),
               },
               {
                 key: "2",
                 label: "Copy",
+                onClick: () => dispatch(copyQuotationDetail(index)),
               },
               {
                 key: "3",
                 label: "Delete",
                 danger: true,
+                onClick: () => dispatch(removeQuotationDetail(id)),
               },
             ],
           }}
@@ -244,11 +418,44 @@ const QuotationForm = ({ mode, onSubmit }) => {
     },
   ];
 
+  const onTermChange = (selected) => {
+    if (!selected.length) {
+      form.setFieldsValue({ term_desc: "" });
+      return;
+    }
+
+    const newTermDesc = selected.map((t) => `* ${t.label}`).join("\n");
+    form.setFieldsValue({ term_desc: newTermDesc });
+  };
+
+  const onEventChange = async (selected) => {
+    form.setFieldsValue({
+      vessel_id: null,
+      customer_id: null,
+      class1_id: null,
+      class2_id: null,
+    });
+
+    if (!selected) return;
+    try {
+      const data = await dispatch(getEvent(selected.value)).unwrap();
+      form.setFieldsValue({
+        vessel_id: { value: data.vessel_id, label: data.vessel_name },
+        customer_id: { value: data.customer_id, label: data.customer_name },
+        class1_id: { value: data.class1_id, label: data.class1_name },
+        class2_id: { value: data.class2_id, label: data.class2_name },
+      });
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
   return (
     <Form
       name="quotation"
       layout="vertical"
       autoComplete="off"
+      form={form}
       onFinish={onFinish}
       initialValues={initialFormValues}
     >
@@ -263,49 +470,59 @@ const QuotationForm = ({ mode, onSubmit }) => {
             <DatePicker format="DD-MM-YYYY" className="w-full" />
           </Form.Item>
         </Col>
-
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="salesman" label="Salesman">
-            <Input />
+          <Form.Item name="salesman_id" label="Salesman">
+            <AsyncSelect
+              endpoint="/salesman"
+              valueKey="salesman_id"
+              labelKey="name"
+              labelInValue
+              addNewLink="/salesman"
+            />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="event_id" label="Event">
+            <AsyncSelect
+              endpoint="/event"
+              valueKey="event_id"
+              labelKey="event_code"
+              labelInValue
+              onChange={onEventChange}
+              addNewLink="/event/create"
+            />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="vessel_id" label="Vessel">
+            <Select labelInValue disabled />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="customer_id" label="Customer">
+            <Select labelInValue disabled />
           </Form.Item>
         </Col>
 
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="event" label="Event">
-            {/* <AsyncSelect
-                endpoint="/currency"
-                valueKey="currency_id"
-                labelKey="name"
-                labelInValue
-              /> */}
-            <Select />
+          <Form.Item name="class1_id" label="Class 1">
+            <Select labelInValue disabled />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="vessel" label="Vessel">
-            <Input disabled />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="customer" label="Customer">
-            <Input disabled />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="flag" label="Flag">
-            <Input disabled />
+          <Form.Item name="class2_id" label="Class 2">
+            <Select labelInValue disabled />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="class1" label="Class 1">
-            <Input disabled />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="class2" label="Class 2">
-            <Input disabled />
+          <Form.Item name="flag_id" label="Flag">
+            <AsyncSelect
+              endpoint="/flag"
+              valueKey="flag_id"
+              labelKey="name"
+              labelInValue
+              addNewLink="/flag"
+            />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
@@ -334,13 +551,25 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="validity" label="Validity">
-            <Select />
+          <Form.Item name="validity_id" label="Validity">
+            <AsyncSelect
+              endpoint="/validity"
+              valueKey="validity_id"
+              labelKey="name"
+              labelInValue
+              addNewLink="/validity"
+            />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="payment" label="Payment">
-            <Select />
+          <Form.Item name="payment_id" label="Payment">
+            <AsyncSelect
+              endpoint="/payment"
+              valueKey="payment_id"
+              labelKey="name"
+              labelInValue
+              addNewLink="/payment"
+            />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
@@ -353,9 +582,22 @@ const QuotationForm = ({ mode, onSubmit }) => {
             <Input />
           </Form.Item>
         </Col>
-        <Col span={24} sm={24} md={16} lg={16}>
-          <Form.Item name="terms_and_conditions" label="Terms & Conditions">
-            <Input.TextArea />
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="term_id" label="Terms & Conditions">
+            <AsyncSelect
+              endpoint="/terms"
+              valueKey="term_id"
+              labelKey="name"
+              labelInValue
+              mode="multiple"
+              onChange={(selected) => onTermChange(selected)}
+              addNewLink="/terms"
+            />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={16} lg={16}>
+          <Form.Item name="term_desc" label="Terms & Conditions">
+            <Input.TextArea autoSize />
           </Form.Item>
         </Col>
       </Row>

@@ -27,14 +27,12 @@ const EventForm = ({ mode, onSubmit }) => {
   };
 
   const onVesselSelect = async (selected) => {
-    if (!selected) {
-      form.setFieldsValue({
-        class1_id: null,
-        class2_id: null,
-      });
-      return;
-    }
+    form.setFieldsValue({
+      class1_id: null,
+      class2_id: null,
+    });
 
+    if (!selected) return;
     try {
       const data = await dispatch(getVessel(selected.value)).unwrap();
       form.setFieldsValue({
@@ -69,6 +67,7 @@ const EventForm = ({ mode, onSubmit }) => {
               valueKey="customer_id"
               labelKey="name"
               labelInValue
+              addNewLink="/customer/create"
             />
           </Form.Item>
         </Col>
@@ -80,6 +79,7 @@ const EventForm = ({ mode, onSubmit }) => {
               labelKey="name"
               labelInValue
               onChange={onVesselSelect}
+              addNewLink="/vessel/create"
             />
           </Form.Item>
         </Col>
@@ -91,6 +91,7 @@ const EventForm = ({ mode, onSubmit }) => {
               valueKey="class_id"
               labelKey="name"
               labelInValue
+              addNewLink="/class"
             />
           </Form.Item>
         </Col>
@@ -102,6 +103,7 @@ const EventForm = ({ mode, onSubmit }) => {
               valueKey="class_id"
               labelKey="name"
               labelInValue
+              addNewLink="/class"
             />
           </Form.Item>
         </Col>

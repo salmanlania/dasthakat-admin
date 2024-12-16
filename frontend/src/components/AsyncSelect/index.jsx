@@ -1,8 +1,10 @@
-import { Select, Spin } from "antd";
+import { Button, Select, Spin } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import api from "../../axiosInstance";
 import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
+import { MdOutlineAddCircle } from "react-icons/md";
+import { BsPencil } from "react-icons/bs";
 
 const { Option } = Select;
 
@@ -13,6 +15,7 @@ const AsyncSelect = ({
   dependencies = [],
   valueKey,
   labelKey,
+  addNewLink,
   ...props
 }) => {
   const [isClicked, setIsClicked] = useState(false);
@@ -25,6 +28,8 @@ const AsyncSelect = ({
   const handleError = useError();
 
   const debouncedSearch = useDebounce(searchValue, 500);
+
+  const isAddNewVisible = addNewLink && !props?.disabled;
 
   const fetchData = async (inputValue = "", page = 1, merge = false) => {
     setLoading(true);
@@ -110,6 +115,21 @@ const AsyncSelect = ({
         </div>
       )}
       labelInValue={labelInValue}
+      suffixIcon={
+        isAddNewVisible ? (
+          <MdOutlineAddCircle
+            className="text-primary cursor-pointer hover:text-blue-700 absolute !-top-4 bg-white"
+            size={18}
+            onClick={(e) => {
+              window.open(
+                `/gms${addNewLink}`,
+                "_blank",
+                "toolbar=yes,scrollbars=yes,top=100,left=400,width=600,height=600"
+              );
+            }}
+          />
+        ) : undefined
+      }
     >
       {options.map((option) => (
         <Option key={option.value} value={option.value}>

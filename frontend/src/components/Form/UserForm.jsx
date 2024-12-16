@@ -135,6 +135,7 @@ const UserForm = ({ mode = "create", onSubmit }) => {
                 valueKey="user_permission_id"
                 labelKey="name"
                 labelInValue
+                addNewLink="/user-permission/create"
               />
             </Form.Item>
           </Col>

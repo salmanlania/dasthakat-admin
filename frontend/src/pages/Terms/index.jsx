@@ -112,7 +112,6 @@ const Terms = () => {
       key: "name",
       sorter: true,
       width: 120,
-      ellipsis: true,
       render: (_, { name, editable, term_id }) =>
         editable ? (
           <Input

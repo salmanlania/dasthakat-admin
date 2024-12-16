@@ -6,6 +6,7 @@ import companyImagePlaceholder from "../../assets/img-placeholder.png";
 import AsyncSelect from "../AsyncSelect";
 import ReactInputMask from "react-input-mask";
 import AsyncSelectNoPaginate from "../AsyncSelect/AsyncSelectNoPaginate";
+import { CgAdd } from "react-icons/cg";
 
 const CompanyBranchForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues } = useSelector(

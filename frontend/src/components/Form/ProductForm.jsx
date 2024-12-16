@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import productImagePlaceholder from "../../assets/img-placeholder.png";
 import AsyncSelect from "../AsyncSelect";
+import CommaSeparatedInput from "../Input/CommaSepratedInput";
 
 export const productTypeOptions = [
   { value: "Service", label: "Service" },
@@ -114,6 +115,7 @@ const ProductForm = ({ mode, onSubmit }) => {
                   onChange={() =>
                     form.setFieldsValue({ sub_category_id: null })
                   }
+                  addNewLink="/category"
                 />
               </Form.Item>
             </Col>
@@ -127,6 +129,7 @@ const ProductForm = ({ mode, onSubmit }) => {
                   labelInValue
                   params={{ category_id: categoryID ? categoryID.value : null }}
                   dependencies={[categoryID]}
+                  addNewLink="/sub-category"
                 />
               </Form.Item>
             </Col>
@@ -138,6 +141,7 @@ const ProductForm = ({ mode, onSubmit }) => {
                   valueKey="brand_id"
                   labelKey="name"
                   labelInValue
+                  addNewLink="/brand"
                 />
               </Form.Item>
             </Col>
@@ -153,19 +157,20 @@ const ProductForm = ({ mode, onSubmit }) => {
                   valueKey="unit_id"
                   labelKey="name"
                   labelInValue
+                  addNewLink="/unit"
                 />
               </Form.Item>
             </Col>
 
             <Col span={24} sm={12} md={8} lg={8}>
               <Form.Item name="cost_price" label="Cost Price">
-                <Input />
+                <CommaSeparatedInput />
               </Form.Item>
             </Col>
 
             <Col span={24} sm={12} md={8} lg={8}>
               <Form.Item name="sale_price" label="Sale Price">
-                <Input />
+                <CommaSeparatedInput />
               </Form.Item>
             </Col>
 

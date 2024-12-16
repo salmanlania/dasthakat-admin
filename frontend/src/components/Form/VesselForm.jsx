@@ -45,6 +45,7 @@ const VesselForm = ({ mode, onSubmit }) => {
               valueKey="flag_id"
               labelKey="name"
               labelInValue
+              addNewLink="/flag"
             />
           </Form.Item>
         </Col>
@@ -55,6 +56,7 @@ const VesselForm = ({ mode, onSubmit }) => {
               valueKey="class_id"
               labelKey="name"
               labelInValue
+              addNewLink="/class"
             />
           </Form.Item>
         </Col>
@@ -65,6 +67,7 @@ const VesselForm = ({ mode, onSubmit }) => {
               valueKey="class_id"
               labelKey="name"
               labelInValue
+              addNewLink="/class"
             />
           </Form.Item>
         </Col>
