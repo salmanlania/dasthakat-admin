@@ -43,3 +43,7 @@
 .ant-select .ant-select-arrow {
   @apply !pointer-events-auto;
 }
+
+.ant-input-outlined[disabled] {
+  @apply !text-[#1c1d21];
+}

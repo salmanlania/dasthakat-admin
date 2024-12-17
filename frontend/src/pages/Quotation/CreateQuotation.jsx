@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import QuotationForm from "../../components/Form/QuotationForm";
 import PageHeading from "../../components/heading/PageHeading";
 import useError from "../../hooks/useError";
-import { createCompany } from "../../store/features/companySlice";
+import { createQuotation } from "../../store/features/quotationSlice";
 
 const CreateQuotation = () => {
   const navigate = useNavigate();
@@ -14,9 +14,9 @@ const CreateQuotation = () => {
 
   const onQuotationCreate = async (data) => {
     try {
-      await dispatch(createCompany(data)).unwrap();
+      await dispatch(createQuotation(data)).unwrap();
       toast.success("Quotation created successfully");
-      navigate("/quotation");
+      // navigate("/quotation");
     } catch (error) {
       handleError(error);
     }

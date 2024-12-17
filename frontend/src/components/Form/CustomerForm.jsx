@@ -8,6 +8,8 @@ const CustomerForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues } = useSelector(
     (state) => state.customer
   );
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user.permission;
 
   const onFinish = (formValues) => {
     onSubmit({
@@ -54,7 +56,11 @@ const CustomerForm = ({ mode, onSubmit }) => {
               valueKey="salesman_id"
               labelKey="name"
               labelInValue
-              addNewLink="/salesman"
+              addNewLink={
+                permissions.salesman.list && permissions.salesman.add
+                  ? "/salesman"
+                  : null
+              }
             />
           </Form.Item>
         </Col>

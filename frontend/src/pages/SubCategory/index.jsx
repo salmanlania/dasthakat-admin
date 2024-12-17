@@ -40,6 +40,8 @@ const SubCategory = () => {
   } = useSelector((state) => state.subCategory);
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.sub_category;
+  const categoryPermission =
+    user.permission.category.list && user.permission.category.add;
 
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedName = useDebounce(params.name, 500);
@@ -190,7 +192,7 @@ const SubCategory = () => {
                 selected ? selected.value : null
               )
             }
-            addNewLink="/category"
+            addNewLink={categoryPermission ? "/category" : null}
           />
         ) : (
           <span>{category_name}</span>

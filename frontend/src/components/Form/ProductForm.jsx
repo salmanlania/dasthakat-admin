@@ -19,6 +19,9 @@ const ProductForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues } = useSelector(
     (state) => state.product
   );
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user.permission;
+
   const [imageSrc, setImageSrc] = useState(
     initialFormValues?.image_url || null
   );
@@ -115,7 +118,11 @@ const ProductForm = ({ mode, onSubmit }) => {
                   onChange={() =>
                     form.setFieldsValue({ sub_category_id: null })
                   }
-                  addNewLink="/category"
+                  addNewLink={
+                    permissions.category.list && permissions.category.add
+                      ? "/category"
+                      : null
+                  }
                 />
               </Form.Item>
             </Col>
@@ -129,7 +136,12 @@ const ProductForm = ({ mode, onSubmit }) => {
                   labelInValue
                   params={{ category_id: categoryID ? categoryID.value : null }}
                   dependencies={[categoryID]}
-                  addNewLink="/sub-category"
+                  addNewLink={
+                    permissions.sub_category.list &&
+                    permissions.sub_category.add
+                      ? "/sub-category"
+                      : null
+                  }
                 />
               </Form.Item>
             </Col>
@@ -141,7 +153,11 @@ const ProductForm = ({ mode, onSubmit }) => {
                   valueKey="brand_id"
                   labelKey="name"
                   labelInValue
-                  addNewLink="/brand"
+                  addNewLink={
+                    permissions.brand.list && permissions.brand.add
+                      ? "/brand"
+                      : null
+                  }
                 />
               </Form.Item>
             </Col>
@@ -157,7 +173,11 @@ const ProductForm = ({ mode, onSubmit }) => {
                   valueKey="unit_id"
                   labelKey="name"
                   labelInValue
-                  addNewLink="/unit"
+                  addNewLink={
+                    permissions.unit.list && permissions.unit.add
+                      ? "/unit"
+                      : null
+                  }
                 />
               </Form.Item>
             </Col>

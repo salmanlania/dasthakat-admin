@@ -7,6 +7,8 @@ const VesselForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues } = useSelector(
     (state) => state.vessel
   );
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user.permission;
 
   const onFinish = (values) => {
     const data = {
@@ -45,7 +47,9 @@ const VesselForm = ({ mode, onSubmit }) => {
               valueKey="flag_id"
               labelKey="name"
               labelInValue
-              addNewLink="/flag"
+              addNewLink={
+                permissions.flag.list && permissions.flag.add ? "/flag" : null
+              }
             />
           </Form.Item>
         </Col>
@@ -56,7 +60,11 @@ const VesselForm = ({ mode, onSubmit }) => {
               valueKey="class_id"
               labelKey="name"
               labelInValue
-              addNewLink="/class"
+              addNewLink={
+                permissions.class.list && permissions.class.add
+                  ? "/class"
+                  : null
+              }
             />
           </Form.Item>
         </Col>
@@ -67,7 +75,11 @@ const VesselForm = ({ mode, onSubmit }) => {
               valueKey="class_id"
               labelKey="name"
               labelInValue
-              addNewLink="/class"
+              addNewLink={
+                permissions.class.list && permissions.class.add
+                  ? "/class"
+                  : null
+              }
             />
           </Form.Item>
         </Col>

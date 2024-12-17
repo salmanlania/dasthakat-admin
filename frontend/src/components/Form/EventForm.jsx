@@ -13,6 +13,8 @@ const EventForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues } = useSelector(
     (state) => state.event
   );
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user.permission;
 
   const onFinish = (values) => {
     const data = {
@@ -67,7 +69,11 @@ const EventForm = ({ mode, onSubmit }) => {
               valueKey="customer_id"
               labelKey="name"
               labelInValue
-              addNewLink="/customer/create"
+              addNewLink={
+                permissions.customer.list && permissions.customer.add
+                  ? "/customer/create"
+                  : null
+              }
             />
           </Form.Item>
         </Col>
@@ -79,7 +85,11 @@ const EventForm = ({ mode, onSubmit }) => {
               labelKey="name"
               labelInValue
               onChange={onVesselSelect}
-              addNewLink="/vessel/create"
+              addNewLink={
+                permissions.vessel.list && permissions.vessel.add
+                  ? "/vessel/create"
+                  : null
+              }
             />
           </Form.Item>
         </Col>
@@ -91,7 +101,11 @@ const EventForm = ({ mode, onSubmit }) => {
               valueKey="class_id"
               labelKey="name"
               labelInValue
-              addNewLink="/class"
+              addNewLink={
+                permissions.class.list && permissions.class.add
+                  ? "/class"
+                  : null
+              }
             />
           </Form.Item>
         </Col>
@@ -103,7 +117,11 @@ const EventForm = ({ mode, onSubmit }) => {
               valueKey="class_id"
               labelKey="name"
               labelInValue
-              addNewLink="/class"
+              addNewLink={
+                permissions.class.list && permissions.class.add
+                  ? "/class"
+                  : null
+              }
             />
           </Form.Item>
         </Col>

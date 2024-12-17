@@ -112,7 +112,7 @@ export const quotationSlice = createSlice({
 
     addQuotationDetail: (state, action) => {
       const index = action.payload;
-
+      console.log(index);
       const newDetail = {
         id: Date.now(),
         product_code: null,
@@ -132,7 +132,7 @@ export const quotationSlice = createSlice({
       };
 
       // If index is provided, insert the new detail after that index, otherwise push it to the end
-      if (index) {
+      if (index || index === 0) {
         state.quotationDetails.splice(index + 1, 0, newDetail);
       } else {
         state.quotationDetails.push(newDetail);
@@ -166,15 +166,42 @@ export const quotationSlice = createSlice({
     },
 
     changeQuotationDetailValue: (state, action) => {
-      const { id, key, value } = action.payload;
-      const detail = state.quotationDetails.find((item) => item.id === id);
+      const { index, key, value } = action.payload;
+      const detail = state.quotationDetails[index];
       detail[key] = value;
+
+      if (detail.markup && detail.cost_price) {
+        detail.rate =
+          detail.cost_price * (detail.markup / 100) + detail.cost_price;
+      } else {
+        detail.rate = "";
+      }
+
+      if (detail.quantity && detail.rate) {
+        detail.amount = detail.quantity * detail.rate;
+      } else {
+        detail.amount = "";
+      }
+
+      if (detail.discount_percent && detail.amount) {
+        detail.discount_amount =
+          detail.amount * (detail.discount_percent / 100);
+      } else {
+        detail.discount_amount = "";
+      }
+
+      if (detail.amount) {
+        detail.gross_amount = detail.amount - detail.discount_amount || 0;
+      } else {
+        detail.gross_amount = "";
+      }
     },
   },
   extraReducers: ({ addCase }) => {
     addCase(getQuotationList.pending, (state) => {
       state.isListLoading = true;
       state.initialFormValues = null;
+      state.quotationDetails = [];
     });
     addCase(getQuotationList.fulfilled, (state, action) => {
       state.isListLoading = false;

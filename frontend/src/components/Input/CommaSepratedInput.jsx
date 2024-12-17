@@ -12,7 +12,28 @@ export const removeCommas = (num) => {
   return num ? num.replace(/,/g, "") : "";
 };
 
-const CommaSeparatedInput = ({ value = "", onChange, ...restProps }) => {
+/**
+ * CommaSeparatedInput Component
+ *
+ * This component provides a number input field that formats numbers with commas for better readability.
+ * It allows specifying a maximum number of decimal places and ensures valid input.
+ *
+ * @param {Object} props - Component props
+ * @param {string | number} [props.value=""] - The current value of the input
+ * @param {function} props.onChange - Callback function triggered when the input value changes.
+ *                                    It receives the raw value (without commas).
+ * @param {number} [props.decimalPlaces=3] - The maximum number of decimal places allowed
+ * @param {Object} [restProps] - Any additional props passed to the Ant Design Input component
+ *
+ * @returns {JSX.Element} - A formatted input component with three-digit comma separators
+ */
+const CommaSeparatedInput = ({
+  value = "",
+  onChange,
+  decimalPlaces = 3,
+  ...restProps
+}) => {
+  value = value ? value.toString() : "";
   // Handle input change
   const handleInputChange = (e) => {
     let rawValue = e.target.value.replace(/[^0-9.]/g, ""); // Allow only numbers and dots
@@ -23,10 +44,10 @@ const CommaSeparatedInput = ({ value = "", onChange, ...restProps }) => {
       rawValue = parts[0] + "." + parts.slice(1).join("");
     }
 
-    // Restrict to 3 decimal places
+    // Restrict to the specified number of decimal places
     if (rawValue.includes(".")) {
       const [integerPart, decimalPart] = rawValue.split(".");
-      rawValue = `${integerPart}.${decimalPart.slice(0, 3)}`;
+      rawValue = `${integerPart}.${decimalPart.slice(0, decimalPlaces)}`;
     }
 
     const formattedValue = formatThreeDigitCommas(rawValue);

@@ -11,6 +11,9 @@ const UserForm = ({ mode = "create", onSubmit }) => {
   const fileInputRef = useRef(null);
   const { isFormSubmitting, initialFormValues, selectedTemplates } =
     useSelector((state) => state.user);
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user.permission;
+
   const [imageSrc, setImageSrc] = useState(
     initialFormValues?.image_url || null
   );
@@ -135,7 +138,12 @@ const UserForm = ({ mode = "create", onSubmit }) => {
                 valueKey="user_permission_id"
                 labelKey="name"
                 labelInValue
-                addNewLink="/user-permission/create"
+                addNewLink={
+                  permissions.user_permission.list &&
+                  permissions.user_permission.add
+                    ? "/user-permission/create"
+                    : null
+                }
               />
             </Form.Item>
           </Col>
