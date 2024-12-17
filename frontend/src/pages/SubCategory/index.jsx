@@ -357,7 +357,7 @@ const SubCategory = () => {
                 }
               : null
           }
-          onChange={(e, b, c, d) => {
+          onChange={(e, b, c) => {
             dispatch(
               setSubCategoryListParams({
                 page: e.current,

@@ -329,7 +329,7 @@ const Salesman = () => {
                 }
               : null
           }
-          onChange={(e, b, c, d) => {
+          onChange={(e, b, c) => {
             dispatch(
               setSalesmanListParams({
                 page: e.current,

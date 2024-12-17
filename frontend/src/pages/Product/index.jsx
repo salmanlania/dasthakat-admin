@@ -443,7 +443,7 @@ const Product = () => {
             current: params.page,
             showTotal: (total) => `Total ${total} companies`,
           }}
-          onChange={(e, b, c, d) => {
+          onChange={(e, b, c) => {
             dispatch(
               setProductListParams({
                 page: e.current,

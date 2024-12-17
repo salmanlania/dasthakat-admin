@@ -1,12 +1,4 @@
-import {
-  Breadcrumb,
-  Button,
-  Input,
-  Popconfirm,
-  Select,
-  Table,
-  Tooltip,
-} from "antd";
+import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -315,7 +307,7 @@ const Event = () => {
             current: params.page,
             showTotal: (total) => `Total ${total} events`,
           }}
-          onChange={(e, b, c, d) => {
+          onChange={(e, b, c) => {
             dispatch(
               setEventListParams({
                 page: e.current,

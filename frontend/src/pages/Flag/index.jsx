@@ -278,7 +278,7 @@ const Flag = () => {
                 }
               : null
           }
-          onChange={(e, b, c, d) => {
+          onChange={(e, b, c) => {
             dispatch(
               setFlagListParams({
                 page: e.current,

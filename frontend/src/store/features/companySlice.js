@@ -153,7 +153,7 @@ export const companySlice = createSlice({
         currency_id: data.base_currency_id
           ? {
               value: data.base_currency_id,
-              value: data.currency_name,
+              label: data.currency_name,
             }
           : null,
         image: data.image,

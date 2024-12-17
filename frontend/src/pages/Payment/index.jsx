@@ -278,7 +278,7 @@ const Payment = () => {
                 }
               : null
           }
-          onChange={(e, b, c, d) => {
+          onChange={(e, b, c) => {
             dispatch(
               setPaymentListParams({
                 page: e.current,

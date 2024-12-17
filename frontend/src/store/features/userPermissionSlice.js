@@ -171,7 +171,7 @@ export const userPermissionSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(getUserPermissionList.pending, (state, action) => {
+    builder.addCase(getUserPermissionList.pending, (state) => {
       state.isLoading = true;
     });
     builder.addCase(getUserPermissionList.fulfilled, (state, action) => {
@@ -183,7 +183,7 @@ export const userPermissionSlice = createSlice({
         total_pages: rest.last_page,
       };
     });
-    builder.addCase(getUserPermissionList.rejected, (state, action) => {
+    builder.addCase(getUserPermissionList.rejected, (state) => {
       state.isLoading = false;
     });
 

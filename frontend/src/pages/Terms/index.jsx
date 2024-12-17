@@ -277,7 +277,7 @@ const Terms = () => {
                 }
               : null
           }
-          onChange={(e, b, c, d) => {
+          onChange={(e, b, c) => {
             dispatch(
               setTermsListParams({
                 page: e.current,
