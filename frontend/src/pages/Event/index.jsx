@@ -230,8 +230,6 @@ const Event = () => {
     columns.pop();
   }
 
-  console.log(params);
-
   useEffect(() => {
     dispatch(getEventList(params)).unwrap().catch(handleError);
   }, [

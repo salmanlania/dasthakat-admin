@@ -1,5 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../axiosInstance";
+import dayjs from "dayjs";
+
+function roundUpto(value, fixed = 3) {
+  const roundedValue = Number(value.toFixed(fixed));
+  return parseFloat(roundedValue); // Removes unnecessary trailing zeroes
+}
 
 export const getQuotationList = createAsyncThunk(
   "quotation/list",
@@ -112,13 +118,11 @@ export const quotationSlice = createSlice({
 
     addQuotationDetail: (state, action) => {
       const index = action.payload;
-      console.log(index);
       const newDetail = {
         id: Date.now(),
         product_code: null,
         product_id: null,
         description: null,
-        delivery: null,
         stock_quantity: null,
         quantity: null,
         unit_id: null,
@@ -170,28 +174,29 @@ export const quotationSlice = createSlice({
       const detail = state.quotationDetails[index];
       detail[key] = value;
 
-      if (detail.markup && detail.cost_price) {
-        detail.rate =
-          detail.cost_price * (detail.markup / 100) + detail.cost_price;
-      } else {
-        detail.rate = "";
+      if (key !== "rate" && detail.cost_price && detail.markup) {
+        detail.rate = roundUpto(
+          +detail.cost_price * (+detail.markup / 100) + +detail.cost_price
+        );
       }
 
       if (detail.quantity && detail.rate) {
-        detail.amount = detail.quantity * detail.rate;
+        detail.amount = roundUpto(+detail.quantity * +detail.rate);
       } else {
         detail.amount = "";
       }
 
       if (detail.discount_percent && detail.amount) {
-        detail.discount_amount =
-          detail.amount * (detail.discount_percent / 100);
+        detail.discount_amount = roundUpto(
+          +detail.amount * (+detail.discount_percent / 100)
+        );
       } else {
         detail.discount_amount = "";
       }
 
       if (detail.amount) {
-        detail.gross_amount = detail.amount - detail.discount_amount || 0;
+        detail.gross_amount =
+          roundUpto(+detail.amount - +detail.discount_amount) || 0;
       } else {
         detail.gross_amount = "";
       }
@@ -232,8 +237,104 @@ export const quotationSlice = createSlice({
     addCase(getQuotation.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
-      console.log(data);
-      state.initialFormValues = {};
+      state.initialFormValues = {
+        document_no: data.document_no,
+        document_date: data.document_date ? dayjs(data.document_date) : null,
+        salesman_id: data.salesman
+          ? {
+              value: data.salesman.salesman_id,
+              label: data.salesman.name,
+            }
+          : null,
+        event_id: data.event
+          ? {
+              value: data.event.event_id,
+              label: data.event.name,
+            }
+          : null,
+        event_id: data.event
+          ? {
+              value: data.event.event_id,
+              label: data.event.event_code,
+            }
+          : null,
+        vessel_id: data.vessel
+          ? {
+              value: data.vessel.vessel_id,
+              label: data.vessel.name,
+            }
+          : null,
+        customer_id: data.customer
+          ? {
+              value: data.customer.customer_id,
+              label: data.customer.name,
+            }
+          : null,
+        class1_id: data.class1
+          ? {
+              value: data.class1.class1_id,
+              label: data.class1.name,
+            }
+          : null,
+        class2_id: data.class2
+          ? {
+              value: data.class2.class2_id,
+              label: data.class2.name,
+            }
+          : null,
+        flag_id: data.flag
+          ? {
+              value: data.flag.flag_id,
+              label: data.flag.name,
+            }
+          : null,
+        validity_id: data.validity
+          ? {
+              value: data.validity.validity_id,
+              label: data.validity.name,
+            }
+          : null,
+        payment_id: data.payment
+          ? {
+              value: data.payment.payment_id,
+              label: data.payment.name,
+            }
+          : null,
+        customer_ref: data.customer_ref,
+        dated: data.dated ? dayjs(data.dated) : null,
+        due_date: data.due_date ? dayjs(data.due_date) : null,
+        attn: data.attn,
+        delivery: data.delivery,
+        inclosure: data.inclosure,
+        port: data.port,
+        term_id: data.term_id || null,
+        term_desc: data.term_desc,
+      };
+
+      if (!data.quotation_detail) return;
+
+      state.quotationDetails = data.quotation_detail.map((detail) => ({
+        id: data.quotation_detail_id,
+        product_code: detail.product ? detail.product.product_code : null,
+        product_id: detail.product
+          ? { value: detail.product.product_id, label: detail.product.name }
+          : null,
+        description: detail.description,
+        quantity: detail.quantity,
+        unit_id: detail.unit
+          ? { value: detail.unit.unit_id, label: detail.unit.name }
+          : null,
+        supplier_id: detail.supplier
+          ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
+          : null,
+        cost_price: detail.cost_price,
+        markup: detail.markup,
+        rate: detail.rate,
+        amount: detail.amount,
+        discount_percent: detail.discount_percent,
+        discount_amount: detail.discount_amount,
+        gross_amount: detail.gross_amount,
+      }));
     });
     addCase(getQuotation.rejected, (state) => {
       state.isItemLoading = false;

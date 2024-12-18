@@ -146,7 +146,6 @@ export const eventSlice = createSlice({
     addCase(getEvent.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
-      console.log(data);
 
       state.initialFormValues = {
         event_code: data.event_code,

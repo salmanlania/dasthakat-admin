@@ -146,7 +146,6 @@ export const vesselSlice = createSlice({
     addCase(getVessel.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
-      console.log(data);
 
       state.initialFormValues = {
         imo: data.imo,

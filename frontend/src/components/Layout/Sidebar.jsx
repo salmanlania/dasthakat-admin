@@ -10,6 +10,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { toggleSidebar } from "../../store/features/sidebarSlice";
 import { Link, useLocation } from "react-router-dom";
+import { LuClipboardList, LuPackage2 } from "react-icons/lu";
 
 const getLevelKeys = (items1) => {
   const key = {};
@@ -71,6 +72,31 @@ const Sidebar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const generalGroupPermission =
+    !permissions?.company?.list &&
+    !permissions?.company_branch?.list &&
+    !permissions?.salesman?.list &&
+    !permissions?.customer?.list &&
+    !permissions?.supplier?.list &&
+    !permissions?.flag?.list &&
+    !permissions?.class?.list &&
+    !permissions?.vessel?.list &&
+    !permissions?.event?.list;
+
+  const userManagementPermission =
+    !permissions?.user?.list && !permissions?.user_permission?.list;
+
+  const inventorySetupPermission =
+    !permissions?.category?.list &&
+    !permissions?.sub_category?.list &&
+    !permissions?.brand?.list &&
+    !permissions?.unit?.list &&
+    !permissions?.product?.list &&
+    !permissions?.validity?.list &&
+    !permissions?.payment?.list;
+
+  const saleManagementPermission = !permissions?.quotation?.list;
+
   const items = [
     {
       key: "/",
@@ -81,20 +107,12 @@ const Sidebar = () => {
       key: "administration",
       label: "Administration",
       icon: <MdOutlineAdminPanelSettings size={18} />,
+      disabled: generalGroupPermission && userManagementPermission,
       children: [
         {
           key: "general-setup",
           label: "General Setup",
-          disabled:
-            !permissions?.company?.list &&
-            !permissions?.company_branch?.list &&
-            !permissions?.salesman?.list &&
-            !permissions?.customer?.list &&
-            !permissions?.supplier?.list &&
-            !permissions?.flag?.list &&
-            !permissions?.class?.list &&
-            !permissions?.vessel?.list &&
-            !permissions?.event?.list,
+          disabled: generalGroupPermission,
           children: [
             {
               key: "company",
@@ -151,8 +169,7 @@ const Sidebar = () => {
         {
           key: "user-management",
           label: "User Management",
-          disabled:
-            !permissions?.user?.list && !permissions?.user_permission?.list,
+          disabled: userManagementPermission,
           children: [
             {
               key: "user",
@@ -171,19 +188,13 @@ const Sidebar = () => {
     {
       key: "inventory-management",
       label: "Inventory Management",
-      icon: <MdInventory size={16} />,
-      disabled:
-        !permissions?.category?.list &&
-        !permissions?.sub_category?.list &&
-        !permissions?.brand?.list &&
-        !permissions?.unit?.list &&
-        !permissions?.product?.list &&
-        !permissions?.validity?.list &&
-        !permissions?.payment?.list,
+      icon: <LuPackage2 size={18} />,
+      disabled: inventorySetupPermission,
       children: [
         {
           key: "inventory-setup",
           label: "Inventory Setup",
+          disabled: inventorySetupPermission,
           children: [
             {
               key: "category",
@@ -222,15 +233,18 @@ const Sidebar = () => {
             },
           ],
         },
+      ],
+    },
+    {
+      key: "sale-management",
+      label: "Sale Management",
+      icon: <LuClipboardList size={18} />,
+      disabled: saleManagementPermission,
+      children: [
         {
-          key: "sale-management",
-          label: "Sale Management",
-          children: [
-            {
-              key: "quotation",
-              label: <Link to="/quotation">Quotation</Link>,
-            },
-          ],
+          key: "quotation",
+          label: <Link to="/quotation">Quotation</Link>,
+          disabled: !permissions?.quotation?.list,
         },
       ],
     },

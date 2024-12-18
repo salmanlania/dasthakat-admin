@@ -100,6 +100,12 @@ const MainLayout = () => {
   if (href === "/validity" && !permissions.validity.list) return <NotFound />;
   if (href === "/payment" && !permissions.payment.list) return <NotFound />;
 
+  if (href === "/quotation" && !permissions.quotation.list) return <NotFound />;
+  if (href === "/quotation/create" && !permissions.quotation.add)
+    return <NotFound />;
+  if (href.startsWith("/quotation/edit") && !permissions.quotation.edit)
+    return <NotFound />;
+
   return (
     <Layout className="min-h-screen">
       <Sidebar />

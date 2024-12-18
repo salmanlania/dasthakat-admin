@@ -78,12 +78,17 @@ const QuotationForm = ({ mode, onSubmit }) => {
         values.term_id && values.term_id.length
           ? values.term_id.map((v) => v.value)
           : null,
-      quotation_details: quotationDetails.map(({ id, ...detail }) => ({
+      quotation_detail: quotationDetails.map(({ id, ...detail }, index) => ({
         ...detail,
-        supplier: detail.supplier ? detail.supplier.value : null,
+        supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
         product_id: detail.product_id ? detail.product_id.value : null,
         unit_id: detail.unit_id ? detail.unit_id.value : null,
+        sort_order: index,
       })),
+      total_quantity: totalAmount,
+      total_discount: discountAmount,
+      total_amount: totalAmount,
+      net_amount: totalNet,
     };
 
     onSubmit(data);
@@ -285,28 +290,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
       width: 240,
     },
     {
-      title: "Delivery",
-      dataIndex: "delivery",
-      key: "delivery",
-      render: (_, { delivery }, index) => {
-        return (
-          <Input
-            value={delivery}
-            onChange={(e) =>
-              dispatch(
-                changeQuotationDetailValue({
-                  index,
-                  key: "delivery",
-                  value: e.target.value,
-                })
-              )
-            }
-          />
-        );
-      },
-      width: 200,
-    },
-    {
       title: "Stock Quantity",
       dataIndex: "stock_quantity",
       key: "stock_quantity",
@@ -447,7 +430,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
     },
 
     {
-      title: "Sale in Price",
+      title: "Selling Price",
       dataIndex: "rate",
       key: "rate",
       render: (_, { rate }, index) => {
@@ -724,7 +707,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="delivery_date" label="Delivery">
+          <Form.Item name="delivery" label="Delivery">
             <Input />
           </Form.Item>
         </Col>
@@ -797,7 +780,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
         dataSource={quotationDetails}
         rowKey="id"
         size="small"
-        scroll={{ x: "calc(100% - 200px)", y: 220 }}
+        scroll={{ x: "calc(100% - 200px)", y: 400 }}
         pagination={false}
       />
 

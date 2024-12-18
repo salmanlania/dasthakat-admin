@@ -78,8 +78,6 @@ const SubCategory = () => {
     if (!name.trim()) return toast.error("Name field is required");
     if (!category_id) return toast.error("Category field is required");
 
-    console.log(name, category_id);
-
     try {
       await dispatch(
         updateSubCategory({

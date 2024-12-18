@@ -21,13 +21,6 @@ import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
 import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
 import {
-  bulkDeleteCompany,
-  deleteCompany,
-  getCompanyList,
-  setCompanyDeleteIDs,
-  setCompanyListParams,
-} from "../../store/features/companySlice";
-import {
   bulkDeleteQuotation,
   deleteQuotation,
   getQuotationList,
@@ -46,18 +39,27 @@ const Quotation = () => {
     isBulkDeleting,
     deleteIDs,
   } = useSelector((state) => state.quotation);
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user.permission.quotation;
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
-  const debouncedName = useDebounce(params.name, 500);
+  const debouncedDocNo = useDebounce(params.document_no, 500);
+
+  const formattedParams = {
+    ...params,
+    document_date: params.document_date
+      ? dayjs(params.document_date).format("YYYY-MM-DD")
+      : null,
+  };
 
   const onQuotationDelete = async (id) => {
     try {
       await dispatch(deleteQuotation(id)).unwrap();
       toast.success("Quotation deleted successfully");
-      dispatch(getQuotationList(params)).unwrap();
+      dispatch(getQuotationList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -68,7 +70,7 @@ const Quotation = () => {
       await dispatch(bulkDeleteQuotation(deleteIDs)).unwrap();
       toast.success("Quotations deleted successfully");
       closeDeleteModal();
-      await dispatch(getQuotationList(params)).unwrap();
+      await dispatch(getQuotationList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -82,10 +84,10 @@ const Quotation = () => {
           <div onClick={(e) => e.stopPropagation()}>
             <DatePicker
               size="small"
-              value={params.document_data}
+              value={params.document_date}
               className="font-normal"
               onChange={(date) =>
-                dispatch(setQuotationListParams({ document_data: date }))
+                dispatch(setQuotationListParams({ document_date: date }))
               }
               format="DD-MM-YYYY"
             />
@@ -97,6 +99,8 @@ const Quotation = () => {
       sorter: true,
       width: 150,
       ellipsis: true,
+      render: (_, { document_date }) =>
+        document_date ? dayjs(document_date).format("DD-MM-YYYY") : null,
     },
     {
       title: (
@@ -181,33 +185,37 @@ const Quotation = () => {
       key: "action",
       render: (_, { quotation_id }) => (
         <div className="flex gap-2 items-center">
-          <Tooltip title="Edit">
-            <Link to={`/quotation/edit/${quotation_id}`}>
-              <Button
-                size="small"
-                type="primary"
-                className="bg-gray-500 hover:!bg-gray-400"
-                icon={<MdOutlineEdit size={14} />}
-              />
-            </Link>
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Popconfirm
-              title="Are you sure you want to delete?"
-              description="After deleting, You will not be able to recover it."
-              okButtonProps={{ danger: true }}
-              okText="Yes"
-              cancelText="No"
-              onConfirm={() => onVesselDelete(quotation_id)}
-            >
-              <Button
-                size="small"
-                type="primary"
-                danger
-                icon={<GoTrash size={14} />}
-              />
-            </Popconfirm>
-          </Tooltip>
+          {permissions.edit ? (
+            <Tooltip title="Edit">
+              <Link to={`/quotation/edit/${quotation_id}`}>
+                <Button
+                  size="small"
+                  type="primary"
+                  className="bg-gray-500 hover:!bg-gray-400"
+                  icon={<MdOutlineEdit size={14} />}
+                />
+              </Link>
+            </Tooltip>
+          ) : null}
+          {permissions.delete ? (
+            <Tooltip title="Delete">
+              <Popconfirm
+                title="Are you sure you want to delete?"
+                description="After deleting, You will not be able to recover it."
+                okButtonProps={{ danger: true }}
+                okText="Yes"
+                cancelText="No"
+                onConfirm={() => onQuotationDelete(quotation_id)}
+              >
+                <Button
+                  size="small"
+                  type="primary"
+                  danger
+                  icon={<GoTrash size={14} />}
+                />
+              </Popconfirm>
+            </Tooltip>
+          ) : null}
         </div>
       ),
       width: 70,
@@ -215,15 +223,22 @@ const Quotation = () => {
     },
   ];
 
+  if (!permissions.edit && !permissions.delete) {
+    columns.pop();
+  }
+
   useEffect(() => {
-    dispatch(getQuotationList(params)).unwrap().catch(handleError);
+    dispatch(getQuotationList(formattedParams)).unwrap().catch(handleError);
   }, [
     params.page,
     params.limit,
     params.sort_column,
     params.sort_direction,
+    params.document_date,
+    params.customer_id,
+    params.vessel_id,
     debouncedSearch,
-    debouncedName,
+    debouncedDocNo,
   ]);
 
   return (
@@ -248,28 +263,36 @@ const Quotation = () => {
           />
 
           <div className="flex gap-2 items-center">
-            <Button
-              type="primary"
-              danger
-              onClick={() => setDeleteModalIsOpen(true)}
-              disabled={!deleteIDs.length}
-            >
-              Delete
-            </Button>
-            <Link to="/quotation/create">
-              <Button type="primary">Add New</Button>
-            </Link>
+            {permissions.delete ? (
+              <Button
+                type="primary"
+                danger
+                onClick={() => setDeleteModalIsOpen(true)}
+                disabled={!deleteIDs.length}
+              >
+                Delete
+              </Button>
+            ) : null}
+            {permissions.add ? (
+              <Link to="/quotation/create">
+                <Button type="primary">Add New</Button>
+              </Link>
+            ) : null}
           </div>
         </div>
 
         <Table
           size="small"
-          rowSelection={{
-            type: "checkbox",
-            selectedRowKeys: deleteIDs,
-            onChange: (selectedRowKeys) =>
-              dispatch(setQuotationDeleteIDs(selectedRowKeys)),
-          }}
+          rowSelection={
+            permissions.delete
+              ? {
+                  type: "checkbox",
+                  selectedRowKeys: deleteIDs,
+                  onChange: (selectedRowKeys) =>
+                    dispatch(setQuotationDeleteIDs(selectedRowKeys)),
+                }
+              : null
+          }
           loading={isListLoading}
           className="mt-2"
           rowKey="quotation_id"
