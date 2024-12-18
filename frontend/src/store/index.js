@@ -5,6 +5,7 @@ import brandReducer from "./features/brandSlice";
 import categoryReducer from "./features/categorySlice";
 import classReducer from "./features/classSlice";
 import companyBranchReducer from "./features/companyBranchSlice";
+import currencyReducer from "./features/currencySlice";
 import companyReducer from "./features/companySlice";
 import customerReducer from "./features/customerSlice";
 import eventReducer from "./features/eventSlice";
@@ -28,6 +29,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   user: userReducer,
   userPermission: userPermissionReducer,
+  currency: currencyReducer,
   company: companyReducer,
   companyBranch: companyBranchReducer,
   customer: customerReducer,

@@ -10,6 +10,9 @@ const CompanyForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues } = useSelector(
     (state) => state.company
   );
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user.permission;
+
   const [imageSrc, setImageSrc] = useState(
     initialFormValues?.image_url || null
   );
@@ -49,7 +52,7 @@ const CompanyForm = ({ mode, onSubmit }) => {
       layout="vertical"
       autoComplete="off"
       onFinish={onFinish}
-      initialValues={initialFormValues}
+      initialValues={mode === "edit" ? initialFormValues : null}
     >
       <div className="flex flex-col-reverse items-center justify-between gap-6 md:flex-row md:items-start">
         <Row gutter={[12, 12]} className="w-full">
@@ -75,6 +78,11 @@ const CompanyForm = ({ mode, onSubmit }) => {
                 valueKey="currency_id"
                 labelKey="name"
                 labelInValue
+                addNewLink={
+                  permissions.currency.list && permissions.currency.add
+                    ? "/currency/create"
+                    : null
+                }
               />
             </Form.Item>
           </Col>

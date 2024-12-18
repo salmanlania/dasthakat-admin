@@ -21,6 +21,10 @@ const EditUserPermission = lazy(() =>
   import("./pages/UserPermission/EditUserPermission")
 );
 
+const Currency = lazy(() => import("./pages/Currency"));
+const CreateCurrency = lazy(() => import("./pages/Currency/CreateCurrency"));
+const EditCurrency = lazy(() => import("./pages/Currency/EditCurrency"));
+
 const Company = lazy(() => import("./pages/Company"));
 const CreateCompany = lazy(() => import("./pages/Company/CreateCompany"));
 const EditCompany = lazy(() => import("./pages/Company/EditCompany"));
@@ -132,6 +136,30 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditUserPermission />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/currency",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Currency />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/currency/create",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreateCurrency />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/currency/edit/:id",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditCurrency />
               </Suspense>
             ),
           },

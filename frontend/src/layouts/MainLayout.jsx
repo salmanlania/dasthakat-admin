@@ -27,6 +27,7 @@ const MainLayout = () => {
     );
   }
 
+  // Show not found page if user has no permission to access the page
   if (href === "/user" && !permissions.user.list) return <NotFound />;
   if (href === "/user/create" && !permissions.user.add) return <NotFound />;
   if (href.startsWith("/user/edit") && !permissions.user.edit)
@@ -40,6 +41,12 @@ const MainLayout = () => {
     href.startsWith("/user-permission/edit") &&
     !permissions.user_permission.edit
   )
+    return <NotFound />;
+
+  if (href === "/currency" && !permissions.currency.list) return <NotFound />;
+  if (href === "/currency/create" && !permissions.currency.add)
+    return <NotFound />;
+  if (href.startsWith("/currency/edit") && !permissions.currency.edit)
     return <NotFound />;
 
   if (href === "/company" && !permissions.company.list) return <NotFound />;
@@ -109,9 +116,7 @@ const MainLayout = () => {
   return (
     <Layout className="min-h-screen">
       <Sidebar />
-      <Layout
-      // className={`${window.innerWidth <= 1000 ? "!w-screen" : "w-full"}`}
-      >
+      <Layout>
         <Navbar />
         <Content className="bg-[#f2f2f2] p-4">
           <Outlet />

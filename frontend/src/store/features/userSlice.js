@@ -7,7 +7,10 @@ export const getUserList = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const res = await api.get("/user", {
-        params,
+        params: {
+          ...params,
+          all: 1,
+        },
       });
       return res.data;
     } catch (err) {

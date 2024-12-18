@@ -6,7 +6,10 @@ export const getProductList = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const res = await api.get("/product", {
-        params,
+        params: {
+          ...params,
+          all: 1,
+        },
       });
       return res.data;
     } catch (err) {

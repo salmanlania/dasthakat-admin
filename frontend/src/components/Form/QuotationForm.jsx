@@ -572,6 +572,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       customer_id: null,
       class1_id: null,
       class2_id: null,
+      flag_id: null,
     });
 
     if (!selected) return;
@@ -582,6 +583,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
         customer_id: { value: data.customer_id, label: data.customer_name },
         class1_id: { value: data.class1_id, label: data.class1_name },
         class2_id: { value: data.class2_id, label: data.class2_name },
+        flag_id: { value: data.flag_id, label: data.flag_name },
       });
     } catch (error) {
       handleError(error);
@@ -680,9 +682,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
               valueKey="flag_id"
               labelKey="name"
               labelInValue
-              addNewLink={
-                permissions.flag.list && permissions.flag.add ? "/flag" : null
-              }
+              disabled
             />
           </Form.Item>
         </Col>

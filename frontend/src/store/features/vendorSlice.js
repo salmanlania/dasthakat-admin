@@ -6,7 +6,10 @@ export const getVendorList = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const res = await api.get("/supplier", {
-        params,
+        params: {
+          ...params,
+          all: 1,
+        },
       });
       return res.data;
     } catch (err) {

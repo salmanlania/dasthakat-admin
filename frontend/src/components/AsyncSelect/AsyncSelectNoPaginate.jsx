@@ -67,7 +67,8 @@ const AsyncSelectNoPaginate = ({
           <MdOutlineAddCircle
             className="text-primary cursor-pointer hover:text-blue-700 absolute !-top-4 bg-white"
             size={18}
-            onClick={(e) => {
+            onClick={() => {
+              setIsClicked(false);
               window.open(
                 `/gms${addNewLink}`,
                 "_blank",

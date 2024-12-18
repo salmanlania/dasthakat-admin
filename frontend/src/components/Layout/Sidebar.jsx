@@ -73,6 +73,7 @@ const Sidebar = () => {
   }, []);
 
   const generalGroupPermission =
+    !permissions?.currency?.list &&
     !permissions?.company?.list &&
     !permissions?.company_branch?.list &&
     !permissions?.salesman?.list &&
@@ -95,7 +96,8 @@ const Sidebar = () => {
     !permissions?.validity?.list &&
     !permissions?.payment?.list;
 
-  const saleManagementPermission = !permissions?.quotation?.list;
+  const saleManagementPermission =
+    !permissions?.quotation?.list && !permissions?.charge_order?.list;
 
   const items = [
     {
@@ -114,6 +116,11 @@ const Sidebar = () => {
           label: "General Setup",
           disabled: generalGroupPermission,
           children: [
+            {
+              key: "currency",
+              label: <Link to="/currency">Currency</Link>,
+              disabled: !permissions?.currency?.list,
+            },
             {
               key: "company",
               label: <Link to="/company">Company</Link>,
@@ -245,6 +252,11 @@ const Sidebar = () => {
           key: "quotation",
           label: <Link to="/quotation">Quotation</Link>,
           disabled: !permissions?.quotation?.list,
+        },
+        {
+          key: "charge-order",
+          label: <Link to="/charge-order">Charge Order</Link>,
+          disabled: !permissions?.charge_order?.list,
         },
       ],
     },

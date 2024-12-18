@@ -1,11 +1,11 @@
 import {
   Breadcrumb,
   Button,
-  DatePicker,
   Input,
   Popconfirm,
   Select,
   Table,
+  Tag,
   Tooltip,
 } from "antd";
 import dayjs from "dayjs";
@@ -21,14 +21,14 @@ import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
 import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
 import {
-  bulkDeleteQuotation,
-  deleteQuotation,
-  getQuotationList,
-  setQuotationDeleteIDs,
-  setQuotationListParams,
-} from "../../store/features/quotationSlice";
+  bulkDeleteCurrency,
+  deleteCurrency,
+  getCurrencyList,
+  setCurrencyDeleteIDs,
+  setCurrencyListParams,
+} from "../../store/features/currencySlice";
 
-const Quotation = () => {
+const Currency = () => {
   const dispatch = useDispatch();
   const handleError = useError();
   const {
@@ -38,28 +38,25 @@ const Quotation = () => {
     paginationInfo,
     isBulkDeleting,
     deleteIDs,
-  } = useSelector((state) => state.quotation);
+  } = useSelector((state) => state.currency);
   const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.quotation;
+  const permissions = user.permission.currency;
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
-  const debouncedDocNo = useDebounce(params.document_no, 500);
+  const debouncedCode = useDebounce(params.currency_code, 500);
+  const debouncedName = useDebounce(params.name, 500);
+  const debouncedSymbolLeft = useDebounce(params.symbol_left, 500);
+  const debouncedSymbolRight = useDebounce(params.symbol_right, 500);
+  const debouncedValue = useDebounce(params.value, 500);
 
-  const formattedParams = {
-    ...params,
-    document_date: params.document_date
-      ? dayjs(params.document_date).format("YYYY-MM-DD")
-      : null,
-  };
-
-  const onQuotationDelete = async (id) => {
+  const onCurrencyDelete = async (id) => {
     try {
-      await dispatch(deleteQuotation(id)).unwrap();
-      toast.success("Quotation deleted successfully");
-      dispatch(getQuotationList(formattedParams)).unwrap();
+      await dispatch(deleteCurrency(id)).unwrap();
+      toast.success("Currency deleted successfully");
+      dispatch(getCurrencyList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -67,10 +64,10 @@ const Quotation = () => {
 
   const onBulkDelete = async () => {
     try {
-      await dispatch(bulkDeleteQuotation(deleteIDs)).unwrap();
-      toast.success("Quotations deleted successfully");
+      await dispatch(bulkDeleteCurrency(deleteIDs)).unwrap();
+      toast.success("Currency deleted successfully");
       closeDeleteModal();
-      await dispatch(getQuotationList(formattedParams)).unwrap();
+      await dispatch(getCurrencyList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -80,117 +77,148 @@ const Quotation = () => {
     {
       title: (
         <div>
-          <p>Document Date</p>
-          <div onClick={(e) => e.stopPropagation()}>
-            <DatePicker
-              size="small"
-              value={params.document_date}
-              className="font-normal"
-              onChange={(date) =>
-                dispatch(setQuotationListParams({ document_date: date }))
-              }
-              format="DD-MM-YYYY"
-            />
-          </div>
-        </div>
-      ),
-      dataIndex: "document_date",
-      key: "document_date",
-      sorter: true,
-      width: 150,
-      ellipsis: true,
-      render: (_, { document_date }) =>
-        document_date ? dayjs(document_date).format("DD-MM-YYYY") : null,
-    },
-    {
-      title: (
-        <div>
-          <p>Document No</p>
+          <p>Currency Code</p>
           <Input
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.document_no}
+            value={params.currency_code}
             onChange={(e) =>
-              dispatch(setQuotationListParams({ document_no: e.target.value }))
+              dispatch(setCurrencyListParams({ currency_code: e.target.value }))
             }
           />
         </div>
       ),
-      dataIndex: "document_no",
-      key: "document_no",
+      dataIndex: "currency_code",
+      key: "currency_code",
       sorter: true,
       width: 150,
       ellipsis: true,
     },
     {
       title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Customer</p>
-          <AsyncSelect
-            endpoint="/customer"
+        <div>
+          <p>Name</p>
+          <Input
+            className="font-normal"
             size="small"
-            className="w-full font-normal"
-            valueKey="customer_id"
-            labelKey="name"
-            value={params.customer_id}
-            onChange={(value) =>
-              dispatch(setQuotationListParams({ customer_id: value }))
+            onClick={(e) => e.stopPropagation()}
+            value={params.name}
+            onChange={(e) =>
+              dispatch(setCurrencyListParams({ name: e.target.value }))
             }
           />
         </div>
       ),
-      dataIndex: "customer_name",
-      key: "customer_name",
+      dataIndex: "name",
+      key: "name",
       sorter: true,
-      width: 200,
+      width: 150,
       ellipsis: true,
     },
     {
       title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Vessel</p>
-          <AsyncSelect
-            endpoint="/vessel"
+        <div>
+          <p>Symbol Left</p>
+          <Input
+            className="font-normal"
             size="small"
-            className="w-full font-normal"
-            valueKey="vessel_id"
-            labelKey="name"
-            value={params.vessel_id}
-            onChange={(value) =>
-              dispatch(setQuotationListParams({ vessel_id: value }))
+            onClick={(e) => e.stopPropagation()}
+            value={params.symbol_left}
+            onChange={(e) =>
+              dispatch(setCurrencyListParams({ symbol_left: e.target.value }))
             }
           />
         </div>
       ),
-      dataIndex: "vessel_name",
-      key: "vessel_name",
+      dataIndex: "symbol_left",
+      key: "symbol_left",
       sorter: true,
-      width: 200,
+      width: 150,
       ellipsis: true,
     },
     {
       title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Event</p>
-          <AsyncSelect
-            endpoint="/event"
+        <div>
+          <p>Symbol Right</p>
+          <Input
+            className="font-normal"
             size="small"
-            className="w-full font-normal"
-            valueKey="event_id"
-            labelKey="event_code"
-            value={params.event_id}
-            onChange={(value) =>
-              dispatch(setQuotationListParams({ event_id: value }))
+            onClick={(e) => e.stopPropagation()}
+            value={params.symbol_right}
+            onChange={(e) =>
+              dispatch(setCurrencyListParams({ symbol_right: e.target.value }))
             }
           />
         </div>
       ),
-      dataIndex: "event_code",
-      key: "event_code",
+      dataIndex: "symbol_right",
+      key: "symbol_right",
       sorter: true,
-      width: 200,
+      width: 150,
       ellipsis: true,
+    },
+    {
+      title: (
+        <div>
+          <p>Value</p>
+          <Input
+            className="font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            value={params.value}
+            onChange={(e) =>
+              dispatch(setCurrencyListParams({ value: e.target.value }))
+            }
+          />
+        </div>
+      ),
+      dataIndex: "value",
+      key: "value",
+      sorter: true,
+      width: 150,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div>
+          <p>Status</p>
+          <Select
+            className="w-full font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            options={[
+              {
+                value: 1,
+                label: "Active",
+              },
+              {
+                value: 0,
+                label: "Inactive",
+              },
+            ]}
+            value={params.status}
+            onChange={(value) =>
+              dispatch(setCurrencyListParams({ status: value }))
+            }
+            allowClear
+          />
+        </div>
+      ),
+      dataIndex: "status",
+      key: "status",
+      sorter: true,
+      render: (status) =>
+        status === 1 ? (
+          <Tag color="success" className="w-16 text-center">
+            Active
+          </Tag>
+        ) : (
+          <Tag color="error" className="w-16 text-center">
+            Inactive
+          </Tag>
+        ),
+      width: 120,
     },
     {
       title: "Created At",
@@ -204,11 +232,11 @@ const Quotation = () => {
     {
       title: "Action",
       key: "action",
-      render: (_, { quotation_id }) => (
+      render: (_, { currency_id }) => (
         <div className="flex gap-2 items-center">
           {permissions.edit ? (
             <Tooltip title="Edit">
-              <Link to={`/quotation/edit/${quotation_id}`}>
+              <Link to={`/currency/edit/${currency_id}`}>
                 <Button
                   size="small"
                   type="primary"
@@ -226,7 +254,7 @@ const Quotation = () => {
                 okButtonProps={{ danger: true }}
                 okText="Yes"
                 cancelText="No"
-                onConfirm={() => onQuotationDelete(quotation_id)}
+                onConfirm={() => onCurrencyDelete(currency_id)}
               >
                 <Button
                   size="small"
@@ -249,26 +277,27 @@ const Quotation = () => {
   }
 
   useEffect(() => {
-    dispatch(getQuotationList(formattedParams)).unwrap().catch(handleError);
+    dispatch(getCurrencyList(params)).unwrap().catch(handleError);
   }, [
     params.page,
     params.limit,
     params.sort_column,
     params.sort_direction,
-    params.document_date,
-    params.customer_id,
-    params.vessel_id,
-    params.event_id,
+    params.status,
     debouncedSearch,
-    debouncedDocNo,
+    debouncedName,
+    debouncedCode,
+    debouncedSymbolLeft,
+    debouncedSymbolRight,
+    debouncedValue,
   ]);
 
   return (
     <>
       <div className="flex justify-between items-center flex-wrap">
-        <PageHeading>QUOTATION</PageHeading>
+        <PageHeading>CURRENCY</PageHeading>
         <Breadcrumb
-          items={[{ title: "Quotation" }, { title: "List" }]}
+          items={[{ title: "Currency" }, { title: "List" }]}
           separator=">"
         />
       </div>
@@ -280,7 +309,7 @@ const Quotation = () => {
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) =>
-              dispatch(setQuotationListParams({ search: e.target.value }))
+              dispatch(setCurrencyListParams({ search: e.target.value }))
             }
           />
 
@@ -296,7 +325,7 @@ const Quotation = () => {
               </Button>
             ) : null}
             {permissions.add ? (
-              <Link to="/quotation/create">
+              <Link to="/currency/create">
                 <Button type="primary">Add New</Button>
               </Link>
             ) : null}
@@ -311,23 +340,23 @@ const Quotation = () => {
                   type: "checkbox",
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) =>
-                    dispatch(setQuotationDeleteIDs(selectedRowKeys)),
+                    dispatch(setCurrencyDeleteIDs(selectedRowKeys)),
                 }
               : null
           }
           loading={isListLoading}
           className="mt-2"
-          rowKey="quotation_id"
+          rowKey="currency_id"
           scroll={{ x: "calc(100% - 200px)" }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} quotations`,
+            showTotal: (total) => `Total ${total} currency`,
           }}
           onChange={(e, b, c, d) => {
             dispatch(
-              setQuotationListParams({
+              setCurrencyListParams({
                 page: e.current,
                 limit: e.pageSize,
                 sort_column: c.field,
@@ -349,11 +378,11 @@ const Quotation = () => {
         onCancel={closeDeleteModal}
         isDeleting={isBulkDeleting}
         onDelete={onBulkDelete}
-        title="Are you sure you want to delete these quotations?"
+        title="Are you sure you want to delete these currency?"
         description="After deleting, you will not be able to recover."
       />
     </>
   );
 };
 
-export default Quotation;
+export default Currency;
