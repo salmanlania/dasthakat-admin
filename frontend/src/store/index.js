@@ -23,6 +23,7 @@ import validityReducer from "./features/validitySlice";
 import vendorReducer from "./features/vendorSlice";
 import vesselReducer from "./features/vesselSlice";
 import quotationReducer from "./features/quotationSlice";
+import chargeOrderReducer from "./features/chargeOrderSlice";
 
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
@@ -48,6 +49,7 @@ const rootReducer = combineReducers({
   event: eventReducer,
   product: productReducer,
   quotation: quotationReducer,
+  chargeOrder: chargeOrderReducer,
 });
 
 export const store = configureStore({

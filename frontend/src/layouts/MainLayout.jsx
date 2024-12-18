@@ -113,6 +113,13 @@ const MainLayout = () => {
   if (href.startsWith("/quotation/edit") && !permissions.quotation.edit)
     return <NotFound />;
 
+  if (href === "/charge-order" && !permissions.charge_order.list)
+    return <NotFound />;
+  if (href === "/charge-order/create" && !permissions.charge_order.add)
+    return <NotFound />;
+  if (href.startsWith("/charge-order/edit") && !permissions.charge_order.edit)
+    return <NotFound />;
+
   return (
     <Layout className="min-h-screen">
       <Sidebar />

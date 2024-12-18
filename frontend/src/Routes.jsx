@@ -75,6 +75,14 @@ const Quotation = lazy(() => import("./pages/Quotation"));
 const CreateQuotation = lazy(() => import("./pages/Quotation/CreateQuotation"));
 const EditQuotation = lazy(() => import("./pages/Quotation/EditQuotation"));
 
+const ChargeOrder = lazy(() => import("./pages/ChargeOrder"));
+const CreateChargeOrder = lazy(() =>
+  import("./pages/ChargeOrder/CreateChargeOrder")
+);
+const EditChargeOrder = lazy(() =>
+  import("./pages/ChargeOrder/EditChargeOrder")
+);
+
 function Routes() {
   const router = createBrowserRouter(
     [
@@ -339,14 +347,7 @@ function Routes() {
               </Suspense>
             ),
           },
-          {
-            path: "/quotation",
-            element: (
-              <Suspense fallback={<PageLoader />}>
-                <Quotation />
-              </Suspense>
-            ),
-          },
+
           {
             path: "/category",
             element: (
@@ -420,6 +421,14 @@ function Routes() {
             ),
           },
           {
+            path: "/quotation",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Quotation />
+              </Suspense>
+            ),
+          },
+          {
             path: "/quotation/create",
             element: (
               <Suspense fallback={<PageLoader />}>
@@ -432,6 +441,30 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditQuotation />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/charge-order",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <ChargeOrder />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/charge-order/create",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreateChargeOrder />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/charge-order/edit/:id",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditChargeOrder />
               </Suspense>
             ),
           },
