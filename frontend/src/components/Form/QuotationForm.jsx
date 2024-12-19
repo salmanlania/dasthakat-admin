@@ -2,6 +2,7 @@ import {
   Button,
   Col,
   DatePicker,
+  Divider,
   Dropdown,
   Form,
   Input,
@@ -25,10 +26,13 @@ import AsyncSelect from "../AsyncSelect";
 import { getEvent } from "../../store/features/eventSlice";
 import useError from "../../hooks/useError";
 import { getProduct, getProductList } from "../../store/features/productSlice";
-import CommaSeparatedInput from "../Input/CommaSepratedInput";
+import CommaSeparatedInput, {
+  formatThreeDigitCommas,
+} from "../Input/CommaSepratedInput";
 import NumberInput from "../Input/NumberInput";
 import dayjs from "dayjs";
 import toast from "react-hot-toast";
+import AmountSummaryCard from "../Card/AmountSummaryCard";
 
 const QuotationForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
@@ -775,6 +779,10 @@ const QuotationForm = ({ mode, onSubmit }) => {
         </Col>
       </Row>
 
+      <Divider orientation="left" className="!border-gray-300">
+        Quotation Items
+      </Divider>
+
       <Table
         columns={columns}
         dataSource={quotationDetails}
@@ -784,40 +792,32 @@ const QuotationForm = ({ mode, onSubmit }) => {
         pagination={false}
       />
 
-      <div className="mt-4 flex justify-end gap-2 flex-wrap items-center">
-        <div className="flex flex-col gap-2">
-          <label>Total Quantity</label>
-          <CommaSeparatedInput
-            disabled
-            className="w-40"
-            value={totalQuantity || ""}
+      <Row gutter={[16, 16]} className="mt-2">
+        <Col span={24} sm={12} md={8} lg={6}>
+          <AmountSummaryCard
+            title="Total Quantity"
+            value={formatThreeDigitCommas(totalQuantity)}
           />
-        </div>
-        <div className="flex flex-col gap-2">
-          <label>Total Amount</label>
-          <CommaSeparatedInput
-            disabled
-            className="w-40"
-            value={totalAmount || ""}
+        </Col>
+        <Col span={24} sm={12} md={8} lg={6}>
+          <AmountSummaryCard
+            title="Total Amount"
+            value={formatThreeDigitCommas(totalAmount)}
           />
-        </div>
-        <div className="flex flex-col gap-2">
-          <label>Discount Amount</label>
-          <CommaSeparatedInput
-            disabled
-            className="w-40"
-            value={discountAmount || ""}
+        </Col>
+        <Col span={24} sm={12} md={8} lg={6}>
+          <AmountSummaryCard
+            title="Discount Amount"
+            value={formatThreeDigitCommas(discountAmount)}
           />
-        </div>
-        <div className="flex flex-col gap-2">
-          <label>Total Net</label>
-          <CommaSeparatedInput
-            disabled
-            className="w-40"
-            value={totalNet || ""}
+        </Col>
+        <Col span={24} sm={12} md={8} lg={6}>
+          <AmountSummaryCard
+            title="Net Amount"
+            value={formatThreeDigitCommas(totalNet)}
           />
-        </div>
-      </div>
+        </Col>
+      </Row>
 
       <div className="mt-4 flex gap-2 justify-end items-center">
         <Link to="/quotation">

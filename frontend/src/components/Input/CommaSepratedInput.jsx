@@ -4,6 +4,7 @@ import { Input } from "antd";
 // Function to format numbers with commas
 export const formatThreeDigitCommas = (num) => {
   if (!num) return "";
+  num = num.toString();
   return num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
