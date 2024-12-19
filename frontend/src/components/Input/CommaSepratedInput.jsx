@@ -1,17 +1,7 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Input } from "antd";
-
-// Function to format numbers with commas
-export const formatThreeDigitCommas = (num) => {
-  if (!num) return "";
-  num = num.toString();
-  return num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-};
-
-// Function to remove commas
-export const removeCommas = (num) => {
-  return num ? num.replace(/,/g, "") : "";
-};
+import { formatThreeDigitCommas, removeCommas } from "../../utils/number";
+import useDebounce from "../../hooks/useDebounce";
 
 /**
  * CommaSeparatedInput Component
@@ -30,11 +20,15 @@ export const removeCommas = (num) => {
  */
 const CommaSeparatedInput = ({
   value = "",
-  onChange,
+  onChange = () => {},
   decimalPlaces = 3,
+  delay = 500,
   ...restProps
 }) => {
-  value = value ? value.toString() : "";
+  const isFirstRender = useRef(true);
+  const [inputValue, setInputValue] = useState(value ? value.toString() : "");
+  const debouncedValue = useDebounce(inputValue, delay);
+
   // Handle input change
   const handleInputChange = (e) => {
     let rawValue = e.target.value.replace(/[^0-9.]/g, ""); // Allow only numbers and dots
@@ -55,14 +49,26 @@ const CommaSeparatedInput = ({
 
     // Call the onChange prop with the raw value (without commas)
     if (onChange) {
-      onChange(removeCommas(formattedValue)); // Pass the raw value without commas to the form
+      setInputValue(removeCommas(formattedValue)); // Pass the raw value without commas to the form
     }
   };
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    onChange(debouncedValue);
+  }, [debouncedValue]);
+
+  useEffect(() => {
+    setInputValue(value || "");
+  }, [value]);
 
   return (
     <Input
       {...restProps}
-      value={formatThreeDigitCommas(value)} // Display the formatted value with commas
+      value={formatThreeDigitCommas(inputValue)} // Display the formatted value with commas
       onChange={handleInputChange} // Handle input change and format the value
     />
   );

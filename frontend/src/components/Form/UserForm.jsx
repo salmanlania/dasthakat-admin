@@ -94,10 +94,6 @@ const UserForm = ({ mode = "create", onSubmit }) => {
                   required: true,
                   message: "Email is required!",
                 },
-                {
-                  type: "email",
-                  message: "Please enter a valid email!",
-                },
               ]}
             >
               <Input />

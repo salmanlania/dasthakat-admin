@@ -1,4 +1,6 @@
 import { Input } from "antd";
+import { useEffect, useRef, useState } from "react";
+import useDebounce from "../../hooks/useDebounce";
 
 /**
  * NumberInput Component
@@ -12,11 +14,14 @@ import { Input } from "antd";
  */
 const NumberInput = ({
   value = "",
-  onChange,
+  onChange = () => {},
   type = "integer",
+  delay = 500,
   ...restProps
 }) => {
-  value = value ? value.toString() : "";
+  const isFirstRender = useRef(true);
+  const [inputValue, setInputValue] = useState(value ? value.toString() : "");
+  const debouncedValue = useDebounce(inputValue, delay);
 
   // Handle input change
   const handleInputChange = (e) => {
@@ -33,14 +38,27 @@ const NumberInput = ({
 
     // Call the onChange prop with the cleaned value
     if (onChange) {
-      onChange(rawValue);
+      setInputValue(rawValue);
     }
   };
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    onChange(debouncedValue);
+  }, [debouncedValue]);
+
+  useEffect(() => {
+    setInputValue(value || "");
+  }, [value]);
 
   return (
     <Input
       {...restProps}
-      value={value} // Value remains a plain number
+      value={inputValue} // Value remains a plain number
       onChange={handleInputChange} // Clean input based on type
     />
   );

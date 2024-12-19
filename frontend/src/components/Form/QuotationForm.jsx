@@ -10,11 +10,16 @@ import {
   Select,
   Table,
 } from "antd";
+import dayjs from "dayjs";
+import toast from "react-hot-toast";
 import { BiPlus } from "react-icons/bi";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import useError from "../../hooks/useError";
+import { getEvent } from "../../store/features/eventSlice";
+import { getProduct, getProductList } from "../../store/features/productSlice";
 import {
   addQuotationDetail,
   changeQuotationDetailOrder,
@@ -22,17 +27,12 @@ import {
   copyQuotationDetail,
   removeQuotationDetail,
 } from "../../store/features/quotationSlice";
+import { formatThreeDigitCommas, roundUpto } from "../../utils/number";
 import AsyncSelect from "../AsyncSelect";
-import { getEvent } from "../../store/features/eventSlice";
-import useError from "../../hooks/useError";
-import { getProduct, getProductList } from "../../store/features/productSlice";
-import CommaSeparatedInput, {
-  formatThreeDigitCommas,
-} from "../Input/CommaSepratedInput";
-import NumberInput from "../Input/NumberInput";
-import dayjs from "dayjs";
-import toast from "react-hot-toast";
 import AmountSummaryCard from "../Card/AmountSummaryCard";
+import CommaSeparatedInput from "../Input/CommaSepratedInput";
+import DebounceInput from "../Input/DebounceInput";
+import NumberInput from "../Input/NumberInput";
 
 const QuotationForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
@@ -58,7 +58,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
   });
 
   const onFinish = (values) => {
-    if (!totalNet) return toast.error("Total Net cannot be empty");
+    if (!totalNet) return toast.error("Net Amount cannot be zero");
 
     const data = {
       ...values,
@@ -229,14 +229,14 @@ const QuotationForm = ({ mode, onSubmit }) => {
       key: "product_code",
       render: (_, { product_code }, index) => {
         return (
-          <Input
+          <DebounceInput
             value={product_code}
-            onChange={(e) =>
+            onChange={(value) =>
               dispatch(
                 changeQuotationDetailValue({
                   index,
                   key: "product_code",
-                  value: e.target.value,
+                  value: value,
                 })
               )
             }
@@ -277,14 +277,14 @@ const QuotationForm = ({ mode, onSubmit }) => {
       key: "description",
       render: (_, { description }, index) => {
         return (
-          <Input
+          <DebounceInput
             value={description}
-            onChange={(e) =>
+            onChange={(value) =>
               dispatch(
                 changeQuotationDetailValue({
                   index,
                   key: "description",
-                  value: e.target.value,
+                  value: value,
                 })
               )
             }
@@ -796,25 +796,25 @@ const QuotationForm = ({ mode, onSubmit }) => {
         <Col span={24} sm={12} md={8} lg={6}>
           <AmountSummaryCard
             title="Total Quantity"
-            value={formatThreeDigitCommas(totalQuantity)}
+            value={formatThreeDigitCommas(roundUpto(totalQuantity))}
           />
         </Col>
         <Col span={24} sm={12} md={8} lg={6}>
           <AmountSummaryCard
             title="Total Amount"
-            value={formatThreeDigitCommas(totalAmount)}
+            value={formatThreeDigitCommas(roundUpto(totalAmount))}
           />
         </Col>
         <Col span={24} sm={12} md={8} lg={6}>
           <AmountSummaryCard
             title="Discount Amount"
-            value={formatThreeDigitCommas(discountAmount)}
+            value={formatThreeDigitCommas(roundUpto(discountAmount))}
           />
         </Col>
         <Col span={24} sm={12} md={8} lg={6}>
           <AmountSummaryCard
             title="Net Amount"
-            value={formatThreeDigitCommas(totalNet)}
+            value={formatThreeDigitCommas(roundUpto(totalNet))}
           />
         </Col>
       </Row>

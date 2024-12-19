@@ -17,10 +17,6 @@ import { Link } from "react-router-dom";
 import AsyncSelect from "../../components/AsyncSelect";
 import { productTypeOptions } from "../../components/Form/ProductForm";
 import PageHeading from "../../components/heading/PageHeading";
-import {
-  formatThreeDigitCommas,
-  removeCommas,
-} from "../../components/Input/CommaSepratedInput";
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
 import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
@@ -31,6 +27,7 @@ import {
   setProductDeleteIDs,
   setProductListParams,
 } from "../../store/features/productSlice";
+import { formatThreeDigitCommas, removeCommas } from "../../utils/number";
 
 const Product = () => {
   const dispatch = useDispatch();

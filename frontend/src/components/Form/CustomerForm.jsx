@@ -15,7 +15,6 @@ const CustomerForm = ({ mode, onSubmit }) => {
     onSubmit({
       ...formValues,
       salesman_id: formValues.salesman_id ? formValues.salesman_id.value : null,
-      phone_no: formValues.phone_no?.slice(0, 13),
     });
   };
 
@@ -76,9 +75,7 @@ const CustomerForm = ({ mode, onSubmit }) => {
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="phone_no" label="Phone No">
-            <ReactInputMask mask="+999999999999">
-              {(inputProps) => <Input {...inputProps} />}
-            </ReactInputMask>
+            <Input />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>

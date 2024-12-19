@@ -48,6 +48,9 @@ const CreateVendor = lazy(() => import("./pages/Vendor/CreateVendor"));
 const EditVendor = lazy(() => import("./pages/Vendor/EditVendor"));
 
 const Agent = lazy(() => import("./pages/Agent"));
+const CreateAgent = lazy(() => import("./pages/Agent/CreateAgent"));
+const EditAgent = lazy(() => import("./pages/Agent/EditAgent"));
+
 const Terms = lazy(() => import("./pages/Terms"));
 const Flag = lazy(() => import("./pages/Flag"));
 const Class = lazy(() => import("./pages/Class"));
@@ -281,6 +284,22 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Agent />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/agent/create",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreateAgent />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/agent/edit/:id",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditAgent />
               </Suspense>
             ),
           },

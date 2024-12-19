@@ -1,11 +1,10 @@
-import { Button, Col, Form, Input, Row, Select } from "antd";
-import ReactInputMask from "react-input-mask";
+import { Button, Col, Form, Input, Row } from "antd";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
-const VendorForm = ({ mode, onSubmit }) => {
+const AgentForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues } = useSelector(
-    (state) => state.vendor
+    (state) => state.agent
   );
 
   const onFinish = (values) => {
@@ -14,7 +13,7 @@ const VendorForm = ({ mode, onSubmit }) => {
 
   return (
     <Form
-      name="vendor"
+      name="agent"
       layout="vertical"
       autoComplete="off"
       initialValues={mode === "edit" ? initialFormValues : { status: 1 }}
@@ -22,8 +21,18 @@ const VendorForm = ({ mode, onSubmit }) => {
     >
       <Row gutter={[12, 12]}>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="supplier_code" label="Code">
-            <Input disabled placeholder="Auto" />
+          <Form.Item
+            name="agent_code"
+            label="Code"
+            rules={[
+              {
+                required: true,
+                whitespace: true,
+                message: "Code is required!",
+              },
+            ]}
+          >
+            <Input />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
@@ -41,24 +50,33 @@ const VendorForm = ({ mode, onSubmit }) => {
             <Input />
           </Form.Item>
         </Col>
-
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="location" label="Location">
+          <Form.Item name="address" label="Physical Address">
             <Input.TextArea rows={1} />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="contact_person" label="Contact Person">
+          <Form.Item name="city" label="City">
             <Input />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="contact1" label="Contact 1">
+          <Form.Item name="state" label="State">
             <Input />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="contact2" label="Contact 2">
+          <Form.Item name="zip_code" label="Zip Code">
+            <Input />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="phone" label="Phone">
+            <Input />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="fax" label="Fax">
             <Input />
           </Form.Item>
         </Col>
@@ -67,31 +85,10 @@ const VendorForm = ({ mode, onSubmit }) => {
             <Input />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="address" label="Address">
-            <Input.TextArea rows={1} />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="status" label="Status">
-            <Select
-              options={[
-                {
-                  value: 1,
-                  label: "Active",
-                },
-                {
-                  value: 0,
-                  label: "Inactive",
-                },
-              ]}
-            />
-          </Form.Item>
-        </Col>
       </Row>
 
       <div className="mt-4 flex gap-2 justify-end items-center">
-        <Link to="/vendor">
+        <Link to="/agent">
           <Button className="w-28">Cancel</Button>
         </Link>
         <Button
@@ -107,4 +104,4 @@ const VendorForm = ({ mode, onSubmit }) => {
   );
 };
 
-export default VendorForm;
+export default AgentForm;

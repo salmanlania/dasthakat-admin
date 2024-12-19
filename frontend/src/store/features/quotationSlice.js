@@ -1,11 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../axiosInstance";
 import dayjs from "dayjs";
-
-function roundUpto(value, fixed = 3) {
-  const roundedValue = Number(value.toFixed(fixed));
-  return parseFloat(roundedValue); // Removes unnecessary trailing zeroes
-}
+import { roundUpto } from "../../utils/number";
 
 export const getQuotationList = createAsyncThunk(
   "quotation/list",

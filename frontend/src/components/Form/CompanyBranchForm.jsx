@@ -31,7 +31,6 @@ const CompanyBranchForm = ({ mode, onSubmit }) => {
   const onFinish = (formValues) => {
     const data = {
       ...formValues,
-      phone_no: formValues.phone_no?.slice(0, 13),
       company: formValues.company.value,
       image: initialFormValues?.image_url === imageSrc ? null : imageSrc,
     };
@@ -93,9 +92,7 @@ const CompanyBranchForm = ({ mode, onSubmit }) => {
           </Col>
           <Col span={24} sm={12} md={12} lg={12}>
             <Form.Item name="phone_no" label="Phone No">
-              <ReactInputMask mask="+999999999999">
-                {(inputProps) => <Input {...inputProps} />}
-              </ReactInputMask>
+              <Input />
             </Form.Item>
           </Col>
           <Col span={24}>

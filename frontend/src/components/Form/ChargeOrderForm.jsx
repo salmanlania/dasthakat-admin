@@ -29,6 +29,7 @@ import { getProduct, getProductList } from "../../store/features/productSlice";
 import AsyncSelect from "../AsyncSelect";
 import CommaSeparatedInput from "../Input/CommaSepratedInput";
 import NumberInput from "../Input/NumberInput";
+import DebounceInput from "../Input/DebounceInput";
 
 const ChargeOrderForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
@@ -210,14 +211,14 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       key: "product_code",
       render: (_, { product_code }, index) => {
         return (
-          <Input
+          <DebounceInput
             value={product_code}
-            onChange={(e) =>
+            onChange={(value) =>
               dispatch(
                 changeChargeOrderDetailValue({
                   index,
                   key: "product_code",
-                  value: e.target.value,
+                  value: value,
                 })
               )
             }
@@ -258,14 +259,14 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       key: "product_nature",
       render: (_, { product_nature }, index) => {
         return (
-          <Input
+          <DebounceInput
             value={product_nature}
-            onChange={(e) =>
+            onChange={(value) =>
               dispatch(
                 changeChargeOrderDetailValue({
                   index,
                   key: "product_nature",
-                  value: e.target.value,
+                  value: value,
                 })
               )
             }
@@ -280,14 +281,14 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       key: "description",
       render: (_, { description }, index) => {
         return (
-          <Input
+          <DebounceInput
             value={description}
-            onChange={(e) =>
+            onChange={(value) =>
               dispatch(
                 changeChargeOrderDetailValue({
                   index,
                   key: "description",
-                  value: e.target.value,
+                  value: value,
                 })
               )
             }
@@ -565,7 +566,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
               labelInValue
               addNewLink={
                 permissions.agent.list && permissions.agent.add
-                  ? "/agent"
+                  ? "/agent/create"
                   : null
               }
             />

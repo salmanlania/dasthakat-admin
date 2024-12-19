@@ -6,7 +6,10 @@ export const getAgentList = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const res = await api.get("/agent", {
-        params,
+        params: {
+          ...params,
+          all: 1,
+        },
       });
       return res.data;
     } catch (err) {
@@ -31,6 +34,18 @@ export const createAgent = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       await api.post("/agent", data);
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
+export const getAgent = createAsyncThunk(
+  "agent/get",
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/agent/${id}`);
+      return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -63,8 +78,9 @@ export const bulkDeleteAgent = createAsyncThunk(
 
 const initialState = {
   isListLoading: false,
-  isSubmitting: false,
+  isFormSubmitting: false,
   isBulkDeleting: false,
+  initialFormValues: null,
   isItemLoading: false,
   list: [],
   deleteIDs: [],
@@ -74,6 +90,9 @@ const initialState = {
     search: "",
     sort_column: null,
     sort_direction: null,
+    name: null,
+    description: null,
+    catering_type: null,
   },
   paginationInfo: {
     total_records: 0,
@@ -95,83 +114,11 @@ export const agentSlice = createSlice({
     setAgentDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
     },
-
-    addNewAgent: (state) => {
-      const ifAlreadyNew = state.list.some((item) => item.agent_id === "new");
-      if (ifAlreadyNew) return;
-
-      state.list = state.list.map((item) => {
-        return {
-          ...item,
-          editable: false,
-        };
-      });
-
-      state.list.unshift({
-        agent_id: "new",
-        name: "",
-        editable: true,
-        created_at: null,
-      });
-    },
-
-    removeNewAgent: (state) => {
-      state.list = state.list.filter((item) => item.agent_id !== "new");
-    },
-
-    setAgentEditable: (state, action) => {
-      const { id, editable } = action.payload;
-
-      // if record is new then simply update editable field for this item
-      if (id === "new") {
-        state.list = state.list.map((item) => ({
-          ...item,
-          editable,
-        }));
-        return;
-      }
-
-      // Filter out items with agent_id as "new"
-      state.list = state.list.filter((item) => item.agent_id !== "new");
-
-      // Update the list
-      state.list = state.list.map((item) => {
-        if (item.agent_id === id) {
-          return item.editable
-            ? {
-                ...item.prevRecord,
-                editable: false,
-              }
-            : {
-                ...item,
-                editable: true,
-                prevRecord: { ...item },
-              };
-        }
-
-        // If any other item is editable, reset it
-        return item.editable
-          ? { ...item.prevRecord, editable: false }
-          : { ...item, editable: false };
-      });
-    },
-
-    updateAgentListValue: (state, action) => {
-      const { id, field, value } = action.payload;
-      state.list = state.list.map((item) => {
-        if (item.agent_id === id) {
-          return {
-            ...item,
-            [field]: value,
-          };
-        }
-        return item;
-      });
-    },
   },
   extraReducers: ({ addCase }) => {
     addCase(getAgentList.pending, (state) => {
       state.isListLoading = true;
+      state.initialFormValues = null;
     });
     addCase(getAgentList.fulfilled, (state, action) => {
       state.isListLoading = false;
@@ -187,24 +134,47 @@ export const agentSlice = createSlice({
     });
 
     addCase(createAgent.pending, (state) => {
-      state.isSubmitting = "new";
+      state.isFormSubmitting = true;
     });
     addCase(createAgent.fulfilled, (state) => {
-      state.isSubmitting = false;
+      state.isFormSubmitting = false;
     });
     addCase(createAgent.rejected, (state) => {
-      state.isSubmitting = false;
-      state.list = state.list.filter((item) => item.agent_id !== "new");
+      state.isFormSubmitting = false;
     });
 
-    addCase(updateAgent.pending, (state, action) => {
-      state.isSubmitting = action.meta.arg.id;
+    addCase(getAgent.pending, (state) => {
+      state.isItemLoading = true;
+    });
+    addCase(getAgent.fulfilled, (state, action) => {
+      state.isItemLoading = false;
+      const data = action.payload;
+      state.initialFormValues = {
+        agent_code: data.agent_code,
+        name: data.name,
+        address: data.address,
+        city: data.city,
+        state: data.state,
+        zip_code: data.zip_code,
+        phone: data.phone,
+        fax: data.fax,
+        email: data.email,
+      };
+    });
+    addCase(getAgent.rejected, (state) => {
+      state.isItemLoading = false;
+      state.initialFormValues = null;
+    });
+
+    addCase(updateAgent.pending, (state) => {
+      state.isFormSubmitting = true;
     });
     addCase(updateAgent.fulfilled, (state) => {
-      state.isSubmitting = false;
+      state.isFormSubmitting = false;
+      state.initialFormValues = null;
     });
     addCase(updateAgent.rejected, (state) => {
-      state.isSubmitting = false;
+      state.isFormSubmitting = false;
     });
 
     addCase(bulkDeleteAgent.pending, (state) => {
@@ -220,12 +190,5 @@ export const agentSlice = createSlice({
   },
 });
 
-export const {
-  setAgentListParams,
-  setAgentDeleteIDs,
-  addNewAgent,
-  removeNewAgent,
-  setAgentEditable,
-  updateAgentListValue,
-} = agentSlice.actions;
+export const { setAgentListParams, setAgentDeleteIDs } = agentSlice.actions;
 export default agentSlice.reducer;

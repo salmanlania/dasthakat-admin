@@ -79,6 +79,10 @@ const MainLayout = () => {
     return <NotFound />;
 
   if (href === "/agent" && !permissions.agent.list) return <NotFound />;
+  if (href === "/agent/create" && !permissions.agent.add) return <NotFound />;
+  if (href.startsWith("/agent/edit") && !permissions.agent.edit)
+    return <NotFound />;
+
   if (href === "/terms" && !permissions.terms.list) return <NotFound />;
   if (href === "/flag" && !permissions.flag.list) return <NotFound />;
   if (href === "/class" && !permissions.class.list) return <NotFound />;
