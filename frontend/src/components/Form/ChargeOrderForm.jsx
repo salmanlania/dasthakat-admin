@@ -558,7 +558,17 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="agent" label="Agent">
-            <Select labelInValue />
+            <AsyncSelect
+              endpoint="/agent"
+              valueKey="agent_id"
+              labelKey="name"
+              labelInValue
+              addNewLink={
+                permissions.agent.list && permissions.agent.add
+                  ? "/agent"
+                  : null
+              }
+            />
           </Form.Item>
         </Col>
         <Col span={24} sm={24} md={16} lg={16}>

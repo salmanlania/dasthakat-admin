@@ -9,6 +9,7 @@ import currencyReducer from "./features/currencySlice";
 import companyReducer from "./features/companySlice";
 import customerReducer from "./features/customerSlice";
 import eventReducer from "./features/eventSlice";
+import agentReducer from "./features/agentSlice";
 import flagReducer from "./features/flagSlice";
 import paymentReducer from "./features/paymentSlice";
 import productReducer from "./features/productSlice";
@@ -37,6 +38,7 @@ const rootReducer = combineReducers({
   vendor: vendorReducer,
   terms: termsReducer,
   flag: flagReducer,
+  agent: agentReducer,
   class: classReducer,
   validity: validityReducer,
   payment: paymentReducer,

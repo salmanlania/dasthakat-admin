@@ -79,6 +79,7 @@ const Sidebar = () => {
     !permissions?.salesman?.list &&
     !permissions?.customer?.list &&
     !permissions?.supplier?.list &&
+    !permissions?.agent?.list &&
     !permissions?.flag?.list &&
     !permissions?.class?.list &&
     !permissions?.vessel?.list &&
@@ -145,6 +146,11 @@ const Sidebar = () => {
               key: "vendor",
               label: <Link to="/vendor">Vendor</Link>,
               disabled: !permissions?.supplier?.list,
+            },
+            {
+              key: "agent",
+              label: <Link to="/agent">Agent</Link>,
+              disabled: !permissions?.agent?.list,
             },
             {
               key: "terms",
