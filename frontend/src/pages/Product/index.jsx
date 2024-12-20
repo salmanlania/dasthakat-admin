@@ -440,13 +440,13 @@ const Product = () => {
             current: params.page,
             showTotal: (total) => `Total ${total} companies`,
           }}
-          onChange={(e, b, c) => {
+          onChange={(page, _, sorting) => {
             dispatch(
               setProductListParams({
-                page: e.current,
-                limit: e.pageSize,
-                sort_column: c.field,
-                sort_direction: c.order,
+                page: page.current,
+                limit: page.pageSize,
+                sort_column: sorting.field,
+                sort_direction: sorting.order,
               })
             );
           }}

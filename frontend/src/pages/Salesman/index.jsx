@@ -9,6 +9,7 @@ import { MdOutlineEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import PageHeading from "../../components/heading/PageHeading";
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
+import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
 import {
   addNewSalesman,
@@ -23,7 +24,6 @@ import {
   updateSalesman,
   updateSalesmanListValue,
 } from "../../store/features/salesmanSlice";
-import useDebounce from "../../hooks/useDebounce";
 
 const Salesman = () => {
   const dispatch = useDispatch();
@@ -329,13 +329,13 @@ const Salesman = () => {
                 }
               : null
           }
-          onChange={(e, b, c) => {
+          onChange={(page, _, sorting) => {
             dispatch(
               setSalesmanListParams({
-                page: e.current,
-                limit: e.pageSize,
-                sort_column: c.field,
-                sort_direction: c.order,
+                page: page.current,
+                limit: page.pageSize,
+                sort_column: sorting.field,
+                sort_direction: sorting.order,
               })
             );
           }}

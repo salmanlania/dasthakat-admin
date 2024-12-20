@@ -277,13 +277,13 @@ const Terms = () => {
                 }
               : null
           }
-          onChange={(e, b, c) => {
+          onChange={(page, _, sorting) => {
             dispatch(
               setTermsListParams({
-                page: e.current,
-                limit: e.pageSize,
-                sort_column: c.field,
-                sort_direction: c.order,
+                page: page.current,
+                limit: page.pageSize,
+                sort_column: sorting.field,
+                sort_direction: sorting.order,
               })
             );
           }}

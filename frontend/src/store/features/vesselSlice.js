@@ -150,6 +150,7 @@ export const vesselSlice = createSlice({
       state.initialFormValues = {
         imo: data.imo,
         name: data.name,
+        billing_address: data.billing_address,
         flag_id: data.flag_id
           ? {
               value: data.flag_id,

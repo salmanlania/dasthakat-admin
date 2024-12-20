@@ -15,7 +15,6 @@ import { GoTrash } from "react-icons/go";
 import { MdOutlineEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import AsyncSelect from "../../components/AsyncSelect";
 import PageHeading from "../../components/heading/PageHeading";
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
 import useDebounce from "../../hooks/useDebounce";
@@ -354,13 +353,13 @@ const Currency = () => {
             current: params.page,
             showTotal: (total) => `Total ${total} currency`,
           }}
-          onChange={(e, b, c, d) => {
+          onChange={(page, _, sorting, d) => {
             dispatch(
               setCurrencyListParams({
-                page: e.current,
-                limit: e.pageSize,
-                sort_column: c.field,
-                sort_direction: c.order,
+                page: page.current,
+                limit: page.pageSize,
+                sort_column: sorting.field,
+                sort_direction: sorting.order,
               })
             );
           }}

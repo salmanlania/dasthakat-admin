@@ -4,7 +4,6 @@ import {
   DatePicker,
   Input,
   Popconfirm,
-  Select,
   Table,
   Tooltip,
 } from "antd";
@@ -325,13 +324,13 @@ const Quotation = () => {
             current: params.page,
             showTotal: (total) => `Total ${total} quotations`,
           }}
-          onChange={(e, b, c, d) => {
+          onChange={(page, _, sorting, d) => {
             dispatch(
               setQuotationListParams({
-                page: e.current,
-                limit: e.pageSize,
-                sort_column: c.field,
-                sort_direction: c.order,
+                page: page.current,
+                limit: page.pageSize,
+                sort_column: sorting.field,
+                sort_direction: sorting.order,
               })
             );
           }}

@@ -242,6 +242,7 @@ const Vessel = () => {
 
   useEffect(() => {
     dispatch(getVesselList(params)).unwrap().catch(handleError);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params.page,
     params.limit,
@@ -315,13 +316,13 @@ const Vessel = () => {
             current: params.page,
             showTotal: (total) => `Total ${total} vessels`,
           }}
-          onChange={(e, b, c, d) => {
+          onChange={(page, _, sorting) => {
             dispatch(
               setVesselListParams({
-                page: e.current,
-                limit: e.pageSize,
-                sort_column: c.field,
-                sort_direction: c.order,
+                page: page.current,
+                limit: page.pageSize,
+                sort_column: sorting.field,
+                sort_direction: sorting.order,
               })
             );
           }}

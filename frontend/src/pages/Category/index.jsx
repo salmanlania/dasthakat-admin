@@ -9,6 +9,7 @@ import { MdOutlineEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import PageHeading from "../../components/heading/PageHeading";
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
+import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
 import {
   addNewCategory,
@@ -23,7 +24,6 @@ import {
   updateCategory,
   updateCategoryListValue,
 } from "../../store/features/categorySlice";
-import useDebounce from "../../hooks/useDebounce";
 
 const Category = () => {
   const dispatch = useDispatch();
@@ -278,13 +278,13 @@ const Category = () => {
                 }
               : null
           }
-          onChange={(e, b, c, d) => {
+          onChange={(page, _, sorting, d) => {
             dispatch(
               setCategoryListParams({
-                page: e.current,
-                limit: e.pageSize,
-                sort_column: c.field,
-                sort_direction: c.order,
+                page: page.current,
+                limit: page.pageSize,
+                sort_column: sorting.field,
+                sort_direction: sorting.order,
               })
             );
           }}

@@ -8,12 +8,14 @@ import {
   Tag,
   Tooltip,
 } from "antd";
+import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { GoTrash } from "react-icons/go";
 import { MdOutlineEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import AsyncSelect from "../../components/AsyncSelect";
 import PageHeading from "../../components/heading/PageHeading";
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
 import useDebounce from "../../hooks/useDebounce";
@@ -25,8 +27,6 @@ import {
   setCustomerDeleteIDs,
   setCustomerListParams,
 } from "../../store/features/customerSlice";
-import dayjs from "dayjs";
-import AsyncSelect from "../../components/AsyncSelect";
 
 const Customer = () => {
   const dispatch = useDispatch();
@@ -451,13 +451,13 @@ const Customer = () => {
             current: params.page,
             showTotal: (total) => `Total ${total} customers`,
           }}
-          onChange={(e, b, c, d) => {
+          onChange={(page, _, sorting, d) => {
             dispatch(
               setCustomerListParams({
-                page: e.current,
-                limit: e.pageSize,
-                sort_column: c.field,
-                sort_direction: c.order,
+                page: page.current,
+                limit: page.pageSize,
+                sort_column: sorting.field,
+                sort_direction: sorting.order,
               })
             );
           }}

@@ -9,7 +9,6 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 import { GoTrash } from "react-icons/go";
 import { MdOutlineEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,9 +19,6 @@ import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
 import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
 import {
-  bulkDeleteChargeOrder,
-  deleteChargeOrder,
-  getChargeOrderList,
   setChargeOrderDeleteIDs,
   setChargeOrderListParams,
 } from "../../store/features/chargeOrderSlice";
@@ -326,13 +322,13 @@ const ChargeOrder = () => {
             current: params.page,
             showTotal: (total) => `Total ${total} charge orders`,
           }}
-          onChange={(e, b, c, d) => {
+          onChange={(page, _, sorting, d) => {
             dispatch(
               setChargeOrderListParams({
-                page: e.current,
-                limit: e.pageSize,
-                sort_column: c.field,
-                sort_direction: c.order,
+                page: page.current,
+                limit: page.pageSize,
+                sort_column: sorting.field,
+                sort_direction: sorting.order,
               })
             );
           }}

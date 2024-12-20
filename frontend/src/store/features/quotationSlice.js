@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../../axiosInstance";
 import dayjs from "dayjs";
+import api from "../../axiosInstance";
 import { roundUpto } from "../../utils/number";
 
 export const getQuotationList = createAsyncThunk(
@@ -124,10 +124,10 @@ export const quotationSlice = createSlice({
         unit_id: null,
         supplier_id: null,
         cost_price: null,
-        markup: null,
+        markup: 0,
         rate: null,
         amount: null,
-        discount_percent: null,
+        discount_percent: 0,
         gross_amount: null,
       };
 
@@ -246,12 +246,6 @@ export const quotationSlice = createSlice({
           ? {
               value: data.event.event_id,
               label: data.event.name,
-            }
-          : null,
-        event_id: data.event
-          ? {
-              value: data.event.event_id,
-              label: data.event.event_code,
             }
           : null,
         vessel_id: data.vessel

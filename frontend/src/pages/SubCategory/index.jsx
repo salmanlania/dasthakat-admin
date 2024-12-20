@@ -7,8 +7,10 @@ import { FcCancel } from "react-icons/fc";
 import { GoTrash } from "react-icons/go";
 import { MdOutlineEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
+import AsyncSelect from "../../components/AsyncSelect";
 import PageHeading from "../../components/heading/PageHeading";
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
+import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
 import {
   addNewSubCategory,
@@ -23,8 +25,6 @@ import {
   updateSubCategory,
   updateSubCategoryListValue,
 } from "../../store/features/subCategorySlice";
-import useDebounce from "../../hooks/useDebounce";
-import AsyncSelect from "../../components/AsyncSelect";
 
 const SubCategory = () => {
   const dispatch = useDispatch();
@@ -357,13 +357,13 @@ const SubCategory = () => {
                 }
               : null
           }
-          onChange={(e, b, c) => {
+          onChange={(page, _, sorting) => {
             dispatch(
               setSubCategoryListParams({
-                page: e.current,
-                limit: e.pageSize,
-                sort_column: c.field,
-                sort_direction: c.order,
+                page: page.current,
+                limit: page.pageSize,
+                sort_column: sorting.field,
+                sort_direction: sorting.order,
               })
             );
           }}
