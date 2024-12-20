@@ -34,6 +34,7 @@ import CommaSeparatedInput from "../Input/CommaSepratedInput";
 import DebounceInput from "../Input/DebounceInput";
 import NumberInput from "../Input/NumberInput";
 
+// eslint-disable-next-line react/prop-types
 const QuotationForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
   const handleError = useError();
@@ -82,6 +83,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
         values.term_id && values.term_id.length
           ? values.term_id.map((v) => v.value)
           : null,
+      // eslint-disable-next-line no-unused-vars
       quotation_detail: quotationDetails.map(({ id, ...detail }, index) => ({
         ...detail,
         supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
@@ -584,6 +586,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       const data = await dispatch(getEvent(selected.value)).unwrap();
       form.setFieldsValue({
         vessel_id: { value: data.vessel_id, label: data.vessel_name },
+        imo: data.imo,
         customer_id: { value: data.customer_id, label: data.customer_name },
         class1_id: { value: data.class1_id, label: data.class1_name },
         class2_id: { value: data.class2_id, label: data.class2_name },
@@ -661,6 +664,11 @@ const QuotationForm = ({ mode, onSubmit }) => {
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="vessel_id" label="Vessel">
             <Select labelInValue disabled />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="imo" label="IMO">
+            <Input disabled />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>

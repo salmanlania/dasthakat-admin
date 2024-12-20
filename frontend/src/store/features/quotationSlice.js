@@ -236,6 +236,7 @@ export const quotationSlice = createSlice({
       state.initialFormValues = {
         document_no: data.document_no,
         document_date: data.document_date ? dayjs(data.document_date) : null,
+        imo: data.imo,
         salesman_id: data.salesman
           ? {
               value: data.salesman.salesman_id,
