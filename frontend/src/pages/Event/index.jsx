@@ -1,4 +1,13 @@
-import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from "antd";
+import {
+  Breadcrumb,
+  Button,
+  Input,
+  Popconfirm,
+  Select,
+  Table,
+  Tag,
+  Tooltip,
+} from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -175,6 +184,47 @@ const Event = () => {
       ellipsis: true,
     },
     {
+      title: (
+        <div>
+          <p>Status</p>
+          <Select
+            className="w-full font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            options={[
+              {
+                value: 1,
+                label: "Active",
+              },
+              {
+                value: 0,
+                label: "Inactive",
+              },
+            ]}
+            value={params.status}
+            onChange={(value) =>
+              dispatch(setEventListParams({ status: value }))
+            }
+            allowClear
+          />
+        </div>
+      ),
+      dataIndex: "status",
+      key: "status",
+      sorter: true,
+      render: (status) =>
+        status === 1 ? (
+          <Tag color="success" className="w-16 text-center">
+            Active
+          </Tag>
+        ) : (
+          <Tag color="error" className="w-16 text-center">
+            Inactive
+          </Tag>
+        ),
+      width: 120,
+    },
+    {
       title: "Created At",
       dataIndex: "created_at",
       key: "created_at",
@@ -232,6 +282,7 @@ const Event = () => {
 
   useEffect(() => {
     dispatch(getEventList(params)).unwrap().catch(handleError);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params.page,
     params.limit,
@@ -241,6 +292,7 @@ const Event = () => {
     params.vessel_id,
     params.class1_id,
     params.class2_id,
+    params.status,
     debouncedSearch,
     debouncedCode,
   ]);

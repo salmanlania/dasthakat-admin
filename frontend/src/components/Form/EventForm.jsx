@@ -1,10 +1,11 @@
-import { Button, Col, Form, Input, Row } from "antd";
+import { Button, Col, Form, Input, Row, Select } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import AsyncSelect from "../AsyncSelect";
 import useError from "../../hooks/useError";
 import { getVessel } from "../../store/features/vesselSlice";
+import AsyncSelect from "../AsyncSelect";
 
+// eslint-disable-next-line react/prop-types
 const EventForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
@@ -122,6 +123,23 @@ const EventForm = ({ mode, onSubmit }) => {
                   ? "/class"
                   : null
               }
+            />
+          </Form.Item>
+        </Col>
+
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="status" label="Status">
+            <Select
+              options={[
+                {
+                  value: 1,
+                  label: "Active",
+                },
+                {
+                  value: 0,
+                  label: "Inactive",
+                },
+              ]}
             />
           </Form.Item>
         </Col>
