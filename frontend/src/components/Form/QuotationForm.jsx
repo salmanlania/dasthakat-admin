@@ -64,6 +64,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
     const data = {
       ...values,
       class1_id: values.class1_id ? values.class1_id.value : null,
+      port_id: values.port_id ? values.port_id.value : null,
       class2_id: values.class2_id ? values.class2_id.value : null,
       customer_id: values.customer_id ? values.customer_id.value : null,
       event_id: values.event_id ? values.event_id.value : null,
@@ -576,6 +577,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
     form.setFieldsValue({
       vessel_id: null,
       customer_id: null,
+      imo: null,
       class1_id: null,
       class2_id: null,
       flag_id: null,
@@ -591,6 +593,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
         class1_id: { value: data.class1_id, label: data.class1_name },
         class2_id: { value: data.class2_id, label: data.class2_name },
         flag_id: { value: data.flag_id, label: data.flag_name },
+        payment_id: { value: data.payment_id, label: data.payment_name },
       });
     } catch (error) {
       handleError(error);
@@ -604,20 +607,42 @@ const QuotationForm = ({ mode, onSubmit }) => {
       autoComplete="off"
       form={form}
       onFinish={onFinish}
-      initialValues={mode === "edit" ? initialFormValues : null}
+      initialValues={
+        mode === "edit"
+          ? initialFormValues
+          : {
+              document_date: dayjs(),
+            }
+      }
       scrollToFirstError
     >
+      {/* Make this sticky */}
+      <div className="flex justify-center -mt-8 sticky top-14 z-10">
+        <p className="text-xs w-fit border bg-white px-2 rounded p-1 font-medium">
+          <span className="text-gray-500">Quotation No:</span>
+          <span
+            className={`ml-4 ${
+              mode === "edit" ? "hover:bg-slate-200 cursor-pointer" : ""
+            } px-1 rounded`}
+            onClick={() => {
+              if (mode !== "edit") return;
+              navigator.clipboard.writeText(
+                initialFormValues.document_identity
+              );
+              toast.success("Copied");
+            }}
+          >
+            {mode === "edit" ? initialFormValues.document_identity : "AUTO"}
+          </span>
+        </p>
+      </div>
       <Row gutter={12}>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="document_no" label="Document No">
-            <Input disabled placeholder="Auto" />
-          </Form.Item>
-        </Col>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
             name="document_date"
-            label="Document Date"
-            rules={[{ required: true, message: "Document date is required" }]}
+            label="Quotation Date"
+            rules={[{ required: true, message: "Quotation date is required" }]}
+            className="w-full"
           >
             <DatePicker format="DD-MM-YYYY" className="w-full" />
           </Form.Item>
@@ -739,7 +764,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="payment_id" label="Payment">
+          <Form.Item name="payment_id" label="Payment Terms">
             <AsyncSelect
               endpoint="/payment"
               valueKey="payment_id"
@@ -754,23 +779,37 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="inclosure" label="Inclosure">
+          <Form.Item name="internal_notes" label="Internal Notes">
             <Input />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="port" label="Port">
-            <Input />
+          <Form.Item name="port_id" label="Port">
+            <AsyncSelect
+              endpoint="/port"
+              valueKey="port_id"
+              labelKey="name"
+              labelInValue
+              addNewLink={
+                permissions.port.list && permissions.port.add ? "/port" : null
+              }
+            />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="term_id" label="Terms & Conditions">
+      </Row>
+
+      <div className="p-4 border border-slate-300 bg-slate-50 rounded-lg">
+        <div className="flex md:flex-row flex-col justify-between items-center py-2">
+          <h5 className="text-base font-medium">Terms & Conditions</h5>
+          <Form.Item name="term_id" className="w-full md:w-96 p-0 m-0">
             <AsyncSelect
               endpoint="/terms"
               valueKey="term_id"
               labelKey="name"
+              placeholder="Select Terms"
               labelInValue
               mode="multiple"
+              maxTagCount="responsive"
               onChange={(selected) => onTermChange(selected)}
               addNewLink={
                 permissions.terms.list && permissions.terms.add
@@ -779,13 +818,17 @@ const QuotationForm = ({ mode, onSubmit }) => {
               }
             />
           </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={16} lg={16}>
-          <Form.Item name="term_desc" label="Terms & Conditions">
-            <Input.TextArea autoSize />
-          </Form.Item>
-        </Col>
-      </Row>
+        </div>
+
+        <Form.Item name="term_desc" className="mb-3">
+          <Input.TextArea
+            autoSize={{
+              minRows: 2,
+            }}
+            rows={2}
+          />
+        </Form.Item>
+      </div>
 
       <Divider orientation="left" className="!border-gray-300">
         Quotation Items

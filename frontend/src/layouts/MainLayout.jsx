@@ -1,10 +1,11 @@
+/* eslint-disable react/jsx-no-undef */
 import { Layout } from "antd";
 import { Content } from "antd/es/layout/layout";
+import { useSelector } from "react-redux";
 import { Navigate, Outlet, useHref, useLocation } from "react-router-dom";
 import Footer from "../components/Layout/Footer";
 import Navbar from "../components/Layout/Navbar";
 import Sidebar from "../components/Layout/Sidebar";
-import { useSelector } from "react-redux";
 
 const removeTrailingSlashes = (url) => url.replace(/\/+$/, "");
 const MainLayout = () => {
@@ -86,6 +87,7 @@ const MainLayout = () => {
   if (href === "/terms" && !permissions.terms.list) return <NotFound />;
   if (href === "/flag" && !permissions.flag.list) return <NotFound />;
   if (href === "/class" && !permissions.class.list) return <NotFound />;
+  if (href === "/port" && !permissions.port.list) return <NotFound />;
 
   if (href === "/vessel" && !permissions.vessel.list) return <NotFound />;
   if (href === "/vessel/create" && !permissions.vessel.add) return <NotFound />;

@@ -2,15 +2,14 @@ import { Avatar, Layout, Menu } from "antd";
 import { useEffect, useState } from "react";
 import { BiChevronLeft } from "react-icons/bi";
 import { FaRegUser } from "react-icons/fa";
+import { LuClipboardList, LuPackage2 } from "react-icons/lu";
 import {
-  MdInventory,
   MdOutlineAdminPanelSettings,
   MdOutlineDashboard,
 } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleSidebar } from "../../store/features/sidebarSlice";
 import { Link, useLocation } from "react-router-dom";
-import { LuClipboardList, LuPackage2 } from "react-icons/lu";
+import { toggleSidebar } from "../../store/features/sidebarSlice";
 
 const getLevelKeys = (items1) => {
   const key = {};
@@ -64,6 +63,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     const handleResize = () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       isSmallScreen = window.innerWidth <= 1000;
       dispatch(toggleSidebar(isSmallScreen));
     };
@@ -82,6 +82,7 @@ const Sidebar = () => {
     !permissions?.agent?.list &&
     !permissions?.flag?.list &&
     !permissions?.class?.list &&
+    !permissions?.port?.list &&
     !permissions?.vessel?.list &&
     !permissions?.event?.list;
 
@@ -166,6 +167,11 @@ const Sidebar = () => {
               key: "class",
               label: <Link to="/class">Class</Link>,
               disabled: !permissions?.class?.list,
+            },
+            {
+              key: "port",
+              label: <Link to="/port">Port</Link>,
+              disabled: !permissions?.port?.list,
             },
             {
               key: "vessel",

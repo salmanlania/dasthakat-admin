@@ -159,6 +159,15 @@ export const customerSlice = createSlice({
               label: data.salesman_name,
             }
           : null,
+        payment_id: data.payment_id
+          ? {
+              value: data.payment_id,
+              label: data.name,
+            }
+          : null,
+        vessel_id: data.vessel
+          ? data.vessel.map((v) => ({ value: v.vessel_id, label: v.name }))
+          : null,
         country: data.country,
         address: data.address,
         billing_address: data.billing_address,

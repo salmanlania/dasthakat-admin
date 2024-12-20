@@ -124,10 +124,10 @@ export const quotationSlice = createSlice({
         unit_id: null,
         supplier_id: null,
         cost_price: null,
-        markup: 0,
+        markup: "0",
         rate: null,
         amount: null,
-        discount_percent: 0,
+        discount_percent: "0",
         gross_amount: null,
       };
 
@@ -234,9 +234,10 @@ export const quotationSlice = createSlice({
       state.isItemLoading = false;
       const data = action.payload;
       state.initialFormValues = {
-        document_no: data.document_no,
+        document_identity: data.document_identity,
         document_date: data.document_date ? dayjs(data.document_date) : null,
         imo: data.imo,
+        internal_notes: data.internal_notes,
         salesman_id: data.salesman
           ? {
               value: data.salesman.salesman_id,
@@ -246,7 +247,7 @@ export const quotationSlice = createSlice({
         event_id: data.event
           ? {
               value: data.event.event_id,
-              label: data.event.name,
+              label: data.event.event_code,
             }
           : null,
         vessel_id: data.vessel
@@ -297,7 +298,12 @@ export const quotationSlice = createSlice({
         attn: data.attn,
         delivery: data.delivery,
         inclosure: data.inclosure,
-        port: data.port,
+        port_id: data.port
+          ? {
+              value: data.port.port_id,
+              label: data.port.name,
+            }
+          : null,
         term_id: data.term_id || null,
         term_desc: data.term_desc,
       };

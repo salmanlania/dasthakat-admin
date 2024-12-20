@@ -1,10 +1,10 @@
-import { Button, Select, Spin } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+/* eslint-disable react/prop-types */
+import { Select, Spin } from "antd";
+import { useEffect, useRef, useState } from "react";
+import { MdOutlineAddCircle } from "react-icons/md";
 import api from "../../axiosInstance";
 import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
-import { MdOutlineAddCircle } from "react-icons/md";
-import { BsPencil } from "react-icons/bs";
 
 const { Option } = Select;
 
@@ -68,6 +68,7 @@ const AsyncSelect = ({
       setPage(1);
       fetchData(debouncedSearch, 1);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch, isClicked, ...dependencies]);
 
   const handleInputChange = (value) => setSearchValue(value);
@@ -118,7 +119,7 @@ const AsyncSelect = ({
       suffixIcon={
         isAddNewVisible ? (
           <MdOutlineAddCircle
-            className="text-primary cursor-pointer hover:text-blue-700 absolute !-top-4 bg-white"
+            className="text-primary cursor-pointer hover:text-blue-700 absolute !-top-4 bg-white rounded-full"
             size={18}
             onClick={() => {
               setIsClicked(false);

@@ -1,9 +1,9 @@
 import { Button, Col, Form, Input, Row, Select } from "antd";
-import ReactInputMask from "react-input-mask";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import AsyncSelect from "../AsyncSelect";
 
+// eslint-disable-next-line react/prop-types
 const CustomerForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues } = useSelector(
     (state) => state.customer
@@ -11,10 +11,12 @@ const CustomerForm = ({ mode, onSubmit }) => {
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
 
-  const onFinish = (formValues) => {
+  const onFinish = (values) => {
     onSubmit({
-      ...formValues,
-      salesman_id: formValues.salesman_id ? formValues.salesman_id.value : null,
+      ...values,
+      salesman_id: values.salesman_id ? values.salesman_id.value : null,
+      payment_id: values.payment_id ? values.payment_id.value : null,
+      vessel_id: values.vessel_id ? values.vessel_id.map((v) => v.value) : null,
     });
   };
 
@@ -47,7 +49,6 @@ const CustomerForm = ({ mode, onSubmit }) => {
             <Input />
           </Form.Item>
         </Col>
-
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="salesman_id" label="Salesman">
             <AsyncSelect
@@ -69,8 +70,13 @@ const CustomerForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="address" label="Address">
-            <Input.TextArea rows={1} />
+          <Form.Item name="email_sales" label="Email Sales">
+            <Input />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="email_accounting" label="Email Accounting">
+            <Input />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
@@ -79,13 +85,39 @@ const CustomerForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="email_sales" label="Email Sales">
-            <Input />
+          <Form.Item name="payment_id" label="Payment Terms">
+            <AsyncSelect
+              endpoint="/payment"
+              valueKey="payment_id"
+              labelKey="name"
+              labelInValue
+              addNewLink={
+                permissions.payment.list && permissions.payment.add
+                  ? "/payment"
+                  : null
+              }
+            />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="email_accounting" label="Email Accounting">
-            <Input />
+          <Form.Item name="vessel_id" label="Vessel">
+            <AsyncSelect
+              endpoint="/vessel"
+              valueKey="vessel_id"
+              labelKey="name"
+              labelInValue
+              addNewLink={
+                permissions.vessel.list && permissions.vessel.add
+                  ? "/vessel"
+                  : null
+              }
+              mode="multiple"
+            />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="address" label="Address">
+            <Input.TextArea rows={1} />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>

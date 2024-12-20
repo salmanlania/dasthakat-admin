@@ -54,6 +54,7 @@ const EditAgent = lazy(() => import("./pages/Agent/EditAgent"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Flag = lazy(() => import("./pages/Flag"));
 const Class = lazy(() => import("./pages/Class"));
+const Port = lazy(() => import("./pages/Port"));
 
 const Vessel = lazy(() => import("./pages/Vessel"));
 const CreateVessel = lazy(() => import("./pages/Vessel/CreateVessel"));
@@ -324,6 +325,14 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Class />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/port",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Port />
               </Suspense>
             ),
           },
