@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import AsyncSelect from "../AsyncSelect";
 
+// eslint-disable-next-line react/prop-types
 const VesselForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues } = useSelector(
     (state) => state.vessel
@@ -31,17 +32,41 @@ const VesselForm = ({ mode, onSubmit }) => {
     >
       <Row gutter={[12, 12]} className="w-full">
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="imo" label="IMO">
+          <Form.Item
+            name="imo"
+            label="IMO"
+            rules={[
+              {
+                required: true,
+                whitespace: true,
+                message: "IMO is required!",
+              },
+            ]}
+          >
             <Input />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="name" label="Name">
+          <Form.Item
+            name="name"
+            label="Name"
+            rules={[
+              {
+                required: true,
+                whitespace: true,
+                message: "Name is required!",
+              },
+            ]}
+          >
             <Input />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="flag_id" label="Flag">
+          <Form.Item
+            name="flag_id"
+            label="Flag"
+            rules={[{ required: true, message: "Flag is required!" }]}
+          >
             <AsyncSelect
               endpoint="/flag"
               valueKey="flag_id"
@@ -81,6 +106,11 @@ const VesselForm = ({ mode, onSubmit }) => {
                   : null
               }
             />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="billing_address" label="Billing Address">
+            <Input.TextArea rows={1} />
           </Form.Item>
         </Col>
       </Row>
