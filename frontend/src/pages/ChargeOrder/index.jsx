@@ -322,7 +322,7 @@ const ChargeOrder = () => {
             current: params.page,
             showTotal: (total) => `Total ${total} charge orders`,
           }}
-          onChange={(page, _, sorting, d) => {
+          onChange={(page, _, sorting) => {
             dispatch(
               setChargeOrderListParams({
                 page: page.current,

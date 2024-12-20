@@ -393,7 +393,7 @@ const Agent = () => {
             current: params.page,
             showTotal: (total) => `Total ${total} agents`,
           }}
-          onChange={(page, _, sorting, d) => {
+          onChange={(page, _, sorting) => {
             dispatch(
               setAgentListParams({
                 page: page.current,

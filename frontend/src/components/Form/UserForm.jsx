@@ -1,12 +1,13 @@
 import { Button, Col, Form, Image, Input, Row, Select, TimePicker } from "antd";
-import { useRef, useState } from "react";
-import userImagePlaceholder from "../../assets/user-placeholder.jpg";
-import { Link } from "react-router-dom";
-import AsyncSelect from "../AsyncSelect";
 import dayjs from "dayjs";
+import { useRef, useState } from "react";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import userImagePlaceholder from "../../assets/user-placeholder.jpg";
+import AsyncSelect from "../AsyncSelect";
 import UserCompanyTemplates from "./UserCompanyTemplates";
 
+// eslint-disable-next-line react/prop-types
 const UserForm = ({ mode = "create", onSubmit }) => {
   const fileInputRef = useRef(null);
   const { isFormSubmitting, initialFormValues, selectedTemplates } =

@@ -451,7 +451,7 @@ const Customer = () => {
             current: params.page,
             showTotal: (total) => `Total ${total} customers`,
           }}
-          onChange={(page, _, sorting, d) => {
+          onChange={(page, _, sorting) => {
             dispatch(
               setCustomerListParams({
                 page: page.current,

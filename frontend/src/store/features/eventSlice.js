@@ -6,7 +6,10 @@ export const getEventList = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const res = await api.get("/event", {
-        params,
+        params: {
+          ...params,
+          all: 1,
+        },
       });
       return res.data;
     } catch (err) {
@@ -149,6 +152,7 @@ export const eventSlice = createSlice({
 
       state.initialFormValues = {
         event_code: data.event_code,
+        status: data.event_code,
         customer_id: data.customer_id
           ? {
               value: data.customer_id,

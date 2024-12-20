@@ -353,7 +353,7 @@ const Currency = () => {
             current: params.page,
             showTotal: (total) => `Total ${total} currency`,
           }}
-          onChange={(page, _, sorting, d) => {
+          onChange={(page, _, sorting) => {
             dispatch(
               setCurrencyListParams({
                 page: page.current,

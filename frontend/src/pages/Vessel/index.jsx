@@ -47,6 +47,7 @@ const Vessel = () => {
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedIMO = useDebounce(params.imo, 500);
   const debouncedName = useDebounce(params.name, 500);
+  const debouncedBillingAddress = useDebounce(params.billing_address, 500);
 
   const onVesselDelete = async (id) => {
     try {
@@ -185,6 +186,27 @@ const Vessel = () => {
       ellipsis: true,
     },
     {
+      title: (
+        <div>
+          <p>Billing Address</p>
+          <Input
+            className="font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            value={params.billing_address}
+            onChange={(e) =>
+              dispatch(setVesselListParams({ billing_address: e.target.value }))
+            }
+          />
+        </div>
+      ),
+      dataIndex: "billing_address",
+      key: "billing_address",
+      sorter: true,
+      width: 200,
+      ellipsis: true,
+    },
+    {
       title: "Created At",
       dataIndex: "created_at",
       key: "created_at",
@@ -254,6 +276,7 @@ const Vessel = () => {
     debouncedSearch,
     debouncedName,
     debouncedIMO,
+    debouncedBillingAddress,
   ]);
 
   return (

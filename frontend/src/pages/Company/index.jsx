@@ -235,7 +235,7 @@ const Company = () => {
             current: params.page,
             showTotal: (total) => `Total ${total} companies`,
           }}
-          onChange={(page, _, sorting, d) => {
+          onChange={(page, _, sorting) => {
             dispatch(
               setCompanyListParams({
                 page: page.current,

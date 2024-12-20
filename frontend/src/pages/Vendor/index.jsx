@@ -399,7 +399,7 @@ const Vendor = () => {
             current: params.page,
             showTotal: (total) => `Total ${total} vendors`,
           }}
-          onChange={(page, _, sorting, d) => {
+          onChange={(page, _, sorting) => {
             dispatch(
               setVendorListParams({
                 page: page.current,

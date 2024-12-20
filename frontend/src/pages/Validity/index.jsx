@@ -278,7 +278,7 @@ const Validity = () => {
                 }
               : null
           }
-          onChange={(page, _, sorting, d) => {
+          onChange={(page, _, sorting) => {
             dispatch(
               setValidityListParams({
                 page: page.current,

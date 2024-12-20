@@ -324,7 +324,7 @@ const Quotation = () => {
             current: params.page,
             showTotal: (total) => `Total ${total} quotations`,
           }}
-          onChange={(page, _, sorting, d) => {
+          onChange={(page, _, sorting) => {
             dispatch(
               setQuotationListParams({
                 page: page.current,

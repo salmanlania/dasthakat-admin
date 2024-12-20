@@ -232,6 +232,7 @@ const User = () => {
 
   useEffect(() => {
     dispatch(getUserList(params)).unwrap().catch(handleError);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params.page,
     params.limit,
@@ -305,7 +306,7 @@ const User = () => {
             current: params.page,
             showTotal: (total) => `Total ${total} users`,
           }}
-          onChange={(page, _, sorting, d) => {
+          onChange={(page, _, sorting) => {
             dispatch(
               setUserListParams({
                 page: page.current,

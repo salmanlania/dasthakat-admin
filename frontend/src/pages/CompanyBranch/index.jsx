@@ -258,7 +258,7 @@ const CompanyBranch = () => {
             current: params.page,
             showTotal: (total) => `Total ${total} branches`,
           }}
-          onChange={(page, _, sorting, d) => {
+          onChange={(page, _, sorting) => {
             dispatch(
               setCompanyBranchListParams({
                 page: page.current,

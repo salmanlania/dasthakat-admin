@@ -278,7 +278,7 @@ const Category = () => {
                 }
               : null
           }
-          onChange={(page, _, sorting, d) => {
+          onChange={(page, _, sorting) => {
             dispatch(
               setCategoryListParams({
                 page: page.current,

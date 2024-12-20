@@ -235,7 +235,7 @@ const UserPermission = () => {
                 }
               : null
           }
-          onChange={(page, _, sorting, d) => {
+          onChange={(page, _, sorting) => {
             dispatch(
               setUserPermissionListParams({
                 page: page.current,

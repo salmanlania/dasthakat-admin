@@ -278,7 +278,7 @@ const Unit = () => {
                 }
               : null
           }
-          onChange={(page, _, sorting, d) => {
+          onChange={(page, _, sorting) => {
             dispatch(
               setUnitListParams({
                 page: page.current,
