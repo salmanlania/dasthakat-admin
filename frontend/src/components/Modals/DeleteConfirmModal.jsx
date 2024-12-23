@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { Button, Modal } from "antd";
 import { TbAlertOctagonFilled } from "react-icons/tb";
 

@@ -27,6 +27,7 @@ const theme = {
   },
 };
 
+// eslint-disable-next-line react/prop-types
 const Theme = ({ children }) => {
   return <ConfigProvider theme={theme}>{children}</ConfigProvider>;
 };

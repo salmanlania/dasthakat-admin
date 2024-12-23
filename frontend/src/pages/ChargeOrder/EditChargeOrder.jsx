@@ -32,6 +32,7 @@ const EditChargeOrder = () => {
 
   useEffect(() => {
     dispatch(getChargeOrder(id)).unwrap().catch(handleError);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

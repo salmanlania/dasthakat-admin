@@ -311,7 +311,7 @@ export const quotationSlice = createSlice({
       if (!data.quotation_detail) return;
 
       state.quotationDetails = data.quotation_detail.map((detail) => ({
-        id: data.quotation_detail_id,
+        id: detail.quotation_detail_id,
         product_code: detail.product ? detail.product.product_code : null,
         product_id: detail.product
           ? { value: detail.product.product_id, label: detail.product.name }

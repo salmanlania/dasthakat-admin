@@ -11,14 +11,17 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { GoTrash } from "react-icons/go";
+import { HiRefresh } from "react-icons/hi";
 import { MdOutlineEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import AsyncSelect from "../../components/AsyncSelect";
 import PageHeading from "../../components/heading/PageHeading";
+import ChargeOrderModal from "../../components/Modals/ChargeOrderModal";
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
 import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
+import { setChargeQuotationID } from "../../store/features/chargeOrderSlice";
 import {
   bulkDeleteQuotation,
   deleteQuotation,
@@ -45,7 +48,7 @@ const Quotation = () => {
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
-  const debouncedDocNo = useDebounce(params.document_no, 500);
+  const debouncedQuotationNo = useDebounce(params.document_identity, 500);
 
   const formattedParams = {
     ...params,
@@ -104,20 +107,22 @@ const Quotation = () => {
     {
       title: (
         <div>
-          <p>Document No</p>
+          <p>Quotation No</p>
           <Input
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.document_no}
+            value={params.document_identity}
             onChange={(e) =>
-              dispatch(setQuotationListParams({ document_no: e.target.value }))
+              dispatch(
+                setQuotationListParams({ document_identity: e.target.value })
+              )
             }
           />
         </div>
       ),
-      dataIndex: "document_no",
-      key: "document_no",
+      dataIndex: "document_identity",
+      key: "document_identity",
       sorter: true,
       width: 150,
       ellipsis: true,
@@ -205,6 +210,14 @@ const Quotation = () => {
       key: "action",
       render: (_, { quotation_id }) => (
         <div className="flex gap-2 items-center">
+          <Tooltip title="Charge Order">
+            <Button
+              size="small"
+              type="primary"
+              onClick={() => dispatch(setChargeQuotationID(quotation_id))}
+              icon={<HiRefresh size={14} />}
+            />
+          </Tooltip>
           {permissions.edit ? (
             <Tooltip title="Edit">
               <Link to={`/quotation/edit/${quotation_id}`}>
@@ -238,7 +251,7 @@ const Quotation = () => {
           ) : null}
         </div>
       ),
-      width: 70,
+      width: 105,
       fixed: "right",
     },
   ];
@@ -249,6 +262,7 @@ const Quotation = () => {
 
   useEffect(() => {
     dispatch(getQuotationList(formattedParams)).unwrap().catch(handleError);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params.page,
     params.limit,
@@ -259,7 +273,7 @@ const Quotation = () => {
     params.vessel_id,
     params.event_id,
     debouncedSearch,
-    debouncedDocNo,
+    debouncedQuotationNo,
   ]);
 
   return (
@@ -351,6 +365,8 @@ const Quotation = () => {
         title="Are you sure you want to delete these quotations?"
         description="After deleting, you will not be able to recover."
       />
+
+      <ChargeOrderModal />
     </>
   );
 };

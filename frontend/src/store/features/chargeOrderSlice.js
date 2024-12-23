@@ -1,11 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../../axiosInstance";
 import dayjs from "dayjs";
-
-function roundUpto(value, fixed = 3) {
-  const roundedValue = Number(value.toFixed(fixed));
-  return parseFloat(roundedValue); // Removes unnecessary trailing zeroes
-}
+import api from "../../axiosInstance";
 
 export const getChargeOrderList = createAsyncThunk(
   "chargeOrder/list",
@@ -88,6 +83,7 @@ const initialState = {
   list: [],
   deleteIDs: [],
   chargeOrderDetails: [],
+  chargeQuotationID: null,
   params: {
     page: 1,
     limit: 50,
@@ -105,6 +101,14 @@ export const chargeOrderSlice = createSlice({
   name: "chargeOrder",
   initialState,
   reducers: {
+    setChargeOrderDetails: (state, action) => {
+      state.chargeOrderDetails = action.payload;
+    },
+
+    setChargeQuotationID: (state, action) => {
+      state.chargeQuotationID = action.payload;
+    },
+
     setChargeOrderListParams: (state, action) => {
       state.params = {
         ...state.params,
@@ -218,12 +222,6 @@ export const chargeOrderSlice = createSlice({
           ? {
               value: data.event.event_id,
               label: data.event.name,
-            }
-          : null,
-        event_id: data.event
-          ? {
-              value: data.event.event_id,
-              label: data.event.event_code,
             }
           : null,
         vessel_id: data.vessel
@@ -341,5 +339,7 @@ export const {
   copyChargeOrderDetail,
   changeChargeOrderDetailOrder,
   changeChargeOrderDetailValue,
+  setChargeOrderDetails,
+  setChargeQuotationID,
 } = chargeOrderSlice.actions;
 export default chargeOrderSlice.reducer;
