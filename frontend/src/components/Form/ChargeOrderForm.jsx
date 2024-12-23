@@ -10,13 +10,11 @@ import {
   Table,
 } from "antd";
 import dayjs from "dayjs";
-import toast from "react-hot-toast";
 import { BiPlus } from "react-icons/bi";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import useError from "../../hooks/useError";
 import {
   addChargeOrderDetail,
   changeChargeOrderDetailOrder,
@@ -24,16 +22,13 @@ import {
   copyChargeOrderDetail,
   removeChargeOrderDetail,
 } from "../../store/features/chargeOrderSlice";
-import { getEvent } from "../../store/features/eventSlice";
-import { getProduct, getProductList } from "../../store/features/productSlice";
 import AsyncSelect from "../AsyncSelect";
-import CommaSeparatedInput from "../Input/CommaSepratedInput";
-import NumberInput from "../Input/NumberInput";
 import DebounceInput from "../Input/DebounceInput";
+import DebouncedCommaSeparatedInput from "../Input/DebouncedCommaSeparatedInput";
 
+// eslint-disable-next-line react/prop-types
 const ChargeOrderForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
-  const handleError = useError();
   const dispatch = useDispatch();
   const { isFormSubmitting, initialFormValues, chargeOrderDetails } =
     useSelector((state) => state.chargeOrder);
@@ -42,8 +37,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
   const permissions = user.permission;
 
   const onFinish = (values) => {
-    if (!totalNet) return toast.error("Total Net cannot be empty");
-
     const data = {
       ...values,
       class1_id: values.class1_id ? values.class1_id.value : null,
@@ -67,6 +60,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           ? values.term_id.map((v) => v.value)
           : null,
       chargeOrder_detail: chargeOrderDetails.map(
+        // eslint-disable-next-line no-unused-vars
         ({ id, ...detail }, index) => ({
           ...detail,
           supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
@@ -312,7 +306,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       key: "quantity",
       render: (_, { quantity }, index) => {
         return (
-          <CommaSeparatedInput
+          <DebouncedCommaSeparatedInput
             decimalPlaces={2}
             value={quantity}
             onChange={(value) =>
@@ -446,7 +440,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       flag_id: null,
     });
 
-    // if (!selected) return;
+    if (!selected) return;
     // try {
     //   const data = await dispatch(getEvent(selected.value)).unwrap();
     //   form.setFieldsValue({

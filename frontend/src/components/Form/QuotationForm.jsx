@@ -30,9 +30,9 @@ import {
 import { formatThreeDigitCommas, roundUpto } from "../../utils/number";
 import AsyncSelect from "../AsyncSelect";
 import AmountSummaryCard from "../Card/AmountSummaryCard";
-import CommaSeparatedInput from "../Input/CommaSepratedInput";
+import DebouncedCommaSeparatedInput from "../Input/DebouncedCommaSeparatedInput";
+import DebouncedNumberInput from "../Input/DebouncedNumberInput";
 import DebounceInput from "../Input/DebounceInput";
-import NumberInput from "../Input/NumberInput";
 
 // eslint-disable-next-line react/prop-types
 const QuotationForm = ({ mode, onSubmit }) => {
@@ -62,7 +62,11 @@ const QuotationForm = ({ mode, onSubmit }) => {
     if (!totalNet) return toast.error("Net Amount cannot be zero");
 
     const data = {
-      ...values,
+      attn: values.attn,
+      customer_ref: values.customer_ref,
+      imo: values.imo,
+      internal_notes: values.internal_notes,
+      term_desc: values.term_desc,
       class1_id: values.class1_id ? values.class1_id.value : null,
       port_id: values.port_id ? values.port_id.value : null,
       class2_id: values.class2_id ? values.class2_id.value : null,
@@ -311,7 +315,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       key: "quantity",
       render: (_, { quantity }, index) => {
         return (
-          <CommaSeparatedInput
+          <DebouncedCommaSeparatedInput
             decimalPlaces={2}
             value={quantity}
             onChange={(value) =>
@@ -396,7 +400,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       key: "cost_price",
       render: (_, { cost_price }, index) => {
         return (
-          <CommaSeparatedInput
+          <DebouncedCommaSeparatedInput
             value={cost_price}
             onChange={(value) =>
               dispatch(
@@ -418,19 +422,35 @@ const QuotationForm = ({ mode, onSubmit }) => {
       key: "markup",
       render: (_, { markup }, index) => {
         return (
-          <NumberInput
-            value={markup ? markup + "" : ""}
-            type="decimal"
-            onChange={(value) =>
-              dispatch(
-                changeQuotationDetailValue({
-                  index,
-                  key: "markup",
-                  value: value,
-                })
-              )
-            }
-          />
+          <Form.Item
+            className="m-0"
+            initialValue={markup}
+            name={`markup-${index}`}
+            rules={[
+              {
+                validator: (_, value) => {
+                  if (value > 100) {
+                    return Promise.reject(new Error("Invalid markup."));
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
+            <DebouncedNumberInput
+              value={markup ? markup + "" : ""}
+              type="decimal"
+              onChange={(value) =>
+                dispatch(
+                  changeQuotationDetailValue({
+                    index,
+                    key: "markup",
+                    value: value,
+                  })
+                )
+              }
+            />
+          </Form.Item>
         );
       },
       width: 200,
@@ -442,7 +462,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       key: "rate",
       render: (_, { rate }, index) => {
         return (
-          <CommaSeparatedInput
+          <DebouncedCommaSeparatedInput
             value={rate ? rate + "" : ""}
             onChange={(value) =>
               dispatch(
@@ -463,7 +483,10 @@ const QuotationForm = ({ mode, onSubmit }) => {
       dataIndex: "amount",
       key: "amount",
       render: (_, { amount }) => (
-        <CommaSeparatedInput value={amount ? amount + "" : ""} disabled />
+        <DebouncedCommaSeparatedInput
+          value={amount ? amount + "" : ""}
+          disabled
+        />
       ),
       width: 200,
     },
@@ -473,18 +496,37 @@ const QuotationForm = ({ mode, onSubmit }) => {
       key: "discount_percent",
       render: (_, { discount_percent }, index) => {
         return (
-          <Input
-            value={discount_percent}
-            onChange={(e) =>
-              dispatch(
-                changeQuotationDetailValue({
-                  index,
-                  key: "discount_percent",
-                  value: e.target.value,
-                })
-              )
-            }
-          />
+          <Form.Item
+            className="m-0"
+            initialValue={discount_percent}
+            name={`discount_percent-${index}`}
+            rules={[
+              {
+                validator: (_, value) => {
+                  if (value > 100) {
+                    return Promise.reject(
+                      new Error("Invalid discount percent.")
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
+            <DebouncedNumberInput
+              value={discount_percent}
+              type="decimal"
+              onChange={(value) =>
+                dispatch(
+                  changeQuotationDetailValue({
+                    index,
+                    key: "discount_percent",
+                    value: value,
+                  })
+                )
+              }
+            />
+          </Form.Item>
         );
       },
       width: 200,
@@ -495,7 +537,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       key: "discount_amount",
       render: (_, { discount_amount }) => {
         return (
-          <CommaSeparatedInput
+          <DebouncedCommaSeparatedInput
             value={discount_amount ? discount_amount + "" : ""}
             disabled
           />
@@ -509,7 +551,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       key: "gross_amount",
       render: (_, { gross_amount }) => {
         return (
-          <CommaSeparatedInput
+          <DebouncedCommaSeparatedInput
             value={gross_amount ? gross_amount + "" : ""}
             disabled
           />

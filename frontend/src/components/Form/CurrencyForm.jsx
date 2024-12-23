@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import NumberInput from "../Input/NumberInput";
 
+// eslint-disable-next-line react/prop-types
 const CurrencyForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues } = useSelector(
     (state) => state.currency

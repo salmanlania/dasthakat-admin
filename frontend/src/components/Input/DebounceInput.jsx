@@ -2,6 +2,7 @@ import { Input } from "antd";
 import { useEffect, useRef, useState } from "react";
 import useDebounce from "../../hooks/useDebounce";
 
+// eslint-disable-next-line react/prop-types
 const DebounceInput = ({ value, onChange, delay = 500, ...props }) => {
   const isFirstRender = useRef(true);
   const [inputValue, setInputValue] = useState(value || "");
@@ -13,6 +14,7 @@ const DebounceInput = ({ value, onChange, delay = 500, ...props }) => {
       return;
     }
     onChange(debouncedValue);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedValue]);
 
   useEffect(() => {

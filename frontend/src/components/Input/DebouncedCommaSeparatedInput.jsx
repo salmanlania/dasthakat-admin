@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+/* eslint-disable react/prop-types */
 import { Input } from "antd";
-import { formatThreeDigitCommas, removeCommas } from "../../utils/number";
+import { useEffect, useRef, useState } from "react";
 import useDebounce from "../../hooks/useDebounce";
+import { formatThreeDigitCommas, removeCommas } from "../../utils/number";
 
 /**
- * CommaSeparatedInput Component
+ * DebouncedCommaSeparatedInput Component
  *
  * This component provides a number input field that formats numbers with commas for better readability.
  * It allows specifying a maximum number of decimal places and ensures valid input.
@@ -18,7 +19,7 @@ import useDebounce from "../../hooks/useDebounce";
  *
  * @returns {JSX.Element} - A formatted input component with three-digit comma separators
  */
-const CommaSeparatedInput = ({
+const DebouncedCommaSeparatedInput = ({
   value = "",
   onChange = () => {},
   decimalPlaces = 3,
@@ -59,6 +60,7 @@ const CommaSeparatedInput = ({
       return;
     }
     onChange(debouncedValue);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedValue]);
 
   useEffect(() => {
@@ -74,4 +76,4 @@ const CommaSeparatedInput = ({
   );
 };
 
-export default CommaSeparatedInput;
+export default DebouncedCommaSeparatedInput;

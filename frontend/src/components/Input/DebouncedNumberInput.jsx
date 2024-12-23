@@ -1,22 +1,29 @@
 /* eslint-disable react/prop-types */
 import { Input } from "antd";
+import { useEffect, useRef, useState } from "react";
+import useDebounce from "../../hooks/useDebounce";
 
 /**
- * NumberInput Component
+ * DebouncedNumberInput Component
  *
  * @param {Object} props - Component props
  * @param {string | number} [props.value=""] - The value of the input
  * @param {function} props.onChange - Callback when input value changes
  * @param {"integer" | "decimal"} [props.type="integer"] - Input type: "integer" allows whole numbers, "decimal" allows decimals
  * @param {Object} restProps - Any other props for the Ant Design Input component
- * @returns {JSX.Element} - NumberInput component
+ * @returns {JSX.Element} - DebouncedNumberInput component
  */
-const NumberInput = ({
+const DebouncedNumberInput = ({
   value = "",
   onChange = () => {},
   type = "integer",
+  delay = 500,
   ...restProps
 }) => {
+  const isFirstRender = useRef(true);
+  const [inputValue, setInputValue] = useState(value ? value.toString() : "");
+  const debouncedValue = useDebounce(inputValue, delay);
+
   // Handle input change
   const handleInputChange = (e) => {
     let rawValue = e.target.value;
@@ -32,17 +39,31 @@ const NumberInput = ({
 
     // Call the onChange prop with the cleaned value
     if (onChange) {
-      onChange(rawValue);
+      setInputValue(rawValue);
     }
   };
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    onChange(debouncedValue);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedValue]);
+
+  useEffect(() => {
+    setInputValue(value || "");
+  }, [value]);
 
   return (
     <Input
       {...restProps}
-      value={value} // Value remains a plain number
+      value={inputValue} // Value remains a plain number
       onChange={handleInputChange} // Clean input based on type
     />
   );
 };
 
-export default NumberInput;
+export default DebouncedNumberInput;

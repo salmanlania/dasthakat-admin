@@ -4,8 +4,9 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import productImagePlaceholder from "../../assets/img-placeholder.png";
 import AsyncSelect from "../AsyncSelect";
-import CommaSeparatedInput from "../Input/CommaSepratedInput";
+import CommaSeparatedInput from "../Input/CommaSeparatedInput";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const productTypeOptions = [
   { value: "Service", label: "Service" },
   { value: "Inventory", label: "Inventory" },
@@ -13,6 +14,7 @@ export const productTypeOptions = [
   { value: "Other", label: "Other" },
 ];
 
+// eslint-disable-next-line react/prop-types
 const ProductForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
   const fileInputRef = useRef(null);
