@@ -1,14 +1,15 @@
-import { Avatar, Layout, Menu } from "antd";
+import { Avatar, Layout, Menu, Select } from "antd";
 import { useEffect, useState } from "react";
 import { BiChevronLeft } from "react-icons/bi";
 import { FaRegUser } from "react-icons/fa";
+import { IoMdSearch } from "react-icons/io";
 import { LuClipboardList, LuPackage2 } from "react-icons/lu";
 import {
   MdOutlineAdminPanelSettings,
   MdOutlineDashboard,
 } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toggleSidebar } from "../../store/features/sidebarSlice";
 
 const getLevelKeys = (items1) => {
@@ -29,6 +30,7 @@ const getLevelKeys = (items1) => {
 
 const Sidebar = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const { isCollapsed } = useSelector((state) => state.sidebar);
   const { user } = useSelector((state) => state.auth);
@@ -275,6 +277,33 @@ const Sidebar = () => {
   ];
   const levelKeys = getLevelKeys(items);
 
+  function getEnabledLeafLabelsAndKeys(items) {
+    const result = [];
+
+    function traverse(items) {
+      items.forEach((item) => {
+        if (!item.disabled) {
+          if (item.children && item.children.length > 0) {
+            // Traverse deeper into children
+            traverse(item.children);
+          } else {
+            // Add leaf nodes (last children)
+            const label =
+              typeof item.label === "string"
+                ? item.label
+                : item.label?.props?.children;
+            if (label && item.key) {
+              result.push({ label, value: item.key });
+            }
+          }
+        }
+      });
+    }
+
+    traverse(items);
+    return result;
+  }
+
   return (
     <Layout.Sider
       collapsedWidth="0"
@@ -303,6 +332,19 @@ const Sidebar = () => {
           </p>
           <p className="text-xs text-gray-500">{user.email}</p>
         </div>
+      </div>
+      <div className="flex justify-center">
+        <Select
+          showSearch
+          allowClear
+          notFoundContent={null}
+          optionFilterProp="label"
+          options={getEnabledLeafLabelsAndKeys(items)}
+          onChange={(e) => (e ? navigate(e) : null)}
+          placeholder="Search.."
+          className="w-full mx-2"
+          suffixIcon={<IoMdSearch size={16} />}
+        />
       </div>
       <Menu
         className="!border-none"
