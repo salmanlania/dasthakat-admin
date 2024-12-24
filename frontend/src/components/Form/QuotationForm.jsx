@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import {
   Button,
   Col,
@@ -26,22 +27,35 @@ import {
   changeQuotationDetailValue,
   copyQuotationDetail,
   removeQuotationDetail,
+  setRebatePercentage,
+  setSalesmanPercentage,
 } from "../../store/features/quotationSlice";
 import { formatThreeDigitCommas, roundUpto } from "../../utils/number";
 import AsyncSelect from "../AsyncSelect";
-import AmountSummaryCard from "../Card/AmountSummaryCard";
 import DebouncedCommaSeparatedInput from "../Input/DebouncedCommaSeparatedInput";
 import DebouncedNumberInput from "../Input/DebouncedNumberInput";
 import DebounceInput from "../Input/DebounceInput";
 
-// eslint-disable-next-line react/prop-types
+const DetailSummaryInfo = ({ title, value }) => {
+  return (
+    <div className="flex gap-1 items-center">
+      <span className="text-sm text-gray-500 ml-1">{title}</span>
+      {value}
+    </div>
+  );
+};
+
 const QuotationForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
   const handleError = useError();
   const dispatch = useDispatch();
-  const { isFormSubmitting, initialFormValues, quotationDetails } = useSelector(
-    (state) => state.quotation
-  );
+  const {
+    isFormSubmitting,
+    initialFormValues,
+    quotationDetails,
+    rebatePercentage,
+    salesmanPercentage,
+  } = useSelector((state) => state.quotation);
 
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
@@ -58,8 +72,26 @@ const QuotationForm = ({ mode, onSubmit }) => {
     totalNet += +detail.gross_amount || 0;
   });
 
+  const rebateAmount =
+    rebatePercentage && totalNet
+      ? formatThreeDigitCommas(roundUpto(totalNet * (rebatePercentage / 100)))
+      : 0;
+
+  const salesmanAmount =
+    salesmanPercentage && totalNet
+      ? formatThreeDigitCommas(roundUpto(totalNet * (salesmanPercentage / 100)))
+      : 0;
+
+  const finalAmount =
+    roundUpto((totalNet || 0) - (rebateAmount || 0) - (salesmanAmount || 0)) ||
+    0;
+
   const onFinish = (values) => {
     if (!totalNet) return toast.error("Net Amount cannot be zero");
+    if (rebatePercentage > 100)
+      return toast.error("Rebate Percentage cannot be greater than 100");
+    if (salesmanPercentage > 100)
+      return toast.error("Salesman Percentage cannot be greater than 100");
 
     const data = {
       attn: values.attn,
@@ -73,6 +105,9 @@ const QuotationForm = ({ mode, onSubmit }) => {
       customer_id: values.customer_id ? values.customer_id.value : null,
       event_id: values.event_id ? values.event_id.value : null,
       flag_id: values.flag_id ? values.flag_id.value : null,
+      person_incharge_id: values.person_incharge_id
+        ? values.person_incharge_id.value
+        : null,
       payment_id: values.payment_id ? values.payment_id.value : null,
       salesman_id: values.salesman_id ? values.salesman_id.value : null,
       validity_id: values.validity_id ? values.validity_id.value : null,
@@ -96,10 +131,14 @@ const QuotationForm = ({ mode, onSubmit }) => {
         unit_id: detail.unit_id ? detail.unit_id.value : null,
         sort_order: index,
       })),
-      total_quantity: totalAmount,
+      total_quantity: totalQuantity,
       total_discount: discountAmount,
       total_amount: totalAmount,
       net_amount: totalNet,
+      rebate_percent: rebatePercentage,
+      salesman_percent: salesmanPercentage,
+      rebate_amount: rebateAmount,
+      salesman_amount: salesmanAmount,
     };
 
     onSubmit(data);
@@ -440,6 +479,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             <DebouncedNumberInput
               value={markup ? markup + "" : ""}
               type="decimal"
+              addonAfter="%"
               onChange={(value) =>
                 dispatch(
                   changeQuotationDetailValue({
@@ -515,6 +555,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           >
             <DebouncedNumberInput
               value={discount_percent}
+              addonAfter="%"
               type="decimal"
               onChange={(value) =>
                 dispatch(
@@ -766,17 +807,36 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="person_incharge_id" label="Person Incharge">
+            <AsyncSelect
+              endpoint="/user"
+              valueKey="user_id"
+              labelKey="user_name"
+              labelInValue
+              addNewLink={
+                permissions.user.list && permissions.user.add
+                  ? "/user/create"
+                  : null
+              }
+            />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="customer_ref" label="Customer Ref">
             <Input />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="dated" label="Dated">
+        <Col
+          span={24}
+          sm={12}
+          md={8}
+          lg={8}
+          className="flex items-center gap-2"
+        >
+          <Form.Item name="dated" label="Dated" className="w-full">
             <DatePicker format="DD-MM-YYYY" className="w-full" />
           </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="due_date" label="Due Date">
+          <Form.Item name="due_date" label="Due Date" className="w-full">
             <DatePicker format="DD-MM-YYYY" className="w-full" />
           </Form.Item>
         </Col>
@@ -879,38 +939,85 @@ const QuotationForm = ({ mode, onSubmit }) => {
       <Table
         columns={columns}
         dataSource={quotationDetails}
-        rowKey="id"
+        rowKey={"id"}
         size="small"
         scroll={{ x: "calc(100% - 200px)", y: 400 }}
         pagination={false}
       />
 
-      <Row gutter={[16, 16]} className="mt-2">
-        <Col span={24} sm={12} md={8} lg={6}>
-          <AmountSummaryCard
-            title="Total Quantity"
-            value={formatThreeDigitCommas(roundUpto(totalQuantity))}
-          />
-        </Col>
-        <Col span={24} sm={12} md={8} lg={6}>
-          <AmountSummaryCard
-            title="Total Amount"
-            value={formatThreeDigitCommas(roundUpto(totalAmount))}
-          />
-        </Col>
-        <Col span={24} sm={12} md={8} lg={6}>
-          <AmountSummaryCard
-            title="Discount Amount"
-            value={formatThreeDigitCommas(roundUpto(discountAmount))}
-          />
-        </Col>
-        <Col span={24} sm={12} md={8} lg={6}>
-          <AmountSummaryCard
-            title="Net Amount"
-            value={formatThreeDigitCommas(roundUpto(totalNet))}
-          />
-        </Col>
-      </Row>
+      <div className="bg-slate-50 rounded-lg border border-t-0 rounded-t-none py-3 px-6 border-slate-300">
+        <Row gutter={[12, 12]}>
+          <Col span={24} sm={12} md={6} lg={6}>
+            <DetailSummaryInfo
+              title="Total Quantity:"
+              value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
+            />
+          </Col>
+
+          <Col span={24} sm={12} md={6} lg={6}>
+            <DetailSummaryInfo
+              title="Total Amount:"
+              value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
+            />
+          </Col>
+
+          <Col span={24} sm={12} md={6} lg={6}>
+            <DetailSummaryInfo
+              title="Discount Amount:"
+              value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
+            />
+          </Col>
+
+          <Col span={24} sm={12} md={6} lg={6}>
+            <DetailSummaryInfo
+              title="Net Amount:"
+              value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
+            />
+          </Col>
+        </Row>
+        <Row gutter={[12, 12]} className="mb-4">
+          <Col span={24} sm={12}>
+            <h4 className="font-medium text-gray-800 mt-2 ml-1">Rebate:</h4>
+            <div className="flex gap-4">
+              <DetailSummaryInfo
+                title="Percentage:"
+                value={
+                  <DebouncedNumberInput
+                    type="decimal"
+                    size="small"
+                    className="w-24"
+                    addonAfter="%"
+                    value={rebatePercentage}
+                    onChange={(value) => dispatch(setRebatePercentage(value))}
+                  />
+                }
+              />
+              <DetailSummaryInfo title="Amount:" value={rebateAmount} />
+            </div>
+          </Col>
+          <Col span={24} sm={12}>
+            <h4 className="font-medium text-gray-800 mt-2 ml-1">Salesman:</h4>
+            <div className="flex gap-4">
+              <DetailSummaryInfo
+                title="Percentage:"
+                value={
+                  <DebouncedNumberInput
+                    type="decimal"
+                    size="small"
+                    className="w-24"
+                    addonAfter="%"
+                    value={salesmanPercentage}
+                    onChange={(value) => dispatch(setSalesmanPercentage(value))}
+                  />
+                }
+              />
+              <DetailSummaryInfo title="Amount:" value={salesmanAmount} />
+            </div>
+          </Col>
+        </Row>
+
+        <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
+      </div>
 
       <div className="mt-4 flex gap-2 justify-end items-center">
         <Link to="/quotation">

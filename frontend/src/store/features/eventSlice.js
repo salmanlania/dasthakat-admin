@@ -152,7 +152,7 @@ export const eventSlice = createSlice({
 
       state.initialFormValues = {
         event_code: data.event_code,
-        status: data.event_code,
+        status: data.status,
         customer_id: data.customer_id
           ? {
               value: data.customer_id,

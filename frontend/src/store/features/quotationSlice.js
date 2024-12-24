@@ -83,6 +83,8 @@ const initialState = {
   isItemLoading: false,
   list: [],
   deleteIDs: [],
+  rebatePercentage: null,
+  salesmanPercentage: null,
   quotationDetails: [],
   params: {
     page: 1,
@@ -197,11 +199,21 @@ export const quotationSlice = createSlice({
         detail.gross_amount = "";
       }
     },
+
+    setRebatePercentage: (state, action) => {
+      state.rebatePercentage = action.payload;
+    },
+
+    setSalesmanPercentage: (state, action) => {
+      state.salesmanPercentage = action.payload;
+    },
   },
   extraReducers: ({ addCase }) => {
     addCase(getQuotationList.pending, (state) => {
       state.isListLoading = true;
       state.initialFormValues = null;
+      state.rebatePercentage = null;
+      state.salesmanPercentage = null;
       state.quotationDetails = [];
     });
     addCase(getQuotationList.fulfilled, (state, action) => {
@@ -280,6 +292,12 @@ export const quotationSlice = createSlice({
               label: data.flag.name,
             }
           : null,
+        person_incharge_id: data.person_incharge
+          ? {
+              value: data.person_incharge.person_incharge_id,
+              label: data.person_incharge.name,
+            }
+          : null,
         validity_id: data.validity
           ? {
               value: data.validity.validity_id,
@@ -332,10 +350,15 @@ export const quotationSlice = createSlice({
         discount_amount: detail.discount_amount,
         gross_amount: detail.gross_amount,
       }));
+
+      state.rebatePercentage = data.rebate_percent;
+      state.salesmanPercentage = data.salesman_percent;
     });
     addCase(getQuotation.rejected, (state) => {
       state.isItemLoading = false;
       state.initialFormValues = null;
+      state.rebatePercentage = null;
+      state.salesmanPercentage = null;
     });
 
     addCase(updateQuotation.pending, (state) => {
@@ -344,6 +367,8 @@ export const quotationSlice = createSlice({
     addCase(updateQuotation.fulfilled, (state) => {
       state.isFormSubmitting = false;
       state.initialFormValues = null;
+      state.rebatePercentage = null;
+      state.salesmanPercentage = null;
     });
     addCase(updateQuotation.rejected, (state) => {
       state.isFormSubmitting = false;
@@ -370,5 +395,7 @@ export const {
   copyQuotationDetail,
   changeQuotationDetailOrder,
   changeQuotationDetailValue,
+  setRebatePercentage,
+  setSalesmanPercentage,
 } = quotationSlice.actions;
 export default quotationSlice.reducer;
