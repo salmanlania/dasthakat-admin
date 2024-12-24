@@ -35,6 +35,7 @@ import AsyncSelect from "../AsyncSelect";
 import DebouncedCommaSeparatedInput from "../Input/DebouncedCommaSeparatedInput";
 import DebouncedNumberInput from "../Input/DebouncedNumberInput";
 import DebounceInput from "../Input/DebounceInput";
+import NumberInput from "../Input/NumberInput";
 
 const DetailSummaryInfo = ({ title, value }) => {
   return (
@@ -479,7 +480,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
             <DebouncedNumberInput
               value={markup ? markup + "" : ""}
               type="decimal"
-              addonAfter="%"
               onChange={(value) =>
                 dispatch(
                   changeQuotationDetailValue({
@@ -555,7 +555,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
           >
             <DebouncedNumberInput
               value={discount_percent}
-              addonAfter="%"
               type="decimal"
               onChange={(value) =>
                 dispatch(
@@ -982,11 +981,10 @@ const QuotationForm = ({ mode, onSubmit }) => {
               <DetailSummaryInfo
                 title="Percentage:"
                 value={
-                  <DebouncedNumberInput
+                  <NumberInput
                     type="decimal"
                     size="small"
-                    className="w-24"
-                    addonAfter="%"
+                    className="w-20"
                     value={rebatePercentage}
                     onChange={(value) => dispatch(setRebatePercentage(value))}
                   />
@@ -1001,11 +999,10 @@ const QuotationForm = ({ mode, onSubmit }) => {
               <DetailSummaryInfo
                 title="Percentage:"
                 value={
-                  <DebouncedNumberInput
+                  <NumberInput
                     type="decimal"
                     size="small"
-                    className="w-24"
-                    addonAfter="%"
+                    className="w-20"
                     value={salesmanPercentage}
                     onChange={(value) => dispatch(setSalesmanPercentage(value))}
                   />

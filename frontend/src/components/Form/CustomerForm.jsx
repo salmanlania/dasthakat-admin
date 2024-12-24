@@ -2,6 +2,7 @@ import { Button, Col, Form, Input, Row, Select } from "antd";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import AsyncSelect from "../AsyncSelect";
+import NumberInput from "../Input/NumberInput";
 
 // eslint-disable-next-line react/prop-types
 const CustomerForm = ({ mode, onSubmit }) => {
@@ -113,6 +114,26 @@ const CustomerForm = ({ mode, onSubmit }) => {
               }
               mode="multiple"
             />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item
+            name="rebate_percent"
+            label="Rebate %"
+            rules={[
+              {
+                validator: (_, value) => {
+                  if (value > 100) {
+                    return Promise.reject(
+                      new Error("Rebate % cannot exceed 100%")
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
+            <NumberInput />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>

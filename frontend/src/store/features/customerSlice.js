@@ -174,6 +174,7 @@ export const customerSlice = createSlice({
         phone_no: data.phone_no,
         email_sales: data.email_sales,
         email_accounting: data.email_accounting,
+        rebate_percent: data.rebate_percent,
         status: data.status,
       };
     });

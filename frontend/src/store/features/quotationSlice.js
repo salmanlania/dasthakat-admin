@@ -294,8 +294,8 @@ export const quotationSlice = createSlice({
           : null,
         person_incharge_id: data.person_incharge
           ? {
-              value: data.person_incharge.person_incharge_id,
-              label: data.person_incharge.name,
+              value: data.person_incharge.user_id,
+              label: data.person_incharge.user_name,
             }
           : null,
         validity_id: data.validity
