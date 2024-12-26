@@ -9,6 +9,7 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { GoTrash } from "react-icons/go";
 import { MdOutlineEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,6 +20,9 @@ import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
 import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
 import {
+  bulkDeleteChargeOrder,
+  deleteChargeOrder,
+  getChargeOrderList,
   setChargeOrderDeleteIDs,
   setChargeOrderListParams,
 } from "../../store/features/chargeOrderSlice";
@@ -41,7 +45,7 @@ const ChargeOrder = () => {
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
-  const debouncedDocNo = useDebounce(params.document_no, 500);
+  const debouncedDocNo = useDebounce(params.document_identity, 500);
 
   const formattedParams = {
     ...params,
@@ -52,9 +56,9 @@ const ChargeOrder = () => {
 
   const onChargeOrderDelete = async (id) => {
     try {
-      // await dispatch(deleteChargeOrder(id)).unwrap();
-      // toast.success("Charge order deleted successfully");
-      // dispatch(getChargeOrderList(formattedParams)).unwrap();
+      await dispatch(deleteChargeOrder(id)).unwrap();
+      toast.success("Charge order deleted successfully");
+      dispatch(getChargeOrderList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -62,10 +66,10 @@ const ChargeOrder = () => {
 
   const onBulkDelete = async () => {
     try {
-      // await dispatch(bulkDeleteChargeOrder(deleteIDs)).unwrap();
-      // toast.success("Charge orders deleted successfully");
-      // closeDeleteModal();
-      // await dispatch(getChargeOrderList(formattedParams)).unwrap();
+      await dispatch(bulkDeleteChargeOrder(deleteIDs)).unwrap();
+      toast.success("Charge orders deleted successfully");
+      closeDeleteModal();
+      await dispatch(getChargeOrderList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -75,7 +79,7 @@ const ChargeOrder = () => {
     {
       title: (
         <div>
-          <p>Document Date</p>
+          <p>Charge Order Date</p>
           <div onClick={(e) => e.stopPropagation()}>
             <DatePicker
               size="small"
@@ -92,7 +96,7 @@ const ChargeOrder = () => {
       dataIndex: "document_date",
       key: "document_date",
       sorter: true,
-      width: 150,
+      width: 180,
       ellipsis: true,
       render: (_, { document_date }) =>
         document_date ? dayjs(document_date).format("DD-MM-YYYY") : null,
@@ -100,24 +104,24 @@ const ChargeOrder = () => {
     {
       title: (
         <div>
-          <p>Document No</p>
+          <p>Charge Order No</p>
           <Input
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.document_no}
+            value={params.document_identity}
             onChange={(e) =>
               dispatch(
-                setChargeOrderListParams({ document_no: e.target.value })
+                setChargeOrderListParams({ document_identity: e.target.value })
               )
             }
           />
         </div>
       ),
-      dataIndex: "document_no",
-      key: "document_no",
+      dataIndex: "document_identity",
+      key: "document_identity",
       sorter: true,
-      width: 150,
+      width: 180,
       ellipsis: true,
     },
     {
@@ -201,11 +205,11 @@ const ChargeOrder = () => {
     {
       title: "Action",
       key: "action",
-      render: (_, { chargeOrder_id }) => (
+      render: (_, { charge_order_id }) => (
         <div className="flex gap-2 items-center">
           {permissions.edit ? (
             <Tooltip title="Edit">
-              <Link to={`/chargeOrder/edit/${chargeOrder_id}`}>
+              <Link to={`/charge-order/edit/${charge_order_id}`}>
                 <Button
                   size="small"
                   type="primary"
@@ -223,7 +227,7 @@ const ChargeOrder = () => {
                 okButtonProps={{ danger: true }}
                 okText="Yes"
                 cancelText="No"
-                onConfirm={() => onChargeOrderDelete(chargeOrder_id)}
+                onConfirm={() => onChargeOrderDelete(charge_order_id)}
               >
                 <Button
                   size="small"
@@ -246,7 +250,8 @@ const ChargeOrder = () => {
   }
 
   useEffect(() => {
-    // dispatch(getChargeOrderList(formattedParams)).unwrap().catch(handleError);
+    dispatch(getChargeOrderList(formattedParams)).unwrap().catch(handleError);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params.page,
     params.limit,
@@ -314,7 +319,7 @@ const ChargeOrder = () => {
           }
           loading={isListLoading}
           className="mt-2"
-          rowKey="chargeOrder_id"
+          rowKey="charge_order_id"
           scroll={{ x: "calc(100% - 200px)" }}
           pagination={{
             total: paginationInfo.total_records,

@@ -82,7 +82,7 @@ const Quotation = () => {
     {
       title: (
         <div>
-          <p>Document Date</p>
+          <p>Quotation Date</p>
           <div onClick={(e) => e.stopPropagation()}>
             <DatePicker
               size="small"

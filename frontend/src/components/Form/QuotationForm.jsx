@@ -37,7 +37,7 @@ import DebouncedNumberInput from "../Input/DebouncedNumberInput";
 import DebounceInput from "../Input/DebounceInput";
 import NumberInput from "../Input/NumberInput";
 
-const DetailSummaryInfo = ({ title, value }) => {
+export const DetailSummaryInfo = ({ title, value }) => {
   return (
     <div className="flex gap-1 items-center">
       <span className="text-sm text-gray-500 ml-1">{title}</span>
@@ -355,19 +355,31 @@ const QuotationForm = ({ mode, onSubmit }) => {
       key: "quantity",
       render: (_, { quantity }, index) => {
         return (
-          <DebouncedCommaSeparatedInput
-            decimalPlaces={2}
-            value={quantity}
-            onChange={(value) =>
-              dispatch(
-                changeQuotationDetailValue({
-                  index,
-                  key: "quantity",
-                  value: value,
-                })
-              )
-            }
-          />
+          <Form.Item
+            className="m-0"
+            initialValue={quantity}
+            name={`quantity-${index}`}
+            rules={[
+              {
+                required: true,
+                message: "Quantity is required",
+              },
+            ]}
+          >
+            <DebouncedCommaSeparatedInput
+              decimalPlaces={2}
+              value={quantity}
+              onChange={(value) =>
+                dispatch(
+                  changeQuotationDetailValue({
+                    index,
+                    key: "quantity",
+                    value: value,
+                  })
+                )
+              }
+            />
+          </Form.Item>
         );
       },
       width: 200,
@@ -502,18 +514,30 @@ const QuotationForm = ({ mode, onSubmit }) => {
       key: "rate",
       render: (_, { rate }, index) => {
         return (
-          <DebouncedCommaSeparatedInput
-            value={rate ? rate + "" : ""}
-            onChange={(value) =>
-              dispatch(
-                changeQuotationDetailValue({
-                  index,
-                  key: "rate",
-                  value: value,
-                })
-              )
-            }
-          />
+          <Form.Item
+            className="m-0"
+            initialValue={rate}
+            name={`rate-${index}`}
+            rules={[
+              {
+                required: true,
+                message: "Selling price is required",
+              },
+            ]}
+          >
+            <DebouncedCommaSeparatedInput
+              value={rate ? rate + "" : ""}
+              onChange={(value) =>
+                dispatch(
+                  changeQuotationDetailValue({
+                    index,
+                    key: "rate",
+                    value: value,
+                  })
+                )
+              }
+            />
+          </Form.Item>
         );
       },
       width: 200,
@@ -664,6 +688,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       class2_id: null,
       flag_id: null,
     });
+    dispatch(setRebatePercentage(null));
 
     if (!selected) return;
     try {
@@ -677,6 +702,9 @@ const QuotationForm = ({ mode, onSubmit }) => {
         flag_id: { value: data.flag_id, label: data.flag_name },
         payment_id: { value: data.payment_id, label: data.payment_name },
       });
+      dispatch(
+        setRebatePercentage(data.rebate_percent ? +data.rebate_percent : null)
+      );
     } catch (error) {
       handleError(error);
     }

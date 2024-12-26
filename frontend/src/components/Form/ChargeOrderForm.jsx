@@ -10,11 +10,13 @@ import {
   Table,
 } from "antd";
 import dayjs from "dayjs";
+import toast from "react-hot-toast";
 import { BiPlus } from "react-icons/bi";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import useError from "../../hooks/useError";
 import {
   addChargeOrderDetail,
   changeChargeOrderDetailOrder,
@@ -22,13 +24,18 @@ import {
   copyChargeOrderDetail,
   removeChargeOrderDetail,
 } from "../../store/features/chargeOrderSlice";
+import { getEvent } from "../../store/features/eventSlice";
+import { getProduct, getProductList } from "../../store/features/productSlice";
+import { formatThreeDigitCommas, roundUpto } from "../../utils/number";
 import AsyncSelect from "../AsyncSelect";
 import DebounceInput from "../Input/DebounceInput";
 import DebouncedCommaSeparatedInput from "../Input/DebouncedCommaSeparatedInput";
+import { DetailSummaryInfo } from "./QuotationForm";
 
 // eslint-disable-next-line react/prop-types
 const ChargeOrderForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
+  const handleError = useError();
   const dispatch = useDispatch();
   const { isFormSubmitting, initialFormValues, chargeOrderDetails } =
     useSelector((state) => state.chargeOrder);
@@ -36,30 +43,27 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
 
+  let totalQuantity = 0;
+
+  chargeOrderDetails.forEach((detail) => {
+    totalQuantity += +detail.quantity || 0;
+  });
+
   const onFinish = (values) => {
     const data = {
-      ...values,
+      remarks: values.remarks,
+      salesman_id: values.salesman_id ? values.salesman_id.value : null,
       class1_id: values.class1_id ? values.class1_id.value : null,
       class2_id: values.class2_id ? values.class2_id.value : null,
       customer_id: values.customer_id ? values.customer_id.value : null,
       event_id: values.event_id ? values.event_id.value : null,
       flag_id: values.flag_id ? values.flag_id.value : null,
-      payment_id: values.payment_id ? values.payment_id.value : null,
-      salesman_id: values.salesman_id ? values.salesman_id.value : null,
-      validity_id: values.validity_id ? values.validity_id.value : null,
       vessel_id: values.vessel_id ? values.vessel_id.value : null,
-      dated: values.dated ? dayjs(values.dated).format("YYYY-MM-DD") : null,
+      agent_id: values.agent_id ? values.agent_id.value : null,
       document_date: values.document_date
         ? dayjs(values.document_date).format("YYYY-MM-DD")
         : null,
-      due_date: values.due_date
-        ? dayjs(values.due_date).format("YYYY-MM-DD")
-        : null,
-      term_id:
-        values.term_id && values.term_id.length
-          ? values.term_id.map((v) => v.value)
-          : null,
-      chargeOrder_detail: chargeOrderDetails.map(
+      charge_order_detail: chargeOrderDetails.map(
         // eslint-disable-next-line no-unused-vars
         ({ id, ...detail }, index) => ({
           ...detail,
@@ -69,6 +73,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           sort_order: index,
         })
       ),
+      total_quantity: totalQuantity,
     };
 
     onSubmit(data);
@@ -76,43 +81,35 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
 
   const onProductCodeChange = async (index, value) => {
     if (!value.trim()) return;
-    // try {
-    //   const res = await dispatch(
-    //     getProductList({ product_code: value })
-    //   ).unwrap();
+    try {
+      const res = await dispatch(
+        getProductList({ product_code: value })
+      ).unwrap();
 
-    //   if (!res.data.length) return;
+      if (!res.data.length) return;
 
-    //   const product = res.data[0];
-    //   dispatch(
-    //     changeChargeOrderDetailValue({
-    //       index,
-    //       key: "product_id",
-    //       value: {
-    //         value: product.product_id,
-    //         label: product.name,
-    //       },
-    //     })
-    //   );
+      const product = res.data[0];
+      dispatch(
+        changeChargeOrderDetailValue({
+          index,
+          key: "product_id",
+          value: {
+            value: product.product_id,
+            label: product.name,
+          },
+        })
+      );
 
-    //   dispatch(
-    //     changeChargeOrderDetailValue({
-    //       index,
-    //       key: "unit_id",
-    //       value: { value: product.unit_id, label: product.unit_name },
-    //     })
-    //   );
-
-    //   dispatch(
-    //     changeChargeOrderDetailValue({
-    //       index,
-    //       key: "cost_price",
-    //       value: product.cost_price,
-    //     })
-    //   );
-    // } catch (error) {
-    //   handleError(error);
-    // }
+      dispatch(
+        changeChargeOrderDetailValue({
+          index,
+          key: "unit_id",
+          value: { value: product.unit_id, label: product.unit_name },
+        })
+      );
+    } catch (error) {
+      handleError(error);
+    }
   };
 
   const onProductChange = async (index, selected) => {
@@ -123,36 +120,28 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         value: selected,
       })
     );
-    // if (!selected) return;
-    // try {
-    //   const product = await dispatch(getProduct(selected.value)).unwrap();
+    if (!selected) return;
+    try {
+      const product = await dispatch(getProduct(selected.value)).unwrap();
 
-    //   dispatch(
-    //     changeChargeOrderDetailValue({
-    //       index,
-    //       key: "product_code",
-    //       value: product.product_code,
-    //     })
-    //   );
+      dispatch(
+        changeChargeOrderDetailValue({
+          index,
+          key: "product_code",
+          value: product.product_code,
+        })
+      );
 
-    //   dispatch(
-    //     changeChargeOrderDetailValue({
-    //       index,
-    //       key: "unit_id",
-    //       value: { value: product.unit_id, label: product.unit_name },
-    //     })
-    //   );
-
-    //   dispatch(
-    //     changeChargeOrderDetailValue({
-    //       index,
-    //       key: "cost_price",
-    //       value: product.cost_price,
-    //     })
-    //   );
-    // } catch (error) {
-    //   handleError(error);
-    // }
+      dispatch(
+        changeChargeOrderDetailValue({
+          index,
+          key: "unit_id",
+          value: { value: product.unit_id, label: product.unit_name },
+        })
+      );
+    } catch (error) {
+      handleError(error);
+    }
   };
 
   const columns = [
@@ -249,17 +238,17 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
     },
     {
       title: "Product Nature",
-      dataIndex: "product_nature",
-      key: "product_nature",
-      render: (_, { product_nature }, index) => {
+      dataIndex: "product_type",
+      key: "product_type",
+      render: (_, { product_type }, index) => {
         return (
           <DebounceInput
-            value={product_nature}
+            value={product_type}
             onChange={(value) =>
               dispatch(
                 changeChargeOrderDetailValue({
                   index,
-                  key: "product_nature",
+                  key: "product_type",
                   value: value,
                 })
               )
@@ -306,19 +295,31 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       key: "quantity",
       render: (_, { quantity }, index) => {
         return (
-          <DebouncedCommaSeparatedInput
-            decimalPlaces={2}
-            value={quantity}
-            onChange={(value) =>
-              dispatch(
-                changeChargeOrderDetailValue({
-                  index,
-                  key: "quantity",
-                  value: value,
-                })
-              )
-            }
-          />
+          <Form.Item
+            className="m-0"
+            initialValue={quantity}
+            name={`quantity-${index}`}
+            rules={[
+              {
+                required: true,
+                message: "Quantity is required",
+              },
+            ]}
+          >
+            <DebouncedCommaSeparatedInput
+              decimalPlaces={2}
+              value={quantity}
+              onChange={(value) =>
+                dispatch(
+                  changeChargeOrderDetailValue({
+                    index,
+                    key: "quantity",
+                    value: value,
+                  })
+                )
+              }
+            />
+          </Form.Item>
         );
       },
       width: 200,
@@ -441,18 +442,18 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
     });
 
     if (!selected) return;
-    // try {
-    //   const data = await dispatch(getEvent(selected.value)).unwrap();
-    //   form.setFieldsValue({
-    //     vessel_id: { value: data.vessel_id, label: data.vessel_name },
-    //     customer_id: { value: data.customer_id, label: data.customer_name },
-    //     class1_id: { value: data.class1_id, label: data.class1_name },
-    //     class2_id: { value: data.class2_id, label: data.class2_name },
-    //     flag_id: { value: data.flag_id, label: data.flag_name },
-    //   });
-    // } catch (error) {
-    //   handleError(error);
-    // }
+    try {
+      const data = await dispatch(getEvent(selected.value)).unwrap();
+      form.setFieldsValue({
+        vessel_id: { value: data.vessel_id, label: data.vessel_name },
+        customer_id: { value: data.customer_id, label: data.customer_name },
+        class1_id: { value: data.class1_id, label: data.class1_name },
+        class2_id: { value: data.class2_id, label: data.class2_name },
+        flag_id: { value: data.flag_id, label: data.flag_name },
+      });
+    } catch (error) {
+      handleError(error);
+    }
   };
 
   return (
@@ -465,17 +466,34 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       initialValues={mode === "edit" ? initialFormValues : null}
       scrollToFirstError
     >
+      {/* Make this sticky */}
+      <div className="flex justify-center -mt-8 sticky top-14 z-10">
+        <p className="text-xs w-fit border bg-white px-2 rounded p-1 font-medium">
+          <span className="text-gray-500">Charge order No:</span>
+          <span
+            className={`ml-4 ${
+              mode === "edit" ? "hover:bg-slate-200 cursor-pointer" : ""
+            } px-1 rounded`}
+            onClick={() => {
+              if (mode !== "edit") return;
+              navigator.clipboard.writeText(
+                initialFormValues.document_identity
+              );
+              toast.success("Copied");
+            }}
+          >
+            {mode === "edit" ? initialFormValues.document_identity : "AUTO"}
+          </span>
+        </p>
+      </div>
       <Row gutter={12}>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="document_no" label="Document No">
-            <Input disabled placeholder="Auto" />
-          </Form.Item>
-        </Col>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
             name="document_date"
-            label="Document Date"
-            rules={[{ required: true, message: "Document date is required" }]}
+            label="Charge Order Date"
+            rules={[
+              { required: true, message: "charge order date is required" },
+            ]}
           >
             <DatePicker format="DD-MM-YYYY" className="w-full" />
           </Form.Item>
@@ -552,7 +570,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="agent" label="Agent">
+          <Form.Item name="agent_id" label="Agent">
             <AsyncSelect
               endpoint="/agent"
               valueKey="agent_id"
@@ -581,6 +599,12 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         scroll={{ x: "calc(100% - 200px)", y: 400 }}
         pagination={false}
       />
+      <div className="bg-slate-50 rounded-lg border border-t-0 rounded-t-none py-3 px-6 border-slate-300">
+        <DetailSummaryInfo
+          title="Total Quantity:"
+          value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
+        />
+      </div>
 
       <div className="mt-4 flex gap-2 justify-end items-center">
         <Link to="/charge-order">

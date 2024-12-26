@@ -24,7 +24,7 @@ const EditChargeOrder = () => {
     try {
       await dispatch(updateChargeOrder({ id, data })).unwrap();
       toast.success("ChargeOrder updated successfully");
-      navigate("/chargeOrder");
+      navigate("/charge-order");
     } catch (error) {
       handleError(error);
     }

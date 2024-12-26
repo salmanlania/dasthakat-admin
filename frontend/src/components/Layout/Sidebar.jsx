@@ -1,8 +1,8 @@
 import { Avatar, Layout, Menu, Select } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BiChevronLeft } from "react-icons/bi";
 import { FaRegUser } from "react-icons/fa";
-import { IoMdSearch } from "react-icons/io";
+import { IoSearchSharp } from "react-icons/io5";
 import { LuClipboardList, LuPackage2 } from "react-icons/lu";
 import {
   MdOutlineAdminPanelSettings,
@@ -35,6 +35,7 @@ const Sidebar = () => {
   const { isCollapsed } = useSelector((state) => state.sidebar);
   const { user } = useSelector((state) => state.auth);
   const [stateOpenKeys, setStateOpenKeys] = useState([]);
+  const searchRef = useRef(null);
 
   const permissions = user?.permission;
 
@@ -62,17 +63,6 @@ const Sidebar = () => {
       setStateOpenKeys(openKeys);
     }
   };
-
-  useEffect(() => {
-    const handleResize = () => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      isSmallScreen = window.innerWidth <= 1000;
-      dispatch(toggleSidebar(isSmallScreen));
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   const generalGroupPermission =
     !permissions?.currency?.list &&
@@ -304,6 +294,55 @@ const Sidebar = () => {
     return result;
   }
 
+  const getParentKeys = (key, items) => {
+    let parentKeys = [];
+
+    const findPath = (items, currentPath = []) => {
+      for (const item of items) {
+        const newPath = [...currentPath, item.key];
+        if (item.key === key) {
+          parentKeys = currentPath;
+          return true;
+        }
+        if (item.children && findPath(item.children, newPath)) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    findPath(items);
+    return parentKeys;
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      const isSmallScreen = window.innerWidth <= 1000;
+      dispatch(toggleSidebar(isSmallScreen));
+    };
+
+    const handleShortcut = (e) => {
+      if (e.ctrlKey && e.key === "k") {
+        e.preventDefault();
+        const isSmallScreen = window.innerWidth <= 1000;
+
+        if (isSmallScreen && isCollapsed) dispatch(toggleSidebar(false));
+        searchRef.current?.focus(); // Focus on the search box
+      }
+    };
+
+    // Attach event listeners
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("keydown", handleShortcut);
+
+    // Cleanup event listeners on component unmount
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("keydown", handleShortcut);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch]);
+
   return (
     <Layout.Sider
       collapsedWidth="0"
@@ -335,15 +374,24 @@ const Sidebar = () => {
       </div>
       <div className="flex justify-center">
         <Select
+          ref={searchRef}
           showSearch
           allowClear
           notFoundContent={null}
+          value={null}
           optionFilterProp="label"
           options={getEnabledLeafLabelsAndKeys(items)}
-          onChange={(e) => (e ? navigate(e) : null)}
-          placeholder="Search.."
-          className="w-full mx-2"
-          suffixIcon={<IoMdSearch size={16} />}
+          onChange={(selectedKey) => {
+            if (selectedKey) {
+              const parentKeys = getParentKeys(selectedKey, items);
+              setStateOpenKeys(parentKeys); // Open the relevant menu sections
+              navigate(selectedKey); // Navigate to the selected page
+              if (isSmallScreen) dispatch(toggleSidebar(true));
+            }
+          }}
+          placeholder="Search (Ctrl + K)"
+          className="w-full mx-1"
+          suffixIcon={<IoSearchSharp size={16} />}
         />
       </div>
       <Menu

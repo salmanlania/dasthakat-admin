@@ -6,7 +6,7 @@ export const getChargeOrderList = createAsyncThunk(
   "chargeOrder/list",
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get("/chargeOrder", {
+      const res = await api.get("/charge-order", {
         params,
       });
       return res.data;
@@ -20,7 +20,7 @@ export const deleteChargeOrder = createAsyncThunk(
   "chargeOrder/delete",
   async (id, { rejectWithValue }) => {
     try {
-      await api.delete(`/chargeOrder/${id}`);
+      await api.delete(`/charge-order/${id}`);
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -31,7 +31,7 @@ export const createChargeOrder = createAsyncThunk(
   "chargeOrder/create",
   async (data, { rejectWithValue }) => {
     try {
-      await api.post("/chargeOrder", data);
+      await api.post("/charge-order", data);
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -42,7 +42,7 @@ export const getChargeOrder = createAsyncThunk(
   "chargeOrder/get",
   async (id, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/chargeOrder/${id}`);
+      const res = await api.get(`/charge-order/${id}`);
       return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);
@@ -54,7 +54,7 @@ export const updateChargeOrder = createAsyncThunk(
   "chargeOrder/update",
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      await api.put(`/chargeOrder/${id}`, data);
+      await api.put(`/charge-order/${id}`, data);
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -65,8 +65,8 @@ export const bulkDeleteChargeOrder = createAsyncThunk(
   "chargeOrder/bulkDelete",
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post("/chargeOrder/bulk-delete", {
-        chargeOrder_ids: ids,
+      await api.post("/charge-order/bulk-delete", {
+        charge_order_ids: ids,
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -210,8 +210,15 @@ export const chargeOrderSlice = createSlice({
       state.isItemLoading = false;
       const data = action.payload;
       state.initialFormValues = {
-        document_no: data.document_no,
+        document_identity: data.document_identity,
         document_date: data.document_date ? dayjs(data.document_date) : null,
+        remarks: data.remarks,
+        agent_id: data.agent
+          ? {
+              value: data.agent.agent_id,
+              label: data.agent.name,
+            }
+          : null,
         salesman_id: data.salesman
           ? {
               value: data.salesman.salesman_id,
@@ -221,7 +228,7 @@ export const chargeOrderSlice = createSlice({
         event_id: data.event
           ? {
               value: data.event.event_id,
-              label: data.event.name,
+              label: data.event.event_code,
             }
           : null,
         vessel_id: data.vessel
@@ -254,34 +261,13 @@ export const chargeOrderSlice = createSlice({
               label: data.flag.name,
             }
           : null,
-        validity_id: data.validity
-          ? {
-              value: data.validity.validity_id,
-              label: data.validity.name,
-            }
-          : null,
-        payment_id: data.payment
-          ? {
-              value: data.payment.payment_id,
-              label: data.payment.name,
-            }
-          : null,
-        customer_ref: data.customer_ref,
-        dated: data.dated ? dayjs(data.dated) : null,
-        due_date: data.due_date ? dayjs(data.due_date) : null,
-        attn: data.attn,
-        delivery: data.delivery,
-        inclosure: data.inclosure,
-        port: data.port,
-        term_id: data.term_id || null,
-        term_desc: data.term_desc,
       };
 
-      if (!data.chargeOrder_detail) return;
-
-      state.chargeOrderDetails = data.chargeOrder_detail.map((detail) => ({
-        id: data.chargeOrder_detail_id,
+      if (!data.charge_order_detail) return;
+      state.chargeOrderDetails = data.charge_order_detail.map((detail) => ({
+        id: data.charge_order_detail_id,
         product_code: detail.product ? detail.product.product_code : null,
+        product_type: detail.product_type,
         product_id: detail.product
           ? { value: detail.product.product_id, label: detail.product.name }
           : null,
@@ -293,13 +279,6 @@ export const chargeOrderSlice = createSlice({
         supplier_id: detail.supplier
           ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
           : null,
-        cost_price: detail.cost_price,
-        markup: detail.markup,
-        rate: detail.rate,
-        amount: detail.amount,
-        discount_percent: detail.discount_percent,
-        discount_amount: detail.discount_amount,
-        gross_amount: detail.gross_amount,
       }));
     });
     addCase(getChargeOrder.rejected, (state) => {

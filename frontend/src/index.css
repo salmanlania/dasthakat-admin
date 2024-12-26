@@ -3,6 +3,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-primary: #065098;
+}
+
 @layer utilities {
   .scrollbar::-webkit-scrollbar {
     width: 8px;
@@ -49,4 +53,8 @@
 
 .ant-select .ant-select-arrow {
   @apply !pointer-events-auto;
+}
+
+.ant-menu-submenu-selected > .ant-menu-submenu-title {
+  @apply !text-primary;
 }
