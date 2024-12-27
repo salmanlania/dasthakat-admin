@@ -324,9 +324,7 @@ const Sidebar = () => {
     const handleShortcut = (e) => {
       if (e.ctrlKey && e.key === "k") {
         e.preventDefault();
-        const isSmallScreen = window.innerWidth <= 1000;
-
-        if (isSmallScreen && isCollapsed) dispatch(toggleSidebar(false));
+        if (isCollapsed) dispatch(toggleSidebar(false));
         searchRef.current?.focus(); // Focus on the search box
       }
     };
@@ -353,7 +351,7 @@ const Sidebar = () => {
       } h-screen overflow-y-auto !left-0 !top-0 z-50 scrollbar`}
       width={240}
     >
-      <div className="p-4 px-2 flex flex-col justify-center items-center gap-2 bg-zinc-100 m-2 rounded-2xl">
+      <div className="p-4 px-2 flex flex-col justify-center items-center gap-2 bg-blue-100 m-2 rounded-2xl">
         {isSmallScreen && (
           <div
             className="absolute top-5 right-5 border hover:bg-gray-50 cursor-pointer bg-white p-1 rounded"

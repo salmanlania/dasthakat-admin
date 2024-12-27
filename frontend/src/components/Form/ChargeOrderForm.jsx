@@ -15,7 +15,7 @@ import { BiPlus } from "react-icons/bi";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import useError from "../../hooks/useError";
 import {
   addChargeOrderDetail,
@@ -40,8 +40,12 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues, chargeOrderDetails } =
     useSelector((state) => state.chargeOrder);
 
+  const [searchParams] = useSearchParams();
+
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
+
+  const quotation_id = searchParams.get("quotation_id") || null;
 
   let totalQuantity = 0;
 
@@ -51,6 +55,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
 
   const onFinish = (values) => {
     const data = {
+      quotation_id,
       remarks: values.remarks,
       salesman_id: values.salesman_id ? values.salesman_id.value : null,
       class1_id: values.class1_id ? values.class1_id.value : null,
@@ -463,7 +468,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       autoComplete="off"
       form={form}
       onFinish={onFinish}
-      initialValues={mode === "edit" ? initialFormValues : null}
+      initialValues={mode === "edit" || quotation_id ? initialFormValues : null}
       scrollToFirstError
     >
       {/* Make this sticky */}

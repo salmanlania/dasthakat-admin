@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import useError from "../../hooks/useError";
 import {
   setChargeOrderDetails,
+  setChargeOrderFormValues,
   setChargeQuotationID,
 } from "../../store/features/chargeOrderSlice";
 import {
@@ -88,6 +89,18 @@ const ChargeOrderModal = () => {
       selectedRowKeys.includes(detail.id)
     );
 
+    const chargeOrderFormValues = {
+      document_date: initialFormValues.document_date,
+      salesman_id: initialFormValues.salesman_id,
+      event_id: initialFormValues.event_id,
+      vessel_id: initialFormValues.vessel_id,
+      customer_id: initialFormValues.customer_id,
+      class1_id: initialFormValues.class1_id,
+      class2_id: initialFormValues.class2_id,
+      flag_id: initialFormValues.flag_id,
+      agent_id: initialFormValues.agent_id,
+    };
+
     const chargeOrderDetails = selectedDetails.map((item) => ({
       id: item.id,
       product_code: item.product_code,
@@ -98,9 +111,10 @@ const ChargeOrderModal = () => {
       supplier_id: item.supplier_id,
     }));
 
+    dispatch(setChargeOrderFormValues(chargeOrderFormValues));
     dispatch(setChargeOrderDetails(chargeOrderDetails));
     closeModal();
-    navigate("/charge-order/create");
+    navigate(`/charge-order/create?quotation_id=${chargeQuotationID}`);
   };
 
   useEffect(() => {
