@@ -1,7 +1,10 @@
 import { Button, Col, Form, Input, Row, Select } from "antd";
+import { useEffect, useState } from "react";
+import { MdOutlineAddCircle } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import useError from "../../hooks/useError";
+import { getCustomer } from "../../store/features/customerSlice";
 import { getVessel } from "../../store/features/vesselSlice";
 import AsyncSelect from "../AsyncSelect";
 
@@ -10,11 +13,14 @@ const EventForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const handleError = useError();
-
   const { isFormSubmitting, initialFormValues } = useSelector(
     (state) => state.event
   );
   const { user } = useSelector((state) => state.auth);
+
+  const [vessels, setVessels] = useState([]);
+  const customerID = Form.useWatch("customer_id", form);
+
   const permissions = user.permission;
 
   const onFinish = (values) => {
@@ -47,6 +53,23 @@ const EventForm = ({ mode, onSubmit }) => {
     }
   };
 
+  const getCustomerVessels = async () => {
+    try {
+      const data = await dispatch(getCustomer(customerID.value)).unwrap();
+      const vessels = data.vessel
+        ? data.vessel.map((v) => ({ value: v.vessel_id, label: v.name }))
+        : [];
+      setVessels(vessels);
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  useEffect(() => {
+    if (customerID) getCustomerVessels();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerID, dispatch]);
+
   return (
     <Form
       name="event"
@@ -75,21 +98,39 @@ const EventForm = ({ mode, onSubmit }) => {
                   ? "/customer/create"
                   : null
               }
+              onChange={() => {
+                form.setFieldsValue({
+                  vessel_id: null,
+                  class1_id: null,
+                  class2_id: null,
+                });
+                setVessels([]);
+              }}
             />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="vessel_id" label="Vessel">
-            <AsyncSelect
-              endpoint="/vessel"
-              valueKey="vessel_id"
-              labelKey="name"
+            <Select
+              options={vessels}
+              showSearch
               labelInValue
               onChange={onVesselSelect}
-              addNewLink={
-                permissions.vessel.list && permissions.vessel.add
-                  ? "/vessel/create"
-                  : null
+              onDropdownVisibleChange={(open) => open && getCustomerVessels()}
+              suffixIcon={
+                customerID && permissions.customer.edit ? (
+                  <MdOutlineAddCircle
+                    className="text-primary cursor-pointer hover:text-blue-700 absolute !-top-4 bg-white rounded-full"
+                    size={18}
+                    onClick={() => {
+                      window.open(
+                        `/gms/customer/edit/${customerID?.value}`,
+                        "_blank",
+                        "toolbar=yes,scrollbars=yes,top=100,left=400,width=600,height=600"
+                      );
+                    }}
+                  />
+                ) : null
               }
             />
           </Form.Item>

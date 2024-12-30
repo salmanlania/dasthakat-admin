@@ -31,7 +31,7 @@ export const createChargeOrder = createAsyncThunk(
   "chargeOrder/create",
   async (data, { rejectWithValue }) => {
     try {
-      await api.post("/charge-order", data);
+      return await api.post("/charge-order", data);
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -101,13 +101,6 @@ export const chargeOrderSlice = createSlice({
   name: "chargeOrder",
   initialState,
   reducers: {
-    setChargeOrderFormValues: (state, action) => {
-      state.initialFormValues = action.payload;
-    },
-    setChargeOrderDetails: (state, action) => {
-      state.chargeOrderDetails = action.payload;
-    },
-
     setChargeQuotationID: (state, action) => {
       state.chargeQuotationID = action.payload;
     },
@@ -321,8 +314,6 @@ export const {
   copyChargeOrderDetail,
   changeChargeOrderDetailOrder,
   changeChargeOrderDetailValue,
-  setChargeOrderFormValues,
-  setChargeOrderDetails,
   setChargeQuotationID,
 } = chargeOrderSlice.actions;
 export default chargeOrderSlice.reducer;

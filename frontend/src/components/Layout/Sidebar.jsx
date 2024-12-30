@@ -2,6 +2,7 @@ import { Avatar, Layout, Menu, Select } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { BiChevronLeft } from "react-icons/bi";
 import { FaRegUser } from "react-icons/fa";
+import { IoIosArrowRoundForward } from "react-icons/io";
 import { IoSearchSharp } from "react-icons/io5";
 import { LuClipboardList, LuPackage2 } from "react-icons/lu";
 import {
@@ -351,7 +352,7 @@ const Sidebar = () => {
       } h-screen overflow-y-auto !left-0 !top-0 z-50 scrollbar`}
       width={240}
     >
-      <div className="p-4 px-2 flex flex-col justify-center items-center gap-2 bg-blue-100 m-2 rounded-2xl">
+      <div className="p-4 px-2 flex flex-col justify-center items-center gap-2 bg-blue-100 m-2 rounded-xl">
         {isSmallScreen && (
           <div
             className="absolute top-5 right-5 border hover:bg-gray-50 cursor-pointer bg-white p-1 rounded"
@@ -364,10 +365,8 @@ const Sidebar = () => {
           <Avatar size={56} src={user.image_url} icon={<FaRegUser />} />
         </div>
         <div className="text-center">
-          <p className="text-sm font-semibold text-gray-700">
-            {user.user_name}
-          </p>
-          <p className="text-xs text-gray-500">{user.email}</p>
+          <p className="text-sm font-semibold">{user.user_name}</p>
+          <p className="text-xs">{user.email}</p>
         </div>
       </div>
       <div className="flex justify-center">
@@ -390,6 +389,12 @@ const Sidebar = () => {
           placeholder="Search (Ctrl + K)"
           className="w-full mx-1"
           suffixIcon={<IoSearchSharp size={16} />}
+          optionRender={(value) => (
+            <div className="flex items-center gap-2">
+              <IoIosArrowRoundForward className="text-primary" size={20} />
+              <span>{value.label}</span>
+            </div>
+          )}
         />
       </div>
       <Menu

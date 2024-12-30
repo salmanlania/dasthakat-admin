@@ -18,6 +18,7 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 import useError from "../../hooks/useError";
 import { getEvent } from "../../store/features/eventSlice";
 import { getProduct, getProductList } from "../../store/features/productSlice";
@@ -113,7 +114,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
       salesman_id: values.salesman_id ? values.salesman_id.value : null,
       validity_id: values.validity_id ? values.validity_id.value : null,
       vessel_id: values.vessel_id ? values.vessel_id.value : null,
-      dated: values.dated ? dayjs(values.dated).format("YYYY-MM-DD") : null,
       document_date: values.document_date
         ? dayjs(values.document_date).format("YYYY-MM-DD")
         : null,
@@ -316,7 +316,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 200,
+      width: 560,
     },
     {
       title: "Description",
@@ -357,8 +357,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
         return (
           <Form.Item
             className="m-0"
+            name={`quantity-${uuidv4()}`}
             initialValue={quantity}
-            name={`quantity-${index}`}
             rules={[
               {
                 required: true,
@@ -477,7 +477,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           <Form.Item
             className="m-0"
             initialValue={markup}
-            name={`markup-${index}`}
+            name={`markup-${uuidv4()}`}
             rules={[
               {
                 validator: (_, value) => {
@@ -516,8 +516,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
         return (
           <Form.Item
             className="m-0"
+            name={`rate-${uuidv4()}`}
             initialValue={rate}
-            name={`rate-${index}`}
             rules={[
               {
                 required: true,
@@ -526,7 +526,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             ]}
           >
             <DebouncedCommaSeparatedInput
-              value={rate ? rate + "" : ""}
+              value={rate}
               onChange={(value) =>
                 dispatch(
                   changeQuotationDetailValue({
@@ -563,7 +563,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           <Form.Item
             className="m-0"
             initialValue={discount_percent}
-            name={`discount_percent-${index}`}
+            name={`discount_percent-${uuidv4()}`}
             rules={[
               {
                 validator: (_, value) => {
@@ -853,16 +853,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             <Input />
           </Form.Item>
         </Col>
-        <Col
-          span={24}
-          sm={12}
-          md={8}
-          lg={8}
-          className="flex items-center gap-2"
-        >
-          <Form.Item name="dated" label="Dated" className="w-full">
-            <DatePicker format="DD-MM-YYYY" className="w-full" />
-          </Form.Item>
+        <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="due_date" label="Due Date" className="w-full">
             <DatePicker format="DD-MM-YYYY" className="w-full" />
           </Form.Item>

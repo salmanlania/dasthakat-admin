@@ -1,12 +1,14 @@
-import { Button, Modal, Table } from "antd";
+import { Button, Form, Modal, Table } from "antd";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { HiRefresh } from "react-icons/hi";
+import { IoCheckmarkDoneCircleSharp } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 import useError from "../../hooks/useError";
 import {
-  setChargeOrderDetails,
-  setChargeOrderFormValues,
+  createChargeOrder,
   setChargeQuotationID,
 } from "../../store/features/chargeOrderSlice";
 import {
@@ -16,13 +18,18 @@ import {
 import DebouncedCommaSeparatedInput from "../Input/DebouncedCommaSeparatedInput";
 
 const ChargeOrderModal = () => {
-  const navigate = useNavigate();
+  const [form] = Form.useForm();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const handleError = useError();
-  const { chargeQuotationID } = useSelector((state) => state.chargeOrder);
+  const { chargeQuotationID, isFormSubmitting } = useSelector(
+    (state) => state.chargeOrder
+  );
   const { isItemLoading, quotationDetails, initialFormValues } = useSelector(
     (state) => state.quotation
   );
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user.permission.quotation;
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
@@ -67,54 +74,132 @@ const ChargeOrderModal = () => {
       fixed: "right",
       render: (_, { quantity }, index) => {
         return (
-          <DebouncedCommaSeparatedInput
-            value={quantity}
-            onChange={(value) =>
-              dispatch(
-                changeQuotationDetailValue({
-                  index,
-                  key: "quantity",
-                  value: value,
-                })
-              )
-            }
-          />
+          <Form.Item
+            className="m-0"
+            initialValue={quantity}
+            name={`markup-${uuidv4()}`}
+            rules={[
+              {
+                required: true,
+                message: "Quantity required",
+              },
+            ]}
+          >
+            <DebouncedCommaSeparatedInput
+              value={quantity}
+              onChange={(value) =>
+                dispatch(
+                  changeQuotationDetailValue({
+                    index,
+                    key: "quantity",
+                    value: value,
+                  })
+                )
+              }
+            />
+          </Form.Item>
         );
       },
     },
   ];
 
-  const onCharge = () => {
+  const onChargeCreate = async () => {
     const selectedDetails = quotationDetails.filter((detail) =>
       selectedRowKeys.includes(detail.id)
     );
 
-    const chargeOrderFormValues = {
+    const data = {
       document_date: initialFormValues.document_date,
-      salesman_id: initialFormValues.salesman_id,
-      event_id: initialFormValues.event_id,
-      vessel_id: initialFormValues.vessel_id,
-      customer_id: initialFormValues.customer_id,
-      class1_id: initialFormValues.class1_id,
-      class2_id: initialFormValues.class2_id,
-      flag_id: initialFormValues.flag_id,
-      agent_id: initialFormValues.agent_id,
+      salesman_id: initialFormValues.salesman_id
+        ? initialFormValues.salesman_id.value
+        : null,
+      event_id: initialFormValues.event_id
+        ? initialFormValues.event_id.value
+        : null,
+      vessel_id: initialFormValues.vessel_id
+        ? initialFormValues.vessel_id.value
+        : null,
+      customer_id: initialFormValues.customer_id
+        ? initialFormValues.customer_id.value
+        : null,
+      class1_id: initialFormValues.class1_id
+        ? initialFormValues.class1_id.value
+        : null,
+      class2_id: initialFormValues.class2_id
+        ? initialFormValues.class2_id.value
+        : null,
+      flag_id: initialFormValues.flag_id
+        ? initialFormValues.flag_id.value
+        : null,
+      agent_id: initialFormValues.agent_id
+        ? initialFormValues.agent_id.value
+        : null,
+      charge_order_detail: selectedDetails.map((detail, index) => ({
+        product_code: detail.product_code,
+        product_id: detail.product_id ? detail.product_id.value : null,
+        description: detail.description,
+        quantity: detail.quantity,
+        unit_id: detail.unit_id ? detail.unit_id.value : null,
+        supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
+        sort_order: index,
+      })),
     };
 
-    const chargeOrderDetails = selectedDetails.map((item) => ({
-      id: item.id,
-      product_code: item.product_code,
-      product_id: item.product_id,
-      description: item.description,
-      quantity: item.quantity,
-      unit_id: item.unit_id,
-      supplier_id: item.supplier_id,
-    }));
+    try {
+      const res = await dispatch(createChargeOrder(data)).unwrap();
+      const chargeOrderID = res.data.data.charge_order_id;
+      closeModal();
 
-    dispatch(setChargeOrderFormValues(chargeOrderFormValues));
-    dispatch(setChargeOrderDetails(chargeOrderDetails));
-    closeModal();
-    navigate(`/charge-order/create?quotation_id=${chargeQuotationID}`);
+      toast.custom(
+        (t) => (
+          <div
+            className={`${
+              t.visible ? "animate-enter" : "animate-leave"
+            } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
+          >
+            <div className="flex-1 w-0 p-4">
+              <div className="flex items-start">
+                <div className="flex-shrink-0 pt-0.5">
+                  <IoCheckmarkDoneCircleSharp
+                    size={40}
+                    className="text-green-500"
+                  />
+                </div>
+                <div className="ml-3 flex-1">
+                  <p className="text-sm font-medium text-gray-900">
+                    Charge order has been created.
+                  </p>
+                  {permissions.edit ? (
+                    <p
+                      className="mt-1 text-sm cursor-pointer text-blue-500 hover:underline"
+                      onClick={() => {
+                        toast.dismiss(t.id);
+                        navigate(`/charge-order/edit/${chargeOrderID}`);
+                      }}
+                    >
+                      View Details
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+            <div className="flex border-l border-gray-200">
+              <button
+                onClick={() => toast.dismiss(t.id)}
+                className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        ),
+        {
+          duration: 8000,
+        }
+      );
+    } catch (error) {
+      handleError(error);
+    }
   };
 
   useEffect(() => {
@@ -137,29 +222,36 @@ const ChargeOrderModal = () => {
         )}
       </div>
 
-      <Table
-        columns={columns}
-        dataSource={quotationDetails}
-        rowKey="id"
-        pagination={false}
-        size="small"
-        loading={isItemLoading}
-        scroll={{ x: "calc(100% - 200px)", y: 300 }}
-        rowSelection={{
-          type: "checkbox",
-          selectedRowKeys,
-          onChange: setSelectedRowKeys,
-        }}
-      />
+      <Form name="charge-order-modal" form={form} onFinish={onChargeCreate}>
+        <Table
+          columns={columns}
+          dataSource={quotationDetails}
+          rowKey="id"
+          pagination={false}
+          size="small"
+          loading={isItemLoading}
+          scroll={{ x: "calc(100% - 200px)", y: 300 }}
+          rowSelection={{
+            type: "checkbox",
+            selectedRowKeys,
+            onChange: setSelectedRowKeys,
+          }}
+        />
 
-      <div className="flex justify-center gap-2 items-center mt-2">
-        <Button className="w-40" onClick={closeModal}>
-          Cancel
-        </Button>
-        <Button className="w-40" type="primary" onClick={onCharge}>
-          Charge
-        </Button>
-      </div>
+        <div className="flex justify-center gap-2 items-center mt-2">
+          <Button className="w-40" onClick={closeModal}>
+            Cancel
+          </Button>
+          <Button
+            className="w-40"
+            type="primary"
+            onClick={form.submit}
+            loading={isFormSubmitting}
+          >
+            Charge
+          </Button>
+        </div>
+      </Form>
     </Modal>
   );
 };

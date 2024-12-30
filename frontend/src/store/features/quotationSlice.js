@@ -173,6 +173,11 @@ export const quotationSlice = createSlice({
       detail[key] = value;
 
       if (key !== "rate" && detail.cost_price && detail.markup) {
+        console.log(
+          roundUpto(
+            +detail.cost_price * (+detail.markup / 100) + +detail.cost_price
+          )
+        );
         detail.rate = roundUpto(
           +detail.cost_price * (+detail.markup / 100) + +detail.cost_price
         );
@@ -311,7 +316,6 @@ export const quotationSlice = createSlice({
             }
           : null,
         customer_ref: data.customer_ref,
-        dated: data.dated ? dayjs(data.dated) : null,
         due_date: data.due_date ? dayjs(data.due_date) : null,
         attn: data.attn,
         delivery: data.delivery,

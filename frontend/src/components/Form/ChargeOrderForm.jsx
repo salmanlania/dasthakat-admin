@@ -16,6 +16,7 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useSearchParams } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 import useError from "../../hooks/useError";
 import {
   addChargeOrderDetail,
@@ -239,7 +240,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 200,
+      width: 560,
     },
     {
       title: "Product Nature",
@@ -303,7 +304,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           <Form.Item
             className="m-0"
             initialValue={quantity}
-            name={`quantity-${index}`}
+            name={`quantity-${uuidv4()}`}
             rules={[
               {
                 required: true,
