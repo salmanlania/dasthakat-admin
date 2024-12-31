@@ -29,6 +29,7 @@ const EditCompany = () => {
 
   useEffect(() => {
     dispatch(getCompany(id)).unwrap().catch(handleError);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

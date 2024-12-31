@@ -29,10 +29,340 @@ import { setChargeQuotationID } from "../../store/features/chargeOrderSlice";
 import {
   bulkDeleteQuotation,
   deleteQuotation,
+  getQuotation,
   getQuotationList,
   setQuotationDeleteIDs,
   setQuotationListParams,
 } from "../../store/features/quotationSlice";
+
+// Quotation print logo
+import Logo1 from "../../assets/quotationPrintLogo/logo1.png";
+import Logo2 from "../../assets/quotationPrintLogo/logo2.png";
+import Logo3 from "../../assets/quotationPrintLogo/logo3.png";
+import Logo4 from "../../assets/quotationPrintLogo/logo4.png";
+import Logo5 from "../../assets/quotationPrintLogo/logo5.png";
+import Logo6 from "../../assets/quotationPrintLogo/logo6.png";
+
+const createPrint = (data) => {
+  console.log(data);
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  doc.setTextColor(32, 50, 114);
+
+  const sideMargin = 4;
+
+  // Header
+  doc.setFontSize(20);
+  doc.setFont("times", "bold");
+  doc.text("Global Marine Safety - America", pageWidth / 2, 12, {
+    align: "center",
+  });
+  doc.setFont("times", "normal");
+  doc.setFontSize(10);
+  doc.text("9145 Wallisville Rd, Houston TX 77029, USA", pageWidth / 2, 18, {
+    align: "center",
+  });
+  doc.text(
+    "Tel: 1 713-518-1715, Fax: 1 713-518-1760, Email: sales@gms-america.com",
+    pageWidth / 2,
+    22,
+    {
+      align: "center",
+    }
+  );
+
+  // Header LOGO
+  doc.addImage(GMSLogo, "PNG", 8, 1, 35, 26);
+
+  // Bill To and Ship To
+  doc.setFontSize(10);
+  doc.setFont("times", "bold");
+  doc.text("Bill To", sideMargin, 40);
+  doc.text("Ship To", 140, 40);
+  doc.setFont("times", "normal");
+  doc.text("FLEET SHIP MANAGEMENT", sideMargin, 45);
+  doc.text("FLEET", 140, 45);
+
+  doc.setFontSize(16);
+  doc.setFont("times", "bold");
+  doc.text("ESTIMATE", pageWidth / 2, 58, {
+    align: "center",
+  });
+  doc.setFont("times", "normal");
+  doc.setFontSize(10);
+
+  // Table 1
+  const table1Column = [
+    "Quote Date",
+    "Quote Number",
+    "Customer's Reference",
+    "Delivery Location",
+    "Payment Terms",
+    "Flag",
+    "Class",
+    "ETA",
+  ];
+  const table1Rows = [
+    [
+      data.document_date
+        ? dayjs(data.document_date).format("DD-MM-YYYY")
+        : null,
+      data.document_identity,
+      data.customer_ref,
+      data.delivery,
+      "Net 30",
+      data.flag ? data.flag.name : null,
+      "ABS",
+      "TBA",
+    ],
+  ];
+
+  doc.autoTable({
+    startY: 62,
+    head: [table1Column],
+    body: table1Rows,
+    margin: { left: sideMargin, right: sideMargin },
+    headStyles: {
+      fontSize: 8,
+      fontStyle: "bold",
+      textColor: [32, 50, 114],
+      fillColor: [221, 217, 196],
+    },
+    styles: {
+      lineWidth: 0.1,
+      lineColor: [116, 116, 116],
+    },
+    bodyStyles: {
+      textColor: [32, 50, 114],
+      fillColor: [255, 255, 255],
+    },
+    alternateRowStyles: {
+      fillColor: [255, 255, 255],
+      fontSize: 7,
+    },
+    columnStyles: {
+      0: { cellWidth: 21 },
+      1: { cellWidth: 24 },
+      2: { cellWidth: 35 },
+      3: { cellWidth: 28 },
+      4: { cellWidth: 25 },
+      5: { cellWidth: 23 },
+      6: { cellWidth: 19 },
+      7: { cellWidth: 27 },
+    },
+  });
+
+  // Table 2
+  const table2Column = [
+    "S. No",
+    "Description",
+    "UOM",
+    "QTY",
+    "Price per Unit",
+    "Gross Amount",
+    "Discount %",
+    "Net Amount",
+  ];
+  const table2Rows = [
+    [
+      "1",
+      "Annual Inspection of Portable Fire Extinguisher",
+      "EA",
+      "10",
+      "$5.50",
+      "$55.00",
+      "10%",
+      "$49.50",
+    ],
+    [
+      "2",
+      "Annual Inspection of Portable Fire Extinguisher",
+      "EA",
+      "10",
+      "$5.50",
+      "$55.00",
+      "10%",
+      "$49.50",
+    ],
+    [
+      "3",
+      "Annual Inspection of Portable Fire Extinguisher",
+      "EA",
+      "10",
+      "$5.50",
+      "$55.00",
+      "10%",
+      "$49.50",
+    ],
+    [
+      "4",
+      "Annual Inspection of Portable Fire Extinguisher",
+      "EA",
+      "10",
+      "$5.50",
+      "$55.00",
+      "10%",
+      "$49.50",
+    ],
+  ];
+
+  // Adding Table
+  doc.autoTable({
+    startY: doc.previousAutoTable.finalY,
+    head: [table2Column],
+    body: table2Rows,
+    margin: { left: sideMargin, right: sideMargin },
+    headStyles: {
+      fontSize: 8,
+      fontStyle: "bold",
+      textColor: [32, 50, 114],
+      fillColor: [221, 217, 196],
+    },
+    styles: {
+      lineWidth: 0.1,
+      lineColor: [116, 116, 116],
+    },
+    bodyStyles: {
+      textColor: [32, 50, 114],
+      fillColor: [255, 255, 255],
+    },
+    alternateRowStyles: {
+      fillColor: [255, 255, 255],
+      fontSize: 9,
+    },
+    columnStyles: {
+      0: { cellWidth: 15 },
+      1: { cellWidth: 65 },
+      2: { cellWidth: 14 },
+      3: { cellWidth: 14 },
+      4: { cellWidth: 25 },
+      5: { cellWidth: 23 },
+      6: { cellWidth: 19 },
+      7: { cellWidth: 27 },
+    },
+  });
+
+  // Footer table
+  const notes = [
+    [
+      {
+        content: "Notes:",
+        rowSpan: 5,
+        fontSize: 22,
+      },
+      {
+        content:
+          "~ Availability of technician can only be confirmed once we have firm attendance date.",
+        styles: {
+          halign: "left",
+        },
+      },
+      {
+        content: "Grand Total",
+        rowSpan: 5,
+      },
+      {
+        content: "$2,038.20",
+        rowSpan: 5,
+      },
+    ],
+    [
+      {
+        content: "~",
+        styles: {
+          halign: "left",
+        },
+      },
+    ],
+    [
+      {
+        content: "~",
+        styles: {
+          halign: "left",
+        },
+      },
+    ],
+    [
+      {
+        content: "~",
+        styles: {
+          halign: "left",
+        },
+      },
+    ],
+    [
+      {
+        content: "~",
+        styles: {
+          halign: "left",
+        },
+      },
+    ],
+  ];
+
+  doc.autoTable({
+    startY: doc.previousAutoTable.finalY,
+    head: [],
+    body: notes,
+    margin: { left: sideMargin, right: sideMargin },
+    styles: {
+      lineWidth: 0.1,
+      lineColor: [116, 116, 116],
+      valign: "middle",
+      halign: "center",
+    },
+    bodyStyles: {
+      textColor: [32, 50, 114],
+      fillColor: [255, 255, 255],
+      valign: "middle",
+      halign: "center",
+    },
+    alternateRowStyles: {
+      fillColor: [255, 255, 255],
+      fontSize: 9,
+    },
+    columnStyles: {
+      0: { cellWidth: 25 },
+      1: { cellWidth: 108 },
+      2: { cellWidth: 42 },
+      3: { cellWidth: 27 },
+    },
+    didParseCell: (data) => {
+      const rowIndex = data.row.index;
+      const columnIndex = data.column.index;
+      if (
+        rowIndex === 0 &&
+        (columnIndex === 0 || columnIndex === 3 || columnIndex === 2)
+      ) {
+        data.cell.styles.fontSize = 12;
+        data.cell.styles.fontStyle = "bold";
+      }
+    },
+  });
+
+  // Footer logo
+  doc.addImage(Logo1, "PNG", 8, doc.previousAutoTable.finalY, 26, 22);
+  doc.addImage(Logo2, "PNG", 38, doc.previousAutoTable.finalY + 6, 26, 10);
+  doc.addImage(Logo3, "PNG", 70, doc.previousAutoTable.finalY + 2, 26, 16);
+  doc.addImage(Logo4, "PNG", 102, doc.previousAutoTable.finalY + 4, 26, 16);
+  doc.addImage(Logo5, "PNG", 130, doc.previousAutoTable.finalY, 32, 16);
+  doc.addImage(Logo6, "PNG", 164, doc.previousAutoTable.finalY + 2, 14, 16);
+
+  const deliveryText =
+    "Remit Payment to: Global Marine Safety Service Inc Frost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44";
+  const maxWidth = pageWidth - sideMargin * 2;
+  const lines = doc.splitTextToSize(deliveryText, maxWidth);
+  doc.text(lines, pageWidth / 2, doc.previousAutoTable.finalY + 30, {
+    align: "center",
+  });
+
+  doc.setProperties({
+    title: "Quotation - 0014",
+  });
+  const pdfBlob = doc.output("blob");
+  const pdfUrl = URL.createObjectURL(pdfBlob, {});
+  window.open(pdfUrl, "_blank");
+};
 
 const Quotation = () => {
   const dispatch = useDispatch();
@@ -82,228 +412,13 @@ const Quotation = () => {
     }
   };
 
-  const printQuotation = () => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    doc.setTextColor(32, 50, 114);
-
-    const sideMargin = 4;
-
-    // Header
-    doc.setFontSize(20);
-    doc.setFont("times", "bold");
-    doc.text("Global Marine Safety - America", pageWidth / 2, 12, {
-      align: "center",
-    });
-    doc.setFont("times", "normal");
-    doc.setFontSize(10);
-    doc.text("9145 Wallisville Rd, Houston TX 77029, USA", pageWidth / 2, 18, {
-      align: "center",
-    });
-    doc.text(
-      "Tel: 1 713-518-1715, Fax: 1 713-518-1760, Email: sales@gms-america.com",
-      pageWidth / 2,
-      22,
-      {
-        align: "center",
-      }
-    );
-
-    // Header LOGO
-    doc.addImage(GMSLogo, "PNG", 8, 1, 35, 26);
-
-    // Bill To and Ship To
-    doc.setFontSize(10);
-    doc.setFont("times", "bold");
-    doc.text("Bill To", sideMargin, 40);
-    doc.text("Ship To", 140, 40);
-    doc.setFont("times", "normal");
-    doc.text("FLEET SHIP MANAGEMENT", sideMargin, 45);
-    doc.text("FLEET", 140, 45);
-
-    doc.setFontSize(16);
-    doc.setFont("times", "bold");
-    doc.text("ESTIMATE", pageWidth / 2, 58, {
-      align: "center",
-    });
-    doc.setFont("times", "normal");
-    doc.setFontSize(10);
-
-    // Table 1
-    const table1Column = [
-      "Quote Date",
-      "Quote Number",
-      "Customer's Reference",
-      "Delivery Location",
-      "Payment Terms",
-      "Flag",
-      "Class",
-      "ETA",
-    ];
-    const table1Rows = [
-      [
-        "11/1/2024",
-        "11012024-1",
-        "1234",
-        "Houston",
-        "Net 30",
-        "MHL",
-        "ABS",
-        "TBA",
-      ],
-    ];
-
-    doc.autoTable({
-      startY: 62,
-      head: [table1Column],
-      body: table1Rows,
-      margin: { left: sideMargin, right: sideMargin },
-      headStyles: {
-        fontSize: 8,
-        fontStyle: "bold",
-        textColor: [32, 50, 114],
-        fillColor: [221, 217, 196],
-      },
-      styles: {
-        lineWidth: 0.1,
-        lineColor: [116, 116, 116],
-      },
-      bodyStyles: {
-        textColor: [32, 50, 114],
-        fillColor: [255, 255, 255],
-      },
-      alternateRowStyles: {
-        fillColor: [255, 255, 255],
-        fontSize: 7,
-      },
-      columnStyles: {
-        0: { cellWidth: 21 },
-        1: { cellWidth: 24 },
-        2: { cellWidth: 35 },
-        3: { cellWidth: 28 },
-        4: { cellWidth: 25 },
-        5: { cellWidth: 23 },
-        6: { cellWidth: 21 },
-        7: { cellWidth: 25 },
-      },
-    });
-
-    // Table 2
-    const table2Column = [
-      "S. No",
-      "Description",
-      "UOM",
-      "QTY",
-      "Price per Unit",
-      "Gross Amount",
-      "Discount %",
-      "Net Amount",
-    ];
-    const table2Rows = [
-      [
-        "1",
-        "Annual Inspection of Portable Fire Extinguisher",
-        "EA",
-        "10",
-        "$5.50",
-        "$55.00",
-        "10%",
-        "$49.50",
-      ],
-      [
-        "2",
-        "Annual Inspection of Portable Fire Extinguisher",
-        "EA",
-        "10",
-        "$5.50",
-        "$55.00",
-        "10%",
-        "$49.50",
-      ],
-      [
-        "3",
-        "Annual Inspection of Portable Fire Extinguisher",
-        "EA",
-        "10",
-        "$5.50",
-        "$55.00",
-        "10%",
-        "$49.50",
-      ],
-      [
-        "4",
-        "Annual Inspection of Portable Fire Extinguisher",
-        "EA",
-        "10",
-        "$5.50",
-        "$55.00",
-        "10%",
-        "$49.50",
-      ],
-    ];
-
-    // Adding Table
-    doc.autoTable({
-      startY: doc.previousAutoTable.finalY,
-      head: [table2Column],
-      body: table2Rows,
-      margin: { left: sideMargin, right: sideMargin },
-      headStyles: {
-        fontSize: 8,
-        fontStyle: "bold",
-        textColor: [32, 50, 114],
-        fillColor: [221, 217, 196],
-      },
-      styles: {
-        lineWidth: 0.1,
-        lineColor: [116, 116, 116],
-      },
-      bodyStyles: {
-        textColor: [32, 50, 114],
-        fillColor: [255, 255, 255],
-      },
-      alternateRowStyles: {
-        fillColor: [255, 255, 255],
-        fontSize: 9,
-      },
-      columnStyles: {
-        0: { cellWidth: 15 },
-        1: { cellWidth: 65 },
-        2: { cellWidth: 14 },
-        3: { cellWidth: 14 },
-        4: { cellWidth: 25 },
-        5: { cellWidth: 23 },
-        6: { cellWidth: 21 },
-        7: { cellWidth: 25 },
-      },
-    });
-
-    // Notes
-    doc.text("Notes:", 10, doc.previousAutoTable.finalY + 10);
-    doc.text(
-      "Availability of technician can only be confirmed once we have firm attendance date. Discount offered is only valid for service items, excluding logistics and overtime.",
-      10,
-      doc.previousAutoTable.finalY + 15
-    );
-
-    // Grand Total
-    doc.text("Grand Total: $2,038.20", 10, doc.previousAutoTable.finalY + 30);
-
-    // Footer
-    doc.text(
-      "Remit Payment to: Global Marine Safety Service Inc",
-      10,
-      doc.previousAutoTable.finalY + 40
-    );
-    doc.text(
-      "Frost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44",
-      10,
-      doc.previousAutoTable.finalY + 45
-    );
-
-    const pdfBlob = doc.output("blob");
-    const pdfUrl = URL.createObjectURL(pdfBlob, {});
-    window.open(pdfUrl, "_blank");
+  const printQuotation = async (id) => {
+    try {
+      const data = await dispatch(getQuotation(id)).unwrap();
+      createPrint(data);
+    } catch (error) {
+      handleError(error);
+    }
   };
 
   const columns = [
@@ -439,15 +554,17 @@ const Quotation = () => {
       render: (_, { quotation_id }) => (
         <div className="flex flex-col justify-center gap-1 items-center">
           <div className="flex items-center gap-1">
-            <Tooltip title="Print">
-              <Button
-                size="small"
-                type="primary"
-                className="bg-rose-600 hover:!bg-rose-500"
-                icon={<FaRegFilePdf size={14} />}
-                onClick={printQuotation}
-              />
-            </Tooltip>
+            {permissions.edit ? (
+              <Tooltip title="Print">
+                <Button
+                  size="small"
+                  type="primary"
+                  className="bg-rose-600 hover:!bg-rose-500"
+                  icon={<FaRegFilePdf size={14} />}
+                  onClick={() => printQuotation(quotation_id)}
+                />
+              </Tooltip>
+            ) : null}
             <Tooltip title="Charge Order">
               <Button
                 size="small"

@@ -2,6 +2,7 @@ import { Button, Col, Form, Input, Row } from "antd";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
+// eslint-disable-next-line react/prop-types
 const AgentForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues } = useSelector(
     (state) => state.agent

@@ -173,11 +173,6 @@ export const quotationSlice = createSlice({
       detail[key] = value;
 
       if (key !== "rate" && detail.cost_price && detail.markup) {
-        console.log(
-          roundUpto(
-            +detail.cost_price * (+detail.markup / 100) + +detail.cost_price
-          )
-        );
         detail.rate = roundUpto(
           +detail.cost_price * (+detail.markup / 100) + +detail.cost_price
         );

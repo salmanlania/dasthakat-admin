@@ -352,7 +352,7 @@ const Sidebar = () => {
       } h-screen overflow-y-auto !left-0 !top-0 z-50 scrollbar`}
       width={240}
     >
-      <div className="p-4 px-2 flex flex-col justify-center items-center gap-2 bg-blue-100 m-2 rounded-xl">
+      <div className="p-4 px-2 flex flex-col justify-center items-center gap-2 bg-slate-200 m-2 rounded-xl">
         {isSmallScreen && (
           <div
             className="absolute top-5 right-5 border hover:bg-gray-50 cursor-pointer bg-white p-1 rounded"

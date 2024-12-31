@@ -36,7 +36,6 @@ import AsyncSelect from "../AsyncSelect";
 import DebouncedCommaSeparatedInput from "../Input/DebouncedCommaSeparatedInput";
 import DebouncedNumberInput from "../Input/DebouncedNumberInput";
 import DebounceInput from "../Input/DebounceInput";
-import NumberInput from "../Input/NumberInput";
 
 export const DetailSummaryInfo = ({ title, value }) => {
   return (
@@ -228,9 +227,17 @@ const QuotationForm = ({ mode, onSubmit }) => {
 
   const columns = [
     {
+      title: (
+        <Button
+          size="small"
+          type="primary"
+          className="!w-8"
+          icon={<BiPlus size={14} />}
+          onClick={() => dispatch(addQuotationDetail())}
+        />
+      ),
       key: "order",
       dataIndex: "order",
-      fixed: "left",
       render: (_, record, index) => {
         return (
           <div className="flex flex-col gap-1">
@@ -259,7 +266,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </div>
         );
       },
-      width: 40,
+      width: 50,
     },
     {
       title: "Sr.",
@@ -268,7 +275,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       render: (_, record, index) => {
         return <>{index + 1}.</>;
       },
-      width: 40,
+      width: 50,
     },
     {
       title: "Product Code",
@@ -292,7 +299,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 140,
+      width: 120,
     },
     {
       title: "Product Name",
@@ -347,7 +354,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       render: (_, { stock_quantity }) => {
         return <Input value={stock_quantity} disabled />;
       },
-      width: 200,
+      width: 122,
     },
     {
       title: "Quantity",
@@ -382,7 +389,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         );
       },
-      width: 200,
+      width: 100,
     },
     {
       title: "Unit",
@@ -412,7 +419,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 200,
+      width: 120,
     },
     {
       title: "Vendor",
@@ -466,7 +473,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 200,
+      width: 120,
     },
     {
       title: "Markup %",
@@ -505,7 +512,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         );
       },
-      width: 200,
+      width: 90,
     },
 
     {
@@ -540,7 +547,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         );
       },
-      width: 200,
+      width: 120,
     },
     {
       title: "Amount",
@@ -552,10 +559,10 @@ const QuotationForm = ({ mode, onSubmit }) => {
           disabled
         />
       ),
-      width: 200,
+      width: 120,
     },
     {
-      title: "Discount Percent",
+      title: "Discount %",
       dataIndex: "discount_percent",
       key: "discount_percent",
       render: (_, { discount_percent }, index) => {
@@ -593,10 +600,10 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         );
       },
-      width: 200,
+      width: 100,
     },
     {
-      title: "Discount Amount",
+      title: "Discount Amt",
       dataIndex: "discount_amount",
       key: "discount_amount",
       render: (_, { discount_amount }) => {
@@ -607,7 +614,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 200,
+      width: 120,
     },
     {
       title: "Gross Amount",
@@ -621,7 +628,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 200,
+      width: 150,
     },
     {
       title: (
@@ -728,10 +735,10 @@ const QuotationForm = ({ mode, onSubmit }) => {
     >
       {/* Make this sticky */}
       <div className="flex justify-center -mt-8 sticky top-14 z-10">
-        <p className="text-xs w-fit border bg-white px-2 rounded p-1 font-medium">
+        <p className="text-xs w-fit border bg-white px-2 rounded p-1 font-semibold">
           <span className="text-gray-500">Quotation No:</span>
           <span
-            className={`ml-4 ${
+            className={`ml-4 text-amber-600 ${
               mode === "edit" ? "hover:bg-slate-200 cursor-pointer" : ""
             } px-1 rounded`}
             onClick={() => {
@@ -1000,7 +1007,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
               <DetailSummaryInfo
                 title="Percentage:"
                 value={
-                  <NumberInput
+                  <DebouncedNumberInput
                     type="decimal"
                     size="small"
                     className="w-20"
@@ -1018,7 +1025,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
               <DetailSummaryInfo
                 title="Percentage:"
                 value={
-                  <NumberInput
+                  <DebouncedNumberInput
                     type="decimal"
                     size="small"
                     className="w-20"

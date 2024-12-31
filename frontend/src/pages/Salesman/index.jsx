@@ -266,6 +266,7 @@ const Salesman = () => {
 
   useEffect(() => {
     dispatch(getSalesmanList(params)).unwrap().catch(handleError);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params.page,
     params.limit,

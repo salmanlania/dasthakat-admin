@@ -13,7 +13,7 @@ const DeleteConfirmModal = ({
   return (
     <Modal open={open} onCancel={onCancel} footer={null} closable={false}>
       <div className="flex flex-col items-center justify-center">
-        <TbAlertOctagonFilled size={80} className="mb-4 text-red-500" />
+        <TbAlertOctagonFilled size={80} className="mb-4 text-error" />
         <h4 className="text-center text-lg font-semibold">{title}</h4>
         {description && <p className="text-center">{description}</p>}
 

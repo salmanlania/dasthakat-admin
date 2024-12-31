@@ -152,6 +152,15 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
 
   const columns = [
     {
+      title: (
+        <Button
+          size="small"
+          type="primary"
+          className="!w-8"
+          icon={<BiPlus size={14} />}
+          onClick={() => dispatch(addChargeOrderDetail())}
+        />
+      ),
       key: "order",
       dataIndex: "order",
       fixed: "left",
@@ -183,7 +192,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           </div>
         );
       },
-      width: 40,
+      width: 50,
     },
     {
       title: "Sr.",
@@ -216,7 +225,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 140,
+      width: 120,
     },
     {
       title: "Product Name",
@@ -262,7 +271,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 240,
+      width: 180,
     },
     {
       title: "Description",
@@ -293,7 +302,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       render: (_, { stock_quantity }) => {
         return <Input value={stock_quantity} disabled />;
       },
-      width: 200,
+      width: 122,
     },
     {
       title: "Quantity",
@@ -328,7 +337,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           </Form.Item>
         );
       },
-      width: 200,
+      width: 100,
     },
     {
       title: "Unit",
@@ -358,7 +367,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 200,
+      width: 120,
     },
     {
       title: "Vendor",
@@ -474,11 +483,13 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
     >
       {/* Make this sticky */}
       <div className="flex justify-center -mt-8 sticky top-14 z-10">
-        <p className="text-xs w-fit border bg-white px-2 rounded p-1 font-medium">
+        <p className="text-xs w-fit border bg-white px-2 rounded p-1 font-semibold">
           <span className="text-gray-500">Charge order No:</span>
           <span
-            className={`ml-4 ${
-              mode === "edit" ? "hover:bg-slate-200 cursor-pointer" : ""
+            className={`ml-4 text-amber-600 ${
+              mode === "edit"
+                ? "hover:bg-slate-200 cursor-pointer"
+                : "select-none"
             } px-1 rounded`}
             onClick={() => {
               if (mode !== "edit") return;

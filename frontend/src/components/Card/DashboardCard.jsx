@@ -1,3 +1,4 @@
+// eslint-disable-next-line react/prop-types
 const DashboardCard = ({ title, value, icon }) => {
   return (
     <div className="bg-white rounded-md shadow-sm p-6 px-4 w-full">
