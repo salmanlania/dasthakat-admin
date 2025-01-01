@@ -247,8 +247,9 @@ export const quotationSlice = createSlice({
       const data = action.payload;
       state.initialFormValues = {
         document_identity: data.document_identity,
+        document_type_id: data.document_type_id,
         document_date: data.document_date ? dayjs(data.document_date) : null,
-        imo: data.imo,
+        imo: data.vessel ? data.vessel.imo : null,
         internal_notes: data.internal_notes,
         salesman_id: data.salesman
           ? {
@@ -276,13 +277,13 @@ export const quotationSlice = createSlice({
           : null,
         class1_id: data.class1
           ? {
-              value: data.class1.class1_id,
+              value: data.class1.class_id,
               label: data.class1.name,
             }
           : null,
         class2_id: data.class2
           ? {
-              value: data.class2.class2_id,
+              value: data.class2.class_id,
               label: data.class2.name,
             }
           : null,

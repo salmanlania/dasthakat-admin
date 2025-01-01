@@ -107,8 +107,10 @@ const ChargeOrderModal = () => {
     const selectedDetails = quotationDetails.filter((detail) =>
       selectedRowKeys.includes(detail.id)
     );
-
+    console.log(selectedDetails);
     const data = {
+      ref_document_identity: initialFormValues.document_identity,
+      ref_document_type_id: initialFormValues.document_type_id,
       document_date: initialFormValues.document_date,
       salesman_id: initialFormValues.salesman_id
         ? initialFormValues.salesman_id.value
@@ -137,6 +139,7 @@ const ChargeOrderModal = () => {
       charge_order_detail: selectedDetails.map((detail, index) => ({
         product_code: detail.product_code,
         product_id: detail.product_id ? detail.product_id.value : null,
+        product_name: detail.product_id ? detail.product_id.label : null,
         description: detail.description,
         quantity: detail.quantity,
         unit_id: detail.unit_id ? detail.unit_id.value : null,

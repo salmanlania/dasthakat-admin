@@ -96,6 +96,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
 
     const data = {
       attn: values.attn,
+      delivery: values.delivery,
       customer_ref: values.customer_ref,
       imo: values.imo,
       internal_notes: values.internal_notes,
@@ -326,7 +327,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       width: 560,
     },
     {
-      title: "Description",
+      title: "Remarks",
       dataIndex: "description",
       key: "description",
       render: (_, { description }, index) => {
@@ -792,7 +793,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             <AsyncSelect
               endpoint="/event"
               valueKey="event_id"
-              labelKey="event_code"
+              labelKey="event_name"
               labelInValue
               onChange={onEventChange}
               addNewLink={

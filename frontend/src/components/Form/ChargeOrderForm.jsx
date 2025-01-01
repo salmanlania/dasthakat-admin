@@ -31,6 +31,7 @@ import { formatThreeDigitCommas, roundUpto } from "../../utils/number";
 import AsyncSelect from "../AsyncSelect";
 import DebounceInput from "../Input/DebounceInput";
 import DebouncedCommaSeparatedInput from "../Input/DebouncedCommaSeparatedInput";
+import { productTypeOptions } from "./ProductForm";
 import { DetailSummaryInfo } from "./QuotationForm";
 
 // eslint-disable-next-line react/prop-types
@@ -75,6 +76,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           ...detail,
           supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
           product_id: detail.product_id ? detail.product_id.value : null,
+          product_name: detail.product_id ? detail.product_id.label : null,
           unit_id: detail.unit_id ? detail.unit_id.value : null,
           sort_order: index,
         })
@@ -257,8 +259,10 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       key: "product_type",
       render: (_, { product_type }, index) => {
         return (
-          <DebounceInput
+          <Select
+            options={productTypeOptions}
             value={product_type}
+            className="w-full"
             onChange={(value) =>
               dispatch(
                 changeChargeOrderDetailValue({
@@ -274,7 +278,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       width: 180,
     },
     {
-      title: "Description",
+      title: "Remarks",
       dataIndex: "description",
       key: "description",
       render: (_, { description }, index) => {
@@ -543,7 +547,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             <AsyncSelect
               endpoint="/event"
               valueKey="event_id"
-              labelKey="event_code"
+              labelKey="event_name"
               labelInValue
               onChange={onEventChange}
               addNewLink={
