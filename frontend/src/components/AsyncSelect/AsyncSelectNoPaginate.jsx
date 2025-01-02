@@ -1,12 +1,12 @@
+/* eslint-disable react/prop-types */
 import { Select, Spin } from "antd";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { MdOutlineAddCircle } from "react-icons/md";
 import api from "../../axiosInstance";
 import useError from "../../hooks/useError";
-import { MdOutlineAddCircle } from "react-icons/md";
 
 const AsyncSelectNoPaginate = ({
   endpoint,
-  params = {},
   dependencies = [],
   labelInValue = false,
   valueKey,
@@ -45,6 +45,7 @@ const AsyncSelectNoPaginate = ({
       setOptions([]);
       fetchData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isClicked, ...dependencies]);
 
   return (

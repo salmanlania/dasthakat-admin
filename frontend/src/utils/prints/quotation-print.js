@@ -122,12 +122,12 @@ export const createQuotationPrint = (data) => {
     },
     columnStyles: {
       0: { cellWidth: 21 },
-      1: { cellWidth: 24 },
-      2: { cellWidth: 35 },
+      1: { cellWidth: 30 },
+      2: { cellWidth: 44 },
       3: { cellWidth: 28 },
-      4: { cellWidth: 25 },
-      5: { cellWidth: 23 },
-      6: { cellWidth: 19 },
+      4: { cellWidth: 18 },
+      5: { cellWidth: 17 },
+      6: { cellWidth: 17 },
       7: { cellWidth: 27 },
     },
   });
@@ -202,14 +202,15 @@ export const createQuotationPrint = (data) => {
       fillColor: [255, 255, 255],
       fontSize: 9,
     },
+    rowPageBreak: "avoid",
     columnStyles: {
       0: { cellWidth: 15 },
-      1: { cellWidth: 65 },
+      1: { cellWidth: 80 },
       2: { cellWidth: 14 },
       3: { cellWidth: 14 },
-      4: { cellWidth: 25 },
-      5: { cellWidth: 23 },
-      6: { cellWidth: 19 },
+      4: { cellWidth: 18 },
+      5: { cellWidth: 17 },
+      6: { cellWidth: 17 },
       7: { cellWidth: 27 },
     },
   });
@@ -296,8 +297,8 @@ export const createQuotationPrint = (data) => {
     },
     columnStyles: {
       0: { cellWidth: 25 },
-      1: { cellWidth: 108 },
-      2: { cellWidth: 42 },
+      1: { cellWidth: 116 },
+      2: { cellWidth: 34 },
       3: { cellWidth: 27 },
     },
     didParseCell: (data) => {

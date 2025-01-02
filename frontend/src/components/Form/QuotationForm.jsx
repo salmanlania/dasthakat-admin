@@ -31,6 +31,7 @@ import {
   setRebatePercentage,
   setSalesmanPercentage,
 } from "../../store/features/quotationSlice";
+import { getSalesman } from "../../store/features/salesmanSlice";
 import { formatThreeDigitCommas, roundUpto } from "../../utils/number";
 import AsyncSelect from "../AsyncSelect";
 import DebouncedCommaSeparatedInput from "../Input/DebouncedCommaSeparatedInput";
@@ -303,7 +304,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       width: 120,
     },
     {
-      title: "Product Name",
+      title: "Description",
       dataIndex: "product_name",
       key: "product_name",
       render: (_, { product_id }, index) => {
@@ -327,7 +328,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       width: 560,
     },
     {
-      title: "Remarks",
+      title: "Customer Notes",
       dataIndex: "description",
       key: "description",
       render: (_, { description }, index) => {
@@ -718,6 +719,22 @@ const QuotationForm = ({ mode, onSubmit }) => {
     }
   };
 
+  const onSalesmanChange = async (selected) => {
+    dispatch(setSalesmanPercentage(null));
+    if (!selected) return;
+
+    try {
+      const data = await dispatch(getSalesman(selected.value)).unwrap();
+      dispatch(
+        setSalesmanPercentage(
+          data.commission_percentage ? +data.commission_percentage : null
+        )
+      );
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
   return (
     <Form
       name="quotation"
@@ -781,6 +798,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
                   ? "/salesman"
                   : null
               }
+              onChange={onSalesmanChange}
             />
           </Form.Item>
         </Col>
@@ -967,8 +985,11 @@ const QuotationForm = ({ mode, onSubmit }) => {
         dataSource={quotationDetails}
         rowKey={"id"}
         size="small"
-        scroll={{ x: "calc(100% - 200px)", y: 400 }}
+        scroll={{ x: "calc(100% - 200px)" }}
         pagination={false}
+        sticky={{
+          offsetHeader: 56,
+        }}
       />
 
       <div className="bg-slate-50 rounded-lg border border-t-0 rounded-t-none py-3 px-6 border-slate-300">

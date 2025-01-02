@@ -54,7 +54,7 @@ const DebouncedNumberInput = ({
   }, [debouncedValue]);
 
   useEffect(() => {
-    setInputValue(value || "");
+    setInputValue(value);
   }, [value]);
 
   return (

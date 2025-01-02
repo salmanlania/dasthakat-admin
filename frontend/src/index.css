@@ -58,3 +58,8 @@
 .ant-menu-submenu-selected > .ant-menu-submenu-title {
   @apply !text-primary;
 }
+
+.ant-input-outlined.ant-input-disabled,
+.ant-select-selector {
+  @apply !text-[#000000f0];
+}

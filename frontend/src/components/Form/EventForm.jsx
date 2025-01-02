@@ -116,7 +116,9 @@ const EventForm = ({ mode, onSubmit }) => {
               showSearch
               labelInValue
               onChange={onVesselSelect}
-              onDropdownVisibleChange={(open) => open && getCustomerVessels()}
+              onDropdownVisibleChange={(open) =>
+                open && customerID ? getCustomerVessels() : null
+              }
               suffixIcon={
                 customerID && permissions.customer.edit ? (
                   <MdOutlineAddCircle

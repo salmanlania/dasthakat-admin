@@ -15,6 +15,18 @@ export const getSalesmanList = createAsyncThunk(
   }
 );
 
+export const getSalesman = createAsyncThunk(
+  "salesman/get",
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/salesman/${id}`);
+      return res.data.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const deleteSalesman = createAsyncThunk(
   "salesman/delete",
   async (id, { rejectWithValue }) => {

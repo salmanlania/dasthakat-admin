@@ -185,6 +185,30 @@ const Customer = () => {
     },
     {
       title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Vessels</p>
+          <AsyncSelect
+            endpoint="/vessel"
+            valueKey="vessel_id"
+            labelKey="name"
+            size="small"
+            mode="multiple"
+            className="w-full font-normal"
+            value={params.vessel_id}
+            onChange={(value) =>
+              dispatch(setCustomerListParams({ vessel_id: value }))
+            }
+          />
+        </div>
+      ),
+      dataIndex: "vessel",
+      key: "vessel",
+      width: 220,
+      render: (_, { vessel }) =>
+        vessel ? vessel.map((v) => v.name).join(", ") : null,
+    },
+    {
+      title: (
         <div>
           <p>Country</p>
           <Input
@@ -371,6 +395,7 @@ const Customer = () => {
 
   useEffect(() => {
     dispatch(getCustomerList(params)).unwrap().catch(handleError);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params.page,
     params.limit,
@@ -378,6 +403,7 @@ const Customer = () => {
     params.sort_direction,
     params.status,
     params.salesman_id,
+    params.vessel_id,
     debouncedSearch,
     debouncedCode,
     debouncedName,

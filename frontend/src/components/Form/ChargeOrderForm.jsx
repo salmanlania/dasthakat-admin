@@ -230,7 +230,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       width: 120,
     },
     {
-      title: "Product Name",
+      title: "Description",
       dataIndex: "product_name",
       key: "product_name",
       render: (_, { product_id }, index) => {
@@ -278,7 +278,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       width: 180,
     },
     {
-      title: "Remarks",
+      title: "Customer Notes",
       dataIndex: "description",
       key: "description",
       render: (_, { description }, index) => {
@@ -617,8 +617,11 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         dataSource={chargeOrderDetails}
         rowKey="id"
         size="small"
-        scroll={{ x: "calc(100% - 200px)", y: 400 }}
+        scroll={{ x: "calc(100% - 200px)" }}
         pagination={false}
+        sticky={{
+          offsetHeader: 56,
+        }}
       />
       <div className="bg-slate-50 rounded-lg border border-t-0 rounded-t-none py-3 px-6 border-slate-300">
         <DetailSummaryInfo
