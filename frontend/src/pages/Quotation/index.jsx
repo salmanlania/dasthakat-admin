@@ -26,13 +26,12 @@ import { setChargeQuotationID } from "../../store/features/chargeOrderSlice";
 import {
   bulkDeleteQuotation,
   deleteQuotation,
-  getQuotation,
+  getQuotationForPrint,
   getQuotationList,
   setQuotationDeleteIDs,
   setQuotationListParams,
 } from "../../store/features/quotationSlice";
 import { createQuotationPrint } from "../../utils/prints/quotation-print";
-
 const Quotation = () => {
   const dispatch = useDispatch();
   const handleError = useError();
@@ -85,7 +84,7 @@ const Quotation = () => {
     const loadingToast = toast.loading("Loading print...");
 
     try {
-      const data = await dispatch(getQuotation(id)).unwrap();
+      const data = await dispatch(getQuotationForPrint(id)).unwrap();
       toast.dismiss(loadingToast);
       createQuotationPrint(data);
     } catch (error) {

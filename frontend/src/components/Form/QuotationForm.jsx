@@ -17,7 +17,7 @@ import { BiPlus } from "react-icons/bi";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import useError from "../../hooks/useError";
 import { getEvent } from "../../store/features/eventSlice";
@@ -27,12 +27,14 @@ import {
   changeQuotationDetailOrder,
   changeQuotationDetailValue,
   copyQuotationDetail,
+  getQuotationForPrint,
   removeQuotationDetail,
   setRebatePercentage,
   setSalesmanPercentage,
 } from "../../store/features/quotationSlice";
 import { getSalesman } from "../../store/features/salesmanSlice";
 import { formatThreeDigitCommas, roundUpto } from "../../utils/number";
+import { createQuotationPrint } from "../../utils/prints/quotation-print";
 import AsyncSelect from "../AsyncSelect";
 import DebouncedCommaSeparatedInput from "../Input/DebouncedCommaSeparatedInput";
 import DebouncedNumberInput from "../Input/DebouncedNumberInput";
@@ -51,6 +53,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
   const handleError = useError();
   const dispatch = useDispatch();
+  const { id } = useParams();
   const {
     isFormSubmitting,
     initialFormValues,
@@ -222,6 +225,17 @@ const QuotationForm = ({ mode, onSubmit }) => {
           value: product.cost_price,
         })
       );
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const printQuotation = async () => {
+    const loadingToast = toast.loading("Loading print...");
+    try {
+      const data = await dispatch(getQuotationForPrint(id)).unwrap();
+      toast.dismiss(loadingToast);
+      createQuotationPrint(data);
     } catch (error) {
       handleError(error);
     }
@@ -752,25 +766,21 @@ const QuotationForm = ({ mode, onSubmit }) => {
       scrollToFirstError
     >
       {/* Make this sticky */}
-      <div className="flex justify-center -mt-8 sticky top-14 z-10">
-        <p className="text-xs w-fit border bg-white px-2 rounded p-1 font-semibold">
-          <span className="text-gray-500">Quotation No:</span>
-          <span
-            className={`ml-4 text-amber-600 ${
-              mode === "edit" ? "hover:bg-slate-200 cursor-pointer" : ""
-            } px-1 rounded`}
-            onClick={() => {
-              if (mode !== "edit") return;
-              navigator.clipboard.writeText(
-                initialFormValues.document_identity
-              );
-              toast.success("Copied");
-            }}
-          >
-            {mode === "edit" ? initialFormValues.document_identity : "AUTO"}
-          </span>
-        </p>
-      </div>
+      <p className="text-xs w-fit border m-auto bg-white px-2 rounded  -mt-8 p-1 sticky top-14 z-10 font-semibold">
+        <span className="text-gray-500">Quotation No:</span>
+        <span
+          className={`ml-4 text-amber-600 ${
+            mode === "edit" ? "hover:bg-slate-200 cursor-pointer" : ""
+          } px-1 rounded`}
+          onClick={() => {
+            if (mode !== "edit") return;
+            navigator.clipboard.writeText(initialFormValues.document_identity);
+            toast.success("Copied");
+          }}
+        >
+          {mode === "edit" ? initialFormValues.document_identity : "AUTO"}
+        </span>
+      </p>
       <Row gutter={12}>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
@@ -1068,6 +1078,15 @@ const QuotationForm = ({ mode, onSubmit }) => {
         <Link to="/quotation">
           <Button className="w-28">Cancel</Button>
         </Link>
+        {mode === "edit" ? (
+          <Button
+            type="primary"
+            className="bg-rose-600 hover:!bg-rose-500 w-28"
+            onClick={printQuotation}
+          >
+            Print
+          </Button>
+        ) : null}
         <Button
           type="primary"
           className="w-28"

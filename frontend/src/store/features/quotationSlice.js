@@ -51,6 +51,18 @@ export const getQuotation = createAsyncThunk(
   }
 );
 
+export const getQuotationForPrint = createAsyncThunk(
+  "quotationForPrint/get",
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/quotation/${id}`);
+      return res.data.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const updateQuotation = createAsyncThunk(
   "quotation/update",
   async ({ id, data }, { rejectWithValue }) => {

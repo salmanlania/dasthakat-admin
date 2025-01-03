@@ -15,6 +15,7 @@ import { formatThreeDigitCommas, roundUpto } from "../number";
 export const createQuotationPrint = (data) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
+
   doc.setTextColor(32, 50, 114);
 
   const sideMargin = 4;
@@ -101,7 +102,7 @@ export const createQuotationPrint = (data) => {
     startY: 66,
     head: [table1Column],
     body: table1Rows,
-    margin: { left: sideMargin, right: sideMargin },
+    margin: { left: sideMargin, right: sideMargin, bottom: 27 },
     headStyles: {
       fontSize: 8,
       fontStyle: "bold",
@@ -183,7 +184,7 @@ export const createQuotationPrint = (data) => {
     startY: doc.previousAutoTable.finalY,
     head: [table2Column],
     body: table2Rows,
-    margin: { left: sideMargin, right: sideMargin },
+    margin: { left: sideMargin, right: sideMargin, bottom: 27 },
     headStyles: {
       fontSize: 8,
       fontStyle: "bold",
@@ -278,7 +279,7 @@ export const createQuotationPrint = (data) => {
     startY: doc.previousAutoTable.finalY,
     head: [],
     body: notes,
-    margin: { left: sideMargin, right: sideMargin },
+    margin: { left: sideMargin, right: sideMargin, bottom: 27 },
     styles: {
       lineWidth: 0.1,
       lineColor: [116, 116, 116],
@@ -324,9 +325,7 @@ export const createQuotationPrint = (data) => {
 
   const deliveryText =
     "Remit Payment to: Global Marine Safety Service Inc Frost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44";
-  const maxWidth = pageWidth - sideMargin * 2;
-  const lines = doc.splitTextToSize(deliveryText, maxWidth);
-  doc.text(lines, pageWidth / 2, doc.previousAutoTable.finalY + 30, {
+  doc.text(deliveryText, pageWidth / 2, doc.previousAutoTable.finalY + 25, {
     align: "center",
   });
 

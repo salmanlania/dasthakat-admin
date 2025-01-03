@@ -486,27 +486,23 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       scrollToFirstError
     >
       {/* Make this sticky */}
-      <div className="flex justify-center -mt-8 sticky top-14 z-10">
-        <p className="text-xs w-fit border bg-white px-2 rounded p-1 font-semibold">
-          <span className="text-gray-500">Charge order No:</span>
-          <span
-            className={`ml-4 text-amber-600 ${
-              mode === "edit"
-                ? "hover:bg-slate-200 cursor-pointer"
-                : "select-none"
-            } px-1 rounded`}
-            onClick={() => {
-              if (mode !== "edit") return;
-              navigator.clipboard.writeText(
-                initialFormValues.document_identity
-              );
-              toast.success("Copied");
-            }}
-          >
-            {mode === "edit" ? initialFormValues.document_identity : "AUTO"}
-          </span>
-        </p>
-      </div>
+      <p className="text-xs w-fit border m-auto bg-white px-2 rounded  -mt-8 p-1 sticky top-14 z-10 font-semibold">
+        <span className="text-gray-500">Charge order No:</span>
+        <span
+          className={`ml-4 text-amber-600 ${
+            mode === "edit"
+              ? "hover:bg-slate-200 cursor-pointer"
+              : "select-none"
+          } px-1 rounded`}
+          onClick={() => {
+            if (mode !== "edit") return;
+            navigator.clipboard.writeText(initialFormValues.document_identity);
+            toast.success("Copied");
+          }}
+        >
+          {mode === "edit" ? initialFormValues.document_identity : "AUTO"}
+        </span>
+      </p>
       <Row gutter={12}>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
