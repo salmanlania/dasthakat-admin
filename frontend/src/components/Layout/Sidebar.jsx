@@ -91,6 +91,8 @@ const Sidebar = () => {
     !permissions?.validity?.list &&
     !permissions?.payment?.list;
 
+  const purchaseManagementPermission = !permissions?.purchase_order?.list;
+
   const saleManagementPermission =
     !permissions?.quotation?.list && !permissions?.charge_order?.list;
 
@@ -201,7 +203,7 @@ const Sidebar = () => {
       key: "inventory-management",
       label: "Inventory Management",
       icon: <LuPackage2 size={18} />,
-      disabled: inventorySetupPermission,
+      disabled: inventorySetupPermission && purchaseManagementPermission,
       children: [
         {
           key: "inventory-setup",
@@ -242,6 +244,18 @@ const Sidebar = () => {
               key: "payment",
               label: <Link to="/payment">Payment</Link>,
               disabled: !permissions?.payment?.list,
+            },
+          ],
+        },
+        {
+          key: "purchase-management",
+          label: "Purchase Management",
+          disabled: purchaseManagementPermission,
+          children: [
+            {
+              key: "purchase-order",
+              label: <Link to="/purchase-order">Purpose Order</Link>,
+              disabled: !permissions?.purchase_order?.list,
             },
           ],
         },

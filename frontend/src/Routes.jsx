@@ -76,6 +76,14 @@ const EditProduct = lazy(() => import("./pages/Product/EditProduct"));
 const Validity = lazy(() => import("./pages/Validity"));
 const Payment = lazy(() => import("./pages/Payment"));
 
+const PurchaseOrder = lazy(() => import("./pages/PurchaseOrder"));
+const CreatePurchaseOrder = lazy(() =>
+  import("./pages/PurchaseOrder/CreatePurchaseOrder")
+);
+const EditPurchaseOrder = lazy(() =>
+  import("./pages/PurchaseOrder/EditPurchaseOrder")
+);
+
 const Quotation = lazy(() => import("./pages/Quotation"));
 const CreateQuotation = lazy(() => import("./pages/Quotation/CreateQuotation"));
 const EditQuotation = lazy(() => import("./pages/Quotation/EditQuotation"));
@@ -454,6 +462,30 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Payment />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/purchase-order",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <PurchaseOrder />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/purchase-order/create",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreatePurchaseOrder />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/purchase-order/edit/:id",
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditPurchaseOrder />
               </Suspense>
             ),
           },

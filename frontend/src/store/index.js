@@ -15,6 +15,7 @@ import flagReducer from "./features/flagSlice";
 import paymentReducer from "./features/paymentSlice";
 import portReducer from "./features/portSlice";
 import productReducer from "./features/productSlice";
+import purchaseOrderReducer from "./features/purchaseOrderSlice";
 import quotationReducer from "./features/quotationSlice";
 import salesmanReducer from "./features/salesmanSlice";
 import sidebarReducer from "./features/sidebarSlice";
@@ -52,6 +53,7 @@ const rootReducer = combineReducers({
   vessel: vesselReducer,
   event: eventReducer,
   product: productReducer,
+  purchaseOrder: purchaseOrderReducer,
   quotation: quotationReducer,
   chargeOrder: chargeOrderReducer,
 });
