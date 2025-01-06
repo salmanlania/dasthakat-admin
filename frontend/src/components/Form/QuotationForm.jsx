@@ -792,6 +792,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             <DatePicker format="DD-MM-YYYY" className="w-full" />
           </Form.Item>
         </Col>
+
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
             name="salesman_id"
@@ -812,6 +813,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             />
           </Form.Item>
         </Col>
+
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
             name="event_id"
@@ -832,32 +834,41 @@ const QuotationForm = ({ mode, onSubmit }) => {
             />
           </Form.Item>
         </Col>
+
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="vessel_id" label="Vessel">
             <Select labelInValue disabled />
           </Form.Item>
         </Col>
+
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="imo" label="IMO">
             <Input disabled />
           </Form.Item>
         </Col>
+
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="customer_id" label="Customer">
             <Select labelInValue disabled />
           </Form.Item>
         </Col>
 
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="class1_id" label="Class 1">
+        <Col
+          span={24}
+          sm={12}
+          md={8}
+          lg={8}
+          className="flex items-center gap-3"
+        >
+          <Form.Item name="class1_id" label="Class 1" className="w-full">
+            <Select labelInValue disabled />
+          </Form.Item>
+
+          <Form.Item name="class2_id" label="Class 2" className="w-full">
             <Select labelInValue disabled />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="class2_id" label="Class 2">
-            <Select labelInValue disabled />
-          </Form.Item>
-        </Col>
+
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="flag_id" label="Flag">
             <AsyncSelect
@@ -884,26 +895,37 @@ const QuotationForm = ({ mode, onSubmit }) => {
             />
           </Form.Item>
         </Col>
+
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="customer_ref" label="Customer Ref">
             <Input />
           </Form.Item>
         </Col>
+
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="due_date" label="Due Date" className="w-full">
             <DatePicker format="DD-MM-YYYY" className="w-full" />
           </Form.Item>
         </Col>
+
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="date_of_service" label="Date of Service">
+            <DatePicker format="DD-MM-YYYY" className="w-full" />
+          </Form.Item>
+        </Col>
+
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="attn" label="Attn">
             <Input />
           </Form.Item>
         </Col>
+
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="delivery" label="Delivery">
             <Input />
           </Form.Item>
         </Col>
+
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="validity_id" label="Validity">
             <AsyncSelect
@@ -919,6 +941,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             />
           </Form.Item>
         </Col>
+
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="payment_id" label="Payment Terms">
             <AsyncSelect
@@ -934,11 +957,13 @@ const QuotationForm = ({ mode, onSubmit }) => {
             />
           </Form.Item>
         </Col>
+
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="internal_notes" label="Internal Notes">
             <Input />
           </Form.Item>
         </Col>
+
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="port_id" label="Port">
             <AsyncSelect

@@ -1,8 +1,8 @@
 import { Button, Col, Form, Input, Row, Select } from "antd";
-import ReactInputMask from "react-input-mask";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
+// eslint-disable-next-line react/prop-types
 const VendorForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues } = useSelector(
     (state) => state.vendor

@@ -18,6 +18,7 @@ import { Link } from "react-router-dom";
 import AsyncSelect from "../../components/AsyncSelect";
 import PageHeading from "../../components/heading/PageHeading";
 import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
+import CountrySelect from "../../components/Select/CountrySelect";
 import useDebounce from "../../hooks/useDebounce";
 import useError from "../../hooks/useError";
 import {
@@ -48,7 +49,6 @@ const Customer = () => {
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedCode = useDebounce(params.customer_code, 500);
   const debouncedName = useDebounce(params.name, 500);
-  const debouncedCountry = useDebounce(params.country, 500);
   const debouncedAddress = useDebounce(params.address, 500);
   const debouncedPhone = useDebounce(params.phone_no, 500);
   const debouncedEmailSales = useDebounce(params.email_sales, 500);
@@ -209,15 +209,15 @@ const Customer = () => {
     },
     {
       title: (
-        <div>
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Country</p>
-          <Input
-            className="font-normal"
+          <CountrySelect
             size="small"
-            onClick={(e) => e.stopPropagation()}
+            className="font-normal w-full"
+            allowClear
             value={params.country}
-            onChange={(e) =>
-              dispatch(setCustomerListParams({ country: e.target.value }))
+            onChange={(value) =>
+              dispatch(setCustomerListParams({ country: value }))
             }
           />
         </div>
@@ -225,7 +225,7 @@ const Customer = () => {
       dataIndex: "country",
       key: "country",
       sorter: true,
-      width: 150,
+      width: 220,
       ellipsis: true,
     },
     {
@@ -404,10 +404,10 @@ const Customer = () => {
     params.status,
     params.salesman_id,
     params.vessel_id,
+    params.country,
     debouncedSearch,
     debouncedCode,
     debouncedName,
-    debouncedCountry,
     debouncedAddress,
     debouncedPhone,
     debouncedEmailSales,

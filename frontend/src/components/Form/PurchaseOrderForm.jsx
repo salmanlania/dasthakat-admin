@@ -20,7 +20,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import useError from "../../hooks/useError";
-import { getEvent } from "../../store/features/eventSlice";
 import { getProduct, getProductList } from "../../store/features/productSlice";
 import {
   addPurchaseOrderDetail,
@@ -29,15 +28,10 @@ import {
   copyPurchaseOrderDetail,
   getPurchaseOrderForPrint,
   removePurchaseOrderDetail,
-  setRebatePercentage,
-  setSalesmanPercentage,
 } from "../../store/features/purchaseOrderSlice";
-import { getSalesman } from "../../store/features/salesmanSlice";
-import { formatThreeDigitCommas, roundUpto } from "../../utils/number";
 import { createPurchaseOrderPrint } from "../../utils/prints/purchase-order-print";
 import AsyncSelect from "../AsyncSelect";
 import DebouncedCommaSeparatedInput from "../Input/DebouncedCommaSeparatedInput";
-import DebouncedNumberInput from "../Input/DebouncedNumberInput";
 import DebounceInput from "../Input/DebounceInput";
 import { DetailSummaryInfo } from "./QuotationForm";
 
@@ -54,34 +48,17 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
     salesmanPercentage,
   } = useSelector((state) => state.purchaseOrder);
 
+  const POType = Form.useWatch("po_type", form);
+  const isBillable = POType === "Billable";
+
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
 
-  let totalQuantity = 0;
-  let totalAmount = 0;
-  let discountAmount = 0;
   let totalNet = 0;
 
   purchaseOrderDetails.forEach((detail) => {
-    totalQuantity += +detail.quantity || 0;
-    totalAmount += +detail.amount || 0;
-    discountAmount += +detail.discount_amount || 0;
     totalNet += +detail.gross_amount || 0;
   });
-
-  const rebateAmount =
-    rebatePercentage && totalNet
-      ? formatThreeDigitCommas(roundUpto(totalNet * (rebatePercentage / 100)))
-      : 0;
-
-  const salesmanAmount =
-    salesmanPercentage && totalNet
-      ? formatThreeDigitCommas(roundUpto(totalNet * (salesmanPercentage / 100)))
-      : 0;
-
-  const finalAmount =
-    roundUpto((totalNet || 0) - (rebateAmount || 0) - (salesmanAmount || 0)) ||
-    0;
 
   const onFinish = (values) => {
     if (!totalNet) return toast.error("Net Amount cannot be zero");
@@ -524,63 +501,6 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
     },
   ];
 
-  const onTermChange = (selected) => {
-    if (!selected.length) {
-      form.setFieldsValue({ term_desc: "" });
-      return;
-    }
-
-    const newTermDesc = selected.map((t) => `* ${t.label}`).join("\n");
-    form.setFieldsValue({ term_desc: newTermDesc });
-  };
-
-  const onEventChange = async (selected) => {
-    form.setFieldsValue({
-      vessel_id: null,
-      customer_id: null,
-      imo: null,
-      class1_id: null,
-      class2_id: null,
-      flag_id: null,
-    });
-    dispatch(setRebatePercentage(null));
-
-    if (!selected) return;
-    try {
-      const data = await dispatch(getEvent(selected.value)).unwrap();
-      form.setFieldsValue({
-        vessel_id: { value: data.vessel_id, label: data.vessel_name },
-        imo: data.imo,
-        customer_id: { value: data.customer_id, label: data.customer_name },
-        class1_id: { value: data.class1_id, label: data.class1_name },
-        class2_id: { value: data.class2_id, label: data.class2_name },
-        flag_id: { value: data.flag_id, label: data.flag_name },
-        payment_id: { value: data.payment_id, label: data.payment_name },
-      });
-      dispatch(
-        setRebatePercentage(data.rebate_percent ? +data.rebate_percent : null)
-      );
-    } catch (error) {
-      handleError(error);
-    }
-  };
-
-  const onSalesmanChange = async (selected) => {
-    dispatch(setSalesmanPercentage(null));
-    if (!selected) return;
-
-    try {
-      const data = await dispatch(getSalesman(selected.value)).unwrap();
-      dispatch(
-        setSalesmanPercentage(
-          data.commission_percentage ? +data.commission_percentage : null
-        )
-      );
-    } catch (error) {
-      handleError(error);
-    }
-  };
-
   return (
     <Form
       name="purchaseOrder"
@@ -593,6 +513,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
           ? initialFormValues
           : {
               document_date: dayjs(),
+              po_type: "Inventory",
             }
       }
       scrollToFirstError
@@ -636,63 +557,6 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             <DatePicker format="DD-MM-YYYY" className="w-full" />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item
-            name="invoice_type"
-            label="Invoice Type"
-            rules={[
-              {
-                required: true,
-                message: "Invoice Type is required",
-              },
-            ]}
-          >
-            <Select
-              options={[
-                {
-                  value: "Local",
-                  label: "Local",
-                },
-                {
-                  value: "Import",
-                  label: "Import",
-                },
-              ]}
-            />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="manual_ref_no" label="Manual Ref No">
-            <Input />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="charge_no" label="Charge No">
-            <Input />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="quotation_no" label="Quotation No">
-            <Input />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="customer_id" label="Customer">
-            <AsyncSelect
-              endpoint="/customer"
-              valueKey="customer_id"
-              labelKey="name"
-              labelInValue
-              addNewLink={
-                permissions.customer.list && permissions.customer.add
-                  ? "/customer/create"
-                  : null
-              }
-            />
-          </Form.Item>
-        </Col>
 
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="supplier_id" label="Vendor">
@@ -711,6 +575,84 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
         </Col>
 
         <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item
+            name="po_type"
+            label="Purchase Order Type"
+            rules={[
+              {
+                required: true,
+                message: "Purchase Order Type is required",
+              },
+            ]}
+          >
+            <Select
+              options={[
+                {
+                  value: "Inventory",
+                  label: "Inventory",
+                },
+                {
+                  value: "Billable",
+                  label: "Billable",
+                },
+              ]}
+            />
+          </Form.Item>
+        </Col>
+
+        {isBillable ? (
+          <>
+            <Col span={24} sm={12} md={8} lg={8} className="flex gap-3">
+              <Form.Item name="charge_no" label="Charge No" className="w-full">
+                <Input disabled />
+              </Form.Item>
+
+              <Form.Item
+                name="quotation_no"
+                label="Quotation No"
+                className="w-full"
+              >
+                <Input disabled />
+              </Form.Item>
+            </Col>
+
+            <Col span={24} sm={12} md={8} lg={8}>
+              <Form.Item name="event_id" label="Event">
+                <AsyncSelect
+                  endpoint="/event"
+                  valueKey="event_id"
+                  labelKey="name"
+                  labelInValue
+                  disabled
+                  addNewLink={
+                    permissions.event.list && permissions.event.add
+                      ? "/event/create"
+                      : null
+                  }
+                />
+              </Form.Item>
+            </Col>
+
+            <Col span={24} sm={12} md={8} lg={8}>
+              <Form.Item name="customer_id" label="Customer">
+                <AsyncSelect
+                  endpoint="/customer"
+                  valueKey="customer_id"
+                  labelKey="name"
+                  labelInValue
+                  disabled
+                  addNewLink={
+                    permissions.customer.list && permissions.customer.add
+                      ? "/customer/create"
+                      : null
+                  }
+                />
+              </Form.Item>
+            </Col>
+          </>
+        ) : null}
+
+        <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="validity_id" label="Payment Terms">
             <AsyncSelect
               endpoint="/validity"
@@ -726,7 +668,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
 
-        <Col span={24}>
+        <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="remarks" label="Remarks">
             <Input.TextArea rows={1} />
           </Form.Item>
@@ -750,7 +692,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       />
 
       <div className="bg-slate-50 rounded-lg border border-t-0 rounded-t-none py-3 px-6 border-slate-300">
-        <DetailSummaryInfo title="Net Amount:" value={finalAmount} />
+        <DetailSummaryInfo title="Net Amount:" value={totalNet} />
       </div>
 
       <div className="mt-4 flex gap-2 justify-end items-center">

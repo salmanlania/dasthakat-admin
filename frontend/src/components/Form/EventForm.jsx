@@ -77,7 +77,13 @@ const EventForm = ({ mode, onSubmit }) => {
       form={form}
       autoComplete="off"
       onFinish={onFinish}
-      initialValues={mode === "edit" ? initialFormValues : null}
+      initialValues={
+        mode === "edit"
+          ? initialFormValues
+          : {
+              status: 1,
+            }
+      }
     >
       <Row gutter={[12, 12]} className="w-full">
         <Col span={24} sm={12} md={8} lg={8}>

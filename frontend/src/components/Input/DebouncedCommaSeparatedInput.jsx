@@ -22,7 +22,7 @@ import { formatThreeDigitCommas, removeCommas } from "../../utils/number";
 const DebouncedCommaSeparatedInput = ({
   value = "",
   onChange = () => {},
-  decimalPlaces = 3,
+  decimalPlaces = 2,
   delay = 500,
   ...restProps
 }) => {

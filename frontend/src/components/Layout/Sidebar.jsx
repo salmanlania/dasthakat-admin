@@ -254,7 +254,7 @@ const Sidebar = () => {
           children: [
             {
               key: "purchase-order",
-              label: <Link to="/purchase-order">Purpose Order</Link>,
+              label: <Link to="/purchase-order">Purchase Order</Link>,
               disabled: !permissions?.purchase_order?.list,
             },
           ],

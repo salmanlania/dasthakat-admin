@@ -20,7 +20,7 @@ import { formatThreeDigitCommas, removeCommas } from "../../utils/number";
 const CommaSeparatedInput = ({
   value = "",
   onChange = () => {},
-  decimalPlaces = 3,
+  decimalPlaces = 2,
   ...restProps
 }) => {
   // Handle input change

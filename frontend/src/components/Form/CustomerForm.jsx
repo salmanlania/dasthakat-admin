@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import AsyncSelect from "../AsyncSelect";
 import NumberInput from "../Input/NumberInput";
+import CountrySelect from "../Select/CountrySelect";
 
 // eslint-disable-next-line react/prop-types
 const CustomerForm = ({ mode, onSubmit }) => {
@@ -26,7 +27,11 @@ const CustomerForm = ({ mode, onSubmit }) => {
       name="customer"
       layout="vertical"
       autoComplete="off"
-      initialValues={mode === "edit" ? initialFormValues : { status: 1 }}
+      initialValues={
+        mode === "edit"
+          ? initialFormValues
+          : { status: 1, country: "United States" }
+      }
       onFinish={onFinish}
     >
       <Row gutter={[12, 12]}>
@@ -67,7 +72,7 @@ const CustomerForm = ({ mode, onSubmit }) => {
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="country" label="Country">
-            <Input />
+            <CountrySelect allowClear />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
