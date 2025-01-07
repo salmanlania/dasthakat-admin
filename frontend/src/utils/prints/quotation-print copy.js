@@ -9,11 +9,18 @@ import Logo3 from "../../assets/quotationPrintLogo/logo3.png";
 import Logo4 from "../../assets/quotationPrintLogo/logo4.png";
 import Logo5 from "../../assets/quotationPrintLogo/logo5.png";
 import Logo6 from "../../assets/quotationPrintLogo/logo6.png";
-import Logo7 from "../../assets/quotationPrintLogo/logo7.png";
 
 import { formatThreeDigitCommas, roundUpto } from "../number";
 
-const addHeader = (doc, data, pageWidth, sideMargin) => {
+export const createQuotationPrint = (data) => {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  doc.setTextColor(32, 50, 114);
+
+  const sideMargin = 4;
+
+  // Header Start
   doc.setFontSize(20);
   doc.setFont("times", "bold");
   doc.text("Global Marine Safety - America", pageWidth / 2, 12, {
@@ -124,33 +131,8 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       6: { cellWidth: 17 },
       7: { cellWidth: 27 },
     },
-    didParseCell: function (data) {
-      data.cell.styles.minCellHeight = 9;
-    },
   });
-};
-
-const addFooter = (doc, pageWidth, pageHeight) => {
-  doc.addImage(Logo1, "PNG", 8, pageHeight, 26, 22);
-  doc.addImage(Logo2, "PNG", 38, pageHeight + 6, 26, 10);
-  doc.addImage(Logo3, "PNG", 70, pageHeight + 2, 26, 16);
-  doc.addImage(Logo4, "PNG", 102, pageHeight + 4, 26, 16);
-  doc.addImage(Logo5, "PNG", 130, pageHeight, 32, 16);
-  doc.addImage(Logo6, "PNG", 164, pageHeight + 2, 14, 16);
-  doc.addImage(Logo7, "PNG", 182, pageHeight + 2, 14, 16);
-
-  const deliveryText =
-    "Remit Payment to: Global Marine Safety Service Inc Frost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44";
-  doc.text(deliveryText, pageWidth / 2, pageHeight, {
-    align: "center",
-  });
-};
-
-export const createQuotationPrint = (data) => {
-  const doc = new jsPDF();
-  doc.setTextColor(32, 50, 114);
-
-  const sideMargin = 4;
+  // Header End
 
   // Table 2
   const table2Column = [
@@ -200,10 +182,10 @@ export const createQuotationPrint = (data) => {
 
   // Adding Table
   doc.autoTable({
-    startY: 85,
+    startY: doc.previousAutoTable.finalY,
     head: [table2Column],
     body: table2Rows,
-    margin: { left: sideMargin, right: sideMargin, bottom: 27, top: 85 },
+    margin: { left: sideMargin, right: sideMargin, bottom: 27 },
     headStyles: {
       fontSize: 8,
       fontStyle: "bold",
@@ -298,7 +280,7 @@ export const createQuotationPrint = (data) => {
     startY: doc.previousAutoTable.finalY,
     head: [],
     body: notes,
-    margin: { left: sideMargin, right: sideMargin, bottom: 27, top: 85 },
+    margin: { left: sideMargin, right: sideMargin, bottom: 27 },
     styles: {
       lineWidth: 0.1,
       lineColor: [116, 116, 116],
@@ -334,19 +316,19 @@ export const createQuotationPrint = (data) => {
     },
   });
 
-  const pageCount = doc.internal.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-    const pageSize = doc.internal.pageSize;
-    const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
-    const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
+  // Footer Start
+  doc.addImage(Logo1, "PNG", 8, doc.previousAutoTable.finalY, 26, 22);
+  doc.addImage(Logo2, "PNG", 38, doc.previousAutoTable.finalY + 6, 26, 10);
+  doc.addImage(Logo3, "PNG", 70, doc.previousAutoTable.finalY + 2, 26, 16);
+  doc.addImage(Logo4, "PNG", 102, doc.previousAutoTable.finalY + 4, 26, 16);
+  doc.addImage(Logo5, "PNG", 130, doc.previousAutoTable.finalY, 32, 16);
+  doc.addImage(Logo6, "PNG", 164, doc.previousAutoTable.finalY + 2, 14, 16);
 
-    // Header
-    addHeader(doc, data, pageWidth, sideMargin);
-
-    // Footer
-    addFooter(doc, pageWidth, pageHeight - 25);
-  }
+  const deliveryText =
+    "Remit Payment to: Global Marine Safety Service Inc Frost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44";
+  doc.text(deliveryText, pageWidth / 2, doc.previousAutoTable.finalY + 25, {
+    align: "center",
+  });
 
   doc.setProperties({
     title: "Quotation - 0014",

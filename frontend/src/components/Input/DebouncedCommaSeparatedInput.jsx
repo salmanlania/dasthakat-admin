@@ -27,7 +27,9 @@ const DebouncedCommaSeparatedInput = ({
   ...restProps
 }) => {
   const isFirstRender = useRef(true);
-  const [inputValue, setInputValue] = useState(value ? value.toString() : "");
+  const [inputValue, setInputValue] = useState(
+    value || value === 0 ? value.toString() : ""
+  );
   const debouncedValue = useDebounce(inputValue, delay);
 
   // Handle input change

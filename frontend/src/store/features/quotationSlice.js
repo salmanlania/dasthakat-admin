@@ -192,6 +192,12 @@ export const quotationSlice = createSlice({
 
       if (detail.quantity && detail.rate) {
         detail.amount = roundUpto(+detail.quantity * +detail.rate);
+
+        if (+detail.cost_price && +detail.rate) {
+          detail.markup = roundUpto(
+            ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100
+          );
+        }
       } else {
         detail.amount = "";
       }

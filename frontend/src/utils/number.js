@@ -27,7 +27,7 @@ export const removeCommas = (num) => {
  * @param {number} [fixed=3] - The number of decimal places to round to. Default is 3.
  * @returns {number|string} - The rounded number, or an empty string if the input is falsy.
  */
-export function roundUpto(value, fixed = 3) {
+export function roundUpto(value, fixed = 2) {
   if (!value && value !== 0) return "";
   const roundedValue = Number(value.toFixed(fixed));
   return parseFloat(roundedValue);

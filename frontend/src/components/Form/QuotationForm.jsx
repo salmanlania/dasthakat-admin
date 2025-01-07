@@ -377,10 +377,11 @@ const QuotationForm = ({ mode, onSubmit }) => {
       dataIndex: "quantity",
       key: "quantity",
       render: (_, { quantity }, index) => {
+        form.setFieldsValue({ [`quantity-${index}`]: quantity });
         return (
           <Form.Item
             className="m-0"
-            name={`quantity-${uuidv4()}`}
+            name={`quantity-${index}`}
             initialValue={quantity}
             rules={[
               {
@@ -497,35 +498,19 @@ const QuotationForm = ({ mode, onSubmit }) => {
       key: "markup",
       render: (_, { markup }, index) => {
         return (
-          <Form.Item
-            className="m-0"
-            initialValue={markup}
-            name={`markup-${uuidv4()}`}
-            rules={[
-              {
-                validator: (_, value) => {
-                  if (value > 100) {
-                    return Promise.reject(new Error("Invalid markup."));
-                  }
-                  return Promise.resolve();
-                },
-              },
-            ]}
-          >
-            <DebouncedNumberInput
-              value={markup ? markup + "" : ""}
-              type="decimal"
-              onChange={(value) =>
-                dispatch(
-                  changeQuotationDetailValue({
-                    index,
-                    key: "markup",
-                    value: value,
-                  })
-                )
-              }
-            />
-          </Form.Item>
+          <DebouncedNumberInput
+            value={markup}
+            type="decimal"
+            onChange={(value) =>
+              dispatch(
+                changeQuotationDetailValue({
+                  index,
+                  key: "markup",
+                  value: value,
+                })
+              )
+            }
+          />
         );
       },
       width: 90,
@@ -536,10 +521,11 @@ const QuotationForm = ({ mode, onSubmit }) => {
       dataIndex: "rate",
       key: "rate",
       render: (_, { rate }, index) => {
+        form.setFieldsValue({ [`rate-${index}`]: rate });
         return (
           <Form.Item
             className="m-0"
-            name={`rate-${uuidv4()}`}
+            name={`rate-${index}`}
             initialValue={rate}
             rules={[
               {
@@ -582,11 +568,14 @@ const QuotationForm = ({ mode, onSubmit }) => {
       dataIndex: "discount_percent",
       key: "discount_percent",
       render: (_, { discount_percent }, index) => {
+        form.setFieldsValue({
+          [`discount_percent-${index}`]: discount_percent,
+        });
         return (
           <Form.Item
             className="m-0"
             initialValue={discount_percent}
-            name={`discount_percent-${uuidv4()}`}
+            name={`discount_percent-${index}`}
             rules={[
               {
                 validator: (_, value) => {
