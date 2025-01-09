@@ -51,7 +51,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   );
   doc.text(billTo, sideMargin, 45);
 
-  const shipTo = doc.splitTextToSize(data.customer ? data.customer.name : '', 68);
+  const shipTo = doc.splitTextToSize(data.vessel ? data.vessel.name : '', 68);
   doc.text(shipTo, 140, 45);
 
   doc.setFontSize(16);
@@ -71,18 +71,18 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
     'Payment Terms',
     'Flag',
     'Class',
-    'ETA'
+    'Date of Service'
   ];
   const table1Rows = [
     [
       data.document_date ? dayjs(data.document_date).format('DD-MM-YYYY') : '',
       data.document_identity,
       data.customer_ref,
-      data.delivery,
+      data.port ? data.port.name : '',
       data.payment ? data.payment.name : '',
       data.flag ? data.flag.name : '',
       `${data.class1 ? `${data.class1.name},` : ''} ${data.class2 ? data.class2.name : ''}`,
-      'TBA'
+      data.service_date ? dayjs(data.service_date).format('DD-MM-YYYY') : ''
     ]
   ];
 
@@ -162,15 +162,17 @@ export const createQuotationPrint = (data) => {
   const table2Rows = data.quotation_detail
     ? data.quotation_detail.map((detail) => {
         const sr = detail.sort_order + 1;
-        const description = detail.product ? detail.product.name : '';
+        const description = detail.product ? detail.product.product_name : '';
         const uom = detail.unit ? detail.unit.name : '';
         const quantity = detail.quantity ? formatThreeDigitCommas(detail.quantity) : '';
-        const pricePerUnit = detail.rate ? formatThreeDigitCommas(detail.rate) : '';
-        const grossAmount = detail.amount ? formatThreeDigitCommas(detail.amount) : '';
+        const pricePerUnit = detail.rate ? `$${formatThreeDigitCommas(detail.rate)}` : '';
+        const grossAmount = detail.amount ? `$${formatThreeDigitCommas(detail.amount)}` : '';
         const discountPercent = detail.discount_percent
           ? `${roundUpto(+detail.discount_percent)}%`
           : '';
-        const netAmount = detail.gross_amount ? formatThreeDigitCommas(detail.gross_amount) : '';
+        const netAmount = detail.gross_amount
+          ? `$${formatThreeDigitCommas(detail.gross_amount)}`
+          : '';
 
         return [
           sr,
@@ -224,7 +226,7 @@ export const createQuotationPrint = (data) => {
 
   const descriptions = data.term_desc ? data.term_desc.split('\n') : [];
   const rowSpan = descriptions.length + 1;
-  const netAmount = data.net_amount ? formatThreeDigitCommas(data.net_amount) : '';
+  const netAmount = data.net_amount ? `$${formatThreeDigitCommas(data.net_amount)}` : '';
   const notes = data.term_desc
     ? descriptions.map((note, index) => {
         if (index === 0) {

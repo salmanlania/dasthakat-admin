@@ -103,9 +103,9 @@ const QuotationForm = ({ mode, onSubmit }) => {
       validity_id: values.validity_id ? values.validity_id.value : null,
       vessel_id: values.vessel_id ? values.vessel_id.value : null,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
+      service_date: values.service_date ? dayjs(values.service_date).format('YYYY-MM-DD') : null,
       due_date: values.due_date ? dayjs(values.due_date).format('YYYY-MM-DD') : null,
       term_id: values.term_id && values.term_id.length ? values.term_id.map((v) => v.value) : null,
-      // eslint-disable-next-line no-unused-vars
       quotation_detail: quotationDetails.map(({ id, ...detail }, index) => ({
         ...detail,
         supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
@@ -297,7 +297,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           <AsyncSelect
             endpoint="/product"
             valueKey="product_id"
-            labelKey="name"
+            labelKey="product_name"
             labelInValue
             className="w-full"
             value={product_id}
@@ -357,8 +357,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
                 required: true,
                 message: 'Quantity is required'
               }
-            ]}
-          >
+            ]}>
             <DebouncedCommaSeparatedInput
               decimalPlaces={2}
               value={quantity}
@@ -497,8 +496,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
                 required: true,
                 message: 'Selling price is required'
               }
-            ]}
-          >
+            ]}>
             <DebouncedCommaSeparatedInput
               value={rate}
               onChange={(value) =>
@@ -547,8 +545,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
                   return Promise.resolve();
                 }
               }
-            ]}
-          >
+            ]}>
             <DebouncedNumberInput
               value={discount_percent}
               type="decimal"
@@ -626,8 +623,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
                 onClick: () => dispatch(removeQuotationDetail(id))
               }
             ]
-          }}
-        >
+          }}>
           <Button size="small">
             <BsThreeDotsVertical />
           </Button>
@@ -705,8 +701,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
               document_date: dayjs()
             }
       }
-      scrollToFirstError
-    >
+      scrollToFirstError>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
         <span className="text-gray-500">Quotation No:</span>
@@ -718,8 +713,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             if (mode !== 'edit') return;
             navigator.clipboard.writeText(initialFormValues.document_identity);
             toast.success('Copied');
-          }}
-        >
+          }}>
           {mode === 'edit' ? initialFormValues.document_identity : 'AUTO'}
         </span>
       </p>
@@ -729,8 +723,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             name="document_date"
             label="Quotation Date"
             rules={[{ required: true, message: 'Quotation date is required' }]}
-            className="w-full"
-          >
+            className="w-full">
             <DatePicker format="DD-MM-YYYY" className="w-full" />
           </Form.Item>
         </Col>
@@ -739,8 +732,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           <Form.Item
             name="salesman_id"
             label="Salesman"
-            rules={[{ required: true, message: 'Salesman is required' }]}
-          >
+            rules={[{ required: true, message: 'Salesman is required' }]}>
             <AsyncSelect
               endpoint="/salesman"
               valueKey="salesman_id"
@@ -758,8 +750,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           <Form.Item
             name="event_id"
             label="Event"
-            rules={[{ required: true, message: 'Event is required' }]}
-          >
+            rules={[{ required: true, message: 'Event is required' }]}>
             <AsyncSelect
               endpoint="/event"
               valueKey="event_id"
@@ -835,7 +826,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
         </Col>
 
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="date_of_service" label="Date of Service">
+          <Form.Item name="service_date" label="Date of Service">
             <DatePicker format="DD-MM-YYYY" className="w-full" />
           </Form.Item>
         </Col>
@@ -1021,8 +1012,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           <Button
             type="primary"
             className="w-28 bg-rose-600 hover:!bg-rose-500"
-            onClick={printQuotation}
-          >
+            onClick={printQuotation}>
             Print
           </Button>
         ) : null}
@@ -1030,8 +1020,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           type="primary"
           className="w-28"
           loading={isFormSubmitting}
-          onClick={() => form.submit()}
-        >
+          onClick={() => form.submit()}>
           Save
         </Button>
       </div>
