@@ -1,16 +1,16 @@
-import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from "antd";
-import dayjs from "dayjs";
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { FaRegSave } from "react-icons/fa";
-import { FcCancel } from "react-icons/fc";
-import { GoTrash } from "react-icons/go";
-import { MdOutlineEdit } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import PageHeading from "../../components/heading/PageHeading";
-import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
-import useDebounce from "../../hooks/useDebounce";
-import useError from "../../hooks/useError";
+import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from 'antd';
+import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { FaRegSave } from 'react-icons/fa';
+import { FcCancel } from 'react-icons/fc';
+import { GoTrash } from 'react-icons/go';
+import { MdOutlineEdit } from 'react-icons/md';
+import { useDispatch, useSelector } from 'react-redux';
+import PageHeading from '../../components/heading/PageHeading';
+import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
+import useDebounce from '../../hooks/useDebounce';
+import useError from '../../hooks/useError';
 import {
   addNewClass,
   bulkDeleteClass,
@@ -22,21 +22,14 @@ import {
   setClassEditable,
   setClassListParams,
   updateClass,
-  updateClassListValue,
-} from "../../store/features/classSlice";
+  updateClassListValue
+} from '../../store/features/classSlice';
 
 const Class = () => {
   const dispatch = useDispatch();
   const handleError = useError();
-  const {
-    list,
-    isListLoading,
-    params,
-    paginationInfo,
-    isBulkDeleting,
-    isSubmitting,
-    deleteIDs,
-  } = useSelector((state) => state.class);
+  const { list, isListLoading, params, paginationInfo, isBulkDeleting, isSubmitting, deleteIDs } =
+    useSelector((state) => state.class);
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.class;
 
@@ -51,7 +44,7 @@ const Class = () => {
 
   const onCreate = async (record) => {
     const { name } = record;
-    if (!name.trim()) return toast.error("Name field is required");
+    if (!name.trim()) return toast.error('Name field is required');
 
     try {
       await dispatch(createClass({ name })).unwrap();
@@ -64,13 +57,13 @@ const Class = () => {
   const onUpdate = async (record) => {
     const { class_id, name } = record;
 
-    if (!name.trim()) return toast.error("Name field is required");
+    if (!name.trim()) return toast.error('Name field is required');
 
     try {
       await dispatch(
         updateClass({
           id: class_id,
-          data: { name },
+          data: { name }
         })
       ).unwrap();
       await dispatch(getClassList(params)).unwrap();
@@ -80,14 +73,14 @@ const Class = () => {
   };
 
   const onCancel = async (id) => {
-    if (id === "new") return dispatch(removeNewClass());
+    if (id === 'new') return dispatch(removeNewClass());
     dispatch(setClassEditable({ id, editable: false }));
   };
 
   const onClassDelete = async (id) => {
     try {
       await dispatch(deleteClass(id)).unwrap();
-      toast.success("Class deleted successfully");
+      toast.success('Class deleted successfully');
       dispatch(getClassList(params)).unwrap();
     } catch (error) {
       handleError(error);
@@ -97,7 +90,7 @@ const Class = () => {
   const onBulkDelete = async () => {
     try {
       await dispatch(bulkDeleteClass(deleteIDs)).unwrap();
-      toast.success("Classes deleted successfully");
+      toast.success('Classes deleted successfully');
       closeDeleteModal();
       await dispatch(getClassList(params)).unwrap();
     } catch (error) {
@@ -107,9 +100,9 @@ const Class = () => {
 
   const columns = [
     {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
       sorter: true,
       width: 120,
       ellipsis: true,
@@ -118,34 +111,34 @@ const Class = () => {
           <Input
             autoFocus
             defaultValue={name}
-            onBlur={(e) => onChange(class_id, "name", e.target.value)}
+            onBlur={(e) => onChange(class_id, 'name', e.target.value)}
           />
         ) : (
           <span>{name}</span>
-        ),
+        )
     },
     {
-      title: "Created At",
-      dataIndex: "created_at",
-      key: "created_at",
+      title: 'Created At',
+      dataIndex: 'created_at',
+      key: 'created_at',
       sorter: true,
       width: 168,
       render: (_, { created_at }) =>
         created_at ? (
-          dayjs(created_at).format("DD-MM-YYYY hh:mm A")
+          dayjs(created_at).format('DD-MM-YYYY hh:mm A')
         ) : (
           <span className="text-gray-400">AUTO</span>
-        ),
+        )
     },
     {
-      title: "Action",
-      key: "action",
+      title: 'Action',
+      key: 'action',
       render: (_, record) => {
         const { class_id, editable } = record;
 
         if (editable) {
           return (
-            <div className="flex gap-2 items-center">
+            <div className="flex items-center gap-2">
               <Tooltip title="Cancel" onClick={() => onCancel(class_id)}>
                 <Button danger icon={<FcCancel size={20} />} size="small" />
               </Tooltip>
@@ -155,9 +148,7 @@ const Class = () => {
                   size="small"
                   icon={<FaRegSave size={16} />}
                   loading={isSubmitting === class_id}
-                  onClick={() =>
-                    class_id === "new" ? onCreate(record) : onUpdate(record)
-                  }
+                  onClick={() => (class_id === 'new' ? onCreate(record) : onUpdate(record))}
                 />
               </Tooltip>
             </div>
@@ -165,7 +156,7 @@ const Class = () => {
         }
 
         return (
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             {permissions.edit ? (
               <Tooltip title="Edit">
                 <Button
@@ -177,7 +168,7 @@ const Class = () => {
                     dispatch(
                       setClassEditable({
                         id: class_id,
-                        editable: true,
+                        editable: true
                       })
                     )
                   }
@@ -194,12 +185,7 @@ const Class = () => {
                   cancelText="No"
                   onConfirm={() => onClassDelete(class_id)}
                 >
-                  <Button
-                    size="small"
-                    type="primary"
-                    danger
-                    icon={<GoTrash size={14} />}
-                  />
+                  <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                 </Popconfirm>
               </Tooltip>
             ) : null}
@@ -207,8 +193,8 @@ const Class = () => {
         );
       },
       width: 70,
-      fixed: "right",
-    },
+      fixed: 'right'
+    }
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -217,36 +203,25 @@ const Class = () => {
 
   useEffect(() => {
     dispatch(getClassList(params)).unwrap().catch(handleError);
-  }, [
-    params.page,
-    params.limit,
-    params.sort_column,
-    params.sort_direction,
-    debouncedSearch,
-  ]);
+  }, [params.page, params.limit, params.sort_column, params.sort_direction, debouncedSearch]);
 
   return (
     <>
-      <div className="flex justify-between items-center flex-wrap">
+      <div className="flex flex-wrap items-center justify-between">
         <PageHeading>CLASS</PageHeading>
-        <Breadcrumb
-          items={[{ title: "Class" }, { title: "List" }]}
-          separator=">"
-        />
+        <Breadcrumb items={[{ title: 'Class' }, { title: 'List' }]} separator=">" />
       </div>
 
-      <div className="mt-4 bg-white p-2 rounded-md">
-        <div className="flex justify-between items-center gap-2">
+      <div className="mt-4 rounded-md bg-white p-2">
+        <div className="flex items-center justify-between gap-2">
           <Input
             placeholder="Search..."
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) =>
-              dispatch(setClassListParams({ search: e.target.value }))
-            }
+            onChange={(e) => dispatch(setClassListParams({ search: e.target.value }))}
           />
 
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             <Button
               type="primary"
               danger
@@ -268,13 +243,12 @@ const Class = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: "checkbox",
+                  type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) =>
-                    dispatch(setClassDeleteIDs(selectedRowKeys)),
+                  onChange: (selectedRowKeys) => dispatch(setClassDeleteIDs(selectedRowKeys)),
                   getCheckboxProps: (record) => ({
-                    disabled: record.class_id === "new",
-                  }),
+                    disabled: record.class_id === 'new'
+                  })
                 }
               : null
           }
@@ -284,25 +258,25 @@ const Class = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order,
+                sort_direction: sorting.order
               })
             );
           }}
           loading={isListLoading}
           rowKey="class_id"
           className="mt-2"
-          scroll={{ x: "calc(100% - 200px)" }}
+          scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} class`,
+            showTotal: (total) => `Total ${total} class`
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56,
+            offsetHeader: 56
           }}
         />
       </div>

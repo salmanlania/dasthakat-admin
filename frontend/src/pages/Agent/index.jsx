@@ -1,34 +1,29 @@
-import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from "antd";
-import dayjs from "dayjs";
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { GoTrash } from "react-icons/go";
-import { MdOutlineEdit } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import PageHeading from "../../components/heading/PageHeading";
-import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
-import useDebounce from "../../hooks/useDebounce";
-import useError from "../../hooks/useError";
+import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from 'antd';
+import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { GoTrash } from 'react-icons/go';
+import { MdOutlineEdit } from 'react-icons/md';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import PageHeading from '../../components/heading/PageHeading';
+import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
+import useDebounce from '../../hooks/useDebounce';
+import useError from '../../hooks/useError';
 import {
   bulkDeleteAgent,
   deleteAgent,
   getAgentList,
   setAgentDeleteIDs,
-  setAgentListParams,
-} from "../../store/features/agentSlice";
+  setAgentListParams
+} from '../../store/features/agentSlice';
 
 const Agent = () => {
   const dispatch = useDispatch();
   const handleError = useError();
-  const {
-    list,
-    isListLoading,
-    params,
-    paginationInfo,
-    isBulkDeleting,
-    deleteIDs,
-  } = useSelector((state) => state.agent);
+  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
+    (state) => state.agent
+  );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.agent;
 
@@ -49,7 +44,7 @@ const Agent = () => {
   const onAgentDelete = async (id) => {
     try {
       await dispatch(deleteAgent(id)).unwrap();
-      toast.success("Agent deleted successfully");
+      toast.success('Agent deleted successfully');
       dispatch(getAgentList(params)).unwrap();
     } catch (error) {
       handleError(error);
@@ -59,7 +54,7 @@ const Agent = () => {
   const onBulkDelete = async () => {
     try {
       await dispatch(bulkDeleteAgent(deleteIDs)).unwrap();
-      toast.success("Companies deleted successfully");
+      toast.success('Companies deleted successfully');
       closeDeleteModal();
       await dispatch(getAgentList(params)).unwrap();
     } catch (error) {
@@ -77,16 +72,14 @@ const Agent = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.agent_code}
-            onChange={(e) =>
-              dispatch(setAgentListParams({ agent_code: e.target.value }))
-            }
+            onChange={(e) => dispatch(setAgentListParams({ agent_code: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "agent_code",
-      key: "agent_code",
+      dataIndex: 'agent_code',
+      key: 'agent_code',
       sorter: true,
-      width: 120,
+      width: 120
     },
     {
       title: (
@@ -97,17 +90,15 @@ const Agent = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.name}
-            onChange={(e) =>
-              dispatch(setAgentListParams({ name: e.target.value }))
-            }
+            onChange={(e) => dispatch(setAgentListParams({ name: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "name",
-      key: "name",
+      dataIndex: 'name',
+      key: 'name',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -118,17 +109,15 @@ const Agent = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.address}
-            onChange={(e) =>
-              dispatch(setAgentListParams({ address: e.target.value }))
-            }
+            onChange={(e) => dispatch(setAgentListParams({ address: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "address",
-      key: "address",
+      dataIndex: 'address',
+      key: 'address',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -139,17 +128,15 @@ const Agent = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.city}
-            onChange={(e) =>
-              dispatch(setAgentListParams({ city: e.target.value }))
-            }
+            onChange={(e) => dispatch(setAgentListParams({ city: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "city",
-      key: "city",
+      dataIndex: 'city',
+      key: 'city',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -160,17 +147,15 @@ const Agent = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.state}
-            onChange={(e) =>
-              dispatch(setAgentListParams({ state: e.target.value }))
-            }
+            onChange={(e) => dispatch(setAgentListParams({ state: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "state",
-      key: "state",
+      dataIndex: 'state',
+      key: 'state',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -181,17 +166,15 @@ const Agent = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.zip_code}
-            onChange={(e) =>
-              dispatch(setAgentListParams({ zip_code: e.target.value }))
-            }
+            onChange={(e) => dispatch(setAgentListParams({ zip_code: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "zip_code",
-      key: "zip_code",
+      dataIndex: 'zip_code',
+      key: 'zip_code',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -202,17 +185,15 @@ const Agent = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.phone}
-            onChange={(e) =>
-              dispatch(setAgentListParams({ phone: e.target.value }))
-            }
+            onChange={(e) => dispatch(setAgentListParams({ phone: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "phone",
-      key: "phone",
+      dataIndex: 'phone',
+      key: 'phone',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -223,17 +204,15 @@ const Agent = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.fax}
-            onChange={(e) =>
-              dispatch(setAgentListParams({ fax: e.target.value }))
-            }
+            onChange={(e) => dispatch(setAgentListParams({ fax: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "fax",
-      key: "fax",
+      dataIndex: 'fax',
+      key: 'fax',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -244,32 +223,29 @@ const Agent = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.email}
-            onChange={(e) =>
-              dispatch(setAgentListParams({ email: e.target.value }))
-            }
+            onChange={(e) => dispatch(setAgentListParams({ email: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "email",
-      key: "email",
+      dataIndex: 'email',
+      key: 'email',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
-      title: "Created At",
-      dataIndex: "created_at",
-      key: "created_at",
+      title: 'Created At',
+      dataIndex: 'created_at',
+      key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) =>
-        dayjs(created_at).format("DD-MM-YYYY hh:mm A"),
+      render: (_, { created_at }) => dayjs(created_at).format('DD-MM-YYYY hh:mm A')
     },
     {
-      title: "Action",
-      key: "action",
+      title: 'Action',
+      key: 'action',
       render: (_, { agent_id }) => (
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           {permissions.edit ? (
             <Tooltip title="Edit">
               <Link to={`/agent/edit/${agent_id}`}>
@@ -292,20 +268,15 @@ const Agent = () => {
                 cancelText="No"
                 onConfirm={() => onAgentDelete(agent_id)}
               >
-                <Button
-                  size="small"
-                  type="primary"
-                  danger
-                  icon={<GoTrash size={14} />}
-                />
+                <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
               </Popconfirm>
             </Tooltip>
           ) : null}
         </div>
       ),
       width: 70,
-      fixed: "right",
-    },
+      fixed: 'right'
+    }
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -329,31 +300,26 @@ const Agent = () => {
     debouncedZipCode,
     debouncedPhone,
     debouncedFax,
-    debouncedEmail,
+    debouncedEmail
   ]);
 
   return (
     <>
-      <div className="flex justify-between items-center flex-wrap">
+      <div className="flex flex-wrap items-center justify-between">
         <PageHeading>AGENT</PageHeading>
-        <Breadcrumb
-          items={[{ title: "Agent" }, { title: "List" }]}
-          separator=">"
-        />
+        <Breadcrumb items={[{ title: 'Agent' }, { title: 'List' }]} separator=">" />
       </div>
 
-      <div className="mt-4 bg-white p-2 rounded-md">
-        <div className="flex justify-between items-center gap-2">
+      <div className="mt-4 rounded-md bg-white p-2">
+        <div className="flex items-center justify-between gap-2">
           <Input
             placeholder="Search..."
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) =>
-              dispatch(setAgentListParams({ search: e.target.value }))
-            }
+            onChange={(e) => dispatch(setAgentListParams({ search: e.target.value }))}
           />
 
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             {permissions.delete ? (
               <Button
                 type="primary"
@@ -377,22 +343,21 @@ const Agent = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: "checkbox",
+                  type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) =>
-                    dispatch(setAgentDeleteIDs(selectedRowKeys)),
+                  onChange: (selectedRowKeys) => dispatch(setAgentDeleteIDs(selectedRowKeys))
                 }
               : null
           }
           loading={isListLoading}
           className="mt-2"
           rowKey="agent_id"
-          scroll={{ x: "calc(100% - 200px)" }}
+          scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} agents`,
+            showTotal: (total) => `Total ${total} agents`
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -400,7 +365,7 @@ const Agent = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order,
+                sort_direction: sorting.order
               })
             );
           }}
@@ -408,7 +373,7 @@ const Agent = () => {
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56,
+            offsetHeader: 56
           }}
         />
       </div>

@@ -1,44 +1,39 @@
-import { Col, DatePicker, Row, Select } from "antd";
-import {
-  FaArrowDown,
-  FaArrowUp,
-  FaDollarSign,
-  FaReceipt,
-} from "react-icons/fa6";
-import { GoArrowUpRight } from "react-icons/go";
-import DashboardCard from "../../components/Card/DashboardCard";
-import PageHeading from "../../components/heading/PageHeading";
+import { Col, DatePicker, Row, Select } from 'antd';
+import { FaArrowDown, FaArrowUp, FaDollarSign, FaReceipt } from 'react-icons/fa6';
+import { GoArrowUpRight } from 'react-icons/go';
+import DashboardCard from '../../components/Card/DashboardCard';
+import PageHeading from '../../components/heading/PageHeading';
 
 const shortcuts = [
-  { title: "Chart of Accounts" },
-  { title: "Sales Invoice" },
-  { title: "Purchase Invoice" },
-  { title: "Journal Entry" },
-  { title: "Payment Entry" },
-  { title: "Accounts Receivable" },
-  { title: "General Ledger" },
-  { title: "Trial Balance" },
+  { title: 'Chart of Accounts' },
+  { title: 'Sales Invoice' },
+  { title: 'Purchase Invoice' },
+  { title: 'Journal Entry' },
+  { title: 'Payment Entry' },
+  { title: 'Accounts Receivable' },
+  { title: 'General Ledger' },
+  { title: 'Trial Balance' }
 ];
 
 const months = [
-  { label: "January", value: "01" },
-  { label: "February", value: "02" },
-  { label: "March", value: "03" },
-  { label: "April", value: "04" },
-  { label: "May", value: "05" },
-  { label: "June", value: "06" },
-  { label: "July", value: "07" },
-  { label: "August", value: "08" },
-  { label: "September", value: "09" },
-  { label: "October", value: "10" },
-  { label: "November", value: "11" },
-  { label: "December", value: "12" },
+  { label: 'January', value: '01' },
+  { label: 'February', value: '02' },
+  { label: 'March', value: '03' },
+  { label: 'April', value: '04' },
+  { label: 'May', value: '05' },
+  { label: 'June', value: '06' },
+  { label: 'July', value: '07' },
+  { label: 'August', value: '08' },
+  { label: 'September', value: '09' },
+  { label: 'October', value: '10' },
+  { label: 'November', value: '11' },
+  { label: 'December', value: '12' }
 ];
 
 const Dashboard = () => {
   return (
     <>
-      <div className="flex gap-2 justify-between items-center flex-wrap">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <PageHeading>DASHBOARD</PageHeading>
 
         <div className="flex items-center gap-2">
@@ -85,12 +80,12 @@ const Dashboard = () => {
         </Col>
       </Row>
 
-      <div className="bg-white rounded-md shadow-sm p-4 mt-4 w-full">
+      <div className="mt-4 w-full rounded-md bg-white p-4 shadow-sm">
         <h4 className="text-lg">Shortcuts</h4>
         <Row gutter={[12, 12]} className="mt-4">
           {shortcuts.map(({ title }, i) => (
             <Col span={24} lg={6} md={8} sm={12} key={i}>
-              <div className="hover:border-b w-fit transition-all h-6 hover:border-gray-400 flex gap-1 items-center cursor-pointer text-gray-600 text-sm">
+              <div className="flex h-6 w-fit cursor-pointer items-center gap-1 text-sm text-gray-600 transition-all hover:border-b hover:border-gray-400">
                 <span>{title}</span>
                 <GoArrowUpRight size={16} />
               </div>

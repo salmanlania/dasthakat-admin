@@ -1,15 +1,15 @@
 const Footer = () => {
   return (
-    <footer className="border-t h-12 bg-white flex items-center justify-center  antialiased shadow">
+    <footer className="flex h-12 items-center justify-center border-t bg-white antialiased shadow">
       <p className="mb-4 text-sm sm:mb-0">
-        Developed By{" "}
+        Developed By{' '}
         <a
           href="https://bharmalsystems.com/"
-          className="font-semibold italic text-primary hover:underline cursor-pointer"
+          className="cursor-pointer font-semibold italic text-primary hover:underline"
           target="_blank"
         >
           Bharmal System Designers
-        </a>{" "}
+        </a>{' '}
         &copy; 2006-{new Date().getFullYear()}
       </p>
     </footer>

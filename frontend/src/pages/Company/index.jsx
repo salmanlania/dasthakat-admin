@@ -1,35 +1,30 @@
-import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from "antd";
-import dayjs from "dayjs";
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { GoTrash } from "react-icons/go";
-import { MdOutlineEdit } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import AsyncSelect from "../../components/AsyncSelect";
-import PageHeading from "../../components/heading/PageHeading";
-import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
-import useDebounce from "../../hooks/useDebounce";
-import useError from "../../hooks/useError";
+import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from 'antd';
+import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { GoTrash } from 'react-icons/go';
+import { MdOutlineEdit } from 'react-icons/md';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import AsyncSelect from '../../components/AsyncSelect';
+import PageHeading from '../../components/heading/PageHeading';
+import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
+import useDebounce from '../../hooks/useDebounce';
+import useError from '../../hooks/useError';
 import {
   bulkDeleteCompany,
   deleteCompany,
   getCompanyList,
   setCompanyDeleteIDs,
-  setCompanyListParams,
-} from "../../store/features/companySlice";
+  setCompanyListParams
+} from '../../store/features/companySlice';
 
 const Company = () => {
   const dispatch = useDispatch();
   const handleError = useError();
-  const {
-    list,
-    isListLoading,
-    params,
-    paginationInfo,
-    isBulkDeleting,
-    deleteIDs,
-  } = useSelector((state) => state.company);
+  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
+    (state) => state.company
+  );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.company;
 
@@ -42,7 +37,7 @@ const Company = () => {
   const onCompanyDelete = async (id) => {
     try {
       await dispatch(deleteCompany(id)).unwrap();
-      toast.success("Company deleted successfully");
+      toast.success('Company deleted successfully');
       dispatch(getCompanyList(params)).unwrap();
     } catch (error) {
       handleError(error);
@@ -52,7 +47,7 @@ const Company = () => {
   const onBulkDelete = async () => {
     try {
       await dispatch(bulkDeleteCompany(deleteIDs)).unwrap();
-      toast.success("Companies deleted successfully");
+      toast.success('Companies deleted successfully');
       closeDeleteModal();
       await dispatch(getCompanyList(params)).unwrap();
     } catch (error) {
@@ -70,17 +65,15 @@ const Company = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.name}
-            onChange={(e) =>
-              dispatch(setCompanyListParams({ name: e.target.value }))
-            }
+            onChange={(e) => dispatch(setCompanyListParams({ name: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "name",
-      key: "name",
+      dataIndex: 'name',
+      key: 'name',
       sorter: true,
       width: 150,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -93,32 +86,29 @@ const Company = () => {
             size="small"
             className="w-full font-normal"
             value={params.currency_id}
-            onChange={(value) =>
-              dispatch(setCompanyListParams({ currency_id: value }))
-            }
+            onChange={(value) => dispatch(setCompanyListParams({ currency_id: value }))}
           />
         </div>
       ),
-      dataIndex: "currency_name",
-      key: "currency_name",
+      dataIndex: 'currency_name',
+      key: 'currency_name',
       sorter: true,
       width: 150,
-      ellipsis: true,
+      ellipsis: true
     },
     {
-      title: "Created At",
-      dataIndex: "created_at",
-      key: "created_at",
+      title: 'Created At',
+      dataIndex: 'created_at',
+      key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) =>
-        dayjs(created_at).format("DD-MM-YYYY hh:mm A"),
+      render: (_, { created_at }) => dayjs(created_at).format('DD-MM-YYYY hh:mm A')
     },
     {
-      title: "Action",
-      key: "action",
+      title: 'Action',
+      key: 'action',
       render: (_, { company_id }) => (
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           {permissions.edit ? (
             <Tooltip title="Edit">
               <Link to={`/company/edit/${company_id}`}>
@@ -141,20 +131,15 @@ const Company = () => {
                 cancelText="No"
                 onConfirm={() => onCompanyDelete(company_id)}
               >
-                <Button
-                  size="small"
-                  type="primary"
-                  danger
-                  icon={<GoTrash size={14} />}
-                />
+                <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
               </Popconfirm>
             </Tooltip>
           ) : null}
         </div>
       ),
       width: 70,
-      fixed: "right",
-    },
+      fixed: 'right'
+    }
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -170,31 +155,26 @@ const Company = () => {
     params.sort_direction,
     debouncedSearch,
     debouncedName,
-    params.currency_id,
+    params.currency_id
   ]);
 
   return (
     <>
-      <div className="flex justify-between items-center flex-wrap">
+      <div className="flex flex-wrap items-center justify-between">
         <PageHeading>COMPANY</PageHeading>
-        <Breadcrumb
-          items={[{ title: "Company" }, { title: "List" }]}
-          separator=">"
-        />
+        <Breadcrumb items={[{ title: 'Company' }, { title: 'List' }]} separator=">" />
       </div>
 
-      <div className="mt-4 bg-white p-2 rounded-md">
-        <div className="flex justify-between items-center gap-2">
+      <div className="mt-4 rounded-md bg-white p-2">
+        <div className="flex items-center justify-between gap-2">
           <Input
             placeholder="Search..."
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) =>
-              dispatch(setCompanyListParams({ search: e.target.value }))
-            }
+            onChange={(e) => dispatch(setCompanyListParams({ search: e.target.value }))}
           />
 
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             {permissions.delete ? (
               <Button
                 type="primary"
@@ -218,22 +198,21 @@ const Company = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: "checkbox",
+                  type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) =>
-                    dispatch(setCompanyDeleteIDs(selectedRowKeys)),
+                  onChange: (selectedRowKeys) => dispatch(setCompanyDeleteIDs(selectedRowKeys))
                 }
               : null
           }
           loading={isListLoading}
           className="mt-2"
           rowKey="company_id"
-          scroll={{ x: "calc(100% - 200px)" }}
+          scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} companies`,
+            showTotal: (total) => `Total ${total} companies`
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -241,7 +220,7 @@ const Company = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order,
+                sort_direction: sorting.order
               })
             );
           }}
@@ -249,7 +228,7 @@ const Company = () => {
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56,
+            offsetHeader: 56
           }}
         />
       </div>

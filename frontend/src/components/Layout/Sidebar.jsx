@@ -1,17 +1,14 @@
-import { Avatar, Layout, Menu, Select } from "antd";
-import { useEffect, useRef, useState } from "react";
-import { BiChevronLeft } from "react-icons/bi";
-import { FaRegUser } from "react-icons/fa";
-import { IoIosArrowRoundForward } from "react-icons/io";
-import { IoSearchSharp } from "react-icons/io5";
-import { LuClipboardList, LuPackage2 } from "react-icons/lu";
-import {
-  MdOutlineAdminPanelSettings,
-  MdOutlineDashboard,
-} from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { toggleSidebar } from "../../store/features/sidebarSlice";
+import { Avatar, Layout, Menu, Select } from 'antd';
+import { useEffect, useRef, useState } from 'react';
+import { BiChevronLeft } from 'react-icons/bi';
+import { FaRegUser } from 'react-icons/fa';
+import { IoIosArrowRoundForward } from 'react-icons/io';
+import { IoSearchSharp } from 'react-icons/io5';
+import { LuClipboardList, LuPackage2 } from 'react-icons/lu';
+import { MdOutlineAdminPanelSettings, MdOutlineDashboard } from 'react-icons/md';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { toggleSidebar } from '../../store/features/sidebarSlice';
 
 const getLevelKeys = (items1) => {
   const key = {};
@@ -40,13 +37,11 @@ const Sidebar = () => {
 
   const permissions = user?.permission;
 
-  const activeKey = pathname === "/" ? "/" : pathname.split("/")[1];
+  const activeKey = pathname === '/' ? '/' : pathname.split('/')[1];
   let isSmallScreen = window.innerWidth <= 1000;
 
   const onOpenChange = (openKeys) => {
-    const currentOpenKey = openKeys.find(
-      (key) => stateOpenKeys.indexOf(key) === -1
-    );
+    const currentOpenKey = openKeys.find((key) => stateOpenKeys.indexOf(key) === -1);
     // open
     if (currentOpenKey !== undefined) {
       const repeatIndex = openKeys
@@ -79,8 +74,7 @@ const Sidebar = () => {
     !permissions?.vessel?.list &&
     !permissions?.event?.list;
 
-  const userManagementPermission =
-    !permissions?.user?.list && !permissions?.user_permission?.list;
+  const userManagementPermission = !permissions?.user?.list && !permissions?.user_permission?.list;
 
   const inventorySetupPermission =
     !permissions?.category?.list &&
@@ -98,187 +92,187 @@ const Sidebar = () => {
 
   const items = [
     {
-      key: "/",
+      key: '/',
       icon: <MdOutlineDashboard size={18} />,
-      label: <Link to="/">Dashboard</Link>,
+      label: <Link to="/">Dashboard</Link>
     },
     {
-      key: "administration",
-      label: "Administration",
+      key: 'administration',
+      label: 'Administration',
       icon: <MdOutlineAdminPanelSettings size={18} />,
       disabled: generalGroupPermission && userManagementPermission,
       children: [
         {
-          key: "general-setup",
-          label: "General Setup",
+          key: 'general-setup',
+          label: 'General Setup',
           disabled: generalGroupPermission,
           children: [
             {
-              key: "currency",
+              key: 'currency',
               label: <Link to="/currency">Currency</Link>,
-              disabled: !permissions?.currency?.list,
+              disabled: !permissions?.currency?.list
             },
             {
-              key: "company",
+              key: 'company',
               label: <Link to="/company">Company</Link>,
-              disabled: !permissions?.company?.list,
+              disabled: !permissions?.company?.list
             },
             {
-              key: "company-branch",
+              key: 'company-branch',
               label: <Link to="/company-branch">Company Branch</Link>,
-              disabled: !permissions?.company_branch?.list,
+              disabled: !permissions?.company_branch?.list
             },
             {
-              key: "salesman",
+              key: 'salesman',
               label: <Link to="/salesman">Salesman</Link>,
-              disabled: !permissions?.salesman?.list,
+              disabled: !permissions?.salesman?.list
             },
             {
-              key: "customer",
+              key: 'customer',
               label: <Link to="/customer">Customer</Link>,
-              disabled: !permissions?.customer?.list,
+              disabled: !permissions?.customer?.list
             },
             {
-              key: "vendor",
+              key: 'vendor',
               label: <Link to="/vendor">Vendor</Link>,
-              disabled: !permissions?.supplier?.list,
+              disabled: !permissions?.supplier?.list
             },
             {
-              key: "agent",
+              key: 'agent',
               label: <Link to="/agent">Agent</Link>,
-              disabled: !permissions?.agent?.list,
+              disabled: !permissions?.agent?.list
             },
             {
-              key: "terms",
+              key: 'terms',
               label: <Link to="/terms">Terms</Link>,
-              disabled: !permissions?.terms?.list,
+              disabled: !permissions?.terms?.list
             },
             {
-              key: "flag",
+              key: 'flag',
               label: <Link to="/flag">Flag</Link>,
-              disabled: !permissions?.flag?.list,
+              disabled: !permissions?.flag?.list
             },
             {
-              key: "class",
+              key: 'class',
               label: <Link to="/class">Class</Link>,
-              disabled: !permissions?.class?.list,
+              disabled: !permissions?.class?.list
             },
             {
-              key: "port",
+              key: 'port',
               label: <Link to="/port">Port</Link>,
-              disabled: !permissions?.port?.list,
+              disabled: !permissions?.port?.list
             },
             {
-              key: "vessel",
+              key: 'vessel',
               label: <Link to="/vessel">Vessel</Link>,
-              disabled: !permissions?.vessel?.list,
+              disabled: !permissions?.vessel?.list
             },
             {
-              key: "event",
+              key: 'event',
               label: <Link to="/event">Event</Link>,
-              disabled: !permissions?.event?.list,
-            },
-          ],
+              disabled: !permissions?.event?.list
+            }
+          ]
         },
         {
-          key: "user-management",
-          label: "User Management",
+          key: 'user-management',
+          label: 'User Management',
           disabled: userManagementPermission,
           children: [
             {
-              key: "user",
+              key: 'user',
               label: <Link to="/user">User</Link>,
-              disabled: !permissions?.user?.list,
+              disabled: !permissions?.user?.list
             },
             {
-              key: "user-permission",
+              key: 'user-permission',
               label: <Link to="/user-permission">User Permission</Link>,
-              disabled: !permissions.user_permission?.list,
-            },
-          ],
-        },
-      ],
+              disabled: !permissions.user_permission?.list
+            }
+          ]
+        }
+      ]
     },
     {
-      key: "inventory-management",
-      label: "Inventory Management",
+      key: 'inventory-management',
+      label: 'Inventory Management',
       icon: <LuPackage2 size={18} />,
       disabled: inventorySetupPermission && purchaseManagementPermission,
       children: [
         {
-          key: "inventory-setup",
-          label: "Inventory Setup",
+          key: 'inventory-setup',
+          label: 'Inventory Setup',
           disabled: inventorySetupPermission,
           children: [
             {
-              key: "category",
+              key: 'category',
               label: <Link to="/category">Category</Link>,
-              disabled: !permissions?.category?.list,
+              disabled: !permissions?.category?.list
             },
             {
-              key: "sub-category",
+              key: 'sub-category',
               label: <Link to="/sub-category">Sub Category</Link>,
-              disabled: !permissions?.sub_category?.list,
+              disabled: !permissions?.sub_category?.list
             },
             {
-              key: "brand",
+              key: 'brand',
               label: <Link to="/brand">Brand</Link>,
-              disabled: !permissions?.brand?.list,
+              disabled: !permissions?.brand?.list
             },
             {
-              key: "unit",
+              key: 'unit',
               label: <Link to="/unit">Unit</Link>,
-              disabled: !permissions?.unit?.list,
+              disabled: !permissions?.unit?.list
             },
             {
-              key: "product",
+              key: 'product',
               label: <Link to="/product">Product</Link>,
-              disabled: !permissions?.product?.list,
+              disabled: !permissions?.product?.list
             },
             {
-              key: "validity",
+              key: 'validity',
               label: <Link to="/validity">Validity</Link>,
-              disabled: !permissions?.validity?.list,
+              disabled: !permissions?.validity?.list
             },
             {
-              key: "payment",
+              key: 'payment',
               label: <Link to="/payment">Payment</Link>,
-              disabled: !permissions?.payment?.list,
-            },
-          ],
+              disabled: !permissions?.payment?.list
+            }
+          ]
         },
         {
-          key: "purchase-management",
-          label: "Purchase Management",
+          key: 'purchase-management',
+          label: 'Purchase Management',
           disabled: purchaseManagementPermission,
           children: [
             {
-              key: "purchase-order",
+              key: 'purchase-order',
               label: <Link to="/purchase-order">Purchase Order</Link>,
-              disabled: !permissions?.purchase_order?.list,
-            },
-          ],
-        },
-      ],
+              disabled: !permissions?.purchase_order?.list
+            }
+          ]
+        }
+      ]
     },
     {
-      key: "sale-management",
-      label: "Sale Management",
+      key: 'sale-management',
+      label: 'Sale Management',
       icon: <LuClipboardList size={18} />,
       disabled: saleManagementPermission,
       children: [
         {
-          key: "quotation",
+          key: 'quotation',
           label: <Link to="/quotation">Quotation</Link>,
-          disabled: !permissions?.quotation?.list,
+          disabled: !permissions?.quotation?.list
         },
         {
-          key: "charge-order",
+          key: 'charge-order',
           label: <Link to="/charge-order">Charge Order</Link>,
-          disabled: !permissions?.charge_order?.list,
-        },
-      ],
-    },
+          disabled: !permissions?.charge_order?.list
+        }
+      ]
+    }
   ];
   const levelKeys = getLevelKeys(items);
 
@@ -293,10 +287,7 @@ const Sidebar = () => {
             traverse(item.children);
           } else {
             // Add leaf nodes (last children)
-            const label =
-              typeof item.label === "string"
-                ? item.label
-                : item.label?.props?.children;
+            const label = typeof item.label === 'string' ? item.label : item.label?.props?.children;
             if (label && item.key) {
               result.push({ label, value: item.key });
             }
@@ -337,7 +328,7 @@ const Sidebar = () => {
     };
 
     const handleShortcut = (e) => {
-      if (e.ctrlKey && e.key === "k") {
+      if (e.ctrlKey && e.key === 'k') {
         e.preventDefault();
         if (isCollapsed) dispatch(toggleSidebar(false));
         searchRef.current?.focus(); // Focus on the search box
@@ -345,13 +336,13 @@ const Sidebar = () => {
     };
 
     // Attach event listeners
-    window.addEventListener("resize", handleResize);
-    window.addEventListener("keydown", handleShortcut);
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('keydown', handleShortcut);
 
     // Cleanup event listeners on component unmount
     return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("keydown", handleShortcut);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('keydown', handleShortcut);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
@@ -361,15 +352,15 @@ const Sidebar = () => {
       collapsedWidth="0"
       theme="light"
       collapsed={isCollapsed}
-      className={`${isSmallScreen ? "!fixed" : "!sticky"} ${
-        isCollapsed ? "" : "border-r"
-      } h-screen overflow-y-auto !left-0 !top-0 z-50 scrollbar`}
+      className={`${isSmallScreen ? '!fixed' : '!sticky'} ${
+        isCollapsed ? '' : 'border-r'
+      } scrollbar !left-0 !top-0 z-50 h-screen overflow-y-auto`}
       width={240}
     >
-      <div className="p-4 px-2 flex flex-col justify-center items-center gap-2 bg-slate-200 m-2 rounded-xl">
+      <div className="m-2 flex flex-col items-center justify-center gap-2 rounded-xl bg-slate-200 p-4 px-2">
         {isSmallScreen && (
           <div
-            className="absolute top-5 right-5 border hover:bg-gray-50 cursor-pointer bg-white p-1 rounded"
+            className="absolute right-5 top-5 cursor-pointer rounded border bg-white p-1 hover:bg-gray-50"
             onClick={() => dispatch(toggleSidebar())}
           >
             <BiChevronLeft size={18} />
@@ -401,7 +392,7 @@ const Sidebar = () => {
             }
           }}
           placeholder="Search (Ctrl + K)"
-          className="w-full mx-1"
+          className="mx-1 w-full"
           suffixIcon={<IoSearchSharp size={16} />}
           optionRender={(value) => (
             <div className="flex items-center gap-2">

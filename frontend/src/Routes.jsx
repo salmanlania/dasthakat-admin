@@ -1,106 +1,90 @@
-import { Suspense, lazy } from "react";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import PageLoader from "./components/LoadingSpinners/PageLoader";
-import MainLayout from "./layouts/MainLayout";
-import ErrorPage from "./pages/feedback/ErrorPage";
-import NotFound from "./pages/feedback/NotFound";
+import { Suspense, lazy } from 'react';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import PageLoader from './components/LoadingSpinners/PageLoader';
+import MainLayout from './layouts/MainLayout';
+import ErrorPage from './pages/feedback/ErrorPage';
+import NotFound from './pages/feedback/NotFound';
 
-const Login = lazy(() => import("./pages/Login"));
-const Session = lazy(() => import("./pages/Session"));
-const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Login = lazy(() => import('./pages/Login'));
+const Session = lazy(() => import('./pages/Session'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
 
-const User = lazy(() => import("./pages/User"));
-const CreateUser = lazy(() => import("./pages/User/CreateUser"));
-const EditUser = lazy(() => import("./pages/User/EditUser"));
+const User = lazy(() => import('./pages/User'));
+const CreateUser = lazy(() => import('./pages/User/CreateUser'));
+const EditUser = lazy(() => import('./pages/User/EditUser'));
 
-const UserPermission = lazy(() => import("./pages/UserPermission"));
-const CreateUserPermission = lazy(() =>
-  import("./pages/UserPermission/CreateUserPermission")
-);
-const EditUserPermission = lazy(() =>
-  import("./pages/UserPermission/EditUserPermission")
-);
+const UserPermission = lazy(() => import('./pages/UserPermission'));
+const CreateUserPermission = lazy(() => import('./pages/UserPermission/CreateUserPermission'));
+const EditUserPermission = lazy(() => import('./pages/UserPermission/EditUserPermission'));
 
-const Currency = lazy(() => import("./pages/Currency"));
-const CreateCurrency = lazy(() => import("./pages/Currency/CreateCurrency"));
-const EditCurrency = lazy(() => import("./pages/Currency/EditCurrency"));
+const Currency = lazy(() => import('./pages/Currency'));
+const CreateCurrency = lazy(() => import('./pages/Currency/CreateCurrency'));
+const EditCurrency = lazy(() => import('./pages/Currency/EditCurrency'));
 
-const Company = lazy(() => import("./pages/Company"));
-const CreateCompany = lazy(() => import("./pages/Company/CreateCompany"));
-const EditCompany = lazy(() => import("./pages/Company/EditCompany"));
+const Company = lazy(() => import('./pages/Company'));
+const CreateCompany = lazy(() => import('./pages/Company/CreateCompany'));
+const EditCompany = lazy(() => import('./pages/Company/EditCompany'));
 
-const CompanyBranch = lazy(() => import("./pages/CompanyBranch"));
-const CreateCompanyBranch = lazy(() =>
-  import("./pages/CompanyBranch/CreateCompanyBranch")
-);
-const EditCompanyBranch = lazy(() =>
-  import("./pages/CompanyBranch/EditCompanyBranch")
-);
+const CompanyBranch = lazy(() => import('./pages/CompanyBranch'));
+const CreateCompanyBranch = lazy(() => import('./pages/CompanyBranch/CreateCompanyBranch'));
+const EditCompanyBranch = lazy(() => import('./pages/CompanyBranch/EditCompanyBranch'));
 
-const Salesman = lazy(() => import("./pages/Salesman"));
+const Salesman = lazy(() => import('./pages/Salesman'));
 
-const Customer = lazy(() => import("./pages/Customer"));
-const CreateCustomer = lazy(() => import("./pages/Customer/CreateCustomer"));
-const EditCustomer = lazy(() => import("./pages/Customer/EditCustomer"));
+const Customer = lazy(() => import('./pages/Customer'));
+const CreateCustomer = lazy(() => import('./pages/Customer/CreateCustomer'));
+const EditCustomer = lazy(() => import('./pages/Customer/EditCustomer'));
 
-const Vendor = lazy(() => import("./pages/Vendor"));
-const CreateVendor = lazy(() => import("./pages/Vendor/CreateVendor"));
-const EditVendor = lazy(() => import("./pages/Vendor/EditVendor"));
+const Vendor = lazy(() => import('./pages/Vendor'));
+const CreateVendor = lazy(() => import('./pages/Vendor/CreateVendor'));
+const EditVendor = lazy(() => import('./pages/Vendor/EditVendor'));
 
-const Agent = lazy(() => import("./pages/Agent"));
-const CreateAgent = lazy(() => import("./pages/Agent/CreateAgent"));
-const EditAgent = lazy(() => import("./pages/Agent/EditAgent"));
+const Agent = lazy(() => import('./pages/Agent'));
+const CreateAgent = lazy(() => import('./pages/Agent/CreateAgent'));
+const EditAgent = lazy(() => import('./pages/Agent/EditAgent'));
 
-const Terms = lazy(() => import("./pages/Terms"));
-const Flag = lazy(() => import("./pages/Flag"));
-const Class = lazy(() => import("./pages/Class"));
-const Port = lazy(() => import("./pages/Port"));
+const Terms = lazy(() => import('./pages/Terms'));
+const Flag = lazy(() => import('./pages/Flag'));
+const Class = lazy(() => import('./pages/Class'));
+const Port = lazy(() => import('./pages/Port'));
 
-const Vessel = lazy(() => import("./pages/Vessel"));
-const CreateVessel = lazy(() => import("./pages/Vessel/CreateVessel"));
-const EditVessel = lazy(() => import("./pages/Vessel/EditVessel"));
+const Vessel = lazy(() => import('./pages/Vessel'));
+const CreateVessel = lazy(() => import('./pages/Vessel/CreateVessel'));
+const EditVessel = lazy(() => import('./pages/Vessel/EditVessel'));
 
-const Event = lazy(() => import("./pages/Event"));
-const CreateEvent = lazy(() => import("./pages/Event/CreateEvent"));
-const EditEvent = lazy(() => import("./pages/Event/EditEvent"));
+const Event = lazy(() => import('./pages/Event'));
+const CreateEvent = lazy(() => import('./pages/Event/CreateEvent'));
+const EditEvent = lazy(() => import('./pages/Event/EditEvent'));
 
-const Category = lazy(() => import("./pages/Category"));
-const SubCategory = lazy(() => import("./pages/SubCategory"));
-const Brand = lazy(() => import("./pages/Brand"));
-const Unit = lazy(() => import("./pages/Unit"));
+const Category = lazy(() => import('./pages/Category'));
+const SubCategory = lazy(() => import('./pages/SubCategory'));
+const Brand = lazy(() => import('./pages/Brand'));
+const Unit = lazy(() => import('./pages/Unit'));
 
-const Product = lazy(() => import("./pages/Product"));
-const CreateProduct = lazy(() => import("./pages/Product/CreateProduct"));
-const EditProduct = lazy(() => import("./pages/Product/EditProduct"));
+const Product = lazy(() => import('./pages/Product'));
+const CreateProduct = lazy(() => import('./pages/Product/CreateProduct'));
+const EditProduct = lazy(() => import('./pages/Product/EditProduct'));
 
-const Validity = lazy(() => import("./pages/Validity"));
-const Payment = lazy(() => import("./pages/Payment"));
+const Validity = lazy(() => import('./pages/Validity'));
+const Payment = lazy(() => import('./pages/Payment'));
 
-const PurchaseOrder = lazy(() => import("./pages/PurchaseOrder"));
-const CreatePurchaseOrder = lazy(() =>
-  import("./pages/PurchaseOrder/CreatePurchaseOrder")
-);
-const EditPurchaseOrder = lazy(() =>
-  import("./pages/PurchaseOrder/EditPurchaseOrder")
-);
+const PurchaseOrder = lazy(() => import('./pages/PurchaseOrder'));
+const CreatePurchaseOrder = lazy(() => import('./pages/PurchaseOrder/CreatePurchaseOrder'));
+const EditPurchaseOrder = lazy(() => import('./pages/PurchaseOrder/EditPurchaseOrder'));
 
-const Quotation = lazy(() => import("./pages/Quotation"));
-const CreateQuotation = lazy(() => import("./pages/Quotation/CreateQuotation"));
-const EditQuotation = lazy(() => import("./pages/Quotation/EditQuotation"));
+const Quotation = lazy(() => import('./pages/Quotation'));
+const CreateQuotation = lazy(() => import('./pages/Quotation/CreateQuotation'));
+const EditQuotation = lazy(() => import('./pages/Quotation/EditQuotation'));
 
-const ChargeOrder = lazy(() => import("./pages/ChargeOrder"));
-const CreateChargeOrder = lazy(() =>
-  import("./pages/ChargeOrder/CreateChargeOrder")
-);
-const EditChargeOrder = lazy(() =>
-  import("./pages/ChargeOrder/EditChargeOrder")
-);
+const ChargeOrder = lazy(() => import('./pages/ChargeOrder'));
+const CreateChargeOrder = lazy(() => import('./pages/ChargeOrder/CreateChargeOrder'));
+const EditChargeOrder = lazy(() => import('./pages/ChargeOrder/EditChargeOrder'));
 
 function Routes() {
   const router = createBrowserRouter(
     [
       {
-        path: "/",
+        path: '/',
         element: <MainLayout />,
         errorElement: <ErrorPage />,
         children: [
@@ -110,458 +94,458 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Dashboard />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/user",
+            path: '/user',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <User />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/user/create",
+            path: '/user/create',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <CreateUser />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/user/edit/:id",
+            path: '/user/edit/:id',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditUser />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/user-permission",
+            path: '/user-permission',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <UserPermission />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/user-permission/create",
+            path: '/user-permission/create',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <CreateUserPermission />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/user-permission/edit/:id",
+            path: '/user-permission/edit/:id',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditUserPermission />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/currency",
+            path: '/currency',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Currency />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/currency/create",
+            path: '/currency/create',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <CreateCurrency />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/currency/edit/:id",
+            path: '/currency/edit/:id',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditCurrency />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/company",
+            path: '/company',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Company />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/company/create",
+            path: '/company/create',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <CreateCompany />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/company/edit/:id",
+            path: '/company/edit/:id',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditCompany />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/company-branch",
+            path: '/company-branch',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <CompanyBranch />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/company-branch/create",
+            path: '/company-branch/create',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <CreateCompanyBranch />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/company-branch/edit/:id",
+            path: '/company-branch/edit/:id',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditCompanyBranch />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/salesman",
+            path: '/salesman',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Salesman />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/customer",
+            path: '/customer',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Customer />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/customer/create",
+            path: '/customer/create',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <CreateCustomer />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/customer/edit/:id",
+            path: '/customer/edit/:id',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditCustomer />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/vendor",
+            path: '/vendor',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Vendor />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/vendor/create",
+            path: '/vendor/create',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <CreateVendor />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/vendor/edit/:id",
+            path: '/vendor/edit/:id',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditVendor />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/agent",
+            path: '/agent',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Agent />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/agent/create",
+            path: '/agent/create',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <CreateAgent />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/agent/edit/:id",
+            path: '/agent/edit/:id',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditAgent />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/terms",
+            path: '/terms',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Terms />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/flag",
+            path: '/flag',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Flag />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/class",
+            path: '/class',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Class />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/port",
+            path: '/port',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Port />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/vessel",
+            path: '/vessel',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Vessel />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/vessel/create",
+            path: '/vessel/create',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <CreateVessel />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/vessel/edit/:id",
+            path: '/vessel/edit/:id',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditVessel />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/product",
+            path: '/product',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Product />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/product/create",
+            path: '/product/create',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <CreateProduct />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/product/edit/:id",
+            path: '/product/edit/:id',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditProduct />
               </Suspense>
-            ),
+            )
           },
 
           {
-            path: "/category",
+            path: '/category',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Category />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/sub-category",
+            path: '/sub-category',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <SubCategory />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/brand",
+            path: '/brand',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Brand />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/unit",
+            path: '/unit',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Unit />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/event",
+            path: '/event',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Event />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/event/create",
+            path: '/event/create',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <CreateEvent />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/event/edit/:id",
+            path: '/event/edit/:id',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditEvent />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/validity",
+            path: '/validity',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Validity />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/payment",
+            path: '/payment',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Payment />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/purchase-order",
+            path: '/purchase-order',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <PurchaseOrder />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/purchase-order/create",
+            path: '/purchase-order/create',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <CreatePurchaseOrder />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/purchase-order/edit/:id",
+            path: '/purchase-order/edit/:id',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditPurchaseOrder />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/quotation",
+            path: '/quotation',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Quotation />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/quotation/create",
+            path: '/quotation/create',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <CreateQuotation />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/quotation/edit/:id",
+            path: '/quotation/edit/:id',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditQuotation />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/charge-order",
+            path: '/charge-order',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <ChargeOrder />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/charge-order/create",
+            path: '/charge-order/create',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <CreateChargeOrder />
               </Suspense>
-            ),
+            )
           },
           {
-            path: "/charge-order/edit/:id",
+            path: '/charge-order/edit/:id',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditChargeOrder />
               </Suspense>
-            ),
-          },
-        ],
+            )
+          }
+        ]
       },
       {
-        path: "/login",
+        path: '/login',
         element: (
           <Suspense fallback={<PageLoader />}>
             <Login />
           </Suspense>
-        ),
+        )
       },
       {
-        path: "/session",
+        path: '/session',
         element: (
           <Suspense fallback={<PageLoader />}>
             <Session />
           </Suspense>
-        ),
+        )
       },
       {
-        path: "*",
-        element: <NotFound />,
-      },
+        path: '*',
+        element: <NotFound />
+      }
     ],
     {
-      basename: "/gms/",
+      basename: '/gms/'
     }
   );
 

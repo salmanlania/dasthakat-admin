@@ -5,9 +5,9 @@
  * @returns {string} - The formatted number with commas, or an empty string if the input is falsy.
  */
 export const formatThreeDigitCommas = (num) => {
-  if (!num) return "";
+  if (!num) return '';
   num = num.toString();
-  return num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return num.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
 /**
@@ -17,7 +17,7 @@ export const formatThreeDigitCommas = (num) => {
  * @returns {string} - The input without commas, or an empty string if the input is falsy.
  */
 export const removeCommas = (num) => {
-  return num ? num.replace(/,/g, "") : "";
+  return num ? num.replace(/,/g, '') : '';
 };
 
 /**
@@ -28,7 +28,7 @@ export const removeCommas = (num) => {
  * @returns {number|string} - The rounded number, or an empty string if the input is falsy.
  */
 export function roundUpto(value, fixed = 2) {
-  if (!value && value !== 0) return "";
+  if (!value && value !== 0) return '';
   const roundedValue = Number(value.toFixed(fixed));
   return parseFloat(roundedValue);
 }

@@ -1,16 +1,16 @@
-import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from "antd";
-import dayjs from "dayjs";
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { FaRegSave } from "react-icons/fa";
-import { FcCancel } from "react-icons/fc";
-import { GoTrash } from "react-icons/go";
-import { MdOutlineEdit } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import PageHeading from "../../components/heading/PageHeading";
-import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
-import useDebounce from "../../hooks/useDebounce";
-import useError from "../../hooks/useError";
+import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from 'antd';
+import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { FaRegSave } from 'react-icons/fa';
+import { FcCancel } from 'react-icons/fc';
+import { GoTrash } from 'react-icons/go';
+import { MdOutlineEdit } from 'react-icons/md';
+import { useDispatch, useSelector } from 'react-redux';
+import PageHeading from '../../components/heading/PageHeading';
+import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
+import useDebounce from '../../hooks/useDebounce';
+import useError from '../../hooks/useError';
 import {
   addNewBrand,
   bulkDeleteBrand,
@@ -22,21 +22,14 @@ import {
   setBrandEditable,
   setBrandListParams,
   updateBrand,
-  updateBrandListValue,
-} from "../../store/features/brandSlice";
+  updateBrandListValue
+} from '../../store/features/brandSlice';
 
 const Brand = () => {
   const dispatch = useDispatch();
   const handleError = useError();
-  const {
-    list,
-    isListLoading,
-    params,
-    paginationInfo,
-    isBulkDeleting,
-    isSubmitting,
-    deleteIDs,
-  } = useSelector((state) => state.brand);
+  const { list, isListLoading, params, paginationInfo, isBulkDeleting, isSubmitting, deleteIDs } =
+    useSelector((state) => state.brand);
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.brand;
 
@@ -51,7 +44,7 @@ const Brand = () => {
 
   const onCreate = async (record) => {
     const { name } = record;
-    if (!name.trim()) return toast.error("Name field is required");
+    if (!name.trim()) return toast.error('Name field is required');
 
     try {
       await dispatch(createBrand({ name })).unwrap();
@@ -64,13 +57,13 @@ const Brand = () => {
   const onUpdate = async (record) => {
     const { brand_id, name } = record;
 
-    if (!name.trim()) return toast.error("Name field is required");
+    if (!name.trim()) return toast.error('Name field is required');
 
     try {
       await dispatch(
         updateBrand({
           id: brand_id,
-          data: { name },
+          data: { name }
         })
       ).unwrap();
       await dispatch(getBrandList(params)).unwrap();
@@ -80,14 +73,14 @@ const Brand = () => {
   };
 
   const onCancel = async (id) => {
-    if (id === "new") return dispatch(removeNewBrand());
+    if (id === 'new') return dispatch(removeNewBrand());
     dispatch(setBrandEditable({ id, editable: false }));
   };
 
   const onBrandDelete = async (id) => {
     try {
       await dispatch(deleteBrand(id)).unwrap();
-      toast.success("Brand deleted successfully");
+      toast.success('Brand deleted successfully');
       dispatch(getBrandList(params)).unwrap();
     } catch (error) {
       handleError(error);
@@ -97,7 +90,7 @@ const Brand = () => {
   const onBulkDelete = async () => {
     try {
       await dispatch(bulkDeleteBrand(deleteIDs)).unwrap();
-      toast.success("Brand deleted successfully");
+      toast.success('Brand deleted successfully');
       closeDeleteModal();
       await dispatch(getBrandList(params)).unwrap();
     } catch (error) {
@@ -107,9 +100,9 @@ const Brand = () => {
 
   const columns = [
     {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
       sorter: true,
       width: 120,
       ellipsis: true,
@@ -118,34 +111,34 @@ const Brand = () => {
           <Input
             autoFocus
             defaultValue={name}
-            onBlur={(e) => onChange(brand_id, "name", e.target.value)}
+            onBlur={(e) => onChange(brand_id, 'name', e.target.value)}
           />
         ) : (
           <span>{name}</span>
-        ),
+        )
     },
     {
-      title: "Created At",
-      dataIndex: "created_at",
-      key: "created_at",
+      title: 'Created At',
+      dataIndex: 'created_at',
+      key: 'created_at',
       sorter: true,
       width: 168,
       render: (_, { created_at }) =>
         created_at ? (
-          dayjs(created_at).format("DD-MM-YYYY hh:mm A")
+          dayjs(created_at).format('DD-MM-YYYY hh:mm A')
         ) : (
           <span className="text-gray-400">AUTO</span>
-        ),
+        )
     },
     {
-      title: "Action",
-      key: "action",
+      title: 'Action',
+      key: 'action',
       render: (_, record) => {
         const { brand_id, editable } = record;
 
         if (editable) {
           return (
-            <div className="flex gap-2 items-center">
+            <div className="flex items-center gap-2">
               <Tooltip title="Cancel" onClick={() => onCancel(brand_id)}>
                 <Button danger icon={<FcCancel size={20} />} size="small" />
               </Tooltip>
@@ -155,9 +148,7 @@ const Brand = () => {
                   size="small"
                   icon={<FaRegSave size={16} />}
                   loading={isSubmitting === brand_id}
-                  onClick={() =>
-                    brand_id === "new" ? onCreate(record) : onUpdate(record)
-                  }
+                  onClick={() => (brand_id === 'new' ? onCreate(record) : onUpdate(record))}
                 />
               </Tooltip>
             </div>
@@ -165,7 +156,7 @@ const Brand = () => {
         }
 
         return (
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             {permissions.edit ? (
               <Tooltip title="Edit">
                 <Button
@@ -177,7 +168,7 @@ const Brand = () => {
                     dispatch(
                       setBrandEditable({
                         id: brand_id,
-                        editable: true,
+                        editable: true
                       })
                     )
                   }
@@ -194,12 +185,7 @@ const Brand = () => {
                   cancelText="No"
                   onConfirm={() => onBrandDelete(brand_id)}
                 >
-                  <Button
-                    size="small"
-                    type="primary"
-                    danger
-                    icon={<GoTrash size={14} />}
-                  />
+                  <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                 </Popconfirm>
               </Tooltip>
             ) : null}
@@ -207,8 +193,8 @@ const Brand = () => {
         );
       },
       width: 70,
-      fixed: "right",
-    },
+      fixed: 'right'
+    }
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -218,36 +204,25 @@ const Brand = () => {
   useEffect(() => {
     dispatch(getBrandList(params)).unwrap().catch(handleError);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    params.page,
-    params.limit,
-    params.sort_column,
-    params.sort_direction,
-    debouncedSearch,
-  ]);
+  }, [params.page, params.limit, params.sort_column, params.sort_direction, debouncedSearch]);
 
   return (
     <>
-      <div className="flex justify-between items-center flex-wrap">
+      <div className="flex flex-wrap items-center justify-between">
         <PageHeading>BRAND</PageHeading>
-        <Breadcrumb
-          items={[{ title: "Brand" }, { title: "List" }]}
-          separator=">"
-        />
+        <Breadcrumb items={[{ title: 'Brand' }, { title: 'List' }]} separator=">" />
       </div>
 
-      <div className="mt-4 bg-white p-2 rounded-md">
-        <div className="flex justify-between items-center gap-2">
+      <div className="mt-4 rounded-md bg-white p-2">
+        <div className="flex items-center justify-between gap-2">
           <Input
             placeholder="Search..."
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) =>
-              dispatch(setBrandListParams({ search: e.target.value }))
-            }
+            onChange={(e) => dispatch(setBrandListParams({ search: e.target.value }))}
           />
 
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             <Button
               type="primary"
               danger
@@ -269,13 +244,12 @@ const Brand = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: "checkbox",
+                  type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) =>
-                    dispatch(setBrandDeleteIDs(selectedRowKeys)),
+                  onChange: (selectedRowKeys) => dispatch(setBrandDeleteIDs(selectedRowKeys)),
                   getCheckboxProps: (record) => ({
-                    disabled: record.brand_id === "new",
-                  }),
+                    disabled: record.brand_id === 'new'
+                  })
                 }
               : null
           }
@@ -285,25 +259,25 @@ const Brand = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order,
+                sort_direction: sorting.order
               })
             );
           }}
           loading={isListLoading}
           rowKey="brand_id"
           className="mt-2"
-          scroll={{ x: "calc(100% - 200px)" }}
+          scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} brand`,
+            showTotal: (total) => `Total ${total} brand`
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56,
+            offsetHeader: 56
           }}
         />
       </div>

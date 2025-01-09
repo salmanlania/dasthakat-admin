@@ -1,13 +1,11 @@
-import { Button, Col, Form, Input, Row, Select } from "antd";
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import NumberInput from "../Input/NumberInput";
+import { Button, Col, Form, Input, Row, Select } from 'antd';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import NumberInput from '../Input/NumberInput';
 
 // eslint-disable-next-line react/prop-types
 const CurrencyForm = ({ mode, onSubmit }) => {
-  const { isFormSubmitting, initialFormValues } = useSelector(
-    (state) => state.currency
-  );
+  const { isFormSubmitting, initialFormValues } = useSelector((state) => state.currency);
 
   const onFinish = (values) => {
     onSubmit(values);
@@ -20,11 +18,11 @@ const CurrencyForm = ({ mode, onSubmit }) => {
       autoComplete="off"
       onFinish={onFinish}
       initialValues={
-        mode === "edit"
+        mode === 'edit'
           ? initialFormValues
           : {
-              value: "1",
-              status: 1,
+              value: '1',
+              status: 1
             }
       }
     >
@@ -37,8 +35,8 @@ const CurrencyForm = ({ mode, onSubmit }) => {
               {
                 required: true,
                 whitespace: true,
-                message: "Currency code is required!",
-              },
+                message: 'Currency code is required!'
+              }
             ]}
           >
             <Input />
@@ -52,8 +50,8 @@ const CurrencyForm = ({ mode, onSubmit }) => {
               {
                 required: true,
                 whitespace: true,
-                message: "Name is required!",
-              },
+                message: 'Name is required!'
+              }
             ]}
           >
             <Input />
@@ -77,8 +75,8 @@ const CurrencyForm = ({ mode, onSubmit }) => {
               {
                 required: true,
                 whitespace: true,
-                message: "Value is required!",
-              },
+                message: 'Value is required!'
+              }
             ]}
           >
             <NumberInput />
@@ -91,28 +89,23 @@ const CurrencyForm = ({ mode, onSubmit }) => {
               options={[
                 {
                   value: 1,
-                  label: "Active",
+                  label: 'Active'
                 },
                 {
                   value: 0,
-                  label: "Inactive",
-                },
+                  label: 'Inactive'
+                }
               ]}
             />
           </Form.Item>
         </Col>
       </Row>
 
-      <div className="mt-4 flex gap-2 justify-end items-center">
+      <div className="mt-4 flex items-center justify-end gap-2">
         <Link to="/currency">
           <Button className="w-28">Cancel</Button>
         </Link>
-        <Button
-          type="primary"
-          htmlType="submit"
-          className="w-28"
-          loading={isFormSubmitting}
-        >
+        <Button type="primary" htmlType="submit" className="w-28" loading={isFormSubmitting}>
           Save
         </Button>
       </div>

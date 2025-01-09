@@ -1,35 +1,29 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../../axiosInstance";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import api from '../../axiosInstance';
 
-export const loginHandler = createAsyncThunk(
-  "auth/login",
-  async (data, { rejectWithValue }) => {
-    try {
-      const res = await api.post("/auth/login", data);
-      return res.data.data;
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const loginHandler = createAsyncThunk('auth/login', async (data, { rejectWithValue }) => {
+  try {
+    const res = await api.post('/auth/login', data);
+    return res.data.data;
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
-export const postSession = createAsyncThunk(
-  "session/post",
-  async (data, { rejectWithValue }) => {
-    try {
-      const res = await api.post("/auth/session", data);
-      return res.data.data;
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const postSession = createAsyncThunk('session/post', async (data, { rejectWithValue }) => {
+  try {
+    const res = await api.post('/auth/session', data);
+    return res.data.data;
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
 export const resetPassword = createAsyncThunk(
-  "auth/resetPassword",
+  'auth/resetPassword',
   async (data, { rejectWithValue }) => {
     try {
-      const res = await api.post("/reset-password", data);
+      const res = await api.post('/reset-password', data);
       return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);
@@ -37,19 +31,17 @@ export const resetPassword = createAsyncThunk(
   }
 );
 
-const user = localStorage.getItem("user")
-  ? JSON.parse(localStorage.getItem("user"))
-  : null;
+const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
 const initialState = {
   isLoggingIn: false,
   isSessionPosting: false,
   sessionData: null,
   user,
-  isPasswordResetting: false,
+  isPasswordResetting: false
 };
 
 export const authSlice = createSlice({
-  name: "auth",
+  name: 'auth',
   initialState,
   reducers: {},
   extraReducers: ({ addCase }) => {
@@ -60,7 +52,7 @@ export const authSlice = createSlice({
       state.isLoggingIn = false;
       state.sessionData = {
         company_and_branches: action.payload,
-        ...action.meta.arg,
+        ...action.meta.arg
       };
     });
     addCase(loginHandler.rejected, (state) => {
@@ -73,8 +65,8 @@ export const authSlice = createSlice({
     addCase(postSession.fulfilled, (state, action) => {
       state.isSessionPosting = false;
       const { api_token, ...user } = action.payload;
-      localStorage.setItem("token", api_token);
-      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem('token', api_token);
+      localStorage.setItem('user', JSON.stringify(user));
       state.user = user;
     });
     addCase(postSession.rejected, (state) => {
@@ -90,7 +82,7 @@ export const authSlice = createSlice({
     addCase(resetPassword.rejected, (state) => {
       state.isPasswordResetting = false;
     });
-  },
+  }
 });
 
 export default authSlice.reducer;

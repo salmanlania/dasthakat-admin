@@ -1,13 +1,11 @@
-import { Button, Col, Form, Input, Row } from "antd";
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import AsyncSelect from "../AsyncSelect";
+import { Button, Col, Form, Input, Row } from 'antd';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import AsyncSelect from '../AsyncSelect';
 
 // eslint-disable-next-line react/prop-types
 const VesselForm = ({ mode, onSubmit }) => {
-  const { isFormSubmitting, initialFormValues } = useSelector(
-    (state) => state.vessel
-  );
+  const { isFormSubmitting, initialFormValues } = useSelector((state) => state.vessel);
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
 
@@ -16,7 +14,7 @@ const VesselForm = ({ mode, onSubmit }) => {
       ...values,
       flag_id: values.flag_id ? values.flag_id.value : null,
       class1_id: values.class1_id ? values.class1_id.value : null,
-      class2_id: values.class2_id ? values.class2_id.value : null,
+      class2_id: values.class2_id ? values.class2_id.value : null
     };
 
     onSubmit(data);
@@ -28,7 +26,7 @@ const VesselForm = ({ mode, onSubmit }) => {
       layout="vertical"
       autoComplete="off"
       onFinish={onFinish}
-      initialValues={mode === "edit" ? initialFormValues : null}
+      initialValues={mode === 'edit' ? initialFormValues : null}
     >
       <Row gutter={[12, 12]} className="w-full">
         <Col span={24} sm={12} md={8} lg={8}>
@@ -39,8 +37,8 @@ const VesselForm = ({ mode, onSubmit }) => {
               {
                 required: true,
                 whitespace: true,
-                message: "IMO is required!",
-              },
+                message: 'IMO is required!'
+              }
             ]}
           >
             <Input />
@@ -54,8 +52,8 @@ const VesselForm = ({ mode, onSubmit }) => {
               {
                 required: true,
                 whitespace: true,
-                message: "Name is required!",
-              },
+                message: 'Name is required!'
+              }
             ]}
           >
             <Input />
@@ -65,16 +63,14 @@ const VesselForm = ({ mode, onSubmit }) => {
           <Form.Item
             name="flag_id"
             label="Flag"
-            rules={[{ required: true, message: "Flag is required!" }]}
+            rules={[{ required: true, message: 'Flag is required!' }]}
           >
             <AsyncSelect
               endpoint="/flag"
               valueKey="flag_id"
               labelKey="name"
               labelInValue
-              addNewLink={
-                permissions.flag.list && permissions.flag.add ? "/flag" : null
-              }
+              addNewLink={permissions.flag.list && permissions.flag.add ? '/flag' : null}
             />
           </Form.Item>
         </Col>
@@ -85,11 +81,7 @@ const VesselForm = ({ mode, onSubmit }) => {
               valueKey="class_id"
               labelKey="name"
               labelInValue
-              addNewLink={
-                permissions.class.list && permissions.class.add
-                  ? "/class"
-                  : null
-              }
+              addNewLink={permissions.class.list && permissions.class.add ? '/class' : null}
             />
           </Form.Item>
         </Col>
@@ -100,11 +92,7 @@ const VesselForm = ({ mode, onSubmit }) => {
               valueKey="class_id"
               labelKey="name"
               labelInValue
-              addNewLink={
-                permissions.class.list && permissions.class.add
-                  ? "/class"
-                  : null
-              }
+              addNewLink={permissions.class.list && permissions.class.add ? '/class' : null}
             />
           </Form.Item>
         </Col>
@@ -115,16 +103,11 @@ const VesselForm = ({ mode, onSubmit }) => {
         </Col>
       </Row>
 
-      <div className="mt-4 flex gap-2 justify-end items-center">
+      <div className="mt-4 flex items-center justify-end gap-2">
         <Link to="/vessel">
           <Button className="w-28">Cancel</Button>
         </Link>
-        <Button
-          type="primary"
-          htmlType="submit"
-          className="w-28"
-          loading={isFormSubmitting}
-        >
+        <Button type="primary" htmlType="submit" className="w-28" loading={isFormSubmitting}>
           Save
         </Button>
       </div>

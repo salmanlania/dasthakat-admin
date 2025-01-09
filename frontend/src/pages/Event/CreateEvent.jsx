@@ -1,11 +1,11 @@
-import { Breadcrumb } from "antd";
-import toast from "react-hot-toast";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import EventForm from "../../components/Form/EventForm";
-import PageHeading from "../../components/heading/PageHeading";
-import useError from "../../hooks/useError";
-import { createEvent } from "../../store/features/eventSlice";
+import { Breadcrumb } from 'antd';
+import toast from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import EventForm from '../../components/Form/EventForm';
+import PageHeading from '../../components/heading/PageHeading';
+import useError from '../../hooks/useError';
+import { createEvent } from '../../store/features/eventSlice';
 
 const CreateEvent = () => {
   const navigate = useNavigate();
@@ -15,8 +15,8 @@ const CreateEvent = () => {
   const onEventCreate = async (data) => {
     try {
       await dispatch(createEvent(data)).unwrap();
-      toast.success("Event created successfully");
-      navigate("/event");
+      toast.success('Event created successfully');
+      navigate('/event');
     } catch (error) {
       handleError(error);
     }
@@ -24,15 +24,12 @@ const CreateEvent = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center flex-wrap">
+      <div className="flex flex-wrap items-center justify-between">
         <PageHeading>CREATE EVENT</PageHeading>
-        <Breadcrumb
-          items={[{ title: "Event" }, { title: "Create" }]}
-          separator=">"
-        />
+        <Breadcrumb items={[{ title: 'Event' }, { title: 'Create' }]} separator=">" />
       </div>
 
-      <div className="mt-4 bg-white sm:p-4 p-2 rounded-md">
+      <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
         <EventForm onSubmit={onEventCreate} />
       </div>
     </>

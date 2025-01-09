@@ -1,16 +1,17 @@
-import { Button, Card, Checkbox, Col, Collapse, Form, Input, Row } from "antd";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Button, Card, Checkbox, Col, Collapse, Form, Input, Row } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import {
   changeAllSubsection,
   changeCheckbox,
-  checkAllSection,
-} from "../../store/features/userPermissionSlice";
+  checkAllSection
+} from '../../store/features/userPermissionSlice';
 
-const UserPermissionForm = ({ mode = "create", onSubmit }) => {
+const UserPermissionForm = ({ mode = 'create', onSubmit }) => {
   const dispatch = useDispatch();
-  const { permissions, permissionsGroup, initialFormValues, isSubmitting } =
-    useSelector((state) => state.userPermission);
+  const { permissions, permissionsGroup, initialFormValues, isSubmitting } = useSelector(
+    (state) => state.userPermission
+  );
 
   const items = permissions.map((p) => {
     return {
@@ -24,8 +25,7 @@ const UserPermissionForm = ({ mode = "create", onSubmit }) => {
               extra={
                 <Checkbox
                   checked={Object.values(values).every(
-                    ({ permission_id, route }) =>
-                      permissionsGroup[route][permission_id] === 1
+                    ({ permission_id, route }) => permissionsGroup[route][permission_id] === 1
                   )}
                   onClick={() => {
                     const route = p.value[name][0].route;
@@ -37,20 +37,16 @@ const UserPermissionForm = ({ mode = "create", onSubmit }) => {
               key={name}
             >
               <Row gutter={16}>
-                {Object.values(values).map(
-                  ({ permission_name, permission_id, route }) => (
-                    <Col span={12} key={permission_id}>
-                      <Checkbox
-                        checked={permissionsGroup[route][permission_id] === 1}
-                        onClick={() =>
-                          dispatch(changeCheckbox({ route, permission_id }))
-                        }
-                      >
-                        {permission_name}
-                      </Checkbox>
-                    </Col>
-                  )
-                )}
+                {Object.values(values).map(({ permission_name, permission_id, route }) => (
+                  <Col span={12} key={permission_id}>
+                    <Checkbox
+                      checked={permissionsGroup[route][permission_id] === 1}
+                      onClick={() => dispatch(changeCheckbox({ route, permission_id }))}
+                    >
+                      {permission_name}
+                    </Checkbox>
+                  </Col>
+                ))}
               </Row>
             </Card>
           ))}
@@ -73,7 +69,7 @@ const UserPermissionForm = ({ mode = "create", onSubmit }) => {
             dispatch(checkAllSection(keys));
           }}
         />
-      ),
+      )
     };
   });
 
@@ -83,7 +79,7 @@ const UserPermissionForm = ({ mode = "create", onSubmit }) => {
       onFinish={onSubmit}
       autoComplete="off"
       layout="vertical"
-      initialValues={mode === "edit" ? initialFormValues : {}}
+      initialValues={mode === 'edit' ? initialFormValues : {}}
     >
       <Row gutter={16}>
         <Col span={24} md={8} lg={6}>
@@ -94,8 +90,8 @@ const UserPermissionForm = ({ mode = "create", onSubmit }) => {
               {
                 required: true,
                 whitespace: true,
-                message: "Name is required!",
-              },
+                message: 'Name is required!'
+              }
             ]}
           >
             <Input autoFocus />

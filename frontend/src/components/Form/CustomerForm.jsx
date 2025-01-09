@@ -1,15 +1,13 @@
-import { Button, Col, Form, Input, Row, Select } from "antd";
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import AsyncSelect from "../AsyncSelect";
-import NumberInput from "../Input/NumberInput";
-import CountrySelect from "../Select/CountrySelect";
+import { Button, Col, Form, Input, Row, Select } from 'antd';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import AsyncSelect from '../AsyncSelect';
+import NumberInput from '../Input/NumberInput';
+import CountrySelect from '../Select/CountrySelect';
 
 // eslint-disable-next-line react/prop-types
 const CustomerForm = ({ mode, onSubmit }) => {
-  const { isFormSubmitting, initialFormValues } = useSelector(
-    (state) => state.customer
-  );
+  const { isFormSubmitting, initialFormValues } = useSelector((state) => state.customer);
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
 
@@ -18,7 +16,7 @@ const CustomerForm = ({ mode, onSubmit }) => {
       ...values,
       salesman_id: values.salesman_id ? values.salesman_id.value : null,
       payment_id: values.payment_id ? values.payment_id.value : null,
-      vessel_id: values.vessel_id ? values.vessel_id.map((v) => v.value) : null,
+      vessel_id: values.vessel_id ? values.vessel_id.map((v) => v.value) : null
     });
   };
 
@@ -27,11 +25,7 @@ const CustomerForm = ({ mode, onSubmit }) => {
       name="customer"
       layout="vertical"
       autoComplete="off"
-      initialValues={
-        mode === "edit"
-          ? initialFormValues
-          : { status: 1, country: "United States" }
-      }
+      initialValues={mode === 'edit' ? initialFormValues : { status: 1, country: 'United States' }}
       onFinish={onFinish}
     >
       <Row gutter={[12, 12]}>
@@ -48,8 +42,8 @@ const CustomerForm = ({ mode, onSubmit }) => {
               {
                 required: true,
                 whitespace: true,
-                message: "Name is required!",
-              },
+                message: 'Name is required!'
+              }
             ]}
           >
             <Input />
@@ -63,9 +57,7 @@ const CustomerForm = ({ mode, onSubmit }) => {
               labelKey="name"
               labelInValue
               addNewLink={
-                permissions.salesman.list && permissions.salesman.add
-                  ? "/salesman"
-                  : null
+                permissions.salesman.list && permissions.salesman.add ? '/salesman' : null
               }
             />
           </Form.Item>
@@ -97,11 +89,7 @@ const CustomerForm = ({ mode, onSubmit }) => {
               valueKey="payment_id"
               labelKey="name"
               labelInValue
-              addNewLink={
-                permissions.payment.list && permissions.payment.add
-                  ? "/payment"
-                  : null
-              }
+              addNewLink={permissions.payment.list && permissions.payment.add ? '/payment' : null}
             />
           </Form.Item>
         </Col>
@@ -112,11 +100,7 @@ const CustomerForm = ({ mode, onSubmit }) => {
               valueKey="vessel_id"
               labelKey="name"
               labelInValue
-              addNewLink={
-                permissions.vessel.list && permissions.vessel.add
-                  ? "/vessel"
-                  : null
-              }
+              addNewLink={permissions.vessel.list && permissions.vessel.add ? '/vessel' : null}
               mode="multiple"
             />
           </Form.Item>
@@ -129,13 +113,11 @@ const CustomerForm = ({ mode, onSubmit }) => {
               {
                 validator: (_, value) => {
                   if (value > 100) {
-                    return Promise.reject(
-                      new Error("Rebate % cannot exceed 100%")
-                    );
+                    return Promise.reject(new Error('Rebate % cannot exceed 100%'));
                   }
                   return Promise.resolve();
-                },
-              },
+                }
+              }
             ]}
           >
             <NumberInput />
@@ -157,28 +139,23 @@ const CustomerForm = ({ mode, onSubmit }) => {
               options={[
                 {
                   value: 1,
-                  label: "Active",
+                  label: 'Active'
                 },
                 {
                   value: 0,
-                  label: "Inactive",
-                },
+                  label: 'Inactive'
+                }
               ]}
             />
           </Form.Item>
         </Col>
       </Row>
 
-      <div className="mt-4 flex gap-2 justify-end items-center">
+      <div className="mt-4 flex items-center justify-end gap-2">
         <Link to="/customer">
           <Button className="w-28">Cancel</Button>
         </Link>
-        <Button
-          type="primary"
-          htmlType="submit"
-          className="w-28"
-          loading={isFormSubmitting}
-        >
+        <Button type="primary" htmlType="submit" className="w-28" loading={isFormSubmitting}>
           Save
         </Button>
       </div>

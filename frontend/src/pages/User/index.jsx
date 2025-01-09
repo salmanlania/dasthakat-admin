@@ -1,44 +1,30 @@
-import {
-  Breadcrumb,
-  Button,
-  Input,
-  Popconfirm,
-  Select,
-  Table,
-  Tag,
-  Tooltip,
-} from "antd";
-import dayjs from "dayjs";
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { GoTrash } from "react-icons/go";
-import { MdOutlineEdit } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import AsyncSelect from "../../components/AsyncSelect";
-import PageHeading from "../../components/heading/PageHeading";
-import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
-import useDebounce from "../../hooks/useDebounce";
-import useError from "../../hooks/useError";
+import { Breadcrumb, Button, Input, Popconfirm, Select, Table, Tag, Tooltip } from 'antd';
+import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { GoTrash } from 'react-icons/go';
+import { MdOutlineEdit } from 'react-icons/md';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import AsyncSelect from '../../components/AsyncSelect';
+import PageHeading from '../../components/heading/PageHeading';
+import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
+import useDebounce from '../../hooks/useDebounce';
+import useError from '../../hooks/useError';
 import {
   bulkDeleteUser,
   deleteUser,
   getUserList,
   setUserDeleteIDs,
-  setUserListParams,
-} from "../../store/features/userSlice";
+  setUserListParams
+} from '../../store/features/userSlice';
 
 const User = () => {
   const dispatch = useDispatch();
   const handleError = useError();
-  const {
-    list,
-    isListLoading,
-    params,
-    paginationInfo,
-    isBulkDeleting,
-    deleteIDs,
-  } = useSelector((state) => state.user);
+  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
+    (state) => state.user
+  );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.user;
 
@@ -52,7 +38,7 @@ const User = () => {
   const onUserDelete = async (id) => {
     try {
       await dispatch(deleteUser(id)).unwrap();
-      toast.success("User deleted successfully");
+      toast.success('User deleted successfully');
       dispatch(getUserList(params)).unwrap();
     } catch (error) {
       handleError(error);
@@ -62,7 +48,7 @@ const User = () => {
   const onBulkDelete = async () => {
     try {
       await dispatch(bulkDeleteUser(deleteIDs)).unwrap();
-      toast.success("Users deleted successfully");
+      toast.success('Users deleted successfully');
       closeDeleteModal();
       await dispatch(getUserList(params)).unwrap();
     } catch (error) {
@@ -80,17 +66,15 @@ const User = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.user_name}
-            onChange={(e) =>
-              dispatch(setUserListParams({ user_name: e.target.value }))
-            }
+            onChange={(e) => dispatch(setUserListParams({ user_name: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "user_name",
-      key: "user_name",
+      dataIndex: 'user_name',
+      key: 'user_name',
       sorter: true,
       width: 150,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -101,17 +85,15 @@ const User = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.email}
-            onChange={(e) =>
-              dispatch(setUserListParams({ email: e.target.value }))
-            }
+            onChange={(e) => dispatch(setUserListParams({ email: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "email",
-      key: "email",
+      dataIndex: 'email',
+      key: 'email',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -124,16 +106,14 @@ const User = () => {
             size="small"
             className="w-full font-normal"
             value={params.permission_id}
-            onChange={(value) =>
-              dispatch(setUserListParams({ permission_id: value }))
-            }
+            onChange={(value) => dispatch(setUserListParams({ permission_id: value }))}
           />
         </div>
       ),
-      dataIndex: "permission_name",
-      key: "permission_name",
+      dataIndex: 'permission_name',
+      key: 'permission_name',
       sorter: true,
-      width: 180,
+      width: 180
     },
     {
       title: (
@@ -146,12 +126,12 @@ const User = () => {
             options={[
               {
                 value: 1,
-                label: "Active",
+                label: 'Active'
               },
               {
                 value: 0,
-                label: "Inactive",
-              },
+                label: 'Inactive'
+              }
             ]}
             value={params.status}
             onChange={(value) => dispatch(setUserListParams({ status: value }))}
@@ -159,8 +139,8 @@ const User = () => {
           />
         </div>
       ),
-      dataIndex: "status",
-      key: "status",
+      dataIndex: 'status',
+      key: 'status',
       sorter: true,
       render: (status) =>
         status === 1 ? (
@@ -172,22 +152,21 @@ const User = () => {
             Inactive
           </Tag>
         ),
-      width: 120,
+      width: 120
     },
     {
-      title: "Created At",
-      dataIndex: "created_at",
-      key: "created_at",
+      title: 'Created At',
+      dataIndex: 'created_at',
+      key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) =>
-        dayjs(created_at).format("DD-MM-YYYY hh:mm A"),
+      render: (_, { created_at }) => dayjs(created_at).format('DD-MM-YYYY hh:mm A')
     },
     {
-      title: "Action",
-      key: "action",
+      title: 'Action',
+      key: 'action',
       render: (_, { user_id }) => (
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           {permissions.edit ? (
             <Tooltip title="Edit">
               <Link to={`/user/edit/${user_id}`}>
@@ -210,20 +189,15 @@ const User = () => {
                 cancelText="No"
                 onConfirm={() => onUserDelete(user_id)}
               >
-                <Button
-                  size="small"
-                  type="primary"
-                  danger
-                  icon={<GoTrash size={14} />}
-                />
+                <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
               </Popconfirm>
             </Tooltip>
           ) : null}
         </div>
       ),
       width: 70,
-      fixed: "right",
-    },
+      fixed: 'right'
+    }
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -242,31 +216,26 @@ const User = () => {
     params.status,
     debouncedSearch,
     debouncedUserName,
-    debouncedEmail,
+    debouncedEmail
   ]);
 
   return (
     <>
-      <div className="flex justify-between items-center flex-wrap">
+      <div className="flex flex-wrap items-center justify-between">
         <PageHeading>USER</PageHeading>
-        <Breadcrumb
-          items={[{ title: "User" }, { title: "List" }]}
-          separator=">"
-        />
+        <Breadcrumb items={[{ title: 'User' }, { title: 'List' }]} separator=">" />
       </div>
 
-      <div className="mt-4 bg-white p-2 rounded-md">
-        <div className="flex justify-between items-center gap-2">
+      <div className="mt-4 rounded-md bg-white p-2">
+        <div className="flex items-center justify-between gap-2">
           <Input
             placeholder="Search..."
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) =>
-              dispatch(setUserListParams({ search: e.target.value }))
-            }
+            onChange={(e) => dispatch(setUserListParams({ search: e.target.value }))}
           />
 
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             {permissions.delete ? (
               <Button
                 type="primary"
@@ -290,21 +259,20 @@ const User = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: "checkbox",
+                  type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) =>
-                    dispatch(setUserDeleteIDs(selectedRowKeys)),
+                  onChange: (selectedRowKeys) => dispatch(setUserDeleteIDs(selectedRowKeys))
                 }
               : null
           }
           className="mt-2"
-          scroll={{ x: "calc(100% - 200px)" }}
+          scroll={{ x: 'calc(100% - 200px)' }}
           loading={isListLoading}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} users`,
+            showTotal: (total) => `Total ${total} users`
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -312,7 +280,7 @@ const User = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order,
+                sort_direction: sorting.order
               })
             );
           }}
@@ -321,7 +289,7 @@ const User = () => {
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56,
+            offsetHeader: 56
           }}
         />
       </div>

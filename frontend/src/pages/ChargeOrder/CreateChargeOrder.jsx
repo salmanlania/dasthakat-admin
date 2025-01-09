@@ -1,11 +1,11 @@
-import { Breadcrumb } from "antd";
-import toast from "react-hot-toast";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import ChargeOrderForm from "../../components/Form/ChargeOrderForm";
-import PageHeading from "../../components/heading/PageHeading";
-import useError from "../../hooks/useError";
-import { createChargeOrder } from "../../store/features/chargeOrderSlice";
+import { Breadcrumb } from 'antd';
+import toast from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import ChargeOrderForm from '../../components/Form/ChargeOrderForm';
+import PageHeading from '../../components/heading/PageHeading';
+import useError from '../../hooks/useError';
+import { createChargeOrder } from '../../store/features/chargeOrderSlice';
 
 const CreateChargeOrder = () => {
   const navigate = useNavigate();
@@ -15,8 +15,8 @@ const CreateChargeOrder = () => {
   const onChargeOrderCreate = async (data) => {
     try {
       await dispatch(createChargeOrder(data)).unwrap();
-      toast.success("Charge order created successfully");
-      navigate("/charge-order");
+      toast.success('Charge order created successfully');
+      navigate('/charge-order');
     } catch (error) {
       handleError(error);
     }
@@ -24,15 +24,12 @@ const CreateChargeOrder = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center flex-wrap">
+      <div className="flex flex-wrap items-center justify-between">
         <PageHeading>CREATE CHARGE ORDER</PageHeading>
-        <Breadcrumb
-          items={[{ title: "Charge Order" }, { title: "Create" }]}
-          separator=">"
-        />
+        <Breadcrumb items={[{ title: 'Charge Order' }, { title: 'Create' }]} separator=">" />
       </div>
 
-      <div className="mt-4 bg-white sm:p-4 p-2 rounded-md">
+      <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
         <ChargeOrderForm onSubmit={onChargeOrderCreate} />
       </div>
     </>

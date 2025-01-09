@@ -1,34 +1,30 @@
-import { Button, Col, Form, Image, Input, Row, Select } from "antd";
-import { useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import productImagePlaceholder from "../../assets/img-placeholder.png";
-import AsyncSelect from "../AsyncSelect";
-import CommaSeparatedInput from "../Input/CommaSeparatedInput";
+import { Button, Col, Form, Image, Input, Row, Select } from 'antd';
+import { useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import productImagePlaceholder from '../../assets/img-placeholder.png';
+import AsyncSelect from '../AsyncSelect';
+import CommaSeparatedInput from '../Input/CommaSeparatedInput';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const productTypeOptions = [
-  { value: "Service", label: "Service" },
-  { value: "Inventory", label: "Inventory" },
-  { value: "IMPA", label: "IMPA" },
-  { value: "Other", label: "Other" },
+  { value: 'Service', label: 'Service' },
+  { value: 'Inventory', label: 'Inventory' },
+  { value: 'IMPA', label: 'IMPA' },
+  { value: 'Other', label: 'Other' }
 ];
 
 // eslint-disable-next-line react/prop-types
 const ProductForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
   const fileInputRef = useRef(null);
-  const { isFormSubmitting, initialFormValues } = useSelector(
-    (state) => state.product
-  );
+  const { isFormSubmitting, initialFormValues } = useSelector((state) => state.product);
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
 
-  const [imageSrc, setImageSrc] = useState(
-    initialFormValues?.image_url || null
-  );
+  const [imageSrc, setImageSrc] = useState(initialFormValues?.image_url || null);
 
-  const categoryID = Form.useWatch("category_id", form);
+  const categoryID = Form.useWatch('category_id', form);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -45,16 +41,14 @@ const ProductForm = ({ mode, onSubmit }) => {
     const data = {
       ...formValues,
       category_id: formValues.category_id ? formValues.category_id.value : null,
-      sub_category_id: formValues.sub_category_id
-        ? formValues.sub_category_id.value
-        : null,
+      sub_category_id: formValues.sub_category_id ? formValues.sub_category_id.value : null,
       brand_id: formValues.brand_id ? formValues.brand_id.value : null,
       unit_id: formValues.unit_id ? formValues.unit_id.value : null,
-      image: initialFormValues?.image_url === imageSrc ? null : imageSrc,
+      image: initialFormValues?.image_url === imageSrc ? null : imageSrc
     };
 
     if (
-      mode === "edit" &&
+      mode === 'edit' &&
       initialFormValues?.image_url &&
       initialFormValues?.image_url !== imageSrc
     ) {
@@ -71,7 +65,7 @@ const ProductForm = ({ mode, onSubmit }) => {
       form={form}
       autoComplete="off"
       onFinish={onFinish}
-      initialValues={mode === "edit" ? initialFormValues : { status: 1 }}
+      initialValues={mode === 'edit' ? initialFormValues : { status: 1 }}
     >
       <div className="flex flex-col-reverse items-center justify-between gap-6 md:flex-row md:items-start">
         <div>
@@ -85,7 +79,7 @@ const ProductForm = ({ mode, onSubmit }) => {
               <Form.Item
                 name="product_type"
                 label="Type"
-                rules={[{ required: true, message: "Type is required" }]}
+                rules={[{ required: true, message: 'Type is required' }]}
               >
                 <Select options={productTypeOptions} />
               </Form.Item>
@@ -98,8 +92,8 @@ const ProductForm = ({ mode, onSubmit }) => {
                   {
                     required: true,
                     whitespace: true,
-                    message: "Name is required",
-                  },
+                    message: 'Name is required'
+                  }
                 ]}
               >
                 <Input />
@@ -117,13 +111,9 @@ const ProductForm = ({ mode, onSubmit }) => {
                   valueKey="category_id"
                   labelKey="name"
                   labelInValue
-                  onChange={() =>
-                    form.setFieldsValue({ sub_category_id: null })
-                  }
+                  onChange={() => form.setFieldsValue({ sub_category_id: null })}
                   addNewLink={
-                    permissions.category.list && permissions.category.add
-                      ? "/category"
-                      : null
+                    permissions.category.list && permissions.category.add ? '/category' : null
                   }
                 />
               </Form.Item>
@@ -139,9 +129,8 @@ const ProductForm = ({ mode, onSubmit }) => {
                   params={{ category_id: categoryID ? categoryID.value : null }}
                   dependencies={[categoryID]}
                   addNewLink={
-                    permissions.sub_category.list &&
-                    permissions.sub_category.add
-                      ? "/sub-category"
+                    permissions.sub_category.list && permissions.sub_category.add
+                      ? '/sub-category'
                       : null
                   }
                 />
@@ -155,11 +144,7 @@ const ProductForm = ({ mode, onSubmit }) => {
                   valueKey="brand_id"
                   labelKey="name"
                   labelInValue
-                  addNewLink={
-                    permissions.brand.list && permissions.brand.add
-                      ? "/brand"
-                      : null
-                  }
+                  addNewLink={permissions.brand.list && permissions.brand.add ? '/brand' : null}
                 />
               </Form.Item>
             </Col>
@@ -168,18 +153,14 @@ const ProductForm = ({ mode, onSubmit }) => {
               <Form.Item
                 name="unit_id"
                 label="Unit"
-                rules={[{ required: true, message: "Unit is required" }]}
+                rules={[{ required: true, message: 'Unit is required' }]}
               >
                 <AsyncSelect
                   endpoint="/unit"
                   valueKey="unit_id"
                   labelKey="name"
                   labelInValue
-                  addNewLink={
-                    permissions.unit.list && permissions.unit.add
-                      ? "/unit"
-                      : null
-                  }
+                  addNewLink={permissions.unit.list && permissions.unit.add ? '/unit' : null}
                 />
               </Form.Item>
             </Col>
@@ -200,8 +181,8 @@ const ProductForm = ({ mode, onSubmit }) => {
               <Form.Item name="status" label="Status">
                 <Select
                   options={[
-                    { value: 1, label: "Active" },
-                    { value: 0, label: "Inactive" },
+                    { value: 1, label: 'Active' },
+                    { value: 0, label: 'Inactive' }
                   ]}
                 />
               </Form.Item>
@@ -223,7 +204,7 @@ const ProductForm = ({ mode, onSubmit }) => {
             type="file"
             accept="image/*"
             onChange={handleImageChange}
-            style={{ display: "none" }}
+            style={{ display: 'none' }}
             ref={fileInputRef}
           />
 
@@ -243,16 +224,11 @@ const ProductForm = ({ mode, onSubmit }) => {
         </div>
       </div>
 
-      <div className="mt-4 flex gap-2 justify-end items-center">
+      <div className="mt-4 flex items-center justify-end gap-2">
         <Link to="/product">
           <Button className="w-28">Cancel</Button>
         </Link>
-        <Button
-          type="primary"
-          htmlType="submit"
-          className="w-28"
-          loading={isFormSubmitting}
-        >
+        <Button type="primary" htmlType="submit" className="w-28" loading={isFormSubmitting}>
           Save
         </Button>
       </div>

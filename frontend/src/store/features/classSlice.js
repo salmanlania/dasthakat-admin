@@ -1,44 +1,35 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../../axiosInstance";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import api from '../../axiosInstance';
 
-export const getClassList = createAsyncThunk(
-  "class/list",
-  async (params, { rejectWithValue }) => {
-    try {
-      const res = await api.get("/class", {
-        params,
-      });
-      return res.data;
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const getClassList = createAsyncThunk('class/list', async (params, { rejectWithValue }) => {
+  try {
+    const res = await api.get('/class', {
+      params
+    });
+    return res.data;
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
-export const deleteClass = createAsyncThunk(
-  "class/delete",
-  async (id, { rejectWithValue }) => {
-    try {
-      await api.delete(`/class/${id}`);
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const deleteClass = createAsyncThunk('class/delete', async (id, { rejectWithValue }) => {
+  try {
+    await api.delete(`/class/${id}`);
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
-export const createClass = createAsyncThunk(
-  "class/create",
-  async (data, { rejectWithValue }) => {
-    try {
-      await api.post("/class", data);
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const createClass = createAsyncThunk('class/create', async (data, { rejectWithValue }) => {
+  try {
+    await api.post('/class', data);
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
 export const updateClass = createAsyncThunk(
-  "class/update",
+  'class/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
       await api.put(`/class/${id}`, data);
@@ -49,11 +40,11 @@ export const updateClass = createAsyncThunk(
 );
 
 export const bulkDeleteClass = createAsyncThunk(
-  "class/bulkDelete",
+  'class/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post("/class/bulk-delete", {
-        class_ids: ids,
+      await api.post('/class/bulk-delete', {
+        class_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -71,24 +62,24 @@ const initialState = {
   params: {
     page: 1,
     limit: 50,
-    search: "",
+    search: '',
     sort_column: null,
-    sort_direction: null,
+    sort_direction: null
   },
   paginationInfo: {
     total_records: 0,
-    total_pages: 0,
-  },
+    total_pages: 0
+  }
 };
 
 export const classSlice = createSlice({
-  name: "class",
+  name: 'class',
   initialState,
   reducers: {
     setClassListParams: (state, action) => {
       state.params = {
         ...state.params,
-        ...action.payload,
+        ...action.payload
       };
     },
 
@@ -97,42 +88,42 @@ export const classSlice = createSlice({
     },
 
     addNewClass: (state) => {
-      const ifAlreadyNew = state.list.some((item) => item.class_id === "new");
+      const ifAlreadyNew = state.list.some((item) => item.class_id === 'new');
       if (ifAlreadyNew) return;
 
       state.list = state.list.map((item) => {
         return {
           ...item,
-          editable: false,
+          editable: false
         };
       });
 
       state.list.unshift({
-        class_id: "new",
-        name: "",
+        class_id: 'new',
+        name: '',
         editable: true,
-        created_at: null,
+        created_at: null
       });
     },
 
     removeNewClass: (state) => {
-      state.list = state.list.filter((item) => item.class_id !== "new");
+      state.list = state.list.filter((item) => item.class_id !== 'new');
     },
 
     setClassEditable: (state, action) => {
       const { id, editable } = action.payload;
 
       // if record is new then simply update editable field for this item
-      if (id === "new") {
+      if (id === 'new') {
         state.list = state.list.map((item) => ({
           ...item,
-          editable,
+          editable
         }));
         return;
       }
 
       // Filter out items with class_id as "new"
-      state.list = state.list.filter((item) => item.class_id !== "new");
+      state.list = state.list.filter((item) => item.class_id !== 'new');
 
       // Update the list
       state.list = state.list.map((item) => {
@@ -140,12 +131,12 @@ export const classSlice = createSlice({
           return item.editable
             ? {
                 ...item.prevRecord,
-                editable: false,
+                editable: false
               }
             : {
                 ...item,
                 editable: true,
-                prevRecord: { ...item },
+                prevRecord: { ...item }
               };
         }
 
@@ -162,12 +153,12 @@ export const classSlice = createSlice({
         if (item.class_id === id) {
           return {
             ...item,
-            [field]: value,
+            [field]: value
           };
         }
         return item;
       });
-    },
+    }
   },
   extraReducers: ({ addCase }) => {
     addCase(getClassList.pending, (state) => {
@@ -179,7 +170,7 @@ export const classSlice = createSlice({
       state.list = data;
       state.paginationInfo = {
         total_records: rest.total,
-        total_pages: rest.last_page,
+        total_pages: rest.last_page
       };
     });
     addCase(getClassList.rejected, (state) => {
@@ -187,14 +178,14 @@ export const classSlice = createSlice({
     });
 
     addCase(createClass.pending, (state) => {
-      state.isSubmitting = "new";
+      state.isSubmitting = 'new';
     });
     addCase(createClass.fulfilled, (state) => {
       state.isSubmitting = false;
     });
     addCase(createClass.rejected, (state) => {
       state.isSubmitting = false;
-      state.list = state.list.filter((item) => item.class_id !== "new");
+      state.list = state.list.filter((item) => item.class_id !== 'new');
     });
 
     addCase(updateClass.pending, (state, action) => {
@@ -217,7 +208,7 @@ export const classSlice = createSlice({
     addCase(bulkDeleteClass.rejected, (state) => {
       state.isBulkDeleting = false;
     });
-  },
+  }
 });
 
 export const {
@@ -226,6 +217,6 @@ export const {
   addNewClass,
   removeNewClass,
   setClassEditable,
-  updateClassListValue,
+  updateClassListValue
 } = classSlice.actions;
 export default classSlice.reducer;

@@ -1,44 +1,35 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../../axiosInstance";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import api from '../../axiosInstance';
 
-export const getUnitList = createAsyncThunk(
-  "unit/list",
-  async (params, { rejectWithValue }) => {
-    try {
-      const res = await api.get("/unit", {
-        params,
-      });
-      return res.data;
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const getUnitList = createAsyncThunk('unit/list', async (params, { rejectWithValue }) => {
+  try {
+    const res = await api.get('/unit', {
+      params
+    });
+    return res.data;
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
-export const deleteUnit = createAsyncThunk(
-  "unit/delete",
-  async (id, { rejectWithValue }) => {
-    try {
-      await api.delete(`/unit/${id}`);
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const deleteUnit = createAsyncThunk('unit/delete', async (id, { rejectWithValue }) => {
+  try {
+    await api.delete(`/unit/${id}`);
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
-export const createUnit = createAsyncThunk(
-  "unit/create",
-  async (data, { rejectWithValue }) => {
-    try {
-      await api.post("/unit", data);
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const createUnit = createAsyncThunk('unit/create', async (data, { rejectWithValue }) => {
+  try {
+    await api.post('/unit', data);
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
 export const updateUnit = createAsyncThunk(
-  "unit/update",
+  'unit/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
       await api.put(`/unit/${id}`, data);
@@ -49,11 +40,11 @@ export const updateUnit = createAsyncThunk(
 );
 
 export const bulkDeleteUnit = createAsyncThunk(
-  "unit/bulkDelete",
+  'unit/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post("/unit/bulk-delete", {
-        unit_ids: ids,
+      await api.post('/unit/bulk-delete', {
+        unit_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -71,24 +62,24 @@ const initialState = {
   params: {
     page: 1,
     limit: 50,
-    search: "",
+    search: '',
     sort_column: null,
-    sort_direction: null,
+    sort_direction: null
   },
   paginationInfo: {
     total_records: 0,
-    total_pages: 0,
-  },
+    total_pages: 0
+  }
 };
 
 export const unitSlice = createSlice({
-  name: "unit",
+  name: 'unit',
   initialState,
   reducers: {
     setUnitListParams: (state, action) => {
       state.params = {
         ...state.params,
-        ...action.payload,
+        ...action.payload
       };
     },
 
@@ -97,42 +88,42 @@ export const unitSlice = createSlice({
     },
 
     addNewUnit: (state) => {
-      const ifAlreadyNew = state.list.some((item) => item.unit_id === "new");
+      const ifAlreadyNew = state.list.some((item) => item.unit_id === 'new');
       if (ifAlreadyNew) return;
 
       state.list = state.list.map((item) => {
         return {
           ...item,
-          editable: false,
+          editable: false
         };
       });
 
       state.list.unshift({
-        unit_id: "new",
-        name: "",
+        unit_id: 'new',
+        name: '',
         editable: true,
-        created_at: null,
+        created_at: null
       });
     },
 
     removeNewUnit: (state) => {
-      state.list = state.list.filter((item) => item.unit_id !== "new");
+      state.list = state.list.filter((item) => item.unit_id !== 'new');
     },
 
     setUnitEditable: (state, action) => {
       const { id, editable } = action.payload;
 
       // if record is new then simply update editable field for this item
-      if (id === "new") {
+      if (id === 'new') {
         state.list = state.list.map((item) => ({
           ...item,
-          editable,
+          editable
         }));
         return;
       }
 
       // Filter out items with unit_id as "new"
-      state.list = state.list.filter((item) => item.unit_id !== "new");
+      state.list = state.list.filter((item) => item.unit_id !== 'new');
 
       // Update the list
       state.list = state.list.map((item) => {
@@ -140,12 +131,12 @@ export const unitSlice = createSlice({
           return item.editable
             ? {
                 ...item.prevRecord,
-                editable: false,
+                editable: false
               }
             : {
                 ...item,
                 editable: true,
-                prevRecord: { ...item },
+                prevRecord: { ...item }
               };
         }
 
@@ -162,12 +153,12 @@ export const unitSlice = createSlice({
         if (item.unit_id === id) {
           return {
             ...item,
-            [field]: value,
+            [field]: value
           };
         }
         return item;
       });
-    },
+    }
   },
   extraReducers: ({ addCase }) => {
     addCase(getUnitList.pending, (state) => {
@@ -179,7 +170,7 @@ export const unitSlice = createSlice({
       state.list = data;
       state.paginationInfo = {
         total_records: rest.total,
-        total_pages: rest.last_page,
+        total_pages: rest.last_page
       };
     });
     addCase(getUnitList.rejected, (state) => {
@@ -187,14 +178,14 @@ export const unitSlice = createSlice({
     });
 
     addCase(createUnit.pending, (state) => {
-      state.isSubmitting = "new";
+      state.isSubmitting = 'new';
     });
     addCase(createUnit.fulfilled, (state) => {
       state.isSubmitting = false;
     });
     addCase(createUnit.rejected, (state) => {
       state.isSubmitting = false;
-      state.list = state.list.filter((item) => item.unit_id !== "new");
+      state.list = state.list.filter((item) => item.unit_id !== 'new');
     });
 
     addCase(updateUnit.pending, (state, action) => {
@@ -217,7 +208,7 @@ export const unitSlice = createSlice({
     addCase(bulkDeleteUnit.rejected, (state) => {
       state.isBulkDeleting = false;
     });
-  },
+  }
 });
 
 export const {
@@ -226,6 +217,6 @@ export const {
   addNewUnit,
   removeNewUnit,
   setUnitEditable,
-  updateUnitListValue,
+  updateUnitListValue
 } = unitSlice.actions;
 export default unitSlice.reducer;

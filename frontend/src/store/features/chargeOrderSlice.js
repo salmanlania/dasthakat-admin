@@ -1,13 +1,13 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import dayjs from "dayjs";
-import api from "../../axiosInstance";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import dayjs from 'dayjs';
+import api from '../../axiosInstance';
 
 export const getChargeOrderList = createAsyncThunk(
-  "chargeOrder/list",
+  'chargeOrder/list',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get("/charge-order", {
-        params,
+      const res = await api.get('/charge-order', {
+        params
       });
       return res.data;
     } catch (err) {
@@ -17,7 +17,7 @@ export const getChargeOrderList = createAsyncThunk(
 );
 
 export const deleteChargeOrder = createAsyncThunk(
-  "chargeOrder/delete",
+  'chargeOrder/delete',
   async (id, { rejectWithValue }) => {
     try {
       await api.delete(`/charge-order/${id}`);
@@ -28,10 +28,10 @@ export const deleteChargeOrder = createAsyncThunk(
 );
 
 export const createChargeOrder = createAsyncThunk(
-  "chargeOrder/create",
+  'chargeOrder/create',
   async (data, { rejectWithValue }) => {
     try {
-      return await api.post("/charge-order", data);
+      return await api.post('/charge-order', data);
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -39,7 +39,7 @@ export const createChargeOrder = createAsyncThunk(
 );
 
 export const getChargeOrder = createAsyncThunk(
-  "chargeOrder/get",
+  'chargeOrder/get',
   async (id, { rejectWithValue }) => {
     try {
       const res = await api.get(`/charge-order/${id}`);
@@ -51,7 +51,7 @@ export const getChargeOrder = createAsyncThunk(
 );
 
 export const updateChargeOrder = createAsyncThunk(
-  "chargeOrder/update",
+  'chargeOrder/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
       await api.put(`/charge-order/${id}`, data);
@@ -62,11 +62,11 @@ export const updateChargeOrder = createAsyncThunk(
 );
 
 export const bulkDeleteChargeOrder = createAsyncThunk(
-  "chargeOrder/bulkDelete",
+  'chargeOrder/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post("/charge-order/bulk-delete", {
-        charge_order_ids: ids,
+      await api.post('/charge-order/bulk-delete', {
+        charge_order_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -87,18 +87,18 @@ const initialState = {
   params: {
     page: 1,
     limit: 50,
-    search: "",
+    search: '',
     sort_column: null,
-    sort_direction: null,
+    sort_direction: null
   },
   paginationInfo: {
     total_records: 0,
-    total_pages: 0,
-  },
+    total_pages: 0
+  }
 };
 
 export const chargeOrderSlice = createSlice({
-  name: "chargeOrder",
+  name: 'chargeOrder',
   initialState,
   reducers: {
     setChargeQuotationID: (state, action) => {
@@ -108,7 +108,7 @@ export const chargeOrderSlice = createSlice({
     setChargeOrderListParams: (state, action) => {
       state.params = {
         ...state.params,
-        ...action.payload,
+        ...action.payload
       };
     },
 
@@ -127,7 +127,7 @@ export const chargeOrderSlice = createSlice({
         stock_quantity: null,
         quantity: null,
         unit_id: null,
-        supplier_id: null,
+        supplier_id: null
       };
 
       // If index is provided, insert the new detail after that index, otherwise push it to the end
@@ -144,7 +144,7 @@ export const chargeOrderSlice = createSlice({
       const detail = state.chargeOrderDetails[index];
       const newDetail = {
         ...detail,
-        id: Date.now(),
+        id: Date.now()
       };
 
       state.chargeOrderDetails.splice(index + 1, 0, newDetail);
@@ -168,7 +168,7 @@ export const chargeOrderSlice = createSlice({
       const { index, key, value } = action.payload;
       const detail = state.chargeOrderDetails[index];
       detail[key] = value;
-    },
+    }
   },
   extraReducers: ({ addCase }) => {
     addCase(getChargeOrderList.pending, (state) => {
@@ -182,7 +182,7 @@ export const chargeOrderSlice = createSlice({
       state.list = data;
       state.paginationInfo = {
         total_records: rest.total,
-        total_pages: rest.last_page,
+        total_pages: rest.last_page
       };
     });
     addCase(getChargeOrderList.rejected, (state) => {
@@ -212,51 +212,51 @@ export const chargeOrderSlice = createSlice({
         agent_id: data.agent
           ? {
               value: data.agent.agent_id,
-              label: data.agent.name,
+              label: data.agent.name
             }
           : null,
         salesman_id: data.salesman
           ? {
               value: data.salesman.salesman_id,
-              label: data.salesman.name,
+              label: data.salesman.name
             }
           : null,
         event_id: data.event
           ? {
               value: data.event.event_id,
-              label: data.event.event_code,
+              label: data.event.event_code
             }
           : null,
         vessel_id: data.vessel
           ? {
               value: data.vessel.vessel_id,
-              label: data.vessel.name,
+              label: data.vessel.name
             }
           : null,
         customer_id: data.customer
           ? {
               value: data.customer.customer_id,
-              label: data.customer.name,
+              label: data.customer.name
             }
           : null,
         class1_id: data.class1
           ? {
               value: data.class1.class1_id,
-              label: data.class1.name,
+              label: data.class1.name
             }
           : null,
         class2_id: data.class2
           ? {
               value: data.class2.class2_id,
-              label: data.class2.name,
+              label: data.class2.name
             }
           : null,
         flag_id: data.flag
           ? {
               value: data.flag.flag_id,
-              label: data.flag.name,
+              label: data.flag.name
             }
-          : null,
+          : null
       };
 
       if (!data.charge_order_detail) return;
@@ -269,12 +269,10 @@ export const chargeOrderSlice = createSlice({
           : null,
         description: detail.description,
         quantity: detail.quantity,
-        unit_id: detail.unit
-          ? { value: detail.unit.unit_id, label: detail.unit.name }
-          : null,
+        unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
         supplier_id: detail.supplier
           ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
-          : null,
+          : null
       }));
     });
     addCase(getChargeOrder.rejected, (state) => {
@@ -303,7 +301,7 @@ export const chargeOrderSlice = createSlice({
     addCase(bulkDeleteChargeOrder.rejected, (state) => {
       state.isBulkDeleting = false;
     });
-  },
+  }
 });
 
 export const {
@@ -314,6 +312,6 @@ export const {
   copyChargeOrderDetail,
   changeChargeOrderDetailOrder,
   changeChargeOrderDetailValue,
-  setChargeQuotationID,
+  setChargeQuotationID
 } = chargeOrderSlice.actions;
 export default chargeOrderSlice.reducer;

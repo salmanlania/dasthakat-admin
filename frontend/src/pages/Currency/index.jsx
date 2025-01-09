@@ -1,43 +1,29 @@
-import {
-  Breadcrumb,
-  Button,
-  Input,
-  Popconfirm,
-  Select,
-  Table,
-  Tag,
-  Tooltip,
-} from "antd";
-import dayjs from "dayjs";
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { GoTrash } from "react-icons/go";
-import { MdOutlineEdit } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import PageHeading from "../../components/heading/PageHeading";
-import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
-import useDebounce from "../../hooks/useDebounce";
-import useError from "../../hooks/useError";
+import { Breadcrumb, Button, Input, Popconfirm, Select, Table, Tag, Tooltip } from 'antd';
+import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { GoTrash } from 'react-icons/go';
+import { MdOutlineEdit } from 'react-icons/md';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import PageHeading from '../../components/heading/PageHeading';
+import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
+import useDebounce from '../../hooks/useDebounce';
+import useError from '../../hooks/useError';
 import {
   bulkDeleteCurrency,
   deleteCurrency,
   getCurrencyList,
   setCurrencyDeleteIDs,
-  setCurrencyListParams,
-} from "../../store/features/currencySlice";
+  setCurrencyListParams
+} from '../../store/features/currencySlice';
 
 const Currency = () => {
   const dispatch = useDispatch();
   const handleError = useError();
-  const {
-    list,
-    isListLoading,
-    params,
-    paginationInfo,
-    isBulkDeleting,
-    deleteIDs,
-  } = useSelector((state) => state.currency);
+  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
+    (state) => state.currency
+  );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.currency;
 
@@ -54,7 +40,7 @@ const Currency = () => {
   const onCurrencyDelete = async (id) => {
     try {
       await dispatch(deleteCurrency(id)).unwrap();
-      toast.success("Currency deleted successfully");
+      toast.success('Currency deleted successfully');
       dispatch(getCurrencyList(params)).unwrap();
     } catch (error) {
       handleError(error);
@@ -64,7 +50,7 @@ const Currency = () => {
   const onBulkDelete = async () => {
     try {
       await dispatch(bulkDeleteCurrency(deleteIDs)).unwrap();
-      toast.success("Currency deleted successfully");
+      toast.success('Currency deleted successfully');
       closeDeleteModal();
       await dispatch(getCurrencyList(params)).unwrap();
     } catch (error) {
@@ -82,17 +68,15 @@ const Currency = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.currency_code}
-            onChange={(e) =>
-              dispatch(setCurrencyListParams({ currency_code: e.target.value }))
-            }
+            onChange={(e) => dispatch(setCurrencyListParams({ currency_code: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "currency_code",
-      key: "currency_code",
+      dataIndex: 'currency_code',
+      key: 'currency_code',
       sorter: true,
       width: 150,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -103,17 +87,15 @@ const Currency = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.name}
-            onChange={(e) =>
-              dispatch(setCurrencyListParams({ name: e.target.value }))
-            }
+            onChange={(e) => dispatch(setCurrencyListParams({ name: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "name",
-      key: "name",
+      dataIndex: 'name',
+      key: 'name',
       sorter: true,
       width: 150,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -124,17 +106,15 @@ const Currency = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.symbol_left}
-            onChange={(e) =>
-              dispatch(setCurrencyListParams({ symbol_left: e.target.value }))
-            }
+            onChange={(e) => dispatch(setCurrencyListParams({ symbol_left: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "symbol_left",
-      key: "symbol_left",
+      dataIndex: 'symbol_left',
+      key: 'symbol_left',
       sorter: true,
       width: 150,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -145,17 +125,15 @@ const Currency = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.symbol_right}
-            onChange={(e) =>
-              dispatch(setCurrencyListParams({ symbol_right: e.target.value }))
-            }
+            onChange={(e) => dispatch(setCurrencyListParams({ symbol_right: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "symbol_right",
-      key: "symbol_right",
+      dataIndex: 'symbol_right',
+      key: 'symbol_right',
       sorter: true,
       width: 150,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -166,17 +144,15 @@ const Currency = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.value}
-            onChange={(e) =>
-              dispatch(setCurrencyListParams({ value: e.target.value }))
-            }
+            onChange={(e) => dispatch(setCurrencyListParams({ value: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "value",
-      key: "value",
+      dataIndex: 'value',
+      key: 'value',
       sorter: true,
       width: 150,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -189,23 +165,21 @@ const Currency = () => {
             options={[
               {
                 value: 1,
-                label: "Active",
+                label: 'Active'
               },
               {
                 value: 0,
-                label: "Inactive",
-              },
+                label: 'Inactive'
+              }
             ]}
             value={params.status}
-            onChange={(value) =>
-              dispatch(setCurrencyListParams({ status: value }))
-            }
+            onChange={(value) => dispatch(setCurrencyListParams({ status: value }))}
             allowClear
           />
         </div>
       ),
-      dataIndex: "status",
-      key: "status",
+      dataIndex: 'status',
+      key: 'status',
       sorter: true,
       render: (status) =>
         status === 1 ? (
@@ -217,22 +191,21 @@ const Currency = () => {
             Inactive
           </Tag>
         ),
-      width: 120,
+      width: 120
     },
     {
-      title: "Created At",
-      dataIndex: "created_at",
-      key: "created_at",
+      title: 'Created At',
+      dataIndex: 'created_at',
+      key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) =>
-        dayjs(created_at).format("DD-MM-YYYY hh:mm A"),
+      render: (_, { created_at }) => dayjs(created_at).format('DD-MM-YYYY hh:mm A')
     },
     {
-      title: "Action",
-      key: "action",
+      title: 'Action',
+      key: 'action',
       render: (_, { currency_id }) => (
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           {permissions.edit ? (
             <Tooltip title="Edit">
               <Link to={`/currency/edit/${currency_id}`}>
@@ -255,20 +228,15 @@ const Currency = () => {
                 cancelText="No"
                 onConfirm={() => onCurrencyDelete(currency_id)}
               >
-                <Button
-                  size="small"
-                  type="primary"
-                  danger
-                  icon={<GoTrash size={14} />}
-                />
+                <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
               </Popconfirm>
             </Tooltip>
           ) : null}
         </div>
       ),
       width: 70,
-      fixed: "right",
-    },
+      fixed: 'right'
+    }
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -288,31 +256,26 @@ const Currency = () => {
     debouncedCode,
     debouncedSymbolLeft,
     debouncedSymbolRight,
-    debouncedValue,
+    debouncedValue
   ]);
 
   return (
     <>
-      <div className="flex justify-between items-center flex-wrap">
+      <div className="flex flex-wrap items-center justify-between">
         <PageHeading>CURRENCY</PageHeading>
-        <Breadcrumb
-          items={[{ title: "Currency" }, { title: "List" }]}
-          separator=">"
-        />
+        <Breadcrumb items={[{ title: 'Currency' }, { title: 'List' }]} separator=">" />
       </div>
 
-      <div className="mt-4 bg-white p-2 rounded-md">
-        <div className="flex justify-between items-center gap-2">
+      <div className="mt-4 rounded-md bg-white p-2">
+        <div className="flex items-center justify-between gap-2">
           <Input
             placeholder="Search..."
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) =>
-              dispatch(setCurrencyListParams({ search: e.target.value }))
-            }
+            onChange={(e) => dispatch(setCurrencyListParams({ search: e.target.value }))}
           />
 
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             {permissions.delete ? (
               <Button
                 type="primary"
@@ -336,22 +299,21 @@ const Currency = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: "checkbox",
+                  type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) =>
-                    dispatch(setCurrencyDeleteIDs(selectedRowKeys)),
+                  onChange: (selectedRowKeys) => dispatch(setCurrencyDeleteIDs(selectedRowKeys))
                 }
               : null
           }
           loading={isListLoading}
           className="mt-2"
           rowKey="currency_id"
-          scroll={{ x: "calc(100% - 200px)" }}
+          scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} currency`,
+            showTotal: (total) => `Total ${total} currency`
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -359,7 +321,7 @@ const Currency = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order,
+                sort_direction: sorting.order
               })
             );
           }}
@@ -367,7 +329,7 @@ const Currency = () => {
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56,
+            offsetHeader: 56
           }}
         />
       </div>

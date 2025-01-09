@@ -1,12 +1,12 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../../axiosInstance";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import api from '../../axiosInstance';
 
 export const getCompanyBranchList = createAsyncThunk(
-  "company-branch/list",
+  'company-branch/list',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get("/company-branch", {
-        params,
+      const res = await api.get('/company-branch', {
+        params
       });
       return res.data;
     } catch (err) {
@@ -16,7 +16,7 @@ export const getCompanyBranchList = createAsyncThunk(
 );
 
 export const deleteCompanyBranch = createAsyncThunk(
-  "company-branch/delete",
+  'company-branch/delete',
   async (id, { rejectWithValue }) => {
     try {
       await api.delete(`/company-branch/${id}`);
@@ -27,10 +27,10 @@ export const deleteCompanyBranch = createAsyncThunk(
 );
 
 export const createCompanyBranch = createAsyncThunk(
-  "company-branch/create",
+  'company-branch/create',
   async (data, { rejectWithValue }) => {
     try {
-      await api.post("/company-branch", data);
+      await api.post('/company-branch', data);
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -38,7 +38,7 @@ export const createCompanyBranch = createAsyncThunk(
 );
 
 export const getCompanyBranch = createAsyncThunk(
-  "company-branch/get",
+  'company-branch/get',
   async (id, { rejectWithValue }) => {
     try {
       const res = await api.get(`/company-branch/${id}`);
@@ -50,7 +50,7 @@ export const getCompanyBranch = createAsyncThunk(
 );
 
 export const updateCompanyBranch = createAsyncThunk(
-  "company-branch/update",
+  'company-branch/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
       await api.put(`/company-branch/${id}`, data);
@@ -61,11 +61,11 @@ export const updateCompanyBranch = createAsyncThunk(
 );
 
 export const bulkDeleteCompanyBranch = createAsyncThunk(
-  "company-branch/bulkDelete",
+  'company-branch/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post("/company-branch/bulk-delete", {
-        company_branch_ids: ids,
+      await api.post('/company-branch/bulk-delete', {
+        company_branch_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -84,33 +84,33 @@ const initialState = {
   params: {
     page: 1,
     limit: 50,
-    search: "",
+    search: '',
     sort_column: null,
     sort_direction: null,
     name: null,
     description: null,
-    catering_type: null,
+    catering_type: null
   },
   paginationInfo: {
     total_records: 0,
-    total_pages: 0,
-  },
+    total_pages: 0
+  }
 };
 
 export const companyBranchSlice = createSlice({
-  name: "companyBranch",
+  name: 'companyBranch',
   initialState,
   reducers: {
     setCompanyBranchListParams: (state, action) => {
       state.params = {
         ...state.params,
-        ...action.payload,
+        ...action.payload
       };
     },
 
     setCompanyBranchDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
-    },
+    }
   },
   extraReducers: ({ addCase }) => {
     addCase(getCompanyBranchList.pending, (state) => {
@@ -123,7 +123,7 @@ export const companyBranchSlice = createSlice({
       state.list = data;
       state.paginationInfo = {
         total_records: rest.total,
-        total_pages: rest.last_page,
+        total_pages: rest.last_page
       };
     });
     addCase(getCompanyBranchList.rejected, (state) => {
@@ -155,11 +155,11 @@ export const companyBranchSlice = createSlice({
         company: data.company_id
           ? {
               value: data.company_id,
-              label: data.company_name,
+              label: data.company_name
             }
           : null,
         image: data.image,
-        image_url: data.image_url,
+        image_url: data.image_url
       };
     });
     addCase(getCompanyBranch.rejected, (state) => {
@@ -188,9 +188,8 @@ export const companyBranchSlice = createSlice({
     addCase(bulkDeleteCompanyBranch.rejected, (state) => {
       state.isBulkDeleting = false;
     });
-  },
+  }
 });
 
-export const { setCompanyBranchListParams, setCompanyBranchDeleteIDs } =
-  companyBranchSlice.actions;
+export const { setCompanyBranchListParams, setCompanyBranchDeleteIDs } = companyBranchSlice.actions;
 export default companyBranchSlice.reducer;

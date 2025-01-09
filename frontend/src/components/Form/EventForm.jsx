@@ -1,25 +1,23 @@
-import { Button, Col, Form, Input, Row, Select } from "antd";
-import { useEffect, useState } from "react";
-import { MdOutlineAddCircle } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import useError from "../../hooks/useError";
-import { getCustomer } from "../../store/features/customerSlice";
-import { getVessel } from "../../store/features/vesselSlice";
-import AsyncSelect from "../AsyncSelect";
+import { Button, Col, Form, Input, Row, Select } from 'antd';
+import { useEffect, useState } from 'react';
+import { MdOutlineAddCircle } from 'react-icons/md';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import useError from '../../hooks/useError';
+import { getCustomer } from '../../store/features/customerSlice';
+import { getVessel } from '../../store/features/vesselSlice';
+import AsyncSelect from '../AsyncSelect';
 
 // eslint-disable-next-line react/prop-types
 const EventForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const handleError = useError();
-  const { isFormSubmitting, initialFormValues } = useSelector(
-    (state) => state.event
-  );
+  const { isFormSubmitting, initialFormValues } = useSelector((state) => state.event);
   const { user } = useSelector((state) => state.auth);
 
   const [vessels, setVessels] = useState([]);
-  const customerID = Form.useWatch("customer_id", form);
+  const customerID = Form.useWatch('customer_id', form);
 
   const permissions = user.permission;
 
@@ -29,7 +27,7 @@ const EventForm = ({ mode, onSubmit }) => {
       customer_id: values.customer_id ? values.customer_id.value : null,
       vessel_id: values.vessel_id ? values.vessel_id.value : null,
       class1_id: values.class1_id ? values.class1_id.value : null,
-      class2_id: values.class2_id ? values.class2_id.value : null,
+      class2_id: values.class2_id ? values.class2_id.value : null
     };
 
     onSubmit(data);
@@ -38,7 +36,7 @@ const EventForm = ({ mode, onSubmit }) => {
   const onVesselSelect = async (selected) => {
     form.setFieldsValue({
       class1_id: null,
-      class2_id: null,
+      class2_id: null
     });
 
     if (!selected) return;
@@ -46,7 +44,7 @@ const EventForm = ({ mode, onSubmit }) => {
       const data = await dispatch(getVessel(selected.value)).unwrap();
       form.setFieldsValue({
         class1_id: { value: data.class1_id, label: data.class1_name },
-        class2_id: { value: data.class2_id, label: data.class2_name },
+        class2_id: { value: data.class2_id, label: data.class2_name }
       });
     } catch (error) {
       handleError(error);
@@ -78,10 +76,10 @@ const EventForm = ({ mode, onSubmit }) => {
       autoComplete="off"
       onFinish={onFinish}
       initialValues={
-        mode === "edit"
+        mode === 'edit'
           ? initialFormValues
           : {
-              status: 1,
+              status: 1
             }
       }
     >
@@ -100,15 +98,13 @@ const EventForm = ({ mode, onSubmit }) => {
               labelKey="name"
               labelInValue
               addNewLink={
-                permissions.customer.list && permissions.customer.add
-                  ? "/customer/create"
-                  : null
+                permissions.customer.list && permissions.customer.add ? '/customer/create' : null
               }
               onChange={() => {
                 form.setFieldsValue({
                   vessel_id: null,
                   class1_id: null,
-                  class2_id: null,
+                  class2_id: null
                 });
                 setVessels([]);
               }}
@@ -122,19 +118,17 @@ const EventForm = ({ mode, onSubmit }) => {
               showSearch
               labelInValue
               onChange={onVesselSelect}
-              onDropdownVisibleChange={(open) =>
-                open && customerID ? getCustomerVessels() : null
-              }
+              onDropdownVisibleChange={(open) => (open && customerID ? getCustomerVessels() : null)}
               suffixIcon={
                 customerID && permissions.customer.edit ? (
                   <MdOutlineAddCircle
-                    className="text-primary cursor-pointer hover:text-blue-700 absolute !-top-4 bg-white rounded-full"
+                    className="absolute !-top-4 cursor-pointer rounded-full bg-white text-primary hover:text-blue-700"
                     size={18}
                     onClick={() => {
                       window.open(
                         `/gms/customer/edit/${customerID?.value}`,
-                        "_blank",
-                        "toolbar=yes,scrollbars=yes,top=100,left=400,width=600,height=600"
+                        '_blank',
+                        'toolbar=yes,scrollbars=yes,top=100,left=400,width=600,height=600'
                       );
                     }}
                   />
@@ -151,11 +145,7 @@ const EventForm = ({ mode, onSubmit }) => {
               valueKey="class_id"
               labelKey="name"
               labelInValue
-              addNewLink={
-                permissions.class.list && permissions.class.add
-                  ? "/class"
-                  : null
-              }
+              addNewLink={permissions.class.list && permissions.class.add ? '/class' : null}
             />
           </Form.Item>
         </Col>
@@ -167,11 +157,7 @@ const EventForm = ({ mode, onSubmit }) => {
               valueKey="class_id"
               labelKey="name"
               labelInValue
-              addNewLink={
-                permissions.class.list && permissions.class.add
-                  ? "/class"
-                  : null
-              }
+              addNewLink={permissions.class.list && permissions.class.add ? '/class' : null}
             />
           </Form.Item>
         </Col>
@@ -182,28 +168,23 @@ const EventForm = ({ mode, onSubmit }) => {
               options={[
                 {
                   value: 1,
-                  label: "Active",
+                  label: 'Active'
                 },
                 {
                   value: 0,
-                  label: "Inactive",
-                },
+                  label: 'Inactive'
+                }
               ]}
             />
           </Form.Item>
         </Col>
       </Row>
 
-      <div className="mt-4 flex gap-2 justify-end items-center">
+      <div className="mt-4 flex items-center justify-end gap-2">
         <Link to="/event">
           <Button className="w-28">Cancel</Button>
         </Link>
-        <Button
-          type="primary"
-          htmlType="submit"
-          className="w-28"
-          loading={isFormSubmitting}
-        >
+        <Button type="primary" htmlType="submit" className="w-28" loading={isFormSubmitting}>
           Save
         </Button>
       </div>

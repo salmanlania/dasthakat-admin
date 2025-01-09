@@ -1,23 +1,22 @@
-import { Button, Col, Form, Image, Input, Row, Select, TimePicker } from "antd";
-import dayjs from "dayjs";
-import { useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import userImagePlaceholder from "../../assets/user-placeholder.jpg";
-import AsyncSelect from "../AsyncSelect";
-import UserCompanyTemplates from "./UserCompanyTemplates";
+import { Button, Col, Form, Image, Input, Row, Select, TimePicker } from 'antd';
+import dayjs from 'dayjs';
+import { useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import userImagePlaceholder from '../../assets/user-placeholder.jpg';
+import AsyncSelect from '../AsyncSelect';
+import UserCompanyTemplates from './UserCompanyTemplates';
 
 // eslint-disable-next-line react/prop-types
-const UserForm = ({ mode = "create", onSubmit }) => {
+const UserForm = ({ mode = 'create', onSubmit }) => {
   const fileInputRef = useRef(null);
-  const { isFormSubmitting, initialFormValues, selectedTemplates } =
-    useSelector((state) => state.user);
+  const { isFormSubmitting, initialFormValues, selectedTemplates } = useSelector(
+    (state) => state.user
+  );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
 
-  const [imageSrc, setImageSrc] = useState(
-    initialFormValues?.image_url || null
-  );
+  const [imageSrc, setImageSrc] = useState(initialFormValues?.image_url || null);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -35,17 +34,13 @@ const UserForm = ({ mode = "create", onSubmit }) => {
       ...formValues,
       permission_id: formValues.permission_id.value,
       image: initialFormValues?.image_url === imageSrc ? null : imageSrc,
-      from_time: formValues.from_time
-        ? dayjs(formValues.from_time).format("HH:mm:ss")
-        : null,
-      to_time: formValues.to_time
-        ? dayjs(formValues.to_time).format("HH:mm:ss")
-        : null,
-      company_access: selectedTemplates,
+      from_time: formValues.from_time ? dayjs(formValues.from_time).format('HH:mm:ss') : null,
+      to_time: formValues.to_time ? dayjs(formValues.to_time).format('HH:mm:ss') : null,
+      company_access: selectedTemplates
     };
 
     if (
-      mode === "edit" &&
+      mode === 'edit' &&
       initialFormValues?.image_url &&
       initialFormValues?.image_url !== imageSrc
     ) {
@@ -62,9 +57,9 @@ const UserForm = ({ mode = "create", onSubmit }) => {
       layout="vertical"
       autoComplete="off"
       initialValues={
-        mode === "create"
+        mode === 'create'
           ? {
-              status: 1,
+              status: 1
             }
           : initialFormValues
       }
@@ -79,8 +74,8 @@ const UserForm = ({ mode = "create", onSubmit }) => {
                 {
                   required: true,
                   whitespace: true,
-                  message: "User name is required!",
-                },
+                  message: 'User name is required!'
+                }
               ]}
             >
               <Input />
@@ -93,8 +88,8 @@ const UserForm = ({ mode = "create", onSubmit }) => {
               rules={[
                 {
                   required: true,
-                  message: "Email is required!",
-                },
+                  message: 'Email is required!'
+                }
               ]}
             >
               <Input />
@@ -106,14 +101,14 @@ const UserForm = ({ mode = "create", onSubmit }) => {
               label="Password"
               rules={[
                 {
-                  required: mode === "create",
+                  required: mode === 'create',
                   whitespace: true,
-                  message: "Password is required!",
+                  message: 'Password is required!'
                 },
                 {
                   min: 8,
-                  message: "Password must be at least 8 characters!",
-                },
+                  message: 'Password must be at least 8 characters!'
+                }
               ]}
             >
               <Input.Password />
@@ -126,8 +121,8 @@ const UserForm = ({ mode = "create", onSubmit }) => {
               rules={[
                 {
                   required: true,
-                  message: "User Permission is required!",
-                },
+                  message: 'User Permission is required!'
+                }
               ]}
             >
               <AsyncSelect
@@ -136,9 +131,8 @@ const UserForm = ({ mode = "create", onSubmit }) => {
                 labelKey="name"
                 labelInValue
                 addNewLink={
-                  permissions.user_permission.list &&
-                  permissions.user_permission.add
-                    ? "/user-permission/create"
+                  permissions.user_permission.list && permissions.user_permission.add
+                    ? '/user-permission/create'
                     : null
                 }
               />
@@ -150,32 +144,24 @@ const UserForm = ({ mode = "create", onSubmit }) => {
                 options={[
                   {
                     value: 1,
-                    label: "Active",
+                    label: 'Active'
                   },
                   {
                     value: 0,
-                    label: "Inactive",
-                  },
+                    label: 'Inactive'
+                  }
                 ]}
               />
             </Form.Item>
           </Col>
           <Col xs={12} sm={6} md={6} lg={6}>
             <Form.Item name="from_time" label="From Time">
-              <TimePicker
-                needConfirm={false}
-                format="hh:mm A"
-                className="w-full"
-              />
+              <TimePicker needConfirm={false} format="hh:mm A" className="w-full" />
             </Form.Item>
           </Col>
           <Col xs={12} sm={6} md={6} lg={6}>
             <Form.Item name="to_time" label="To Time">
-              <TimePicker
-                needConfirm={false}
-                format="hh:mm A"
-                className="w-full"
-              />
+              <TimePicker needConfirm={false} format="hh:mm A" className="w-full" />
             </Form.Item>
           </Col>
         </Row>
@@ -194,7 +180,7 @@ const UserForm = ({ mode = "create", onSubmit }) => {
             type="file"
             accept="image/*"
             onChange={handleImageChange}
-            style={{ display: "none" }}
+            style={{ display: 'none' }}
             ref={fileInputRef}
           />
 
@@ -216,16 +202,11 @@ const UserForm = ({ mode = "create", onSubmit }) => {
 
       <UserCompanyTemplates />
 
-      <div className="mt-4 flex gap-2 justify-end items-center">
+      <div className="mt-4 flex items-center justify-end gap-2">
         <Link to="/user">
           <Button className="w-28">Cancel</Button>
         </Link>
-        <Button
-          type="primary"
-          htmlType="submit"
-          className="w-28"
-          loading={isFormSubmitting}
-        >
+        <Button type="primary" htmlType="submit" className="w-28" loading={isFormSubmitting}>
           Save
         </Button>
       </div>

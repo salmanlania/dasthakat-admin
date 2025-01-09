@@ -1,27 +1,16 @@
 /* eslint-disable react/prop-types */
-import {
-  Button,
-  Col,
-  DatePicker,
-  Divider,
-  Dropdown,
-  Form,
-  Input,
-  Row,
-  Select,
-  Table,
-} from "antd";
-import dayjs from "dayjs";
-import toast from "react-hot-toast";
-import { BiPlus } from "react-icons/bi";
-import { BsThreeDotsVertical } from "react-icons/bs";
-import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useParams } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
-import useError from "../../hooks/useError";
-import { getEvent } from "../../store/features/eventSlice";
-import { getProduct, getProductList } from "../../store/features/productSlice";
+import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Select, Table } from 'antd';
+import dayjs from 'dayjs';
+import toast from 'react-hot-toast';
+import { BiPlus } from 'react-icons/bi';
+import { BsThreeDotsVertical } from 'react-icons/bs';
+import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useParams } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
+import useError from '../../hooks/useError';
+import { getEvent } from '../../store/features/eventSlice';
+import { getProduct, getProductList } from '../../store/features/productSlice';
 import {
   addQuotationDetail,
   changeQuotationDetailOrder,
@@ -30,20 +19,20 @@ import {
   getQuotationForPrint,
   removeQuotationDetail,
   setRebatePercentage,
-  setSalesmanPercentage,
-} from "../../store/features/quotationSlice";
-import { getSalesman } from "../../store/features/salesmanSlice";
-import { formatThreeDigitCommas, roundUpto } from "../../utils/number";
-import { createQuotationPrint } from "../../utils/prints/quotation-print";
-import AsyncSelect from "../AsyncSelect";
-import DebouncedCommaSeparatedInput from "../Input/DebouncedCommaSeparatedInput";
-import DebouncedNumberInput from "../Input/DebouncedNumberInput";
-import DebounceInput from "../Input/DebounceInput";
+  setSalesmanPercentage
+} from '../../store/features/quotationSlice';
+import { getSalesman } from '../../store/features/salesmanSlice';
+import { formatThreeDigitCommas, roundUpto } from '../../utils/number';
+import { createQuotationPrint } from '../../utils/prints/quotation-print';
+import AsyncSelect from '../AsyncSelect';
+import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
+import DebouncedNumberInput from '../Input/DebouncedNumberInput';
+import DebounceInput from '../Input/DebounceInput';
 
 export const DetailSummaryInfo = ({ title, value }) => {
   return (
-    <div className="flex gap-1 items-center">
-      <span className="text-sm text-gray-500 ml-1">{title}</span>
+    <div className="flex items-center gap-1">
+      <span className="ml-1 text-sm text-gray-500">{title}</span>
       {value}
     </div>
   );
@@ -59,7 +48,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
     initialFormValues,
     quotationDetails,
     rebatePercentage,
-    salesmanPercentage,
+    salesmanPercentage
   } = useSelector((state) => state.quotation);
 
   const { user } = useSelector((state) => state.auth);
@@ -87,16 +76,13 @@ const QuotationForm = ({ mode, onSubmit }) => {
       ? formatThreeDigitCommas(roundUpto(totalNet * (salesmanPercentage / 100)))
       : 0;
 
-  const finalAmount =
-    roundUpto((totalNet || 0) - (rebateAmount || 0) - (salesmanAmount || 0)) ||
-    0;
+  const finalAmount = roundUpto((totalNet || 0) - (rebateAmount || 0) - (salesmanAmount || 0)) || 0;
 
   const onFinish = (values) => {
-    if (!totalNet) return toast.error("Net Amount cannot be zero");
-    if (rebatePercentage > 100)
-      return toast.error("Rebate Percentage cannot be greater than 100");
+    if (!totalNet) return toast.error('Net Amount cannot be zero');
+    if (rebatePercentage > 100) return toast.error('Rebate Percentage cannot be greater than 100');
     if (salesmanPercentage > 100)
-      return toast.error("Salesman Percentage cannot be greater than 100");
+      return toast.error('Salesman Percentage cannot be greater than 100');
 
     const data = {
       attn: values.attn,
@@ -111,30 +97,21 @@ const QuotationForm = ({ mode, onSubmit }) => {
       customer_id: values.customer_id ? values.customer_id.value : null,
       event_id: values.event_id ? values.event_id.value : null,
       flag_id: values.flag_id ? values.flag_id.value : null,
-      person_incharge_id: values.person_incharge_id
-        ? values.person_incharge_id.value
-        : null,
+      person_incharge_id: values.person_incharge_id ? values.person_incharge_id.value : null,
       payment_id: values.payment_id ? values.payment_id.value : null,
       salesman_id: values.salesman_id ? values.salesman_id.value : null,
       validity_id: values.validity_id ? values.validity_id.value : null,
       vessel_id: values.vessel_id ? values.vessel_id.value : null,
-      document_date: values.document_date
-        ? dayjs(values.document_date).format("YYYY-MM-DD")
-        : null,
-      due_date: values.due_date
-        ? dayjs(values.due_date).format("YYYY-MM-DD")
-        : null,
-      term_id:
-        values.term_id && values.term_id.length
-          ? values.term_id.map((v) => v.value)
-          : null,
+      document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
+      due_date: values.due_date ? dayjs(values.due_date).format('YYYY-MM-DD') : null,
+      term_id: values.term_id && values.term_id.length ? values.term_id.map((v) => v.value) : null,
       // eslint-disable-next-line no-unused-vars
       quotation_detail: quotationDetails.map(({ id, ...detail }, index) => ({
         ...detail,
         supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
         product_id: detail.product_id ? detail.product_id.value : null,
         unit_id: detail.unit_id ? detail.unit_id.value : null,
-        sort_order: index,
+        sort_order: index
       })),
       total_quantity: totalQuantity,
       total_discount: discountAmount,
@@ -143,7 +120,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       rebate_percent: rebatePercentage,
       salesman_percent: salesmanPercentage,
       rebate_amount: rebateAmount,
-      salesman_amount: salesmanAmount,
+      salesman_amount: salesmanAmount
     };
 
     onSubmit(data);
@@ -152,9 +129,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
   const onProductCodeChange = async (index, value) => {
     if (!value.trim()) return;
     try {
-      const res = await dispatch(
-        getProductList({ product_code: value })
-      ).unwrap();
+      const res = await dispatch(getProductList({ product_code: value })).unwrap();
 
       if (!res.data.length) return;
 
@@ -162,27 +137,27 @@ const QuotationForm = ({ mode, onSubmit }) => {
       dispatch(
         changeQuotationDetailValue({
           index,
-          key: "product_id",
+          key: 'product_id',
           value: {
             value: product.product_id,
-            label: product.name,
-          },
+            label: product.name
+          }
         })
       );
 
       dispatch(
         changeQuotationDetailValue({
           index,
-          key: "unit_id",
-          value: { value: product.unit_id, label: product.unit_name },
+          key: 'unit_id',
+          value: { value: product.unit_id, label: product.unit_name }
         })
       );
 
       dispatch(
         changeQuotationDetailValue({
           index,
-          key: "cost_price",
-          value: product.cost_price,
+          key: 'cost_price',
+          value: product.cost_price
         })
       );
     } catch (error) {
@@ -194,8 +169,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
     dispatch(
       changeQuotationDetailValue({
         index,
-        key: "product_id",
-        value: selected,
+        key: 'product_id',
+        value: selected
       })
     );
     if (!selected) return;
@@ -205,24 +180,24 @@ const QuotationForm = ({ mode, onSubmit }) => {
       dispatch(
         changeQuotationDetailValue({
           index,
-          key: "product_code",
-          value: product.product_code,
+          key: 'product_code',
+          value: product.product_code
         })
       );
 
       dispatch(
         changeQuotationDetailValue({
           index,
-          key: "unit_id",
-          value: { value: product.unit_id, label: product.unit_name },
+          key: 'unit_id',
+          value: { value: product.unit_id, label: product.unit_name }
         })
       );
 
       dispatch(
         changeQuotationDetailValue({
           index,
-          key: "cost_price",
-          value: product.cost_price,
+          key: 'cost_price',
+          value: product.cost_price
         })
       );
     } catch (error) {
@@ -231,7 +206,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
   };
 
   const printQuotation = async () => {
-    const loadingToast = toast.loading("Loading print...");
+    const loadingToast = toast.loading('Loading print...');
     try {
       const data = await dispatch(getQuotationForPrint(id)).unwrap();
       toast.dismiss(loadingToast);
@@ -252,8 +227,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
           onClick={() => dispatch(addQuotationDetail())}
         />
       ),
-      key: "order",
-      dataIndex: "order",
+      key: 'order',
+      dataIndex: 'order',
       render: (_, record, index) => {
         return (
           <div className="flex flex-col gap-1">
@@ -263,9 +238,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
               icon={<IoMdArrowDropup size={16} />}
               disabled={index === 0}
               onClick={() => {
-                dispatch(
-                  changeQuotationDetailOrder({ from: index, to: index - 1 })
-                );
+                dispatch(changeQuotationDetailOrder({ from: index, to: index - 1 }));
               }}
             />
             <Button
@@ -274,29 +247,27 @@ const QuotationForm = ({ mode, onSubmit }) => {
               icon={<IoMdArrowDropdown size={16} />}
               disabled={index === quotationDetails.length - 1}
               onClick={() => {
-                dispatch(
-                  changeQuotationDetailOrder({ from: index, to: index + 1 })
-                );
+                dispatch(changeQuotationDetailOrder({ from: index, to: index + 1 }));
               }}
             />
           </div>
         );
       },
-      width: 50,
+      width: 50
     },
     {
-      title: "Sr.",
-      dataIndex: "sr",
-      key: "sr",
+      title: 'Sr.',
+      dataIndex: 'sr',
+      key: 'sr',
       render: (_, record, index) => {
         return <>{index + 1}.</>;
       },
-      width: 50,
+      width: 50
     },
     {
-      title: "Product Code",
-      dataIndex: "product_code",
-      key: "product_code",
+      title: 'Product Code',
+      dataIndex: 'product_code',
+      key: 'product_code',
       render: (_, { product_code }, index) => {
         return (
           <DebounceInput
@@ -305,8 +276,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
               dispatch(
                 changeQuotationDetailValue({
                   index,
-                  key: "product_code",
-                  value: value,
+                  key: 'product_code',
+                  value: value
                 })
               )
             }
@@ -315,12 +286,12 @@ const QuotationForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 120,
+      width: 120
     },
     {
-      title: "Description",
-      dataIndex: "product_name",
-      key: "product_name",
+      title: 'Description',
+      dataIndex: 'product_name',
+      key: 'product_name',
       render: (_, { product_id }, index) => {
         return (
           <AsyncSelect
@@ -332,19 +303,17 @@ const QuotationForm = ({ mode, onSubmit }) => {
             value={product_id}
             onChange={(selected) => onProductChange(index, selected)}
             addNewLink={
-              permissions.product.list && permissions.product.add
-                ? "/product/create"
-                : null
+              permissions.product.list && permissions.product.add ? '/product/create' : null
             }
           />
         );
       },
-      width: 560,
+      width: 560
     },
     {
-      title: "Customer Notes",
-      dataIndex: "description",
-      key: "description",
+      title: 'Customer Notes',
+      dataIndex: 'description',
+      key: 'description',
       render: (_, { description }, index) => {
         return (
           <DebounceInput
@@ -353,29 +322,29 @@ const QuotationForm = ({ mode, onSubmit }) => {
               dispatch(
                 changeQuotationDetailValue({
                   index,
-                  key: "description",
-                  value: value,
+                  key: 'description',
+                  value: value
                 })
               )
             }
           />
         );
       },
-      width: 240,
+      width: 240
     },
     {
-      title: "Stock Quantity",
-      dataIndex: "stock_quantity",
-      key: "stock_quantity",
+      title: 'Stock Quantity',
+      dataIndex: 'stock_quantity',
+      key: 'stock_quantity',
       render: (_, { stock_quantity }) => {
         return <Input value={stock_quantity} disabled />;
       },
-      width: 122,
+      width: 122
     },
     {
-      title: "Quantity",
-      dataIndex: "quantity",
-      key: "quantity",
+      title: 'Quantity',
+      dataIndex: 'quantity',
+      key: 'quantity',
       render: (_, { quantity }, index) => {
         form.setFieldsValue({ [`quantity-${index}`]: quantity });
         return (
@@ -386,8 +355,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
             rules={[
               {
                 required: true,
-                message: "Quantity is required",
-              },
+                message: 'Quantity is required'
+              }
             ]}
           >
             <DebouncedCommaSeparatedInput
@@ -397,8 +366,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
                 dispatch(
                   changeQuotationDetailValue({
                     index,
-                    key: "quantity",
-                    value: value,
+                    key: 'quantity',
+                    value: value
                   })
                 )
               }
@@ -406,12 +375,12 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         );
       },
-      width: 100,
+      width: 100
     },
     {
-      title: "Unit",
-      dataIndex: "unit_id",
-      key: "unit_id",
+      title: 'Unit',
+      dataIndex: 'unit_id',
+      key: 'unit_id',
       render: (_, { unit_id }, index) => {
         return (
           <AsyncSelect
@@ -425,23 +394,21 @@ const QuotationForm = ({ mode, onSubmit }) => {
               dispatch(
                 changeQuotationDetailValue({
                   index,
-                  key: "unit_id",
-                  value: selected,
+                  key: 'unit_id',
+                  value: selected
                 })
               )
             }
-            addNewLink={
-              permissions.unit.list && permissions.unit.add ? "/unit" : null
-            }
+            addNewLink={permissions.unit.list && permissions.unit.add ? '/unit' : null}
           />
         );
       },
-      width: 120,
+      width: 120
     },
     {
-      title: "Vendor",
-      dataIndex: "supplier_id",
-      key: "supplier_id",
+      title: 'Vendor',
+      dataIndex: 'supplier_id',
+      key: 'supplier_id',
       render: (_, { supplier_id }, index) => {
         return (
           <AsyncSelect
@@ -455,25 +422,23 @@ const QuotationForm = ({ mode, onSubmit }) => {
               dispatch(
                 changeQuotationDetailValue({
                   index,
-                  key: "supplier_id",
-                  value: selected,
+                  key: 'supplier_id',
+                  value: selected
                 })
               )
             }
             addNewLink={
-              permissions.supplier.list && permissions.supplier.add
-                ? "/vendor/create"
-                : null
+              permissions.supplier.list && permissions.supplier.add ? '/vendor/create' : null
             }
           />
         );
       },
-      width: 240,
+      width: 240
     },
     {
-      title: "Cost Price",
-      dataIndex: "cost_price",
-      key: "cost_price",
+      title: 'Cost Price',
+      dataIndex: 'cost_price',
+      key: 'cost_price',
       render: (_, { cost_price }, index) => {
         return (
           <DebouncedCommaSeparatedInput
@@ -482,20 +447,20 @@ const QuotationForm = ({ mode, onSubmit }) => {
               dispatch(
                 changeQuotationDetailValue({
                   index,
-                  key: "cost_price",
-                  value: value,
+                  key: 'cost_price',
+                  value: value
                 })
               )
             }
           />
         );
       },
-      width: 120,
+      width: 120
     },
     {
-      title: "Markup %",
-      dataIndex: "markup",
-      key: "markup",
+      title: 'Markup %',
+      dataIndex: 'markup',
+      key: 'markup',
       render: (_, { markup }, index) => {
         return (
           <DebouncedNumberInput
@@ -505,21 +470,21 @@ const QuotationForm = ({ mode, onSubmit }) => {
               dispatch(
                 changeQuotationDetailValue({
                   index,
-                  key: "markup",
-                  value: value,
+                  key: 'markup',
+                  value: value
                 })
               )
             }
           />
         );
       },
-      width: 90,
+      width: 90
     },
 
     {
-      title: "Selling Price",
-      dataIndex: "rate",
-      key: "rate",
+      title: 'Selling Price',
+      dataIndex: 'rate',
+      key: 'rate',
       render: (_, { rate }, index) => {
         form.setFieldsValue({ [`rate-${index}`]: rate });
         return (
@@ -530,8 +495,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
             rules={[
               {
                 required: true,
-                message: "Selling price is required",
-              },
+                message: 'Selling price is required'
+              }
             ]}
           >
             <DebouncedCommaSeparatedInput
@@ -540,8 +505,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
                 dispatch(
                   changeQuotationDetailValue({
                     index,
-                    key: "rate",
-                    value: value,
+                    key: 'rate',
+                    value: value
                   })
                 )
               }
@@ -549,27 +514,24 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         );
       },
-      width: 120,
+      width: 120
     },
     {
-      title: "Amount",
-      dataIndex: "amount",
-      key: "amount",
+      title: 'Amount',
+      dataIndex: 'amount',
+      key: 'amount',
       render: (_, { amount }) => (
-        <DebouncedCommaSeparatedInput
-          value={amount ? amount + "" : ""}
-          disabled
-        />
+        <DebouncedCommaSeparatedInput value={amount ? amount + '' : ''} disabled />
       ),
-      width: 120,
+      width: 120
     },
     {
-      title: "Discount %",
-      dataIndex: "discount_percent",
-      key: "discount_percent",
+      title: 'Discount %',
+      dataIndex: 'discount_percent',
+      key: 'discount_percent',
       render: (_, { discount_percent }, index) => {
         form.setFieldsValue({
-          [`discount_percent-${index}`]: discount_percent,
+          [`discount_percent-${index}`]: discount_percent
         });
         return (
           <Form.Item
@@ -580,13 +542,11 @@ const QuotationForm = ({ mode, onSubmit }) => {
               {
                 validator: (_, value) => {
                   if (value > 100) {
-                    return Promise.reject(
-                      new Error("Invalid discount percent.")
-                    );
+                    return Promise.reject(new Error('Invalid discount percent.'));
                   }
                   return Promise.resolve();
-                },
-              },
+                }
+              }
             ]}
           >
             <DebouncedNumberInput
@@ -596,8 +556,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
                 dispatch(
                   changeQuotationDetailValue({
                     index,
-                    key: "discount_percent",
-                    value: value,
+                    key: 'discount_percent',
+                    value: value
                   })
                 )
               }
@@ -605,35 +565,32 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         );
       },
-      width: 100,
+      width: 100
     },
     {
-      title: "Discount Amt",
-      dataIndex: "discount_amount",
-      key: "discount_amount",
+      title: 'Discount Amt',
+      dataIndex: 'discount_amount',
+      key: 'discount_amount',
       render: (_, { discount_amount }) => {
         return (
           <DebouncedCommaSeparatedInput
-            value={discount_amount ? discount_amount + "" : ""}
+            value={discount_amount ? discount_amount + '' : ''}
             disabled
           />
         );
       },
-      width: 120,
+      width: 120
     },
     {
-      title: "Gross Amount",
-      dataIndex: "gross_amount",
-      key: "gross_amount",
+      title: 'Gross Amount',
+      dataIndex: 'gross_amount',
+      key: 'gross_amount',
       render: (_, { gross_amount }) => {
         return (
-          <DebouncedCommaSeparatedInput
-            value={gross_amount ? gross_amount + "" : ""}
-            disabled
-          />
+          <DebouncedCommaSeparatedInput value={gross_amount ? gross_amount + '' : ''} disabled />
         );
       },
-      width: 150,
+      width: 150
     },
     {
       title: (
@@ -645,30 +602,30 @@ const QuotationForm = ({ mode, onSubmit }) => {
           onClick={() => dispatch(addQuotationDetail())}
         />
       ),
-      key: "action",
+      key: 'action',
       render: (_, { id }, index) => (
         <Dropdown
-          trigger={["click"]}
+          trigger={['click']}
           arrow
           menu={{
             items: [
               {
-                key: "1",
-                label: "Add",
-                onClick: () => dispatch(addQuotationDetail(index)),
+                key: '1',
+                label: 'Add',
+                onClick: () => dispatch(addQuotationDetail(index))
               },
               {
-                key: "2",
-                label: "Copy",
-                onClick: () => dispatch(copyQuotationDetail(index)),
+                key: '2',
+                label: 'Copy',
+                onClick: () => dispatch(copyQuotationDetail(index))
               },
               {
-                key: "3",
-                label: "Delete",
+                key: '3',
+                label: 'Delete',
                 danger: true,
-                onClick: () => dispatch(removeQuotationDetail(id)),
-              },
-            ],
+                onClick: () => dispatch(removeQuotationDetail(id))
+              }
+            ]
           }}
         >
           <Button size="small">
@@ -677,17 +634,17 @@ const QuotationForm = ({ mode, onSubmit }) => {
         </Dropdown>
       ),
       width: 50,
-      fixed: "right",
-    },
+      fixed: 'right'
+    }
   ];
 
   const onTermChange = (selected) => {
     if (!selected.length) {
-      form.setFieldsValue({ term_desc: "" });
+      form.setFieldsValue({ term_desc: '' });
       return;
     }
 
-    const newTermDesc = selected.map((t) => `* ${t.label}`).join("\n");
+    const newTermDesc = selected.map((t) => `* ${t.label}`).join('\n');
     form.setFieldsValue({ term_desc: newTermDesc });
   };
 
@@ -698,7 +655,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       imo: null,
       class1_id: null,
       class2_id: null,
-      flag_id: null,
+      flag_id: null
     });
     dispatch(setRebatePercentage(null));
 
@@ -712,11 +669,9 @@ const QuotationForm = ({ mode, onSubmit }) => {
         class1_id: { value: data.class1_id, label: data.class1_name },
         class2_id: { value: data.class2_id, label: data.class2_name },
         flag_id: { value: data.flag_id, label: data.flag_name },
-        payment_id: { value: data.payment_id, label: data.payment_name },
+        payment_id: { value: data.payment_id, label: data.payment_name }
       });
-      dispatch(
-        setRebatePercentage(data.rebate_percent ? +data.rebate_percent : null)
-      );
+      dispatch(setRebatePercentage(data.rebate_percent ? +data.rebate_percent : null));
     } catch (error) {
       handleError(error);
     }
@@ -729,9 +684,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
     try {
       const data = await dispatch(getSalesman(selected.value)).unwrap();
       dispatch(
-        setSalesmanPercentage(
-          data.commission_percentage ? +data.commission_percentage : null
-        )
+        setSalesmanPercentage(data.commission_percentage ? +data.commission_percentage : null)
       );
     } catch (error) {
       handleError(error);
@@ -746,28 +699,28 @@ const QuotationForm = ({ mode, onSubmit }) => {
       form={form}
       onFinish={onFinish}
       initialValues={
-        mode === "edit"
+        mode === 'edit'
           ? initialFormValues
           : {
-              document_date: dayjs(),
+              document_date: dayjs()
             }
       }
       scrollToFirstError
     >
       {/* Make this sticky */}
-      <p className="text-xs w-fit border m-auto bg-white px-2 rounded  -mt-8 p-1 sticky top-14 z-10 font-semibold">
+      <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
         <span className="text-gray-500">Quotation No:</span>
         <span
           className={`ml-4 text-amber-600 ${
-            mode === "edit" ? "hover:bg-slate-200 cursor-pointer" : ""
-          } px-1 rounded`}
+            mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
+          } rounded px-1`}
           onClick={() => {
-            if (mode !== "edit") return;
+            if (mode !== 'edit') return;
             navigator.clipboard.writeText(initialFormValues.document_identity);
-            toast.success("Copied");
+            toast.success('Copied');
           }}
         >
-          {mode === "edit" ? initialFormValues.document_identity : "AUTO"}
+          {mode === 'edit' ? initialFormValues.document_identity : 'AUTO'}
         </span>
       </p>
       <Row gutter={12}>
@@ -775,7 +728,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           <Form.Item
             name="document_date"
             label="Quotation Date"
-            rules={[{ required: true, message: "Quotation date is required" }]}
+            rules={[{ required: true, message: 'Quotation date is required' }]}
             className="w-full"
           >
             <DatePicker format="DD-MM-YYYY" className="w-full" />
@@ -786,7 +739,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           <Form.Item
             name="salesman_id"
             label="Salesman"
-            rules={[{ required: true, message: "Salesman is required" }]}
+            rules={[{ required: true, message: 'Salesman is required' }]}
           >
             <AsyncSelect
               endpoint="/salesman"
@@ -794,9 +747,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
               labelKey="name"
               labelInValue
               addNewLink={
-                permissions.salesman.list && permissions.salesman.add
-                  ? "/salesman"
-                  : null
+                permissions.salesman.list && permissions.salesman.add ? '/salesman' : null
               }
               onChange={onSalesmanChange}
             />
@@ -807,7 +758,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           <Form.Item
             name="event_id"
             label="Event"
-            rules={[{ required: true, message: "Event is required" }]}
+            rules={[{ required: true, message: 'Event is required' }]}
           >
             <AsyncSelect
               endpoint="/event"
@@ -815,11 +766,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
               labelKey="event_name"
               labelInValue
               onChange={onEventChange}
-              addNewLink={
-                permissions.event.list && permissions.event.add
-                  ? "/event/create"
-                  : null
-              }
+              addNewLink={permissions.event.list && permissions.event.add ? '/event/create' : null}
             />
           </Form.Item>
         </Col>
@@ -842,13 +789,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
 
-        <Col
-          span={24}
-          sm={12}
-          md={8}
-          lg={8}
-          className="flex items-center gap-3"
-        >
+        <Col span={24} sm={12} md={8} lg={8} className="flex items-center gap-3">
           <Form.Item name="class1_id" label="Class 1" className="w-full">
             <Select labelInValue disabled />
           </Form.Item>
@@ -876,11 +817,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
               valueKey="user_id"
               labelKey="user_name"
               labelInValue
-              addNewLink={
-                permissions.user.list && permissions.user.add
-                  ? "/user/create"
-                  : null
-              }
+              addNewLink={permissions.user.list && permissions.user.add ? '/user/create' : null}
             />
           </Form.Item>
         </Col>
@@ -923,9 +860,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
               labelKey="name"
               labelInValue
               addNewLink={
-                permissions.validity.list && permissions.validity.add
-                  ? "/validity"
-                  : null
+                permissions.validity.list && permissions.validity.add ? '/validity' : null
               }
             />
           </Form.Item>
@@ -938,11 +873,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
               valueKey="payment_id"
               labelKey="name"
               labelInValue
-              addNewLink={
-                permissions.payment.list && permissions.payment.add
-                  ? "/payment"
-                  : null
-              }
+              addNewLink={permissions.payment.list && permissions.payment.add ? '/payment' : null}
             />
           </Form.Item>
         </Col>
@@ -960,18 +891,16 @@ const QuotationForm = ({ mode, onSubmit }) => {
               valueKey="port_id"
               labelKey="name"
               labelInValue
-              addNewLink={
-                permissions.port.list && permissions.port.add ? "/port" : null
-              }
+              addNewLink={permissions.port.list && permissions.port.add ? '/port' : null}
             />
           </Form.Item>
         </Col>
       </Row>
 
-      <div className="p-4 border border-slate-300 bg-slate-50 rounded-lg">
-        <div className="flex md:flex-row flex-col justify-between items-center py-2">
+      <div className="rounded-lg border border-slate-300 bg-slate-50 p-4">
+        <div className="flex flex-col items-center justify-between py-2 md:flex-row">
           <h5 className="text-base font-medium">Terms & Conditions</h5>
-          <Form.Item name="term_id" className="w-full md:w-96 p-0 m-0">
+          <Form.Item name="term_id" className="m-0 w-full p-0 md:w-96">
             <AsyncSelect
               endpoint="/terms"
               valueKey="term_id"
@@ -981,11 +910,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
               mode="multiple"
               maxTagCount="responsive"
               onChange={(selected) => onTermChange(selected)}
-              addNewLink={
-                permissions.terms.list && permissions.terms.add
-                  ? "/terms"
-                  : null
-              }
+              addNewLink={permissions.terms.list && permissions.terms.add ? '/terms' : null}
             />
           </Form.Item>
         </div>
@@ -993,7 +918,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
         <Form.Item name="term_desc" className="mb-3">
           <Input.TextArea
             autoSize={{
-              minRows: 2,
+              minRows: 2
             }}
             rows={2}
           />
@@ -1007,16 +932,16 @@ const QuotationForm = ({ mode, onSubmit }) => {
       <Table
         columns={columns}
         dataSource={quotationDetails}
-        rowKey={"id"}
+        rowKey={'id'}
         size="small"
-        scroll={{ x: "calc(100% - 200px)" }}
+        scroll={{ x: 'calc(100% - 200px)' }}
         pagination={false}
         sticky={{
-          offsetHeader: 56,
+          offsetHeader: 56
         }}
       />
 
-      <div className="bg-slate-50 rounded-lg border border-t-0 rounded-t-none py-3 px-6 border-slate-300">
+      <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
         <Row gutter={[12, 12]}>
           <Col span={24} sm={12} md={6} lg={6}>
             <DetailSummaryInfo
@@ -1048,7 +973,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
         </Row>
         <Row gutter={[12, 12]} className="mb-4">
           <Col span={24} sm={12}>
-            <h4 className="font-medium text-gray-800 mt-2 ml-1">Rebate:</h4>
+            <h4 className="ml-1 mt-2 font-medium text-gray-800">Rebate:</h4>
             <div className="flex gap-4">
               <DetailSummaryInfo
                 title="Percentage:"
@@ -1066,7 +991,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             </div>
           </Col>
           <Col span={24} sm={12}>
-            <h4 className="font-medium text-gray-800 mt-2 ml-1">Salesman:</h4>
+            <h4 className="ml-1 mt-2 font-medium text-gray-800">Salesman:</h4>
             <div className="flex gap-4">
               <DetailSummaryInfo
                 title="Percentage:"
@@ -1088,14 +1013,14 @@ const QuotationForm = ({ mode, onSubmit }) => {
         <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
       </div>
 
-      <div className="mt-4 flex gap-2 justify-end items-center">
+      <div className="mt-4 flex items-center justify-end gap-2">
         <Link to="/quotation">
           <Button className="w-28">Cancel</Button>
         </Link>
-        {mode === "edit" ? (
+        {mode === 'edit' ? (
           <Button
             type="primary"
-            className="bg-rose-600 hover:!bg-rose-500 w-28"
+            className="w-28 bg-rose-600 hover:!bg-rose-500"
             onClick={printQuotation}
           >
             Print

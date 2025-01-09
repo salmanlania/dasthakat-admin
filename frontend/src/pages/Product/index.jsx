@@ -1,45 +1,32 @@
-import {
-  Breadcrumb,
-  Button,
-  Input,
-  Popconfirm,
-  Select,
-  Table,
-  Tooltip,
-} from "antd";
-import dayjs from "dayjs";
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { GoTrash } from "react-icons/go";
-import { MdOutlineEdit } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import AsyncSelect from "../../components/AsyncSelect";
-import { productTypeOptions } from "../../components/Form/ProductForm";
-import PageHeading from "../../components/heading/PageHeading";
-import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
-import useDebounce from "../../hooks/useDebounce";
-import useError from "../../hooks/useError";
+import { Breadcrumb, Button, Input, Popconfirm, Select, Table, Tooltip } from 'antd';
+import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { GoTrash } from 'react-icons/go';
+import { MdOutlineEdit } from 'react-icons/md';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import AsyncSelect from '../../components/AsyncSelect';
+import { productTypeOptions } from '../../components/Form/ProductForm';
+import PageHeading from '../../components/heading/PageHeading';
+import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
+import useDebounce from '../../hooks/useDebounce';
+import useError from '../../hooks/useError';
 import {
   bulkDeleteProduct,
   deleteProduct,
   getProductList,
   setProductDeleteIDs,
-  setProductListParams,
-} from "../../store/features/productSlice";
-import { formatThreeDigitCommas, removeCommas } from "../../utils/number";
+  setProductListParams
+} from '../../store/features/productSlice';
+import { formatThreeDigitCommas, removeCommas } from '../../utils/number';
 
 const Product = () => {
   const dispatch = useDispatch();
   const handleError = useError();
-  const {
-    list,
-    isListLoading,
-    params,
-    paginationInfo,
-    isBulkDeleting,
-    deleteIDs,
-  } = useSelector((state) => state.product);
+  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
+    (state) => state.product
+  );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.product;
 
@@ -56,13 +43,13 @@ const Product = () => {
   const formattedParams = {
     ...params,
     cost_price: removeCommas(params.cost_price),
-    sale_price: removeCommas(params.sale_price),
+    sale_price: removeCommas(params.sale_price)
   };
 
   const onProductDelete = async (id) => {
     try {
       await dispatch(deleteProduct(id)).unwrap();
-      toast.success("Product deleted successfully");
+      toast.success('Product deleted successfully');
       dispatch(getProductList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
@@ -72,7 +59,7 @@ const Product = () => {
   const onBulkDelete = async () => {
     try {
       await dispatch(bulkDeleteProduct(deleteIDs)).unwrap();
-      toast.success("Products deleted successfully");
+      toast.success('Products deleted successfully');
       closeDeleteModal();
       await dispatch(getProductList(formattedParams)).unwrap();
     } catch (error) {
@@ -90,17 +77,15 @@ const Product = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.product_code}
-            onChange={(e) =>
-              dispatch(setProductListParams({ product_code: e.target.value }))
-            }
+            onChange={(e) => dispatch(setProductListParams({ product_code: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "product_code",
-      key: "product_code",
+      dataIndex: 'product_code',
+      key: 'product_code',
       sorter: true,
       width: 150,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -112,17 +97,15 @@ const Product = () => {
             onClick={(e) => e.stopPropagation()}
             options={productTypeOptions}
             value={params.product_type}
-            onChange={(value) =>
-              dispatch(setProductListParams({ product_type: value }))
-            }
+            onChange={(value) => dispatch(setProductListParams({ product_type: value }))}
             allowClear
           />
         </div>
       ),
-      dataIndex: "product_type",
-      key: "product_type",
+      dataIndex: 'product_type',
+      key: 'product_type',
       sorter: true,
-      width: 160,
+      width: 160
     },
     {
       title: (
@@ -133,17 +116,15 @@ const Product = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.name}
-            onChange={(e) =>
-              dispatch(setProductListParams({ name: e.target.value }))
-            }
+            onChange={(e) => dispatch(setProductListParams({ name: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "name",
-      key: "name",
+      dataIndex: 'name',
+      key: 'name',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -154,17 +135,15 @@ const Product = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.impa_code}
-            onChange={(e) =>
-              dispatch(setProductListParams({ impa_code: e.target.value }))
-            }
+            onChange={(e) => dispatch(setProductListParams({ impa_code: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "impa_code",
-      key: "impa_code",
+      dataIndex: 'impa_code',
+      key: 'impa_code',
       sorter: true,
       width: 140,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -177,17 +156,15 @@ const Product = () => {
             size="small"
             className="w-full font-normal"
             value={params.category_id}
-            onChange={(value) =>
-              dispatch(setProductListParams({ category_id: value }))
-            }
+            onChange={(value) => dispatch(setProductListParams({ category_id: value }))}
           />
         </div>
       ),
-      dataIndex: "category_name",
-      key: "category_name",
+      dataIndex: 'category_name',
+      key: 'category_name',
       sorter: true,
       width: 150,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -200,17 +177,15 @@ const Product = () => {
             size="small"
             className="w-full font-normal"
             value={params.sub_category_id}
-            onChange={(value) =>
-              dispatch(setProductListParams({ sub_category_id: value }))
-            }
+            onChange={(value) => dispatch(setProductListParams({ sub_category_id: value }))}
           />
         </div>
       ),
-      dataIndex: "sub_category_name",
-      key: "sub_category_name",
+      dataIndex: 'sub_category_name',
+      key: 'sub_category_name',
       sorter: true,
       width: 150,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -223,17 +198,15 @@ const Product = () => {
             size="small"
             className="w-full font-normal"
             value={params.brand_id}
-            onChange={(value) =>
-              dispatch(setProductListParams({ brand_id: value }))
-            }
+            onChange={(value) => dispatch(setProductListParams({ brand_id: value }))}
           />
         </div>
       ),
-      dataIndex: "brand_name",
-      key: "brand_name",
+      dataIndex: 'brand_name',
+      key: 'brand_name',
       sorter: true,
       width: 150,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -246,17 +219,15 @@ const Product = () => {
             size="small"
             className="w-full font-normal"
             value={params.unit_id}
-            onChange={(value) =>
-              dispatch(setProductListParams({ unit_id: value }))
-            }
+            onChange={(value) => dispatch(setProductListParams({ unit_id: value }))}
           />
         </div>
       ),
-      dataIndex: "unit_name",
-      key: "unit_name",
+      dataIndex: 'unit_name',
+      key: 'unit_name',
       sorter: true,
       width: 150,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -267,18 +238,16 @@ const Product = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.cost_price}
-            onChange={(e) =>
-              dispatch(setProductListParams({ cost_price: e.target.value }))
-            }
+            onChange={(e) => dispatch(setProductListParams({ cost_price: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "cost_price",
-      key: "cost_price",
+      dataIndex: 'cost_price',
+      key: 'cost_price',
       sorter: true,
       width: 150,
       ellipsis: true,
-      render: (_, { cost_price }) => formatThreeDigitCommas(cost_price),
+      render: (_, { cost_price }) => formatThreeDigitCommas(cost_price)
     },
     {
       title: (
@@ -289,33 +258,30 @@ const Product = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.sale_price}
-            onChange={(e) =>
-              dispatch(setProductListParams({ sale_price: e.target.value }))
-            }
+            onChange={(e) => dispatch(setProductListParams({ sale_price: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "sale_price",
-      key: "sale_price",
+      dataIndex: 'sale_price',
+      key: 'sale_price',
       sorter: true,
       width: 150,
       ellipsis: true,
-      render: (_, { sale_price }) => formatThreeDigitCommas(sale_price),
+      render: (_, { sale_price }) => formatThreeDigitCommas(sale_price)
     },
     {
-      title: "Created At",
-      dataIndex: "created_at",
-      key: "created_at",
+      title: 'Created At',
+      dataIndex: 'created_at',
+      key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) =>
-        dayjs(created_at).format("DD-MM-YYYY hh:mm A"),
+      render: (_, { created_at }) => dayjs(created_at).format('DD-MM-YYYY hh:mm A')
     },
     {
-      title: "Action",
-      key: "action",
+      title: 'Action',
+      key: 'action',
       render: (_, { product_id }) => (
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           {permissions.edit ? (
             <Tooltip title="Edit">
               <Link to={`/product/edit/${product_id}`}>
@@ -338,20 +304,15 @@ const Product = () => {
                 cancelText="No"
                 onConfirm={() => onProductDelete(product_id)}
               >
-                <Button
-                  size="small"
-                  type="primary"
-                  danger
-                  icon={<GoTrash size={14} />}
-                />
+                <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
               </Popconfirm>
             </Tooltip>
           ) : null}
         </div>
       ),
       width: 70,
-      fixed: "right",
-    },
+      fixed: 'right'
+    }
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -375,31 +336,26 @@ const Product = () => {
     params.category_id,
     params.sub_category_id,
     params.brand_id,
-    params.unit_id,
+    params.unit_id
   ]);
 
   return (
     <>
-      <div className="flex justify-between items-center flex-wrap">
+      <div className="flex flex-wrap items-center justify-between">
         <PageHeading>PRODUCT</PageHeading>
-        <Breadcrumb
-          items={[{ title: "Product" }, { title: "List" }]}
-          separator=">"
-        />
+        <Breadcrumb items={[{ title: 'Product' }, { title: 'List' }]} separator=">" />
       </div>
 
-      <div className="mt-4 bg-white p-2 rounded-md">
-        <div className="flex justify-between items-center gap-2">
+      <div className="mt-4 rounded-md bg-white p-2">
+        <div className="flex items-center justify-between gap-2">
           <Input
             placeholder="Search..."
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) =>
-              dispatch(setProductListParams({ search: e.target.value }))
-            }
+            onChange={(e) => dispatch(setProductListParams({ search: e.target.value }))}
           />
 
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             {permissions.delete ? (
               <Button
                 type="primary"
@@ -423,22 +379,21 @@ const Product = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: "checkbox",
+                  type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) =>
-                    dispatch(setProductDeleteIDs(selectedRowKeys)),
+                  onChange: (selectedRowKeys) => dispatch(setProductDeleteIDs(selectedRowKeys))
                 }
               : null
           }
           loading={isListLoading}
           className="mt-2"
           rowKey="product_id"
-          scroll={{ x: "calc(100% - 200px)" }}
+          scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} companies`,
+            showTotal: (total) => `Total ${total} companies`
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -446,7 +401,7 @@ const Product = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order,
+                sort_direction: sorting.order
               })
             );
           }}
@@ -454,7 +409,7 @@ const Product = () => {
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56,
+            offsetHeader: 56
           }}
         />
       </div>

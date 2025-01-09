@@ -1,10 +1,10 @@
 /* eslint-disable react/prop-types */
-import { Select, Spin } from "antd";
-import { useEffect, useRef, useState } from "react";
-import { MdOutlineAddCircle } from "react-icons/md";
-import api from "../../axiosInstance";
-import useDebounce from "../../hooks/useDebounce";
-import useError from "../../hooks/useError";
+import { Select, Spin } from 'antd';
+import { useEffect, useRef, useState } from 'react';
+import { MdOutlineAddCircle } from 'react-icons/md';
+import api from '../../axiosInstance';
+import useDebounce from '../../hooks/useDebounce';
+import useError from '../../hooks/useError';
 
 const { Option } = Select;
 
@@ -23,7 +23,7 @@ const AsyncSelect = ({
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState('');
   const dropdownRef = useRef();
   const handleError = useError();
 
@@ -31,12 +31,12 @@ const AsyncSelect = ({
 
   const isAddNewVisible = addNewLink && !props?.disabled;
 
-  const fetchData = async (inputValue = "", page = 1, merge = false) => {
+  const fetchData = async (inputValue = '', page = 1, merge = false) => {
     setLoading(true);
     try {
       // Make API call to fetch options based on the inputValue and pagination
       const response = await api.get(endpoint, {
-        params: { ...params, search: inputValue, page },
+        params: { ...params, search: inputValue, page }
       });
 
       let data = response.data;
@@ -45,7 +45,7 @@ const AsyncSelect = ({
       if (valueKey && labelKey) {
         optionsData = response.data.data.map((item) => ({
           value: item[valueKey],
-          label: item[labelKey],
+          label: item[labelKey]
         }));
       } else {
         optionsData = response.data.data;
@@ -88,7 +88,7 @@ const AsyncSelect = ({
       allowClear
       onSearch={handleInputChange}
       onClear={() => {
-        setSearchValue("");
+        setSearchValue('');
       }}
       loading={loading}
       filterOption={false}
@@ -96,7 +96,7 @@ const AsyncSelect = ({
       {...props}
       onChange={(v) => {
         props.onChange && props.onChange(v);
-        setSearchValue("");
+        setSearchValue('');
       }}
       onPopupScroll={handleScroll}
       notFoundContent={
@@ -110,7 +110,7 @@ const AsyncSelect = ({
         <div
           ref={dropdownRef}
           onScroll={handleScroll}
-          style={{ maxHeight: "300px", overflowY: "auto" }}
+          style={{ maxHeight: '300px', overflowY: 'auto' }}
         >
           {menu}
         </div>
@@ -119,14 +119,14 @@ const AsyncSelect = ({
       suffixIcon={
         isAddNewVisible ? (
           <MdOutlineAddCircle
-            className="text-primary cursor-pointer hover:text-blue-700 absolute !-top-4 bg-white rounded-full"
+            className="absolute !-top-4 cursor-pointer rounded-full bg-white text-primary hover:text-blue-700"
             size={18}
             onClick={() => {
               setIsClicked(false);
               window.open(
                 `/gms${addNewLink}`,
-                "_blank",
-                "toolbar=yes,scrollbars=yes,top=100,left=400,width=600,height=600"
+                '_blank',
+                'toolbar=yes,scrollbars=yes,top=100,left=400,width=600,height=600'
               );
             }}
           />

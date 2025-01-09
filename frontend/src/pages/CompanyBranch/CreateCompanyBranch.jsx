@@ -1,11 +1,11 @@
-import { Breadcrumb } from "antd";
-import CompanyBranchForm from "../../components/Form/CompanyBranchForm";
-import PageHeading from "../../components/heading/PageHeading";
-import { useNavigate } from "react-router-dom";
-import useError from "../../hooks/useError";
-import { useDispatch } from "react-redux";
-import { createCompanyBranch } from "../../store/features/companyBranchSlice";
-import toast from "react-hot-toast";
+import { Breadcrumb } from 'antd';
+import CompanyBranchForm from '../../components/Form/CompanyBranchForm';
+import PageHeading from '../../components/heading/PageHeading';
+import { useNavigate } from 'react-router-dom';
+import useError from '../../hooks/useError';
+import { useDispatch } from 'react-redux';
+import { createCompanyBranch } from '../../store/features/companyBranchSlice';
+import toast from 'react-hot-toast';
 
 const CreateCompany = () => {
   const navigate = useNavigate();
@@ -15,8 +15,8 @@ const CreateCompany = () => {
   const onCompanyBranchCreate = async (data) => {
     try {
       await dispatch(createCompanyBranch(data)).unwrap();
-      toast.success("Branch created successfully");
-      navigate("/company-branch");
+      toast.success('Branch created successfully');
+      navigate('/company-branch');
     } catch (error) {
       handleError(error);
     }
@@ -24,15 +24,12 @@ const CreateCompany = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center flex-wrap">
+      <div className="flex flex-wrap items-center justify-between">
         <PageHeading>CREATE COMPANY BRANCH</PageHeading>
-        <Breadcrumb
-          items={[{ title: "Company Branch" }, { title: "Create" }]}
-          separator=">"
-        />
+        <Breadcrumb items={[{ title: 'Company Branch' }, { title: 'Create' }]} separator=">" />
       </div>
 
-      <div className="mt-4 bg-white sm:p-4 p-2 rounded-md">
+      <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
         <CompanyBranchForm onSubmit={onCompanyBranchCreate} />
       </div>
     </>

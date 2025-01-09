@@ -1,12 +1,12 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../../axiosInstance";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import api from '../../axiosInstance';
 
 export const getPaymentList = createAsyncThunk(
-  "payment/list",
+  'payment/list',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get("/payment", {
-        params,
+      const res = await api.get('/payment', {
+        params
       });
       return res.data;
     } catch (err) {
@@ -15,22 +15,19 @@ export const getPaymentList = createAsyncThunk(
   }
 );
 
-export const deletePayment = createAsyncThunk(
-  "payment/delete",
-  async (id, { rejectWithValue }) => {
-    try {
-      await api.delete(`/payment/${id}`);
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const deletePayment = createAsyncThunk('payment/delete', async (id, { rejectWithValue }) => {
+  try {
+    await api.delete(`/payment/${id}`);
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
 export const createPayment = createAsyncThunk(
-  "payment/create",
+  'payment/create',
   async (data, { rejectWithValue }) => {
     try {
-      await api.post("/payment", data);
+      await api.post('/payment', data);
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -38,7 +35,7 @@ export const createPayment = createAsyncThunk(
 );
 
 export const updatePayment = createAsyncThunk(
-  "payment/update",
+  'payment/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
       await api.put(`/payment/${id}`, data);
@@ -49,11 +46,11 @@ export const updatePayment = createAsyncThunk(
 );
 
 export const bulkDeletePayment = createAsyncThunk(
-  "payment/bulkDelete",
+  'payment/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post("/payment/bulk-delete", {
-        payment_ids: ids,
+      await api.post('/payment/bulk-delete', {
+        payment_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -71,24 +68,24 @@ const initialState = {
   params: {
     page: 1,
     limit: 50,
-    search: "",
+    search: '',
     sort_column: null,
-    sort_direction: null,
+    sort_direction: null
   },
   paginationInfo: {
     total_records: 0,
-    total_pages: 0,
-  },
+    total_pages: 0
+  }
 };
 
 export const paymentSlice = createSlice({
-  name: "payment",
+  name: 'payment',
   initialState,
   reducers: {
     setPaymentListParams: (state, action) => {
       state.params = {
         ...state.params,
-        ...action.payload,
+        ...action.payload
       };
     },
 
@@ -97,42 +94,42 @@ export const paymentSlice = createSlice({
     },
 
     addNewPayment: (state) => {
-      const ifAlreadyNew = state.list.some((item) => item.payment_id === "new");
+      const ifAlreadyNew = state.list.some((item) => item.payment_id === 'new');
       if (ifAlreadyNew) return;
 
       state.list = state.list.map((item) => {
         return {
           ...item,
-          editable: false,
+          editable: false
         };
       });
 
       state.list.unshift({
-        payment_id: "new",
-        name: "",
+        payment_id: 'new',
+        name: '',
         editable: true,
-        created_at: null,
+        created_at: null
       });
     },
 
     removeNewPayment: (state) => {
-      state.list = state.list.filter((item) => item.payment_id !== "new");
+      state.list = state.list.filter((item) => item.payment_id !== 'new');
     },
 
     setPaymentEditable: (state, action) => {
       const { id, editable } = action.payload;
 
       // if record is new then simply update editable field for this item
-      if (id === "new") {
+      if (id === 'new') {
         state.list = state.list.map((item) => ({
           ...item,
-          editable,
+          editable
         }));
         return;
       }
 
       // Filter out items with payment_id as "new"
-      state.list = state.list.filter((item) => item.payment_id !== "new");
+      state.list = state.list.filter((item) => item.payment_id !== 'new');
 
       // Update the list
       state.list = state.list.map((item) => {
@@ -140,12 +137,12 @@ export const paymentSlice = createSlice({
           return item.editable
             ? {
                 ...item.prevRecord,
-                editable: false,
+                editable: false
               }
             : {
                 ...item,
                 editable: true,
-                prevRecord: { ...item },
+                prevRecord: { ...item }
               };
         }
 
@@ -162,12 +159,12 @@ export const paymentSlice = createSlice({
         if (item.payment_id === id) {
           return {
             ...item,
-            [field]: value,
+            [field]: value
           };
         }
         return item;
       });
-    },
+    }
   },
   extraReducers: ({ addCase }) => {
     addCase(getPaymentList.pending, (state) => {
@@ -179,7 +176,7 @@ export const paymentSlice = createSlice({
       state.list = data;
       state.paginationInfo = {
         total_records: rest.total,
-        total_pages: rest.last_page,
+        total_pages: rest.last_page
       };
     });
     addCase(getPaymentList.rejected, (state) => {
@@ -187,14 +184,14 @@ export const paymentSlice = createSlice({
     });
 
     addCase(createPayment.pending, (state) => {
-      state.isSubmitting = "new";
+      state.isSubmitting = 'new';
     });
     addCase(createPayment.fulfilled, (state) => {
       state.isSubmitting = false;
     });
     addCase(createPayment.rejected, (state) => {
       state.isSubmitting = false;
-      state.list = state.list.filter((item) => item.payment_id !== "new");
+      state.list = state.list.filter((item) => item.payment_id !== 'new');
     });
 
     addCase(updatePayment.pending, (state, action) => {
@@ -217,7 +214,7 @@ export const paymentSlice = createSlice({
     addCase(bulkDeletePayment.rejected, (state) => {
       state.isBulkDeleting = false;
     });
-  },
+  }
 });
 
 export const {
@@ -226,6 +223,6 @@ export const {
   addNewPayment,
   removeNewPayment,
   setPaymentEditable,
-  updatePaymentListValue,
+  updatePaymentListValue
 } = paymentSlice.actions;
 export default paymentSlice.reducer;

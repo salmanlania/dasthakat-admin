@@ -1,44 +1,30 @@
-import {
-  Breadcrumb,
-  Button,
-  Input,
-  Popconfirm,
-  Select,
-  Table,
-  Tag,
-  Tooltip,
-} from "antd";
-import dayjs from "dayjs";
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { GoTrash } from "react-icons/go";
-import { MdOutlineEdit } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import AsyncSelect from "../../components/AsyncSelect";
-import PageHeading from "../../components/heading/PageHeading";
-import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
-import useDebounce from "../../hooks/useDebounce";
-import useError from "../../hooks/useError";
+import { Breadcrumb, Button, Input, Popconfirm, Select, Table, Tag, Tooltip } from 'antd';
+import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { GoTrash } from 'react-icons/go';
+import { MdOutlineEdit } from 'react-icons/md';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import AsyncSelect from '../../components/AsyncSelect';
+import PageHeading from '../../components/heading/PageHeading';
+import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
+import useDebounce from '../../hooks/useDebounce';
+import useError from '../../hooks/useError';
 import {
   bulkDeleteEvent,
   deleteEvent,
   getEventList,
   setEventDeleteIDs,
-  setEventListParams,
-} from "../../store/features/eventSlice";
+  setEventListParams
+} from '../../store/features/eventSlice';
 
 const Event = () => {
   const dispatch = useDispatch();
   const handleError = useError();
-  const {
-    list,
-    isListLoading,
-    params,
-    paginationInfo,
-    isBulkDeleting,
-    deleteIDs,
-  } = useSelector((state) => state.event);
+  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
+    (state) => state.event
+  );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.event;
 
@@ -51,7 +37,7 @@ const Event = () => {
   const onEventDelete = async (id) => {
     try {
       await dispatch(deleteEvent(id)).unwrap();
-      toast.success("Event deleted successfully");
+      toast.success('Event deleted successfully');
       dispatch(getEventList(params)).unwrap();
     } catch (error) {
       handleError(error);
@@ -61,7 +47,7 @@ const Event = () => {
   const onBulkDelete = async () => {
     try {
       await dispatch(bulkDeleteEvent(deleteIDs)).unwrap();
-      toast.success("Events deleted successfully");
+      toast.success('Events deleted successfully');
       closeDeleteModal();
       await dispatch(getEventList(params)).unwrap();
     } catch (error) {
@@ -79,17 +65,15 @@ const Event = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.event_code}
-            onChange={(e) =>
-              dispatch(setEventListParams({ event_code: e.target.value }))
-            }
+            onChange={(e) => dispatch(setEventListParams({ event_code: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "event_code",
-      key: "event_code",
+      dataIndex: 'event_code',
+      key: 'event_code',
       sorter: true,
       width: 150,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -102,17 +86,15 @@ const Event = () => {
             valueKey="customer_id"
             labelKey="name"
             value={params.customer_id}
-            onChange={(value) =>
-              dispatch(setEventListParams({ customer_id: value }))
-            }
+            onChange={(value) => dispatch(setEventListParams({ customer_id: value }))}
           />
         </div>
       ),
-      dataIndex: "customer_name",
-      key: "customer_name",
+      dataIndex: 'customer_name',
+      key: 'customer_name',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -125,17 +107,15 @@ const Event = () => {
             valueKey="vessel_id"
             labelKey="name"
             value={params.vessel_id}
-            onChange={(value) =>
-              dispatch(setEventListParams({ vessel_id: value }))
-            }
+            onChange={(value) => dispatch(setEventListParams({ vessel_id: value }))}
           />
         </div>
       ),
-      dataIndex: "vessel_name",
-      key: "vessel_name",
+      dataIndex: 'vessel_name',
+      key: 'vessel_name',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -148,17 +128,15 @@ const Event = () => {
             valueKey="class_id"
             labelKey="name"
             value={params.class1_id}
-            onChange={(value) =>
-              dispatch(setEventListParams({ class1_id: value }))
-            }
+            onChange={(value) => dispatch(setEventListParams({ class1_id: value }))}
           />
         </div>
       ),
-      dataIndex: "class1_name",
-      key: "class1_name",
+      dataIndex: 'class1_name',
+      key: 'class1_name',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -171,17 +149,15 @@ const Event = () => {
             valueKey="class_id"
             labelKey="name"
             value={params.class2_id}
-            onChange={(value) =>
-              dispatch(setEventListParams({ class2_id: value }))
-            }
+            onChange={(value) => dispatch(setEventListParams({ class2_id: value }))}
           />
         </div>
       ),
-      dataIndex: "class2_name",
-      key: "class2_name",
+      dataIndex: 'class2_name',
+      key: 'class2_name',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -194,23 +170,21 @@ const Event = () => {
             options={[
               {
                 value: 1,
-                label: "Active",
+                label: 'Active'
               },
               {
                 value: 0,
-                label: "Inactive",
-              },
+                label: 'Inactive'
+              }
             ]}
             value={params.status}
-            onChange={(value) =>
-              dispatch(setEventListParams({ status: value }))
-            }
+            onChange={(value) => dispatch(setEventListParams({ status: value }))}
             allowClear
           />
         </div>
       ),
-      dataIndex: "status",
-      key: "status",
+      dataIndex: 'status',
+      key: 'status',
       sorter: true,
       render: (status) =>
         status === 1 ? (
@@ -222,22 +196,21 @@ const Event = () => {
             Inactive
           </Tag>
         ),
-      width: 120,
+      width: 120
     },
     {
-      title: "Created At",
-      dataIndex: "created_at",
-      key: "created_at",
+      title: 'Created At',
+      dataIndex: 'created_at',
+      key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) =>
-        dayjs(created_at).format("DD-MM-YYYY hh:mm A"),
+      render: (_, { created_at }) => dayjs(created_at).format('DD-MM-YYYY hh:mm A')
     },
     {
-      title: "Action",
-      key: "action",
+      title: 'Action',
+      key: 'action',
       render: (_, { event_id }) => (
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           {permissions.edit ? (
             <Tooltip title="Edit">
               <Link to={`/event/edit/${event_id}`}>
@@ -260,20 +233,15 @@ const Event = () => {
                 cancelText="No"
                 onConfirm={() => onEventDelete(event_id)}
               >
-                <Button
-                  size="small"
-                  type="primary"
-                  danger
-                  icon={<GoTrash size={14} />}
-                />
+                <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
               </Popconfirm>
             </Tooltip>
           ) : null}
         </div>
       ),
       width: 70,
-      fixed: "right",
-    },
+      fixed: 'right'
+    }
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -294,31 +262,26 @@ const Event = () => {
     params.class2_id,
     params.status,
     debouncedSearch,
-    debouncedCode,
+    debouncedCode
   ]);
 
   return (
     <>
-      <div className="flex justify-between items-center flex-wrap">
+      <div className="flex flex-wrap items-center justify-between">
         <PageHeading>EVENT</PageHeading>
-        <Breadcrumb
-          items={[{ title: "Event" }, { title: "List" }]}
-          separator=">"
-        />
+        <Breadcrumb items={[{ title: 'Event' }, { title: 'List' }]} separator=">" />
       </div>
 
-      <div className="mt-4 bg-white p-2 rounded-md">
-        <div className="flex justify-between items-center gap-2">
+      <div className="mt-4 rounded-md bg-white p-2">
+        <div className="flex items-center justify-between gap-2">
           <Input
             placeholder="Search..."
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) =>
-              dispatch(setEventListParams({ search: e.target.value }))
-            }
+            onChange={(e) => dispatch(setEventListParams({ search: e.target.value }))}
           />
 
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             <Button
               type="primary"
               danger
@@ -340,22 +303,21 @@ const Event = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: "checkbox",
+                  type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) =>
-                    dispatch(setEventDeleteIDs(selectedRowKeys)),
+                  onChange: (selectedRowKeys) => dispatch(setEventDeleteIDs(selectedRowKeys))
                 }
               : null
           }
           loading={isListLoading}
           className="mt-2"
           rowKey="event_id"
-          scroll={{ x: "calc(100% - 200px)" }}
+          scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} events`,
+            showTotal: (total) => `Total ${total} events`
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -363,7 +325,7 @@ const Event = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order,
+                sort_direction: sorting.order
               })
             );
           }}
@@ -371,7 +333,7 @@ const Event = () => {
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56,
+            offsetHeader: 56
           }}
         />
       </div>

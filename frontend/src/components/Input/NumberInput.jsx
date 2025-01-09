@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Input } from "antd";
+import { Input } from 'antd';
 
 /**
  * NumberInput Component
@@ -11,23 +11,18 @@ import { Input } from "antd";
  * @param {Object} restProps - Any other props for the Ant Design Input component
  * @returns {JSX.Element} - NumberInput component
  */
-const NumberInput = ({
-  value = "",
-  onChange = () => {},
-  type = "integer",
-  ...restProps
-}) => {
+const NumberInput = ({ value = '', onChange = () => {}, type = 'integer', ...restProps }) => {
   // Handle input change
   const handleInputChange = (e) => {
     let rawValue = e.target.value;
 
-    if (type === "integer") {
+    if (type === 'integer') {
       // Remove all non-numeric characters
-      rawValue = rawValue.replace(/[^0-9]/g, "");
-    } else if (type === "decimal") {
+      rawValue = rawValue.replace(/[^0-9]/g, '');
+    } else if (type === 'decimal') {
       // Allow only numbers and one decimal point
-      rawValue = rawValue.replace(/[^0-9.]/g, ""); // Remove invalid characters
-      rawValue = rawValue.replace(/^(\d*\.\d*)\./, "$1"); // Prevent multiple decimal points
+      rawValue = rawValue.replace(/[^0-9.]/g, ''); // Remove invalid characters
+      rawValue = rawValue.replace(/^(\d*\.\d*)\./, '$1'); // Prevent multiple decimal points
     }
 
     // Call the onChange prop with the cleaned value

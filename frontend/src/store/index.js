@@ -1,32 +1,32 @@
-import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
 
-import agentReducer from "./features/agentSlice";
-import authReducer from "./features/authSlice";
-import brandReducer from "./features/brandSlice";
-import categoryReducer from "./features/categorySlice";
-import chargeOrderReducer from "./features/chargeOrderSlice";
-import classReducer from "./features/classSlice";
-import companyBranchReducer from "./features/companyBranchSlice";
-import companyReducer from "./features/companySlice";
-import currencyReducer from "./features/currencySlice";
-import customerReducer from "./features/customerSlice";
-import eventReducer from "./features/eventSlice";
-import flagReducer from "./features/flagSlice";
-import paymentReducer from "./features/paymentSlice";
-import portReducer from "./features/portSlice";
-import productReducer from "./features/productSlice";
-import purchaseOrderReducer from "./features/purchaseOrderSlice";
-import quotationReducer from "./features/quotationSlice";
-import salesmanReducer from "./features/salesmanSlice";
-import sidebarReducer from "./features/sidebarSlice";
-import subCategoryReducer from "./features/subCategorySlice";
-import termsReducer from "./features/termsSlice";
-import unitReducer from "./features/unitSlice";
-import userPermissionReducer from "./features/userPermissionSlice";
-import userReducer from "./features/userSlice";
-import validityReducer from "./features/validitySlice";
-import vendorReducer from "./features/vendorSlice";
-import vesselReducer from "./features/vesselSlice";
+import agentReducer from './features/agentSlice';
+import authReducer from './features/authSlice';
+import brandReducer from './features/brandSlice';
+import categoryReducer from './features/categorySlice';
+import chargeOrderReducer from './features/chargeOrderSlice';
+import classReducer from './features/classSlice';
+import companyBranchReducer from './features/companyBranchSlice';
+import companyReducer from './features/companySlice';
+import currencyReducer from './features/currencySlice';
+import customerReducer from './features/customerSlice';
+import eventReducer from './features/eventSlice';
+import flagReducer from './features/flagSlice';
+import paymentReducer from './features/paymentSlice';
+import portReducer from './features/portSlice';
+import productReducer from './features/productSlice';
+import purchaseOrderReducer from './features/purchaseOrderSlice';
+import quotationReducer from './features/quotationSlice';
+import salesmanReducer from './features/salesmanSlice';
+import sidebarReducer from './features/sidebarSlice';
+import subCategoryReducer from './features/subCategorySlice';
+import termsReducer from './features/termsSlice';
+import unitReducer from './features/unitSlice';
+import userPermissionReducer from './features/userPermissionSlice';
+import userReducer from './features/userSlice';
+import validityReducer from './features/validitySlice';
+import vendorReducer from './features/vendorSlice';
+import vesselReducer from './features/vesselSlice';
 
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
@@ -55,13 +55,13 @@ const rootReducer = combineReducers({
   product: productReducer,
   purchaseOrder: purchaseOrderReducer,
   quotation: quotationReducer,
-  chargeOrder: chargeOrderReducer,
+  chargeOrder: chargeOrderReducer
 });
 
 export const store = configureStore({
   reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false,
-    }),
+      serializableCheck: false
+    })
 });

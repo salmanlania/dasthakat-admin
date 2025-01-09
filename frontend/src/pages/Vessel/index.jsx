@@ -1,43 +1,30 @@
-import {
-  Breadcrumb,
-  Button,
-  Input,
-  Popconfirm,
-  Select,
-  Table,
-  Tooltip,
-} from "antd";
-import dayjs from "dayjs";
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { GoTrash } from "react-icons/go";
-import { MdOutlineEdit } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import AsyncSelect from "../../components/AsyncSelect";
-import PageHeading from "../../components/heading/PageHeading";
-import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
-import useDebounce from "../../hooks/useDebounce";
-import useError from "../../hooks/useError";
+import { Breadcrumb, Button, Input, Popconfirm, Select, Table, Tooltip } from 'antd';
+import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { GoTrash } from 'react-icons/go';
+import { MdOutlineEdit } from 'react-icons/md';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import AsyncSelect from '../../components/AsyncSelect';
+import PageHeading from '../../components/heading/PageHeading';
+import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
+import useDebounce from '../../hooks/useDebounce';
+import useError from '../../hooks/useError';
 import {
   bulkDeleteVessel,
   deleteVessel,
   getVesselList,
   setVesselDeleteIDs,
-  setVesselListParams,
-} from "../../store/features/vesselSlice";
+  setVesselListParams
+} from '../../store/features/vesselSlice';
 
 const Vessel = () => {
   const dispatch = useDispatch();
   const handleError = useError();
-  const {
-    list,
-    isListLoading,
-    params,
-    paginationInfo,
-    isBulkDeleting,
-    deleteIDs,
-  } = useSelector((state) => state.vessel);
+  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
+    (state) => state.vessel
+  );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.vessel;
 
@@ -52,7 +39,7 @@ const Vessel = () => {
   const onVesselDelete = async (id) => {
     try {
       await dispatch(deleteVessel(id)).unwrap();
-      toast.success("Vessel deleted successfully");
+      toast.success('Vessel deleted successfully');
       dispatch(getVesselList(params)).unwrap();
     } catch (error) {
       handleError(error);
@@ -62,7 +49,7 @@ const Vessel = () => {
   const onBulkDelete = async () => {
     try {
       await dispatch(bulkDeleteVessel(deleteIDs)).unwrap();
-      toast.success("Vessels deleted successfully");
+      toast.success('Vessels deleted successfully');
       closeDeleteModal();
       await dispatch(getVesselList(params)).unwrap();
     } catch (error) {
@@ -80,17 +67,15 @@ const Vessel = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.imo}
-            onChange={(e) =>
-              dispatch(setVesselListParams({ imo: e.target.value }))
-            }
+            onChange={(e) => dispatch(setVesselListParams({ imo: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "imo",
-      key: "imo",
+      dataIndex: 'imo',
+      key: 'imo',
       sorter: true,
       width: 150,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -101,17 +86,15 @@ const Vessel = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.name}
-            onChange={(e) =>
-              dispatch(setVesselListParams({ name: e.target.value }))
-            }
+            onChange={(e) => dispatch(setVesselListParams({ name: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "name",
-      key: "name",
+      dataIndex: 'name',
+      key: 'name',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -124,18 +107,16 @@ const Vessel = () => {
             valueKey="flag_id"
             className="w-full font-normal"
             value={params.flag_id}
-            onChange={(value) =>
-              dispatch(setVesselListParams({ flag_id: value }))
-            }
+            onChange={(value) => dispatch(setVesselListParams({ flag_id: value }))}
           />
           <Select size="small" className="w-full font-normal" />
         </div>
       ),
-      dataIndex: "flag_name",
-      key: "flag_name",
+      dataIndex: 'flag_name',
+      key: 'flag_name',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -148,18 +129,16 @@ const Vessel = () => {
             valueKey="class_id"
             labelKey="name"
             value={params.class1_id}
-            onChange={(value) =>
-              dispatch(setVesselListParams({ class1_id: value }))
-            }
+            onChange={(value) => dispatch(setVesselListParams({ class1_id: value }))}
           />
           <Select size="small" className="w-full font-normal" />
         </div>
       ),
-      dataIndex: "class1_name",
-      key: "class1_name",
+      dataIndex: 'class1_name',
+      key: 'class1_name',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -172,18 +151,16 @@ const Vessel = () => {
             labelKey="name"
             className="w-full font-normal"
             value={params.class2_id}
-            onChange={(value) =>
-              dispatch(setVesselListParams({ class2_id: value }))
-            }
+            onChange={(value) => dispatch(setVesselListParams({ class2_id: value }))}
           />
           <Select size="small" className="w-full font-normal" />
         </div>
       ),
-      dataIndex: "class2_name",
-      key: "class2_name",
+      dataIndex: 'class2_name',
+      key: 'class2_name',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -194,32 +171,29 @@ const Vessel = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.billing_address}
-            onChange={(e) =>
-              dispatch(setVesselListParams({ billing_address: e.target.value }))
-            }
+            onChange={(e) => dispatch(setVesselListParams({ billing_address: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "billing_address",
-      key: "billing_address",
+      dataIndex: 'billing_address',
+      key: 'billing_address',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
-      title: "Created At",
-      dataIndex: "created_at",
-      key: "created_at",
+      title: 'Created At',
+      dataIndex: 'created_at',
+      key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) =>
-        dayjs(created_at).format("DD-MM-YYYY hh:mm A"),
+      render: (_, { created_at }) => dayjs(created_at).format('DD-MM-YYYY hh:mm A')
     },
     {
-      title: "Action",
-      key: "action",
+      title: 'Action',
+      key: 'action',
       render: (_, { vessel_id }) => (
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           {permissions.edit ? (
             <Tooltip title="Edit">
               <Link to={`/vessel/edit/${vessel_id}`}>
@@ -242,20 +216,15 @@ const Vessel = () => {
                 cancelText="No"
                 onConfirm={() => onVesselDelete(vessel_id)}
               >
-                <Button
-                  size="small"
-                  type="primary"
-                  danger
-                  icon={<GoTrash size={14} />}
-                />
+                <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
               </Popconfirm>
             </Tooltip>
           ) : null}
         </div>
       ),
       width: 70,
-      fixed: "right",
-    },
+      fixed: 'right'
+    }
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -276,31 +245,26 @@ const Vessel = () => {
     debouncedSearch,
     debouncedName,
     debouncedIMO,
-    debouncedBillingAddress,
+    debouncedBillingAddress
   ]);
 
   return (
     <>
-      <div className="flex justify-between items-center flex-wrap">
+      <div className="flex flex-wrap items-center justify-between">
         <PageHeading>VESSEL</PageHeading>
-        <Breadcrumb
-          items={[{ title: "Vessel" }, { title: "List" }]}
-          separator=">"
-        />
+        <Breadcrumb items={[{ title: 'Vessel' }, { title: 'List' }]} separator=">" />
       </div>
 
-      <div className="mt-4 bg-white p-2 rounded-md">
-        <div className="flex justify-between items-center gap-2">
+      <div className="mt-4 rounded-md bg-white p-2">
+        <div className="flex items-center justify-between gap-2">
           <Input
             placeholder="Search..."
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) =>
-              dispatch(setVesselListParams({ search: e.target.value }))
-            }
+            onChange={(e) => dispatch(setVesselListParams({ search: e.target.value }))}
           />
 
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             <Button
               type="primary"
               danger
@@ -322,22 +286,21 @@ const Vessel = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: "checkbox",
+                  type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) =>
-                    dispatch(setVesselDeleteIDs(selectedRowKeys)),
+                  onChange: (selectedRowKeys) => dispatch(setVesselDeleteIDs(selectedRowKeys))
                 }
               : null
           }
           loading={isListLoading}
           className="mt-2"
           rowKey="vessel_id"
-          scroll={{ x: "calc(100% - 200px)" }}
+          scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} vessels`,
+            showTotal: (total) => `Total ${total} vessels`
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -345,7 +308,7 @@ const Vessel = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order,
+                sort_direction: sorting.order
               })
             );
           }}
@@ -353,7 +316,7 @@ const Vessel = () => {
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56,
+            offsetHeader: 56
           }}
         />
       </div>

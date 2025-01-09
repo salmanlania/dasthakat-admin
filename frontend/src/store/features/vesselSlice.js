@@ -1,12 +1,12 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../../axiosInstance";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import api from '../../axiosInstance';
 
 export const getVesselList = createAsyncThunk(
-  "vessel/list",
+  'vessel/list',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get("/vessel", {
-        params,
+      const res = await api.get('/vessel', {
+        params
       });
       return res.data;
     } catch (err) {
@@ -15,42 +15,33 @@ export const getVesselList = createAsyncThunk(
   }
 );
 
-export const deleteVessel = createAsyncThunk(
-  "vessel/delete",
-  async (id, { rejectWithValue }) => {
-    try {
-      await api.delete(`/vessel/${id}`);
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const deleteVessel = createAsyncThunk('vessel/delete', async (id, { rejectWithValue }) => {
+  try {
+    await api.delete(`/vessel/${id}`);
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
-export const createVessel = createAsyncThunk(
-  "vessel/create",
-  async (data, { rejectWithValue }) => {
-    try {
-      await api.post("/vessel", data);
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const createVessel = createAsyncThunk('vessel/create', async (data, { rejectWithValue }) => {
+  try {
+    await api.post('/vessel', data);
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
-export const getVessel = createAsyncThunk(
-  "vessel/get",
-  async (id, { rejectWithValue }) => {
-    try {
-      const res = await api.get(`/vessel/${id}`);
-      return res.data.data;
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const getVessel = createAsyncThunk('vessel/get', async (id, { rejectWithValue }) => {
+  try {
+    const res = await api.get(`/vessel/${id}`);
+    return res.data.data;
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
 export const updateVessel = createAsyncThunk(
-  "vessel/update",
+  'vessel/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
       await api.put(`/vessel/${id}`, data);
@@ -61,11 +52,11 @@ export const updateVessel = createAsyncThunk(
 );
 
 export const bulkDeleteVessel = createAsyncThunk(
-  "vessel/bulkDelete",
+  'vessel/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post("/vessel/bulk-delete", {
-        vessel_ids: ids,
+      await api.post('/vessel/bulk-delete', {
+        vessel_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -84,33 +75,33 @@ const initialState = {
   params: {
     page: 1,
     limit: 50,
-    search: "",
+    search: '',
     sort_column: null,
     sort_direction: null,
     name: null,
     description: null,
-    catering_type: null,
+    catering_type: null
   },
   paginationInfo: {
     total_records: 0,
-    total_pages: 0,
-  },
+    total_pages: 0
+  }
 };
 
 export const vesselSlice = createSlice({
-  name: "vessel",
+  name: 'vessel',
   initialState,
   reducers: {
     setVesselListParams: (state, action) => {
       state.params = {
         ...state.params,
-        ...action.payload,
+        ...action.payload
       };
     },
 
     setVesselDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
-    },
+    }
   },
   extraReducers: ({ addCase }) => {
     addCase(getVesselList.pending, (state) => {
@@ -123,7 +114,7 @@ export const vesselSlice = createSlice({
       state.list = data;
       state.paginationInfo = {
         total_records: rest.total,
-        total_pages: rest.last_page,
+        total_pages: rest.last_page
       };
     });
     addCase(getVesselList.rejected, (state) => {
@@ -154,21 +145,21 @@ export const vesselSlice = createSlice({
         flag_id: data.flag_id
           ? {
               value: data.flag_id,
-              label: data.flag_name,
+              label: data.flag_name
             }
           : null,
         class1_id: data.class1_id
           ? {
               value: data.class1_id,
-              label: data.class1_name,
+              label: data.class1_name
             }
           : null,
         class2_id: data.class2_id
           ? {
               value: data.class2_id,
-              label: data.class2_name,
+              label: data.class2_name
             }
-          : null,
+          : null
       };
     });
     addCase(getVessel.rejected, (state) => {
@@ -197,7 +188,7 @@ export const vesselSlice = createSlice({
     addCase(bulkDeleteVessel.rejected, (state) => {
       state.isBulkDeleting = false;
     });
-  },
+  }
 });
 
 export const { setVesselListParams, setVesselDeleteIDs } = vesselSlice.actions;

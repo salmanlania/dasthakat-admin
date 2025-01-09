@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
-import { Select, Spin } from "antd";
-import { useEffect, useState } from "react";
-import { MdOutlineAddCircle } from "react-icons/md";
-import api from "../../axiosInstance";
-import useError from "../../hooks/useError";
+import { Select, Spin } from 'antd';
+import { useEffect, useState } from 'react';
+import { MdOutlineAddCircle } from 'react-icons/md';
+import api from '../../axiosInstance';
+import useError from '../../hooks/useError';
 
 const AsyncSelectNoPaginate = ({
   endpoint,
@@ -29,7 +29,7 @@ const AsyncSelectNoPaginate = ({
       if (valueKey && labelKey) {
         data = data.map((item) => ({
           value: item[valueKey],
-          label: item[labelKey],
+          label: item[labelKey]
         }));
       }
       setOptions(data);
@@ -66,14 +66,14 @@ const AsyncSelectNoPaginate = ({
       suffixIcon={
         isAddNewVisible ? (
           <MdOutlineAddCircle
-            className="text-primary cursor-pointer hover:text-blue-700 absolute !-top-4 bg-white"
+            className="absolute !-top-4 cursor-pointer bg-white text-primary hover:text-blue-700"
             size={18}
             onClick={() => {
               setIsClicked(false);
               window.open(
                 `/gms${addNewLink}`,
-                "_blank",
-                "toolbar=yes,scrollbars=yes,top=100,left=400,width=600,height=600"
+                '_blank',
+                'toolbar=yes,scrollbars=yes,top=100,left=400,width=600,height=600'
               );
             }}
           />

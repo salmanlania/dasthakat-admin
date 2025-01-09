@@ -1,15 +1,15 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../../axiosInstance";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import api from '../../axiosInstance';
 
 export const getCurrencyList = createAsyncThunk(
-  "currency/list",
+  'currency/list',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get("/currency", {
+      const res = await api.get('/currency', {
         params: {
           ...params,
-          all: 1,
-        },
+          all: 1
+        }
       });
       return res.data;
     } catch (err) {
@@ -19,7 +19,7 @@ export const getCurrencyList = createAsyncThunk(
 );
 
 export const deleteCurrency = createAsyncThunk(
-  "currency/delete",
+  'currency/delete',
   async (id, { rejectWithValue }) => {
     try {
       await api.delete(`/currency/${id}`);
@@ -30,30 +30,27 @@ export const deleteCurrency = createAsyncThunk(
 );
 
 export const createCurrency = createAsyncThunk(
-  "currency/create",
+  'currency/create',
   async (data, { rejectWithValue }) => {
     try {
-      await api.post("/currency", data);
+      await api.post('/currency', data);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const getCurrency = createAsyncThunk(
-  "currency/get",
-  async (id, { rejectWithValue }) => {
-    try {
-      const res = await api.get(`/currency/${id}`);
-      return res.data.data;
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const getCurrency = createAsyncThunk('currency/get', async (id, { rejectWithValue }) => {
+  try {
+    const res = await api.get(`/currency/${id}`);
+    return res.data.data;
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
 export const updateCurrency = createAsyncThunk(
-  "currency/update",
+  'currency/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
       await api.put(`/currency/${id}`, data);
@@ -64,11 +61,11 @@ export const updateCurrency = createAsyncThunk(
 );
 
 export const bulkDeleteCurrency = createAsyncThunk(
-  "currency/bulkDelete",
+  'currency/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post("/currency/bulk-delete", {
-        currency_ids: ids,
+      await api.post('/currency/bulk-delete', {
+        currency_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -87,33 +84,33 @@ const initialState = {
   params: {
     page: 1,
     limit: 50,
-    search: "",
+    search: '',
     sort_column: null,
     sort_direction: null,
     name: null,
     description: null,
-    catering_type: null,
+    catering_type: null
   },
   paginationInfo: {
     total_records: 0,
-    total_pages: 0,
-  },
+    total_pages: 0
+  }
 };
 
 export const currencySlice = createSlice({
-  name: "currency",
+  name: 'currency',
   initialState,
   reducers: {
     setCurrencyListParams: (state, action) => {
       state.params = {
         ...state.params,
-        ...action.payload,
+        ...action.payload
       };
     },
 
     setCurrencyDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
-    },
+    }
   },
   extraReducers: ({ addCase }) => {
     addCase(getCurrencyList.pending, (state) => {
@@ -126,7 +123,7 @@ export const currencySlice = createSlice({
       state.list = data;
       state.paginationInfo = {
         total_records: rest.total,
-        total_pages: rest.last_page,
+        total_pages: rest.last_page
       };
     });
     addCase(getCurrencyList.rejected, (state) => {
@@ -154,8 +151,8 @@ export const currencySlice = createSlice({
         name: data.name,
         symbol_left: data.symbol_left,
         symbol_right: data.symbol_right,
-        value: data.value ? data.value + "" : "",
-        status: data.status,
+        value: data.value ? data.value + '' : '',
+        status: data.status
       };
     });
     addCase(getCurrency.rejected, (state) => {
@@ -184,9 +181,8 @@ export const currencySlice = createSlice({
     addCase(bulkDeleteCurrency.rejected, (state) => {
       state.isBulkDeleting = false;
     });
-  },
+  }
 });
 
-export const { setCurrencyListParams, setCurrencyDeleteIDs } =
-  currencySlice.actions;
+export const { setCurrencyListParams, setCurrencyDeleteIDs } = currencySlice.actions;
 export default currencySlice.reducer;

@@ -1,16 +1,16 @@
-import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from "antd";
-import dayjs from "dayjs";
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { FaRegSave } from "react-icons/fa";
-import { FcCancel } from "react-icons/fc";
-import { GoTrash } from "react-icons/go";
-import { MdOutlineEdit } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import PageHeading from "../../components/heading/PageHeading";
-import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
-import useDebounce from "../../hooks/useDebounce";
-import useError from "../../hooks/useError";
+import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from 'antd';
+import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { FaRegSave } from 'react-icons/fa';
+import { FcCancel } from 'react-icons/fc';
+import { GoTrash } from 'react-icons/go';
+import { MdOutlineEdit } from 'react-icons/md';
+import { useDispatch, useSelector } from 'react-redux';
+import PageHeading from '../../components/heading/PageHeading';
+import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
+import useDebounce from '../../hooks/useDebounce';
+import useError from '../../hooks/useError';
 import {
   addNewSalesman,
   bulkDeleteSalesman,
@@ -22,21 +22,14 @@ import {
   setSalesmanEditable,
   setSalesmanListParams,
   updateSalesman,
-  updateSalesmanListValue,
-} from "../../store/features/salesmanSlice";
+  updateSalesmanListValue
+} from '../../store/features/salesmanSlice';
 
 const Salesman = () => {
   const dispatch = useDispatch();
   const handleError = useError();
-  const {
-    list,
-    isListLoading,
-    params,
-    paginationInfo,
-    isBulkDeleting,
-    isSubmitting,
-    deleteIDs,
-  } = useSelector((state) => state.salesman);
+  const { list, isListLoading, params, paginationInfo, isBulkDeleting, isSubmitting, deleteIDs } =
+    useSelector((state) => state.salesman);
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.salesman;
 
@@ -53,7 +46,7 @@ const Salesman = () => {
 
   const onCreate = async (record) => {
     const { name, commission_percentage } = record;
-    if (!name.trim()) return toast.error("Name field is required");
+    if (!name.trim()) return toast.error('Name field is required');
 
     try {
       await dispatch(createSalesman({ name, commission_percentage })).unwrap();
@@ -66,13 +59,13 @@ const Salesman = () => {
   const onUpdate = async (record) => {
     const { salesman_id, name, commission_percentage } = record;
 
-    if (!name.trim()) return toast.error("Name field is required");
+    if (!name.trim()) return toast.error('Name field is required');
 
     try {
       await dispatch(
         updateSalesman({
           id: salesman_id,
-          data: { name, commission_percentage },
+          data: { name, commission_percentage }
         })
       ).unwrap();
       await dispatch(getSalesmanList(params)).unwrap();
@@ -82,14 +75,14 @@ const Salesman = () => {
   };
 
   const onCancel = async (id) => {
-    if (id === "new") return dispatch(removeNewSalesman());
+    if (id === 'new') return dispatch(removeNewSalesman());
     dispatch(setSalesmanEditable({ id, editable: false }));
   };
 
   const onSalesmanDelete = async (id) => {
     try {
       await dispatch(deleteSalesman(id)).unwrap();
-      toast.success("Salesman deleted successfully");
+      toast.success('Salesman deleted successfully');
       dispatch(getSalesmanList(params)).unwrap();
     } catch (error) {
       handleError(error);
@@ -99,7 +92,7 @@ const Salesman = () => {
   const onBulkDelete = async () => {
     try {
       await dispatch(bulkDeleteSalesman(deleteIDs)).unwrap();
-      toast.success("Salesman deleted successfully");
+      toast.success('Salesman deleted successfully');
       closeDeleteModal();
       await dispatch(getSalesmanList(params)).unwrap();
     } catch (error) {
@@ -117,14 +110,12 @@ const Salesman = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.name}
-            onChange={(e) =>
-              dispatch(setSalesmanListParams({ name: e.target.value }))
-            }
+            onChange={(e) => dispatch(setSalesmanListParams({ name: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "name",
-      key: "name",
+      dataIndex: 'name',
+      key: 'name',
       sorter: true,
       width: 120,
       ellipsis: true,
@@ -133,11 +124,11 @@ const Salesman = () => {
           <Input
             autoFocus
             defaultValue={name}
-            onBlur={(e) => onChange(salesman_id, "name", e.target.value)}
+            onBlur={(e) => onChange(salesman_id, 'name', e.target.value)}
           />
         ) : (
           <span>{name}</span>
-        ),
+        )
     },
     {
       title: (
@@ -149,15 +140,13 @@ const Salesman = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.commission_percentage}
             onChange={(e) =>
-              dispatch(
-                setSalesmanListParams({ commission_percentage: e.target.value })
-              )
+              dispatch(setSalesmanListParams({ commission_percentage: e.target.value }))
             }
           />
         </div>
       ),
-      dataIndex: "commission_percentage",
-      key: "commission_percentage",
+      dataIndex: 'commission_percentage',
+      key: 'commission_percentage',
       sorter: true,
       width: 120,
       ellipsis: true,
@@ -165,36 +154,34 @@ const Salesman = () => {
         editable ? (
           <Input
             defaultValue={commission_percentage}
-            onBlur={(e) =>
-              onChange(salesman_id, "commission_percentage", e.target.value)
-            }
+            onBlur={(e) => onChange(salesman_id, 'commission_percentage', e.target.value)}
           />
         ) : (
           <span>{commission_percentage}</span>
-        ),
+        )
     },
     {
-      title: "Created At",
-      dataIndex: "created_at",
-      key: "created_at",
+      title: 'Created At',
+      dataIndex: 'created_at',
+      key: 'created_at',
       sorter: true,
       width: 168,
       render: (_, { created_at }) =>
         created_at ? (
-          dayjs(created_at).format("DD-MM-YYYY hh:mm A")
+          dayjs(created_at).format('DD-MM-YYYY hh:mm A')
         ) : (
           <span className="text-gray-400">AUTO</span>
-        ),
+        )
     },
     {
-      title: "Action",
-      key: "action",
+      title: 'Action',
+      key: 'action',
       render: (_, record) => {
         const { salesman_id, editable } = record;
 
         if (editable) {
           return (
-            <div className="flex gap-2 items-center">
+            <div className="flex items-center gap-2">
               <Tooltip title="Cancel" onClick={() => onCancel(salesman_id)}>
                 <Button danger icon={<FcCancel size={20} />} size="small" />
               </Tooltip>
@@ -204,9 +191,7 @@ const Salesman = () => {
                   size="small"
                   icon={<FaRegSave size={16} />}
                   loading={isSubmitting === salesman_id}
-                  onClick={() =>
-                    salesman_id === "new" ? onCreate(record) : onUpdate(record)
-                  }
+                  onClick={() => (salesman_id === 'new' ? onCreate(record) : onUpdate(record))}
                 />
               </Tooltip>
             </div>
@@ -214,7 +199,7 @@ const Salesman = () => {
         }
 
         return (
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             {permissions.edit ? (
               <Tooltip title="Edit">
                 <Button
@@ -226,7 +211,7 @@ const Salesman = () => {
                     dispatch(
                       setSalesmanEditable({
                         id: salesman_id,
-                        editable: true,
+                        editable: true
                       })
                     )
                   }
@@ -243,12 +228,7 @@ const Salesman = () => {
                   cancelText="No"
                   onConfirm={() => onSalesmanDelete(salesman_id)}
                 >
-                  <Button
-                    size="small"
-                    type="primary"
-                    danger
-                    icon={<GoTrash size={14} />}
-                  />
+                  <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                 </Popconfirm>
               </Tooltip>
             ) : null}
@@ -256,8 +236,8 @@ const Salesman = () => {
         );
       },
       width: 70,
-      fixed: "right",
-    },
+      fixed: 'right'
+    }
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -274,31 +254,26 @@ const Salesman = () => {
     params.sort_direction,
     debouncedSearch,
     debouncedName,
-    debouncedCM,
+    debouncedCM
   ]);
 
   return (
     <>
-      <div className="flex justify-between items-center flex-wrap">
+      <div className="flex flex-wrap items-center justify-between">
         <PageHeading>SALESMAN</PageHeading>
-        <Breadcrumb
-          items={[{ title: "Salesman" }, { title: "List" }]}
-          separator=">"
-        />
+        <Breadcrumb items={[{ title: 'Salesman' }, { title: 'List' }]} separator=">" />
       </div>
 
-      <div className="mt-4 bg-white p-2 rounded-md">
-        <div className="flex justify-between items-center gap-2">
+      <div className="mt-4 rounded-md bg-white p-2">
+        <div className="flex items-center justify-between gap-2">
           <Input
             placeholder="Search..."
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) =>
-              dispatch(setSalesmanListParams({ search: e.target.value }))
-            }
+            onChange={(e) => dispatch(setSalesmanListParams({ search: e.target.value }))}
           />
 
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             <Button
               type="primary"
               danger
@@ -320,13 +295,12 @@ const Salesman = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: "checkbox",
+                  type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) =>
-                    dispatch(setSalesmanDeleteIDs(selectedRowKeys)),
+                  onChange: (selectedRowKeys) => dispatch(setSalesmanDeleteIDs(selectedRowKeys)),
                   getCheckboxProps: (record) => ({
-                    disabled: record.salesman_id === "new",
-                  }),
+                    disabled: record.salesman_id === 'new'
+                  })
                 }
               : null
           }
@@ -336,25 +310,25 @@ const Salesman = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order,
+                sort_direction: sorting.order
               })
             );
           }}
           loading={isListLoading}
           rowKey="salesman_id"
           className="mt-2"
-          scroll={{ x: "calc(100% - 200px)" }}
+          scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} salesman`,
+            showTotal: (total) => `Total ${total} salesman`
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56,
+            offsetHeader: 56
           }}
         />
       </div>

@@ -1,12 +1,12 @@
-import { Card, Checkbox, Col, Collapse, Row } from "antd";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { Card, Checkbox, Col, Collapse, Row } from 'antd';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   changeAllCompanyTemplates,
   changeTemplateItem,
-  getCompanyTemplatesHandler,
-} from "../../store/features/userSlice.js";
-import useError from "../../hooks/useError.jsx";
+  getCompanyTemplatesHandler
+} from '../../store/features/userSlice.js';
+import useError from '../../hooks/useError.jsx';
 
 const UserCompanyTemplates = () => {
   const dispatch = useDispatch();
@@ -18,9 +18,7 @@ const UserCompanyTemplates = () => {
   }, []);
 
   const isCheckAll = (companyID) => {
-    const totalCompaniesLength = templates.find(
-      (t) => t.company_id === companyID
-    ).branches.length;
+    const totalCompaniesLength = templates.find((t) => t.company_id === companyID).branches.length;
     const selectedCompaniesLength = selectedTemplates.filter(
       (t) => t.company_id === companyID
     ).length;
@@ -30,8 +28,8 @@ const UserCompanyTemplates = () => {
 
   const items = [
     {
-      key: "1",
-      label: "Company and Branches",
+      key: '1',
+      label: 'Company and Branches',
       children: (
         <Row gutter={[16, 16]}>
           {templates.map((company) => (
@@ -45,7 +43,7 @@ const UserCompanyTemplates = () => {
                       dispatch(
                         changeAllCompanyTemplates({
                           value: e.target.checked,
-                          companyID: company.company_id,
+                          companyID: company.company_id
                         })
                       )
                     }
@@ -67,7 +65,7 @@ const UserCompanyTemplates = () => {
                             changeTemplateItem({
                               value: e.target.checked,
                               companyID: company.company_id,
-                              templateID: template.branch_id,
+                              templateID: template.branch_id
                             })
                           )
                         }
@@ -81,8 +79,8 @@ const UserCompanyTemplates = () => {
             </Col>
           ))}
         </Row>
-      ),
-    },
+      )
+    }
   ];
 
   return <Collapse items={items} />;

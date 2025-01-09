@@ -1,45 +1,31 @@
-import {
-  Breadcrumb,
-  Button,
-  Input,
-  Popconfirm,
-  Select,
-  Table,
-  Tag,
-  Tooltip,
-} from "antd";
-import dayjs from "dayjs";
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { GoTrash } from "react-icons/go";
-import { MdOutlineEdit } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import AsyncSelect from "../../components/AsyncSelect";
-import PageHeading from "../../components/heading/PageHeading";
-import DeleteConfirmModal from "../../components/Modals/DeleteConfirmModal";
-import CountrySelect from "../../components/Select/CountrySelect";
-import useDebounce from "../../hooks/useDebounce";
-import useError from "../../hooks/useError";
+import { Breadcrumb, Button, Input, Popconfirm, Select, Table, Tag, Tooltip } from 'antd';
+import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { GoTrash } from 'react-icons/go';
+import { MdOutlineEdit } from 'react-icons/md';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import AsyncSelect from '../../components/AsyncSelect';
+import PageHeading from '../../components/heading/PageHeading';
+import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
+import CountrySelect from '../../components/Select/CountrySelect';
+import useDebounce from '../../hooks/useDebounce';
+import useError from '../../hooks/useError';
 import {
   bulkDeleteCustomer,
   deleteCustomer,
   getCustomerList,
   setCustomerDeleteIDs,
-  setCustomerListParams,
-} from "../../store/features/customerSlice";
+  setCustomerListParams
+} from '../../store/features/customerSlice';
 
 const Customer = () => {
   const dispatch = useDispatch();
   const handleError = useError();
-  const {
-    list,
-    isListLoading,
-    params,
-    paginationInfo,
-    isBulkDeleting,
-    deleteIDs,
-  } = useSelector((state) => state.customer);
+  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
+    (state) => state.customer
+  );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.customer;
 
@@ -58,7 +44,7 @@ const Customer = () => {
   const onCustomerDelete = async (id) => {
     try {
       await dispatch(deleteCustomer(id)).unwrap();
-      toast.success("Customer deleted successfully");
+      toast.success('Customer deleted successfully');
       dispatch(getCustomerList(params)).unwrap();
     } catch (error) {
       handleError(error);
@@ -68,7 +54,7 @@ const Customer = () => {
   const onBulkDelete = async () => {
     try {
       await dispatch(bulkDeleteCustomer(deleteIDs)).unwrap();
-      toast.success("Companies deleted successfully");
+      toast.success('Companies deleted successfully');
       closeDeleteModal();
       await dispatch(getCustomerList(params)).unwrap();
     } catch (error) {
@@ -86,17 +72,15 @@ const Customer = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.customer_code}
-            onChange={(e) =>
-              dispatch(setCustomerListParams({ customer_code: e.target.value }))
-            }
+            onChange={(e) => dispatch(setCustomerListParams({ customer_code: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "customer_code",
-      key: "customer_code",
+      dataIndex: 'customer_code',
+      key: 'customer_code',
       sorter: true,
       width: 120,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -107,17 +91,15 @@ const Customer = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.name}
-            onChange={(e) =>
-              dispatch(setCustomerListParams({ name: e.target.value }))
-            }
+            onChange={(e) => dispatch(setCustomerListParams({ name: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "name",
-      key: "name",
+      dataIndex: 'name',
+      key: 'name',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -130,23 +112,21 @@ const Customer = () => {
             options={[
               {
                 value: 1,
-                label: "Active",
+                label: 'Active'
               },
               {
                 value: 0,
-                label: "Inactive",
-              },
+                label: 'Inactive'
+              }
             ]}
             allowClear
             value={params.status}
-            onChange={(value) =>
-              dispatch(setCustomerListParams({ status: value }))
-            }
+            onChange={(value) => dispatch(setCustomerListParams({ status: value }))}
           />
         </div>
       ),
-      dataIndex: "status",
-      key: "status",
+      dataIndex: 'status',
+      key: 'status',
       sorter: true,
       render: (status) =>
         status === 1 ? (
@@ -158,7 +138,7 @@ const Customer = () => {
             Inactive
           </Tag>
         ),
-      width: 120,
+      width: 120
     },
     {
       title: (
@@ -171,17 +151,15 @@ const Customer = () => {
             size="small"
             className="w-full font-normal"
             value={params.salesman_id}
-            onChange={(value) =>
-              dispatch(setCustomerListParams({ salesman_id: value }))
-            }
+            onChange={(value) => dispatch(setCustomerListParams({ salesman_id: value }))}
           />
         </div>
       ),
-      dataIndex: "salesman_name",
-      key: "salesman_name",
+      dataIndex: 'salesman_name',
+      key: 'salesman_name',
       sorter: true,
       width: 150,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -195,17 +173,14 @@ const Customer = () => {
             mode="multiple"
             className="w-full font-normal"
             value={params.vessel_id}
-            onChange={(value) =>
-              dispatch(setCustomerListParams({ vessel_id: value }))
-            }
+            onChange={(value) => dispatch(setCustomerListParams({ vessel_id: value }))}
           />
         </div>
       ),
-      dataIndex: "vessel",
-      key: "vessel",
+      dataIndex: 'vessel',
+      key: 'vessel',
       width: 220,
-      render: (_, { vessel }) =>
-        vessel ? vessel.map((v) => v.name).join(", ") : null,
+      render: (_, { vessel }) => (vessel ? vessel.map((v) => v.name).join(', ') : null)
     },
     {
       title: (
@@ -213,20 +188,18 @@ const Customer = () => {
           <p>Country</p>
           <CountrySelect
             size="small"
-            className="font-normal w-full"
+            className="w-full font-normal"
             allowClear
             value={params.country}
-            onChange={(value) =>
-              dispatch(setCustomerListParams({ country: value }))
-            }
+            onChange={(value) => dispatch(setCustomerListParams({ country: value }))}
           />
         </div>
       ),
-      dataIndex: "country",
-      key: "country",
+      dataIndex: 'country',
+      key: 'country',
       sorter: true,
       width: 220,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -237,17 +210,15 @@ const Customer = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.address}
-            onChange={(e) =>
-              dispatch(setCustomerListParams({ address: e.target.value }))
-            }
+            onChange={(e) => dispatch(setCustomerListParams({ address: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "address",
-      key: "address",
+      dataIndex: 'address',
+      key: 'address',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -258,17 +229,15 @@ const Customer = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.phone_no}
-            onChange={(e) =>
-              dispatch(setCustomerListParams({ phone_no: e.target.value }))
-            }
+            onChange={(e) => dispatch(setCustomerListParams({ phone_no: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "phone_no",
-      key: "phone_no",
+      dataIndex: 'phone_no',
+      key: 'phone_no',
       sorter: true,
       width: 150,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -279,17 +248,15 @@ const Customer = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.email_sales}
-            onChange={(e) =>
-              dispatch(setCustomerListParams({ email_sales: e.target.value }))
-            }
+            onChange={(e) => dispatch(setCustomerListParams({ email_sales: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "email_sales",
-      key: "email_sales",
+      dataIndex: 'email_sales',
+      key: 'email_sales',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -300,19 +267,15 @@ const Customer = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.email_accounting}
-            onChange={(e) =>
-              dispatch(
-                setCustomerListParams({ email_accounting: e.target.value })
-              )
-            }
+            onChange={(e) => dispatch(setCustomerListParams({ email_accounting: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "email_accounting",
-      key: "email_accounting",
+      dataIndex: 'email_accounting',
+      key: 'email_accounting',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: (
@@ -323,34 +286,29 @@ const Customer = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.billing_address}
-            onChange={(e) =>
-              dispatch(
-                setCustomerListParams({ billing_address: e.target.value })
-              )
-            }
+            onChange={(e) => dispatch(setCustomerListParams({ billing_address: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: "billing_address",
-      key: "billing_address",
+      dataIndex: 'billing_address',
+      key: 'billing_address',
       sorter: true,
       width: 200,
-      ellipsis: true,
+      ellipsis: true
     },
     {
-      title: "Created At",
-      dataIndex: "created_at",
-      key: "created_at",
+      title: 'Created At',
+      dataIndex: 'created_at',
+      key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) =>
-        dayjs(created_at).format("DD-MM-YYYY hh:mm A"),
+      render: (_, { created_at }) => dayjs(created_at).format('DD-MM-YYYY hh:mm A')
     },
     {
-      title: "Action",
-      key: "action",
+      title: 'Action',
+      key: 'action',
       render: (_, { customer_id }) => (
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           {permissions.edit ? (
             <Tooltip title="Edit">
               <Link to={`/customer/edit/${customer_id}`}>
@@ -373,20 +331,15 @@ const Customer = () => {
                 cancelText="No"
                 onConfirm={() => onCustomerDelete(customer_id)}
               >
-                <Button
-                  size="small"
-                  type="primary"
-                  danger
-                  icon={<GoTrash size={14} />}
-                />
+                <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
               </Popconfirm>
             </Tooltip>
           ) : null}
         </div>
       ),
       width: 70,
-      fixed: "right",
-    },
+      fixed: 'right'
+    }
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -412,31 +365,26 @@ const Customer = () => {
     debouncedPhone,
     debouncedEmailSales,
     debouncedEmailAccounting,
-    debouncedBillingAddress,
+    debouncedBillingAddress
   ]);
 
   return (
     <>
-      <div className="flex justify-between items-center flex-wrap">
+      <div className="flex flex-wrap items-center justify-between">
         <PageHeading>CUSTOMER</PageHeading>
-        <Breadcrumb
-          items={[{ title: "Customer" }, { title: "List" }]}
-          separator=">"
-        />
+        <Breadcrumb items={[{ title: 'Customer' }, { title: 'List' }]} separator=">" />
       </div>
 
-      <div className="mt-4 bg-white p-2 rounded-md">
-        <div className="flex justify-between items-center gap-2">
+      <div className="mt-4 rounded-md bg-white p-2">
+        <div className="flex items-center justify-between gap-2">
           <Input
             placeholder="Search..."
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) =>
-              dispatch(setCustomerListParams({ search: e.target.value }))
-            }
+            onChange={(e) => dispatch(setCustomerListParams({ search: e.target.value }))}
           />
 
-          <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
             {permissions.delete ? (
               <Button
                 type="primary"
@@ -460,22 +408,21 @@ const Customer = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: "checkbox",
+                  type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) =>
-                    dispatch(setCustomerDeleteIDs(selectedRowKeys)),
+                  onChange: (selectedRowKeys) => dispatch(setCustomerDeleteIDs(selectedRowKeys))
                 }
               : null
           }
           loading={isListLoading}
           className="mt-2"
           rowKey="customer_id"
-          scroll={{ x: "calc(100% - 200px)" }}
+          scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} customers`,
+            showTotal: (total) => `Total ${total} customers`
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -483,7 +430,7 @@ const Customer = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order,
+                sort_direction: sorting.order
               })
             );
           }}
@@ -491,7 +438,7 @@ const Customer = () => {
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56,
+            offsetHeader: 56
           }}
         />
       </div>

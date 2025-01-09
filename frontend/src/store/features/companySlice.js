@@ -1,12 +1,12 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../../axiosInstance";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import api from '../../axiosInstance';
 
 export const getCompanyList = createAsyncThunk(
-  "company/list",
+  'company/list',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get("/company", {
-        params,
+      const res = await api.get('/company', {
+        params
       });
       return res.data;
     } catch (err) {
@@ -15,42 +15,36 @@ export const getCompanyList = createAsyncThunk(
   }
 );
 
-export const deleteCompany = createAsyncThunk(
-  "company/delete",
-  async (id, { rejectWithValue }) => {
-    try {
-      await api.delete(`/company/${id}`);
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const deleteCompany = createAsyncThunk('company/delete', async (id, { rejectWithValue }) => {
+  try {
+    await api.delete(`/company/${id}`);
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
 export const createCompany = createAsyncThunk(
-  "company/create",
+  'company/create',
   async (data, { rejectWithValue }) => {
     try {
-      await api.post("/company", data);
+      await api.post('/company', data);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const getCompany = createAsyncThunk(
-  "company/get",
-  async (id, { rejectWithValue }) => {
-    try {
-      const res = await api.get(`/company/${id}`);
-      return res.data.data;
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const getCompany = createAsyncThunk('company/get', async (id, { rejectWithValue }) => {
+  try {
+    const res = await api.get(`/company/${id}`);
+    return res.data.data;
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
 export const updateCompany = createAsyncThunk(
-  "company/update",
+  'company/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
       await api.put(`/company/${id}`, data);
@@ -61,11 +55,11 @@ export const updateCompany = createAsyncThunk(
 );
 
 export const bulkDeleteCompany = createAsyncThunk(
-  "company/bulkDelete",
+  'company/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post("/company/bulk-delete", {
-        company_ids: ids,
+      await api.post('/company/bulk-delete', {
+        company_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -84,33 +78,33 @@ const initialState = {
   params: {
     page: 1,
     limit: 50,
-    search: "",
+    search: '',
     sort_column: null,
     sort_direction: null,
     name: null,
     description: null,
-    catering_type: null,
+    catering_type: null
   },
   paginationInfo: {
     total_records: 0,
-    total_pages: 0,
-  },
+    total_pages: 0
+  }
 };
 
 export const companySlice = createSlice({
-  name: "company",
+  name: 'company',
   initialState,
   reducers: {
     setCompanyListParams: (state, action) => {
       state.params = {
         ...state.params,
-        ...action.payload,
+        ...action.payload
       };
     },
 
     setCompanyDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
-    },
+    }
   },
   extraReducers: ({ addCase }) => {
     addCase(getCompanyList.pending, (state) => {
@@ -123,7 +117,7 @@ export const companySlice = createSlice({
       state.list = data;
       state.paginationInfo = {
         total_records: rest.total,
-        total_pages: rest.last_page,
+        total_pages: rest.last_page
       };
     });
     addCase(getCompanyList.rejected, (state) => {
@@ -153,11 +147,11 @@ export const companySlice = createSlice({
         currency_id: data.base_currency_id
           ? {
               value: data.base_currency_id,
-              label: data.currency_name,
+              label: data.currency_name
             }
           : null,
         image: data.image,
-        image_url: data.image_url,
+        image_url: data.image_url
       };
     });
     addCase(getCompany.rejected, (state) => {
@@ -186,9 +180,8 @@ export const companySlice = createSlice({
     addCase(bulkDeleteCompany.rejected, (state) => {
       state.isBulkDeleting = false;
     });
-  },
+  }
 });
 
-export const { setCompanyListParams, setCompanyDeleteIDs } =
-  companySlice.actions;
+export const { setCompanyListParams, setCompanyDeleteIDs } = companySlice.actions;
 export default companySlice.reducer;

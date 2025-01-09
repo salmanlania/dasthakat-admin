@@ -1,15 +1,15 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../../axiosInstance";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import api from '../../axiosInstance';
 
 export const getVendorList = createAsyncThunk(
-  "supplier/list",
+  'supplier/list',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get("/supplier", {
+      const res = await api.get('/supplier', {
         params: {
           ...params,
-          all: 1,
-        },
+          all: 1
+        }
       });
       return res.data;
     } catch (err) {
@@ -18,42 +18,36 @@ export const getVendorList = createAsyncThunk(
   }
 );
 
-export const deleteVendor = createAsyncThunk(
-  "supplier/delete",
-  async (id, { rejectWithValue }) => {
-    try {
-      await api.delete(`/supplier/${id}`);
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const deleteVendor = createAsyncThunk('supplier/delete', async (id, { rejectWithValue }) => {
+  try {
+    await api.delete(`/supplier/${id}`);
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
 export const createVendor = createAsyncThunk(
-  "supplier/create",
+  'supplier/create',
   async (data, { rejectWithValue }) => {
     try {
-      await api.post("/supplier", data);
+      await api.post('/supplier', data);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const getVendor = createAsyncThunk(
-  "supplier/get",
-  async (id, { rejectWithValue }) => {
-    try {
-      const res = await api.get(`/supplier/${id}`);
-      return res.data.data;
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const getVendor = createAsyncThunk('supplier/get', async (id, { rejectWithValue }) => {
+  try {
+    const res = await api.get(`/supplier/${id}`);
+    return res.data.data;
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
 export const updateVendor = createAsyncThunk(
-  "supplier/update",
+  'supplier/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
       await api.put(`/supplier/${id}`, data);
@@ -64,11 +58,11 @@ export const updateVendor = createAsyncThunk(
 );
 
 export const bulkDeleteVendor = createAsyncThunk(
-  "supplier/bulkDelete",
+  'supplier/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post("/supplier/bulk-delete", {
-        supplier_ids: ids,
+      await api.post('/supplier/bulk-delete', {
+        supplier_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -87,33 +81,33 @@ const initialState = {
   params: {
     page: 1,
     limit: 50,
-    search: "",
+    search: '',
     sort_column: null,
     sort_direction: null,
     name: null,
     description: null,
-    catering_type: null,
+    catering_type: null
   },
   paginationInfo: {
     total_records: 0,
-    total_pages: 0,
-  },
+    total_pages: 0
+  }
 };
 
 export const vendorSlice = createSlice({
-  name: "vendor",
+  name: 'vendor',
   initialState,
   reducers: {
     setVendorListParams: (state, action) => {
       state.params = {
         ...state.params,
-        ...action.payload,
+        ...action.payload
       };
     },
 
     setVendorDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
-    },
+    }
   },
   extraReducers: ({ addCase }) => {
     addCase(getVendorList.pending, (state) => {
@@ -126,7 +120,7 @@ export const vendorSlice = createSlice({
       state.list = data;
       state.paginationInfo = {
         total_records: rest.total,
-        total_pages: rest.last_page,
+        total_pages: rest.last_page
       };
     });
     addCase(getVendorList.rejected, (state) => {
@@ -159,7 +153,7 @@ export const vendorSlice = createSlice({
         contact2: data.contact2,
         email: data.email,
         address: data.address,
-        status: data.status,
+        status: data.status
       };
     });
     addCase(getVendor.rejected, (state) => {
@@ -188,7 +182,7 @@ export const vendorSlice = createSlice({
     addCase(bulkDeleteVendor.rejected, (state) => {
       state.isBulkDeleting = false;
     });
-  },
+  }
 });
 
 export const { setVendorListParams, setVendorDeleteIDs } = vendorSlice.actions;

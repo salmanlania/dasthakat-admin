@@ -1,15 +1,15 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../../axiosInstance";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import api from '../../axiosInstance';
 
 export const getCustomerList = createAsyncThunk(
-  "customer/list",
+  'customer/list',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get("/customer", {
+      const res = await api.get('/customer', {
         params: {
           ...params,
-          all: 1,
-        },
+          all: 1
+        }
       });
       return res.data;
     } catch (err) {
@@ -19,7 +19,7 @@ export const getCustomerList = createAsyncThunk(
 );
 
 export const deleteCustomer = createAsyncThunk(
-  "customer/delete",
+  'customer/delete',
   async (id, { rejectWithValue }) => {
     try {
       await api.delete(`/customer/${id}`);
@@ -30,30 +30,27 @@ export const deleteCustomer = createAsyncThunk(
 );
 
 export const createCustomer = createAsyncThunk(
-  "customer/create",
+  'customer/create',
   async (data, { rejectWithValue }) => {
     try {
-      await api.post("/customer", data);
+      await api.post('/customer', data);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const getCustomer = createAsyncThunk(
-  "customer/get",
-  async (id, { rejectWithValue }) => {
-    try {
-      const res = await api.get(`/customer/${id}`);
-      return res.data.data;
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const getCustomer = createAsyncThunk('customer/get', async (id, { rejectWithValue }) => {
+  try {
+    const res = await api.get(`/customer/${id}`);
+    return res.data.data;
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
 export const updateCustomer = createAsyncThunk(
-  "customer/update",
+  'customer/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
       await api.put(`/customer/${id}`, data);
@@ -64,11 +61,11 @@ export const updateCustomer = createAsyncThunk(
 );
 
 export const bulkDeleteCustomer = createAsyncThunk(
-  "customer/bulkDelete",
+  'customer/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post("/customer/bulk-delete", {
-        customer_ids: ids,
+      await api.post('/customer/bulk-delete', {
+        customer_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -87,33 +84,33 @@ const initialState = {
   params: {
     page: 1,
     limit: 50,
-    search: "",
+    search: '',
     sort_column: null,
     sort_direction: null,
     name: null,
     description: null,
-    catering_type: null,
+    catering_type: null
   },
   paginationInfo: {
     total_records: 0,
-    total_pages: 0,
-  },
+    total_pages: 0
+  }
 };
 
 export const customerSlice = createSlice({
-  name: "customer",
+  name: 'customer',
   initialState,
   reducers: {
     setCustomerListParams: (state, action) => {
       state.params = {
         ...state.params,
-        ...action.payload,
+        ...action.payload
       };
     },
 
     setCustomerDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
-    },
+    }
   },
   extraReducers: ({ addCase }) => {
     addCase(getCustomerList.pending, (state) => {
@@ -126,7 +123,7 @@ export const customerSlice = createSlice({
       state.list = data;
       state.paginationInfo = {
         total_records: rest.total,
-        total_pages: rest.last_page,
+        total_pages: rest.last_page
       };
     });
     addCase(getCustomerList.rejected, (state) => {
@@ -156,13 +153,13 @@ export const customerSlice = createSlice({
         salesman_id: data.salesman_id
           ? {
               value: data.salesman_id,
-              label: data.salesman_name,
+              label: data.salesman_name
             }
           : null,
         payment_id: data.payment_id
           ? {
               value: data.payment_id,
-              label: data.name,
+              label: data.name
             }
           : null,
         vessel_id: data.vessel
@@ -175,7 +172,7 @@ export const customerSlice = createSlice({
         email_sales: data.email_sales,
         email_accounting: data.email_accounting,
         rebate_percent: data.rebate_percent,
-        status: data.status,
+        status: data.status
       };
     });
     addCase(getCustomer.rejected, (state) => {
@@ -204,9 +201,8 @@ export const customerSlice = createSlice({
     addCase(bulkDeleteCustomer.rejected, (state) => {
       state.isBulkDeleting = false;
     });
-  },
+  }
 });
 
-export const { setCustomerListParams, setCustomerDeleteIDs } =
-  customerSlice.actions;
+export const { setCustomerListParams, setCustomerDeleteIDs } = customerSlice.actions;
 export default customerSlice.reducer;

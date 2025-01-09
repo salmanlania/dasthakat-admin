@@ -1,21 +1,17 @@
-import { Button, Col, Form, Image, Input, Row } from "antd";
-import { useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import companyImagePlaceholder from "../../assets/img-placeholder.png";
-import AsyncSelect from "../AsyncSelect";
-import ReactInputMask from "react-input-mask";
-import AsyncSelectNoPaginate from "../AsyncSelect/AsyncSelectNoPaginate";
-import { CgAdd } from "react-icons/cg";
+import { Button, Col, Form, Image, Input, Row } from 'antd';
+import { useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import companyImagePlaceholder from '../../assets/img-placeholder.png';
+import AsyncSelect from '../AsyncSelect';
+import ReactInputMask from 'react-input-mask';
+import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate';
+import { CgAdd } from 'react-icons/cg';
 
 const CompanyBranchForm = ({ mode, onSubmit }) => {
-  const { isFormSubmitting, initialFormValues } = useSelector(
-    (state) => state.companyBranch
-  );
+  const { isFormSubmitting, initialFormValues } = useSelector((state) => state.companyBranch);
   const fileInputRef = useRef(null);
-  const [imageSrc, setImageSrc] = useState(
-    initialFormValues?.image_url || null
-  );
+  const [imageSrc, setImageSrc] = useState(initialFormValues?.image_url || null);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -32,11 +28,11 @@ const CompanyBranchForm = ({ mode, onSubmit }) => {
     const data = {
       ...formValues,
       company: formValues.company.value,
-      image: initialFormValues?.image_url === imageSrc ? null : imageSrc,
+      image: initialFormValues?.image_url === imageSrc ? null : imageSrc
     };
 
     if (
-      mode === "edit" &&
+      mode === 'edit' &&
       initialFormValues?.image_url &&
       initialFormValues?.image_url !== imageSrc
     ) {
@@ -63,8 +59,8 @@ const CompanyBranchForm = ({ mode, onSubmit }) => {
               rules={[
                 {
                   required: true,
-                  message: "Company is required!",
-                },
+                  message: 'Company is required!'
+                }
               ]}
             >
               <AsyncSelectNoPaginate endpoint="/lookups/company" labelInValue />
@@ -83,8 +79,8 @@ const CompanyBranchForm = ({ mode, onSubmit }) => {
                 {
                   required: true,
                   whitespace: true,
-                  message: "Branch name is required!",
-                },
+                  message: 'Branch name is required!'
+                }
               ]}
             >
               <Input />
@@ -116,7 +112,7 @@ const CompanyBranchForm = ({ mode, onSubmit }) => {
             type="file"
             accept="image/*"
             onChange={handleImageChange}
-            style={{ display: "none" }}
+            style={{ display: 'none' }}
             ref={fileInputRef}
           />
 
@@ -136,16 +132,11 @@ const CompanyBranchForm = ({ mode, onSubmit }) => {
         </div>
       </div>
 
-      <div className="mt-4 flex gap-2 justify-end items-center">
+      <div className="mt-4 flex items-center justify-end gap-2">
         <Link to="/company-branch">
           <Button className="w-28">Cancel</Button>
         </Link>
-        <Button
-          type="primary"
-          htmlType="submit"
-          className="w-28"
-          loading={isFormSubmitting}
-        >
+        <Button type="primary" htmlType="submit" className="w-28" loading={isFormSubmitting}>
           Save
         </Button>
       </div>

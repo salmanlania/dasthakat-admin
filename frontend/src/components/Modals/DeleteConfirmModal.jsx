@@ -1,14 +1,14 @@
 /* eslint-disable react/prop-types */
-import { Button, Modal } from "antd";
-import { TbAlertOctagonFilled } from "react-icons/tb";
+import { Button, Modal } from 'antd';
+import { TbAlertOctagonFilled } from 'react-icons/tb';
 
 const DeleteConfirmModal = ({
   open,
   onCancel,
-  title = "Are you sure you want to delete?",
-  description = "After deleting, you will not be able to recover it.",
+  title = 'Are you sure you want to delete?',
+  description = 'After deleting, you will not be able to recover it.',
   onDelete,
-  isDeleting = false,
+  isDeleting = false
 }) => {
   return (
     <Modal open={open} onCancel={onCancel} footer={null} closable={false}>

@@ -1,27 +1,25 @@
-import { Breadcrumb, Spin } from "antd";
-import { useEffect } from "react";
-import toast from "react-hot-toast";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
-import EventForm from "../../components/Form/EventForm";
-import PageHeading from "../../components/heading/PageHeading";
-import useError from "../../hooks/useError";
-import { getEvent, updateEvent } from "../../store/features/eventSlice";
+import { Breadcrumb, Spin } from 'antd';
+import { useEffect } from 'react';
+import toast from 'react-hot-toast';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, useParams } from 'react-router-dom';
+import EventForm from '../../components/Form/EventForm';
+import PageHeading from '../../components/heading/PageHeading';
+import useError from '../../hooks/useError';
+import { getEvent, updateEvent } from '../../store/features/eventSlice';
 
 const EditEvent = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();
   const { id } = useParams();
-  const { isItemLoading, initialFormValues } = useSelector(
-    (state) => state.event
-  );
+  const { isItemLoading, initialFormValues } = useSelector((state) => state.event);
 
   const onEventUpdate = async (data) => {
     try {
       await dispatch(updateEvent({ id, data })).unwrap();
-      toast.success("Event updated successfully");
-      navigate("/event");
+      toast.success('Event updated successfully');
+      navigate('/event');
     } catch (error) {
       handleError(error);
     }
@@ -33,22 +31,19 @@ const EditEvent = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center flex-wrap">
+      <div className="flex flex-wrap items-center justify-between">
         <PageHeading>EDIT EVENT</PageHeading>
-        <Breadcrumb
-          items={[{ title: "Event" }, { title: "Edit" }]}
-          separator=">"
-        />
+        <Breadcrumb items={[{ title: 'Event' }, { title: 'Edit' }]} separator=">" />
       </div>
 
       {isItemLoading && (
-        <div className="mt-4 flex min-h-96 items-center justify-center bg-white  rounded-md">
+        <div className="mt-4 flex min-h-96 items-center justify-center rounded-md bg-white">
           <Spin size="large" />
         </div>
       )}
 
       {!isItemLoading && initialFormValues ? (
-        <div className="mt-4 bg-white sm:p-4 p-2 rounded-md">
+        <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
           <EventForm mode="edit" onSubmit={onEventUpdate} />
         </div>
       ) : null}

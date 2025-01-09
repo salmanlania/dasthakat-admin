@@ -1,60 +1,48 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../../axiosInstance";
-import dayjs from "dayjs";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import api from '../../axiosInstance';
+import dayjs from 'dayjs';
 
-export const getUserList = createAsyncThunk(
-  "user/list",
-  async (params, { rejectWithValue }) => {
-    try {
-      const res = await api.get("/user", {
-        params: {
-          ...params,
-          all: 1,
-        },
-      });
-      return res.data;
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const getUserList = createAsyncThunk('user/list', async (params, { rejectWithValue }) => {
+  try {
+    const res = await api.get('/user', {
+      params: {
+        ...params,
+        all: 1
+      }
+    });
+    return res.data;
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
-export const deleteUser = createAsyncThunk(
-  "user/delete",
-  async (id, { rejectWithValue }) => {
-    try {
-      await api.delete(`/user/${id}`);
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const deleteUser = createAsyncThunk('user/delete', async (id, { rejectWithValue }) => {
+  try {
+    await api.delete(`/user/${id}`);
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
-export const createUser = createAsyncThunk(
-  "user/create",
-  async (data, { rejectWithValue }) => {
-    try {
-      await api.post("/user", data);
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const createUser = createAsyncThunk('user/create', async (data, { rejectWithValue }) => {
+  try {
+    await api.post('/user', data);
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
-export const getUser = createAsyncThunk(
-  "user/get",
-  async (id, { rejectWithValue }) => {
-    try {
-      const res = await api.get(`/user/${id}`);
-      return res.data.data;
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const getUser = createAsyncThunk('user/get', async (id, { rejectWithValue }) => {
+  try {
+    const res = await api.get(`/user/${id}`);
+    return res.data.data;
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
 export const updateUser = createAsyncThunk(
-  "user/update",
+  'user/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
       await api.put(`/user/${id}`, data);
@@ -65,11 +53,11 @@ export const updateUser = createAsyncThunk(
 );
 
 export const bulkDeleteUser = createAsyncThunk(
-  "user/bulkDelete",
+  'user/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post("/user/bulk-delete", {
-        user_ids: ids,
+      await api.post('/user/bulk-delete', {
+        user_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -78,11 +66,11 @@ export const bulkDeleteUser = createAsyncThunk(
 );
 
 export const getCompanyTemplatesHandler = createAsyncThunk(
-  "user/companyTemplates",
+  'user/companyTemplates',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get("/lookups/company-and-branches", {
-        params,
+      const res = await api.get('/lookups/company-and-branches', {
+        params
       });
       return res.data;
     } catch (err) {
@@ -104,27 +92,27 @@ const initialState = {
   params: {
     page: 1,
     limit: 50,
-    search: "",
+    search: '',
     sort_column: null,
     sort_direction: null,
     name: null,
     description: null,
-    catering_type: null,
+    catering_type: null
   },
   paginationInfo: {
     total_records: 0,
-    total_pages: 0,
-  },
+    total_pages: 0
+  }
 };
 
 export const userSlice = createSlice({
-  name: "user",
+  name: 'user',
   initialState,
   reducers: {
     setUserListParams: (state, action) => {
       state.params = {
         ...state.params,
-        ...action.payload,
+        ...action.payload
       };
     },
 
@@ -138,12 +126,11 @@ export const userSlice = createSlice({
       if (value) {
         state.selectedTemplates.push({
           company_id: companyID,
-          branch_id: templateID,
+          branch_id: templateID
         });
       } else {
         state.selectedTemplates = state.selectedTemplates.filter(
-          (item) =>
-            !(item.company_id === companyID && item.branch_id === templateID)
+          (item) => !(item.company_id === companyID && item.branch_id === templateID)
         );
       }
     },
@@ -155,24 +142,19 @@ export const userSlice = createSlice({
       );
 
       if (value) {
-        const findCompany = state.templates.find(
-          (company) => company.company_id === companyID
-        );
+        const findCompany = state.templates.find((company) => company.company_id === companyID);
         const makeNewTemplates = findCompany.branches.map((template) => ({
           company_id: companyID,
-          branch_id: template.branch_id,
+          branch_id: template.branch_id
         }));
 
-        state.selectedTemplates = [
-          ...state.selectedTemplates,
-          ...makeNewTemplates,
-        ];
+        state.selectedTemplates = [...state.selectedTemplates, ...makeNewTemplates];
       }
     },
 
     emptySelectedTemplates: (state) => {
       state.selectedTemplates = [];
-    },
+    }
   },
   extraReducers: ({ addCase }) => {
     addCase(getUserList.pending, (state) => {
@@ -186,7 +168,7 @@ export const userSlice = createSlice({
       state.list = data;
       state.paginationInfo = {
         total_records: rest.total,
-        total_pages: rest.last_page,
+        total_pages: rest.last_page
       };
     });
     addCase(getUserList.rejected, (state) => {
@@ -216,13 +198,13 @@ export const userSlice = createSlice({
         email: data.email,
         permission_id: {
           value: data.permission.user_permission_id,
-          label: data.permission.name,
+          label: data.permission.name
         },
         status: data.status,
-        from_time: data.from_time ? dayjs(data.from_time, "HH:mm:ss") : null,
-        to_time: data.to_time ? dayjs(data.to_time, "HH:mm:ss") : null,
+        from_time: data.from_time ? dayjs(data.from_time, 'HH:mm:ss') : null,
+        to_time: data.to_time ? dayjs(data.to_time, 'HH:mm:ss') : null,
         image: data.image,
-        image_url: data.image_url,
+        image_url: data.image_url
       };
 
       state.selectedTemplates = data.company_access;
@@ -258,7 +240,7 @@ export const userSlice = createSlice({
     addCase(getCompanyTemplatesHandler.fulfilled, (state, action) => {
       state.templates = action.payload;
     });
-  },
+  }
 });
 
 export const {
@@ -266,6 +248,6 @@ export const {
   setUserDeleteIDs,
   changeTemplateItem,
   changeAllCompanyTemplates,
-  emptySelectedTemplates,
+  emptySelectedTemplates
 } = userSlice.actions;
 export default userSlice.reducer;

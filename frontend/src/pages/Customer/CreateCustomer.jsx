@@ -1,11 +1,11 @@
-import { Breadcrumb } from "antd";
-import toast from "react-hot-toast";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import CustomerForm from "../../components/Form/CustomerForm";
-import PageHeading from "../../components/heading/PageHeading";
-import useError from "../../hooks/useError";
-import { createCustomer } from "../../store/features/customerSlice";
+import { Breadcrumb } from 'antd';
+import toast from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import CustomerForm from '../../components/Form/CustomerForm';
+import PageHeading from '../../components/heading/PageHeading';
+import useError from '../../hooks/useError';
+import { createCustomer } from '../../store/features/customerSlice';
 
 const CreateCustomer = () => {
   const navigate = useNavigate();
@@ -15,8 +15,8 @@ const CreateCustomer = () => {
   const onCustomerCreate = async (data) => {
     try {
       await dispatch(createCustomer(data)).unwrap();
-      toast.success("Customer created successfully");
-      navigate("/customer");
+      toast.success('Customer created successfully');
+      navigate('/customer');
     } catch (error) {
       handleError(error);
     }
@@ -24,15 +24,12 @@ const CreateCustomer = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center flex-wrap">
+      <div className="flex flex-wrap items-center justify-between">
         <PageHeading>CREATE CUSTOMER</PageHeading>
-        <Breadcrumb
-          items={[{ title: "Customer" }, { title: "Create" }]}
-          separator=">"
-        />
+        <Breadcrumb items={[{ title: 'Customer' }, { title: 'Create' }]} separator=">" />
       </div>
 
-      <div className="mt-4 bg-white sm:p-4 p-2 rounded-md">
+      <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
         <CustomerForm onSubmit={onCustomerCreate} />
       </div>
     </>

@@ -1,11 +1,11 @@
-import { Breadcrumb } from "antd";
-import toast from "react-hot-toast";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import AgentForm from "../../components/Form/AgentForm";
-import PageHeading from "../../components/heading/PageHeading";
-import useError from "../../hooks/useError";
-import { createAgent } from "../../store/features/agentSlice";
+import { Breadcrumb } from 'antd';
+import toast from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import AgentForm from '../../components/Form/AgentForm';
+import PageHeading from '../../components/heading/PageHeading';
+import useError from '../../hooks/useError';
+import { createAgent } from '../../store/features/agentSlice';
 
 const CreateAgent = () => {
   const navigate = useNavigate();
@@ -15,8 +15,8 @@ const CreateAgent = () => {
   const onAgentCreate = async (data) => {
     try {
       await dispatch(createAgent(data)).unwrap();
-      toast.success("Agent created successfully");
-      navigate("/agent");
+      toast.success('Agent created successfully');
+      navigate('/agent');
     } catch (error) {
       handleError(error);
     }
@@ -24,15 +24,12 @@ const CreateAgent = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center flex-wrap">
+      <div className="flex flex-wrap items-center justify-between">
         <PageHeading>CREATE AGENT</PageHeading>
-        <Breadcrumb
-          items={[{ title: "Agent" }, { title: "Create" }]}
-          separator=">"
-        />
+        <Breadcrumb items={[{ title: 'Agent' }, { title: 'Create' }]} separator=">" />
       </div>
 
-      <div className="mt-4 bg-white sm:p-4 p-2 rounded-md">
+      <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
         <AgentForm onSubmit={onAgentCreate} />
       </div>
     </>

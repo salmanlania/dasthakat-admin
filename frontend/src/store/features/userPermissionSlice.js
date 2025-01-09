@@ -1,13 +1,13 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../../axiosInstance";
-import { transformGroupPermission } from "../../utils/form";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import api from '../../axiosInstance';
+import { transformGroupPermission } from '../../utils/form';
 
 export const getUserPermissionList = createAsyncThunk(
-  "userPermission/lists",
+  'userPermission/lists',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get("/permission", {
-        params,
+      const res = await api.get('/permission', {
+        params
       });
       return res.data;
     } catch (err) {
@@ -17,10 +17,10 @@ export const getUserPermissionList = createAsyncThunk(
 );
 
 export const getUserPermissionForm = createAsyncThunk(
-  "userPermission/form",
+  'userPermission/form',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get("/lookups/modules");
+      const res = await api.get('/lookups/modules');
       return res.data;
     } catch (err) {
       throw rejectWithValue(err);
@@ -29,10 +29,10 @@ export const getUserPermissionForm = createAsyncThunk(
 );
 
 export const createUserPermission = createAsyncThunk(
-  "userPermission/create",
+  'userPermission/create',
   async (data, { rejectWithValue }) => {
     try {
-      await api.post("/permission", data);
+      await api.post('/permission', data);
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -40,7 +40,7 @@ export const createUserPermission = createAsyncThunk(
 );
 
 export const getUserPermission = createAsyncThunk(
-  "userPermission/permissionGroupById",
+  'userPermission/permissionGroupById',
   async (id, { rejectWithValue }) => {
     try {
       const res = await api.get(`/permission/${id}`);
@@ -52,7 +52,7 @@ export const getUserPermission = createAsyncThunk(
 );
 
 export const updateUserPermission = createAsyncThunk(
-  "userPermission/update",
+  'userPermission/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
       await api.put(`/permission/${id}`, data);
@@ -63,7 +63,7 @@ export const updateUserPermission = createAsyncThunk(
 );
 
 export const deleteUserPermission = createAsyncThunk(
-  "userPermission/delete",
+  'userPermission/delete',
   async (id, { rejectWithValue }) => {
     try {
       await api.delete(`/permission/${id}`);
@@ -74,11 +74,11 @@ export const deleteUserPermission = createAsyncThunk(
 );
 
 export const bulkDeleteUserPermission = createAsyncThunk(
-  "userPermission/bulkDelete",
+  'userPermission/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post("/permission/bulk-delete", {
-        user_permission_ids: ids,
+      await api.post('/permission/bulk-delete', {
+        user_permission_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -99,20 +99,20 @@ const initialState = {
   params: {
     page: 1,
     limit: 50,
-    search: "",
+    search: '',
     sort_column: null,
     sort_direction: null,
-    name: "",
-    description: "",
+    name: '',
+    description: ''
   },
   paginationInfo: {
     total_records: 0,
-    total_pages: 0,
-  },
+    total_pages: 0
+  }
 };
 
 export const userPermissionSlice = createSlice({
-  name: "userPermission",
+  name: 'userPermission',
   initialState,
   reducers: {
     changeCheckbox: (state, action) => {
@@ -168,7 +168,7 @@ export const userPermissionSlice = createSlice({
 
     setUserPermissionDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
-    },
+    }
   },
   extraReducers: (builder) => {
     builder.addCase(getUserPermissionList.pending, (state) => {
@@ -180,7 +180,7 @@ export const userPermissionSlice = createSlice({
       state.list = data;
       state.paginationInfo = {
         total_records: rest.total,
-        total_pages: rest.last_page,
+        total_pages: rest.last_page
       };
     });
     builder.addCase(getUserPermissionList.rejected, (state) => {
@@ -258,7 +258,7 @@ export const userPermissionSlice = createSlice({
     builder.addCase(bulkDeleteUserPermission.rejected, (state) => {
       state.isBulkDeleting = false;
     });
-  },
+  }
 });
 
 export const {
@@ -266,6 +266,6 @@ export const {
   changeAllSubsection,
   checkAllSection,
   setUserPermissionDeleteIDs,
-  setUserPermissionListParams,
+  setUserPermissionListParams
 } = userPermissionSlice.actions;
 export default userPermissionSlice.reducer;

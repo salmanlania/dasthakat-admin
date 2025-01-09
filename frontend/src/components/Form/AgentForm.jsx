@@ -1,12 +1,10 @@
-import { Button, Col, Form, Input, Row } from "antd";
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Button, Col, Form, Input, Row } from 'antd';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 // eslint-disable-next-line react/prop-types
 const AgentForm = ({ mode, onSubmit }) => {
-  const { isFormSubmitting, initialFormValues } = useSelector(
-    (state) => state.agent
-  );
+  const { isFormSubmitting, initialFormValues } = useSelector((state) => state.agent);
 
   const onFinish = (values) => {
     onSubmit(values);
@@ -17,7 +15,7 @@ const AgentForm = ({ mode, onSubmit }) => {
       name="agent"
       layout="vertical"
       autoComplete="off"
-      initialValues={mode === "edit" ? initialFormValues : { status: 1 }}
+      initialValues={mode === 'edit' ? initialFormValues : { status: 1 }}
       onFinish={onFinish}
     >
       <Row gutter={[12, 12]}>
@@ -29,8 +27,8 @@ const AgentForm = ({ mode, onSubmit }) => {
               {
                 required: true,
                 whitespace: true,
-                message: "Code is required!",
-              },
+                message: 'Code is required!'
+              }
             ]}
           >
             <Input />
@@ -44,8 +42,8 @@ const AgentForm = ({ mode, onSubmit }) => {
               {
                 required: true,
                 whitespace: true,
-                message: "Name is required!",
-              },
+                message: 'Name is required!'
+              }
             ]}
           >
             <Input />
@@ -88,16 +86,11 @@ const AgentForm = ({ mode, onSubmit }) => {
         </Col>
       </Row>
 
-      <div className="mt-4 flex gap-2 justify-end items-center">
+      <div className="mt-4 flex items-center justify-end gap-2">
         <Link to="/agent">
           <Button className="w-28">Cancel</Button>
         </Link>
-        <Button
-          type="primary"
-          htmlType="submit"
-          className="w-28"
-          loading={isFormSubmitting}
-        >
+        <Button type="primary" htmlType="submit" className="w-28" loading={isFormSubmitting}>
           Save
         </Button>
       </div>

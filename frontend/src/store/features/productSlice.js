@@ -1,15 +1,15 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../../axiosInstance";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import api from '../../axiosInstance';
 
 export const getProductList = createAsyncThunk(
-  "product/list",
+  'product/list',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get("/product", {
+      const res = await api.get('/product', {
         params: {
           ...params,
-          all: 1,
-        },
+          all: 1
+        }
       });
       return res.data;
     } catch (err) {
@@ -18,42 +18,36 @@ export const getProductList = createAsyncThunk(
   }
 );
 
-export const deleteProduct = createAsyncThunk(
-  "product/delete",
-  async (id, { rejectWithValue }) => {
-    try {
-      await api.delete(`/product/${id}`);
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const deleteProduct = createAsyncThunk('product/delete', async (id, { rejectWithValue }) => {
+  try {
+    await api.delete(`/product/${id}`);
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
 export const createProduct = createAsyncThunk(
-  "product/create",
+  'product/create',
   async (data, { rejectWithValue }) => {
     try {
-      await api.post("/product", data);
+      await api.post('/product', data);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const getProduct = createAsyncThunk(
-  "product/get",
-  async (id, { rejectWithValue }) => {
-    try {
-      const res = await api.get(`/product/${id}`);
-      return res.data.data;
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
+export const getProduct = createAsyncThunk('product/get', async (id, { rejectWithValue }) => {
+  try {
+    const res = await api.get(`/product/${id}`);
+    return res.data.data;
+  } catch (err) {
+    throw rejectWithValue(err);
   }
-);
+});
 
 export const updateProduct = createAsyncThunk(
-  "product/update",
+  'product/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
       await api.put(`/product/${id}`, data);
@@ -64,11 +58,11 @@ export const updateProduct = createAsyncThunk(
 );
 
 export const bulkDeleteProduct = createAsyncThunk(
-  "product/bulkDelete",
+  'product/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post("/product/bulk-delete", {
-        product_ids: ids,
+      await api.post('/product/bulk-delete', {
+        product_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -87,33 +81,33 @@ const initialState = {
   params: {
     page: 1,
     limit: 50,
-    search: "",
+    search: '',
     sort_column: null,
     sort_direction: null,
     name: null,
     description: null,
-    catering_type: null,
+    catering_type: null
   },
   paginationInfo: {
     total_records: 0,
-    total_pages: 0,
-  },
+    total_pages: 0
+  }
 };
 
 export const productSlice = createSlice({
-  name: "product",
+  name: 'product',
   initialState,
   reducers: {
     setProductListParams: (state, action) => {
       state.params = {
         ...state.params,
-        ...action.payload,
+        ...action.payload
       };
     },
 
     setProductDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
-    },
+    }
   },
   extraReducers: ({ addCase }) => {
     addCase(getProductList.pending, (state) => {
@@ -126,7 +120,7 @@ export const productSlice = createSlice({
       state.list = data;
       state.paginationInfo = {
         total_records: rest.total,
-        total_pages: rest.last_page,
+        total_pages: rest.last_page
       };
     });
     addCase(getProductList.rejected, (state) => {
@@ -158,32 +152,32 @@ export const productSlice = createSlice({
         category_id: data.category_id
           ? {
               value: data.category_id,
-              label: data.category_name,
+              label: data.category_name
             }
           : null,
         sub_category_id: data.sub_category_id
           ? {
               value: data.sub_category_id,
-              label: data.sub_category_name,
+              label: data.sub_category_name
             }
           : null,
         brand_id: data.brand_id
           ? {
               value: data.brand_id,
-              label: data.brand_name,
+              label: data.brand_name
             }
           : null,
         unit_id: data.unit_id
           ? {
               value: data.unit_id,
-              label: data.unit_name,
+              label: data.unit_name
             }
           : null,
         cost_price: data.cost_price,
         sale_price: data.sale_price,
         status: data.status,
         image: data.image,
-        image_url: data.image_url,
+        image_url: data.image_url
       };
     });
     addCase(getProduct.rejected, (state) => {
@@ -212,9 +206,8 @@ export const productSlice = createSlice({
     addCase(bulkDeleteProduct.rejected, (state) => {
       state.isBulkDeleting = false;
     });
-  },
+  }
 });
 
-export const { setProductListParams, setProductDeleteIDs } =
-  productSlice.actions;
+export const { setProductListParams, setProductDeleteIDs } = productSlice.actions;
 export default productSlice.reducer;

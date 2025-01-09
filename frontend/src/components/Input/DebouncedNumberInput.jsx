@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
-import { Input } from "antd";
-import { useEffect, useRef, useState } from "react";
-import useDebounce from "../../hooks/useDebounce";
+import { Input } from 'antd';
+import { useEffect, useRef, useState } from 'react';
+import useDebounce from '../../hooks/useDebounce';
 
 /**
  * DebouncedNumberInput Component
@@ -14,29 +14,27 @@ import useDebounce from "../../hooks/useDebounce";
  * @returns {JSX.Element} - DebouncedNumberInput component
  */
 const DebouncedNumberInput = ({
-  value = "",
+  value = '',
   onChange = () => {},
-  type = "integer",
+  type = 'integer',
   delay = 500,
   ...restProps
 }) => {
   const isFirstRender = useRef(true);
-  const [inputValue, setInputValue] = useState(
-    value || value === 0 ? value.toString() : ""
-  );
+  const [inputValue, setInputValue] = useState(value || value === 0 ? value.toString() : '');
   const debouncedValue = useDebounce(inputValue, delay);
 
   // Handle input change
   const handleInputChange = (e) => {
     let rawValue = e.target.value;
 
-    if (type === "integer") {
+    if (type === 'integer') {
       // Remove all non-numeric characters
-      rawValue = rawValue.replace(/[^0-9]/g, "");
-    } else if (type === "decimal") {
+      rawValue = rawValue.replace(/[^0-9]/g, '');
+    } else if (type === 'decimal') {
       // Allow only numbers and one decimal point
-      rawValue = rawValue.replace(/[^0-9.]/g, ""); // Remove invalid characters
-      rawValue = rawValue.replace(/^(\d*\.\d*)\./, "$1"); // Prevent multiple decimal points
+      rawValue = rawValue.replace(/[^0-9.]/g, ''); // Remove invalid characters
+      rawValue = rawValue.replace(/^(\d*\.\d*)\./, '$1'); // Prevent multiple decimal points
     }
 
     // Call the onChange prop with the cleaned value

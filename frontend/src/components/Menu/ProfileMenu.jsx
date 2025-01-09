@@ -1,19 +1,19 @@
-import { Avatar, Button, Dropdown, Form, Input, Modal } from "antd";
-import { useState } from "react";
-import toast from "react-hot-toast";
-import { FaRegUser } from "react-icons/fa";
-import { MdLockOutline, MdLogout } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { resetPassword } from "../../store/features/authSlice";
-import useError from "../../hooks/useError";
+import { Avatar, Button, Dropdown, Form, Input, Modal } from 'antd';
+import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { FaRegUser } from 'react-icons/fa';
+import { MdLockOutline, MdLogout } from 'react-icons/md';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { resetPassword } from '../../store/features/authSlice';
+import useError from '../../hooks/useError';
 
 const Logout = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/login");
+    navigate('/login');
   };
 
   return (
@@ -39,7 +39,7 @@ const ChangePassword = () => {
   const onFinish = async (values) => {
     try {
       await dispatch(resetPassword(values)).unwrap();
-      toast.success("Password updated successfully");
+      toast.success('Password updated successfully');
       setIsModalOpen(false);
       form.resetFields();
     } catch (error) {
@@ -49,29 +49,14 @@ const ChangePassword = () => {
 
   return (
     <>
-      <div
-        className="flex items-center gap-2"
-        onClick={() => setIsModalOpen(true)}
-      >
+      <div className="flex items-center gap-2" onClick={() => setIsModalOpen(true)}>
         <MdLockOutline size={16} />
         <span>Update Password</span>
       </div>
 
-      <Modal
-        open={isModalOpen}
-        footer={null}
-        closable={false}
-        onCancel={onClose}
-      >
-        <h4 className="text-lg font-semibold mb-2 text-center">
-          Change Password
-        </h4>
-        <Form
-          name="updatePassword"
-          layout="vertical"
-          onFinish={onFinish}
-          form={form}
-        >
+      <Modal open={isModalOpen} footer={null} closable={false} onCancel={onClose}>
+        <h4 className="mb-2 text-center text-lg font-semibold">Change Password</h4>
+        <Form name="updatePassword" layout="vertical" onFinish={onFinish} form={form}>
           <Form.Item
             name="old_password"
             label="Old Password"
@@ -79,8 +64,8 @@ const ChangePassword = () => {
               {
                 required: true,
                 whitespace: true,
-                message: "Please enter your old password",
-              },
+                message: 'Please enter your old password'
+              }
             ]}
           >
             <Input.Password />
@@ -93,24 +78,22 @@ const ChangePassword = () => {
               {
                 required: true,
                 whitespace: true,
-                message: "Please enter your new password",
+                message: 'Please enter your new password'
               },
               {
                 min: 8,
-                message: "Password must be at least 8 characters!",
+                message: 'Password must be at least 8 characters!'
               },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  if (value && getFieldValue("old_password") === value) {
+                  if (value && getFieldValue('old_password') === value) {
                     return Promise.reject(
-                      new Error(
-                        "New password cannot be the same as old password!"
-                      )
+                      new Error('New password cannot be the same as old password!')
                     );
                   }
                   return Promise.resolve();
-                },
-              }),
+                }
+              })
             ]}
             validateFirst
           >
@@ -120,27 +103,27 @@ const ChangePassword = () => {
           <Form.Item
             name="confirm_password"
             label="Confirm New Password"
-            dependencies={["new_password"]}
+            dependencies={['new_password']}
             rules={[
               {
                 required: true,
                 whitespace: true,
-                message: "Please enter your confirm password",
+                message: 'Please enter your confirm password'
               },
               {
                 min: 8,
-                message: "Password must be at least 8 characters!",
+                message: 'Password must be at least 8 characters!'
               },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  if (value && value !== getFieldValue("new_password")) {
+                  if (value && value !== getFieldValue('new_password')) {
                     return Promise.reject(
-                      new Error("Confirm password does not match new password!")
+                      new Error('Confirm password does not match new password!')
                     );
                   }
                   return Promise.resolve();
-                },
-              }),
+                }
+              })
             ]}
             validateFirst
           >
@@ -179,15 +162,15 @@ const ProfileMenu = () => {
       menu={{
         items: [
           {
-            key: "1",
-            label: <ChangePassword />,
+            key: '1',
+            label: <ChangePassword />
           },
           {
-            key: "2",
+            key: '2',
             danger: true,
-            label: <Logout />,
-          },
-        ],
+            label: <Logout />
+          }
+        ]
       }}
       arrow
     >

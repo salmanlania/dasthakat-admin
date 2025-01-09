@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
-import { Input } from "antd";
-import { formatThreeDigitCommas, removeCommas } from "../../utils/number";
+import { Input } from 'antd';
+import { formatThreeDigitCommas, removeCommas } from '../../utils/number';
 
 /**
  * CommaSeparatedInput Component
@@ -18,24 +18,24 @@ import { formatThreeDigitCommas, removeCommas } from "../../utils/number";
  * @returns {JSX.Element} - A formatted input component with three-digit comma separators
  */
 const CommaSeparatedInput = ({
-  value = "",
+  value = '',
   onChange = () => {},
   decimalPlaces = 2,
   ...restProps
 }) => {
   // Handle input change
   const handleInputChange = (e) => {
-    let rawValue = e.target.value.replace(/[^0-9.]/g, ""); // Allow only numbers and dots
+    let rawValue = e.target.value.replace(/[^0-9.]/g, ''); // Allow only numbers and dots
 
     // Restrict to only one dot
-    const parts = rawValue.split(".");
+    const parts = rawValue.split('.');
     if (parts.length > 2) {
-      rawValue = parts[0] + "." + parts.slice(1).join("");
+      rawValue = parts[0] + '.' + parts.slice(1).join('');
     }
 
     // Restrict to the specified number of decimal places
-    if (rawValue.includes(".")) {
-      const [integerPart, decimalPart] = rawValue.split(".");
+    if (rawValue.includes('.')) {
+      const [integerPart, decimalPart] = rawValue.split('.');
       rawValue = `${integerPart}.${decimalPart.slice(0, decimalPlaces)}`;
     }
 
