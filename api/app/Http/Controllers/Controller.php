@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Database\DatabaseManager;
 use Laravel\Lumen\Routing\Controller as BaseController;
 use App\Models\User;
@@ -9,17 +10,18 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\GenerateMail;
+use App\Models\Audit;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 
 class Controller extends BaseController
 {
-
+    protected $db;
 
     public function __construct(DatabaseManager $db)
     {
-        $this->db = $db;
         $this->middleware('auth:api', ['except' => ['login', 'session', 'refresh', 'logout', 'verify-email', 'reset-password']]);
+        $this->db = $db;
     }
 
 
@@ -34,74 +36,73 @@ class Controller extends BaseController
         // Optional: Force configuration cache to update if caching is enabled
         Artisan::call('config:cache');
     }
-    
-    public function sentMail($data){
-    	
-	if(empty($data['name'])) return false;
-	
-	//if Debug on email will be sent to administrator only
-	$config = Setting::where('module','general')->pluck('value','field');
-	if(@$config['debug']==1){
-		$data["email"] = $config['debug_email'];
-	}
-	
+
+    public function sentMail($data)
+    {
+
+        if (empty($data['name'])) return false;
+
+        //if Debug on email will be sent to administrator only
+        $config = Setting::where('module', 'general')->pluck('value', 'field');
+        if (@$config['debug'] == 1) {
+            $data["email"] = $config['debug_email'];
+        }
+
         $_return = "";
-	// Email Generate update Settings
+        // Email Generate update Settings
         $this->getSettings(true);
-		
-	try{
-	  $insdata = [
-	    	'name' => $data['name'],
-		'subject' => $data['subject'],
-		'message' => $data['message']
-		];	
-     
-	   Mail::to($data["email"])->send(new GenerateMail($insdata));
-	 }catch (\Exception $e) {
-    		Log::error('Email sending failed: ' . $e->getMessage());
-	        $_return = "Email Not Sent.Please Check Your Email or Contact to your Administrator!";
-         }
-		 
-         return $_return; 
-    
+
+        try {
+            $insdata = [
+                'name' => $data['name'],
+                'subject' => $data['subject'],
+                'message' => $data['message']
+            ];
+
+            Mail::to($data["email"])->send(new GenerateMail($insdata));
+        } catch (\Exception $e) {
+            Log::error('Email sending failed: ' . $e->getMessage());
+            $_return = "Email Not Sent.Please Check Your Email or Contact to your Administrator!";
+        }
+
+        return $_return;
     }
-    
+
     public function SystemConfig($module = 'general')
-    {   
-        return  Setting::where('module',$module)->pluck('value','field');
+    {
+        return  Setting::where('module', $module)->pluck('value', 'field');
     }
-    
+
     public function getSettings($is_email = false)
     {
-     
-        $config = Setting::where('module','general')->pluck('value','field');
-        $setting = [
-		'host' => @$config['smtm_host'] ? @$config['smtm_host'] : env('MAIL_HOST'), 
-		'port' => @$config['smtm_port'] ? @$config['smtm_port'] : env('MAIL_PORT'), 
-		'encryption' =>   env('MAIL_ENCRYPTION'), 
-		'username' => @$config['smtp_user'] ? @$config['smtp_user'] :  env('MAIL_USERNAME'), 
-		'password' => @$config['smtp_password'] ? @$config['smtp_password'] :  env('MAIL_PASSWORD')
-		];
-	if($is_email==true)
-	  updateMailConfig($setting);
 
+        $config = Setting::where('module', 'general')->pluck('value', 'field');
+        $setting = [
+            'host' => @$config['smtm_host'] ? @$config['smtm_host'] : env('MAIL_HOST'),
+            'port' => @$config['smtm_port'] ? @$config['smtm_port'] : env('MAIL_PORT'),
+            'encryption' =>   env('MAIL_ENCRYPTION'),
+            'username' => @$config['smtp_user'] ? @$config['smtp_user'] :  env('MAIL_USERNAME'),
+            'password' => @$config['smtp_password'] ? @$config['smtp_password'] :  env('MAIL_PASSWORD')
+        ];
+        if ($is_email == true)
+            updateMailConfig($setting);
     }
 
 
     public function testApi()
     {
         // $users = $this->dbset()->get();
-	
+
         $users = User::get();
 
 
         // exit;
-	
-	// test setting
-	$this->getSettings(true);
-	
+
+        // test setting
+        $this->getSettings(true);
+
         $data = [
-	    'email' => 'az.tariq03@gmail.com',
+            'email' => 'az.tariq03@gmail.com',
             'name' => 'Dear Muhammad Azeem Tariq',
             'subject' => 'Your Dynamic Subject Here',
             'message' => ' Thank you for Registering to our platform.<br>
@@ -109,10 +110,10 @@ class Controller extends BaseController
                     Please remember to login. <br>
 		    <br> You can access your Account to management your Quote Request and change your password here. <br> servermail@gmail.com'
         ];
-	
-	
-	// Sent Email
-	$this->sentMail($data );
+
+
+        // Sent Email
+        $this->sentMail($data);
         return response()->json(['message' => 'Email sent successfully']);
 
 
@@ -128,7 +129,7 @@ class Controller extends BaseController
     {
         return Str::uuid()->toString();
     }
-    public function base64ToImage($dataUrl, $targetDir = 'public/uploads/', $uniAlpha = 'A',$originalName="")
+    public function base64ToImage($dataUrl, $targetDir = 'public/uploads/', $uniAlpha = 'A', $originalName = "")
     {
         // Define allowed MIME types and their corresponding file extensions
         $mimeTypes = [
@@ -156,13 +157,13 @@ class Controller extends BaseController
             }
 
             // Generate a unique file name
-            $fileName = ($originalName=="") ? 'file-' . $uniAlpha . '-' . time() . '.' . $extension : $originalName;
+            $fileName = ($originalName == "") ? 'file-' . $uniAlpha . '-' . time() . '.' . $extension : $originalName;
             $filePath = base_path($targetDir . $fileName);
-	    if(file_exists($filePath)) {
-	    	$fileName = explode('.',$fileName);
-		$fileName = $fileName[0].'-'.time().'.'.$fileName[1];
+            if (file_exists($filePath)) {
+                $fileName = explode('.', $fileName);
+                $fileName = $fileName[0] . '-' . time() . '.' . $fileName[1];
                 $filePath = base_path($targetDir . $fileName);
-	    }
+            }
 
             // Save file to disk
             try {
@@ -175,11 +176,10 @@ class Controller extends BaseController
 
                 if (in_array($mimeType, ['image/jpeg', 'image/jpg', 'image/png'])) {
                     // Compress image
-                   // $this->compressAndSaveImage($filePath, $filePath);
+                    // $this->compressAndSaveImage($filePath, $filePath);
                 }
-		
-		filesize($filePath);
 
+                filesize($filePath);
             } catch (\Exception $e) {
                 // Log::error('Failed to save file: ' . $e->getMessage());
                 return response()->json(['error' => $e->getMessage()], 500);
@@ -257,9 +257,70 @@ class Controller extends BaseController
             'status_code' => $status_code,
             $responseKey => $data
         ], $status_code);
-
-
     }
+
+    protected function checkAndDelete($req)
+    {
+        $primary_key = $req['main']['check']->getKeyName();
+        $get_data = $req['main']['check']::where($primary_key, $req['main']['id'])->first();
+        $display_name = 'name';
+        if (isset($req['display']['name'])) {
+            $display_name = $req['display']['name'];
+        }
+        if (!$get_data) {
+            return ['error' => true, 'error_code' => 404, 'msg' =>  camelCaseToSpace(class_basename($req['main']['check'])) . " Not Found!"];
+        }
+
+        foreach ($req['with'] as $model) {
+            $foreign_keys = $primary_key;
+            if (isset($model['key']) && !empty($model['key'])) {
+                $foreign_keys = $model['key'];
+            }
+            if (is_string($foreign_keys)) {
+                $foreign_keys = [$foreign_keys];
+            }
+            foreach ((array)$foreign_keys as $foreign_key) {
+                if ($model['model']::where($foreign_key, $req['main']['id'])->exists()) {
+                    return [
+                        'error' => true,
+                        'error_code' => 400,
+                        'msg' => "You cannot delete " . $get_data[$display_name] . " as it has associated records in " . camelCaseToSpace(class_basename($model['model']))
+                    ];
+                }
+            }
+        }
+        return ['error' => false, 'error_code' => 200, 'msg' => ""];
+    }
+
+
+    protected function auditAction($request, $action, $action_on, $document_type, $document_id, $document_name, $data)
+    {
+        $audit = [
+            'action' => $action,
+            'action_on' => $action_on,
+            'request' => $request,
+            'document_type' => $document_type,
+            'document_id' => $document_id,
+            'document_name' => $document_name,
+            'json_data' => json_encode($data),
+        ];
+
+        Audit::create([
+            'company_id' => $audit['request']['company_id'],
+            'company_branch_id' => $audit['request']['company_branch_id'],
+            'action' => $audit['action'],
+            'action_on' => $audit['action_on'],
+            'action_by' => $audit['request']['login_user_id'],
+            'action_at' => date('Y-m-d H:i:s'),
+            'document_type' => $audit['document_type'],
+            'document_id' => $audit['document_id'],
+            'document_name' => $audit['document_name'],
+            'json_data' => $audit['json_data'],
+        ]);
+        // Audit Action
+    }
+
+
     /**
      * --------------------------------------------------------------------------------
      * Response with token
@@ -296,7 +357,6 @@ class Controller extends BaseController
         ];
 
         return $status[$code];
-
     }
 
     // public function dbset(){

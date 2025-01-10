@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Vessel;
+
 require_once __DIR__.'/../vendor/autoload.php';
 require_once __DIR__.'/../app/helpers.php';
 
@@ -75,6 +77,8 @@ $app->configure('jwt');
 $app->configure('cors');
 
 $app->configure('mail');
+
+
 /*
 |--------------------------------------------------------------------------
 | Register Middleware

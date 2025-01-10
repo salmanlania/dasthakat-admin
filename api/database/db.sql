@@ -2,7 +2,8 @@
 SQLyog Ultimate v10.00 Beta1
 MySQL - 8.0.30 : Database - gms2
 *********************************************************************
-*/
+*/
+
 
 /*!40101 SET NAMES utf8 */;
 
@@ -26,7 +27,7 @@ CREATE TABLE `company` (
   `address` varchar(255) NOT NULL,
   `phone_no` varchar(255) NOT NULL,
   `fax_no` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL
   `gst_no` varchar(255) NOT NULL,
   `base_currency_id` int NOT NULL,
   `round_decimal_places` varchar(255) NOT NULL,

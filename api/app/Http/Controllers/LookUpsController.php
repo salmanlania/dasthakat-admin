@@ -9,44 +9,47 @@ use App\Models\Country;
 use App\Models\ControlAccess;
 use App\Models\ParlourModule;
 use App\Models\EmailTemplate;
+use App\Models\User;
+use App\Models\UserBranchAccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class LookUpsController extends Controller
 {
-	 protected $db;
-    
+    protected $db;
+
     public function getCountry(Request $request)
     {
-	$perPage = 10;
-        $page = $request->input('page',1);
-        $sort_column = $request->input('sort_column','id');
-        $sort_direction = (isset($request->input['sort_direction']) && $request->input['sort_direction'] == 'ascend')? 'desc' : 'asc';
+        $perPage = 10;
+        $page = $request->input('page', 1);
+        $sort_column = $request->input('sort_column', 'id');
+        $sort_direction = (isset($request->input['sort_direction']) && $request->input['sort_direction'] == 'ascend') ? 'desc' : 'asc';
         $search = $request->input('search');
-	
-	$country = new Country;
+
+        $country = new Country;
         if (!empty($search)) {
             $search = strtolower($search);
             $country = $country->where('name', 'like', '%' . $search . '%')
-	    	       ->orWhere('dial_code', 'like', '%' . $search . '%');
+                ->orWhere('dial_code', 'like', '%' . $search . '%');
         }
-	 $country = $country->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
-         return response()->json( $country);
+        $country = $country->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
+        return response()->json($country);
     }
 
-    public function getModules() {
+    public function getModules()
+    {
 
-        $controls = ControlAccess::orderBy('sort_order','asc')->get();
+        $controls = ControlAccess::orderBy('sort_order', 'asc')->get();
 
         $arrPermissions = [];
-        foreach($controls as $permission) {
+        foreach ($controls as $permission) {
             $module_name       = $permission->module_name;
             $form_name         = $permission->form_name;
             $control_access_id = $permission->control_access_id;
             $route             = $permission->route;
             $permission_id     = $permission->permission_id;
             $permission_name   = $permission->permission_name;
-            
+
             $arrPermissions[$module_name][$form_name][] = [
                 'control_access_id' => $control_access_id,
                 'route'             => $route,
@@ -56,50 +59,61 @@ class LookUpsController extends Controller
             ];
         }
 
-        return response()->json( $arrPermissions);
+        return response()->json($arrPermissions);
     }
 
-    public function getModuleForEmail() {
+    public function getModuleForEmail()
+    {
 
         $template = new EmailTemplate;
         $modules = $template->getModules();
-	
-	$result = [];
-	foreach ($modules as $key => $value) {
-	    $result[] = ["value" => $key, "label" => $value];
-	}
 
-        return response()->json( $result);
+        $result = [];
+        foreach ($modules as $key => $value) {
+            $result[] = ["value" => $key, "label" => $value];
+        }
+
+        return response()->json($result);
     }
 
-    
-    public function getParlourModules() {
+
+    public function getParlourModules()
+    {
 
         $parlourModules = ParlourModule::get();
         $arrPermissions = [];
-        foreach($parlourModules as $parlourModule) {
+        foreach ($parlourModules as $parlourModule) {
             $arrModules[] = [
                 'value' => $parlourModule->id,
-                'label'=> $parlourModule->name,
+                'label' => $parlourModule->name,
             ];
         }
 
-        return response()->json( $arrModules);
+        return response()->json($arrModules);
     }
-    public function getCompany() {
-
-        $data = Company::get();
+    public function getCompany(Request $request)
+    {
+        $data = new Company;
+        
+        if(isset($request->login_user_id) && !empty($request->login_user_id)){
+            $user = User::where('user_id','=' ,$request->login_user_id)->first();
+            if($user['super_admin'] != 1){
+                $data = $data->where('company_id','=',$user['company_id']);
+            }
+        }
+        $data = $data->get();
         $arrModules = [];
-        foreach($data as $row) {
+        foreach ($data as $row) {
             $arrModules[] = [
                 'value' => $row->company_id,
-                'label'=> $row->name,
+                'label' => $row->name,
             ];
         }
 
-        return response()->json( $arrModules);
+        return response()->json($arrModules);
     }
-    public function getCompanyBranch(Request $request) {
+    public function getCompanyBranch(Request $request)
+    {
         $companyId = $request->input('company_id');
         $query = CompanyBranch::query();
 
@@ -108,14 +122,51 @@ class LookUpsController extends Controller
         }
         $data = $query->get();
         $arrModules = [];
-        foreach($data as $row) {
+        foreach ($data as $row) {
             $arrModules[] = [
                 'value' => $row->company_branch_id,
-                'label'=> $row->name,
+                'label' => $row->name,
             ];
         }
 
-        return response()->json( $arrModules);
+        return response()->json($arrModules);
     }
+    public function getCompanyAndBranches(Request $request)
+    {
+        $id = $request->login_user_id;
+        $user_data = User::where('user_id', $id)->first();   
+        $user_access = UserBranchAccess::where('user_id', $id);
+        $company = array_unique($user_access->pluck('company_id')->toArray());
+        $branchList = ($user_access->pluck('company_branch_id','company_branch_id'));
+        
+        $companies = Company::with('branches');
+        if($user_data['super_admin'] != 1)
+           $companies = $companies->whereIn('company_id', $company);
+        $companies = $companies->get();
 
+        $groupedData = [];
+
+        foreach ($companies as $company) {
+            $branches = [];
+
+
+            foreach ($company->branches as $branch) {
+
+                if($user_data['super_admin'] == 1 || isset($branchList[$branch->company_branch_id])){
+                    $branches[] = [
+                        'branch_id' => $branch->company_branch_id,
+                        'branch_name' => $branch->name,
+                    ];
+                }
+            }
+
+            $groupedData[] = [
+                'company_id' => $company->company_id,
+                'company_name' => $company->name,
+                'branches' => $branches,
+            ];
+        }
+
+        return response()->json($groupedData);
+    }
 }

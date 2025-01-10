@@ -1,0 +1,310 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\DocumentType;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use App\Models\Quotation;
+use App\Models\QuotationDetail;
+use App\Models\Terms;
+use Illuminate\Support\Facades\DB;
+
+class QuotationController extends Controller
+{
+	protected $document_type_id = 38;
+	protected $db;
+
+	public function index(Request $request)
+	{
+		$customer_id = $request->input('customer_id', '');
+		$document_identity = $request->input('document_identity', '');
+		$document_date = $request->input('document_date', '');
+		$vessel_id = $request->input('vessel_id', '');
+		$event_id = $request->input('event_id', '');
+		$search = $request->input('search', '');
+		$page =  $request->input('page', 1);
+		$perPage =  $request->input('limit', 10);
+		$sort_column = $request->input('sort_column', 'quotation.created_at');
+		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
+
+		$data = Quotation::LeftJoin('customer as c', 'c.customer_id', '=', 'quotation.customer_id')
+			->LeftJoin('event as e', 'e.event_id', '=', 'quotation.event_id')
+			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'quotation.vessel_id');
+
+		if (!empty($customer_id)) $data = $data->where('quotation.customer_id', '=',  $customer_id);
+		if (!empty($vessel_id)) $data = $data->where('quotation.vessel_id', '=',  $vessel_id);
+		if (!empty($event_id)) $data = $data->where('quotation.event_id', '=',  $event_id);
+		if (!empty($document_identity)) $data = $data->where('quotation.document_identity', 'like', '%' . $document_identity . '%');
+		if (!empty($document_date)) $data = $data->where('quotation.document_date', '=',  $document_date);
+		$data = $data->where('quotation.company_id', '=', $request->company_id);
+
+		if (!empty($search)) {
+			$search = strtolower($search);
+			$data = $data->where(function ($query) use ($search) {
+				$query
+					->where('c.name', 'like', '%' . $search . '%')
+					->OrWhere('v.name', 'like', '%' . $search . '%')
+					->OrWhere('e.event_code', 'like', '%' . $search . '%')
+					->OrWhere('quotation.document_identity', 'like', '%' . $search . '%');
+			});
+		}
+
+		$data = $data->select("quotation.*",DB::raw("CONCAT(e.event_code, ' (', CASE 
+		WHEN e.status = 1 THEN 'Active' 
+		ELSE 'Inactive' 
+	END, ')') AS event_code"), "c.name as customer_name", "v.name as vessel_name");
+		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
+
+		return response()->json($data);
+	}
+
+	public function show($id, Request $request)
+	{
+
+		$data = Quotation::with(
+			"quotation_detail",
+			"quotation_detail.product",
+			"quotation_detail.unit",
+			"quotation_detail.supplier",
+			"salesman",
+			"event",
+			"vessel",
+			"customer",
+			"flag",
+			"class1",
+			"class2",
+			"validity",
+			"payment",
+			"port",
+			"person_incharge"
+		)
+			->where('quotation_id', $id)->first();
+		$terms = [];
+		if ($data && !empty($data->term_id)) {
+			$term_id = json_decode($data->term_id, true) ?? [];
+			foreach ($term_id as $key => $value) {
+				$term = Terms::where('term_id', $value)->select('term_id as value', 'name as label')->first();
+				if ($term) {
+					$terms[$key] = $term;
+				}
+			}
+		}
+		$data['term_id'] = $terms;
+		return $this->jsonResponse($data, 200, "Quotation Data");
+	}
+
+	public function validateRequest($request, $id = null)
+	{
+		$rules = [
+			'document_date' => ['required'],
+		];
+
+
+		$validator = Validator::make($request, $rules);
+		$response = [];
+		if ($validator->fails()) {
+			$response =  $errors = $validator->errors()->all();
+			$firstError = $validator->errors()->first();
+			return  $firstError;
+		}
+		return [];
+	}
+
+
+
+	public function store(Request $request)
+	{
+
+		if (!isPermission('add', 'quotation', $request->permission_list))
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+
+		// Validation Rules
+		$isError = $this->validateRequest($request->all());
+		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
+
+
+
+		$uuid = $this->get_uuid();
+		$document = DocumentType::getNextDocument($this->document_type_id, $request);
+		$insertArr = [
+			'company_id' => $request->company_id ?? "",
+			'company_branch_id' => $request->company_branch_id ?? "",
+			'quotation_id' => $uuid,
+			'document_type_id' => $document['document_type_id'] ?? "",
+			'document_no' => $document['document_no'] ?? "",
+			'document_prefix' => $document['document_prefix'] ?? "",
+			'document_identity' => $document['document_identity'] ?? "",
+			'document_date' => $request->document_date ?? "",
+			'service_date' => $request->service_date ?? "",
+			'salesman_id' => $request->salesman_id ?? "",
+			'customer_id' => $request->customer_id ?? "",
+			'person_incharge_id' => $request->person_incharge_id ?? "",
+			'event_id' => $request->event_id ?? "",
+			'vessel_id' => $request->vessel_id ?? "",
+			'flag_id' => $request->flag_id ?? "",
+			'class1_id' => $request->class1_id ?? "",
+			'class2_id' => $request->class2_id ?? "",
+			'customer_ref' => $request->customer_ref ?? "",
+			'due_date' => ($request->due_date) ?? "",
+			'attn' => $request->attn ?? "",
+			'delivery' => $request->delivery ?? "",
+			'validity_id' => $request->validity_id ?? "",
+			'payment_id' => $request->payment_id ?? "",
+			'internal_notes' => $request->internal_notes ?? "",
+			'port_id' => $request->port_id ?? "",
+			'term_id' => json_encode($request->term_id) ?? "",
+			'term_desc' => $request->term_desc ?? "",
+			'total_quantity' => $request->total_quantity ?? "",
+			'total_amount' => $request->total_amount ?? "",
+			'total_discount' => $request->total_discount ?? "",
+			'net_amount' => $request->net_amount ?? "",
+			'rebate_percent' => $request->rebate_percent ?? "",
+			'rebate_amount' => $request->rebate_amount ?? "",
+			'salesman_percent' => $request->salesman_percent ?? "",
+			'salesman_amount' => $request->salesman_amount ?? "",
+			'final_amount' => $request->final_amount ?? "",
+			'created_at' => date('Y-m-d H:i:s'),
+			'created_by' => $request->login_user_id,
+		];
+		Quotation::create($insertArr);
+
+		if ($request->quotation_detail) {
+			foreach ($request->quotation_detail as $key => $value) {
+				$detail_uuid = $this->get_uuid();
+				$insert = [
+					'quotation_id' => $insertArr['quotation_id'],
+					'quotation_detail_id' => $detail_uuid,
+					'sort_order' => $value['sort_order'] ?? "",
+					'product_id' => $value['product_id'] ?? "",
+					'description' => $value['description'] ?? "",
+					'unit_id' => $value['unit_id'] ?? "",
+					'supplier_id' => $value['supplier_id'] ?? "",
+					'quantity' => $value['quantity'] ?? "",
+					'cost_price' => $value['cost_price'] ?? "",
+					'markup' => $value['markup'] ?? "",
+					'rate' => $value['rate'] ?? "",
+					'amount' => $value['amount'] ?? "",
+					'discount_amount' => $value['discount_amount'] ?? "",
+					'discount_percent' => $value['discount_percent'] ?? "",
+					'gross_amount' => $value['gross_amount'] ?? "",
+					'created_at' => date('Y-m-d H:i:s'),
+					'created_by' => $request->login_user_id,
+				];
+
+				QuotationDetail::create($insert);
+			}
+		}
+
+
+		return $this->jsonResponse(['quotation_id' => $uuid], 200, "Add Quotation Successfully!");
+	}
+
+	public function update(Request $request, $id)
+	{
+		if (!isPermission('edit', 'quotation', $request->permission_list))
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+
+
+		// Validation Rules
+		$isError = $this->validateRequest($request->all(), $id);
+		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
+
+
+		$data  = Quotation::where('quotation_id', $id)->first();
+		$data->company_id = $request->company_id;
+		$data->company_branch_id = $request->company_branch_id;
+		$data->document_date = $request->document_date;
+		$data->service_date = $request->service_date;
+		$data->salesman_id = $request->salesman_id;
+		$data->customer_id = $request->customer_id;
+		$data->person_incharge_id = $request->person_incharge_id;
+		$data->event_id = $request->event_id;
+		$data->vessel_id = $request->vessel_id;
+		$data->flag_id = $request->flag_id;
+		$data->class1_id = $request->class1_id;
+		$data->class2_id = $request->class2_id;
+		$data->customer_ref = $request->customer_ref;
+		$data->due_date = $request->due_date;
+		$data->attn = $request->attn;
+		$data->delivery = $request->delivery;
+		$data->validity_id = $request->validity_id;
+		$data->payment_id = $request->payment_id;
+		$data->internal_notes = $request->internal_notes;
+		$data->port_id = $request->port_id;
+		$data->term_id = json_encode($request->term_id);
+		$data->term_desc = $request->term_desc;
+		$data->total_quantity = $request->total_quantity;
+		$data->total_amount = $request->total_amount;
+		$data->total_discount = $request->total_discount;
+		$data->net_amount = $request->net_amount;
+		$data->rebate_percent = $request->rebate_percent;
+		$data->rebate_amount = $request->rebate_amount;
+		$data->salesman_percent = $request->salesman_percent;
+		$data->salesman_amount = $request->salesman_amount;
+		$data->final_amount = $request->final_amount;
+		$data->updated_at = date('Y-m-d H:i:s');
+		$data->updated_by = $request->login_user_id;
+		$data->update();
+		QuotationDetail::where('quotation_id', $id)->delete();
+		if ($request->quotation_detail) {
+
+			foreach ($request->quotation_detail as $key => $value) {
+				$detail_uuid = $this->get_uuid();
+
+				$insertArr = [
+					'quotation_id' => $id,
+					'quotation_detail_id' => $detail_uuid,
+					'sort_order' => $value['sort_order'] ?? "",
+					'product_id' => $value['product_id'] ?? "",
+					'description' => $value['description'] ?? "",
+					'unit_id' => $value['unit_id'] ?? "",
+					'supplier_id' => $value['supplier_id'] ?? "",
+					'quantity' => $value['quantity'] ?? "",
+					'cost_price' => $value['cost_price'] ?? "",
+					'markup' => $value['markup'] ?? "",
+					'rate' => $value['rate'] ?? "",
+					'amount' => $value['amount'] ?? "",
+					'discount_amount' => $value['discount_amount'] ?? "",
+					'discount_percent' => $value['discount_percent'] ?? "",
+					'gross_amount' => $value['gross_amount'] ?? "",
+					'created_at' => date('Y-m-d H:i:s'),
+					'created_by' => $request->login_user_id,
+				];
+				QuotationDetail::create($insertArr);
+			}
+		}
+
+
+		return $this->jsonResponse(['quotation_id' => $id], 200, "Update Quotation Successfully!");
+	}
+	public function delete($id, Request $request)
+	{
+		if (!isPermission('delete', 'quotation', $request->permission_list))
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+		$data  = Quotation::where('quotation_id', $id)->first();
+		if (!$data) return $this->jsonResponse(['quotation_id' => $id], 404, "Quotation Not Found!");
+		$data->delete();
+		QuotationDetail::where('quotation_id', $id)->delete();
+		return $this->jsonResponse(['quotation_id' => $id], 200, "Delete Quotation Successfully!");
+	}
+	public function bulkDelete(Request $request)
+	{
+		if (!isPermission('delete', 'quotation', $request->permission_list))
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+
+		try {
+			if (isset($request->quotation_ids) && !empty($request->quotation_ids) && is_array($request->quotation_ids)) {
+				foreach ($request->quotation_ids as $quotation_id) {
+					$user = Quotation::where(['quotation_id' => $quotation_id])->first();
+					$user->delete();
+					QuotationDetail::where('quotation_id', $quotation_id)->delete();
+				}
+			}
+
+			return $this->jsonResponse('Deleted', 200, "Delete Quotation successfully!");
+		} catch (\Exception $e) {
+			return $this->jsonResponse('some error occured', 500, $e->getMessage());
+		}
+	}
+}

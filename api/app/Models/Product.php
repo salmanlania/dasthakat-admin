@@ -1,18 +1,19 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Product extends Model 
+class Product extends Model
 {
-    
 
-    protected $primaryKey = 'id'; 
+
+    protected $table = 'product';
+    protected $primaryKey = 'product_id';
     public $incrementing = false;
 
     // protected $connection = 'mysql';
-    protected $table = 'products';
-  
+
 
     /**
      * The attributes that are mass assignable.
@@ -20,31 +21,37 @@ class Product extends Model
      * @var string[]
      */
     protected $fillable = [
-            'id',
-	    'product_category_id',
-           'name',
-	    'summary',
-	   'description',
-	   'label_tags',
-           'schedule_date',
-           'schedule_time',
-           'status',
-	   'is_published',
-	   'created_by',
-	   'updated_by'
+        'company_id',
+        'company_branch_id',
+        'product_type',
+        'product_id',
+        'product_no',
+        'product_code',
+        'image',
+        'name',
+        'impa_code',
+        'category_id',
+        'sub_category_id',
+        'brand_id',
+        'unit_id',
+        'cost_price',
+        'sale_price',
+        'status',
+        'created_by',
+        'updated_by'
     ];
-    
-    
-    public function images()
-    {
-        return $this->hasMany(ProductImage::class,'product_id')->orderBy('sort_order');
-    }
-    
-    public function variants()
-    {
-        return $this->hasMany(ProductVariants::class,'product_id')->orderBy('sort_order');
-    }
-    
+
+
+    // public function images()
+    // {
+    //     return $this->hasMany(ProductImage::class, 'product_id')->orderBy('sort_order');
+    // }
+
+    // public function variants()
+    // {
+    //     return $this->hasMany(ProductVariants::class, 'product_id')->orderBy('sort_order');
+    // }
+
 
     /**
      * The attributes excluded from the model's JSON form.

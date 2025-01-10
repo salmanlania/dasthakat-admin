@@ -30,8 +30,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'company_id',
         'user_id',
         'permission_id',
-        'login_name',
-        'login_password',
+        'password',
         'api_token',
         'user_name',
         'email',
@@ -40,6 +39,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'from_time',
         'to_time',
         'last_login',
+        'created_by',
+        'updated_by',
     ];
 
     /**
@@ -48,7 +49,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var string[]
      */
     protected $hidden = [
-        'login_password',
+        'password',
     ];
     
     public function permission()
