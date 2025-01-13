@@ -66,6 +66,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   const table1Column = [
     'Quote Date',
     'Quote Number',
+    'Event No',
     "Customer's Reference",
     'Delivery Location',
     'Payment Terms',
@@ -77,6 +78,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
     [
       data.document_date ? dayjs(data.document_date).format('MM-DD-YYYY') : '',
       data.document_identity,
+      data.event.event_code,
       data.customer_ref,
       data.port ? data.port.name : '',
       data.payment ? data.payment.name : '',
@@ -110,14 +112,15 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       fontSize: 7
     },
     columnStyles: {
-      0: { cellWidth: 21 },
-      1: { cellWidth: 30 },
-      2: { cellWidth: 44 },
-      3: { cellWidth: 28 },
-      4: { cellWidth: 18 },
-      5: { cellWidth: 17 },
+      0: { cellWidth: 19 },
+      1: { cellWidth: 22 },
+      2: { cellWidth: 18 },
+      3: { cellWidth: 44 },
+      4: { cellWidth: 28 },
+      5: { cellWidth: 18 },
       6: { cellWidth: 17 },
-      7: { cellWidth: 27 }
+      7: { cellWidth: 17 },
+      8: { cellWidth: 19 }
     },
     didParseCell: function (data) {
       data.cell.styles.minCellHeight = 9;
@@ -179,10 +182,10 @@ export const createQuotationPrint = (data) => {
           description,
           uom,
           quantity,
-          pricePerUnit,
-          grossAmount,
+          { content: pricePerUnit, styles: { halign: 'right' } },
+          { content: grossAmount, styles: { halign: 'right' } },
           discountPercent,
-          netAmount
+          { content: netAmount, styles: { halign: 'right' } }
         ];
       })
     : [];
@@ -213,8 +216,8 @@ export const createQuotationPrint = (data) => {
     },
     rowPageBreak: 'avoid',
     columnStyles: {
-      0: { cellWidth: 15 },
-      1: { cellWidth: 80 },
+      0: { cellWidth: 16 },
+      1: { cellWidth: 79 },
       2: { cellWidth: 14 },
       3: { cellWidth: 14 },
       4: { cellWidth: 18 },
@@ -314,6 +317,10 @@ export const createQuotationPrint = (data) => {
       if (rowIndex === 0 && (columnIndex === 0 || columnIndex === 3 || columnIndex === 2)) {
         data.cell.styles.fontSize = 12;
         data.cell.styles.fontStyle = 'bold';
+      }
+
+      if (rowIndex === 0 && columnIndex === 3) {
+        data.cell.styles.halign = 'right';
       }
     }
   });

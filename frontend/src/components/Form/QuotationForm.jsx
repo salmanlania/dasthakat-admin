@@ -662,7 +662,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
       imo: null,
       class1_id: null,
       class2_id: null,
-      flag_id: null
+      flag_id: null,
+      salesman_id: null
     });
     dispatch(setRebatePercentage(null));
     setPrevEvent(selected);
@@ -677,7 +678,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
         class1_id: { value: data.class1_id, label: data.class1_name },
         class2_id: { value: data.class2_id, label: data.class2_name },
         flag_id: { value: data.flag_id, label: data.flag_name },
-        payment_id: { value: data.payment_id, label: data.payment_name }
+        payment_id: { value: data.payment_id, label: data.payment_name },
+        salesman_id: { value: data.salesman_id, label: data.salesman_name }
       });
       dispatch(setRebatePercentage(data.rebate_percent ? +data.rebate_percent : null));
     } catch (error) {
