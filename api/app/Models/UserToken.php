@@ -1,26 +1,26 @@
 <?php
 
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class UserToken extends Model
 {
 
     public static $secret = 'Burhani';
     protected $table = 'user';
-    // protected $primaryKey = 'api_token';
+    protected $primaryKey = 'user_id';
     public $timestamps = false;
 
     protected $hidden = [];
 
     public static function login($credentials)
     {
-        $login_name = $credentials['login_name'];
-        $password = md5($credentials['login_password']);
+        $email = $credentials['email'];
+        $password = md5($credentials['password']);
 
-        $user = User::where('login_name', $login_name)
-            ->where('login_password', $password)
+        $user = User::where('email', $email)
+            ->where('password', $password)
             ->where('status', 1)
             ->first();
 
@@ -29,72 +29,45 @@ class UserToken extends Model
             $fromTime = $user['from_time'] ?? '00:00:00';
             $toTime = $user['to_time'] ?? '23:59:59';
             if ($currentTime >= $fromTime && $currentTime <= $toTime) {
-
-                $header = [
-                    'alg' => 'HS256',
-                    'typ' => 'JWT'
-                ];
-
-                $payload = [
-                    'permission_id' => json_encode($user->permission_id),
-                    'r' => rand(111111, 999999),
-                    'exp' => time() * 60 * 24 // 1 day
-                ];
-                $token = self::generate_token($header, $payload);
-                $userData = User::where('login_name', $login_name)->first();
-
-                $aUserGroup = UserPermission::where('user_permission_id', $userData->permission_id)->select('user_permission_id', 'permission')->first();
-                $permission = (empty($aUserGroup)) ? null : json_decode($aUserGroup->permission);
-
-                if ($userData) {
-                    $mUser['user_id'] = $userData->user_id;
-                    $mUser['api_token'] = $token;
-                    $mUser['user_name'] = $userData->user_name;
-                    $mUser['login_name'] = $userData->login_name;
-                    $mUser['email'] = $userData->email;
-                    $mUser['permission_id'] = $userData->permission_id;
-                    $mUser['permission'] = $permission;
-                    $mUser['image'] = $userData->image;
-                    $mUser['image_url']  = !empty($userData->image) ?  url('public/uploads/' . $userData->image) : '';
-                    $mUser['timeout'] = false;
-
-                    //Update Token
-                    $userData->api_token = $mUser['api_token'];
-                    $userData->last_login = date('Y-m-d H:i:s');
-                    $userData->save();
-                }
+                return $user;
             } else {
                 return [
-                    'message' => "Access denied. You can only log in between " . date('h:i A', strtotime($fromTime)) . " and " . date('h:i A', strtotime($toTime)),
+                    'error' => "Access denied. You can only log in between " . date('h:i A', strtotime($fromTime)) . " and " . date('h:i A', strtotime($toTime)),
                     'status' => 400,
                     'timeout' => true,
+                    'success' => true
                 ];
             }
         }
-        return $mUser ?? [];
+        return [];
+
     }
 
     public static function userPermission($filter)
     {
 
-        $user_id = $filter['user_id'];
         $company_id = $filter['company_id'];
         $company_branch_id = $filter['company_branch_id'];
+        $email = $filter['email'];
+        $password = md5($filter['password']);
 
+        $user = User::where('email', $email)
+            ->where('password', $password)
+            ->where('status', 1)
+            ->first();
+            
+            $company = Company::where('company_id',$company_id)->first();
+            $company_branch = CompanyBranch::where('company_branch_id',$company_branch_id)->first();
         $userBranch = UserBranchAccess::with('company', 'company_branch')
-            ->where('user_id', $user_id)
+            ->where('user_id', $user['user_id'])
             ->where('company_id', $company_id)
             ->where('company_branch_id', $company_branch_id)
             ->first();
-
+        if($user['super_admin'] != 1)
         if (empty($userBranch))  return " No Permission! ";
 
-        $aUser = User::where('user_id', $user_id)->where('status', 1)->first();
+        $aUser = User::where('user_id', $user['user_id'])->where('status', 1)->first();
         if (empty($aUser))  return " Invalid User or User Inactive !";
-
-        // $aFiscalYear = FiscalYear::where('fiscal_year_id',$fiscal_year_id)->where('company_id',$company_id)->first();
-        // if(empty($aFiscalYear)) return " Financial Year not defined ";
-        // $db_name = $aFiscalYear['db_name'];
 
         $header = [
             'alg' => 'HS256',
@@ -102,36 +75,28 @@ class UserToken extends Model
         ];
 
         $payload = [
-            'user_id' => $user_id,
-            'login_name' => $aUser['login_name'],
+            'user_id' => $aUser['user_id'],
+            'email' => $aUser['email'],
             'company_id' => $company_id,
             'company_branch_id' => $company_branch_id,
-            // 'fiscal_year_id' => $fiscal_year_id,
-            // 'db_name' => $db_name,
+            'permission_id' => json_encode($aUser['permission_id']),
             'r' => rand(111111, 999999),
-            'exp' => time() * 60 * 24 // 1 day
+            'exp' => time() + 60 * 60 * 24
         ];
-
         $token = self::generate_token($header, $payload);
         $aUser['api_token'] = $token;
         $aUser['company_id'] = $company_id;
-        $aUser['company_name'] = $userBranch->company->name;
+        $aUser['company_name'] = $company['name'];
         $aUser['company_branch_id'] = $company_branch_id;
-        $aUser['company_branch_name'] = $userBranch->company_branch->name;
-        // $aUser['fiscal_year_id'] = $fiscal_year_id;
-        // $aUser['fiscal_year_name'] = $aFiscalYear['name'];
-        // $aUser['db_name'] = $aFiscalYear['db_name'];
-        // return $aUser;
+        $aUser['company_branch_name'] = $company_branch['name'];
         $aUserGroup = UserPermission::where('user_permission_id', $aUser['permission_id'])->select('user_permission_id', 'permission')->first();
         $aUser['permission'] = (empty($aUserGroup)) ? null : json_decode($aUserGroup['permission']);
-
-        unset($aUser['login_password']);
-        $userTokenUpdate = User::where('user_id', $user_id)->firstOrFail();
+        
+        unset($aUser['password']);
+        $userTokenUpdate = User::where('user_id', $aUser['user_id'])->firstOrFail();
         $userTokenUpdate->api_token = $aUser['api_token'];
         $userTokenUpdate->last_login = date('Y-m-d H:i:s');
-        $userTokenUpdate->save();
-
-
+        $userTokenUpdate->update();
         return $aUser;
     }
 
@@ -180,7 +145,10 @@ class UserToken extends Model
         if ($is_token_expired || !$is_signature_valid) {
             return FALSE;
         } else {
-            return $permissionId;
+            // $payload = json_decode($payload);
+            // unset($payload->permission_id);
+            return $payload;
+            // return $payload;
         }
     }
 

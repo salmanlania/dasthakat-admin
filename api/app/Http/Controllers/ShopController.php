@@ -10,8 +10,6 @@ use App\Models\ProductVariantAttributes;
 use App\Models\Favorite;
 use App\Models\Cart;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Hash;
 use DB;
 
 class ShopController extends Controller

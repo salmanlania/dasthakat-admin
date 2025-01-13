@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -12,10 +13,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-    
+        // You can register other services here if needed
     }
-    
-    
-    
 
+    /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
+  
 }

@@ -8,6 +8,9 @@ use App\Models\UserToken;
 use App\Models\UserPermission;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+
+use function PHPSTORM_META\type;
+
 class Authenticate
 {
     /**
@@ -25,7 +28,7 @@ class Authenticate
         'auth/refresh',
         'auth/logout',
         'auth/verify-email',
-        'reset-password'
+        // 'reset-password'
     ];
 
 
@@ -60,21 +63,28 @@ class Authenticate
          $access_token = str_replace('access_token ', '', $access_token);
 	     $access_token = str_replace('Bearer ', '', $access_token);
          $exist = UserToken::where('api_token', $access_token)->first();
-	     $token_get_permission_id = UserToken::is_token_valid($access_token);
-	 
-         if (!$exist || empty($access_token) || !($token_get_permission_id) ) {
+	     $payload = UserToken::is_token_valid($access_token);
+
+         $payload = json_decode($payload);
+         $token_get_permission_id = json_decode($payload->permission_id??"");
+         
+         $currentTime = date("H:i:s");
+         $fromTime = $exist['from_time'] ?? '00:00:00';
+         $toTime = $exist['to_time'] ?? '23:59:59';
+         if (!$exist || empty($access_token) || !($token_get_permission_id) || ($currentTime < $fromTime || $currentTime > $toTime) ) {
              return response()->json([
                  'message' => 'Unauthorized',
                  'status' => 'Authentication Failed',
                  'status_code' => 401
-             ], 401);
-         }
+                ], 401);
+            }
          // get Permission
-         $userPermission = UserPermission::where('user_permission_id',$token_get_permission_id)
-         ->select('user_permission_id','permission')->first();
-         
+         $userPermission = UserPermission::where('user_permission_id',$token_get_permission_id)->first();
          $permission = (empty($userPermission))? null : json_decode($userPermission['permission'], true);
          $request['permission_list'] = $permission;
+         $request['company_id'] = $payload->company_id;
+         $request['company_branch_id'] = $payload->company_branch_id;
+         $request['login_user_id'] = $payload->user_id;
          //  $this->switchToYearlyDatabase( $db_name);
         return $next($request);
     }

@@ -1,5 +1,7 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
+
 /** @var \Laravel\Lumen\Routing\Router $router */
 
 /*
@@ -15,15 +17,13 @@ use Illuminate\Support\Facades\Route;
 
 // $router->get('/',['Middleware'=>['auth'], function () use ($router) {
 //     return $router->app->version();
-  
+
 // }]);
 
 
 $router->group([
-        'middleware' => ['cors'],
-    ], function ($router) {
-         
-    });
+   'middleware' => ['cors'],
+], function ($router) {});
 
 $router->get('test', 'Controller@testApi');
 
@@ -36,29 +36,16 @@ $router->post('auth/logout', 'AuthController@logout');
 
 // //forgot Password
 // $router->post('auth/verify-email', 'AuthController@verifyEmail');
-// $router->post('reset-password', 'AuthController@forgotPassword');
+$router->post('reset-password', 'AuthController@forgotPassword');
 
-// // Test Route
-// $router->get('/', 'UserController@testApi');
-
-// // Dashboard
-// $router->group(['prefix' => 'dashboard'], function ($router) {
-//  $router->get('/', 'DashboardController@index');
-// });
-
-// // Users
 $router->group(['prefix' => 'user'], function ($router) {
- $router->get('/', 'UserController@index');
- $router->get('/{id}', 'UserController@show');
- $router->post('/', 'UserController@store');
- $router->put('/{id}', 'UserController@update');
- $router->delete('/{id}', 'UserController@delete');
- $router->post('/bulk-delete', 'UserController@bulkDelete');
+   $router->get('/', 'UserController@index');
+   $router->get('/{id}', 'UserController@show');
+   $router->post('/', 'UserController@store');
+   $router->put('/{id}', 'UserController@update');
+   $router->delete('/{id}', 'UserController@delete');
+   $router->post('/bulk-delete', 'UserController@bulkDelete');
 });
-// $router->post('change-password', 'UserController@changePassword');
-
-
-// // Permission 
 
 $router->group(['prefix' => 'permission'], function ($router) {
    $router->get('/', 'PermissionController@index');
@@ -69,129 +56,216 @@ $router->group(['prefix' => 'permission'], function ($router) {
    $router->post('/bulk-delete', 'PermissionController@bulkDelete');
 });
 
-$router->get('lookups/company', 'LookUpsController@getCompany');
-$router->get('lookups/company-branch', 'LookUpsController@getCompanyBranch');
-// $router->get('lookups/country', 'LookUpsController@getCountry');
-// $router->get('lookups/modules', 'LookUpsController@getModules');
-// $router->get('lookups/parlour-modules', 'LookUpsController@getParlourModules');
-// $router->get('lookups/template-modules', 'LookUpsController@getModuleForEmail');
+$router->group(['prefix' => 'company'], function ($router) {
+   $router->get('/', 'CompanyController@index');
+   $router->get('/{id}', 'CompanyController@show');
+   $router->post('/', 'CompanyController@store');
+   $router->put('/{id}', 'CompanyController@update');
+   $router->delete('/{id}', 'CompanyController@delete');
+   $router->post('/bulk-delete', 'CompanyController@bulkDelete');
+});
 
-// // Banner
-// $router->group(['prefix' => 'banner'], function ($router) {
-//   $router->post('/', 'BannerController@store');
-//   $router->get('/{id}', 'BannerController@show');
-//   $router->put('/{id}', 'BannerController@update');
-// });
+$router->group(['prefix' => 'company-branch'], function ($router) {
+   $router->get('/', 'CompanyBranchController@index');
+   $router->get('/{id}', 'CompanyBranchController@show');
+   $router->post('/', 'CompanyBranchController@store');
+   $router->put('/{id}', 'CompanyBranchController@update');
+   $router->delete('/{id}', 'CompanyBranchController@delete');
+   $router->post('/bulk-delete', 'CompanyBranchController@bulkDelete');
+});
 
+$router->group(['prefix' => 'customer'], function ($router) {
+   $router->get('/', 'CustomerController@index');
+   $router->get('/{id}', 'CustomerController@show');
+   $router->post('/', 'CustomerController@store');
+   $router->put('/{id}', 'CustomerController@update');
+   $router->delete('/{id}', 'CustomerController@delete');
+   $router->post('/bulk-delete', 'CustomerController@bulkDelete');
+});
 
-// // Parlour Master
-// $router->group(['prefix' => 'parlour-master'], function ($router) {
-//   $router->get('/', 'ParlourMasterController@index');
-//   $router->get('/{id}', 'ParlourMasterController@show');
-//   $router->post('/', 'ParlourMasterController@store');
-//   $router->put('/{id}', 'ParlourMasterController@update');
-//   $router->delete('/{id}', 'ParlourMasterController@delete');
-//   $router->post('/bulk-delete', 'ParlourMasterController@bulkDelete');
-// });
+$router->group(['prefix' => 'supplier'], function ($router) {
+   $router->get('/', 'SupplierController@index');
+   $router->get('/{id}', 'SupplierController@show');
+   $router->post('/', 'SupplierController@store');
+   $router->put('/{id}', 'SupplierController@update');
+   $router->delete('/{id}', 'SupplierController@delete');
+   $router->post('/bulk-delete', 'SupplierController@bulkDelete');
+});
 
+$router->group(['prefix' => 'agent'], function ($router) {
+   $router->get('/', 'AgentController@index');
+   $router->get('/{id}', 'AgentController@show');
+   $router->post('/', 'AgentController@store');
+   $router->put('/{id}', 'AgentController@update');
+   $router->delete('/{id}', 'AgentController@delete');
+   $router->post('/bulk-delete', 'AgentController@bulkDelete');
+});
 
-// // Quote Request
-// $router->group(['prefix' => 'request'], function ($router) {
-//   $router->get('/', 'QuoteRequestController@index');
-//   $router->get('/{id}', 'QuoteRequestController@show');
-//   $router->post('/', 'QuoteRequestController@store');
-//   $router->put('/{id}', 'QuoteRequestController@update');
-//   $router->delete('/{id}', 'QuoteRequestController@delete');
-//   $router->post('/bulk-delete', 'QuoteRequestController@bulkDelete');
-//   $router->post('/add-assignee', 'QuoteRequestController@addAssignee');
-//   $router->post('/change-assignee', 'QuoteRequestController@changeAssignee');
-//   $router->post('/messages','QuoteRequestController@messages');
-// });
+$router->group(['prefix' => 'flag'], function ($router) {
+   $router->get('/', 'FlagController@index');
+   $router->get('/{id}', 'FlagController@show');
+   $router->post('/', 'FlagController@store');
+   $router->put('/{id}', 'FlagController@update');
+   $router->delete('/{id}', 'FlagController@delete');
+   $router->post('/bulk-delete', 'FlagController@bulkDelete');
+});
 
-// // Attribute
-// $router->group(['prefix' => 'attribute'], function ($router) {
-//   $router->get('/', 'AttributeController@index');
-//   $router->get('/{id}', 'AttributeController@show');
-//   $router->post('/', 'AttributeController@store');
-//   $router->put('/{id}', 'AttributeController@update');
-//   $router->delete('/{id}', 'AttributeController@delete');
-//   $router->post('/bulk-delete', 'AttributeController@bulkDelete');
-// });
+$router->group(['prefix' => 'class'], function ($router) {
+   $router->get('/', 'ClassController@index');
+   $router->get('/{id}', 'ClassController@show');
+   $router->post('/', 'ClassController@store');
+   $router->put('/{id}', 'ClassController@update');
+   $router->delete('/{id}', 'ClassController@delete');
+   $router->post('/bulk-delete', 'ClassController@bulkDelete');
+});
 
-// // Product Category
-// $router->group(['prefix' => 'product-category'], function ($router) {
-//   $router->get('/', 'ProductCategoryController@index');
-//   $router->get('/{id}', 'ProductCategoryController@show');
-//   $router->post('/', 'ProductCategoryController@store');
-//   $router->put('/{id}', 'ProductCategoryController@update');
-//   $router->delete('/{id}', 'ProductCategoryController@delete');
-//   $router->post('/bulk-delete', 'ProductCategoryController@bulkDelete');
-// });
+$router->group(['prefix' => 'port'], function ($router) {
+   $router->get('/', 'PortController@index');
+   $router->get('/{id}', 'PortController@show');
+   $router->post('/', 'PortController@store');
+   $router->put('/{id}', 'PortController@update');
+   $router->delete('/{id}', 'PortController@delete');
+   $router->post('/bulk-delete', 'PortController@bulkDelete');
+});
 
-// // Product
-// $router->group(['prefix' => 'product'], function ($router) {
-//   $router->get('/', 'ProductController@index');
-//   $router->get('/{id}', 'ProductController@show');
-//   $router->post('/', 'ProductController@store');
-//   $router->put('/{id}', 'ProductController@update');
-//   $router->delete('/{id}', 'ProductController@delete');
-//   $router->post('/bulk-delete', 'ProductController@bulkDelete');
-// });
+$router->group(['prefix' => 'vessel'], function ($router) {
+   $router->get('/', 'VesselController@index');
+   $router->get('/{id}', 'VesselController@show');
+   $router->post('/', 'VesselController@store');
+   $router->put('/{id}', 'VesselController@update');
+   $router->delete('/{id}', 'VesselController@delete');
+   $router->post('/bulk-delete', 'VesselController@bulkDelete');
+});
 
-// // Shop
-// $router->group(['prefix' => 'shop'], function ($router) {
-//   $router->get('/', 'ShopController@index');
-//   $router->get('view-cart/', 'ShopController@viewCart');
-//   $router->get('/{id}', 'ShopController@show');
-//   $router->post('add-to-favorite', 'ShopController@addToFavorite');
-//   $router->get('product-detail/{id}', 'ShopController@productDetail');
-//   $router->post('add-to-cart/', 'ShopController@addToCart');
-//   $router->post('update-cart/', 'ShopController@updateCart');
-//   $router->delete('delete-cart-item/{id}', 'ShopController@deleteCartItem');
-// });
+$router->group(['prefix' => 'event'], function ($router) {
+   $router->get('/', 'EventController@index');
+   $router->get('/{id}', 'EventController@show');
+   $router->post('/', 'EventController@store');
+   $router->put('/{id}', 'EventController@update');
+   $router->delete('/{id}', 'EventController@delete');
+   $router->post('/bulk-delete', 'EventController@bulkDelete');
+});
 
-// // Orders
-// $router->group(['prefix' => 'order'], function ($router) {
-//   $router->get('/', 'OrderController@index');
-//   $router->post('/', 'OrderController@store');
-//   $router->get('/{id}', 'OrderController@show');
-//   $router->put('/{id}', 'OrderController@update');
-//   $router->post('update-status/', 'OrderController@updateStatus');
-//   $router->post('buy-again/', 'OrderController@buyAgain');
-//   $router->get('generate-pdf/{id}', 'OrderController@generatePdf');
-// });
+$router->group(['prefix' => 'terms'], function ($router) {
+   $router->get('/', 'TermsController@index');
+   $router->get('/{id}', 'TermsController@show');
+   $router->post('/', 'TermsController@store');
+   $router->put('/{id}', 'TermsController@update');
+   $router->delete('/{id}', 'TermsController@delete');
+   $router->post('/bulk-delete', 'TermsController@bulkDelete');
+});
 
-// // Messages
-// $router->group(['prefix' => 'messages'], function ($router) {
-//    $router->get('/', 'MessageController@index');
-// });
+$router->group(['prefix' => 'validity'], function ($router) {
+   $router->get('/', 'ValidityController@index');
+   $router->get('/{id}', 'ValidityController@show');
+   $router->post('/', 'ValidityController@store');
+   $router->put('/{id}', 'ValidityController@update');
+   $router->delete('/{id}', 'ValidityController@delete');
+   $router->post('/bulk-delete', 'ValidityController@bulkDelete');
+});
 
-// // Notification
-// $router->group(['prefix' => 'notification'], function ($router) {
-//    $router->get('/', 'NotificationController@index');
-//    $router->delete('/{id}', 'NotificationController@delete');
-//    $router->post('/bulk-delete', 'NotificationController@bulkDelete');
-//    $router->post('/read-all', 'NotificationController@readAll');
-   
-// });
+$router->group(['prefix' => 'payment'], function ($router) {
+   $router->get('/', 'PaymentController@index');
+   $router->get('/{id}', 'PaymentController@show');
+   $router->post('/', 'PaymentController@store');
+   $router->put('/{id}', 'PaymentController@update');
+   $router->delete('/{id}', 'PaymentController@delete');
+   $router->post('/bulk-delete', 'PaymentController@bulkDelete');
+});
 
-//  //Logs
-// $router->get('/log-history', 'QuoteRequestController@logList');
+$router->group(['prefix' => 'category'], function ($router) {
+   $router->get('/', 'CategoryController@index');
+   $router->get('/{id}', 'CategoryController@show');
+   $router->post('/', 'CategoryController@store');
+   $router->put('/{id}', 'CategoryController@update');
+   $router->delete('/{id}', 'CategoryController@delete');
+   $router->post('/bulk-delete', 'CategoryController@bulkDelete');
+});
+$router->group(['prefix' => 'sub-category'], function ($router) {
+   $router->get('/', 'SubCategoryController@index');
+   $router->get('/{id}', 'SubCategoryController@show');
+   $router->post('/', 'SubCategoryController@store');
+   $router->put('/{id}', 'SubCategoryController@update');
+   $router->delete('/{id}', 'SubCategoryController@delete');
+   $router->post('/bulk-delete', 'SubCategoryController@bulkDelete');
+});
 
-// // Setting
-// $router->group(['prefix' => 'setting'], function ($router) {
-//  $router->put('/{id}', 'SettingController@update');
-//  $router->get('/{id}', 'SettingController@show');
-//  $router->post('/email-debugging', 'SettingController@EmailDubugging');
-// });
+$router->group(['prefix' => 'brand'], function ($router) {
+   $router->get('/', 'BrandController@index');
+   $router->get('/{id}', 'BrandController@show');
+   $router->post('/', 'BrandController@store');
+   $router->put('/{id}', 'BrandController@update');
+   $router->delete('/{id}', 'BrandController@delete');
+   $router->post('/bulk-delete', 'BrandController@bulkDelete');
+});
 
-// // Setting
-// $router->group(['prefix' => 'email-template'], function ($router) {
-//  $router->get('/', 'EmailTemplateController@index');
-//  $router->post('/', 'EmailTemplateController@store');
-//  $router->get('/{id}', 'EmailTemplateController@show');
-//  $router->put('/{id}', 'EmailTemplateController@update');
-//  $router->delete('/{id}', 'EmailTemplateController@delete');
-// });
+$router->group(['prefix' => 'product'], function ($router) {
+   $router->get('/', 'ProductController@index');
+   $router->get('/{id}', 'ProductController@show');
+   $router->get('getProductByCode/{id}', 'ProductController@show');
+   $router->post('/', 'ProductController@store');
+   $router->put('/{id}', 'ProductController@update');
+   $router->delete('/{id}', 'ProductController@delete');
+   $router->post('/bulk-delete', 'ProductController@bulkDelete');
+});
 
-// Route::post('auth/login', 'AuthController@login');
+$router->group(['prefix' => 'salesman'], function ($router) {
+   $router->get('/', 'SalesmanController@index');
+   $router->get('/{id}', 'SalesmanController@show');
+   $router->post('/', 'SalesmanController@store');
+   $router->put('/{id}', 'SalesmanController@update');
+   $router->delete('/{id}', 'SalesmanController@delete');
+   $router->post('/bulk-delete', 'SalesmanController@bulkDelete');
+});
+
+$router->group(['prefix' => 'unit'], function ($router) {
+   $router->get('/', 'UnitController@index');
+   $router->get('/{id}', 'UnitController@show');
+   $router->post('/', 'UnitController@store');
+   $router->put('/{id}', 'UnitController@update');
+   $router->delete('/{id}', 'UnitController@delete');
+   $router->post('/bulk-delete', 'UnitController@bulkDelete');
+});
+
+$router->group(['prefix' => 'currency'], function ($router) {
+   $router->get('/', 'CurrencyController@index');
+   $router->get('/{id}', 'CurrencyController@show');
+   $router->post('/', 'CurrencyController@store');
+   $router->put('/{id}', 'CurrencyController@update');
+   $router->delete('/{id}', 'CurrencyController@delete');
+   $router->post('/bulk-delete', 'CurrencyController@bulkDelete');
+});
+
+$router->group(['prefix' => 'lookups'], function ($router) {
+   $router->get('/company', 'LookUpsController@getCompany');
+   $router->get('/company-branch', 'LookUpsController@getCompanyBranch');
+   $router->get('/company-and-branches', 'LookUpsController@getCompanyAndBranches');
+   $router->get('/modules', 'LookUpsController@getModules');
+});
+
+$router->group(['prefix' => 'quotation'], function ($router) {
+   $router->get('/', 'QuotationController@index');
+   $router->get('/{id}', 'QuotationController@show');
+   $router->post('/', 'QuotationController@store');
+   $router->put('/{id}', 'QuotationController@update');
+   $router->delete('/{id}', 'QuotationController@delete');
+   $router->post('/bulk-delete', 'QuotationController@bulkDelete');
+});
+
+$router->group(['prefix' => 'charge-order'], function ($router) {
+   $router->get('/', 'ChargeOrderController@index');
+   $router->get('/{id}', 'ChargeOrderController@show');
+   $router->post('/', 'ChargeOrderController@store');
+   $router->put('/{id}', 'ChargeOrderController@update');
+   $router->delete('/{id}', 'ChargeOrderController@delete');
+   $router->post('/bulk-delete', 'ChargeOrderController@bulkDelete');
+});
+
+$router->group(['prefix' => 'purchase-order'], function ($router) {
+   $router->get('/', 'PurchaseOrderController@index');
+   $router->get('/{id}', 'PurchaseOrderController@show');
+   $router->post('/', 'PurchaseOrderController@store');
+   $router->put('/{id}', 'PurchaseOrderController@update');
+   $router->delete('/{id}', 'PurchaseOrderController@delete');
+   $router->post('/bulk-delete', 'PurchaseOrderController@bulkDelete');
+});

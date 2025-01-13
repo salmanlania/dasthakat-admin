@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Facades\DB;
 use App\Mail\GenerateMail;
+use App\Models\CompanyBranch;
+use App\Models\UserBranchAccess;
+use App\Models\UserPermission;
 use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
@@ -30,17 +33,67 @@ class AuthController extends Controller
     {
 
         $this->validate($request, [
-            'login_name' => 'required',
-            'login_password' => 'required',
+            'email' => 'required',
+            'password' => 'required',
         ]);
 
-        $credentials = $request->only(['login_name', 'login_password']);
+        $credentials = $request->only(['email', 'password']);
         $user = UserToken::login($credentials);
-        if ($user['timeout']) {
-            return $this->jsonResponse($user['message'] ?? '', 400, 'Login Timeout');
+        if (isset($user['timeout'])) {
+            return $this->jsonResponse($user['error'] ?? '', 400, 'Login Timeout');
         }
-        if ($user) {
-            return $this->jsonResponse($user, 200, 'Login Successfully');
+        if (isset($user['user_id'])) {
+            $user_data = User::where('user_id', $user['user_id'])->first();
+            $user_access = UserBranchAccess::where('user_id', $user['user_id']);
+            $company = array_unique($user_access->pluck('company_id')->toArray());
+            $branchList = ($user_access->pluck('company_branch_id', 'company_branch_id'));
+            $companies = Company::with('branches');
+            if ($user_data['super_admin'] != 1)
+                $companies = $companies->whereIn('company_id', $company);
+            $companies = $companies->get();
+
+            $groupedData = [];
+
+            foreach ($companies as $company) {
+                $branches = [];
+
+                foreach ($company->branches as $branch) {
+
+                    if ($user_data['super_admin'] == 1 || isset($branchList[$branch->company_branch_id])) {
+                        $branches[] = [
+                            'value' => $branch->company_branch_id,
+                            'label' => $branch->name,
+                        ];
+                    }
+                }
+
+                $groupedData[] = [
+                    'value' => $company->company_id,
+                    'label' => $company->name,
+                    'branches' => $branches,
+                ];
+            }
+
+            // $user = UserBranchAccess::find('user_id', $user['user_id'])->first();
+
+            // $data = Company::get();
+            // $arrModules = [];
+            // foreach($data as $row) {
+            //     $branches = CompanyBranch::select("company_branch_id as value","name as label")->where('company_id',$row->company_id)->get();
+            //     $arrModules[] = [
+            //         'value' => $row->company_id,
+            //         'label'=> $row->name,
+            //         'branches'=> $branches,
+            //     ];
+            // }
+            // // $aUserGroup = UserPermission::where('user_permission_id', $user['permission_id'])->select('user_permission_id','permission')->first();
+            // $user['company_and_branches'] = $arrModules;
+
+            // $user['permission'] = (empty($aUserGroup)) ? null : json_decode($aUserGroup['permission']);
+
+
+
+            return $this->jsonResponse($groupedData, 200, 'Login Successfully');
         } else {
             return $this->jsonResponse("Invalid Email or Password!", 400, 'Login Failed');
         }
@@ -50,16 +103,21 @@ class AuthController extends Controller
     public function session(Request $request)
     {
         $this->validate($request, [
-            'user_id' => 'required',
             'company_id' => 'required',
             'company_branch_id' => 'required',
+            'email' => 'required',
+            'password' => 'required',
         ]);
 
         $userData = UserToken::userPermission($request->all());
+
         if (empty($userData))
             return $this->jsonResponse("Something went wrong. Contact Administrator", 401, "User do not have Permission: ");
 
         if ($userData) {
+            if (isset($userData['image']))
+                $userData['image_url']  = !empty($userData['image']) ?  url('public/uploads/' . $userData['image']) : '';
+
             return $this->jsonResponse($userData, 200, 'Login Successfully');
         } else {
             return $this->jsonResponse([], 401, 'Unauthorized User');
@@ -158,7 +216,8 @@ class AuthController extends Controller
 
 
         $rules = [
-            'user_id' => 'required',
+
+            'old_password' => 'required',
             'new_password' => 'required|string|min:8',
             'confirm_password' => 'required|string|same:new_password'
         ];
@@ -172,30 +231,30 @@ class AuthController extends Controller
 
 
         // Get User Detail
-        $user = User::where('id', $request->user_id)->where('is_change_password', 0)->first();
+        $user = User::where('user_id', $request->login_user_id)->first();
         if (empty($user)) return $this->jsonResponse("Invalid Request!", 400, "Invalid Request!");
-
+        if (md5($request->old_password) != $user['password']) return $this->jsonResponse("Old Password is Incorrect!", 400, "Invalid Password!");
+       
         $user->password = md5($request->new_password);
-        $user->is_change_password = 1;
         $user->update();
 
 
 
         // Sent EMail     
-        $config = $this->SystemConfig("Forgot Password");
-        $message = $config['description'] ?? "";
-        $subject = html_entity_decode($config['subject'] ?? "", ENT_QUOTES | ENT_HTML5);
-        $message = html_entity_decode($message, ENT_QUOTES | ENT_HTML5);
-        $message = (str_replace('<Link>', '<a href="' . env("SITE_URL") . '">' . env("SITE_ADDRESS") . '</a>', $message));
+        // $config = $this->SystemConfig("Forgot Password");
+        // $message = $config['description'] ?? "";
+        // $subject = html_entity_decode($config['subject'] ?? "", ENT_QUOTES | ENT_HTML5);
+        // $message = html_entity_decode($message, ENT_QUOTES | ENT_HTML5);
+        // $message = (str_replace('<Link>', '<a href="' . env("SITE_URL") . '">' . env("SITE_ADDRESS") . '</a>', $message));
 
-        $mailData = [
-            'email' => $user['email'],
-            'name' => 'Dear ' . $user['name'],
-            'subject' => $subject,
-            'message' => $message
-        ];
+        // $mailData = [
+        //     'email' => $user['email'],
+        //     'name' => 'Dear ' . $user['name'],
+        //     'subject' => $subject,
+        //     'message' => $message
+        // ];
 
-        $this->sentMail($mailData);
+        // $this->sentMail($mailData);
 
         return $this->jsonResponse(['user_id' => $user['id']], 200, "Password Reset!");
     }
