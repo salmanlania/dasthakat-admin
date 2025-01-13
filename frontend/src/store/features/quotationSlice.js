@@ -269,7 +269,7 @@ export const quotationSlice = createSlice({
         event_id: data.event
           ? {
               value: data.event.event_id,
-              label: data.event.event_code
+              label: data.event.event_name
             }
           : null,
         vessel_id: data.vessel

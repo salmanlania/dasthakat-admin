@@ -24,6 +24,7 @@ import {
 import { getSalesman } from '../../store/features/salesmanSlice';
 import { formatThreeDigitCommas, roundUpto } from '../../utils/number';
 import { createQuotationPrint } from '../../utils/prints/quotation-print';
+import toastConfirm from '../../utils/toastConfirm';
 import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebouncedNumberInput from '../Input/DebouncedNumberInput';
@@ -645,6 +646,10 @@ const QuotationForm = ({ mode, onSubmit }) => {
   };
 
   const onEventChange = async (selected) => {
+    const result = await toastConfirm('Are you sure you want to proceed?', true);
+
+    if (!result) return;
+
     form.setFieldsValue({
       vessel_id: null,
       customer_id: null,
