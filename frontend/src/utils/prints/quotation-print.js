@@ -75,14 +75,14 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   ];
   const table1Rows = [
     [
-      data.document_date ? dayjs(data.document_date).format('DD-MM-YYYY') : '',
+      data.document_date ? dayjs(data.document_date).format('MM-DD-YYYY') : '',
       data.document_identity,
       data.customer_ref,
       data.port ? data.port.name : '',
       data.payment ? data.payment.name : '',
       data.flag ? data.flag.name : '',
       `${data.class1 ? `${data.class1.name},` : ''} ${data.class2 ? data.class2.name : ''}`,
-      data.service_date ? dayjs(data.service_date).format('DD-MM-YYYY') : ''
+      data.service_date ? dayjs(data.service_date).format('MM-DD-YYYY') : ''
     ]
   ];
 

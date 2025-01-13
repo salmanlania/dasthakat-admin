@@ -88,7 +88,7 @@ const Quotation = () => {
               value={params.document_date}
               className="font-normal"
               onChange={(date) => dispatch(setQuotationListParams({ document_date: date }))}
-              format="DD-MM-YYYY"
+              format="MM-DD-YYYY"
             />
           </div>
         </div>
@@ -99,7 +99,7 @@ const Quotation = () => {
       width: 150,
       ellipsis: true,
       render: (_, { document_date }) =>
-        document_date ? dayjs(document_date).format('DD-MM-YYYY') : null
+        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null
     },
     {
       title: (
@@ -191,7 +191,7 @@ const Quotation = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('DD-MM-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
     },
     {
       title: 'Action',
@@ -241,8 +241,7 @@ const Quotation = () => {
                   okButtonProps={{ danger: true }}
                   okText="Yes"
                   cancelText="No"
-                  onConfirm={() => onQuotationDelete(quotation_id)}
-                >
+                  onConfirm={() => onQuotationDelete(quotation_id)}>
                   <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                 </Popconfirm>
               </Tooltip>
@@ -297,8 +296,7 @@ const Quotation = () => {
                 type="primary"
                 danger
                 onClick={() => setDeleteModalIsOpen(true)}
-                disabled={!deleteIDs.length}
-              >
+                disabled={!deleteIDs.length}>
                 Delete
               </Button>
             ) : null}

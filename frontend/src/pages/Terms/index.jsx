@@ -124,7 +124,7 @@ const Terms = () => {
       width: 168,
       render: (_, { created_at }) =>
         created_at ? (
-          dayjs(created_at).format('DD-MM-YYYY hh:mm A')
+          dayjs(created_at).format('MM-DD-YYYY hh:mm A')
         ) : (
           <span className="text-gray-400">AUTO</span>
         )
@@ -182,8 +182,7 @@ const Terms = () => {
                   okButtonProps={{ danger: true }}
                   okText="Yes"
                   cancelText="No"
-                  onConfirm={() => onTermsDelete(term_id)}
-                >
+                  onConfirm={() => onTermsDelete(term_id)}>
                   <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                 </Popconfirm>
               </Tooltip>
@@ -225,8 +224,7 @@ const Terms = () => {
               type="primary"
               danger
               onClick={() => setDeleteModalIsOpen(true)}
-              disabled={!deleteIDs.length}
-            >
+              disabled={!deleteIDs.length}>
               Delete
             </Button>
             {permissions.add ? (

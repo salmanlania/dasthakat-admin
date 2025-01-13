@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Select, Table } from 'antd';
 import dayjs from 'dayjs';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiPlus } from 'react-icons/bi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
@@ -51,6 +52,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
     rebatePercentage,
     salesmanPercentage
   } = useSelector((state) => state.quotation);
+  const [prevEvent, setPrevEvent] = useState(initialFormValues?.event_id);
 
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
@@ -646,9 +648,13 @@ const QuotationForm = ({ mode, onSubmit }) => {
   };
 
   const onEventChange = async (selected) => {
-    const result = await toastConfirm('Are you sure you want to proceed?', true);
-
-    if (!result) return;
+    if (prevEvent) {
+      const isWantToChange = await toastConfirm('Are you sure you want to change event?');
+      if (!isWantToChange) {
+        form.setFieldsValue({ event_id: prevEvent });
+        return;
+      }
+    }
 
     form.setFieldsValue({
       vessel_id: null,
@@ -659,6 +665,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       flag_id: null
     });
     dispatch(setRebatePercentage(null));
+    setPrevEvent(selected);
 
     if (!selected) return;
     try {
@@ -729,7 +736,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             label="Quotation Date"
             rules={[{ required: true, message: 'Quotation date is required' }]}
             className="w-full">
-            <DatePicker format="DD-MM-YYYY" className="w-full" />
+            <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
         </Col>
 
@@ -826,13 +833,13 @@ const QuotationForm = ({ mode, onSubmit }) => {
 
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="due_date" label="Due Date" className="w-full">
-            <DatePicker format="DD-MM-YYYY" className="w-full" />
+            <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
         </Col>
 
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="service_date" label="Date of Service">
-            <DatePicker format="DD-MM-YYYY" className="w-full" />
+            <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
         </Col>
 

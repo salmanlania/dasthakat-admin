@@ -318,8 +318,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
                 required: true,
                 message: 'Quantity is required'
               }
-            ]}
-          >
+            ]}>
             <DebouncedCommaSeparatedInput
               decimalPlaces={2}
               value={quantity}
@@ -453,8 +452,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
                 onClick: () => dispatch(removePurchaseOrderDetail(id))
               }
             ]
-          }}
-        >
+          }}>
           <Button size="small">
             <BsThreeDotsVertical />
           </Button>
@@ -480,8 +478,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
               po_type: 'Inventory'
             }
       }
-      scrollToFirstError
-    >
+      scrollToFirstError>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
         <span className="text-gray-500">Purchase Order No:</span>
@@ -493,8 +490,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             if (mode !== 'edit') return;
             navigator.clipboard.writeText(initialFormValues?.document_identity);
             toast.success('Copied');
-          }}
-        >
+          }}>
           {mode === 'edit' ? initialFormValues?.document_identity : 'AUTO'}
         </span>
       </p>
@@ -504,9 +500,8 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             name="document_date"
             label="Purchase Order Date"
             rules={[{ required: true, message: 'Purchase Order date is required' }]}
-            className="w-full"
-          >
-            <DatePicker format="DD-MM-YYYY" className="w-full" />
+            className="w-full">
+            <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
@@ -514,9 +509,8 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             name="required_date"
             label="Required Date"
             rules={[{ required: true, message: 'Required date is required' }]}
-            className="w-full"
-          >
-            <DatePicker format="DD-MM-YYYY" className="w-full" />
+            className="w-full">
+            <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
         </Col>
 
@@ -543,8 +537,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
                 required: true,
                 message: 'Purchase Order Type is required'
               }
-            ]}
-          >
+            ]}>
             <Select
               options={[
                 {
@@ -664,8 +657,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
           type="primary"
           className="w-28"
           loading={isFormSubmitting}
-          onClick={() => form.submit()}
-        >
+          onClick={() => form.submit()}>
           Save
         </Button>
       </div>

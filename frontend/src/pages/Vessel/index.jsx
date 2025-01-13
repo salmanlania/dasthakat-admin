@@ -187,7 +187,7 @@ const Vessel = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('DD-MM-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
     },
     {
       title: 'Action',
@@ -214,8 +214,7 @@ const Vessel = () => {
                 okButtonProps={{ danger: true }}
                 okText="Yes"
                 cancelText="No"
-                onConfirm={() => onVesselDelete(vessel_id)}
-              >
+                onConfirm={() => onVesselDelete(vessel_id)}>
                 <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
               </Popconfirm>
             </Tooltip>
@@ -269,8 +268,7 @@ const Vessel = () => {
               type="primary"
               danger
               onClick={() => setDeleteModalIsOpen(true)}
-              disabled={!deleteIDs.length}
-            >
+              disabled={!deleteIDs.length}>
               Delete
             </Button>
             {permissions.add ? (

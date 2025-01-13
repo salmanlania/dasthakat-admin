@@ -110,8 +110,7 @@ const AsyncSelect = ({
         <div
           ref={dropdownRef}
           onScroll={handleScroll}
-          style={{ maxHeight: '300px', overflowY: 'auto' }}
-        >
+          style={{ maxHeight: '300px', overflowY: 'auto' }}>
           {menu}
         </div>
       )}
@@ -131,8 +130,7 @@ const AsyncSelect = ({
             }}
           />
         ) : undefined
-      }
-    >
+      }>
       {options.map((option) => (
         <Option key={option.value} value={option.value}>
           {option.label}

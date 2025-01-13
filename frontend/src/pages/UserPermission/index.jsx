@@ -101,7 +101,7 @@ const UserPermission = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('DD-MM-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
     },
     {
       title: 'Action',
@@ -128,8 +128,7 @@ const UserPermission = () => {
                 okButtonProps={{ danger: true }}
                 okText="Yes"
                 cancelText="No"
-                onConfirm={() => onUserPermissionDelete(user_permission_id)}
-              >
+                onConfirm={() => onUserPermissionDelete(user_permission_id)}>
                 <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
               </Popconfirm>
             </Tooltip>
@@ -178,8 +177,7 @@ const UserPermission = () => {
                 type="primary"
                 danger
                 onClick={() => setDeleteModalIsOpen(true)}
-                disabled={!deleteIDs.length}
-              >
+                disabled={!deleteIDs.length}>
                 Delete
               </Button>
             ) : null}

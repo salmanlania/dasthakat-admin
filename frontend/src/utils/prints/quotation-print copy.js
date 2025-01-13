@@ -82,7 +82,7 @@ export const createQuotationPrint = (data) => {
   ];
   const table1Rows = [
     [
-      data.document_date ? dayjs(data.document_date).format('DD-MM-YYYY') : '',
+      data.document_date ? dayjs(data.document_date).format('MM-DD-YYYY') : '',
       data.document_identity,
       data.customer_ref,
       data.delivery,
