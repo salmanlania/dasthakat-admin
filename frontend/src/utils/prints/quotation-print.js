@@ -94,22 +94,26 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
     body: table1Rows,
     margin: { left: sideMargin, right: sideMargin, bottom: 27 },
     headStyles: {
-      fontSize: 8,
+      halign: 'center',
+      valign: 'middle',
+      fontSize: 7,
       fontStyle: 'bold',
       textColor: [32, 50, 114],
       fillColor: [221, 217, 196]
     },
     styles: {
+      halign: 'center',
+      valign: 'middle',
       lineWidth: 0.1,
       lineColor: [116, 116, 116]
     },
     bodyStyles: {
+      fontSize: 6,
       textColor: [32, 50, 114],
       fillColor: [255, 255, 255]
     },
     alternateRowStyles: {
-      fillColor: [255, 255, 255],
-      fontSize: 7
+      fillColor: [255, 255, 255]
     },
     columnStyles: {
       0: { cellWidth: 19 },
@@ -149,6 +153,9 @@ export const createQuotationPrint = (data) => {
   doc.setTextColor(32, 50, 114);
 
   const sideMargin = 4;
+
+  const descriptions = data.term_desc ? data.term_desc.split('\n') : [];
+  const rowSpan = descriptions.length + 1;
 
   // Table 2
   const table2Column = [
@@ -190,19 +197,44 @@ export const createQuotationPrint = (data) => {
       })
     : [];
 
+  const rowsPerPage = 19 - (descriptions.length || 1); // Number of rows per page
+  const totalRows = table2Rows.length;
+  const requiredRows = rowsPerPage - (totalRows % rowsPerPage); // Calculate empty rows to fill
+
+  // for (let i = 1; i < totalRows; i++) {
+  //   if (   ) {
+
+  //   }
+  //   if (i % 18 === 0) {
+  //     table2Rows.splice(i, 0, ['', '', '', '', '', '', '', '']);
+  //   }
+  // }
+
+  // // Add empty rows if needed
+  // if (requiredRows !== rowsPerPage) {
+  //   for (let i = 0; i < requiredRows; i++) {
+  //     table2Rows.push(['', '', '', '', '', '', '', '']); // Add empty rows (adjust columns if needed)
+  //   }
+  // }
+
   // Adding Table
   doc.autoTable({
-    startY: 85,
+    startY: 84,
     head: [table2Column],
     body: table2Rows,
-    margin: { left: sideMargin, right: sideMargin, bottom: 27, top: 85 },
+    margin: { left: sideMargin, right: sideMargin, bottom: 27, top: 84 },
     headStyles: {
-      fontSize: 8,
+      fontSize: 7,
       fontStyle: 'bold',
+      halign: 'center',
+      valign: 'middle',
       textColor: [32, 50, 114],
       fillColor: [221, 217, 196]
     },
     styles: {
+      halign: 'center',
+      valign: 'middle',
+      fontSize: 7,
       lineWidth: 0.1,
       lineColor: [116, 116, 116]
     },
@@ -211,8 +243,7 @@ export const createQuotationPrint = (data) => {
       fillColor: [255, 255, 255]
     },
     alternateRowStyles: {
-      fillColor: [255, 255, 255],
-      fontSize: 9
+      fillColor: [255, 255, 255]
     },
     rowPageBreak: 'avoid',
     columnStyles: {
@@ -221,14 +252,15 @@ export const createQuotationPrint = (data) => {
       2: { cellWidth: 14 },
       3: { cellWidth: 14 },
       4: { cellWidth: 18 },
-      5: { cellWidth: 17 },
-      6: { cellWidth: 17 },
+      5: { cellWidth: 19 },
+      6: { cellWidth: 15 },
       7: { cellWidth: 27 }
+    },
+    didParseCell: function (data) {
+      data.cell.styles.minCellHeight = 9;
     }
   });
 
-  const descriptions = data.term_desc ? data.term_desc.split('\n') : [];
-  const rowSpan = descriptions.length + 1;
   const netAmount = data.net_amount ? `$${formatThreeDigitCommas(data.net_amount)}` : '';
   const notes = data.term_desc
     ? descriptions.map((note, index) => {
@@ -288,7 +320,7 @@ export const createQuotationPrint = (data) => {
     startY: doc.previousAutoTable.finalY,
     head: [],
     body: notes,
-    margin: { left: sideMargin, right: sideMargin, bottom: 27, top: 85 },
+    margin: { left: sideMargin, right: sideMargin, bottom: 27, top: 84 },
     styles: {
       lineWidth: 0.1,
       lineColor: [116, 116, 116],
@@ -296,14 +328,14 @@ export const createQuotationPrint = (data) => {
       halign: 'center'
     },
     bodyStyles: {
+      fontSize: 7,
       textColor: [32, 50, 114],
       fillColor: [255, 255, 255],
       valign: 'middle',
       halign: 'center'
     },
     alternateRowStyles: {
-      fillColor: [255, 255, 255],
-      fontSize: 9
+      fillColor: [255, 255, 255]
     },
     columnStyles: {
       0: { cellWidth: 25 },
@@ -314,8 +346,9 @@ export const createQuotationPrint = (data) => {
     didParseCell: (data) => {
       const rowIndex = data.row.index;
       const columnIndex = data.column.index;
+      data.cell.styles.minCellHeight = 9;
       if (rowIndex === 0 && (columnIndex === 0 || columnIndex === 3 || columnIndex === 2)) {
-        data.cell.styles.fontSize = 12;
+        data.cell.styles.fontSize = 10;
         data.cell.styles.fontStyle = 'bold';
       }
 
@@ -340,7 +373,7 @@ export const createQuotationPrint = (data) => {
   }
 
   doc.setProperties({
-    title: 'Quotation - 0014'
+    title: `Quotation - ${data.document_identity}`
   });
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob, {});

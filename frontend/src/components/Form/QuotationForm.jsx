@@ -163,6 +163,14 @@ const QuotationForm = ({ mode, onSubmit }) => {
           value: product.cost_price
         })
       );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'rate',
+          value: product.sale_price
+        })
+      );
     } catch (error) {
       handleError(error);
     }
@@ -201,6 +209,14 @@ const QuotationForm = ({ mode, onSubmit }) => {
           index,
           key: 'cost_price',
           value: product.cost_price
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'rate',
+          value: product.sale_price
         })
       );
     } catch (error) {
@@ -867,6 +883,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
               addNewLink={
                 permissions.validity.list && permissions.validity.add ? '/validity' : null
               }
+              defaultFirstSelected
             />
           </Form.Item>
         </Col>
@@ -878,6 +895,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
               valueKey="payment_id"
               labelKey="name"
               labelInValue
+              defaultFirstSelected
               addNewLink={permissions.payment.list && permissions.payment.add ? '/payment' : null}
             />
           </Form.Item>
