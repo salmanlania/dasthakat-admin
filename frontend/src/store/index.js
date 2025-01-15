@@ -12,6 +12,7 @@ import currencyReducer from './features/currencySlice';
 import customerReducer from './features/customerSlice';
 import eventReducer from './features/eventSlice';
 import flagReducer from './features/flagSlice';
+import goodsReceivedNoteReducer from './features/goodsReceivedNoteSlice';
 import paymentReducer from './features/paymentSlice';
 import portReducer from './features/portSlice';
 import productReducer from './features/productSlice';
@@ -27,6 +28,7 @@ import userReducer from './features/userSlice';
 import validityReducer from './features/validitySlice';
 import vendorReducer from './features/vendorSlice';
 import vesselReducer from './features/vesselSlice';
+import warehouseReducer from './features/warehouseSlice';
 
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
@@ -49,11 +51,13 @@ const rootReducer = combineReducers({
   subCategory: subCategoryReducer,
   category: categoryReducer,
   brand: brandReducer,
+  warehouse: warehouseReducer,
   unit: unitReducer,
   vessel: vesselReducer,
   event: eventReducer,
   product: productReducer,
   purchaseOrder: purchaseOrderReducer,
+  goodsReceivedNote: goodsReceivedNoteReducer,
   quotation: quotationReducer,
   chargeOrder: chargeOrderReducer
 });

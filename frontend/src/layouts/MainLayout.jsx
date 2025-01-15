@@ -75,6 +75,7 @@ const MainLayout = () => {
   if (href === '/category' && !permissions.category.list) return <NotFound />;
   if (href === '/sub-category' && !permissions.sub_category.list) return <NotFound />;
   if (href === '/brand' && !permissions.brand.list) return <NotFound />;
+  if (href === '/warehouse' && !permissions.warehouse.list) return <NotFound />;
   if (href === '/unit' && !permissions.unit.list) return <NotFound />;
 
   if (href === '/product' && !permissions.product.list) return <NotFound />;
@@ -83,6 +84,17 @@ const MainLayout = () => {
 
   if (href === '/validity' && !permissions.validity.list) return <NotFound />;
   if (href === '/payment' && !permissions.payment.list) return <NotFound />;
+
+  if (href === '/purchase-order' && !permissions.purchase_order.list) return <NotFound />;
+  if (href === '/purchase-order/create' && !permissions.purchase_order.add) return <NotFound />;
+  if (href.startsWith('/purchase-order/edit') && !permissions.purchase_order.edit)
+    return <NotFound />;
+
+  if (href === '/goods-received-note' && !permissions.good_received_note.list) return <NotFound />;
+  if (href === '/goods-received-note/create' && !permissions.good_received_note.add)
+    return <NotFound />;
+  if (href.startsWith('/goods-received-note/edit') && !permissions.good_received_note.edit)
+    return <NotFound />;
 
   if (href === '/quotation' && !permissions.quotation.list) return <NotFound />;
   if (href === '/quotation/create' && !permissions.quotation.add) return <NotFound />;

@@ -9,32 +9,29 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import useError from '../../hooks/useError';
-import { getProduct, getProductList } from '../../store/features/productSlice';
 import {
-  addPurchaseOrderDetail,
-  changePurchaseOrderDetailOrder,
-  changePurchaseOrderDetailValue,
-  copyPurchaseOrderDetail,
-  getPurchaseOrderForPrint,
-  removePurchaseOrderDetail
-} from '../../store/features/purchaseOrderSlice';
-import { createPurchaseOrderPrint } from '../../utils/prints/purchase-order-print';
+  addGoodsReceivedNoteDetail,
+  changeGoodsReceivedNoteDetailOrder,
+  changeGoodsReceivedNoteDetailValue,
+  copyGoodsReceivedNoteDetail,
+  getGoodsReceivedNoteForPrint,
+  removeGoodsReceivedNoteDetail
+} from '../../store/features/goodsReceivedNoteSlice';
+import { getProduct, getProductList } from '../../store/features/productSlice';
+import { createGoodsReceivedNotePrint } from '../../utils/prints/goods-received-note-print';
 import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
 import { DetailSummaryInfo } from './QuotationForm';
 
-const PurchaseOrderForm = ({ mode, onSubmit }) => {
+const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
   const handleError = useError();
   const dispatch = useDispatch();
   const { id } = useParams();
-  const { isFormSubmitting, initialFormValues, purchaseOrderDetails } = useSelector(
-    (state) => state.purchaseOrder
+  const { isFormSubmitting, initialFormValues, goodsReceivedNoteDetails } = useSelector(
+    (state) => state.goodsReceivedNote
   );
-
-  const POType = Form.useWatch('type', form);
-  const isBillable = POType === 'Billable';
 
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
@@ -42,7 +39,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
   let totalAmount = 0;
   let totalQuantity = 0;
 
-  purchaseOrderDetails.forEach((detail) => {
+  goodsReceivedNoteDetails.forEach((detail) => {
     totalAmount += +detail.amount || 0;
     totalQuantity += +detail.quantity || 0;
   });
@@ -54,15 +51,13 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       type: values.type,
       remarks: values.remarks,
       supplier_id: values.supplier_id ? values.supplier_id.value : null,
-      class1_id: values.class1_id ? values.class1_id.value : null,
-      customer_id: values.customer_id ? values.customer_id.value : null,
-      event_id: values.event_id ? values.event_id.value : null,
+      purchase_order_id: values.purchase_order_id ? values.purchase_order_id.value : null,
       payment_id: values.payment_id ? values.payment_id.value : null,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
-      required_date: values.required_date ? dayjs(values.required_date).format('YYYY-MM-DD') : null,
-      purchase_order_detail: purchaseOrderDetails.map(({ id, ...detail }, index) => ({
+      good_received_note_detail: goodsReceivedNoteDetails.map(({ id, ...detail }, index) => ({
         ...detail,
         product_id: detail.product_id ? detail.product_id.value : null,
+        warehouse_id: detail.warehouse_id ? detail.warehouse_id.value : null,
         unit_id: detail.unit_id ? detail.unit_id.value : null,
         sort_order: index
       })),
@@ -82,7 +77,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
 
       const product = res.data[0];
       dispatch(
-        changePurchaseOrderDetailValue({
+        changeGoodsReceivedNoteDetailValue({
           index,
           key: 'product_id',
           value: {
@@ -93,7 +88,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       );
 
       dispatch(
-        changePurchaseOrderDetailValue({
+        changeGoodsReceivedNoteDetailValue({
           index,
           key: 'unit_id',
           value: { value: product.unit_id, label: product.unit_name }
@@ -101,7 +96,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       );
 
       dispatch(
-        changePurchaseOrderDetailValue({
+        changeGoodsReceivedNoteDetailValue({
           index,
           key: 'rate',
           value: product.cost_price
@@ -114,7 +109,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
 
   const onProductChange = async (index, selected) => {
     dispatch(
-      changePurchaseOrderDetailValue({
+      changeGoodsReceivedNoteDetailValue({
         index,
         key: 'product_id',
         value: selected
@@ -125,7 +120,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       const product = await dispatch(getProduct(selected.value)).unwrap();
 
       dispatch(
-        changePurchaseOrderDetailValue({
+        changeGoodsReceivedNoteDetailValue({
           index,
           key: 'product_code',
           value: product.product_code
@@ -133,7 +128,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       );
 
       dispatch(
-        changePurchaseOrderDetailValue({
+        changeGoodsReceivedNoteDetailValue({
           index,
           key: 'unit_id',
           value: { value: product.unit_id, label: product.unit_name }
@@ -141,7 +136,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       );
 
       dispatch(
-        changePurchaseOrderDetailValue({
+        changeGoodsReceivedNoteDetailValue({
           index,
           key: 'rate',
           value: product.cost_price
@@ -152,12 +147,12 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
     }
   };
 
-  const printPurchaseOrder = async () => {
+  const printGoodsReceivedNote = async () => {
     const loadingToast = toast.loading('Loading print...');
     try {
-      const data = await dispatch(getPurchaseOrderForPrint(id)).unwrap();
+      const data = await dispatch(getGoodsReceivedNoteForPrint(id)).unwrap();
       toast.dismiss(loadingToast);
-      createPurchaseOrderPrint(data);
+      createGoodsReceivedNotePrint(data);
     } catch (error) {
       handleError(error);
     }
@@ -171,7 +166,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
           type="primary"
           className="!w-8"
           icon={<BiPlus size={14} />}
-          onClick={() => dispatch(addPurchaseOrderDetail())}
+          onClick={() => dispatch(addGoodsReceivedNoteDetail())}
         />
       ),
       key: 'order',
@@ -185,16 +180,16 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
               icon={<IoMdArrowDropup size={16} />}
               disabled={index === 0}
               onClick={() => {
-                dispatch(changePurchaseOrderDetailOrder({ from: index, to: index - 1 }));
+                dispatch(changeGoodsReceivedNoteDetailOrder({ from: index, to: index - 1 }));
               }}
             />
             <Button
               className="h-4"
               size="small"
               icon={<IoMdArrowDropdown size={16} />}
-              disabled={index === purchaseOrderDetails.length - 1}
+              disabled={index === goodsReceivedNoteDetails.length - 1}
               onClick={() => {
-                dispatch(changePurchaseOrderDetailOrder({ from: index, to: index + 1 }));
+                dispatch(changeGoodsReceivedNoteDetailOrder({ from: index, to: index + 1 }));
               }}
             />
           </div>
@@ -221,7 +216,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             value={product_code}
             onChange={(value) =>
               dispatch(
-                changePurchaseOrderDetailValue({
+                changeGoodsReceivedNoteDetailValue({
                   index,
                   key: 'product_code',
                   value: value
@@ -267,7 +262,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             value={description}
             onChange={(value) =>
               dispatch(
-                changePurchaseOrderDetailValue({
+                changeGoodsReceivedNoteDetailValue({
                   index,
                   key: 'description',
                   value: value
@@ -300,7 +295,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
               value={quantity}
               onChange={(value) =>
                 dispatch(
-                  changePurchaseOrderDetailValue({
+                  changeGoodsReceivedNoteDetailValue({
                     index,
                     key: 'quantity',
                     value: value
@@ -328,7 +323,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             value={unit_id}
             onChange={(selected) =>
               dispatch(
-                changePurchaseOrderDetailValue({
+                changeGoodsReceivedNoteDetailValue({
                   index,
                   key: 'unit_id',
                   value: selected
@@ -342,6 +337,36 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       width: 120
     },
     {
+      title: 'Warehouse',
+      dataIndex: 'warehouse_id',
+      key: 'warehouse_id',
+      render: (_, { warehouse_id }, index) => {
+        return (
+          <AsyncSelect
+            endpoint="/warehouse"
+            valueKey="warehouse_id"
+            labelKey="name"
+            labelInValue
+            className="w-full"
+            value={warehouse_id}
+            onChange={(selected) =>
+              dispatch(
+                changeGoodsReceivedNoteDetailValue({
+                  index,
+                  key: 'warehouse_id',
+                  value: selected
+                })
+              )
+            }
+            addNewLink={
+              permissions.warehouse.list && permissions.warehouse.add ? '/warehouse' : null
+            }
+          />
+        );
+      },
+      width: 200
+    },
+    {
       title: 'Unit Price',
       dataIndex: 'rate',
       key: 'rate',
@@ -351,7 +376,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             value={rate}
             onChange={(value) =>
               dispatch(
-                changePurchaseOrderDetailValue({
+                changeGoodsReceivedNoteDetailValue({
                   index,
                   key: 'rate',
                   value: value
@@ -364,7 +389,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       width: 120
     },
     {
-      title: 'Ext. Cost',
+      title: 'Amount',
       dataIndex: 'amount',
       key: 'amount',
       render: (_, { amount }) => (
@@ -373,35 +398,13 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       width: 120
     },
     {
-      title: 'Vend Notes',
-      dataIndex: 'vendor_notes',
-      key: 'vendor_notes',
-      render: (_, { vendor_notes }, index) => {
-        return (
-          <DebounceInput
-            value={vendor_notes}
-            onChange={(value) =>
-              dispatch(
-                changePurchaseOrderDetailValue({
-                  index,
-                  key: 'vendor_notes',
-                  value: value
-                })
-              )
-            }
-          />
-        );
-      },
-      width: 240
-    },
-    {
       title: (
         <Button
           size="small"
           type="primary"
           className="!w-8"
           icon={<BiPlus size={14} />}
-          onClick={() => dispatch(addPurchaseOrderDetail())}
+          onClick={() => dispatch(addGoodsReceivedNoteDetail())}
         />
       ),
       key: 'action',
@@ -414,18 +417,18 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
               {
                 key: '1',
                 label: 'Add',
-                onClick: () => dispatch(addPurchaseOrderDetail(index))
+                onClick: () => dispatch(addGoodsReceivedNoteDetail(index))
               },
               {
                 key: '2',
                 label: 'Copy',
-                onClick: () => dispatch(copyPurchaseOrderDetail(index))
+                onClick: () => dispatch(copyGoodsReceivedNoteDetail(index))
               },
               {
                 key: '3',
                 label: 'Delete',
                 danger: true,
-                onClick: () => dispatch(removePurchaseOrderDetail(id))
+                onClick: () => dispatch(removeGoodsReceivedNoteDetail(id))
               }
             ]
           }}>
@@ -441,7 +444,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
 
   return (
     <Form
-      name="purchaseOrder"
+      name="goodsReceivedNote"
       layout="vertical"
       autoComplete="off"
       form={form}
@@ -450,14 +453,13 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
         mode === 'edit'
           ? initialFormValues
           : {
-              document_date: dayjs(),
-              type: 'Inventory'
+              document_date: dayjs()
             }
       }
       scrollToFirstError>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
-        <span className="text-gray-500">Purchase Order No:</span>
+        <span className="text-gray-500">GRN No:</span>
         <span
           className={`ml-4 text-amber-600 ${
             mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
@@ -474,17 +476,8 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
             name="document_date"
-            label="Purchase Order Date"
-            rules={[{ required: true, message: 'Purchase Order date is required' }]}
-            className="w-full">
-            <DatePicker format="MM-DD-YYYY" className="w-full" />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item
-            name="required_date"
-            label="Required Date"
-            rules={[{ required: true, message: 'Required date is required' }]}
+            label="GRN Date"
+            rules={[{ required: true, message: 'GRN Date is required' }]}
             className="w-full">
             <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
@@ -505,75 +498,20 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
         </Col>
 
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item
-            name="type"
-            label="Purchase Order Type"
-            rules={[
-              {
-                required: true,
-                message: 'Purchase Order Type is required'
+          <Form.Item name="purchase_order_id" label="Purchase Order">
+            <AsyncSelect
+              endpoint="/purchase-order"
+              valueKey="purchase_order_id"
+              labelKey="document_identity"
+              labelInValue
+              addNewLink={
+                permissions.purchase_order.list && permissions.purchase_order.add
+                  ? '/purchase-order/create'
+                  : null
               }
-            ]}>
-            <Select
-              options={[
-                {
-                  value: 'Inventory',
-                  label: 'Inventory'
-                },
-                {
-                  value: 'Billable',
-                  label: 'Billable'
-                }
-              ]}
             />
           </Form.Item>
         </Col>
-
-        {isBillable ? (
-          <>
-            <Col span={24} sm={12} md={8} lg={8} className="flex gap-3">
-              <Form.Item name="charge_no" label="Charge No" className="w-full">
-                <Input disabled />
-              </Form.Item>
-
-              <Form.Item name="quotation_no" label="Quotation No" className="w-full">
-                <Input disabled />
-              </Form.Item>
-            </Col>
-
-            <Col span={24} sm={12} md={8} lg={8}>
-              <Form.Item name="event_id" label="Event">
-                <AsyncSelect
-                  endpoint="/event"
-                  valueKey="event_id"
-                  labelKey="name"
-                  labelInValue
-                  disabled
-                  addNewLink={
-                    permissions.event.list && permissions.event.add ? '/event/create' : null
-                  }
-                />
-              </Form.Item>
-            </Col>
-
-            <Col span={24} sm={12} md={8} lg={8}>
-              <Form.Item name="customer_id" label="Customer">
-                <AsyncSelect
-                  endpoint="/customer"
-                  valueKey="customer_id"
-                  labelKey="name"
-                  labelInValue
-                  disabled
-                  addNewLink={
-                    permissions.customer.list && permissions.customer.add
-                      ? '/customer/create'
-                      : null
-                  }
-                />
-              </Form.Item>
-            </Col>
-          </>
-        ) : null}
 
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="payment_id" label="Payment Terms">
@@ -587,7 +525,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
 
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={24} sm={24} md={16} lg={16}>
           <Form.Item name="remarks" label="Remarks">
             <Input.TextArea rows={1} />
           </Form.Item>
@@ -595,12 +533,12 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       </Row>
 
       <Divider orientation="left" className="!border-gray-300">
-        Purchase Order Items
+        GRN Items
       </Divider>
 
       <Table
         columns={columns}
-        dataSource={purchaseOrderDetails}
+        dataSource={goodsReceivedNoteDetails}
         rowKey={'id'}
         size="small"
         scroll={{ x: 'calc(100% - 200px)' }}
@@ -616,14 +554,14 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       </div>
 
       <div className="mt-4 flex items-center justify-end gap-2">
-        <Link to="/purchase-order">
+        <Link to="/goods-received-note">
           <Button className="w-28">Cancel</Button>
         </Link>
         {mode === 'edit' ? (
           <Button
             type="primary"
             className="w-28 bg-rose-600 hover:!bg-rose-500"
-            // onClick={printPurchaseOrder}
+            // onClick={printGoodsReceivedNote}
           >
             Print
           </Button>
@@ -640,4 +578,4 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
   );
 };
 
-export default PurchaseOrderForm;
+export default GoodsReceivedNoteForm;

@@ -59,6 +59,7 @@ const EditEvent = lazy(() => import('./pages/Event/EditEvent'));
 const Category = lazy(() => import('./pages/Category'));
 const SubCategory = lazy(() => import('./pages/SubCategory'));
 const Brand = lazy(() => import('./pages/Brand'));
+const Warehouse = lazy(() => import('./pages/Warehouse'));
 const Unit = lazy(() => import('./pages/Unit'));
 
 const Product = lazy(() => import('./pages/Product'));
@@ -71,6 +72,12 @@ const Payment = lazy(() => import('./pages/Payment'));
 const PurchaseOrder = lazy(() => import('./pages/PurchaseOrder'));
 const CreatePurchaseOrder = lazy(() => import('./pages/PurchaseOrder/CreatePurchaseOrder'));
 const EditPurchaseOrder = lazy(() => import('./pages/PurchaseOrder/EditPurchaseOrder'));
+
+const GoodsReceivedNote = lazy(() => import('./pages/GoodsReceivedNote'));
+const CreateGoodsReceivedNote = lazy(
+  () => import('./pages/GoodsReceivedNote/CreateGoodsReceivedNote')
+);
+const EditGoodsReceivedNote = lazy(() => import('./pages/GoodsReceivedNote/EditGoodsReceivedNote'));
 
 const Quotation = lazy(() => import('./pages/Quotation'));
 const CreateQuotation = lazy(() => import('./pages/Quotation/CreateQuotation'));
@@ -402,6 +409,14 @@ function Routes() {
             )
           },
           {
+            path: '/warehouse',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Warehouse />
+              </Suspense>
+            )
+          },
+          {
             path: '/unit',
             element: (
               <Suspense fallback={<PageLoader />}>
@@ -470,6 +485,30 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditPurchaseOrder />
+              </Suspense>
+            )
+          },
+          {
+            path: '/goods-received-note',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <GoodsReceivedNote />
+              </Suspense>
+            )
+          },
+          {
+            path: '/goods-received-note/create',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreateGoodsReceivedNote />
+              </Suspense>
+            )
+          },
+          {
+            path: '/goods-received-note/edit/:id',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditGoodsReceivedNote />
               </Suspense>
             )
           },

@@ -3,37 +3,40 @@ import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import PurchaseOrderForm from '../../components/Form/PurchaseOrderForm';
+import GoodsReceivedNoteForm from '../../components/Form/GoodsReceivedNoteForm';
 import PageHeading from '../../components/heading/PageHeading';
 import useError from '../../hooks/useError';
-import { getPurchaseOrder, updatePurchaseOrder } from '../../store/features/purchaseOrderSlice';
+import {
+  getGoodsReceivedNote,
+  updateGoodsReceivedNote
+} from '../../store/features/goodsReceivedNoteSlice';
 
-const EditPurchaseOrder = () => {
+const EditGoodsReceivedNote = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();
   const { id } = useParams();
-  const { isItemLoading, initialFormValues } = useSelector((state) => state.purchaseOrder);
+  const { isItemLoading, initialFormValues } = useSelector((state) => state.goodsReceivedNote);
 
-  const onPurchaseOrderUpdate = async (data) => {
+  const onGoodsReceivedNoteUpdate = async (data) => {
     try {
-      await dispatch(updatePurchaseOrder({ id, data })).unwrap();
-      toast.success('Purchase order updated successfully');
-      navigate('/purchase-order');
+      await dispatch(updateGoodsReceivedNote({ id, data })).unwrap();
+      toast.success('Goods Received Note updated successfully');
+      navigate('/goods-received-note');
     } catch (error) {
       handleError(error);
     }
   };
 
   useEffect(() => {
-    dispatch(getPurchaseOrder(id)).unwrap().catch(handleError);
+    dispatch(getGoodsReceivedNote(id)).unwrap().catch(handleError);
   }, []);
 
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>EDIT PURCHASE ORDER</PageHeading>
-        <Breadcrumb items={[{ title: 'Purchase Order' }, { title: 'Edit' }]} separator=">" />
+        <PageHeading>EDIT GOODS RECEIVED NOTE</PageHeading>
+        <Breadcrumb items={[{ title: 'Goods Received Note' }, { title: 'Edit' }]} separator=">" />
       </div>
 
       {isItemLoading && (
@@ -44,11 +47,11 @@ const EditPurchaseOrder = () => {
 
       {!isItemLoading && initialFormValues ? (
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <PurchaseOrderForm mode="edit" onSubmit={onPurchaseOrderUpdate} />
+          <GoodsReceivedNoteForm mode="edit" onSubmit={onGoodsReceivedNoteUpdate} />
         </div>
       ) : null}
     </>
   );
 };
 
-export default EditPurchaseOrder;
+export default EditGoodsReceivedNote;

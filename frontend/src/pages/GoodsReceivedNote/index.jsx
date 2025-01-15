@@ -14,42 +14,40 @@ import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
 import {
-  bulkDeletePurchaseOrder,
-  deletePurchaseOrder,
-  getPurchaseOrderForPrint,
-  getPurchaseOrderList,
-  setPurchaseOrderDeleteIDs,
-  setPurchaseOrderListParams
-} from '../../store/features/purchaseOrderSlice';
-import { createPurchaseOrderPrint } from '../../utils/prints/purchase-order-print';
+  bulkDeleteGoodsReceivedNote,
+  deleteGoodsReceivedNote,
+  getGoodsReceivedNoteForPrint,
+  getGoodsReceivedNoteList,
+  setGoodsReceivedNoteDeleteIDs,
+  setGoodsReceivedNoteListParams
+} from '../../store/features/goodsReceivedNoteSlice';
+import { createGoodsReceivedNotePrint } from '../../utils/prints/goods-received-note-print';
 
-const PurchaseOrder = () => {
+const GoodsReceivedNote = () => {
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.purchaseOrder
+    (state) => state.goodsReceivedNote
   );
   const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.purchase_order;
+  const permissions = user.permission.good_received_note;
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
-  const debouncedPurchaseOrderNo = useDebounce(params.document_identity, 500);
-  const debouncedChargeNo = useDebounce(params.charge_no, 500);
-  const debouncedQuotationNo = useDebounce(params.quotation_no, 500);
+  const debouncedGoodsReceivedNoteNo = useDebounce(params.document_identity, 500);
 
   const formattedParams = {
     ...params,
     document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null
   };
 
-  const onPurchaseOrderDelete = async (id) => {
+  const onGoodsReceivedNoteDelete = async (id) => {
     try {
-      await dispatch(deletePurchaseOrder(id)).unwrap();
-      toast.success('Purchase order deleted successfully');
-      dispatch(getPurchaseOrderList(formattedParams)).unwrap();
+      await dispatch(deleteGoodsReceivedNote(id)).unwrap();
+      toast.success('Goods Received Note deleted successfully');
+      dispatch(getGoodsReceivedNoteList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -57,22 +55,22 @@ const PurchaseOrder = () => {
 
   const onBulkDelete = async () => {
     try {
-      await dispatch(bulkDeletePurchaseOrder(deleteIDs)).unwrap();
-      toast.success('Purchase orders deleted successfully');
+      await dispatch(bulkDeleteGoodsReceivedNote(deleteIDs)).unwrap();
+      toast.success('Goods Received Notes deleted successfully');
       closeDeleteModal();
-      await dispatch(getPurchaseOrderList(formattedParams)).unwrap();
+      await dispatch(getGoodsReceivedNoteList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
   };
 
-  const printPurchaseOrder = async (id) => {
+  const printGoodsReceivedNote = async (id) => {
     const loadingToast = toast.loading('Loading print...');
 
     try {
-      const data = await dispatch(getPurchaseOrderForPrint(id)).unwrap();
+      const data = await dispatch(getGoodsReceivedNoteForPrint(id)).unwrap();
       toast.dismiss(loadingToast);
-      createPurchaseOrderPrint(data);
+      createGoodsReceivedNotePrint(data);
     } catch (error) {
       handleError(error);
     }
@@ -82,13 +80,13 @@ const PurchaseOrder = () => {
     {
       title: (
         <div>
-          <p>Purchase Order Date</p>
+          <p>GRN Date</p>
           <div onClick={(e) => e.stopPropagation()}>
             <DatePicker
               size="small"
               value={params.document_date}
               className="font-normal"
-              onChange={(date) => dispatch(setPurchaseOrderListParams({ document_date: date }))}
+              onChange={(date) => dispatch(setGoodsReceivedNoteListParams({ document_date: date }))}
               format="MM-DD-YYYY"
             />
           </div>
@@ -97,7 +95,7 @@ const PurchaseOrder = () => {
       dataIndex: 'document_date',
       key: 'document_date',
       sorter: true,
-      width: 180,
+      width: 160,
       ellipsis: true,
       render: (_, { document_date }) =>
         document_date ? dayjs(document_date).format('MM-DD-YYYY') : null
@@ -105,7 +103,7 @@ const PurchaseOrder = () => {
     {
       title: (
         <div>
-          <p>Purchase Order No</p>
+          <p>GRN No</p>
           <Input
             className="font-normal"
             size="small"
@@ -113,7 +111,7 @@ const PurchaseOrder = () => {
             value={params.document_identity}
             onChange={(e) =>
               dispatch(
-                setPurchaseOrderListParams({
+                setGoodsReceivedNoteListParams({
                   document_identity: e.target.value
                 })
               )
@@ -124,78 +122,51 @@ const PurchaseOrder = () => {
       dataIndex: 'document_identity',
       key: 'document_identity',
       sorter: true,
-      width: 165,
+      width: 160,
       ellipsis: true
     },
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
-          <p>Customer</p>
+          <p>Vendor</p>
           <AsyncSelect
-            endpoint="/customer"
+            endpoint="/supplier"
             size="small"
             className="w-full font-normal"
-            valueKey="customer_id"
+            valueKey="supplier_id"
             labelKey="name"
-            value={params.customer_id}
-            onChange={(value) => dispatch(setPurchaseOrderListParams({ customer_id: value }))}
+            value={params.supplier_id}
+            onChange={(value) => dispatch(setGoodsReceivedNoteListParams({ supplier_id: value }))}
           />
         </div>
       ),
-      dataIndex: 'customer_name',
-      key: 'customer_name',
+      dataIndex: 'supplier_name',
+      key: 'supplier_name',
       sorter: true,
       width: 200,
       ellipsis: true
     },
     {
       title: (
-        <div>
-          <p>Charge No</p>
-          <Input
-            className="font-normal"
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Purchase Order</p>
+          <AsyncSelect
+            endpoint="/purchase-order"
             size="small"
-            onClick={(e) => e.stopPropagation()}
-            value={params.charge_no}
-            onChange={(e) =>
-              dispatch(
-                setPurchaseOrderListParams({
-                  charge_no: e.target.value
-                })
-              )
+            className="w-full font-normal"
+            valueKey="purchase_order_id"
+            labelKey="document_identity"
+            value={params.purchase_order_id}
+            onChange={(value) =>
+              dispatch(setGoodsReceivedNoteListParams({ purchase_order_id: value }))
             }
           />
         </div>
       ),
-      dataIndex: 'charge_no',
-      key: 'charge_no',
+      dataIndex: 'purchase_order_no',
+      key: 'purchase_order_no',
       sorter: true,
-      width: 120,
-      ellipsis: true
-    },
-    {
-      title: (
-        <div>
-          <p>Quotation No</p>
-          <Input
-            className="font-normal"
-            size="small"
-            onClick={(e) => e.stopPropagation()}
-            value={params.quotation_no}
-            onChange={(e) =>
-              dispatch(
-                setPurchaseOrderListParams({
-                  quotation_no: e.target.value
-                })
-              )
-            }
-          />
-        </div>
-      ),
-      dataIndex: 'quotation_no',
-      key: 'quotation_no',
-      sorter: true,
-      width: 140,
+      width: 200,
       ellipsis: true
     },
     {
@@ -209,7 +180,7 @@ const PurchaseOrder = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_, { purchase_order_id }) => (
+      render: (_, { good_received_note_id }) => (
         <div className="flex items-center gap-2">
           {permissions.edit ? (
             <>
@@ -219,11 +190,11 @@ const PurchaseOrder = () => {
                   type="primary"
                   className="bg-rose-600 hover:!bg-rose-500"
                   icon={<FaRegFilePdf size={14} />}
-                  // onClick={() => printPurchaseOrder(purchase_order_id)}
+                  // onClick={() => printGoodsReceivedNote(purchase_order_id)}
                 />
               </Tooltip>
               <Tooltip title="Edit">
-                <Link to={`/purchase-order/edit/${purchase_order_id}`}>
+                <Link to={`/goods-received-note/edit/${good_received_note_id}`}>
                   <Button
                     size="small"
                     type="primary"
@@ -242,7 +213,7 @@ const PurchaseOrder = () => {
                 okButtonProps={{ danger: true }}
                 okText="Yes"
                 cancelText="No"
-                onConfirm={() => onPurchaseOrderDelete(purchase_order_id)}>
+                onConfirm={() => onGoodsReceivedNoteDelete(purchase_order_id)}>
                 <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
               </Popconfirm>
             </Tooltip>
@@ -259,7 +230,7 @@ const PurchaseOrder = () => {
   }
 
   useEffect(() => {
-    dispatch(getPurchaseOrderList(formattedParams)).unwrap().catch(handleError);
+    dispatch(getGoodsReceivedNoteList(formattedParams)).unwrap().catch(handleError);
   }, [
     params.page,
     params.limit,
@@ -267,17 +238,17 @@ const PurchaseOrder = () => {
     params.sort_direction,
     params.document_date,
     params.customer_id,
+    params.supplier_id,
+    params.purchase_order_id,
     debouncedSearch,
-    debouncedPurchaseOrderNo,
-    debouncedChargeNo,
-    debouncedQuotationNo
+    debouncedGoodsReceivedNoteNo
   ]);
 
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>PURCHASE ORDER</PageHeading>
-        <Breadcrumb items={[{ title: 'Purchase Order' }, { title: 'List' }]} separator=">" />
+        <PageHeading>GOODS RECEIVED NOTE</PageHeading>
+        <Breadcrumb items={[{ title: 'Goods Received Note' }, { title: 'List' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
@@ -286,7 +257,7 @@ const PurchaseOrder = () => {
             placeholder="Search..."
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) => dispatch(setPurchaseOrderListParams({ search: e.target.value }))}
+            onChange={(e) => dispatch(setGoodsReceivedNoteListParams({ search: e.target.value }))}
           />
 
           <div className="flex items-center gap-2">
@@ -300,7 +271,7 @@ const PurchaseOrder = () => {
               </Button>
             ) : null}
             {permissions.add ? (
-              <Link to="/purchase-order/create">
+              <Link to="/goods-received-note/create">
                 <Button type="primary">Add New</Button>
               </Link>
             ) : null}
@@ -315,23 +286,23 @@ const PurchaseOrder = () => {
                   type: 'checkbox',
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) =>
-                    dispatch(setPurchaseOrderDeleteIDs(selectedRowKeys))
+                    dispatch(setGoodsReceivedNoteDeleteIDs(selectedRowKeys))
                 }
               : null
           }
           loading={isListLoading}
           className="mt-2"
-          rowKey="purchase_order_id"
+          rowKey="good_received_note_id"
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} purchase orders`
+            showTotal: (total) => `Total ${total} goods received note`
           }}
           onChange={(page, _, sorting) => {
             dispatch(
-              setPurchaseOrderListParams({
+              setGoodsReceivedNoteListParams({
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
@@ -353,7 +324,7 @@ const PurchaseOrder = () => {
         onCancel={closeDeleteModal}
         isDeleting={isBulkDeleting}
         onDelete={onBulkDelete}
-        title="Are you sure you want to delete these purchase orders?"
+        title="Are you sure you want to delete these goods received notes?"
         description="After deleting, you will not be able to recover."
       />
 
@@ -362,4 +333,4 @@ const PurchaseOrder = () => {
   );
 };
 
-export default PurchaseOrder;
+export default GoodsReceivedNote;
