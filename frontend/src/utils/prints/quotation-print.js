@@ -174,7 +174,7 @@ export const createQuotationPrint = (data) => {
         const sr = detail.sort_order + 1;
         const description = detail.product ? detail.product.product_name : '';
         const uom = detail.unit ? detail.unit.name : '';
-        const quantity = detail.quantity ? formatThreeDigitCommas(detail.quantity) : '';
+        const quantity = detail.quantity ? formatThreeDigitCommas(parseFloat(detail.quantity)) : '';
         const pricePerUnit = detail.rate ? `$${formatThreeDigitCommas(detail.rate)}` : '';
         const grossAmount = detail.amount ? `$${formatThreeDigitCommas(detail.amount)}` : '';
         const discountPercent = detail.discount_percent
@@ -196,26 +196,6 @@ export const createQuotationPrint = (data) => {
         ];
       })
     : [];
-
-  const rowsPerPage = 19 - (descriptions.length || 1); // Number of rows per page
-  const totalRows = table2Rows.length;
-  const requiredRows = rowsPerPage - (totalRows % rowsPerPage); // Calculate empty rows to fill
-
-  // for (let i = 1; i < totalRows; i++) {
-  //   if (   ) {
-
-  //   }
-  //   if (i % 18 === 0) {
-  //     table2Rows.splice(i, 0, ['', '', '', '', '', '', '', '']);
-  //   }
-  // }
-
-  // // Add empty rows if needed
-  // if (requiredRows !== rowsPerPage) {
-  //   for (let i = 0; i < requiredRows; i++) {
-  //     table2Rows.push(['', '', '', '', '', '', '', '']); // Add empty rows (adjust columns if needed)
-  //   }
-  // }
 
   // Adding Table
   doc.autoTable({
