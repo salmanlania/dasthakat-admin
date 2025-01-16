@@ -67,7 +67,7 @@ class ProductController extends Controller
 			});
 		}
 
-		$item = $item->select('product.*', 'c.name as category_name', 'sc.name as sub_category_name', 'b.name as brand_name', 'u.name as unit_name', DB::raw("CONCAT(product.product_code, ' ', product.impa_code, ' ', product.name) as product_name"));
+		$item = $item->select('product.*', 'c.name as category_name', 'sc.name as sub_category_name', 'b.name as brand_name', 'u.name as unit_name', DB::raw("CONCAT( product.impa_code, ' ', product.name) as product_name"));
 		$item = $item->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($item);

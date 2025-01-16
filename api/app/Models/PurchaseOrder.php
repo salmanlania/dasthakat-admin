@@ -22,7 +22,7 @@ class PurchaseOrder extends Model
         "document_identity",
         "document_date",
         "required_date",
-        "suppier_id",
+        "supplier_id",
         "type",
         "quotation_id",
         "charge_order_id",

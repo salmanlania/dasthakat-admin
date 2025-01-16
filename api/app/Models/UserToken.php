@@ -57,6 +57,7 @@ class UserToken extends Model
             ->first();
             
             $company = Company::where('company_id',$company_id)->first();
+            $currency = Currency::where('currency_id',$company['base_currency_id'])->first();
             $company_branch = CompanyBranch::where('company_branch_id',$company_branch_id)->first();
         $userBranch = UserBranchAccess::with('company', 'company_branch')
             ->where('user_id', $user['user_id'])
@@ -89,6 +90,7 @@ class UserToken extends Model
         $aUser['company_name'] = $company['name'];
         $aUser['company_branch_id'] = $company_branch_id;
         $aUser['company_branch_name'] = $company_branch['name'];
+        $aUser['currency'] = $currency;
         $aUserGroup = UserPermission::where('user_permission_id', $aUser['permission_id'])->select('user_permission_id', 'permission')->first();
         $aUser['permission'] = (empty($aUserGroup)) ? null : json_decode($aUserGroup['permission']);
         

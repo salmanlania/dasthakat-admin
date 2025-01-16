@@ -79,6 +79,7 @@ class EventController extends Controller
 			->LeftJoin('class as c1', 'c1.class_id', 'event.class1_id')
 			->LeftJoin('class as c2', 'c2.class_id', 'event.class2_id')
 			->LeftJoin('payment as p', 'p.payment_id', 'c.payment_id')
+			->LeftJoin('salesman as s', 's.salesman_id', 'c.salesman_id')
 			->select(
 				"event.*",
 				DB::raw("CONCAT(event.event_code, ' (', v.name, ')') as event_name"),
@@ -91,7 +92,9 @@ class EventController extends Controller
 				"c1.name as class1_name",
 				"c2.name as class2_name",
 				"f.name as flag_name",
-				"f.flag_id"
+				"f.flag_id",
+				"s.salesman_id as salesman_id",
+				"s.name as salesman_name"
 			)
 			->where('event_id', $id)->first();
 		return $this->jsonResponse($data, 200, "Event Data");
@@ -177,7 +180,6 @@ class EventController extends Controller
 		$data->updated_at = date('Y-m-d H:i:s');
 		$data->updated_by = $request->login_user_id;
 		$data->update();
-
 
 		return $this->jsonResponse(['event_id' => $id], 200, "Update Event Successfully!");
 	}

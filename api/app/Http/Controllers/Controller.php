@@ -91,34 +91,7 @@ class Controller extends BaseController
 
     public function testApi()
     {
-        // $users = $this->dbset()->get();
-
-        $users = User::get();
-
-
-        // exit;
-
-        // test setting
-        $this->getSettings(true);
-
-        $data = [
-            'email' => 'az.tariq03@gmail.com',
-            'name' => 'Dear Muhammad Azeem Tariq',
-            'subject' => 'Your Dynamic Subject Here',
-            'message' => ' Thank you for Registering to our platform.<br>
-                    Your Username is example@gmail.com & Password is Elon123@<br>
-                    Please remember to login. <br>
-		    <br> You can access your Account to management your Quote Request and change your password here. <br> servermail@gmail.com'
-        ];
-
-
-        // Sent Email
-        $this->sentMail($data);
-        return response()->json(['message' => 'Email sent successfully']);
-
-
-
-        return response()->json($users);
+        return response()->json(['success'=>true,'msg'=>'Backend Working']);
     }
     /**
      * --------------------------------------------------------------------------------

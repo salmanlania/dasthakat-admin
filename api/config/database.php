@@ -19,17 +19,6 @@ return [
             'strict'    => false,
          ],
 
-        // 'detail' => [
-        //     'driver'    => 'mysql',
-        //     'host'      => env('DB2_HOST'),
-        //     'port'      => env('DB_PORT'),
-        //     'database'  => env('DB2_DATABASE','forge'),
-        //     'username'  => env('DB2_USERNAME','forge'),
-        //     'password'  => env('DB2_PASSWORD','forge'),
-        //     'charset'   => '',
-        //     'collation' => '',
-        //     'prefix'    => '',
-        //     'strict'    => false,
-        // ],
+      
     ],
 ];

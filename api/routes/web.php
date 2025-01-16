@@ -15,10 +15,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// $router->get('/',['Middleware'=>['auth'], function () use ($router) {
-//     return $router->app->version();
-
-// }]);
 
 
 $router->group([
@@ -27,16 +23,13 @@ $router->group([
 
 $router->get('test', 'Controller@testApi');
 
-$router->post('auth/login', 'AuthController@login');
-$router->post('auth/session', 'AuthController@session');
-$router->post('auth/logout', 'AuthController@logout');
-// $router->post('auth/check-admin', 'AuthController@checkAdmin');
-// $router->post('auth/refresh', 'AuthController@refresh');
-// $router->post('auth/profile', 'AuthController@me');
+$router->group(['prefix' => 'auth'], function ($router) {
+$router->post('/login', 'AuthController@login');
+$router->post('/session', 'AuthController@session');
+$router->post('/logout', 'AuthController@logout');
+$router->post('/reset-password', 'AuthController@forgotPassword');
+});
 
-// //forgot Password
-// $router->post('auth/verify-email', 'AuthController@verifyEmail');
-$router->post('reset-password', 'AuthController@forgotPassword');
 
 $router->group(['prefix' => 'user'], function ($router) {
    $router->get('/', 'UserController@index');
@@ -236,6 +229,15 @@ $router->group(['prefix' => 'currency'], function ($router) {
    $router->post('/bulk-delete', 'CurrencyController@bulkDelete');
 });
 
+$router->group(['prefix' => 'warehouse'], function ($router) {
+   $router->get('/', 'WarehouseController@index');
+   $router->get('/{id}', 'WarehouseController@show');
+   $router->post('/', 'WarehouseController@store');
+   $router->put('/{id}', 'WarehouseController@update');
+   $router->delete('/{id}', 'WarehouseController@delete');
+   $router->post('/bulk-delete', 'WarehouseController@bulkDelete');
+});
+
 $router->group(['prefix' => 'lookups'], function ($router) {
    $router->get('/company', 'LookUpsController@getCompany');
    $router->get('/company-branch', 'LookUpsController@getCompanyBranch');
@@ -268,4 +270,13 @@ $router->group(['prefix' => 'purchase-order'], function ($router) {
    $router->put('/{id}', 'PurchaseOrderController@update');
    $router->delete('/{id}', 'PurchaseOrderController@delete');
    $router->post('/bulk-delete', 'PurchaseOrderController@bulkDelete');
+});
+
+$router->group(['prefix' => 'good-received-note'], function ($router) {
+   $router->get('/', 'GRNController@index');
+   $router->get('/{id}', 'GRNController@show');
+   $router->post('/', 'GRNController@store');
+   $router->put('/{id}', 'GRNController@update');
+   $router->delete('/{id}', 'GRNController@delete');
+   $router->post('/bulk-delete', 'GRNController@bulkDelete');
 });

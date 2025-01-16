@@ -1,33 +1,48 @@
 <?php
+
 namespace Database\Seeders;
 
+use App\Models\Company;
+use App\Models\CompanyBranch;
+use App\Models\ControlAccess;
+use App\Models\UserPermission;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class UserPermissionSeeder extends Seeder
 {
     public function run()
     {
-        DB::table('user_permission')->insert([
-            'user_permission_id' => '8b705554-d9e6-4586-a404-4a55d9b601c3',
-            'name' => 'Internal Team',
-            'description' => 'Team Accounts',
-            'permission' => json_encode([
-                'user_permission' => ['list' => 1, 'add' => 1, 'edit' => 1, 'delete' => 1],
-                'user' => ['list' => 1, 'add' => 1, 'edit' => 1, 'delete' => 1],
-                'parlour-request' => ['list' => 1, 'add' => 1, 'edit' => 1, 'delete' => 1],
-                'parlour-master' => ['list' => 1, 'add' => 1, 'edit' => 1, 'delete' => 1],
-                'quote-request' => ['list' => 1, 'add' => 1, 'edit' => 1, 'delete' => 1],
-                'product-category' => ['list' => 1, 'add' => 1, 'edit' => 1, 'delete' => 1],
-                'product' => ['list' => 1, 'add' => 1, 'edit' => 1, 'delete' => 1],
-                'setting' => ['list' => 1, 'add' => 1, 'edit' => 1, 'delete' => 1],
-
-            ]),
-            'is_deleted' => 0,
-            'created_by' => null,
-            'created_at' => '2024-08-06 08:44:23',
-            'updated_by' => null,
-            'updated_at' => '2024-09-11 11:39:35',
+        $permissions = $this->getPermissionsFromControlAccess();
+        $user_permission_id = Str::uuid()->toString();
+        $company = Company::first();
+        $company_branch = CompanyBranch::where('company_id', $company['company_id'])->first();
+        UserPermission::insert([
+            [
+                'company_id' => $company['company_id'],
+                'company_branch_id' => $company_branch['company_branch_id'],
+                'user_permission_id' => $user_permission_id,
+                'name' => 'Admin Access',
+                'description' => 'Has full access to all company and branch functionalities.',
+                'permission' => json_encode($permissions),
+                'created_at' => Carbon::now(),
+            ]
         ]);
+    }
+
+    private function getPermissionsFromControlAccess()
+    {
+
+        $controlAccess = ControlAccess::select('route', 'permission_id')->get();
+        $permissions = [];
+
+        foreach ($controlAccess as $entry) {
+            if (!isset($permissions[$entry->route])) {
+                $permissions[$entry->route] = [];
+            }
+            $permissions[$entry->route][$entry->permission_id] = 1;
+        }
+        return $permissions;
     }
 }

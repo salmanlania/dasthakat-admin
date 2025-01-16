@@ -11,4 +11,5 @@ class Event extends Model
     protected $fillable = [
         'company_id','company_branch_id','event_id','event_no','event_code','customer_id','vessel_id','class1_id','class2_id','status','created_by','updated_by'
     ];
+    
 }

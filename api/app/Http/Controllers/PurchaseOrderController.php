@@ -7,8 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
-use App\Models\Terms;
-use Illuminate\Support\Facades\DB;
 
 class PurchaseOrderController extends Controller
 {

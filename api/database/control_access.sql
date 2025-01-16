@@ -1,19 +1,4 @@
 
-DROP TABLE IF EXISTS `_control_access`;
-
-CREATE TABLE `_control_access` (
-  `control_access_id` int(11) NOT NULL AUTO_INCREMENT,
-  `module_name` varchar(255) NOT NULL,
-  `form_name` varchar(255) NOT NULL,
-  `route` varchar(255) NOT NULL,
-  `permission_id` varchar(16) NOT NULL,
-  `permission_name` varchar(32) NOT NULL,
-  `sort_order` decimal(11,3) NOT NULL DEFAULT 0.000,
-  PRIMARY KEY (`control_access_id`),
-  UNIQUE KEY `UNQ` (`route`,`permission_id`)
-);
-
-
   TRUNCATE TABLE  `control_access`;
   INSERT  INTO `control_access`(`module_name`,`form_name`,`route`,`permission_id`,`permission_name`,`sort_order`) 
   VALUES
@@ -127,6 +112,11 @@ CREATE TABLE `_control_access` (
   ('Inventory Setup', 'Payment', 'payment', 'edit', 'Edit', 1.103),
   ('Inventory Setup', 'Payment', 'payment', 'delete', 'Delete', 1.104),
 
+  ('Inventory Setup', 'Warehouse', 'warehouse', 'list', 'List', 1.101),
+  ('Inventory Setup', 'Warehouse', 'warehouse', 'add', 'Add', 1.102),
+  ('Inventory Setup', 'Warehouse', 'warehouse', 'edit', 'Edit', 1.103),
+  ('Inventory Setup', 'Warehouse', 'warehouse', 'delete', 'Delete', 1.104),
+
   ('Sale Management', 'Quotation', 'quotation', 'list', 'List', 1.101),
   ('Sale Management', 'Quotation', 'quotation', 'add', 'Add', 1.102),
   ('Sale Management', 'Quotation', 'quotation', 'edit', 'Edit', 1.103),
@@ -135,4 +125,14 @@ CREATE TABLE `_control_access` (
   ('Sale Management', 'Charge Order', 'charge_order', 'list', 'List', 1.101),
   ('Sale Management', 'Charge Order', 'charge_order', 'add', 'Add', 1.102),
   ('Sale Management', 'Charge Order', 'charge_order', 'edit', 'Edit', 1.103),
-  ('Sale Management', 'Charge Order', 'charge_order', 'delete', 'Delete', 1.104);
+  ('Sale Management', 'Charge Order', 'charge_order', 'delete', 'Delete', 1.104),
+
+  ('Purchase Management', 'Purchase Order', 'purchase_order', 'list', 'List', 1.101),
+  ('Purchase Management', 'Purchase Order', 'purchase_order', 'add', 'Add', 1.102),
+  ('Purchase Management', 'Purchase Order', 'purchase_order', 'edit', 'Edit', 1.103),
+  ('Purchase Management', 'Purchase Order', 'purchase_order', 'delete', 'Delete', 1.104),
+
+  ('Purchase Management', 'Goods Received Note', 'good_received_note', 'list', 'List', 1.101),
+  ('Purchase Management', 'Goods Received Note', 'good_received_note', 'add', 'Add', 1.102),
+  ('Purchase Management', 'Goods Received Note', 'good_received_note', 'edit', 'Edit', 1.103),
+  ('Purchase Management', 'Goods Received Note', 'good_received_note', 'delete', 'Delete', 1.104);

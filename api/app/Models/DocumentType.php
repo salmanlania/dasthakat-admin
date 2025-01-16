@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 class DocumentType extends Model
 {
 
-    protected $table = 'document_type';
+    protected $table = 'const_document_type';
     protected $primaryKey = 'document_type_id';
     public $incrementing = false;
     protected $fillable = ["*"];
@@ -22,8 +22,7 @@ class DocumentType extends Model
             ->first();
 
         if (!$row) {
-            $row = DB::table('const_document_type')
-                ->where('document_type_id', $document_type_id)
+            $row = DocumentType::where('document_type_id', $document_type_id)
                 ->first();
         }
         $branch = CompanyBranch::where('company_branch_id', $data['company_branch_id'])->first();

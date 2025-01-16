@@ -34,7 +34,7 @@ class QuotationDetail extends Model
     ];
     public function product()
     {
-        return $this->hasOne(Product::class, 'product_id','product_id')->select('*',DB::raw("CONCAT(product_code, ' ', impa_code, ' ', name) as product_name"));
+        return $this->hasOne(Product::class, 'product_id','product_id')->select('*',DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
     }
     public function unit()
     {

@@ -18,23 +18,6 @@ class LookUpsController extends Controller
 {
     protected $db;
 
-    public function getCountry(Request $request)
-    {
-        $perPage = 10;
-        $page = $request->input('page', 1);
-        $sort_column = $request->input('sort_column', 'id');
-        $sort_direction = (isset($request->input['sort_direction']) && $request->input['sort_direction'] == 'ascend') ? 'desc' : 'asc';
-        $search = $request->input('search');
-
-        $country = new Country;
-        if (!empty($search)) {
-            $search = strtolower($search);
-            $country = $country->where('name', 'like', '%' . $search . '%')
-                ->orWhere('dial_code', 'like', '%' . $search . '%');
-        }
-        $country = $country->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
-        return response()->json($country);
-    }
 
     public function getModules()
     {
@@ -62,35 +45,8 @@ class LookUpsController extends Controller
         return response()->json($arrPermissions);
     }
 
-    public function getModuleForEmail()
-    {
+    
 
-        $template = new EmailTemplate;
-        $modules = $template->getModules();
-
-        $result = [];
-        foreach ($modules as $key => $value) {
-            $result[] = ["value" => $key, "label" => $value];
-        }
-
-        return response()->json($result);
-    }
-
-
-    public function getParlourModules()
-    {
-
-        $parlourModules = ParlourModule::get();
-        $arrPermissions = [];
-        foreach ($parlourModules as $parlourModule) {
-            $arrModules[] = [
-                'value' => $parlourModule->id,
-                'label' => $parlourModule->name,
-            ];
-        }
-
-        return response()->json($arrModules);
-    }
     public function getCompany(Request $request)
     {
         $data = new Company;
