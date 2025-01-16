@@ -69,6 +69,56 @@ export const createPurchaseOrderPrint = (data) => {
     doc.text(row.value, startX + boxWidth + 2, startY + index * boxHeight + 4.5);
   });
 
+  // Send To box
+  // Draw the main box
+  let startSendToX = 10;
+  let startSendToY = 94;
+  let sentToWidth = 94;
+  let sentToHeight = 42;
+  doc.rect(startSendToX, startSendToY, sentToWidth, sentToHeight); // x, y, width, height
+
+  // Add "Send To :" text
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Send To :', startSendToX + 4, startSendToY + 6); // x, y
+  doc.rect(startSendToX, startSendToY + 10, sentToWidth, 0);
+
+  // Add the content
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setFont('helvetica', 'bold');
+  doc.text('GLOBAL MARINE SAFETY SERVICES', startSendToX + 4, startSendToY + 16);
+  doc.setFont('helvetica', 'normal');
+  doc.text('9145 WALLISVILLE RD-9145 WALLISVILLE RD', startSendToX + 4, startSendToY + 20);
+  doc.text('Tel : 713-518-1715', startSendToX + 4, startSendToY + 30);
+  doc.text('Fax :', startSendToX + 4, startSendToY + 34);
+  doc.text('Email : SALES@GMS-AMERICA.COM', startSendToX + 4, startSendToY + 38);
+
+  // Ship To box
+  // Draw the main box
+  let startShipToX = 108;
+  let startShipToY = 94;
+  let shipToWidth = 94;
+  let shipToHeight = 42;
+  doc.rect(startShipToX, startShipToY, shipToWidth, shipToHeight); // x, y, width, height
+
+  // Add "Ship To :" text
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Ship To :', startShipToX + 4, startShipToY + 6); // x, y
+  doc.rect(startShipToX, startShipToY + 10, shipToWidth, 0);
+
+  // Add the content
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setFont('helvetica', 'bold');
+  doc.text('GLOBAL MARINE SAFETY SERVICES', startShipToX + 4, startShipToY + 16);
+  doc.setFont('helvetica', 'normal');
+  doc.text('9145 WALLISVILLE RD-9145 WALLISVILLE RD', startShipToX + 4, startShipToY + 20);
+  doc.text('Tel : 713-518-1715', startShipToX + 4, startShipToY + 30);
+  doc.text('Fax :', startShipToX + 4, startShipToY + 34);
+  doc.text('Email : SALES@GMS-AMERICA.COM', startShipToX + 4, startShipToY + 38);
+
   doc.setProperties({
     title: 'Hello'
   });
