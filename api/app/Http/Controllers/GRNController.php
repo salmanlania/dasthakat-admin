@@ -57,6 +57,7 @@ class GRNController extends Controller
 		$data = GRN::with(
 			"grn_detail",
 			"grn_detail.product",
+			"grn_detail.warehouse",
 			"grn_detail.unit",
 			"payment",
 			"supplier",
@@ -129,6 +130,7 @@ class GRNController extends Controller
 					'sort_order' => $value['sort_order'] ?? "",
 					'product_id' => $value['product_id'] ?? "",
 					'description' => $value['description'] ?? "",
+					'warehouse_id' => $value['warehouse_id'] ?? "",
 					'unit_id' => $value['unit_id'] ?? "",
 					'supplier_id' => $value['supplier_id'] ?? "",
 					'quantity' => $value['quantity'] ?? "",
@@ -183,6 +185,7 @@ class GRNController extends Controller
 					'sort_order' => $value['sort_order'] ?? "",
 					'product_id' => $value['product_id'] ?? "",
 					'description' => $value['description'] ?? "",
+					'warehouse_id' => $value['warehouse_id'] ?? "",
 					'unit_id' => $value['unit_id'] ?? "",
 					'quantity' => $value['quantity'] ?? "",
 					'rate' => $value['rate'] ?? "",

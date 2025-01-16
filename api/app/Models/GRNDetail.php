@@ -19,6 +19,7 @@ class GRNDetail extends Model
         "sort_order",
         "product_id",
         "description",
+        "warehouse_id",
         "unit_id",
         "quantity",
         "rate",
@@ -27,6 +28,10 @@ class GRNDetail extends Model
         "created_by",
         "updated_by"
     ];
+    public function warehouse()
+    {
+        return $this->hasOne(Warehouse::class, 'warehouse_id', 'warehouse_id');
+    }
     public function product()
     {
         return $this->hasOne(Product::class, 'product_id', 'product_id');
