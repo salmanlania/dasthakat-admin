@@ -70,9 +70,10 @@ const PurchaseOrder = () => {
     const loadingToast = toast.loading('Loading print...');
 
     try {
-      const data = await dispatch(getPurchaseOrderForPrint(id)).unwrap();
-      toast.dismiss(loadingToast);
-      createPurchaseOrderPrint(data);
+      // const data = await dispatch(getPurchaseOrderForPrint(id)).unwrap();
+      // toast.dismiss(loadingToast);
+      // createPurchaseOrderPrint(data);
+      createPurchaseOrderPrint();
     } catch (error) {
       handleError(error);
     }
@@ -219,7 +220,7 @@ const PurchaseOrder = () => {
                   type="primary"
                   className="bg-rose-600 hover:!bg-rose-500"
                   icon={<FaRegFilePdf size={14} />}
-                  // onClick={() => printPurchaseOrder(purchase_order_id)}
+                  onClick={() => printPurchaseOrder(purchase_order_id)}
                 />
               </Tooltip>
               <Tooltip title="Edit">

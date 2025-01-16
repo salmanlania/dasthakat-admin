@@ -35,6 +35,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
 
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
+  const currency = user.currency;
 
   let totalAmount = 0;
   let totalQuantity = 0;
@@ -48,6 +49,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
 
     const data = {
+      default_currency_id: currency ? currency.currency_id : null,
       type: values.type,
       remarks: values.remarks,
       supplier_id: values.supplier_id ? values.supplier_id.value : null,

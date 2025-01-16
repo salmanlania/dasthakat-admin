@@ -235,6 +235,10 @@ export const purchaseOrderSlice = createSlice({
         document_date: data.document_date ? dayjs(data.document_date) : null,
         required_date: data.required_date ? dayjs(data.required_date) : null,
         type: data.type,
+        buyer_name: data.buyer_name,
+        buyer_email: data.buyer_email,
+        ship_via: data.ship_via,
+        department: data.department,
         remarks: data.remarks,
         payment_id: data.payment
           ? {

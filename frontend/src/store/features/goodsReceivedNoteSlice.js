@@ -79,7 +79,7 @@ export const bulkDeleteGoodsReceivedNote = createAsyncThunk(
   async (ids, { rejectWithValue }) => {
     try {
       await api.post('/good-received-note/bulk-delete', {
-        purchase_order_ids: ids
+        good_received_note_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);

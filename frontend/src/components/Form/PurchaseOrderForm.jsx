@@ -53,6 +53,10 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
     const data = {
       type: values.type,
       remarks: values.remarks,
+      buyer_name: values.buyer_name,
+      yer_email: values.buyer_email,
+      ship_via: values.ship_via,
+      department: values.department,
       supplier_id: values.supplier_id ? values.supplier_id.value : null,
       class1_id: values.class1_id ? values.class1_id.value : null,
       customer_id: values.customer_id ? values.customer_id.value : null,
@@ -588,6 +592,30 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
         </Col>
 
         <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="buyer_name" label="Buyer's Name">
+            <Input />
+          </Form.Item>
+        </Col>
+
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="buyer_email" label="Buyer's Email">
+            <Input />
+          </Form.Item>
+        </Col>
+
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="ship_via" label="Ship Via">
+            <Input />
+          </Form.Item>
+        </Col>
+
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="department" label="Department">
+            <Input />
+          </Form.Item>
+        </Col>
+
+        <Col span={24}>
           <Form.Item name="remarks" label="Remarks">
             <Input.TextArea rows={1} />
           </Form.Item>
