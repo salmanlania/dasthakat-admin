@@ -125,7 +125,7 @@ const Port = () => {
       width: 168,
       render: (_, { created_at }) =>
         created_at ? (
-          dayjs(created_at).format('DD-MM-YYYY hh:mm A')
+          dayjs(created_at).format('MM-DD-YYYY hh:mm A')
         ) : (
           <span className="text-gray-400">AUTO</span>
         )
@@ -183,8 +183,7 @@ const Port = () => {
                   okButtonProps={{ danger: true }}
                   okText="Yes"
                   cancelText="No"
-                  onConfirm={() => onPortDelete(port_id)}
-                >
+                  onConfirm={() => onPortDelete(port_id)}>
                   <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                 </Popconfirm>
               </Tooltip>
@@ -227,8 +226,7 @@ const Port = () => {
               type="primary"
               danger
               onClick={() => setDeleteModalIsOpen(true)}
-              disabled={!deleteIDs.length}
-            >
+              disabled={!deleteIDs.length}>
               Delete
             </Button>
             {permissions.add ? (

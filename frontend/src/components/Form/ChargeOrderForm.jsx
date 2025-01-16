@@ -304,8 +304,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
                 required: true,
                 message: 'Quantity is required'
               }
-            ]}
-          >
+            ]}>
             <DebouncedCommaSeparatedInput
               decimalPlaces={2}
               value={quantity}
@@ -416,8 +415,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
                 onClick: () => dispatch(removeChargeOrderDetail(id))
               }
             ]
-          }}
-        >
+          }}>
           <Button size="small">
             <BsThreeDotsVertical />
           </Button>
@@ -460,8 +458,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       form={form}
       onFinish={onFinish}
       initialValues={mode === 'edit' || quotation_id ? initialFormValues : null}
-      scrollToFirstError
-    >
+      scrollToFirstError>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
         <span className="text-gray-500">Charge order No:</span>
@@ -473,8 +470,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             if (mode !== 'edit') return;
             navigator.clipboard.writeText(initialFormValues.document_identity);
             toast.success('Copied');
-          }}
-        >
+          }}>
           {mode === 'edit' ? initialFormValues.document_identity : 'AUTO'}
         </span>
       </p>
@@ -483,17 +479,15 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           <Form.Item
             name="document_date"
             label="Charge Order Date"
-            rules={[{ required: true, message: 'charge order date is required' }]}
-          >
-            <DatePicker format="DD-MM-YYYY" className="w-full" />
+            rules={[{ required: true, message: 'charge order date is required' }]}>
+            <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
             name="salesman_id"
             label="Salesman"
-            rules={[{ required: true, message: 'Salesman is required' }]}
-          >
+            rules={[{ required: true, message: 'Salesman is required' }]}>
             <AsyncSelect
               endpoint="/salesman"
               valueKey="salesman_id"
@@ -509,8 +503,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           <Form.Item
             name="event_id"
             label="Event"
-            rules={[{ required: true, message: 'Event is required' }]}
-          >
+            rules={[{ required: true, message: 'Event is required' }]}>
             <AsyncSelect
               endpoint="/event"
               valueKey="event_id"
@@ -597,8 +590,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           type="primary"
           className="w-28"
           loading={isFormSubmitting}
-          onClick={() => form.submit()}
-        >
+          onClick={() => form.submit()}>
           Save
         </Button>
       </div>

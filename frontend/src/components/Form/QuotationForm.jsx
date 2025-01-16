@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Select, Table } from 'antd';
 import dayjs from 'dayjs';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiPlus } from 'react-icons/bi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
@@ -24,6 +25,7 @@ import {
 import { getSalesman } from '../../store/features/salesmanSlice';
 import { formatThreeDigitCommas, roundUpto } from '../../utils/number';
 import { createQuotationPrint } from '../../utils/prints/quotation-print';
+import toastConfirm from '../../utils/toastConfirm';
 import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebouncedNumberInput from '../Input/DebouncedNumberInput';
@@ -50,6 +52,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
     rebatePercentage,
     salesmanPercentage
   } = useSelector((state) => state.quotation);
+  const [prevEvent, setPrevEvent] = useState(initialFormValues?.event_id);
 
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
@@ -160,6 +163,14 @@ const QuotationForm = ({ mode, onSubmit }) => {
           value: product.cost_price
         })
       );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'rate',
+          value: product.sale_price
+        })
+      );
     } catch (error) {
       handleError(error);
     }
@@ -198,6 +209,14 @@ const QuotationForm = ({ mode, onSubmit }) => {
           index,
           key: 'cost_price',
           value: product.cost_price
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'rate',
+          value: product.sale_price
         })
       );
     } catch (error) {
@@ -645,15 +664,25 @@ const QuotationForm = ({ mode, onSubmit }) => {
   };
 
   const onEventChange = async (selected) => {
+    if (prevEvent) {
+      const isWantToChange = await toastConfirm('Are you sure you want to change event?');
+      if (!isWantToChange) {
+        form.setFieldsValue({ event_id: prevEvent });
+        return;
+      }
+    }
+
     form.setFieldsValue({
       vessel_id: null,
       customer_id: null,
       imo: null,
       class1_id: null,
       class2_id: null,
-      flag_id: null
+      flag_id: null,
+      salesman_id: null
     });
     dispatch(setRebatePercentage(null));
+    setPrevEvent(selected);
 
     if (!selected) return;
     try {
@@ -665,7 +694,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
         class1_id: { value: data.class1_id, label: data.class1_name },
         class2_id: { value: data.class2_id, label: data.class2_name },
         flag_id: { value: data.flag_id, label: data.flag_name },
-        payment_id: { value: data.payment_id, label: data.payment_name }
+        payment_id: { value: data.payment_id, label: data.payment_name },
+        salesman_id: { value: data.salesman_id, label: data.salesman_name }
       });
       dispatch(setRebatePercentage(data.rebate_percent ? +data.rebate_percent : null));
     } catch (error) {
@@ -724,7 +754,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             label="Quotation Date"
             rules={[{ required: true, message: 'Quotation date is required' }]}
             className="w-full">
-            <DatePicker format="DD-MM-YYYY" className="w-full" />
+            <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
         </Col>
 
@@ -821,13 +851,13 @@ const QuotationForm = ({ mode, onSubmit }) => {
 
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="due_date" label="Due Date" className="w-full">
-            <DatePicker format="DD-MM-YYYY" className="w-full" />
+            <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
         </Col>
 
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="service_date" label="Date of Service">
-            <DatePicker format="DD-MM-YYYY" className="w-full" />
+            <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
         </Col>
 
@@ -853,6 +883,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
               addNewLink={
                 permissions.validity.list && permissions.validity.add ? '/validity' : null
               }
+              defaultFirstSelected
             />
           </Form.Item>
         </Col>
@@ -864,6 +895,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
               valueKey="payment_id"
               labelKey="name"
               labelInValue
+              defaultFirstSelected
               addNewLink={permissions.payment.list && permissions.payment.add ? '/payment' : null}
             />
           </Form.Item>

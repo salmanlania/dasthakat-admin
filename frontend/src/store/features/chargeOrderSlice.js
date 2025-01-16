@@ -268,7 +268,7 @@ export const chargeOrderSlice = createSlice({
           ? { value: detail.product.product_id, label: detail.product.name }
           : null,
         description: detail.description,
-        quantity: detail.quantity,
+        quantity: detail.quantity ? parseFloat(detail.quantity) : null,
         unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
         supplier_id: detail.supplier
           ? { value: detail.supplier.supplier_id, label: detail.supplier.name }

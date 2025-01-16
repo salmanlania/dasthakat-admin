@@ -16,9 +16,10 @@ const AsyncSelect = ({
   valueKey,
   labelKey,
   addNewLink,
+  defaultFirstSelected = false,
   ...props
 }) => {
-  const [isClicked, setIsClicked] = useState(false);
+  const [isClicked, setIsClicked] = useState(defaultFirstSelected);
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -55,6 +56,10 @@ const AsyncSelect = ({
         ? setOptions((prevOptions) => [...prevOptions, ...optionsData])
         : setOptions(optionsData);
       setHasMore(page < data.last_page);
+
+      if (defaultFirstSelected && optionsData.length > 0 && !props.value) {
+        props.onChange && props.onChange(optionsData[0]);
+      }
     } catch (error) {
       handleError(error, false);
     } finally {
@@ -110,8 +115,7 @@ const AsyncSelect = ({
         <div
           ref={dropdownRef}
           onScroll={handleScroll}
-          style={{ maxHeight: '300px', overflowY: 'auto' }}
-        >
+          style={{ maxHeight: '300px', overflowY: 'auto' }}>
           {menu}
         </div>
       )}
@@ -131,8 +135,7 @@ const AsyncSelect = ({
             }}
           />
         ) : undefined
-      }
-    >
+      }>
       {options.map((option) => (
         <Option key={option.value} value={option.value}>
           {option.label}

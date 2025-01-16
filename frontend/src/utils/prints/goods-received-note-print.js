@@ -12,7 +12,7 @@ import Logo6 from '../../assets/quotationPrintLogo/logo6.png';
 
 import { formatThreeDigitCommas, roundUpto } from '../number';
 
-export const createQuotationPrint = (data) => {
+export const createGoodsReceivedNotePrint = (data) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
 
@@ -20,7 +20,7 @@ export const createQuotationPrint = (data) => {
 
   const sideMargin = 4;
 
-  // Header Start
+  // Header
   doc.setFontSize(20);
   doc.setFont('times', 'bold');
   doc.text('Global Marine Safety - America', pageWidth / 2, 12, {
@@ -82,7 +82,7 @@ export const createQuotationPrint = (data) => {
   ];
   const table1Rows = [
     [
-      data.document_date ? dayjs(data.document_date).format('DD-MM-YYYY') : '',
+      data.document_date ? dayjs(data.document_date).format('MM-DD-YYYY') : '',
       data.document_identity,
       data.customer_ref,
       data.delivery,
@@ -127,7 +127,6 @@ export const createQuotationPrint = (data) => {
       7: { cellWidth: 27 }
     }
   });
-  // Header End
 
   // Table 2
   const table2Column = [
@@ -298,7 +297,7 @@ export const createQuotationPrint = (data) => {
     }
   });
 
-  // Footer Start
+  // Footer logo
   doc.addImage(Logo1, 'PNG', 8, doc.previousAutoTable.finalY, 26, 22);
   doc.addImage(Logo2, 'PNG', 38, doc.previousAutoTable.finalY + 6, 26, 10);
   doc.addImage(Logo3, 'PNG', 70, doc.previousAutoTable.finalY + 2, 26, 16);

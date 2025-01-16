@@ -12,26 +12,26 @@ import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
 import {
-  addNewUnit,
-  bulkDeleteUnit,
-  createUnit,
-  deleteUnit,
-  getUnitList,
-  removeNewUnit,
-  setUnitDeleteIDs,
-  setUnitEditable,
-  setUnitListParams,
-  updateUnit,
-  updateUnitListValue
-} from '../../store/features/unitSlice';
+  addNewWarehouse,
+  bulkDeleteWarehouse,
+  createWarehouse,
+  deleteWarehouse,
+  getWarehouseList,
+  removeNewWarehouse,
+  setWarehouseDeleteIDs,
+  setWarehouseEditable,
+  setWarehouseListParams,
+  updateWarehouse,
+  updateWarehouseListValue
+} from '../../store/features/warehouseSlice';
 
-const Unit = () => {
+const Warehouse = () => {
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, isSubmitting, deleteIDs } =
-    useSelector((state) => state.unit);
+    useSelector((state) => state.warehouse);
   const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.unit;
+  const permissions = user.permission.warehouse;
 
   const debouncedSearch = useDebounce(params.search, 500);
 
@@ -39,7 +39,7 @@ const Unit = () => {
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const onChange = (id, field, value) => {
-    dispatch(updateUnitListValue({ id, field, value }));
+    dispatch(updateWarehouseListValue({ id, field, value }));
   };
 
   const onCreate = async (record) => {
@@ -47,41 +47,41 @@ const Unit = () => {
     if (!name.trim()) return toast.error('Name field is required');
 
     try {
-      await dispatch(createUnit({ name })).unwrap();
-      await dispatch(getUnitList(params)).unwrap();
+      await dispatch(createWarehouse({ name })).unwrap();
+      await dispatch(getWarehouseList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
   };
 
   const onUpdate = async (record) => {
-    const { unit_id, name } = record;
+    const { warehouse_id, name } = record;
 
     if (!name.trim()) return toast.error('Name field is required');
 
     try {
       await dispatch(
-        updateUnit({
-          id: unit_id,
+        updateWarehouse({
+          id: warehouse_id,
           data: { name }
         })
       ).unwrap();
-      await dispatch(getUnitList(params)).unwrap();
+      await dispatch(getWarehouseList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
   };
 
   const onCancel = async (id) => {
-    if (id === 'new') return dispatch(removeNewUnit());
-    dispatch(setUnitEditable({ id, editable: false }));
+    if (id === 'new') return dispatch(removeNewWarehouse());
+    dispatch(setWarehouseEditable({ id, editable: false }));
   };
 
-  const onUnitDelete = async (id) => {
+  const onWarehouseDelete = async (id) => {
     try {
-      await dispatch(deleteUnit(id)).unwrap();
-      toast.success('Unit deleted successfully');
-      dispatch(getUnitList(params)).unwrap();
+      await dispatch(deleteWarehouse(id)).unwrap();
+      toast.success('Warehouse deleted successfully');
+      dispatch(getWarehouseList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -89,10 +89,10 @@ const Unit = () => {
 
   const onBulkDelete = async () => {
     try {
-      await dispatch(bulkDeleteUnit(deleteIDs)).unwrap();
-      toast.success('Unit deleted successfully');
+      await dispatch(bulkDeleteWarehouse(deleteIDs)).unwrap();
+      toast.success('Warehouse deleted successfully');
       closeDeleteModal();
-      await dispatch(getUnitList(params)).unwrap();
+      await dispatch(getWarehouseList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -106,12 +106,12 @@ const Unit = () => {
       sorter: true,
       width: 120,
       ellipsis: true,
-      render: (_, { name, editable, unit_id }) =>
+      render: (_, { name, editable, warehouse_id }) =>
         editable ? (
           <Input
             autoFocus
             defaultValue={name}
-            onBlur={(e) => onChange(unit_id, 'name', e.target.value)}
+            onBlur={(e) => onChange(warehouse_id, 'name', e.target.value)}
           />
         ) : (
           <span>{name}</span>
@@ -134,12 +134,12 @@ const Unit = () => {
       title: 'Action',
       key: 'action',
       render: (_, record) => {
-        const { unit_id, editable } = record;
+        const { warehouse_id, editable } = record;
 
         if (editable) {
           return (
             <div className="flex items-center gap-2">
-              <Tooltip title="Cancel" onClick={() => onCancel(unit_id)}>
+              <Tooltip title="Cancel" onClick={() => onCancel(warehouse_id)}>
                 <Button danger icon={<FcCancel size={20} />} size="small" />
               </Tooltip>
               <Tooltip title="Save">
@@ -147,8 +147,8 @@ const Unit = () => {
                   type="primary"
                   size="small"
                   icon={<FaRegSave size={16} />}
-                  loading={isSubmitting === unit_id}
-                  onClick={() => (unit_id === 'new' ? onCreate(record) : onUpdate(record))}
+                  loading={isSubmitting === warehouse_id}
+                  onClick={() => (warehouse_id === 'new' ? onCreate(record) : onUpdate(record))}
                 />
               </Tooltip>
             </div>
@@ -166,8 +166,8 @@ const Unit = () => {
                   icon={<MdOutlineEdit size={14} />}
                   onClick={() =>
                     dispatch(
-                      setUnitEditable({
-                        id: unit_id,
+                      setWarehouseEditable({
+                        id: warehouse_id,
                         editable: true
                       })
                     )
@@ -183,7 +183,7 @@ const Unit = () => {
                   okButtonProps={{ danger: true }}
                   okText="Yes"
                   cancelText="No"
-                  onConfirm={() => onUnitDelete(unit_id)}>
+                  onConfirm={() => onWarehouseDelete(warehouse_id)}>
                   <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                 </Popconfirm>
               </Tooltip>
@@ -201,14 +201,14 @@ const Unit = () => {
   }
 
   useEffect(() => {
-    dispatch(getUnitList(params)).unwrap().catch(handleError);
+    dispatch(getWarehouseList(params)).unwrap().catch(handleError);
   }, [params.page, params.limit, params.sort_column, params.sort_direction, debouncedSearch]);
 
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>UNIT</PageHeading>
-        <Breadcrumb items={[{ title: 'Unit' }, { title: 'List' }]} separator=">" />
+        <PageHeading>WAREHOUSE</PageHeading>
+        <Breadcrumb items={[{ title: 'Warehouse' }, { title: 'List' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
@@ -217,7 +217,7 @@ const Unit = () => {
             placeholder="Search..."
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) => dispatch(setUnitListParams({ search: e.target.value }))}
+            onChange={(e) => dispatch(setWarehouseListParams({ search: e.target.value }))}
           />
 
           <div className="flex items-center gap-2">
@@ -229,7 +229,7 @@ const Unit = () => {
               Delete
             </Button>
             {permissions.add ? (
-              <Button type="primary" onClick={() => dispatch(addNewUnit())}>
+              <Button type="primary" onClick={() => dispatch(addNewWarehouse())}>
                 Add New
               </Button>
             ) : null}
@@ -243,16 +243,16 @@ const Unit = () => {
               ? {
                   type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setUnitDeleteIDs(selectedRowKeys)),
+                  onChange: (selectedRowKeys) => dispatch(setWarehouseDeleteIDs(selectedRowKeys)),
                   getCheckboxProps: (record) => ({
-                    disabled: record.unit_id === 'new'
+                    disabled: record.warehouse_id === 'new'
                   })
                 }
               : null
           }
           onChange={(page, _, sorting) => {
             dispatch(
-              setUnitListParams({
+              setWarehouseListParams({
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
@@ -261,14 +261,14 @@ const Unit = () => {
             );
           }}
           loading={isListLoading}
-          rowKey="unit_id"
+          rowKey="warehouse_id"
           className="mt-2"
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} unit`
+            showTotal: (total) => `Total ${total} warehouse`
           }}
           dataSource={list}
           showSorterTooltip={false}
@@ -284,11 +284,11 @@ const Unit = () => {
         onCancel={closeDeleteModal}
         onDelete={onBulkDelete}
         isDeleting={isBulkDeleting}
-        title="Are you sure you want to delete these unit?"
+        title="Are you sure you want to delete these warehouse?"
         description="After deleting, you will not be able to recover."
       />
     </>
   );
 };
 
-export default Unit;
+export default Warehouse;

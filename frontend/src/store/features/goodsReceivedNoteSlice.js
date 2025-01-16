@@ -3,11 +3,11 @@ import dayjs from 'dayjs';
 import api from '../../axiosInstance';
 import { roundUpto } from '../../utils/number';
 
-export const getPurchaseOrderList = createAsyncThunk(
-  'purchase-order/list',
+export const getGoodsReceivedNoteList = createAsyncThunk(
+  'good-received-note/list',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get('/purchase-order', {
+      const res = await api.get('/good-received-note', {
         params
       });
       return res.data;
@@ -17,33 +17,33 @@ export const getPurchaseOrderList = createAsyncThunk(
   }
 );
 
-export const deletePurchaseOrder = createAsyncThunk(
-  'purchase-order/delete',
+export const deleteGoodsReceivedNote = createAsyncThunk(
+  'good-received-note/delete',
   async (id, { rejectWithValue }) => {
     try {
-      await api.delete(`/purchase-order/${id}`);
+      await api.delete(`/good-received-note/${id}`);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const createPurchaseOrder = createAsyncThunk(
-  'purchase-order/create',
+export const createGoodsReceivedNote = createAsyncThunk(
+  'good-received-note/create',
   async (data, { rejectWithValue }) => {
     try {
-      await api.post('/purchase-order', data);
+      await api.post('/good-received-note', data);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const getPurchaseOrder = createAsyncThunk(
-  'purchase-order/get',
+export const getGoodsReceivedNote = createAsyncThunk(
+  'good-received-note/get',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/purchase-order/${id}`);
+      const res = await api.get(`/good-received-note/${id}`);
       return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);
@@ -51,11 +51,11 @@ export const getPurchaseOrder = createAsyncThunk(
   }
 );
 
-export const getPurchaseOrderForPrint = createAsyncThunk(
-  'purchase-orderForPrint/get',
+export const getGoodsReceivedNoteForPrint = createAsyncThunk(
+  'good-received-noteForPrint/get',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/purchase-order/${id}`);
+      const res = await api.get(`/good-received-note/${id}`);
       return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);
@@ -63,22 +63,22 @@ export const getPurchaseOrderForPrint = createAsyncThunk(
   }
 );
 
-export const updatePurchaseOrder = createAsyncThunk(
-  'purchase-order/update',
+export const updateGoodsReceivedNote = createAsyncThunk(
+  'good-received-note/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      await api.put(`/purchase-order/${id}`, data);
+      await api.put(`/good-received-note/${id}`, data);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const bulkDeletePurchaseOrder = createAsyncThunk(
-  'purchase-order/bulkDelete',
+export const bulkDeleteGoodsReceivedNote = createAsyncThunk(
+  'good-received-note/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post('/purchase-order/bulk-delete', {
+      await api.post('/good-received-note/bulk-delete', {
         purchase_order_ids: ids
       });
     } catch (err) {
@@ -97,7 +97,7 @@ const initialState = {
   deleteIDs: [],
   rebatePercentage: null,
   salesmanPercentage: null,
-  purchaseOrderDetails: [],
+  goodsReceivedNoteDetails: [],
   params: {
     page: 1,
     limit: 50,
@@ -111,22 +111,22 @@ const initialState = {
   }
 };
 
-export const purchaseOrderSlice = createSlice({
-  name: 'purchaseOrder',
+export const goodsReceivedNoteSlice = createSlice({
+  name: 'goodsReceivedNote',
   initialState,
   reducers: {
-    setPurchaseOrderListParams: (state, action) => {
+    setGoodsReceivedNoteListParams: (state, action) => {
       state.params = {
         ...state.params,
         ...action.payload
       };
     },
 
-    setPurchaseOrderDeleteIDs: (state, action) => {
+    setGoodsReceivedNoteDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
     },
 
-    addPurchaseOrderDetail: (state, action) => {
+    addGoodsReceivedNoteDetail: (state, action) => {
       const index = action.payload;
       const newDetail = {
         id: Date.now(),
@@ -135,47 +135,48 @@ export const purchaseOrderSlice = createSlice({
         description: null,
         quantity: null,
         unit_id: null,
+        warehouse_id: null,
         rate: null,
         amount: null
       };
 
       // If index is provided, insert the new detail after that index, otherwise push it to the end
       if (index || index === 0) {
-        state.purchaseOrderDetails.splice(index + 1, 0, newDetail);
+        state.goodsReceivedNoteDetails.splice(index + 1, 0, newDetail);
       } else {
-        state.purchaseOrderDetails.push(newDetail);
+        state.goodsReceivedNoteDetails.push(newDetail);
       }
     },
 
-    copyPurchaseOrderDetail: (state, action) => {
+    copyGoodsReceivedNoteDetail: (state, action) => {
       const index = action.payload;
 
-      const detail = state.purchaseOrderDetails[index];
+      const detail = state.goodsReceivedNoteDetails[index];
       const newDetail = {
         ...detail,
         id: Date.now()
       };
 
-      state.purchaseOrderDetails.splice(index + 1, 0, newDetail);
+      state.goodsReceivedNoteDetails.splice(index + 1, 0, newDetail);
     },
 
-    removePurchaseOrderDetail: (state, action) => {
-      state.purchaseOrderDetails = state.purchaseOrderDetails.filter(
+    removeGoodsReceivedNoteDetail: (state, action) => {
+      state.goodsReceivedNoteDetails = state.goodsReceivedNoteDetails.filter(
         (item) => item.id !== action.payload
       );
     },
 
     // Change the order of quotation details, from is the index of the item to be moved, to is the index of the item to be moved to
-    changePurchaseOrderDetailOrder: (state, action) => {
+    changeGoodsReceivedNoteDetailOrder: (state, action) => {
       const { from, to } = action.payload;
-      const temp = state.purchaseOrderDetails[from];
-      state.purchaseOrderDetails[from] = state.purchaseOrderDetails[to];
-      state.purchaseOrderDetails[to] = temp;
+      const temp = state.goodsReceivedNoteDetails[from];
+      state.goodsReceivedNoteDetails[from] = state.goodsReceivedNoteDetails[to];
+      state.goodsReceivedNoteDetails[to] = temp;
     },
 
-    changePurchaseOrderDetailValue: (state, action) => {
+    changeGoodsReceivedNoteDetailValue: (state, action) => {
       const { index, key, value } = action.payload;
-      const detail = state.purchaseOrderDetails[index];
+      const detail = state.goodsReceivedNoteDetails[index];
       detail[key] = value;
 
       if (detail.quantity && detail.rate) {
@@ -194,14 +195,14 @@ export const purchaseOrderSlice = createSlice({
     }
   },
   extraReducers: ({ addCase }) => {
-    addCase(getPurchaseOrderList.pending, (state) => {
+    addCase(getGoodsReceivedNoteList.pending, (state) => {
       state.isListLoading = true;
       state.initialFormValues = null;
       state.rebatePercentage = null;
       state.salesmanPercentage = null;
-      state.purchaseOrderDetails = [];
+      state.goodsReceivedNoteDetails = [];
     });
-    addCase(getPurchaseOrderList.fulfilled, (state, action) => {
+    addCase(getGoodsReceivedNoteList.fulfilled, (state, action) => {
       state.isListLoading = false;
       const { data, ...rest } = action.payload;
       state.list = data;
@@ -210,31 +211,29 @@ export const purchaseOrderSlice = createSlice({
         total_pages: rest.last_page
       };
     });
-    addCase(getPurchaseOrderList.rejected, (state) => {
+    addCase(getGoodsReceivedNoteList.rejected, (state) => {
       state.isListLoading = false;
     });
 
-    addCase(createPurchaseOrder.pending, (state) => {
+    addCase(createGoodsReceivedNote.pending, (state) => {
       state.isFormSubmitting = true;
     });
-    addCase(createPurchaseOrder.fulfilled, (state) => {
+    addCase(createGoodsReceivedNote.fulfilled, (state) => {
       state.isFormSubmitting = false;
     });
-    addCase(createPurchaseOrder.rejected, (state) => {
+    addCase(createGoodsReceivedNote.rejected, (state) => {
       state.isFormSubmitting = false;
     });
 
-    addCase(getPurchaseOrder.pending, (state) => {
+    addCase(getGoodsReceivedNote.pending, (state) => {
       state.isItemLoading = true;
     });
-    addCase(getPurchaseOrder.fulfilled, (state, action) => {
+    addCase(getGoodsReceivedNote.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
       state.initialFormValues = {
         document_identity: data.document_identity,
         document_date: data.document_date ? dayjs(data.document_date) : null,
-        required_date: data.required_date ? dayjs(data.required_date) : null,
-        type: data.type,
         remarks: data.remarks,
         payment_id: data.payment
           ? {
@@ -247,12 +246,18 @@ export const purchaseOrderSlice = createSlice({
               value: data.supplier.supplier_id,
               label: data.supplier.name
             }
+          : null,
+        purchase_order_id: data.purchase_order
+          ? {
+              value: data.purchase_order.purchase_order_id,
+              label: data.purchase_order.document_identity
+            }
           : null
       };
 
-      if (!data.purchase_order_detail) return;
-      state.purchaseOrderDetails = data.purchase_order_detail.map((detail) => ({
-        id: detail.purchase_order_detail_id,
+      if (!data.grn_detail) return;
+      state.goodsReceivedNoteDetails = data.grn_detail.map((detail) => ({
+        id: detail.good_received_note_detail_id,
         product_code: detail.product ? detail.product.product_code : null,
         product_id: detail.product
           ? { value: detail.product.product_id, label: detail.product.name }
@@ -260,53 +265,56 @@ export const purchaseOrderSlice = createSlice({
         description: detail.description,
         quantity: detail.quantity ? parseFloat(detail.quantity) : null,
         unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
+        warehouse_id: detail.warehouse
+          ? { value: detail.warehouse.warehouse_id, label: detail.warehouse.name }
+          : null,
         rate: detail.rate,
         vendor_notes: detail.vendor_notes,
         amount: detail.amount
       }));
     });
-    addCase(getPurchaseOrder.rejected, (state) => {
+    addCase(getGoodsReceivedNote.rejected, (state) => {
       state.isItemLoading = false;
       state.initialFormValues = null;
       state.rebatePercentage = null;
       state.salesmanPercentage = null;
     });
 
-    addCase(updatePurchaseOrder.pending, (state) => {
+    addCase(updateGoodsReceivedNote.pending, (state) => {
       state.isFormSubmitting = true;
     });
-    addCase(updatePurchaseOrder.fulfilled, (state) => {
+    addCase(updateGoodsReceivedNote.fulfilled, (state) => {
       state.isFormSubmitting = false;
       state.initialFormValues = null;
       state.rebatePercentage = null;
       state.salesmanPercentage = null;
     });
-    addCase(updatePurchaseOrder.rejected, (state) => {
+    addCase(updateGoodsReceivedNote.rejected, (state) => {
       state.isFormSubmitting = false;
     });
 
-    addCase(bulkDeletePurchaseOrder.pending, (state) => {
+    addCase(bulkDeleteGoodsReceivedNote.pending, (state) => {
       state.isBulkDeleting = true;
     });
-    addCase(bulkDeletePurchaseOrder.fulfilled, (state) => {
+    addCase(bulkDeleteGoodsReceivedNote.fulfilled, (state) => {
       state.isBulkDeleting = false;
       state.deleteIDs = [];
     });
-    addCase(bulkDeletePurchaseOrder.rejected, (state) => {
+    addCase(bulkDeleteGoodsReceivedNote.rejected, (state) => {
       state.isBulkDeleting = false;
     });
   }
 });
 
 export const {
-  setPurchaseOrderListParams,
-  setPurchaseOrderDeleteIDs,
-  addPurchaseOrderDetail,
-  removePurchaseOrderDetail,
-  copyPurchaseOrderDetail,
-  changePurchaseOrderDetailOrder,
-  changePurchaseOrderDetailValue,
+  setGoodsReceivedNoteListParams,
+  setGoodsReceivedNoteDeleteIDs,
+  addGoodsReceivedNoteDetail,
+  removeGoodsReceivedNoteDetail,
+  copyGoodsReceivedNoteDetail,
+  changeGoodsReceivedNoteDetailOrder,
+  changeGoodsReceivedNoteDetailValue,
   setRebatePercentage,
   setSalesmanPercentage
-} = purchaseOrderSlice.actions;
-export default purchaseOrderSlice.reducer;
+} = goodsReceivedNoteSlice.actions;
+export default goodsReceivedNoteSlice.reducer;

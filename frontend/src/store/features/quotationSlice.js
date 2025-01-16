@@ -269,7 +269,7 @@ export const quotationSlice = createSlice({
         event_id: data.event
           ? {
               value: data.event.event_id,
-              label: data.event.event_code
+              label: data.event.event_name
             }
           : null,
         vessel_id: data.vessel
@@ -344,7 +344,7 @@ export const quotationSlice = createSlice({
           ? { value: detail.product.product_id, label: detail.product.product_name }
           : null,
         description: detail.description,
-        quantity: detail.quantity,
+        quantity: detail.quantity ? parseFloat(detail.quantity) : null,
         unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
         supplier_id: detail.supplier
           ? { value: detail.supplier.supplier_id, label: detail.supplier.name }

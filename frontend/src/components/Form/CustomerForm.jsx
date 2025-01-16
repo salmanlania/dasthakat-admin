@@ -26,8 +26,7 @@ const CustomerForm = ({ mode, onSubmit }) => {
       layout="vertical"
       autoComplete="off"
       initialValues={mode === 'edit' ? initialFormValues : { status: 1, country: 'United States' }}
-      onFinish={onFinish}
-    >
+      onFinish={onFinish}>
       <Row gutter={[12, 12]}>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="customer_code" label="Code">
@@ -44,8 +43,7 @@ const CustomerForm = ({ mode, onSubmit }) => {
                 whitespace: true,
                 message: 'Name is required!'
               }
-            ]}
-          >
+            ]}>
             <Input />
           </Form.Item>
         </Col>
@@ -118,9 +116,8 @@ const CustomerForm = ({ mode, onSubmit }) => {
                   return Promise.resolve();
                 }
               }
-            ]}
-          >
-            <NumberInput />
+            ]}>
+            <NumberInput type="decimal" />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>

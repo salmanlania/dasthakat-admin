@@ -160,7 +160,7 @@ const User = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('DD-MM-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
     },
     {
       title: 'Action',
@@ -187,8 +187,7 @@ const User = () => {
                 okButtonProps={{ danger: true }}
                 okText="Yes"
                 cancelText="No"
-                onConfirm={() => onUserDelete(user_id)}
-              >
+                onConfirm={() => onUserDelete(user_id)}>
                 <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
               </Popconfirm>
             </Tooltip>
@@ -241,8 +240,7 @@ const User = () => {
                 type="primary"
                 danger
                 onClick={() => setDeleteModalIsOpen(true)}
-                disabled={!deleteIDs.length}
-              >
+                disabled={!deleteIDs.length}>
                 Delete
               </Button>
             ) : null}

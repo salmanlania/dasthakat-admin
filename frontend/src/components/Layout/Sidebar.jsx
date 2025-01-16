@@ -80,6 +80,7 @@ const Sidebar = () => {
     !permissions?.category?.list &&
     !permissions?.sub_category?.list &&
     !permissions?.brand?.list &&
+    !permissions?.warehouse?.list &&
     !permissions?.unit?.list &&
     !permissions?.product?.list &&
     !permissions?.validity?.list &&
@@ -220,6 +221,11 @@ const Sidebar = () => {
               disabled: !permissions?.brand?.list
             },
             {
+              key: 'warehouse',
+              label: <Link to="/warehouse">Warehouse</Link>,
+              disabled: !permissions?.warehouse?.list
+            },
+            {
               key: 'unit',
               label: <Link to="/unit">Unit</Link>,
               disabled: !permissions?.unit?.list
@@ -250,6 +256,11 @@ const Sidebar = () => {
               key: 'purchase-order',
               label: <Link to="/purchase-order">Purchase Order</Link>,
               disabled: !permissions?.purchase_order?.list
+            },
+            {
+              key: 'goods-received-note',
+              label: <Link to="/goods-received-note">Goods Received Note</Link>,
+              disabled: !permissions?.good_received_note?.list
             }
           ]
         }
@@ -355,14 +366,12 @@ const Sidebar = () => {
       className={`${isSmallScreen ? '!fixed' : '!sticky'} ${
         isCollapsed ? '' : 'border-r'
       } scrollbar !left-0 !top-0 z-50 h-screen overflow-y-auto`}
-      width={240}
-    >
+      width={240}>
       <div className="m-2 flex flex-col items-center justify-center gap-2 rounded-xl bg-slate-200 p-4 px-2">
         {isSmallScreen && (
           <div
             className="absolute right-5 top-5 cursor-pointer rounded border bg-white p-1 hover:bg-gray-50"
-            onClick={() => dispatch(toggleSidebar())}
-          >
+            onClick={() => dispatch(toggleSidebar())}>
             <BiChevronLeft size={18} />
           </div>
         )}
