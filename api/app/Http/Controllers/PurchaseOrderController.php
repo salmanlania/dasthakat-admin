@@ -120,6 +120,10 @@ class PurchaseOrderController extends Controller
 			'document_date' => $request->document_date ?? "",
 			'required_date' => $request->required_date ?? "",
 			'supplier_id' => $request->supplier_id ?? "",
+			'buyer_name' => $request->buyer_name ?? "",
+			'buyer_email' => $request->buyer_email ?? "",
+			'ship_via' => $request->ship_via ?? "",
+			'department' => $request->department ?? "",
 			'type' => $request->type ?? "",
 			'quotation_id' => $request->quotation_id ?? "",
 			'charge_order_id' => $request->charge_order_id ?? "",
@@ -176,6 +180,10 @@ class PurchaseOrderController extends Controller
 		$data->document_date = $request->document_date;
 		$data->required_date = $request->required_date;
 		$data->supplier_id = $request->supplier_id;
+		$data->buyer_name = $request->buyer_name;
+		$data->buyer_email = $request->buyer_email;
+		$data->ship_via = $request->ship_via;
+		$data->department = $request->department;
 		$data->type = $request->type;
 		$data->quotation_id = $request->quotation_id;
 		$data->charge_order_id = $request->charge_order_id;

@@ -24,6 +24,10 @@ return new class extends Migration
             $table->date('document_date')->nullable();
             $table->date('required_date')->nullable();
             $table->char('supplier_id', 36)->nullable();
+            $table->string('buyer_name', 255)->nullable();
+            $table->string('buyer_email', 255)->nullable();
+            $table->string('ship_via', 255)->nullable();
+            $table->string('department', 255)->nullable();
             $table->string('type', 50)->nullable();
             $table->char('quotation_id', 36)->nullable();
             $table->char('charge_order_id', 36)->nullable();
