@@ -86,7 +86,7 @@ To set up the project, ensure the following are installed on your system:
 #### Backend Commands
 
 ```bash
-cd ./backend
+cd ./api
 composer install
 php artisan migrate
 php artisan db:seed --class=ControlAccessSeeder
