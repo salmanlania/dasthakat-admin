@@ -248,7 +248,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
           <AsyncSelect
             endpoint="/product"
             valueKey="product_id"
-            labelKey="name"
+            labelKey="product_name"
             labelInValue
             className="w-full"
             value={product_id}

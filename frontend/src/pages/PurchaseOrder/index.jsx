@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Table, Tooltip } from 'antd';
+import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Select, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -70,11 +70,11 @@ const PurchaseOrder = () => {
     const loadingToast = toast.loading('Loading print...');
 
     try {
-      // const data = await dispatch(getPurchaseOrderForPrint(id)).unwrap();
-      // toast.dismiss(loadingToast);
-      // createPurchaseOrderPrint(data);
-      createPurchaseOrderPrint();
+      const data = await dispatch(getPurchaseOrderForPrint(id)).unwrap();
+      toast.dismiss(loadingToast);
+      createPurchaseOrderPrint(data);
     } catch (error) {
+      console.log(error);
       handleError(error);
     }
   };
@@ -126,6 +126,40 @@ const PurchaseOrder = () => {
       key: 'document_identity',
       sorter: true,
       width: 165,
+      ellipsis: true
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Purchase Order Type</p>
+          <Select
+            className="w-full font-normal"
+            size="small"
+            value={params.type}
+            options={[
+              {
+                value: 'Inventory',
+                label: 'Inventory'
+              },
+              {
+                value: 'Billable',
+                label: 'Billable'
+              }
+            ]}
+            onChange={(e) =>
+              dispatch(
+                setPurchaseOrderListParams({
+                  type: e
+                })
+              )
+            }
+          />
+        </div>
+      ),
+      dataIndex: 'type',
+      key: 'type',
+      sorter: true,
+      width: 180,
       ellipsis: true
     },
     {
