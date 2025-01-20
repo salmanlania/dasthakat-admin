@@ -199,6 +199,7 @@ export const createPurchaseOrderPrint = (data) => {
     'IMPA',
     'Qty',
     'Unit',
+    'V.Part#',
     'Description',
     'Cust Notes',
     'Unit Price',
@@ -211,6 +212,7 @@ export const createPurchaseOrderPrint = (data) => {
         detail?.product?.impa_code || '',
         detail.quantity ? parseFloat(detail.quantity) : '',
         detail.unit ? detail.unit.name : '',
+        '',
         detail.product ? detail.product.product_name : '',
         detail.description || '',
         detail.rate ? formatThreeDigitCommas(detail.rate) : '',
@@ -251,19 +253,27 @@ export const createPurchaseOrderPrint = (data) => {
       1: { cellWidth: 15 },
       2: { cellWidth: 12 },
       3: { cellWidth: 10 },
-      4: { cellWidth: 74 },
-      5: { cellWidth: 24 },
-      6: { cellWidth: 18 },
+      4: { cellWidth: 12 },
+      5: { cellWidth: 64 },
+      6: { cellWidth: 24 },
       7: { cellWidth: 16 },
-      8: { cellWidth: 24 }
+      8: { cellWidth: 16 },
+      9: { cellWidth: 24 }
     }
   });
+
+  doc.setFontSize(12);
+  doc.setFont('times', 'bold');
+  doc.text(
+    `Total Value = ${formatThreeDigitCommas(data.total_amount) || ''}`,
+    142,
+    doc.previousAutoTable.finalY + 5
+  );
 
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     const pageSize = doc.internal.pageSize;
-    const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
     const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
 
     // Header
