@@ -109,7 +109,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       service_date: values.service_date ? dayjs(values.service_date).format('YYYY-MM-DD') : null,
       due_date: values.due_date ? dayjs(values.due_date).format('YYYY-MM-DD') : null,
       term_id: values.term_id && values.term_id.length ? values.term_id.map((v) => v.value) : null,
-      quotation_detail: quotationDetails.map(({ id, ...detail }, index) => ({
+      quotation_detail: quotationDetails.map(({ id, product_type, ...detail }, index) => ({
         ...detail,
         supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
         product_id: detail.product_id ? detail.product_id.value : null,
@@ -145,6 +145,14 @@ const QuotationForm = ({ mode, onSubmit }) => {
             value: product.product_id,
             label: product.name
           }
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'product_type',
+          value: product.product_type
         })
       );
 
@@ -193,6 +201,14 @@ const QuotationForm = ({ mode, onSubmit }) => {
           index,
           key: 'product_code',
           value: product.product_code
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'product_type',
+          value: product.product_type
         })
       );
 
@@ -427,7 +443,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: 'Vendor',
       dataIndex: 'supplier_id',
       key: 'supplier_id',
-      render: (_, { supplier_id }, index) => {
+      render: (_, { supplier_id, product_type }, index) => {
         return (
           <AsyncSelect
             endpoint="/supplier"
@@ -435,6 +451,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             labelKey="name"
             labelInValue
             className="w-full"
+            disabled={product_type === 'Service'}
             value={supplier_id}
             onChange={(selected) =>
               dispatch(
@@ -457,10 +474,11 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: 'Cost Price',
       dataIndex: 'cost_price',
       key: 'cost_price',
-      render: (_, { cost_price }, index) => {
+      render: (_, { cost_price, product_type }, index) => {
         return (
           <DebouncedCommaSeparatedInput
             value={cost_price}
+            disabled={product_type === 'Service'}
             onChange={(value) =>
               dispatch(
                 changeQuotationDetailValue({
@@ -479,11 +497,12 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: 'Markup %',
       dataIndex: 'markup',
       key: 'markup',
-      render: (_, { markup }, index) => {
+      render: (_, { markup, product_type }, index) => {
         return (
           <DebouncedNumberInput
             value={markup}
             type="decimal"
+            disabled={product_type === 'Service'}
             onChange={(value) =>
               dispatch(
                 changeQuotationDetailValue({
@@ -922,7 +941,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
 
       <div className="rounded-lg border border-slate-300 bg-slate-50 p-4">
         <div className="flex flex-col items-center justify-between py-2 md:flex-row">
-          <h5 className="text-base font-medium">Terms & Conditions</h5>
+          <h5 className="text-base font-medium">Notes</h5>
           <Form.Item name="term_id" className="m-0 w-full p-0 md:w-96">
             <AsyncSelect
               endpoint="/terms"

@@ -343,6 +343,7 @@ export const quotationSlice = createSlice({
         product_id: detail.product
           ? { value: detail.product.product_id, label: detail.product.product_name }
           : null,
+        product_type: detail.product ? detail.product.product_type : null,
         description: detail.description,
         quantity: detail.quantity ? parseFloat(detail.quantity) : null,
         unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,

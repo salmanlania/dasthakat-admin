@@ -73,6 +73,7 @@ const Quotation = () => {
       toast.dismiss(loadingToast);
       createQuotationPrint(data);
     } catch (error) {
+      console.log(error);
       handleError(error);
     }
   };

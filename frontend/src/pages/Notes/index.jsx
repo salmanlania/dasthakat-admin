@@ -25,7 +25,7 @@ import {
   updateTermsListValue
 } from '../../store/features/termsSlice';
 
-const Terms = () => {
+const Notes = () => {
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, isSubmitting, deleteIDs } =
@@ -80,7 +80,7 @@ const Terms = () => {
   const onTermsDelete = async (id) => {
     try {
       await dispatch(deleteTerms(id)).unwrap();
-      toast.success('Terms deleted successfully');
+      toast.success('Note deleted successfully');
       dispatch(getTermsList(params)).unwrap();
     } catch (error) {
       handleError(error);
@@ -90,7 +90,7 @@ const Terms = () => {
   const onBulkDelete = async () => {
     try {
       await dispatch(bulkDeleteTerms(deleteIDs)).unwrap();
-      toast.success('Terms deleted successfully');
+      toast.success('Notes deleted successfully');
       closeDeleteModal();
       await dispatch(getTermsList(params)).unwrap();
     } catch (error) {
@@ -206,8 +206,8 @@ const Terms = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>TERMS</PageHeading>
-        <Breadcrumb items={[{ title: 'Terms' }, { title: 'List' }]} separator=">" />
+        <PageHeading>Notes</PageHeading>
+        <Breadcrumb items={[{ title: 'Notes' }, { title: 'List' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
@@ -267,7 +267,7 @@ const Terms = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} terms`
+            showTotal: (total) => `Total ${total} notes`
           }}
           dataSource={list}
           showSorterTooltip={false}
@@ -283,11 +283,11 @@ const Terms = () => {
         onCancel={closeDeleteModal}
         onDelete={onBulkDelete}
         isDeleting={isBulkDeleting}
-        title="Are you sure you want to delete these terms?"
+        title="Are you sure you want to delete these notes?"
         description="After deleting, you will not be able to recover."
       />
     </>
   );
 };
 
-export default Terms;
+export default Notes;

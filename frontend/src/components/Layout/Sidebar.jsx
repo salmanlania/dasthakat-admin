@@ -144,8 +144,8 @@ const Sidebar = () => {
               disabled: !permissions?.agent?.list
             },
             {
-              key: 'terms',
-              label: <Link to="/terms">Terms</Link>,
+              key: 'notes',
+              label: <Link to="/notes">Notes</Link>,
               disabled: !permissions?.terms?.list
             },
             {

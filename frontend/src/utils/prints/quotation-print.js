@@ -13,6 +13,25 @@ import Logo7 from '../../assets/quotationPrintLogo/logo7.png';
 
 import { formatThreeDigitCommas, roundUpto } from '../number';
 
+const fillEmptyRows = (rows, rowsPerPage, notesLength = 1) => {
+  // Calculate how many rows are required to fill the current page
+  const rowsOnLastPage = rows.length % rowsPerPage;
+  const emptyRowsNeeded = rowsOnLastPage ? rowsPerPage - rowsOnLastPage : 0;
+
+  // Adjust for notes if they exceed the available space
+  const totalRowsToAdd =
+    emptyRowsNeeded < notesLength
+      ? emptyRowsNeeded + rowsPerPage - notesLength
+      : emptyRowsNeeded - notesLength;
+
+  // Add empty rows to the table
+  for (let i = 0; i < totalRowsToAdd; i++) {
+    rows.push(['', '', '', '', '', '', '', '']);
+  }
+
+  return rows;
+};
+
 const addHeader = (doc, data, pageWidth, sideMargin) => {
   doc.setFontSize(20);
   doc.setFont('times', 'bold');
@@ -169,39 +188,46 @@ export const createQuotationPrint = (data) => {
     'Net Amount'
   ];
 
-  const table2Rows = data.quotation_detail
-    ? data.quotation_detail.map((detail) => {
-        const sr = detail.sort_order + 1;
-        const description = detail.product ? detail.product.product_name : '';
-        const uom = detail.unit ? detail.unit.name : '';
-        const quantity = detail.quantity ? formatThreeDigitCommas(parseFloat(detail.quantity)) : '';
-        const pricePerUnit = detail.rate ? `$${formatThreeDigitCommas(detail.rate)}` : '';
-        const grossAmount = detail.amount ? `$${formatThreeDigitCommas(detail.amount)}` : '';
-        const discountPercent = detail.discount_percent
-          ? `${roundUpto(+detail.discount_percent)}%`
-          : '';
-        const netAmount = detail.gross_amount
-          ? `$${formatThreeDigitCommas(detail.gross_amount)}`
-          : '';
+  const table2Rows = [];
+  if (data.quotation_detail) {
+    data.quotation_detail.forEach((detail, index) => {
+      const sr = detail.sort_order + 1;
+      const description = detail.product
+        ? `${detail.product.product_name} ${detail.description || ''}`
+        : '';
+      const uom = detail.unit ? detail.unit.name : '';
+      const quantity = detail.quantity ? formatThreeDigitCommas(parseFloat(detail.quantity)) : '';
+      const pricePerUnit = detail.rate ? `$${formatThreeDigitCommas(detail.rate)}` : '';
+      const grossAmount = detail.amount ? `$${formatThreeDigitCommas(detail.amount)}` : '';
+      const discountPercent = detail.discount_percent
+        ? `${roundUpto(+detail.discount_percent)}%`
+        : '';
+      const netAmount = detail.gross_amount
+        ? `$${formatThreeDigitCommas(detail.gross_amount)}`
+        : '';
 
-        return [
-          sr,
-          description,
-          uom,
-          quantity,
-          { content: pricePerUnit, styles: { halign: 'right' } },
-          { content: grossAmount, styles: { halign: 'right' } },
-          discountPercent,
-          { content: netAmount, styles: { halign: 'right' } }
-        ];
-      })
-    : [];
+      const row = [
+        sr,
+        { content: description, styles: { halign: 'left' } },
+        uom,
+        quantity,
+        { content: pricePerUnit, styles: { halign: 'right' } },
+        { content: grossAmount, styles: { halign: 'right' } },
+        discountPercent,
+        { content: netAmount, styles: { halign: 'right' } }
+      ];
+
+      table2Rows.push(row);
+    });
+  }
+
+  const filledRows = fillEmptyRows(table2Rows, 19, descriptions.length || 1);
 
   // Adding Table
   doc.autoTable({
     startY: 84,
     head: [table2Column],
-    body: table2Rows,
+    body: filledRows,
     margin: { left: sideMargin, right: sideMargin, bottom: 27, top: 84 },
     headStyles: {
       fontSize: 7,
