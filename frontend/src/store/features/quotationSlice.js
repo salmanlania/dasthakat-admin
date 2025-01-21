@@ -179,7 +179,9 @@ export const quotationSlice = createSlice({
       const detail = state.quotationDetails[index];
       detail[key] = value;
 
-      if (key !== 'rate' && detail.cost_price && detail.markup) {
+      const productType = detail.product_type;
+
+      if (productType !== 'Service' && key !== 'rate' && detail.cost_price && detail.markup) {
         detail.rate = roundUpto(+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
       }
 
