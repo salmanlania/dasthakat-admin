@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('sort_order');
             $table->char('product_id', 36);
             $table->text('description')->nullable();
+            $table->sting('vpart', 255)->nullable();
             $table->char('unit_id', 36)->nullable();
             $table->decimal('quantity', 10, 2)->nullable();
             $table->decimal('rate', 10, 2)->nullable();

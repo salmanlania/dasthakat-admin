@@ -64,6 +64,7 @@ class PurchaseOrderController extends Controller
 			"purchase_order_detail",
 			"purchase_order_detail.product",
 			"purchase_order_detail.unit",
+			"user",
 			"payment",
 			"supplier",
 			"quotation",
@@ -120,9 +121,9 @@ class PurchaseOrderController extends Controller
 			'document_date' => $request->document_date ?? "",
 			'required_date' => $request->required_date ?? "",
 			'supplier_id' => $request->supplier_id ?? "",
-			'buyer_name' => $request->buyer_name ?? "",
-			'buyer_email' => $request->buyer_email ?? "",
+			'buyer_id' => $request->buyer_id ?? "",
 			'ship_via' => $request->ship_via ?? "",
+			'ship_to' => $request->ship_to ?? "",
 			'department' => $request->department ?? "",
 			'type' => $request->type ?? "",
 			'quotation_id' => $request->quotation_id ?? "",
@@ -145,6 +146,7 @@ class PurchaseOrderController extends Controller
 					'sort_order' => $value['sort_order'] ?? "",
 					'product_id' => $value['product_id'] ?? "",
 					'description' => $value['description'] ?? "",
+					'vpart' => $value['vpart'] ?? "",
 					'unit_id' => $value['unit_id'] ?? "",
 					'supplier_id' => $value['supplier_id'] ?? "",
 					'quantity' => $value['quantity'] ?? "",
@@ -180,9 +182,9 @@ class PurchaseOrderController extends Controller
 		$data->document_date = $request->document_date;
 		$data->required_date = $request->required_date;
 		$data->supplier_id = $request->supplier_id;
-		$data->buyer_name = $request->buyer_name;
-		$data->buyer_email = $request->buyer_email;
+		$data->buyer_id = $request->buyer_id;
 		$data->ship_via = $request->ship_via;
+		$data->ship_to = $request->ship_to;
 		$data->department = $request->department;
 		$data->type = $request->type;
 		$data->quotation_id = $request->quotation_id;
@@ -206,6 +208,7 @@ class PurchaseOrderController extends Controller
 					'sort_order' => $value['sort_order'] ?? "",
 					'product_id' => $value['product_id'] ?? "",
 					'description' => $value['description'] ?? "",
+					'vpart' => $value['vpart'] ?? "",
 					'unit_id' => $value['unit_id'] ?? "",
 					'quantity' => $value['quantity'] ?? "",
 					'rate' => $value['rate'] ?? "",

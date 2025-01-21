@@ -23,9 +23,9 @@ class PurchaseOrder extends Model
         "document_date",
         "required_date",
         "supplier_id",
-        "buyer_name",
-        "buyer_email",
+        "buyer_id",
         "ship_via",
+        "ship_to",
         "department",
         "type",
         "quotation_id",
@@ -46,6 +46,11 @@ class PurchaseOrder extends Model
     public function payment()
     {
         return $this->hasOne(Payment::class, 'payment_id','payment_id')->select('payment_id', 'name');
+    }
+   
+    public function user()
+    {
+        return $this->hasOne(User::class, 'user_id','buyer_id')->select('user_id', 'email','user_name');
     }
    
     public function supplier()

@@ -19,6 +19,7 @@ class PurchaseOrderDetail extends Model
         "sort_order",
         "product_id",
         "description",
+        "vpart",
         "unit_id",
         "quantity",
         "rate",
