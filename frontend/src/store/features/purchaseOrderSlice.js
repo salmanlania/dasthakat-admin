@@ -240,12 +240,20 @@ export const purchaseOrderSlice = createSlice({
         ship_via: data.ship_via,
         department: data.department,
         remarks: data.remarks,
+        ship_to: data.ship_to,
+        buyer_id: data.user
+          ? {
+              value: data.user.user_id,
+              label: data.user.user_name
+            }
+          : null,
         payment_id: data.payment
           ? {
               value: data.payment.payment_id,
               label: data.payment.name
             }
           : null,
+
         supplier_id: data.supplier
           ? {
               value: data.supplier.supplier_id,
@@ -262,6 +270,7 @@ export const purchaseOrderSlice = createSlice({
           ? { value: detail.product.product_id, label: detail.product.product_name }
           : null,
         description: detail.description,
+        vpart: detail.vpart,
         quantity: detail.quantity ? parseFloat(detail.quantity) : null,
         unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
         rate: detail.rate,

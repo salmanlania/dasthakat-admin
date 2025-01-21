@@ -53,6 +53,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
     const data = {
       type: values.type,
       remarks: values.remarks,
+      ship_to: values.ship_to,
       buyer_name: values.buyer_name,
       yer_email: values.buyer_email,
       ship_via: values.ship_via,
@@ -60,6 +61,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       supplier_id: values.supplier_id ? values.supplier_id.value : null,
       class1_id: values.class1_id ? values.class1_id.value : null,
       customer_id: values.customer_id ? values.customer_id.value : null,
+      buyer_id: values.buyer_id ? values.buyer_id.value : null,
       event_id: values.event_id ? values.event_id.value : null,
       payment_id: values.payment_id ? values.payment_id.value : null,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
@@ -282,6 +284,28 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
         );
       },
       width: 240
+    },
+    {
+      title: 'V.Part#',
+      dataIndex: 'vpart',
+      key: 'vpart',
+      render: (_, { vpart }, index) => {
+        return (
+          <DebounceInput
+            value={vpart}
+            onChange={(value) =>
+              dispatch(
+                changePurchaseOrderDetailValue({
+                  index,
+                  key: 'vpart',
+                  value: value
+                })
+              )
+            }
+          />
+        );
+      },
+      width: 100
     },
     {
       title: 'Quantity',
@@ -592,18 +616,6 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
         </Col>
 
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="buyer_name" label="Buyer's Name">
-            <Input />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="buyer_email" label="Buyer's Email">
-            <Input />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="ship_via" label="Ship Via">
             <Input />
           </Form.Item>
@@ -612,6 +624,24 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="department" label="Department">
             <Input />
+          </Form.Item>
+        </Col>
+
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="buyer_id" label="Buyer">
+            <AsyncSelect
+              endpoint="/user"
+              valueKey="user_id"
+              labelKey="user_name"
+              labelInValue
+              addNewLink={permissions.user.list && permissions.user.add ? '/user/create' : null}
+            />
+          </Form.Item>
+        </Col>
+
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="ship_to" label="Ship To">
+            <Input.TextArea rows={1} />
           </Form.Item>
         </Col>
 
