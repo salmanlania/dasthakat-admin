@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Support\Facades\DB;
 
 class PurchaseOrderDetail extends Model
 {
@@ -30,7 +30,7 @@ class PurchaseOrderDetail extends Model
     ];
     public function product()
     {
-        return $this->hasOne(Product::class, 'product_id', 'product_id');
+        return $this->hasOne(Product::class, 'product_id', 'product_id')->select('*',DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
     }
     public function unit()
     {
