@@ -25,6 +25,7 @@ class QuotationController extends Controller
 		$vessel_id = $request->input('vessel_id', '');
 		$event_id = $request->input('event_id', '');
 		$search = $request->input('search', '');
+		$status = $request->input('status', '');
 		$page =  $request->input('page', 1);
 		$perPage =  $request->input('limit', 10);
 		$sort_column = $request->input('sort_column', 'quotation.created_at');
@@ -34,6 +35,7 @@ class QuotationController extends Controller
 			->LeftJoin('event as e', 'e.event_id', '=', 'quotation.event_id')
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'quotation.vessel_id');
 
+		if (!empty($status)) $data = $data->where('quotation.status', '=',  $status);
 		if (!empty($customer_id)) $data = $data->where('quotation.customer_id', '=',  $customer_id);
 		if (!empty($vessel_id)) $data = $data->where('quotation.vessel_id', '=',  $vessel_id);
 		if (!empty($event_id)) $data = $data->where('quotation.event_id', '=',  $event_id);
@@ -47,12 +49,13 @@ class QuotationController extends Controller
 				$query
 					->where('c.name', 'like', '%' . $search . '%')
 					->OrWhere('v.name', 'like', '%' . $search . '%')
+					->OrWhere('quotation.status', 'like', '%' . $search . '%')
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
 					->OrWhere('quotation.document_identity', 'like', '%' . $search . '%');
 			});
 		}
 
-		$data = $data->select("quotation.*",DB::raw("CONCAT(e.event_code, ' (', CASE 
+		$data = $data->select("quotation.*", DB::raw("CONCAT(e.event_code, ' (', CASE 
 		WHEN e.status = 1 THEN 'Active' 
 		ELSE 'Inactive' 
 	END, ')') AS event_code"), "c.name as customer_name", "v.name as vessel_name");
@@ -166,17 +169,18 @@ class QuotationController extends Controller
 			'salesman_percent' => $request->salesman_percent ?? "",
 			'salesman_amount' => $request->salesman_amount ?? "",
 			'final_amount' => $request->final_amount ?? "",
+			'status' => $request->status ?? "",
 			'created_at' => date('Y-m-d H:i:s'),
 			'created_by' => $request->login_user_id,
 		];
 		Quotation::create($insertArr);
-		
+
 		QuotationStatus::create([
-			'id'=>$this->get_uuid(),
-			'quotation_id'=>$uuid,
-			'status'=>$request->status,
-			'created_by'=>$request->login_user_id,
-			'created_at'=>Carbon::now(),
+			'id' => $this->get_uuid(),
+			'quotation_id' => $uuid,
+			'status' => $request->status,
+			'created_by' => $request->login_user_id,
+			'created_at' => Carbon::now(),
 		]);
 
 		if ($request->quotation_detail) {
@@ -253,16 +257,17 @@ class QuotationController extends Controller
 		$data->salesman_percent = $request->salesman_percent;
 		$data->salesman_amount = $request->salesman_amount;
 		$data->final_amount = $request->final_amount;
+		$data->status = $request->status;
 		$data->updated_at = date('Y-m-d H:i:s');
 		$data->updated_by = $request->login_user_id;
 		$data->update();
 
 		QuotationStatus::create([
-			'id'=>$this->get_uuid(),
-			'quotation_id'=>$id,
-			'status'=>$request->status,
-			'created_by'=>$request->login_user_id,
-			'created_at'=>Carbon::now(),
+			'id' => $this->get_uuid(),
+			'quotation_id' => $id,
+			'status' => $request->status,
+			'created_by' => $request->login_user_id,
+			'created_at' => Carbon::now(),
 		]);
 
 
@@ -306,6 +311,7 @@ class QuotationController extends Controller
 		if (!$data) return $this->jsonResponse(['quotation_id' => $id], 404, "Quotation Not Found!");
 		$data->delete();
 		QuotationDetail::where('quotation_id', $id)->delete();
+		QuotationStatus::where('quotation_id', $id)->delete();
 		return $this->jsonResponse(['quotation_id' => $id], 200, "Delete Quotation Successfully!");
 	}
 	public function bulkDelete(Request $request)
@@ -319,6 +325,7 @@ class QuotationController extends Controller
 					$user = Quotation::where(['quotation_id' => $quotation_id])->first();
 					$user->delete();
 					QuotationDetail::where('quotation_id', $quotation_id)->delete();
+				QuotationStatus::where('quotation_id', $quotation_id)->delete();
 				}
 			}
 

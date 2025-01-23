@@ -39,3 +39,6 @@ CREATE TABLE `quotation_status`(
   `created_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`)
 );
+
+ALTER TABLE `quotation`   
+  ADD COLUMN `status` VARCHAR(255) NULL AFTER `net_amount`;

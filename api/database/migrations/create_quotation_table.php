@@ -54,6 +54,7 @@ return new class extends Migration
             $table->decimal('salesman_percent', 10, 2)->nullable();
             $table->decimal('salesman_amount', 10, 2)->nullable();
             $table->decimal('final_amount', 10, 2)->nullable();
+            $table->string('status', 255)->nullable();
         });
     }
 
