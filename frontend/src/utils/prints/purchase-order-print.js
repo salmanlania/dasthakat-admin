@@ -220,10 +220,16 @@ export const createPurchaseOrderPrint = (data) => {
         detail.quantity ? parseFloat(detail.quantity) : '',
         detail.unit ? detail.unit.name : '',
         detail.vpart || '',
-        detail.product ? detail.product.product_name : '',
+        { content: detail.product ? detail.product.product_name : '', styles: { halign: 'left' } },
         detail.description || '',
-        detail.rate ? formatThreeDigitCommas(detail.rate) : '',
-        detail.amount ? formatThreeDigitCommas(detail.amount) : '',
+        {
+          content: detail.rate ? formatThreeDigitCommas(detail.rate) : '',
+          styles: { halign: 'right' }
+        },
+        {
+          content: detail.amount ? formatThreeDigitCommas(detail.amount) : '',
+          styles: { halign: 'right' }
+        },
         detail.vendor_notes || ''
       ])
     : [];
