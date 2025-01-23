@@ -135,8 +135,8 @@ const addHeader = (doc, data, sideMargin) => {
   const table1Column = ["Buyer's Name", "Buyer's Email", 'Required Date', 'Ship via', 'Department'];
   const table1Rows = [
     [
-      data.buyer_name || '',
-      data.buyer_email || '',
+      data.user ? data.user.user_name : '',
+      data.user ? data.user.email : '',
       data.required_date ? dayjs(data.required_date).format('MM-DD-YYYY') : '',
       data.ship_via || '',
       data.department || ''
@@ -212,7 +212,7 @@ export const createPurchaseOrderPrint = (data) => {
         detail?.product?.impa_code || '',
         detail.quantity ? parseFloat(detail.quantity) : '',
         detail.unit ? detail.unit.name : '',
-        '',
+        detail.vpart || '',
         detail.product ? detail.product.product_name : '',
         detail.description || '',
         detail.rate ? formatThreeDigitCommas(detail.rate) : '',

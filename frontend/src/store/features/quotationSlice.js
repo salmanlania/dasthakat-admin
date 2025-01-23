@@ -334,7 +334,8 @@ export const quotationSlice = createSlice({
             }
           : null,
         term_id: data.term_id || null,
-        term_desc: data.term_desc
+        term_desc: data.term_desc,
+        status: data.status
       };
 
       if (!data.quotation_detail) return;

@@ -168,6 +168,7 @@ const addFooter = (doc, pageWidth, pageHeight) => {
 };
 
 export const createQuotationPrint = (data) => {
+  console.log(data);
   const doc = new jsPDF();
   doc.setTextColor(32, 50, 114);
 
@@ -185,6 +186,7 @@ export const createQuotationPrint = (data) => {
     'Price per Unit',
     'Gross Amount',
     'Discount %',
+    'Discount Amount',
     'Net Amount'
   ];
 
@@ -193,7 +195,7 @@ export const createQuotationPrint = (data) => {
     data.quotation_detail.forEach((detail, index) => {
       const sr = detail.sort_order + 1;
       const description = detail.product
-        ? `${detail.product.product_name} ${detail.description || ''}`
+        ? `${detail.product.product_name}\n${detail.description || ''}`
         : '';
       const uom = detail.unit ? detail.unit.name : '';
       const quantity = detail.quantity ? formatThreeDigitCommas(parseFloat(detail.quantity)) : '';
@@ -201,6 +203,9 @@ export const createQuotationPrint = (data) => {
       const grossAmount = detail.amount ? `$${formatThreeDigitCommas(detail.amount)}` : '';
       const discountPercent = detail.discount_percent
         ? `${roundUpto(+detail.discount_percent)}%`
+        : '';
+      const discountAmount = detail.discount_amount
+        ? `$${formatThreeDigitCommas(detail.discount_amount)}`
         : '';
       const netAmount = detail.gross_amount
         ? `$${formatThreeDigitCommas(detail.gross_amount)}`
@@ -214,6 +219,7 @@ export const createQuotationPrint = (data) => {
         { content: pricePerUnit, styles: { halign: 'right' } },
         { content: grossAmount, styles: { halign: 'right' } },
         discountPercent,
+        { content: discountAmount, styles: { halign: 'right' } },
         { content: netAmount, styles: { halign: 'right' } }
       ];
 
@@ -253,14 +259,15 @@ export const createQuotationPrint = (data) => {
     },
     rowPageBreak: 'avoid',
     columnStyles: {
-      0: { cellWidth: 16 },
-      1: { cellWidth: 79 },
-      2: { cellWidth: 14 },
-      3: { cellWidth: 14 },
-      4: { cellWidth: 18 },
+      0: { cellWidth: 12 },
+      1: { cellWidth: 80 },
+      2: { cellWidth: 12 },
+      3: { cellWidth: 10 },
+      4: { cellWidth: 14 },
       5: { cellWidth: 19 },
-      6: { cellWidth: 15 },
-      7: { cellWidth: 27 }
+      6: { cellWidth: 14 },
+      7: { cellWidth: 14 },
+      8: { cellWidth: 27 }
     },
     didParseCell: function (data) {
       data.cell.styles.minCellHeight = 9;

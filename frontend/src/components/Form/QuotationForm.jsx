@@ -109,6 +109,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       service_date: values.service_date ? dayjs(values.service_date).format('YYYY-MM-DD') : null,
       due_date: values.due_date ? dayjs(values.due_date).format('YYYY-MM-DD') : null,
       term_id: values.term_id && values.term_id.length ? values.term_id.map((v) => v.value) : null,
+      status: values.status,
       quotation_detail: quotationDetails.map(({ id, product_type, ...detail }, index) => ({
         ...detail,
         supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
@@ -192,7 +193,50 @@ const QuotationForm = ({ mode, onSubmit }) => {
         value: selected
       })
     );
-    if (!selected) return;
+
+    if (!selected) {
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'product_code',
+          value: null
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'product_type',
+          value: null
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'unit_id',
+          value: null
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'cost_price',
+          value: null
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'rate',
+          value: null
+        })
+      );
+      return;
+    }
+
     try {
       const product = await dispatch(getProduct(selected.value)).unwrap();
 
@@ -421,6 +465,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             endpoint="/unit"
             valueKey="unit_id"
             labelKey="name"
+            disabled
             labelInValue
             className="w-full"
             value={unit_id}
@@ -433,7 +478,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
                 })
               )
             }
-            addNewLink={permissions.unit.list && permissions.unit.add ? '/unit' : null}
           />
         );
       },
@@ -747,7 +791,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
         mode === 'edit'
           ? initialFormValues
           : {
-              document_date: dayjs()
+              document_date: dayjs(),
+              status: 'In Progress'
             }
       }
       scrollToFirstError>
@@ -868,14 +913,12 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
 
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={24} sm={12} md={8} lg={8} className="flex items-center gap-2">
           <Form.Item name="due_date" label="Due Date" className="w-full">
             <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
-        </Col>
 
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="service_date" label="Date of Service">
+          <Form.Item name="service_date" label="Date of Service" className="w-full">
             <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
         </Col>
@@ -934,6 +977,31 @@ const QuotationForm = ({ mode, onSubmit }) => {
               labelKey="name"
               labelInValue
               addNewLink={permissions.port.list && permissions.port.add ? '/port' : null}
+            />
+          </Form.Item>
+        </Col>
+
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="status" label="Status">
+            <Select
+              options={[
+                {
+                  value: 'In Progress',
+                  label: 'In Progress'
+                },
+                {
+                  value: 'Complete',
+                  label: 'Complete'
+                },
+                {
+                  value: 'Approved',
+                  label: 'Approved'
+                },
+                {
+                  value: 'Ready to Sent',
+                  label: 'Ready to Sent'
+                }
+              ]}
             />
           </Form.Item>
         </Col>
