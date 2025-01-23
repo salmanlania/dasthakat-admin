@@ -333,6 +333,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             endpoint="/unit"
             valueKey="unit_id"
             labelKey="name"
+            disabled
             labelInValue
             className="w-full"
             value={unit_id}

@@ -321,6 +321,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
             valueKey="unit_id"
             labelKey="name"
             labelInValue
+            disabled
             className="w-full"
             value={unit_id}
             onChange={(selected) =>

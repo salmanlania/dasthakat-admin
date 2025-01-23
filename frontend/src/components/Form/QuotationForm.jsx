@@ -478,6 +478,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
                 })
               )
             }
+            addNewLink={permissions.unit.list && permissions.unit.add ? '/unit' : null}
           />
         );
       },

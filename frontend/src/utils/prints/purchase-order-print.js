@@ -8,6 +8,19 @@ import Logo2 from '../../assets/purchaseOrderPrintLogo/logo2.png';
 import Logo3 from '../../assets/purchaseOrderPrintLogo/logo3.png';
 import { formatThreeDigitCommas } from '../number';
 
+const fillEmptyRows = (rows, rowsPerPage) => {
+  // Calculate how many rows are required to fill the current page
+  const rowsOnLastPage = rows.length % rowsPerPage;
+  const emptyRowsNeeded = rowsOnLastPage ? rowsPerPage - rowsOnLastPage : 0;
+
+  // Add empty rows to the table
+  for (let i = 0; i < emptyRowsNeeded; i++) {
+    rows.push(['', '', '', '', '', '', '', '', '', '']);
+  }
+
+  return rows;
+};
+
 const addHeader = (doc, data, sideMargin) => {
   // *** Header ***
   // Logo's
@@ -97,13 +110,13 @@ const addHeader = (doc, data, sideMargin) => {
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
   doc.setFont('helvetica', 'bold');
-  doc.text('GLOBAL MARINE SAFETY SERVICES', startSendToX + 4, startSendToY + 16);
+  doc.text(data.supplier?.name || '', startSendToX + 4, startSendToY + 16);
   doc.setFont('helvetica', 'normal');
-  const billToAddress = doc.splitTextToSize('9145 WALLISVILLE RD-9145 WALLISVILLE RD', 88);
+  const billToAddress = doc.splitTextToSize(data.supplier?.address, 88);
   doc.text(billToAddress, startSendToX + 4, startSendToY + 20);
-  doc.text('Tel : 713-518-1715', startSendToX + 4, startSendToY + 30);
+  doc.text(`Tel : ${data.supplier?.contact1}`, startSendToX + 4, startSendToY + 30);
   doc.text('Fax :', startSendToX + 4, startSendToY + 34);
-  doc.text('Email : SALES@GMS-AMERICA.COM', startSendToX + 4, startSendToY + 38);
+  doc.text(`Email : ${data.supplier?.email}`, startSendToX + 4, startSendToY + 38);
 
   // Ship To box
   // Draw the main box
@@ -122,14 +135,8 @@ const addHeader = (doc, data, sideMargin) => {
   // Add the content
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.setFont('helvetica', 'bold');
-  doc.text('GLOBAL MARINE SAFETY SERVICES', startShipToX + 4, startShipToY + 16);
-  doc.setFont('helvetica', 'normal');
-  const shipToAddress = doc.splitTextToSize('9145 WALLISVILLE RD-9145 WALLISVILLE RD', 88);
-  doc.text(shipToAddress, startShipToX + 4, startShipToY + 20);
-  doc.text('Tel : 713-518-1715', startShipToX + 4, startShipToY + 30);
-  doc.text('Fax :', startShipToX + 4, startShipToY + 34);
-  doc.text('Email : SALES@GMS-AMERICA.COM', startShipToX + 4, startShipToY + 38);
+  const shipTo = doc.splitTextToSize(data.ship_to || '', 88);
+  doc.text(shipTo, startShipToX + 4, startShipToY + 16);
 
   // Buyer's Info Table
   const table1Column = ["Buyer's Name", "Buyer's Email", 'Required Date', 'Ship via', 'Department'];
@@ -220,10 +227,12 @@ export const createPurchaseOrderPrint = (data) => {
         detail.vendor_notes || ''
       ])
     : [];
+
+  const filledRows = fillEmptyRows(table2Rows, 9);
   doc.autoTable({
     startY: 156,
     head: [table2Column],
-    body: table2Rows,
+    body: filledRows,
     margin: { left: 4, top: 156, bottom: 22 },
     headStyles: {
       halign: 'center',
@@ -248,6 +257,7 @@ export const createPurchaseOrderPrint = (data) => {
     alternateRowStyles: {
       fillColor: [255, 255, 255]
     },
+    rowPageBreak: 'avoid',
     columnStyles: {
       0: { cellWidth: 9 },
       1: { cellWidth: 15 },
@@ -259,6 +269,9 @@ export const createPurchaseOrderPrint = (data) => {
       7: { cellWidth: 16 },
       8: { cellWidth: 16 },
       9: { cellWidth: 24 }
+    },
+    didParseCell: function (data) {
+      data.cell.styles.minCellHeight = 11;
     }
   });
 

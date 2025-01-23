@@ -183,7 +183,7 @@ const Quotation = () => {
       dataIndex: 'event_code',
       key: 'event_code',
       sorter: true,
-      width: 200,
+      width: 140,
       ellipsis: true
     },
     {

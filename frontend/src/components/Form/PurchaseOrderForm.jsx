@@ -350,6 +350,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
           <AsyncSelect
             endpoint="/unit"
             valueKey="unit_id"
+            disabled
             labelKey="name"
             labelInValue
             className="w-full"
