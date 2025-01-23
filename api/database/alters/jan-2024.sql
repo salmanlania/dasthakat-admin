@@ -1,7 +1,8 @@
 
 ALTER TABLE purchase_order
 ADD COLUMN buyer_id CHAR(36) AFTER buyer_name,
-ADD COLUMN ship_to VARCHAR(255) AFTER buyer_id,
+ADD COLUMN ship_to VARCHAR(255) AFTER buyer_id;
+ALTER TABLE purchase_order
 DROP COLUMN buyer_name,
 DROP COLUMN buyer_email;
 
@@ -28,7 +29,7 @@ ALTER TABLE `core_stock_ledger`
   CHANGE `base_amount` `base_amount` DECIMAL(10,2) DEFAULT 0.00  NULL;
   
   ALTER TABLE `core_stock_ledger`   
-  CHANGE `created_by` `created_by` CHAR(36) NULL;
+  CHANGE `created_by_id` `created_by` CHAR(36) NULL;
 
 CREATE TABLE `quotation_status`(  
   `id` CHAR(36) NOT NULL,

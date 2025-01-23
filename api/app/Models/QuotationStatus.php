@@ -11,6 +11,7 @@ class QuotationStatus extends Model
     protected $table = 'quotation_status';
     protected $primaryKey = 'id';
     public $incrementing = false;
+    protected $updated_at = false;
 
     protected $fillable = [
         "id",
