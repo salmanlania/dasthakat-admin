@@ -15,7 +15,7 @@ class ProductController extends Controller
 	public function index(Request $request)
 	{
 		$name = $request->input('name', '');
-		$product_type = $request->input('product_type', '');
+		$product_type_id = $request->input('product_type_id', '');
 		$unit_id = $request->input('unit_id', '');
 		$product_code = $request->input('product_code', '');
 		$category_id = $request->input('category_id', '');
@@ -41,7 +41,7 @@ class ProductController extends Controller
 		if (!empty($name)) $item = $item->where('product.name', 'like', '%' . $name . '%');
 		if (!empty($product_code)) $item = $item->where('product.product_code', '=',  $product_code)->orWhere('product.impa_code', '=', $product_code);
 		if (!empty($impa_code)) $item = $item->where('product.impa_code', 'like', '%' . $impa_code . '%');
-		if (!empty($product_type)) $item = $item->where('product.product_type', $product_type);
+		if (!empty($product_type_id)) $item = $item->where('product.product_type_id', $product_type_id);
 		if (!empty($unit_id)) $item = $item->where('product.unit_id', $unit_id);
 		if (!empty($category_id)) $item = $item->where('product.category_id', $category_id);
 		if (!empty($sub_category_id)) $item = $item->where('product.sub_category_id', $sub_category_id);
@@ -60,7 +60,7 @@ class ProductController extends Controller
 					->orWhere('u.name', 'like', '%' . $search . '%')
 					->orWhere('sc.name', 'like', '%' . $search . '%')
 					->orWhere('b.name', 'like', '%' . $search . '%')
-					->orWhere('product.product_type', 'like', '%' . $search . '%')
+					->orWhere('product.product_type_id', 'like', '%' . $search . '%')
 					->orWhere('product.product_code', 'like', '%' . $search . '%')
 					->orWhere('product.impa_code', 'like', '%' . $search . '%')
 				;
@@ -80,10 +80,11 @@ class ProductController extends Controller
 		$product = Product::leftJoin('category as c', 'c.category_id', '=', 'product.category_id')
 			->LeftJoin('sub_category as sc', 'sc.sub_category_id', '=', 'product.sub_category_id')
 			->LeftJoin('unit as u', 'u.unit_id', '=', 'product.unit_id')
+			->LeftJoin('product_type as pt', 'pt.product_type_id', '=', 'product.product_type_id')
 			->LeftJoin('brand as b', 'b.brand_id', '=', 'product.brand_id');
 
 		$product = $product->where('product.product_id', $id);
-		$product = $product->select('product.*', 'c.name as category_name', 'sc.name as sub_category_name', 'b.name as brand_name', 'u.name as unit_name')->first();
+		$product = $product->select('product.*','pt.product_type_id','pt.name as product_type_name', 'c.name as category_name', 'sc.name as sub_category_name', 'b.name as brand_name', 'u.name as unit_name')->first();
 		$product['image_url']  = !empty($product['image']) ?  url('public/uploads/' . $product['image']) : '';
 
 		return $this->jsonResponse($product, 200, "Product Data");
@@ -105,7 +106,7 @@ class ProductController extends Controller
 	{
 		$rules = [
 			'unit_id' => 'required',
-			'product_type' => 'required',
+			'product_type_id' => 'required',
 			'name' => [
 				'required',
 				Rule::unique('product')->ignore($id, 'product_id')->where('company_id', $request['company_id'])
@@ -143,7 +144,7 @@ class ProductController extends Controller
 			'company_id' => $request->company_id ?? "",
 			'company_branch_id' => $request->company_branch_id ?? "",
 			'product_id' => $uuid,
-			'product_type' => $request->product_type ?? "",
+			'product_type_id' => $request->product_type_id ?? "",
 			'product_code' => str_pad($maxCode + 1, 4, '0', STR_PAD_LEFT),
 			'product_no' => $maxCode + 1,
 			'name' => $request->name,
@@ -185,7 +186,7 @@ class ProductController extends Controller
 
 		$product->company_id  = $request->company_id;
 		$product->company_branch_id  = $request->company_branch_id;
-		$product->product_type  = $request->product_type ?? "";
+		$product->product_type_id  = $request->product_type_id ?? "";
 		$product->product_code  = $request->product_code ?? "";
 		$product->product_no  = $request->product_no ?? "";
 		$product->name  = $request->name ?? "";

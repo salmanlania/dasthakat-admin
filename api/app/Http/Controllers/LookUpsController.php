@@ -9,6 +9,7 @@ use App\Models\Country;
 use App\Models\ControlAccess;
 use App\Models\ParlourModule;
 use App\Models\EmailTemplate;
+use App\Models\ProductType;
 use App\Models\User;
 use App\Models\UserBranchAccess;
 use Illuminate\Http\Request;
@@ -43,6 +44,12 @@ class LookUpsController extends Controller
         }
 
         return response()->json($arrPermissions);
+    }
+    public function getProductTypes()
+    {
+        $rows = ProductType::get();
+
+        return response()->json($rows);
     }
 
     

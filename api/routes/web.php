@@ -240,6 +240,7 @@ $router->group(['prefix' => 'warehouse'], function ($router) {
 
 $router->group(['prefix' => 'lookups'], function ($router) {
    $router->get('/company', 'LookUpsController@getCompany');
+   $router->get('/product-types', 'LookUpsController@getProductTypes');
    $router->get('/company-branch', 'LookUpsController@getCompanyBranch');
    $router->get('/company-and-branches', 'LookUpsController@getCompanyAndBranches');
    $router->get('/modules', 'LookUpsController@getModules');

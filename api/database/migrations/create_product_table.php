@@ -19,7 +19,7 @@ return new class extends Migration
             $table->char('product_id', 36)->primary();
             $table->integer('product_no')->nullable();
             $table->string('product_code', 255);
-            $table->string('product_type', 255)->nullable();
+            $table->string('product_type_id', 255)->nullable();
             $table->string('image', 255)->nullable();
             $table->string('name', 255);
             $table->string('impa_code', 255)->nullable();

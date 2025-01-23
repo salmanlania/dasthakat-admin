@@ -42,3 +42,11 @@ CREATE TABLE `quotation_status`(
 
 ALTER TABLE `quotation`   
   ADD COLUMN `status` VARCHAR(255) NULL AFTER `net_amount`;
+
+CREATE TABLE `product_type`(  
+  `product_type_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` CHAR(36) NOT NULL,
+  `created_by` CHAR(36) ,
+  `created_at` DATETIME ,
+  PRIMARY KEY (`product_type_id`)
+);
