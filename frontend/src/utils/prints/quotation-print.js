@@ -259,9 +259,9 @@ export const createQuotationPrint = (data) => {
     },
     rowPageBreak: 'avoid',
     columnStyles: {
-      0: { cellWidth: 12 },
-      1: { cellWidth: 80 },
-      2: { cellWidth: 12 },
+      0: { cellWidth: 10 },
+      1: { cellWidth: 84 },
+      2: { cellWidth: 10 },
       3: { cellWidth: 10 },
       4: { cellWidth: 14 },
       5: { cellWidth: 19 },
