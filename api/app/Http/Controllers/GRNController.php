@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DocumentType;
 use App\Models\GRN;
 use App\Models\GRNDetail;
+use App\Models\StockLedger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -122,7 +123,7 @@ class GRNController extends Controller
 		GRN::create($insertArr);
 
 		if ($request->good_received_note_detail) {
-			foreach ($request->good_received_note_detail as $key => $value) {
+			foreach ($request->good_received_note_detail as $value) {
 				$detail_uuid = $this->get_uuid();
 				$insert = [
 					'good_received_note_id' => $insertArr['good_received_note_id'],
@@ -140,6 +141,12 @@ class GRNController extends Controller
 					'created_at' => date('Y-m-d H:i:s'),
 					'created_by' => $request->login_user_id,
 				];
+				StockLedger::handleStockMovement([
+					'master_model' => new GRN,
+					'document_id' => $uuid,
+					'document_detail_id' => $detail_uuid,
+					'row' => $value,
+				],'I');
 
 				GRNDetail::create($insert);
 			}
@@ -174,6 +181,7 @@ class GRNController extends Controller
 		$data->updated_by = $request->login_user_id;
 		$data->update();
 		GRNDetail::where('good_received_note_id', $id)->delete();
+		StockLedger::where('document_id', $id)->delete();
 		if ($request->purchase_order_detail) {
 
 			foreach ($request->purchase_order_detail as $key => $value) {
@@ -194,6 +202,13 @@ class GRNController extends Controller
 					'created_at' => date('Y-m-d H:i:s'),
 					'created_by' => $request->login_user_id,
 				];
+
+				StockLedger::handleStockMovement([
+					'master_model' => new GRN,
+					'document_id' => $id,
+					'document_detail_id' => $detail_uuid,
+					'row' => $value,
+				],'I');
 				GRNDetail::create($insertArr);
 			}
 		}
@@ -209,6 +224,7 @@ class GRNController extends Controller
 		if (!$data) return $this->jsonResponse(['good_received_note_id' => $id], 404, "Good Received Note Not Found!");
 		$data->delete();
 		GRNDetail::where('good_received_note_id', $id)->delete();
+		StockLedger::where('document_id', $id)->delete();
 		return $this->jsonResponse(['good_received_note_id' => $id], 200, "Delete Good Received Note Successfully!");
 	}
 	public function bulkDelete(Request $request)
@@ -219,9 +235,10 @@ class GRNController extends Controller
 		try {
 			if (isset($request->good_received_note_ids) && !empty($request->good_received_note_ids) && is_array($request->good_received_note_ids)) {
 				foreach ($request->good_received_note_ids as $good_received_note_id) {
-					$user = GRN::where(['good_received_note_id' => $good_received_note_id])->first();
-					$user->delete();
+					$data = GRN::where(['good_received_note_id' => $good_received_note_id])->first();
+					$data->delete();
 					GRNDetail::where('good_received_note_id', $good_received_note_id)->delete();
+					StockLedger::where('document_id', $good_received_note_id)->delete();
 				}
 			}
 

@@ -55,7 +55,7 @@ class PurchaseOrder extends Model
    
     public function supplier()
     {
-        return $this->hasOne(Supplier::class, 'supplier_id','supplier_id')->select('supplier_id', 'name');
+        return $this->hasOne(Supplier::class, 'supplier_id','supplier_id')->select('*');
     }
 
     public function quotation()

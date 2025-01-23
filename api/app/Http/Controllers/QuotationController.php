@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Quotation;
 use App\Models\QuotationDetail;
+use App\Models\QuotationStatus;
 use App\Models\Terms;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class QuotationController extends Controller
@@ -168,6 +170,14 @@ class QuotationController extends Controller
 			'created_by' => $request->login_user_id,
 		];
 		Quotation::create($insertArr);
+		
+		QuotationStatus::create([
+			'id'=>$this->get_uuid(),
+			'quotation_id'=>$uuid,
+			'status'=>$request->status,
+			'created_by'=>$request->login_user_id,
+			'created_at'=>Carbon::now(),
+		]);
 
 		if ($request->quotation_detail) {
 			foreach ($request->quotation_detail as $key => $value) {
@@ -246,6 +256,16 @@ class QuotationController extends Controller
 		$data->updated_at = date('Y-m-d H:i:s');
 		$data->updated_by = $request->login_user_id;
 		$data->update();
+
+		QuotationStatus::create([
+			'id'=>$this->get_uuid(),
+			'quotation_id'=>$id,
+			'status'=>$request->status,
+			'created_by'=>$request->login_user_id,
+			'created_at'=>Carbon::now(),
+		]);
+
+
 		QuotationDetail::where('quotation_id', $id)->delete();
 		if ($request->quotation_detail) {
 

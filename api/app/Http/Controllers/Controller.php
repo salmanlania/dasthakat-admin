@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Database\DatabaseManager;
 use Laravel\Lumen\Routing\Controller as BaseController;
-use App\Models\User;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -91,7 +90,7 @@ class Controller extends BaseController
 
     public function testApi()
     {
-        return response()->json(['success'=>true,'msg'=>'Backend Working']);
+        return response()->json(['success' => true, 'msg' => 'Backend Working']);
     }
     /**
      * --------------------------------------------------------------------------------
@@ -331,8 +330,4 @@ class Controller extends BaseController
 
         return $status[$code];
     }
-
-    // public function dbset(){
-    //     return $this->db->connection('other_connection')->table('user');
-    // }
 }
