@@ -196,7 +196,6 @@ const addFooter = (doc, sideMargin, pageHeight) => {
 };
 
 export const createPurchaseOrderPrint = (data) => {
-  console.log(data);
   const doc = new jsPDF();
   const sideMargin = 4;
 
