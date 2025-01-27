@@ -160,6 +160,20 @@ const addFooter = (doc, pageWidth, pageHeight) => {
   doc.addImage(Logo6, 'PNG', 164, pageHeight + 2, 14, 16);
   doc.addImage(Logo7, 'PNG', 182, pageHeight + 2, 14, 16);
 
+  const currentPage = doc.internal.getCurrentPageInfo().pageNumber;
+  const totalPages = doc.internal.getNumberOfPages();
+
+  doc.setFont('helvetica', 'bolditalic');
+  doc.text(
+    currentPage === totalPages ? `Last page` : `Continue to page ${currentPage + 1}`,
+    pageWidth / 2,
+    pageHeight - 9.2,
+    {
+      align: 'center'
+    }
+  );
+
+  doc.setFont('helvetica', 'normal');
   const deliveryText =
     'Remit Payment to: Global Marine Safety Service Inc Frost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44';
   doc.text(deliveryText, pageWidth / 2, pageHeight, {
@@ -168,7 +182,6 @@ const addFooter = (doc, pageWidth, pageHeight) => {
 };
 
 export const createQuotationPrint = (data) => {
-  console.log(data);
   const doc = new jsPDF();
   doc.setTextColor(32, 50, 114);
 
@@ -227,14 +240,14 @@ export const createQuotationPrint = (data) => {
     });
   }
 
-  const filledRows = fillEmptyRows(table2Rows, 19, descriptions.length || 1);
+  const filledRows = fillEmptyRows(table2Rows, 18, descriptions.length + 1);
 
   // Adding Table
   doc.autoTable({
     startY: 84,
     head: [table2Column],
     body: filledRows,
-    margin: { left: sideMargin, right: sideMargin, bottom: 27, top: 84 },
+    margin: { left: sideMargin, right: sideMargin, bottom: 32, top: 84 },
     headStyles: {
       fontSize: 7,
       fontStyle: 'bold',
@@ -274,28 +287,74 @@ export const createQuotationPrint = (data) => {
     }
   });
 
+  // Total Amounts
+  const totalGrossAmount = data.total_amount ? `$${formatThreeDigitCommas(data.total_amount)}` : '';
+  const totalDiscountAmount = data.total_discount
+    ? `$${formatThreeDigitCommas(data.total_discount)}`
+    : '';
   const netAmount = data.net_amount ? `$${formatThreeDigitCommas(data.net_amount)}` : '';
-  const notes = data.term_desc
-    ? descriptions.map((note, index) => {
+
+  let notes = [
+    [
+      {
+        content: 'Total:',
+        styles: {
+          fontStyle: 'bold',
+          fontSize: 9
+        }
+      },
+      {
+        content: '',
+        colSpan: 3
+      },
+      {
+        content: totalGrossAmount,
+        colSpan: 2,
+        styles: {
+          fontStyle: 'bold',
+          halign: 'right',
+          fontSize: 9
+        }
+      },
+      {
+        content: totalDiscountAmount,
+        colSpan: 2,
+        styles: {
+          fontStyle: 'bold',
+          halign: 'right',
+          fontSize: 9
+        }
+      },
+      {
+        content: netAmount,
+        styles: {
+          fontStyle: 'bold',
+          halign: 'right',
+          fontSize: 9
+        }
+      }
+    ]
+  ];
+
+  if (data.term_desc) {
+    notes = notes.concat(
+      descriptions.map((note, index) => {
         if (index === 0) {
           return [
             {
               content: 'Notes:',
-              rowSpan: rowSpan
-            },
-            {
-              content: note || '',
+              rowSpan: rowSpan,
               styles: {
-                halign: 'left'
+                fontSize: 9,
+                fontStyle: 'bold'
               }
             },
             {
-              content: 'Grand Total',
-              rowSpan: rowSpan
-            },
-            {
-              content: netAmount,
-              rowSpan: rowSpan
+              content: note || '',
+              colSpan: 8,
+              styles: {
+                halign: 'left'
+              }
             }
           ];
         }
@@ -303,31 +362,15 @@ export const createQuotationPrint = (data) => {
         return [
           {
             content: note || '',
+            colSpan: 8,
             styles: {
               halign: 'left'
             }
           }
         ];
       })
-    : [
-        [
-          {
-            content: 'Notes:'
-          },
-          {
-            content: '',
-            styles: {
-              halign: 'left'
-            }
-          },
-          {
-            content: 'Grand Total'
-          },
-          {
-            content: netAmount
-          }
-        ]
-      ];
+    );
+  }
 
   doc.autoTable({
     startY: doc.previousAutoTable.finalY,
@@ -352,22 +395,17 @@ export const createQuotationPrint = (data) => {
     },
     columnStyles: {
       0: { cellWidth: 25 },
-      1: { cellWidth: 116 },
-      2: { cellWidth: 34 },
-      3: { cellWidth: 27 }
+      1: { cellWidth: 69 },
+      2: { cellWidth: 10 },
+      3: { cellWidth: 10 },
+      4: { cellWidth: 14 },
+      5: { cellWidth: 19 },
+      6: { cellWidth: 14 },
+      7: { cellWidth: 14 },
+      8: { cellWidth: 27 }
     },
     didParseCell: (data) => {
-      const rowIndex = data.row.index;
-      const columnIndex = data.column.index;
       data.cell.styles.minCellHeight = 9;
-      if (rowIndex === 0 && (columnIndex === 0 || columnIndex === 3 || columnIndex === 2)) {
-        data.cell.styles.fontSize = 10;
-        data.cell.styles.fontStyle = 'bold';
-      }
-
-      if (rowIndex === 0 && columnIndex === 3) {
-        data.cell.styles.halign = 'right';
-      }
     }
   });
 
