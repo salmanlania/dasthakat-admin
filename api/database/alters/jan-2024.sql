@@ -50,3 +50,14 @@ CREATE TABLE `product_type`(
   `created_at` DATETIME ,
   PRIMARY KEY (`product_type_id`)
 );
+
+ALTER TABLE `quotation_detail`   
+  ADD COLUMN `product_code` VARCHAR(255) NULL AFTER `sort_order`,
+  ADD COLUMN `product_name` VARCHAR(255) NULL AFTER `product_id`;
+
+INSERT INTO product_type (product_type_id, name, created_at)
+VALUES
+    (1, 'Service', NOW()),
+    (2, 'Inventory', NOW()),
+    (3, 'IMPA', NOW()),
+    (4, 'Others', NOW());
