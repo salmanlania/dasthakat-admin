@@ -45,23 +45,29 @@ class LookUpsController extends Controller
 
         return response()->json($arrPermissions);
     }
-    public function getProductTypes()
+    public function getProductTypes(Request $request)
     {
-        $rows = ProductType::get();
+        $isOtherOption = $request->input('include_other', '1');
+        $rows = new ProductType;
+        if ($isOtherOption == '0') {
+            $rows = $rows->where('product_type_id', '!=', 4);
+        }
+        $rows = $rows->get();
+
 
         return response()->json($rows);
     }
 
-    
+
 
     public function getCompany(Request $request)
     {
         $data = new Company;
-        
-        if(isset($request->login_user_id) && !empty($request->login_user_id)){
-            $user = User::where('user_id','=' ,$request->login_user_id)->first();
-            if($user['super_admin'] != 1){
-                $data = $data->where('company_id','=',$user['company_id']);
+
+        if (isset($request->login_user_id) && !empty($request->login_user_id)) {
+            $user = User::where('user_id', '=', $request->login_user_id)->first();
+            if ($user['super_admin'] != 1) {
+                $data = $data->where('company_id', '=', $user['company_id']);
             }
         }
         $data = $data->get();
@@ -97,14 +103,14 @@ class LookUpsController extends Controller
     public function getCompanyAndBranches(Request $request)
     {
         $id = $request->login_user_id;
-        $user_data = User::where('user_id', $id)->first();   
+        $user_data = User::where('user_id', $id)->first();
         $user_access = UserBranchAccess::where('user_id', $id);
         $company = array_unique($user_access->pluck('company_id')->toArray());
-        $branchList = ($user_access->pluck('company_branch_id','company_branch_id'));
-        
+        $branchList = ($user_access->pluck('company_branch_id', 'company_branch_id'));
+
         $companies = Company::with('branches');
-        if($user_data['super_admin'] != 1)
-           $companies = $companies->whereIn('company_id', $company);
+        if ($user_data['super_admin'] != 1)
+            $companies = $companies->whereIn('company_id', $company);
         $companies = $companies->get();
 
         $groupedData = [];
@@ -115,7 +121,7 @@ class LookUpsController extends Controller
 
             foreach ($company->branches as $branch) {
 
-                if($user_data['super_admin'] == 1 || isset($branchList[$branch->company_branch_id])){
+                if ($user_data['super_admin'] == 1 || isset($branchList[$branch->company_branch_id])) {
                     $branches[] = [
                         'branch_id' => $branch->company_branch_id,
                         'branch_name' => $branch->name,
