@@ -207,9 +207,8 @@ export const createQuotationPrint = (data) => {
   if (data.quotation_detail) {
     data.quotation_detail.forEach((detail, index) => {
       const sr = detail.sort_order + 1;
-      const description = detail.product
-        ? `${detail.product.product_name}\n${detail.description || ''}`
-        : '';
+      const description = `${detail.product_type.name === 'Others' ? detail.product_name : detail.product.product_name}\n${detail.description || ''}`;
+
       const uom = detail.unit ? detail.unit.name : '';
       const quantity = detail.quantity ? formatThreeDigitCommas(parseFloat(detail.quantity)) : '';
       const pricePerUnit = detail.rate ? `$${formatThreeDigitCommas(detail.rate)}` : '';

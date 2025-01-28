@@ -210,6 +210,27 @@ export const quotationSlice = createSlice({
       }
     },
 
+    resetQuotationDetail: (state, action) => {
+      const index = action.payload;
+
+      state.quotationDetails[index] = {
+        id: state.quotationDetails[index].id,
+        product_code: null,
+        product_id: null,
+        description: null,
+        stock_quantity: null,
+        quantity: null,
+        unit_id: null,
+        supplier_id: null,
+        cost_price: null,
+        markup: '0',
+        rate: null,
+        amount: null,
+        discount_percent: '0',
+        gross_amount: null
+      };
+    },
+
     setRebatePercentage: (state, action) => {
       state.rebatePercentage = action.payload;
     },
@@ -339,14 +360,19 @@ export const quotationSlice = createSlice({
       };
 
       if (!data.quotation_detail) return;
-
       state.quotationDetails = data.quotation_detail.map((detail) => ({
         id: detail.quotation_detail_id,
         product_code: detail.product ? detail.product.product_code : null,
         product_id: detail.product
           ? { value: detail.product.product_id, label: detail.product.product_name }
           : null,
-        product_type: detail.product ? detail.product.product_type : null,
+        product_type_id: detail.product_type
+          ? {
+              value: detail.product_type.product_type_id,
+              label: detail.product_type.name
+            }
+          : null,
+        product_name: detail.product_name,
         description: detail.description,
         quantity: detail.quantity ? parseFloat(detail.quantity) : null,
         unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
@@ -406,6 +432,7 @@ export const {
   copyQuotationDetail,
   changeQuotationDetailOrder,
   changeQuotationDetailValue,
+  resetQuotationDetail,
   setRebatePercentage,
   setSalesmanPercentage
 } = quotationSlice.actions;

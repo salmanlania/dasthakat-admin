@@ -20,6 +20,7 @@ import {
   setProductListParams
 } from '../../store/features/productSlice';
 import { formatThreeDigitCommas, removeCommas } from '../../utils/number';
+import AsyncSelectNoPaginate from '../../components/AsyncSelect/AsyncSelectNoPaginate.jsx';
 
 const Product = () => {
   const dispatch = useDispatch();
@@ -91,19 +92,27 @@ const Product = () => {
       title: (
         <div>
           <p>Type</p>
-          <Select
+          <AsyncSelectNoPaginate
+            endpoint="/lookups/product-types"
+            valueKey="product_type_id"
+            labelKey="name"
             className="w-full font-normal"
+            params={{
+              include_other: 0
+            }}
             size="small"
+            labelInValue
             onClick={(e) => e.stopPropagation()}
-            options={productTypeOptions}
-            value={params.product_type}
-            onChange={(value) => dispatch(setProductListParams({ product_type: value }))}
+            value={params.product_type_id}
+            onChange={(selected) =>
+              dispatch(setProductListParams({ product_type_id: selected ? selected.value : null }))
+            }
             allowClear
           />
         </div>
       ),
-      dataIndex: 'product_type',
-      key: 'product_type',
+      dataIndex: 'product_type_name',
+      key: 'product_type_name',
       sorter: true,
       width: 160
     },
@@ -331,7 +340,7 @@ const Product = () => {
     debouncedIMPA,
     debouncedCost,
     debouncedSale,
-    params.product_type,
+    params.product_type_id,
     params.category_id,
     params.sub_category_id,
     params.brand_id,

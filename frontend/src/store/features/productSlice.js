@@ -147,7 +147,12 @@ export const productSlice = createSlice({
       state.initialFormValues = {
         product_code: data.product_code,
         name: data.name,
-        product_type: data.product_type,
+        product_type_id: data.product_type_id
+          ? {
+              value: data.product_type_id,
+              label: data.product_type_name
+            }
+          : null,
         impa_code: data.impa_code,
         category_id: data.category_id
           ? {

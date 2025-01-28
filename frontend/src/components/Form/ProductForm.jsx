@@ -5,6 +5,11 @@ import { Link } from 'react-router-dom';
 import productImagePlaceholder from '../../assets/img-placeholder.png';
 import AsyncSelect from '../AsyncSelect';
 import CommaSeparatedInput from '../Input/CommaSeparatedInput';
+import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate.jsx';
+import {
+  changeQuotationDetailValue,
+  resetQuotationDetail
+} from '../../store/features/quotationSlice.js';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const productTypeOptions = [
@@ -40,6 +45,7 @@ const ProductForm = ({ mode, onSubmit }) => {
   const onFinish = (formValues) => {
     const data = {
       ...formValues,
+      product_type_id: formValues.product_type_id ? formValues.product_type_id.value : null,
       category_id: formValues.category_id ? formValues.category_id.value : null,
       sub_category_id: formValues.sub_category_id ? formValues.sub_category_id.value : null,
       brand_id: formValues.brand_id ? formValues.brand_id.value : null,
@@ -65,8 +71,7 @@ const ProductForm = ({ mode, onSubmit }) => {
       form={form}
       autoComplete="off"
       onFinish={onFinish}
-      initialValues={mode === 'edit' ? initialFormValues : { status: 1 }}
-    >
+      initialValues={mode === 'edit' ? initialFormValues : { status: 1 }}>
       <div className="flex flex-col-reverse items-center justify-between gap-6 md:flex-row md:items-start">
         <div>
           <Row gutter={[12, 12]} className="w-full">
@@ -77,11 +82,18 @@ const ProductForm = ({ mode, onSubmit }) => {
             </Col>
             <Col span={24} sm={12} md={8} lg={8}>
               <Form.Item
-                name="product_type"
+                name="product_type_id"
                 label="Type"
-                rules={[{ required: true, message: 'Type is required' }]}
-              >
-                <Select options={productTypeOptions} />
+                rules={[{ required: true, message: 'Type is required' }]}>
+                <AsyncSelectNoPaginate
+                  endpoint="/lookups/product-types"
+                  valueKey="product_type_id"
+                  labelKey="name"
+                  params={{
+                    include_other: 0
+                  }}
+                  labelInValue
+                />
               </Form.Item>
             </Col>
             <Col span={24} sm={12} md={8} lg={8}>
@@ -94,8 +106,7 @@ const ProductForm = ({ mode, onSubmit }) => {
                     whitespace: true,
                     message: 'Name is required'
                   }
-                ]}
-              >
+                ]}>
                 <Input />
               </Form.Item>
             </Col>
@@ -153,8 +164,7 @@ const ProductForm = ({ mode, onSubmit }) => {
               <Form.Item
                 name="unit_id"
                 label="Unit"
-                rules={[{ required: true, message: 'Unit is required' }]}
-              >
+                rules={[{ required: true, message: 'Unit is required' }]}>
                 <AsyncSelect
                   endpoint="/unit"
                   valueKey="unit_id"
@@ -216,8 +226,7 @@ const ProductForm = ({ mode, onSubmit }) => {
               block
               type="primary"
               className="bg-gray-500 hover:!bg-gray-600"
-              onClick={() => fileInputRef.current.click()}
-            >
+              onClick={() => fileInputRef.current.click()}>
               Upload
             </Button>
           </div>

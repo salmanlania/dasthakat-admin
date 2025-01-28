@@ -19,6 +19,7 @@ import {
   copyQuotationDetail,
   getQuotationForPrint,
   removeQuotationDetail,
+  resetQuotationDetail,
   setRebatePercentage,
   setSalesmanPercentage
 } from '../../store/features/quotationSlice';
@@ -30,6 +31,7 @@ import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebouncedNumberInput from '../Input/DebouncedNumberInput';
 import DebounceInput from '../Input/DebounceInput';
+import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate.jsx';
 
 export const DetailSummaryInfo = ({ title, value }) => {
   return (
@@ -112,8 +114,10 @@ const QuotationForm = ({ mode, onSubmit }) => {
       status: values.status,
       quotation_detail: quotationDetails.map(({ id, product_type, ...detail }, index) => ({
         ...detail,
+        product_id: detail.product_type_id?.label === 'Others' ? null : detail.product_id.value,
+        product_name: detail.product_type_id?.label === 'Others' ? detail.product_name : null,
         supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
-        product_id: detail.product_id ? detail.product_id.value : null,
+        product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
         unit_id: detail.unit_id ? detail.unit_id.value : null,
         sort_order: index
       })),
@@ -152,8 +156,13 @@ const QuotationForm = ({ mode, onSubmit }) => {
       dispatch(
         changeQuotationDetailValue({
           index,
-          key: 'product_type',
-          value: product.product_type
+          key: 'product_type_id',
+          value: product.product_type_id
+            ? {
+                value: product.product_type_id,
+                label: product.product_type_name
+              }
+            : null
         })
       );
 
@@ -251,8 +260,13 @@ const QuotationForm = ({ mode, onSubmit }) => {
       dispatch(
         changeQuotationDetailValue({
           index,
-          key: 'product_type',
-          value: product.product_type
+          key: 'product_type_id',
+          value: product.product_type_id
+            ? {
+                value: product.product_type_id,
+                label: product.product_type_name
+              }
+            : null
         })
       );
 
@@ -347,7 +361,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: 'Product Code',
       dataIndex: 'product_code',
       key: 'product_code',
-      render: (_, { product_code }, index) => {
+      render: (_, { product_code, product_type_id }, index) => {
         return (
           <DebounceInput
             value={product_code}
@@ -360,6 +374,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
                 })
               )
             }
+            disabled={product_type_id?.label === 'Others'}
             onBlur={(e) => onProductCodeChange(index, e.target.value)}
             onPressEnter={(e) => onProductCodeChange(index, e.target.value)}
           />
@@ -371,8 +386,33 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: 'Description',
       dataIndex: 'product_name',
       key: 'product_name',
-      render: (_, { product_id }, index) => {
-        return (
+      render: (_, { product_id, product_name, product_type_id }, index) => {
+        return product_type_id?.label === 'Others' ? (
+          <Form.Item
+            className="m-0"
+            name={`product_name-${index}`}
+            initialValue={product_name}
+            rules={[
+              {
+                required: true,
+                whitespace: true,
+                message: 'Description is required'
+              }
+            ]}>
+            <DebounceInput
+              value={product_name}
+              onChange={(value) =>
+                dispatch(
+                  changeQuotationDetailValue({
+                    index,
+                    key: 'product_name',
+                    value: value
+                  })
+                )
+              }
+            />
+          </Form.Item>
+        ) : (
           <AsyncSelect
             endpoint="/product"
             valueKey="product_id"
@@ -388,6 +428,34 @@ const QuotationForm = ({ mode, onSubmit }) => {
         );
       },
       width: 560
+    },
+    {
+      title: 'Product Nature',
+      dataIndex: 'product_type',
+      key: 'product_type',
+      render: (_, { product_code, product_type_id }, index) => {
+        return (
+          <AsyncSelectNoPaginate
+            endpoint="/lookups/product-types"
+            valueKey="product_type_id"
+            labelKey="name"
+            labelInValue
+            className="w-full"
+            value={product_type_id}
+            onChange={(selected) => {
+              dispatch(resetQuotationDetail(index));
+              dispatch(
+                changeQuotationDetailValue({
+                  index,
+                  key: 'product_type_id',
+                  value: selected
+                })
+              );
+            }}
+          />
+        );
+      },
+      width: 150
     },
     {
       title: 'Customer Notes',
@@ -459,13 +527,13 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: 'Unit',
       dataIndex: 'unit_id',
       key: 'unit_id',
-      render: (_, { unit_id }, index) => {
+      render: (_, { unit_id, product_type_id }, index) => {
         return (
           <AsyncSelect
             endpoint="/unit"
             valueKey="unit_id"
             labelKey="name"
-            disabled
+            disabled={product_type_id?.label !== 'Others'}
             labelInValue
             className="w-full"
             value={unit_id}
@@ -488,7 +556,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: 'Vendor',
       dataIndex: 'supplier_id',
       key: 'supplier_id',
-      render: (_, { supplier_id, product_type }, index) => {
+      render: (_, { supplier_id, product_type_id }, index) => {
         return (
           <AsyncSelect
             endpoint="/supplier"
@@ -496,7 +564,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             labelKey="name"
             labelInValue
             className="w-full"
-            disabled={product_type === 'Service'}
+            disabled={product_type_id?.label === 'Service'}
             value={supplier_id}
             onChange={(selected) =>
               dispatch(
@@ -519,11 +587,11 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: 'Cost Price',
       dataIndex: 'cost_price',
       key: 'cost_price',
-      render: (_, { cost_price, product_type }, index) => {
+      render: (_, { cost_price, product_type_type }, index) => {
         return (
           <DebouncedCommaSeparatedInput
             value={cost_price}
-            disabled={product_type === 'Service'}
+            disabled={product_type_type?.label === 'Service'}
             onChange={(value) =>
               dispatch(
                 changeQuotationDetailValue({
@@ -542,12 +610,12 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: 'Markup %',
       dataIndex: 'markup',
       key: 'markup',
-      render: (_, { markup, product_type }, index) => {
+      render: (_, { markup, product_type_id }, index) => {
         return (
           <DebouncedNumberInput
             value={markup}
             type="decimal"
-            disabled={product_type === 'Service'}
+            disabled={product_type_id?.label === 'Service'}
             onChange={(value) =>
               dispatch(
                 changeQuotationDetailValue({
@@ -562,7 +630,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
       },
       width: 90
     },
-
     {
       title: 'Selling Price',
       dataIndex: 'rate',

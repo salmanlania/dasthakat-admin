@@ -8,6 +8,7 @@ import useError from '../../hooks/useError';
 const AsyncSelectNoPaginate = ({
   endpoint,
   dependencies = [],
+  params = {},
   labelInValue = false,
   valueKey,
   labelKey,
@@ -24,7 +25,9 @@ const AsyncSelectNoPaginate = ({
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await api.get(endpoint);
+      const response = await api.get(endpoint, {
+        params
+      });
       let data = response.data;
       if (valueKey && labelKey) {
         data = data.map((item) => ({
