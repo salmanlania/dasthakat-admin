@@ -17,7 +17,7 @@ class QuotationDetail extends Model
         "quotation_id",
         "quotation_detail_id",
         "sort_order",
-        "product_code",
+        // "product_code",
         "product_id",
         "product_type_id",
         "product_name",
