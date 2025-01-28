@@ -64,3 +64,5 @@ VALUES
 
 ALTER TABLE product
 CHANGE COLUMN product_type product_type_id INT(11);
+
+ALTER TABLE quotation_detail ADD COLUMN product_type_id CHAR(36) AFTER product_name
