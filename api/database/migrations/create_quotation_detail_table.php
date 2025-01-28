@@ -18,7 +18,9 @@ return new class extends Migration
             $table->char('quotation_id', 36);
             $table->char('quotation_detail_id', 36)->primary();
             $table->integer('sort_order');
+            $table->string('product_code', 255)->nullable();
             $table->char('product_id', 36)->nullable();
+            $table->string('product_name', 255)->nullable();
             $table->text('description')->nullable();
             $table->char('unit_id', 36)->nullable();
             $table->char('supplier_id', 36)->nullable();

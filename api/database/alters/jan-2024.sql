@@ -61,3 +61,6 @@ VALUES
     (2, 'Inventory', NOW()),
     (3, 'IMPA', NOW()),
     (4, 'Others', NOW());
+
+ALTER TABLE product
+CHANGE COLUMN product_type product_type_id INT(11);

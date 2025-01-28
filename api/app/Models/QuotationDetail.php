@@ -17,7 +17,10 @@ class QuotationDetail extends Model
         "quotation_id",
         "quotation_detail_id",
         "sort_order",
+        "product_code",
         "product_id",
+        "product_type_id",
+        "product_name",
         "description",
         "unit_id",
         "supplier_id",
@@ -35,6 +38,10 @@ class QuotationDetail extends Model
     public function product()
     {
         return $this->hasOne(Product::class, 'product_id','product_id')->select('*',DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
+    }
+    public function product_type()
+    {
+        return $this->hasOne(ProductType::class, 'product_type_id','product_type_id');
     }
     public function unit()
     {

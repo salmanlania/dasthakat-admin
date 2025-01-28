@@ -35,6 +35,7 @@ class ProductController extends Controller
 
 		$item = Product::leftJoin('category as c', 'c.category_id', '=', 'product.category_id')
 			->LeftJoin('sub_category as sc', 'sc.sub_category_id', '=', 'product.sub_category_id')
+			->LeftJoin('product_type as pt', 'pt.product_type_id', '=', 'product.product_type_id')
 			->LeftJoin('unit as u', 'u.unit_id', '=', 'product.unit_id')
 			->LeftJoin('brand as b', 'b.brand_id', '=', 'product.brand_id');
 
@@ -56,6 +57,7 @@ class ProductController extends Controller
 			$search = strtolower($search);
 			$item = $item->where(function ($query) use ($search) {
 				$query->where('product.name', 'like', '%' . $search . '%')
+					->orWhere('pt.name', 'like', '%' . $search . '%')
 					->orWhere('c.name', 'like', '%' . $search . '%')
 					->orWhere('u.name', 'like', '%' . $search . '%')
 					->orWhere('sc.name', 'like', '%' . $search . '%')
@@ -67,7 +69,7 @@ class ProductController extends Controller
 			});
 		}
 
-		$item = $item->select('product.*', 'c.name as category_name', 'sc.name as sub_category_name', 'b.name as brand_name', 'u.name as unit_name', DB::raw("CONCAT( product.impa_code, ' ', product.name) as product_name"));
+		$item = $item->select('product.*',"pt.name as product_type_name", 'c.name as category_name', 'sc.name as sub_category_name', 'b.name as brand_name', 'u.name as unit_name', DB::raw("CONCAT( product.impa_code, ' ', product.name) as product_name"));
 		$item = $item->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($item);
