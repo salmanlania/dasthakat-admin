@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Table, Tooltip } from 'antd';
+import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Table, Tooltip, Select } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -24,6 +24,7 @@ import {
   setQuotationListParams
 } from '../../store/features/quotationSlice';
 import { createQuotationPrint } from '../../utils/prints/quotation-print';
+import { quotationStatusOptions } from '../../components/Form/QuotationForm.jsx';
 const Quotation = () => {
   const dispatch = useDispatch();
   const handleError = useError();
@@ -187,6 +188,34 @@ const Quotation = () => {
       ellipsis: true
     },
     {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Status</p>
+          <Select
+            size="small"
+            className="w-full font-normal"
+            allowClear
+            options={quotationStatusOptions}
+            value={params.status}
+            onChange={(value) => dispatch(setQuotationListParams({ status: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'status',
+      key: 'status',
+      sorter: true,
+      width: 180,
+      ellipsis: true
+    },
+    {
+      title: 'Updated By',
+      dataIndex: 'status_updated_by',
+      key: 'status_updated_by',
+      sorter: true,
+      width: 140,
+      ellipsis: true
+    },
+    {
       title: 'Created At',
       dataIndex: 'created_at',
       key: 'created_at',
@@ -271,6 +300,7 @@ const Quotation = () => {
     params.customer_id,
     params.vessel_id,
     params.event_id,
+    params.status,
     debouncedSearch,
     debouncedQuotationNo
   ]);

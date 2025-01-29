@@ -8,7 +8,6 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
-import { v4 as uuidv4 } from 'uuid';
 import useError from '../../hooks/useError';
 import { getEvent } from '../../store/features/eventSlice';
 import { getProduct, getProductList } from '../../store/features/productSlice';
@@ -41,6 +40,25 @@ export const DetailSummaryInfo = ({ title, value }) => {
     </div>
   );
 };
+
+export const quotationStatusOptions = [
+  {
+    value: 'In Progress',
+    label: 'In Progress'
+  },
+  {
+    value: 'Complete',
+    label: 'Complete'
+  },
+  {
+    value: 'Approved',
+    label: 'Approved'
+  },
+  {
+    value: 'Ready to Sent',
+    label: 'Ready to Sent'
+  }
+];
 
 const QuotationForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
@@ -587,11 +605,11 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: 'Cost Price',
       dataIndex: 'cost_price',
       key: 'cost_price',
-      render: (_, { cost_price, product_type_type }, index) => {
+      render: (_, { cost_price, product_type_id }, index) => {
         return (
           <DebouncedCommaSeparatedInput
             value={cost_price}
-            disabled={product_type_type?.label === 'Service'}
+            disabled={product_type_id?.label === 'Service'}
             onChange={(value) =>
               dispatch(
                 changeQuotationDetailValue({
@@ -1051,26 +1069,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
 
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="status" label="Status">
-            <Select
-              options={[
-                {
-                  value: 'In Progress',
-                  label: 'In Progress'
-                },
-                {
-                  value: 'Complete',
-                  label: 'Complete'
-                },
-                {
-                  value: 'Approved',
-                  label: 'Approved'
-                },
-                {
-                  value: 'Ready to Sent',
-                  label: 'Ready to Sent'
-                }
-              ]}
-            />
+            <Select options={quotationStatusOptions} />
           </Form.Item>
         </Col>
       </Row>
