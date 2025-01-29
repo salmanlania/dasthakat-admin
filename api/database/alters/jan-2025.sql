@@ -76,4 +76,4 @@ ALTER TABLE `purchase_invoice`
 DROP COLUMN `type`,
 ADD COLUMN `good_received_note_id` CHAR(36) AFTER `department`;
 
-ALTER TABLE user CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb3_general_ci;
+ALTER TABLE user CONVERT TO CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci;
