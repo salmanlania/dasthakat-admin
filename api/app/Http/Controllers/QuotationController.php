@@ -278,7 +278,7 @@ class QuotationController extends Controller
 		$data->updated_by = $request->login_user_id;
 		$data->update();
 
-		$latest_status = QuotationStatus::where('quotation_id', $id)->latest();
+		$latest_status = QuotationStatus::where('quotation_id', $id)->latest()->first();
 		if($latest_status->status != $request->status){
 			QuotationStatus::create([
 				'id' => $this->get_uuid(),
