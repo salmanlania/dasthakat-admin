@@ -65,4 +65,15 @@ VALUES
 ALTER TABLE product
 CHANGE COLUMN product_type product_type_id INT(11);
 
-ALTER TABLE quotation_detail ADD COLUMN product_type_id CHAR(36) AFTER product_name
+ALTER TABLE quotation_detail ADD COLUMN product_type_id CHAR(36) AFTER product_name 
+
+
+ALTER TABLE `good_received_note` 
+ADD COLUMN `quotation_id` CHAR(36) AFTER `purchase_order_id`,
+ADD COLUMN `charge_order_id` CHAR(36) AFTER `quotation_id`;
+
+ALTER TABLE `purchase_invoice` 
+DROP COLUMN `type`,
+ADD COLUMN `good_received_note_id` CHAR(36) AFTER `department`;
+
+ALTER TABLE user CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb3_general_ci;
