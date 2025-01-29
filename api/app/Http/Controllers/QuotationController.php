@@ -31,10 +31,21 @@ class QuotationController extends Controller
 		$sort_column = $request->input('sort_column', 'quotation.created_at');
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
+		$latestStatusSubquery = DB::table('quotation_status as qs1')
+        ->select('qs1.quotation_id', 'qs1.status', 'qs1.created_by')
+        ->whereRaw('qs1.id = (
+            SELECT MAX(qs2.id) 
+            FROM quotation_status as qs2 
+            WHERE qs2.quotation_id = qs1.quotation_id
+        )');
+
 		$data = Quotation::LeftJoin('customer as c', 'c.customer_id', '=', 'quotation.customer_id')
 			->LeftJoin('event as e', 'e.event_id', '=', 'quotation.event_id')
-			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'quotation.vessel_id');
+			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'quotation.vessel_id')
+			->leftJoinSub($latestStatusSubquery, 'latest_qs', 'latest_qs.quotation_id', '=', 'quotation.quotation_id')
+			->leftJoin('user as u', 'u.user_id', '=', 'latest_qs.created_by');
 
+		if (!empty($status_updated_by)) $data = $data->where('u.user_id', '=',  $status_updated_by);
 		if (!empty($status)) $data = $data->where('quotation.status', '=',  $status);
 		if (!empty($customer_id)) $data = $data->where('quotation.customer_id', '=',  $customer_id);
 		if (!empty($vessel_id)) $data = $data->where('quotation.vessel_id', '=',  $vessel_id);
@@ -48,6 +59,7 @@ class QuotationController extends Controller
 			$data = $data->where(function ($query) use ($search) {
 				$query
 					->where('c.name', 'like', '%' . $search . '%')
+					->OrWhere('u.user_name', 'like', '%' . $search . '%')
 					->OrWhere('v.name', 'like', '%' . $search . '%')
 					->OrWhere('quotation.status', 'like', '%' . $search . '%')
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
@@ -58,7 +70,7 @@ class QuotationController extends Controller
 		$data = $data->select("quotation.*", DB::raw("CONCAT(e.event_code, ' (', CASE 
 		WHEN e.status = 1 THEN 'Active' 
 		ELSE 'Inactive' 
-	END, ')') AS event_code"), "c.name as customer_name", "v.name as vessel_name");
+	END, ')') AS event_code"),'u.user_name as status_updated_by', "c.name as customer_name", "v.name as vessel_name");
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
@@ -266,14 +278,16 @@ class QuotationController extends Controller
 		$data->updated_by = $request->login_user_id;
 		$data->update();
 
-		QuotationStatus::create([
-			'id' => $this->get_uuid(),
-			'quotation_id' => $id,
-			'status' => $request->status,
-			'created_by' => $request->login_user_id,
-			'created_at' => Carbon::now(),
-		]);
-
+		$latest_status = QuotationStatus::where('quotation_id', $id)->latest();
+		if($latest_status->status != $request->status){
+			QuotationStatus::create([
+				'id' => $this->get_uuid(),
+				'quotation_id' => $id,
+				'status' => $request->status,
+				'created_by' => $request->login_user_id,
+				'created_at' => Carbon::now(),
+			]);
+		}
 
 		QuotationDetail::where('quotation_id', $id)->delete();
 		if ($request->quotation_detail) {
