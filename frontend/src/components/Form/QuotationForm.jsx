@@ -376,6 +376,34 @@ const QuotationForm = ({ mode, onSubmit }) => {
       width: 50
     },
     {
+      title: 'Product Type',
+      dataIndex: 'product_type',
+      key: 'product_type',
+      render: (_, { product_code, product_type_id }, index) => {
+        return (
+          <AsyncSelectNoPaginate
+            endpoint="/lookups/product-types"
+            valueKey="product_type_id"
+            labelKey="name"
+            labelInValue
+            className="w-full"
+            value={product_type_id}
+            onChange={(selected) => {
+              dispatch(resetQuotationDetail(index));
+              dispatch(
+                changeQuotationDetailValue({
+                  index,
+                  key: 'product_type_id',
+                  value: selected
+                })
+              );
+            }}
+          />
+        );
+      },
+      width: 150
+    },
+    {
       title: 'Product Code',
       dataIndex: 'product_code',
       key: 'product_code',
@@ -447,34 +475,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       },
       width: 560
     },
-    {
-      title: 'Product Nature',
-      dataIndex: 'product_type',
-      key: 'product_type',
-      render: (_, { product_code, product_type_id }, index) => {
-        return (
-          <AsyncSelectNoPaginate
-            endpoint="/lookups/product-types"
-            valueKey="product_type_id"
-            labelKey="name"
-            labelInValue
-            className="w-full"
-            value={product_type_id}
-            onChange={(selected) => {
-              dispatch(resetQuotationDetail(index));
-              dispatch(
-                changeQuotationDetailValue({
-                  index,
-                  key: 'product_type_id',
-                  value: selected
-                })
-              );
-            }}
-          />
-        );
-      },
-      width: 150
-    },
+
     {
       title: 'Customer Notes',
       dataIndex: 'description',
