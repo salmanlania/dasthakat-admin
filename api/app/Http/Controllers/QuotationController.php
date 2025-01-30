@@ -32,8 +32,8 @@ class QuotationController extends Controller
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
 		$latestStatusSubquery = DB::table('quotation_status as qs1')
-        ->select('qs1.quotation_id', 'qs1.status', 'qs1.created_by')
-        ->whereRaw('qs1.id = (
+			->select('qs1.quotation_id', 'qs1.status', 'qs1.created_by')
+			->whereRaw('qs1.id = (
             SELECT MAX(qs2.id) 
             FROM quotation_status as qs2 
             WHERE qs2.quotation_id = qs1.quotation_id
@@ -70,7 +70,7 @@ class QuotationController extends Controller
 		$data = $data->select("quotation.*", DB::raw("CONCAT(e.event_code, ' (', CASE 
 		WHEN e.status = 1 THEN 'Active' 
 		ELSE 'Inactive' 
-	END, ')') AS event_code"),'u.user_name as status_updated_by', "c.name as customer_name", "v.name as vessel_name");
+	END, ')') AS event_code"), 'u.user_name as status_updated_by', "c.name as customer_name", "v.name as vessel_name");
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
@@ -279,14 +279,26 @@ class QuotationController extends Controller
 		$data->update();
 
 		$latest_status = QuotationStatus::where('quotation_id', $id)->latest()->first();
-		if($latest_status->status != $request->status){
-			QuotationStatus::create([
-				'id' => $this->get_uuid(),
-				'quotation_id' => $id,
-				'status' => $request->status,
-				'created_by' => $request->login_user_id,
-				'created_at' => Carbon::now(),
-			]);
+		if (isset($latest_status)) {
+			if ($latest_status->status != $request->status) {
+				QuotationStatus::create([
+					'id' => $this->get_uuid(),
+					'quotation_id' => $id,
+					'status' => $request->status,
+					'created_by' => $request->login_user_id,
+					'created_at' => Carbon::now(),
+				]);
+			}
+		} else {
+			if ($request->status) {
+				QuotationStatus::create([
+					'id' => $this->get_uuid(),
+					'quotation_id' => $id,
+					'status' => $request->status,
+					'created_by' => $request->login_user_id,
+					'created_at' => Carbon::now(),
+				]);
+			}
 		}
 
 		QuotationDetail::where('quotation_id', $id)->delete();
@@ -346,7 +358,7 @@ class QuotationController extends Controller
 					$user = Quotation::where(['quotation_id' => $quotation_id])->first();
 					$user->delete();
 					QuotationDetail::where('quotation_id', $quotation_id)->delete();
-				QuotationStatus::where('quotation_id', $quotation_id)->delete();
+					QuotationStatus::where('quotation_id', $quotation_id)->delete();
 				}
 			}
 
