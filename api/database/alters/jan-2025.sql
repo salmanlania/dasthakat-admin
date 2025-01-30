@@ -77,3 +77,10 @@ DROP COLUMN `type`,
 ADD COLUMN `good_received_note_id` CHAR(36) AFTER `department`;
 
 ALTER TABLE user CONVERT TO CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci;
+
+
+-- update quotation detail product type
+UPDATE quotation_detail qd
+INNER JOIN product p ON qd.product_id = p.product_id
+SET qd.product_type_id = p.product_type_id
+WHERE qd.product_type_id IS NULL;

@@ -26,6 +26,7 @@ class QuotationController extends Controller
 		$event_id = $request->input('event_id', '');
 		$search = $request->input('search', '');
 		$status = $request->input('status', '');
+		$user_id = $request->input('user_id', '');
 		$page =  $request->input('page', 1);
 		$perPage =  $request->input('limit', 10);
 		$sort_column = $request->input('sort_column', 'quotation.created_at');
@@ -47,6 +48,7 @@ class QuotationController extends Controller
 
 		if (!empty($status_updated_by)) $data = $data->where('u.user_id', '=',  $status_updated_by);
 		if (!empty($status)) $data = $data->where('quotation.status', '=',  $status);
+		if (!empty($user_id)) $data = $data->where('quotation.user_id', '=',  $user_id);
 		if (!empty($customer_id)) $data = $data->where('quotation.customer_id', '=',  $customer_id);
 		if (!empty($vessel_id)) $data = $data->where('quotation.vessel_id', '=',  $vessel_id);
 		if (!empty($event_id)) $data = $data->where('quotation.event_id', '=',  $event_id);
