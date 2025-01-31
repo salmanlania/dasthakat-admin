@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DocumentType;
 use App\Models\GRN;
 use App\Models\GRNDetail;
+use App\Models\PurchaseOrder;
 use App\Models\StockLedger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -98,7 +99,7 @@ class GRNController extends Controller
 		$isError = $this->validateRequest($request->all());
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
-
+		$po_ref = PurchaseOrder::where('purchase_order_id', $request->purchase_order_id)->first();
 
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument($this->document_type_id, $request);
@@ -113,6 +114,8 @@ class GRNController extends Controller
 			'document_date' => $request->document_date ?? "",
 			'supplier_id' => $request->supplier_id ?? "",
 			'purchase_order_id' => $request->purchase_order_id ?? "",
+			'quotation_id' => $po_ref->quotation_id ?? "",
+			'charge_order_id' => $po_ref->charge_order_id ?? "",
 			'payment_id' => $request->payment_id ?? "",
 			'remarks' => $request->remarks ?? "",
 			'total_quantity' => $request->total_quantity ?? "",
@@ -166,6 +169,7 @@ class GRNController extends Controller
 		$isError = $this->validateRequest($request->all(), $id);
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
+		$po_ref = PurchaseOrder::where('purchase_order_id', $request->purchase_order_id)->first();
 
 		$data  = GRN::where('good_received_note_id', $id)->first();
 		$data->company_id = $request->company_id;
@@ -173,6 +177,8 @@ class GRNController extends Controller
 		$data->document_date = $request->document_date;
 		$data->supplier_id = $request->supplier_id;
 		$data->purchase_order_id = $request->purchase_order_id;
+		$data->quotation_id = $po_ref->quotation_id;
+		$data->charge_order_id = $po_ref->charge_order_id;
 		$data->payment_id = $request->payment_id;
 		$data->remarks = $request->remarks;
 		$data->total_quantity = $request->total_quantity;
