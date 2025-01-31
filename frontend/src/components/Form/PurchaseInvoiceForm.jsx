@@ -11,26 +11,26 @@ import { v4 as uuidv4 } from 'uuid';
 import useError from '../../hooks/useError';
 import { getProduct, getProductList } from '../../store/features/productSlice';
 import {
-  addPurchaseOrderDetail,
-  changePurchaseOrderDetailOrder,
-  changePurchaseOrderDetailValue,
-  copyPurchaseOrderDetail,
-  getPurchaseOrderForPrint,
-  removePurchaseOrderDetail
-} from '../../store/features/purchaseOrderSlice';
-import { createPurchaseOrderPrint } from '../../utils/prints/purchase-order-print';
+  addPurchaseInvoiceDetail,
+  changePurchaseInvoiceDetailOrder,
+  changePurchaseInvoiceDetailValue,
+  copyPurchaseInvoiceDetail,
+  getPurchaseInvoiceForPrint,
+  removePurchaseInvoiceDetail
+} from '../../store/features/purchaseInvoiceSlice';
+import { createPurchaseInvoicePrint } from '../../utils/prints/purchase-invoice-print';
 import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
 import { DetailSummaryInfo } from './QuotationForm';
 
-const PurchaseOrderForm = ({ mode, onSubmit }) => {
+const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
   const handleError = useError();
   const dispatch = useDispatch();
   const { id } = useParams();
-  const { isFormSubmitting, initialFormValues, purchaseOrderDetails } = useSelector(
-    (state) => state.purchaseOrder
+  const { isFormSubmitting, initialFormValues, purchaseInvoiceDetails } = useSelector(
+    (state) => state.purchaseInvoice
   );
 
   const POType = Form.useWatch('type', form);
@@ -42,7 +42,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
   let totalAmount = 0;
   let totalQuantity = 0;
 
-  purchaseOrderDetails.forEach((detail) => {
+  purchaseInvoiceDetails.forEach((detail) => {
     totalAmount += +detail.amount || 0;
     totalQuantity += +detail.quantity || 0;
   });
@@ -66,7 +66,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       payment_id: values.payment_id ? values.payment_id.value : null,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
       required_date: values.required_date ? dayjs(values.required_date).format('YYYY-MM-DD') : null,
-      purchase_order_detail: purchaseOrderDetails.map(({ id, ...detail }, index) => ({
+      purchase_invoice_detail: purchaseInvoiceDetails.map(({ id, ...detail }, index) => ({
         ...detail,
         product_id: detail.product_id ? detail.product_id.value : null,
         unit_id: detail.unit_id ? detail.unit_id.value : null,
@@ -88,7 +88,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
 
       const product = res.data[0];
       dispatch(
-        changePurchaseOrderDetailValue({
+        changePurchaseInvoiceDetailValue({
           index,
           key: 'product_id',
           value: {
@@ -99,7 +99,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       );
 
       dispatch(
-        changePurchaseOrderDetailValue({
+        changePurchaseInvoiceDetailValue({
           index,
           key: 'unit_id',
           value: { value: product.unit_id, label: product.unit_name }
@@ -107,7 +107,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       );
 
       dispatch(
-        changePurchaseOrderDetailValue({
+        changePurchaseInvoiceDetailValue({
           index,
           key: 'rate',
           value: product.cost_price
@@ -120,7 +120,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
 
   const onProductChange = async (index, selected) => {
     dispatch(
-      changePurchaseOrderDetailValue({
+      changePurchaseInvoiceDetailValue({
         index,
         key: 'product_id',
         value: selected
@@ -131,7 +131,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       const product = await dispatch(getProduct(selected.value)).unwrap();
 
       dispatch(
-        changePurchaseOrderDetailValue({
+        changePurchaseInvoiceDetailValue({
           index,
           key: 'product_code',
           value: product.product_code
@@ -139,7 +139,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       );
 
       dispatch(
-        changePurchaseOrderDetailValue({
+        changePurchaseInvoiceDetailValue({
           index,
           key: 'unit_id',
           value: { value: product.unit_id, label: product.unit_name }
@@ -147,7 +147,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       );
 
       dispatch(
-        changePurchaseOrderDetailValue({
+        changePurchaseInvoiceDetailValue({
           index,
           key: 'rate',
           value: product.cost_price
@@ -158,12 +158,12 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
     }
   };
 
-  const printPurchaseOrder = async () => {
+  const printPurchaseInvoice = async () => {
     const loadingToast = toast.loading('Loading print...');
     try {
-      const data = await dispatch(getPurchaseOrderForPrint(id)).unwrap();
+      const data = await dispatch(getPurchaseInvoiceForPrint(id)).unwrap();
       toast.dismiss(loadingToast);
-      createPurchaseOrderPrint(data);
+      createPurchaseInvoicePrint(data);
     } catch (error) {
       handleError(error);
     }
@@ -177,7 +177,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
           type="primary"
           className="!w-8"
           icon={<BiPlus size={14} />}
-          onClick={() => dispatch(addPurchaseOrderDetail())}
+          onClick={() => dispatch(addPurchaseInvoiceDetail())}
         />
       ),
       key: 'order',
@@ -191,16 +191,16 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
               icon={<IoMdArrowDropup size={16} />}
               disabled={index === 0}
               onClick={() => {
-                dispatch(changePurchaseOrderDetailOrder({ from: index, to: index - 1 }));
+                dispatch(changePurchaseInvoiceDetailOrder({ from: index, to: index - 1 }));
               }}
             />
             <Button
               className="h-4"
               size="small"
               icon={<IoMdArrowDropdown size={16} />}
-              disabled={index === purchaseOrderDetails.length - 1}
+              disabled={index === purchaseInvoiceDetails.length - 1}
               onClick={() => {
-                dispatch(changePurchaseOrderDetailOrder({ from: index, to: index + 1 }));
+                dispatch(changePurchaseInvoiceDetailOrder({ from: index, to: index + 1 }));
               }}
             />
           </div>
@@ -227,7 +227,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             value={product_code}
             onChange={(value) =>
               dispatch(
-                changePurchaseOrderDetailValue({
+                changePurchaseInvoiceDetailValue({
                   index,
                   key: 'product_code',
                   value: value
@@ -273,7 +273,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             value={description}
             onChange={(value) =>
               dispatch(
-                changePurchaseOrderDetailValue({
+                changePurchaseInvoiceDetailValue({
                   index,
                   key: 'description',
                   value: value
@@ -295,7 +295,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             value={vpart}
             onChange={(value) =>
               dispatch(
-                changePurchaseOrderDetailValue({
+                changePurchaseInvoiceDetailValue({
                   index,
                   key: 'vpart',
                   value: value
@@ -329,7 +329,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
               value={quantity}
               onChange={(value) =>
                 dispatch(
-                  changePurchaseOrderDetailValue({
+                  changePurchaseInvoiceDetailValue({
                     index,
                     key: 'quantity',
                     value: value
@@ -358,7 +358,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             value={unit_id}
             onChange={(selected) =>
               dispatch(
-                changePurchaseOrderDetailValue({
+                changePurchaseInvoiceDetailValue({
                   index,
                   key: 'unit_id',
                   value: selected
@@ -381,7 +381,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             value={rate}
             onChange={(value) =>
               dispatch(
-                changePurchaseOrderDetailValue({
+                changePurchaseInvoiceDetailValue({
                   index,
                   key: 'rate',
                   value: value
@@ -412,7 +412,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             value={vendor_notes}
             onChange={(value) =>
               dispatch(
-                changePurchaseOrderDetailValue({
+                changePurchaseInvoiceDetailValue({
                   index,
                   key: 'vendor_notes',
                   value: value
@@ -431,7 +431,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
           type="primary"
           className="!w-8"
           icon={<BiPlus size={14} />}
-          onClick={() => dispatch(addPurchaseOrderDetail())}
+          onClick={() => dispatch(addPurchaseInvoiceDetail())}
         />
       ),
       key: 'action',
@@ -444,18 +444,18 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
               {
                 key: '1',
                 label: 'Add',
-                onClick: () => dispatch(addPurchaseOrderDetail(index))
+                onClick: () => dispatch(addPurchaseInvoiceDetail(index))
               },
               {
                 key: '2',
                 label: 'Copy',
-                onClick: () => dispatch(copyPurchaseOrderDetail(index))
+                onClick: () => dispatch(copyPurchaseInvoiceDetail(index))
               },
               {
                 key: '3',
                 label: 'Delete',
                 danger: true,
-                onClick: () => dispatch(removePurchaseOrderDetail(id))
+                onClick: () => dispatch(removePurchaseInvoiceDetail(id))
               }
             ]
           }}>
@@ -471,7 +471,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
 
   return (
     <Form
-      name="purchaseOrder"
+      name="purchaseInvoice"
       layout="vertical"
       autoComplete="off"
       form={form}
@@ -480,14 +480,13 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
         mode === 'edit'
           ? initialFormValues
           : {
-              document_date: dayjs(),
-              type: 'Inventory'
+              document_date: dayjs()
             }
       }
       scrollToFirstError>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
-        <span className="text-gray-500">Purchase Order No:</span>
+        <span className="text-gray-500">Purchase Invoice No:</span>
         <span
           className={`ml-4 text-amber-600 ${
             mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
@@ -504,8 +503,8 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
             name="document_date"
-            label="Purchase Order Date"
-            rules={[{ required: true, message: 'Purchase Order date is required' }]}
+            label="Purchase Invoice Date"
+            rules={[{ required: true, message: 'Purchase Invoice date is required' }]}
             className="w-full">
             <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
@@ -537,24 +536,23 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
             name="type"
-            label="Purchase Order Type"
+            label="Good Received Note"
             rules={[
               {
                 required: true,
-                message: 'Purchase Order Type is required'
+                message: 'Good Received Note Type is required'
               }
             ]}>
-            <Select
-              options={[
-                {
-                  value: 'Inventory',
-                  label: 'Inventory'
-                },
-                {
-                  value: 'Billable',
-                  label: 'Billable'
-                }
-              ]}
+            <AsyncSelect
+              endpoint="/good-received-note"
+              valueKey="good_received_note_id"
+              labelKey="document_identity"
+              labelInValue
+              addNewLink={
+                permissions.good_received_note.list && permissions.good_received_note.add
+                  ? '/good-received-note/create'
+                  : null
+              }
             />
           </Form.Item>
         </Col>
@@ -660,7 +658,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
 
       <Table
         columns={columns}
-        dataSource={purchaseOrderDetails}
+        dataSource={purchaseInvoiceDetails}
         rowKey={'id'}
         size="small"
         scroll={{ x: 'calc(100% - 200px)' }}
@@ -676,14 +674,15 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       </div>
 
       <div className="mt-4 flex items-center justify-end gap-2">
-        <Link to="/purchase-order">
+        <Link to="/purchase-invoice">
           <Button className="w-28">Cancel</Button>
         </Link>
         {mode === 'edit' ? (
           <Button
             type="primary"
             className="w-28 bg-rose-600 hover:!bg-rose-500"
-            onClick={printPurchaseOrder}>
+            // onClick={printPurchaseInvoice}
+          >
             Print
           </Button>
         ) : null}
@@ -699,4 +698,4 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
   );
 };
 
-export default PurchaseOrderForm;
+export default PurchaseInvoiceForm;

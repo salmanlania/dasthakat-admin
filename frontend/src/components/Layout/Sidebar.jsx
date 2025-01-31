@@ -86,7 +86,10 @@ const Sidebar = () => {
     !permissions?.validity?.list &&
     !permissions?.payment?.list;
 
-  const purchaseManagementPermission = !permissions?.purchase_order?.list;
+  const purchaseManagementPermission =
+    !permissions?.purchase_order?.list &&
+    !permissions?.good_received_note?.list &&
+    !permissions?.purchase_invoice?.list;
 
   const saleManagementPermission =
     !permissions?.quotation?.list && !permissions?.charge_order?.list;
@@ -261,6 +264,11 @@ const Sidebar = () => {
               key: 'goods-received-note',
               label: <Link to="/goods-received-note">Goods Received Note</Link>,
               disabled: !permissions?.good_received_note?.list
+            },
+            {
+              key: 'purchase-invoice',
+              label: <Link to="/purchase-invoice">Purchase Invoice</Link>,
+              disabled: !permissions?.purchase_invoice?.list
             }
           ]
         }

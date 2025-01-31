@@ -73,6 +73,10 @@ const PurchaseOrder = lazy(() => import('./pages/PurchaseOrder'));
 const CreatePurchaseOrder = lazy(() => import('./pages/PurchaseOrder/CreatePurchaseOrder'));
 const EditPurchaseOrder = lazy(() => import('./pages/PurchaseOrder/EditPurchaseOrder'));
 
+const PurchaseInvoice = lazy(() => import('./pages/PurchaseInvoice'));
+const CreatePurchaseInvoice = lazy(() => import('./pages/PurchaseInvoice/CreatePurchaseInvoice'));
+const EditPurchaseInvoice = lazy(() => import('./pages/PurchaseInvoice/EditPurchaseInvoice'));
+
 const GoodsReceivedNote = lazy(() => import('./pages/GoodsReceivedNote'));
 const CreateGoodsReceivedNote = lazy(
   () => import('./pages/GoodsReceivedNote/CreateGoodsReceivedNote')
@@ -485,6 +489,30 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditPurchaseOrder />
+              </Suspense>
+            )
+          },
+          {
+            path: '/purchase-invoice',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <PurchaseInvoice />
+              </Suspense>
+            )
+          },
+          {
+            path: '/purchase-invoice/create',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreatePurchaseInvoice />
+              </Suspense>
+            )
+          },
+          {
+            path: '/purchase-invoice/edit/:id',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditPurchaseInvoice />
               </Suspense>
             )
           },

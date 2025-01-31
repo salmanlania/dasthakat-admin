@@ -90,6 +90,11 @@ const MainLayout = () => {
   if (href.startsWith('/purchase-order/edit') && !permissions.purchase_order.edit)
     return <NotFound />;
 
+  if (href === '/purchase-invoice' && !permissions.purchase_invoice.list) return <NotFound />;
+  if (href === '/purchase-invoice/create' && !permissions.purchase_invoice.add) return <NotFound />;
+  if (href.startsWith('/purchase-invoice/edit') && !permissions.purchase_invoice.edit)
+    return <NotFound />;
+
   if (href === '/goods-received-note' && !permissions.good_received_note.list) return <NotFound />;
   if (href === '/goods-received-note/create' && !permissions.good_received_note.add)
     return <NotFound />;

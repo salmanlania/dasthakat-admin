@@ -16,6 +16,7 @@ import goodsReceivedNoteReducer from './features/goodsReceivedNoteSlice';
 import paymentReducer from './features/paymentSlice';
 import portReducer from './features/portSlice';
 import productReducer from './features/productSlice';
+import purchaseInvoiceReducer from './features/purchaseInvoiceSlice';
 import purchaseOrderReducer from './features/purchaseOrderSlice';
 import quotationReducer from './features/quotationSlice';
 import salesmanReducer from './features/salesmanSlice';
@@ -57,6 +58,7 @@ const rootReducer = combineReducers({
   event: eventReducer,
   product: productReducer,
   purchaseOrder: purchaseOrderReducer,
+  purchaseInvoice: purchaseInvoiceReducer,
   goodsReceivedNote: goodsReceivedNoteReducer,
   quotation: quotationReducer,
   chargeOrder: chargeOrderReducer

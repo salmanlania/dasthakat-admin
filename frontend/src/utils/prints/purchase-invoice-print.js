@@ -195,11 +195,11 @@ const addFooter = (doc, sideMargin, pageHeight) => {
   doc.text(`Page ${currentPage}`, 190, pageHeight + 10);
 };
 
-export const createPurchaseOrderPrint = (data) => {
+export const createPurchaseInvoicePrint = (data) => {
   const doc = new jsPDF();
   const sideMargin = 4;
 
-  // Purchase Order Items Table
+  // Purchase Invoice Items Table
   const table2Column = [
     'S#',
     'IMPA',
