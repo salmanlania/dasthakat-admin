@@ -612,7 +612,7 @@ function Routes() {
       }
     ],
     {
-      basename: `${import.meta.env.VITE_BASE_URL}/`
+      basename: `${import.meta.env.VITE_BASE_URL}`
     }
   );
 
