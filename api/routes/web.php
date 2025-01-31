@@ -273,6 +273,15 @@ $router->group(['prefix' => 'purchase-order'], function ($router) {
    $router->post('/bulk-delete', 'PurchaseOrderController@bulkDelete');
 });
 
+$router->group(['prefix' => 'purchase-invoice'], function ($router) {
+   $router->get('/', 'PurchaseInvoiceController@index');
+   $router->get('/{id}', 'PurchaseInvoiceController@show');
+   $router->post('/', 'PurchaseInvoiceController@store');
+   $router->put('/{id}', 'PurchaseInvoiceController@update');
+   $router->delete('/{id}', 'PurchaseInvoiceController@delete');
+   $router->post('/bulk-delete', 'PurchaseInvoiceController@bulkDelete');
+});
+
 $router->group(['prefix' => 'good-received-note'], function ($router) {
    $router->get('/', 'GRNController@index');
    $router->get('/{id}', 'GRNController@show');
