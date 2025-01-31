@@ -74,7 +74,7 @@ const AsyncSelectNoPaginate = ({
             onClick={() => {
               setIsClicked(false);
               window.open(
-                `/gms${addNewLink}`,
+                `${import.meta.env.VITE_BASE_URL}${addNewLink}`,
                 '_blank',
                 'toolbar=yes,scrollbars=yes,top=100,left=400,width=600,height=600'
               );

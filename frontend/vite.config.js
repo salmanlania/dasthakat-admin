@@ -1,8 +1,11 @@
-import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { defineConfig, loadEnv } from 'vite';
 
-// https://vite.dev/config/
-export default defineConfig({
-  plugins: [react()],
-  base: '/gms/'
-});
+export default ({ mode }) => {
+  const env = loadEnv(mode, process.cwd());
+
+  return defineConfig({
+    plugins: [react()],
+    base: env.VITE_BASE_URL || '/'
+  });
+};

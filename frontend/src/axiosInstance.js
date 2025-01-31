@@ -10,7 +10,7 @@ const api = axios.create({
 let API_URL = null;
 const getBaseURL = async () => {
   if (API_URL) return API_URL;
-  const response = await fetch('/gms/config.json');
+  const response = await fetch(`${import.meta.env.VITE_BASE_URL}/config.json`);
   const config = await response.json();
   API_URL = config.baseURL;
   return config.baseURL;

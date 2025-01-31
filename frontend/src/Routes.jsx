@@ -612,7 +612,7 @@ function Routes() {
       }
     ],
     {
-      basename: '/gms/'
+      basename: `${import.meta.env.VITE_BASE_URL}/`
     }
   );
 
