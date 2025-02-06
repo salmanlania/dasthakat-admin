@@ -27,10 +27,10 @@ import { formatThreeDigitCommas, roundUpto } from '../../utils/number';
 import { createQuotationPrint } from '../../utils/prints/quotation-print';
 import toastConfirm from '../../utils/toastConfirm';
 import AsyncSelect from '../AsyncSelect';
+import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate.jsx';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebouncedNumberInput from '../Input/DebouncedNumberInput';
 import DebounceInput from '../Input/DebounceInput';
-import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate.jsx';
 
 export const DetailSummaryInfo = ({ title, value }) => {
   return (
@@ -475,7 +475,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
       },
       width: 560
     },
-
     {
       title: 'Customer Notes',
       dataIndex: 'description',
@@ -601,6 +600,28 @@ const QuotationForm = ({ mode, onSubmit }) => {
         );
       },
       width: 240
+    },
+    {
+      title: 'Vendor Part #',
+      dataIndex: 'vendor_part_no',
+      key: 'vendor_part_no',
+      render: (_, { vendor_part_no }, index) => {
+        return (
+          <DebounceInput
+            value={vendor_part_no}
+            onChange={(value) =>
+              dispatch(
+                changeQuotationDetailValue({
+                  index,
+                  key: 'vendor_part_no',
+                  value: value
+                })
+              )
+            }
+          />
+        );
+      },
+      width: 120
     },
     {
       title: 'Cost Price',

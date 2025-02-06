@@ -1,6 +1,6 @@
 import { Breadcrumb } from 'antd';
 import toast from 'react-hot-toast';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import QuotationForm from '../../components/Form/QuotationForm';
 import PageHeading from '../../components/heading/PageHeading';
@@ -11,12 +11,18 @@ const CreateQuotation = () => {
   const navigate = useNavigate();
   const handleError = useError();
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user.permission.quotation;
 
   const onQuotationCreate = async (data) => {
     try {
-      await dispatch(createQuotation(data)).unwrap();
+      const res = await dispatch(createQuotation(data)).unwrap();
+      const createdId = res.data.data.quotation_id;
       toast.success('Quotation created successfully');
-      navigate('/quotation');
+
+      if (permissions.edit) {
+        navigate(`/quotation/edit/${createdId}`);
+      }
     } catch (error) {
       handleError(error);
     }

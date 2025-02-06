@@ -207,8 +207,7 @@ export const createQuotationPrint = (data) => {
   if (data.quotation_detail) {
     data.quotation_detail.forEach((detail, index) => {
       const sr = detail.sort_order + 1;
-      const description = `${detail?.product_type?.name === 'Others' ? detail?.product_name || '' : detail?.product?.product_name || ''}\n${detail?.description || ''}`;
-
+      const description = `${detail?.product_type?.name === 'Others' ? detail?.product_name || '' : detail?.product?.product_name || ''}\n \n${detail?.description || ''}`;
       const uom = detail.unit ? detail.unit.name : '';
       const quantity = detail.quantity ? formatThreeDigitCommas(parseFloat(detail.quantity)) : '';
       const pricePerUnit = detail.rate ? `$${formatThreeDigitCommas(detail.rate)}` : '';
@@ -225,7 +224,10 @@ export const createQuotationPrint = (data) => {
 
       const row = [
         sr,
-        { content: description, styles: { halign: 'left' } },
+        {
+          content: description,
+          styles: { halign: 'left' }
+        },
         uom,
         quantity,
         { content: pricePerUnit, styles: { halign: 'right' } },
@@ -239,7 +241,7 @@ export const createQuotationPrint = (data) => {
     });
   }
 
-  const filledRows = fillEmptyRows(table2Rows, 18, descriptions.length + 1);
+  const filledRows = fillEmptyRows(table2Rows, 13, descriptions.length + 1);
 
   // Adding Table
   doc.autoTable({
@@ -282,7 +284,7 @@ export const createQuotationPrint = (data) => {
       8: { cellWidth: 27 }
     },
     didParseCell: function (data) {
-      data.cell.styles.minCellHeight = 9;
+      data.cell.styles.minCellHeight = 12;
     }
   });
 
@@ -404,7 +406,7 @@ export const createQuotationPrint = (data) => {
       8: { cellWidth: 27 }
     },
     didParseCell: (data) => {
-      data.cell.styles.minCellHeight = 9;
+      data.cell.styles.minCellHeight = 12;
     }
   });
 

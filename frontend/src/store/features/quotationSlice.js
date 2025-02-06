@@ -32,7 +32,7 @@ export const createQuotation = createAsyncThunk(
   'quotation/create',
   async (data, { rejectWithValue }) => {
     try {
-      await api.post('/quotation', data);
+      return await api.post('/quotation', data);
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -384,6 +384,7 @@ export const quotationSlice = createSlice({
         supplier_id: detail.supplier
           ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
           : null,
+        vendor_part_no: detail.vendor_part_no,
         cost_price: +detail.cost_price || +detail.rate,
         markup: detail.markup,
         rate: detail.rate,
