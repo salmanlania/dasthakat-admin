@@ -156,6 +156,26 @@ export const chargeOrderSlice = createSlice({
       );
     },
 
+    resetChargeOrderDetail: (state, action) => {
+      const index = action.payload;
+
+      state.chargeOrderDetails[index] = {
+        id: state.chargeOrderDetails[index].id,
+        product_code: null,
+        product_id: null,
+        description: null,
+        stock_quantity: null,
+        quantity: null,
+        unit_id: null,
+        supplier_id: null,
+        cost_price: null,
+        markup: '0',
+        amount: null,
+        discount_percent: '0',
+        gross_amount: null
+      };
+    },
+
     // Change the order of chargeOrder details, from is the index of the item to be moved, to is the index of the item to be moved to
     changeChargeOrderDetailOrder: (state, action) => {
       const { from, to } = action.payload;
@@ -168,6 +188,41 @@ export const chargeOrderSlice = createSlice({
       const { index, key, value } = action.payload;
       const detail = state.chargeOrderDetails[index];
       detail[key] = value;
+
+      const productType = detail.product_type_id;
+
+      if (
+        productType?.label !== 'Service' &&
+        key !== 'rate' &&
+        detail.cost_price &&
+        detail.markup
+      ) {
+        detail.rate = roundUpto(+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
+      }
+
+      if (detail.quantity && detail.rate) {
+        detail.amount = roundUpto(+detail.quantity * +detail.rate);
+
+        if (+detail.cost_price && +detail.rate) {
+          detail.markup = roundUpto(
+            ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100
+          );
+        }
+      } else {
+        detail.amount = '';
+      }
+
+      if (detail.discount_percent && detail.amount) {
+        detail.discount_amount = roundUpto(+detail.amount * (+detail.discount_percent / 100));
+      } else {
+        detail.discount_amount = '';
+      }
+
+      if (detail.amount) {
+        detail.gross_amount = roundUpto(+detail.amount - +detail.discount_amount) || 0;
+      } else {
+        detail.gross_amount = '';
+      }
     }
   },
   extraReducers: ({ addCase }) => {
@@ -310,6 +365,7 @@ export const {
   addChargeOrderDetail,
   removeChargeOrderDetail,
   copyChargeOrderDetail,
+  resetChargeOrderDetail,
   changeChargeOrderDetailOrder,
   changeChargeOrderDetailValue,
   setChargeQuotationID

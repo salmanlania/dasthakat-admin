@@ -13,14 +13,17 @@ import {
   changeChargeOrderDetailOrder,
   changeChargeOrderDetailValue,
   copyChargeOrderDetail,
-  removeChargeOrderDetail
+  removeChargeOrderDetail,
+  resetChargeOrderDetail
 } from '../../store/features/chargeOrderSlice';
 import { getEvent } from '../../store/features/eventSlice';
 import { getProduct, getProductList } from '../../store/features/productSlice';
 import { formatThreeDigitCommas, roundUpto } from '../../utils/number';
 import AsyncSelect from '../AsyncSelect';
+import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate';
 import DebounceInput from '../Input/DebounceInput';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
+import DebouncedNumberInput from '../Input/DebouncedNumberInput';
 import { productTypeOptions } from './ProductForm';
 import { DetailSummaryInfo } from './QuotationForm';
 
@@ -38,7 +41,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
 
-  const quotation_id = searchParams.get('quotation_id') || null;
+  const chargeOrder_id = searchParams.get('chargeOrder_id') || null;
 
   let totalQuantity = 0;
 
@@ -48,7 +51,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
 
   const onFinish = (values) => {
     const data = {
-      quotation_id,
+      chargeOrder_id,
       remarks: values.remarks,
       salesman_id: values.salesman_id ? values.salesman_id.value : null,
       class1_id: values.class1_id ? values.class1_id.value : null,
@@ -98,8 +101,37 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       dispatch(
         changeChargeOrderDetailValue({
           index,
+          key: 'product_type_id',
+          value: product.product_type_id
+            ? {
+                value: product.product_type_id,
+                label: product.product_type_name
+              }
+            : null
+        })
+      );
+
+      dispatch(
+        changeChargeOrderDetailValue({
+          index,
           key: 'unit_id',
           value: { value: product.unit_id, label: product.unit_name }
+        })
+      );
+
+      dispatch(
+        changeChargeOrderDetailValue({
+          index,
+          key: 'cost_price',
+          value: product.cost_price
+        })
+      );
+
+      dispatch(
+        changeChargeOrderDetailValue({
+          index,
+          key: 'rate',
+          value: product.sale_price
         })
       );
     } catch (error) {
@@ -115,7 +147,50 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         value: selected
       })
     );
-    if (!selected) return;
+
+    if (!selected) {
+      dispatch(
+        changeChargeOrderDetailValue({
+          index,
+          key: 'product_code',
+          value: null
+        })
+      );
+
+      dispatch(
+        changeChargeOrderDetailValue({
+          index,
+          key: 'product_type',
+          value: null
+        })
+      );
+
+      dispatch(
+        changeChargeOrderDetailValue({
+          index,
+          key: 'unit_id',
+          value: null
+        })
+      );
+
+      dispatch(
+        changeChargeOrderDetailValue({
+          index,
+          key: 'cost_price',
+          value: null
+        })
+      );
+
+      dispatch(
+        changeChargeOrderDetailValue({
+          index,
+          key: 'rate',
+          value: null
+        })
+      );
+      return;
+    }
+
     try {
       const product = await dispatch(getProduct(selected.value)).unwrap();
 
@@ -130,8 +205,37 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       dispatch(
         changeChargeOrderDetailValue({
           index,
+          key: 'product_type_id',
+          value: product.product_type_id
+            ? {
+                value: product.product_type_id,
+                label: product.product_type_name
+              }
+            : null
+        })
+      );
+
+      dispatch(
+        changeChargeOrderDetailValue({
+          index,
           key: 'unit_id',
           value: { value: product.unit_id, label: product.unit_name }
+        })
+      );
+
+      dispatch(
+        changeChargeOrderDetailValue({
+          index,
+          key: 'cost_price',
+          value: product.cost_price
+        })
+      );
+
+      dispatch(
+        changeChargeOrderDetailValue({
+          index,
+          key: 'rate',
+          value: product.sale_price
         })
       );
     } catch (error) {
@@ -152,7 +256,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       ),
       key: 'order',
       dataIndex: 'order',
-      fixed: 'left',
       render: (_, record, index) => {
         return (
           <div className="flex flex-col gap-1">
@@ -186,13 +289,41 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       render: (_, record, index) => {
         return <>{index + 1}.</>;
       },
-      width: 40
+      width: 50
+    },
+    {
+      title: 'Product Type',
+      dataIndex: 'product_type',
+      key: 'product_type',
+      render: (_, { product_code, product_type_id }, index) => {
+        return (
+          <AsyncSelectNoPaginate
+            endpoint="/lookups/product-types"
+            valueKey="product_type_id"
+            labelKey="name"
+            labelInValue
+            className="w-full"
+            value={product_type_id}
+            onChange={(selected) => {
+              dispatch(resetChargeOrderDetail(index));
+              dispatch(
+                changeChargeOrderDetailValue({
+                  index,
+                  key: 'product_type_id',
+                  value: selected
+                })
+              );
+            }}
+          />
+        );
+      },
+      width: 150
     },
     {
       title: 'Product Code',
       dataIndex: 'product_code',
       key: 'product_code',
-      render: (_, { product_code }, index) => {
+      render: (_, { product_code, product_type_id }, index) => {
         return (
           <DebounceInput
             value={product_code}
@@ -205,6 +336,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
                 })
               )
             }
+            disabled={product_type_id?.label === 'Others'}
             onBlur={(e) => onProductCodeChange(index, e.target.value)}
             onPressEnter={(e) => onProductCodeChange(index, e.target.value)}
           />
@@ -216,12 +348,37 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       title: 'Description',
       dataIndex: 'product_name',
       key: 'product_name',
-      render: (_, { product_id }, index) => {
-        return (
+      render: (_, { product_id, product_name, product_type_id }, index) => {
+        return product_type_id?.label === 'Others' ? (
+          <Form.Item
+            className="m-0"
+            name={`product_name-${index}`}
+            initialValue={product_name}
+            rules={[
+              {
+                required: true,
+                whitespace: true,
+                message: 'Description is required'
+              }
+            ]}>
+            <DebounceInput
+              value={product_name}
+              onChange={(value) =>
+                dispatch(
+                  changeChargeOrderDetailValue({
+                    index,
+                    key: 'product_name',
+                    value: value
+                  })
+                )
+              }
+            />
+          </Form.Item>
+        ) : (
           <AsyncSelect
             endpoint="/product"
             valueKey="product_id"
-            labelKey="name"
+            labelKey="product_name"
             labelInValue
             className="w-full"
             value={product_id}
@@ -233,30 +390,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         );
       },
       width: 560
-    },
-    {
-      title: 'Product Nature',
-      dataIndex: 'product_type',
-      key: 'product_type',
-      render: (_, { product_type }, index) => {
-        return (
-          <Select
-            options={productTypeOptions}
-            value={product_type}
-            className="w-full"
-            onChange={(value) =>
-              dispatch(
-                changeChargeOrderDetailValue({
-                  index,
-                  key: 'product_type',
-                  value: value
-                })
-              )
-            }
-          />
-        );
-      },
-      width: 180
     },
     {
       title: 'Customer Notes',
@@ -294,11 +427,12 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       dataIndex: 'quantity',
       key: 'quantity',
       render: (_, { quantity }, index) => {
+        form.setFieldsValue({ [`quantity-${index}`]: quantity });
         return (
           <Form.Item
             className="m-0"
+            name={`quantity-${index}`}
             initialValue={quantity}
-            name={`quantity-${uuidv4()}`}
             rules={[
               {
                 required: true,
@@ -327,13 +461,13 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       title: 'Unit',
       dataIndex: 'unit_id',
       key: 'unit_id',
-      render: (_, { unit_id }, index) => {
+      render: (_, { unit_id, product_type_id }, index) => {
         return (
           <AsyncSelect
             endpoint="/unit"
             valueKey="unit_id"
             labelKey="name"
-            disabled
+            disabled={product_type_id?.label !== 'Others'}
             labelInValue
             className="w-full"
             value={unit_id}
@@ -356,7 +490,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       title: 'Vendor',
       dataIndex: 'supplier_id',
       key: 'supplier_id',
-      render: (_, { supplier_id }, index) => {
+      render: (_, { supplier_id, product_type_id }, index) => {
         return (
           <AsyncSelect
             endpoint="/supplier"
@@ -364,6 +498,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             labelKey="name"
             labelInValue
             className="w-full"
+            disabled={product_type_id?.label === 'Service'}
             value={supplier_id}
             onChange={(selected) =>
               dispatch(
@@ -381,6 +516,137 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         );
       },
       width: 240
+    },
+    {
+      title: 'Vendor Part #',
+      dataIndex: 'vendor_part_no',
+      key: 'vendor_part_no',
+      render: (_, { vendor_part_no }, index) => {
+        return (
+          <DebounceInput
+            value={vendor_part_no}
+            onChange={(value) =>
+              dispatch(
+                changeChargeOrderDetailValue({
+                  index,
+                  key: 'vendor_part_no',
+                  value: value
+                })
+              )
+            }
+          />
+        );
+      },
+      width: 120
+    },
+    {
+      title: 'Selling Price',
+      dataIndex: 'rate',
+      key: 'rate',
+      render: (_, { rate }, index) => {
+        form.setFieldsValue({ [`rate-${index}`]: rate });
+        return (
+          <Form.Item
+            className="m-0"
+            name={`rate-${index}`}
+            initialValue={rate}
+            rules={[
+              {
+                required: true,
+                message: 'Selling price is required'
+              }
+            ]}>
+            <DebouncedCommaSeparatedInput
+              value={rate}
+              onChange={(value) =>
+                dispatch(
+                  changeChargeOrderDetailValue({
+                    index,
+                    key: 'rate',
+                    value: value
+                  })
+                )
+              }
+            />
+          </Form.Item>
+        );
+      },
+      width: 120
+    },
+    {
+      title: 'Amount',
+      dataIndex: 'amount',
+      key: 'amount',
+      render: (_, { amount }) => (
+        <DebouncedCommaSeparatedInput value={amount ? amount + '' : ''} disabled />
+      ),
+      width: 120
+    },
+    {
+      title: 'Discount %',
+      dataIndex: 'discount_percent',
+      key: 'discount_percent',
+      render: (_, { discount_percent }, index) => {
+        form.setFieldsValue({
+          [`discount_percent-${index}`]: discount_percent
+        });
+        return (
+          <Form.Item
+            className="m-0"
+            initialValue={discount_percent}
+            name={`discount_percent-${index}`}
+            rules={[
+              {
+                validator: (_, value) => {
+                  if (value > 100) {
+                    return Promise.reject(new Error('Invalid discount percent.'));
+                  }
+                  return Promise.resolve();
+                }
+              }
+            ]}>
+            <DebouncedNumberInput
+              value={discount_percent}
+              type="decimal"
+              onChange={(value) =>
+                dispatch(
+                  changeChargeOrderDetailValue({
+                    index,
+                    key: 'discount_percent',
+                    value: value
+                  })
+                )
+              }
+            />
+          </Form.Item>
+        );
+      },
+      width: 100
+    },
+    {
+      title: 'Discount Amt',
+      dataIndex: 'discount_amount',
+      key: 'discount_amount',
+      render: (_, { discount_amount }) => {
+        return (
+          <DebouncedCommaSeparatedInput
+            value={discount_amount ? discount_amount + '' : ''}
+            disabled
+          />
+        );
+      },
+      width: 120
+    },
+    {
+      title: 'Gross Amount',
+      dataIndex: 'gross_amount',
+      key: 'gross_amount',
+      render: (_, { gross_amount }) => {
+        return (
+          <DebouncedCommaSeparatedInput value={gross_amount ? gross_amount + '' : ''} disabled />
+        );
+      },
+      width: 150
     },
     {
       title: (
@@ -458,7 +724,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       autoComplete="off"
       form={form}
       onFinish={onFinish}
-      initialValues={mode === 'edit' || quotation_id ? initialFormValues : null}
+      initialValues={mode === 'edit' || chargeOrder_id ? initialFormValues : null}
       scrollToFirstError>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
