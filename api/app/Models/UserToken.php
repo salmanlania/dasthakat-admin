@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
@@ -40,7 +41,6 @@ class UserToken extends Model
             }
         }
         return [];
-
     }
 
     public static function userPermission($filter)
@@ -55,20 +55,18 @@ class UserToken extends Model
             ->where('password', $password)
             ->where('status', 1)
             ->first();
-            
-            $company = Company::where('company_id',$company_id)->first();
-            $currency = Currency::where('currency_id',$company['base_currency_id'])->first();
-            $company_branch = CompanyBranch::where('company_branch_id',$company_branch_id)->first();
+        if (empty($user))  return "Invalid Email or Password!";
+
+        $company = Company::where('company_id', $company_id)->first();
+        $currency = Currency::where('currency_id', $company['base_currency_id'])->first();
+        $company_branch = CompanyBranch::where('company_branch_id', $company_branch_id)->first();
         $userBranch = UserBranchAccess::with('company', 'company_branch')
             ->where('user_id', $user['user_id'])
             ->where('company_id', $company_id)
             ->where('company_branch_id', $company_branch_id)
             ->first();
-        if($user['super_admin'] != 1)
-        if (empty($userBranch))  return " No Permission! ";
-
-        $aUser = User::where('user_id', $user['user_id'])->where('status', 1)->first();
-        if (empty($aUser))  return " Invalid User or User Inactive !";
+        if ($user['super_admin'] != 1)
+            if (empty($userBranch))  return "Access Denied! ";
 
         $header = [
             'alg' => 'HS256',
@@ -76,30 +74,30 @@ class UserToken extends Model
         ];
 
         $payload = [
-            'user_id' => $aUser['user_id'],
-            'email' => $aUser['email'],
+            'user_id' => $user['user_id'],
+            'email' => $user['email'],
             'company_id' => $company_id,
             'company_branch_id' => $company_branch_id,
-            'permission_id' => json_encode($aUser['permission_id']),
+            'permission_id' => json_encode($user['permission_id']),
             'r' => rand(111111, 999999),
-            'exp' => time() + 60 * 60 * 24
+            'exp' => time() + 60 * 60 * 24 // 01 day - token expiry time
         ];
         $token = self::generate_token($header, $payload);
-        $aUser['api_token'] = $token;
-        $aUser['company_id'] = $company_id;
-        $aUser['company_name'] = $company['name'];
-        $aUser['company_branch_id'] = $company_branch_id;
-        $aUser['company_branch_name'] = $company_branch['name'];
-        $aUser['currency'] = $currency;
-        $aUserGroup = UserPermission::where('user_permission_id', $aUser['permission_id'])->select('user_permission_id', 'permission')->first();
-        $aUser['permission'] = (empty($aUserGroup)) ? null : json_decode($aUserGroup['permission']);
-        
-        unset($aUser['password']);
-        $userTokenUpdate = User::where('user_id', $aUser['user_id'])->firstOrFail();
-        $userTokenUpdate->api_token = $aUser['api_token'];
+        $user['api_token'] = $token;
+        $user['company_id'] = $company_id;
+        $user['company_name'] = $company['name'];
+        $user['company_branch_id'] = $company_branch_id;
+        $user['company_branch_name'] = $company_branch['name'];
+        $user['currency'] = $currency;
+        $userGroup = UserPermission::where('user_permission_id', $user['permission_id'])->select('user_permission_id', 'permission')->first();
+        $user['permission'] = (empty($userGroup)) ? null : json_decode($userGroup['permission']);
+
+        unset($user['password']);
+        $userTokenUpdate = User::where('user_id', $user['user_id'])->firstOrFail();
+        $userTokenUpdate->api_token = $user['api_token'];
         $userTokenUpdate->last_login = date('Y-m-d H:i:s');
         $userTokenUpdate->update();
-        return $aUser;
+        return $user;
     }
 
 
@@ -132,7 +130,6 @@ class UserToken extends Model
         $permissionId = json_decode($payload)->permission_id;
         $permissionId = json_decode($permissionId);
 
-        // $db_name = json_decode($payload)->db_name;
         $is_token_expired = ($expiration - time()) < 0;
 
         // build a signature based on the header and payload using the secret
@@ -147,10 +144,7 @@ class UserToken extends Model
         if ($is_token_expired || !$is_signature_valid) {
             return FALSE;
         } else {
-            // $payload = json_decode($payload);
-            // unset($payload->permission_id);
             return $payload;
-            // return $payload;
         }
     }
 

@@ -33,7 +33,6 @@ class Controller extends BaseController
         Config::set('mail.mailers.smtp.password', $password);
 
         // Optional: Force configuration cache to update if caching is enabled
-        Artisan::call('config:cache');
     }
 
     public function sentMail($data)

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Quotation;
 use App\Models\QuotationDetail;
 use App\Models\QuotationStatus;
+use App\Models\StockLedger;
 use App\Models\Terms;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -99,6 +100,15 @@ class QuotationController extends Controller
 			"person_incharge"
 		)
 			->where('quotation_id', $id)->first();
+
+		if ($data) {
+			foreach ($data->quotation_detail as $detail) {
+				if ($detail->product) {
+					$detail->product->stock = StockLedger::Check($detail->product, $request->all());
+				}
+			}
+		}
+
 		$terms = [];
 		if ($data && !empty($data->term_id)) {
 			$term_id = json_decode($data->term_id, true) ?? [];
@@ -204,13 +214,13 @@ class QuotationController extends Controller
 					'quotation_id' => $insertArr['quotation_id'],
 					'quotation_detail_id' => $detail_uuid,
 					'sort_order' => $value['sort_order'] ?? "",
-					// 'product_code' => $value['product_code'] ?? "",
 					'product_id' => $value['product_id'] ?? "",
 					'product_type_id' => $value['product_type_id'] ?? "",
 					'product_name' => $value['product_name'] ?? "",
 					'description' => $value['description'] ?? "",
 					'unit_id' => $value['unit_id'] ?? "",
 					'supplier_id' => $value['supplier_id'] ?? "",
+					'vendor_part_no' => $value['vendor_part_no'] ?? "",
 					'quantity' => $value['quantity'] ?? "",
 					'cost_price' => $value['cost_price'] ?? "",
 					'markup' => $value['markup'] ?? "",
@@ -312,13 +322,13 @@ class QuotationController extends Controller
 					'quotation_id' => $id,
 					'quotation_detail_id' => $detail_uuid,
 					'sort_order' => $value['sort_order'] ?? "",
-					// 'product_code' => $value['product_code'] ?? "",
 					'product_id' => $value['product_id'] ?? "",
 					'product_type_id' => $value['product_type_id'] ?? "",
 					'product_name' => $value['product_name'] ?? "",
 					'description' => $value['description'] ?? "",
 					'unit_id' => $value['unit_id'] ?? "",
 					'supplier_id' => $value['supplier_id'] ?? "",
+					'vendor_part_no' => $value['vendor_part_no'] ?? "",
 					'quantity' => $value['quantity'] ?? "",
 					'cost_price' => $value['cost_price'] ?? "",
 					'markup' => $value['markup'] ?? "",

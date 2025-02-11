@@ -144,7 +144,7 @@ class GRNController extends Controller
 					'created_at' => date('Y-m-d H:i:s'),
 					'created_by' => $request->login_user_id,
 				];
-				StockLedger::handleStockMovement([
+			 		StockLedger::handleStockMovement([
 					'master_model' => new GRN,
 					'document_id' => $uuid,
 					'document_detail_id' => $detail_uuid,
@@ -188,9 +188,9 @@ class GRNController extends Controller
 		$data->update();
 		GRNDetail::where('good_received_note_id', $id)->delete();
 		StockLedger::where('document_id', $id)->delete();
-		if ($request->purchase_order_detail) {
+		if ($request->good_received_note_detail) {
 
-			foreach ($request->purchase_order_detail as $key => $value) {
+			foreach ($request->good_received_note_detail as $key => $value) {
 				$detail_uuid = $this->get_uuid();
 
 				$insertArr = [

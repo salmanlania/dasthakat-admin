@@ -33,6 +33,9 @@ class ChargeOrder extends Model
         "agent_id",
         "remarks",
         "total_quantity",
+        "total_amount",
+        "total_discount",
+        "net_amount",
         "created_by",
         "updated_by"
     ];

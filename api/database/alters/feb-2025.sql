@@ -8,8 +8,13 @@ ADD COLUMN amount DECIMAL(10,2) AFTER rate,
 ADD COLUMN discount_amount DECIMAL(10,2) AFTER amount,
 ADD COLUMN discount_percent DECIMAL(10,2) AFTER discount_amount,
 ADD COLUMN gross_amount DECIMAL(10,2) AFTER discount_percent,
-ADD COLUMN purchase_order_id CHAR(36) BEFORE quantity;
-ADD COLUMN purchase_order_detail_id CHAR(36) AFTER purchase_order_id;
+ADD COLUMN purchase_order_id CHAR(36) AFTER warehouse_id,
+ADD COLUMN purchase_order_detail_id CHAR(36) AFTER purchase_order_id
 
 ALTER TABLE charge_order_detail 
 CHANGE COLUMN product_type product_type_id CHAR(36);
+
+ALTER TABLE charge_order 
+ADD COLUMN total_amount DECIMAL(10,2) AFTER total_quantity,
+ADD COLUMN discount_amount DECIMAL(10,2) AFTER total_amount,
+ADD COLUMN net_amount DECIMAL(10,2) AFTER discount_amount;

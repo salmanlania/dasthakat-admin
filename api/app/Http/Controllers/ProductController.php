@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\StockLedger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -10,7 +11,6 @@ use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
-	protected $db;
 
 	public function index(Request $request)
 	{
@@ -26,36 +26,36 @@ class ProductController extends Controller
 		$cost_price = $request->input('cost_price', '');
 		$status = $request->input('status', '');
 		$all = $request->input('all', '');
+		$includeStock = filter_var($request->input('stock', false), FILTER_VALIDATE_BOOLEAN);
 
 		$search = $request->input('search', '');
-		$page =  $request->input('page', 1); // Default to page 2 if not specified
-		$perPage =  $request->input('limit', 10); // Default to 10 if not specified
+		$page =  $request->input('page', 1);
+		$perPage =  $request->input('limit', 10);
 		$sort_column = $request->input('sort_column', 'product.created_at');
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
-		$item = Product::leftJoin('category as c', 'c.category_id', '=', 'product.category_id')
-			->LeftJoin('sub_category as sc', 'sc.sub_category_id', '=', 'product.sub_category_id')
-			->LeftJoin('product_type as pt', 'pt.product_type_id', '=', 'product.product_type_id')
-			->LeftJoin('unit as u', 'u.unit_id', '=', 'product.unit_id')
-			->LeftJoin('brand as b', 'b.brand_id', '=', 'product.brand_id');
+		$query = Product::leftJoin('category as c', 'c.category_id', '=', 'product.category_id')
+			->leftJoin('sub_category as sc', 'sc.sub_category_id', '=', 'product.sub_category_id')
+			->leftJoin('product_type as pt', 'pt.product_type_id', '=', 'product.product_type_id')
+			->leftJoin('unit as u', 'u.unit_id', '=', 'product.unit_id')
+			->leftJoin('brand as b', 'b.brand_id', '=', 'product.brand_id');
 
-		if (!empty($name)) $item = $item->where('product.name', 'like', '%' . $name . '%');
-		if (!empty($product_code)) $item = $item->where('product.product_code', '=',  $product_code)->orWhere('product.impa_code', '=', $product_code);
-		if (!empty($impa_code)) $item = $item->where('product.impa_code', 'like', '%' . $impa_code . '%');
-		if (!empty($product_type_id)) $item = $item->where('product.product_type_id', $product_type_id);
-		if (!empty($unit_id)) $item = $item->where('product.unit_id', $unit_id);
-		if (!empty($category_id)) $item = $item->where('product.category_id', $category_id);
-		if (!empty($sub_category_id)) $item = $item->where('product.sub_category_id', $sub_category_id);
-		if (!empty($brand_id)) $item = $item->where('product.brand_id', $brand_id);
-		if (!empty($sale_price)) $item = $item->where('product.sale_price', 'like', '%' . $sale_price . '%');
-		if (!empty($cost_price)) $item = $item->where('product.cost_price', 'like', '%' . $cost_price . '%');
-		if ($all != 1) $item = $item->where('product.status', '=', 1);
-		if ($status != "") $item = $item->where('product.status', '=', $status);
-		$item = $item->where('product.company_id', '=', $request->company_id);
+		if (!empty($name)) $query->where('product.name', 'like', '%' . $name . '%');
+		if (!empty($product_code)) $query->where('product.product_code', '=',  $product_code)->orWhere('product.impa_code', '=', $product_code);
+		if (!empty($impa_code)) $query->where('product.impa_code', 'like', '%' . $impa_code . '%');
+		if (!empty($product_type_id)) $query->where('product.product_type_id', $product_type_id);
+		if (!empty($unit_id)) $query->where('product.unit_id', $unit_id);
+		if (!empty($category_id)) $query->where('product.category_id', $category_id);
+		if (!empty($sub_category_id)) $query->where('product.sub_category_id', $sub_category_id);
+		if (!empty($brand_id)) $query->where('product.brand_id', $brand_id);
+		if (!empty($sale_price)) $query->where('product.sale_price', 'like', '%' . $sale_price . '%');
+		if (!empty($cost_price)) $query->where('product.cost_price', 'like', '%' . $cost_price . '%');
+		if ($all != 1) $query->where('product.status', '=', 1);
+		if ($status !== "") $query->where('product.status', '=', $status);
+		$query->where('product.company_id', '=', $request->company_id);
 
 		if (!empty($search)) {
-			$search = strtolower($search);
-			$item = $item->where(function ($query) use ($search) {
+			$query->where(function ($query) use ($search) {
 				$query->where('product.name', 'like', '%' . $search . '%')
 					->orWhere('pt.name', 'like', '%' . $search . '%')
 					->orWhere('c.name', 'like', '%' . $search . '%')
@@ -64,15 +64,32 @@ class ProductController extends Controller
 					->orWhere('b.name', 'like', '%' . $search . '%')
 					->orWhere('product.product_type_id', 'like', '%' . $search . '%')
 					->orWhere('product.product_code', 'like', '%' . $search . '%')
-					->orWhere('product.impa_code', 'like', '%' . $search . '%')
-				;
+					->orWhere('product.impa_code', 'like', '%' . $search . '%');
 			});
 		}
 
-		$item = $item->select('product.*',"pt.name as product_type_name", 'c.name as category_name', 'sc.name as sub_category_name', 'b.name as brand_name', 'u.name as unit_name', DB::raw("CONCAT( product.impa_code, ' ', product.name) as product_name"));
-		$item = $item->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
+		$query->select(
+			'product.*',
+			"pt.name as product_type_name",
+			'c.name as category_name',
+			'sc.name as sub_category_name',
+			'b.name as brand_name',
+			'u.name as unit_name',
+			DB::raw("CONCAT(product.impa_code, ' ', product.name) as product_name")
+		);
 
-		return response()->json($item);
+		$query->orderBy($sort_column, $sort_direction);
+		$products = $query->paginate($perPage, ['*'], 'page', $page);
+
+		// If stock key is true, add stock information
+		if ($includeStock) {
+			foreach ($products as $product) {
+				$data = StockLedger::Check($product, $request->all());
+				$product->stock = $data;
+			}
+		}
+
+		return response()->json($products);
 	}
 
 
@@ -86,8 +103,11 @@ class ProductController extends Controller
 			->LeftJoin('brand as b', 'b.brand_id', '=', 'product.brand_id');
 
 		$product = $product->where('product.product_id', $id);
-		$product = $product->select('product.*','pt.product_type_id','pt.name as product_type_name', 'c.name as category_name', 'sc.name as sub_category_name', 'b.name as brand_name', 'u.name as unit_name')->first();
+		$product = $product->select('product.*', 'pt.product_type_id', 'pt.name as product_type_name', 'c.name as category_name', 'sc.name as sub_category_name', 'b.name as brand_name', 'u.name as unit_name')->first();
 		$product['image_url']  = !empty($product['image']) ?  url('public/uploads/' . $product['image']) : '';
+
+		$data = StockLedger::Check($product, $request->all());
+		$product->stock = $data;
 
 		return $this->jsonResponse($product, 200, "Product Data");
 	}
@@ -104,36 +124,30 @@ class ProductController extends Controller
 		return $this->jsonResponse($product, 200, "Product Data");
 	}
 
-	public function validateRequest($request, $id = null)
+	public function Validator($request, $id = null)
 	{
 		$rules = [
 			'unit_id' => 'required',
 			'product_type_id' => 'required',
 			'name' => [
 				'required',
-				Rule::unique('product')->ignore($id, 'product_id')->where('company_id', $request['company_id'])
+				Rule::unique('product')->ignore($id, 'product_id')->where('company_id', $request->input('company_id'))
 			],
 			'impa_code' => [
-				Rule::unique('product')->ignore($id, 'product_id')->where('company_id', $request['company_id'])
+				Rule::unique('product')->ignore($id, 'product_id')->where('company_id', $request->input('company_id'))
 			]
 		];
 
-		$validator = Validator::make($request, $rules);
-		$response = [];
-		if ($validator->fails()) {
-			$response =  $errors = $validator->errors()->all();
-			$firstError = $validator->errors()->first();
-			return  $firstError;
-		}
-		return [];
+		$msg = validateRequest($request->all(), $rules);
+		if (!empty($msg)) return $msg;
 	}
 
 	public function store(Request $request)
 	{
-		$data      = $request->all();
+		$data = $request->all();
 
 		// Validation Rules
-		$isError = $this->validateRequest($request->all());
+		$isError = $this->Validator($request->all());
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 		$imageData = $data['image'] ?? "";
 		$image = "";
@@ -179,7 +193,7 @@ class ProductController extends Controller
 
 
 		// Validation Rules
-		$isError = $this->validateRequest($request->all(), $id);
+		$isError = $this->Validator($request->all(), $id);
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
 		$data      = $request->all();

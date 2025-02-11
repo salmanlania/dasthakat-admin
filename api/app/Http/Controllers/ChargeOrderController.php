@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\DocumentType;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
-use App\Models\Terms;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderDetail;
+use App\Models\Quotation;
+use App\Models\StockLedger;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class ChargeOrderController extends Controller
@@ -65,6 +68,7 @@ class ChargeOrderController extends Controller
 		$data = ChargeOrder::with(
 			"charge_order_detail",
 			"charge_order_detail.product",
+			"charge_order_detail.product_type",
 			"charge_order_detail.unit",
 			"charge_order_detail.supplier",
 			"salesman",
@@ -78,26 +82,110 @@ class ChargeOrderController extends Controller
 		)
 			->where('charge_order_id', $id)->first();
 
+		if ($data) {
+			foreach ($data->charge_order_detail as $detail) {
+				if ($detail->product) {
+					$detail->product->stock = StockLedger::Check($detail->product, $request->all());
+				}
+				if (!empty($detail->purchase_order_detail_id)) $detail->editable = false;
+			}
+		}
 		return $this->jsonResponse($data, 200, "Charge Order Data");
 	}
 
-	public function validateRequest($request, $id = null)
+	public function Validator($request, $id = null)
 	{
 		$rules = [
 			'document_date' => ['required'],
 		];
 
-
-		$validator = Validator::make($request, $rules);
-		$response = [];
-		if ($validator->fails()) {
-			$response =  $errors = $validator->errors()->all();
-			$firstError = $validator->errors()->first();
-			return  $firstError;
-		}
-		return [];
+		$msg = validateRequest($request, $rules);
+		if (!empty($msg)) return $msg;
 	}
 
+
+	public function createPurchaseOrder($id, Request $request)
+	{
+		$record = ChargeOrder::with(['charge_order_detail', 'charge_order_detail.product'])
+			->where('charge_order_id', $id)
+			->firstOrFail();
+
+		$quotation = Quotation::where('document_identity', $record->ref_document_identity)->first();
+
+		$filteredDetails = collect($record->charge_order_detail)->filter(fn($row) =>  ($row->product_type_id === 4 && empty($row->purchase_order_detail_id)));
+
+		$vendorWiseDetails = $filteredDetails->groupBy('supplier_id');
+
+		DB::transaction(function () use ($vendorWiseDetails, $record, $quotation, $request) {
+			$purchaseOrders = [];
+			$purchaseOrderDetails = [];
+
+			foreach ($vendorWiseDetails as $supplierId => $items) {
+				$uuid = $this->get_uuid();
+				$document = DocumentType::getNextDocument(40, $request);
+
+				$totalQuantity = $items->sum('quantity');
+				$totalAmount = $items->sum('amount');
+
+				$purchaseOrders[] = [
+					'company_id'         => $request->company_id,
+					'company_branch_id'  => $request->company_branch_id,
+					'purchase_order_id'  => $uuid,
+					'document_type_id'   => $document['document_type_id'] ?? null,
+					'document_no'        => $document['document_no'] ?? null,
+					'document_prefix'    => $document['document_prefix'] ?? null,
+					'document_identity'  => $document['document_identity'] ?? null,
+					'document_date'      => Carbon::now(),
+					'supplier_id'        => $supplierId,
+					'type'               => "Buyout",
+					'quotation_id'       => $quotation->quotation_id ?? null,
+					'charge_order_id'    => $record->charge_order_id,
+					'total_quantity'     => $totalQuantity,
+					'total_amount'       => $totalAmount,
+					'created_at'         => Carbon::now(),
+					'created_by'         => $request->login_user_id,
+				];
+
+				foreach ($items as $index => $item) {
+					$purchase_order_detail_id = $this->get_uuid();
+
+					$purchaseOrderDetails[] = [
+						'purchase_order_id'       => $uuid,
+						'purchase_order_detail_id' => $purchase_order_detail_id,
+						'sort_order'              => $index,
+						'product_id'              => $item['product_id'] ?? null,
+						'description'             => $item['description'] ?? null,
+						'unit_id'                 => $item['unit_id'] ?? null,
+						'quantity'                => $item['quantity'] ?? 0,
+						'rate'                    => $item['rate'] ?? 0,
+						'amount'                  => $item['amount'] ?? 0,
+						'created_at'              => Carbon::now(),
+						'created_by'              => $request->login_user_id,
+					];
+
+					ChargeOrderDetail::where('charge_order_detail_id', $item->charge_order_detail_id)
+						->update([
+							'purchase_order_id'        => $uuid,
+							'purchase_order_detail_id' => $purchase_order_detail_id,
+						]);
+				}
+			}
+
+
+			if ($purchaseOrders) {
+				PurchaseOrder::insert($purchaseOrders);
+			}
+			if ($purchaseOrderDetails) {
+				PurchaseOrderDetail::insert($purchaseOrderDetails);
+			}
+			foreach ($items as $item) {
+				ChargeOrderDetail::where('charge_order_detail_id', $item->charge_order_detail_id)
+					->update(['purchase_order_id' => $uuid]);
+			}
+		});
+
+		return $this->jsonResponse($record, 200, "Purchase Orders Grouped by Vendor!");
+	}
 
 
 	public function store(Request $request)
@@ -107,7 +195,7 @@ class ChargeOrderController extends Controller
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
 		// Validation Rules
-		$isError = $this->validateRequest($request->all());
+		$isError = $this->Validator($request->all());
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
 
@@ -120,8 +208,8 @@ class ChargeOrderController extends Controller
 			'charge_order_id' => $uuid,
 			'document_type_id' => $document['document_type_id'] ?? "",
 			'document_no' => $document['document_no'] ?? "",
-			'document_prefix' => $document['document_prefix'] ?? "",
 			'document_identity' => $document['document_identity'] ?? "",
+			'document_prefix' => $document['document_prefix'] ?? "",
 			'ref_document_type_id' => $request->ref_document_type_id ?? "",
 			'ref_document_identity' => $request->ref_document_identity ?? "",
 			'document_date' => ($request->document_date) ?? "",
@@ -135,6 +223,9 @@ class ChargeOrderController extends Controller
 			'agent_id' => $request->agent_id ?? "",
 			'remarks' => $request->remarks ?? "",
 			'total_quantity' => $request->total_quantity ?? "",
+			'total_amount' => $request->total_amount ?? 0,
+			'discount_amount' => $request->discount_amount ?? 0,
+			'net_amount' => $request->net_amount ?? 0,
 			'created_at' => date('Y-m-d H:i:s'),
 			'created_by' => $request->login_user_id,
 		];
@@ -150,12 +241,19 @@ class ChargeOrderController extends Controller
 					'product_code' => $value['product_code'] ?? "",
 					'product_id' => $value['product_id'] ?? "",
 					'product_name' => $value['product_name'] ?? "",
-					'product_type' => $value['product_type'] ?? "",
+					'product_type_id' => $value['product_type_id'] ?? "",
 					'description' => $value['description'] ?? "",
+					'warehouse_id' => $value['warehouse_id'] ?? "",
 					'unit_id' => $value['unit_id'] ?? "",
 					'supplier_id' => $value['supplier_id'] ?? "",
 					'quantity' => $value['quantity'] ?? "",
-					'created_at' => date('Y-m-d H:i:s'),
+					'cost_price' => $value['cost_price'] ?? "",
+					'rate' => $value['rate'] ?? "",
+					'amount' => $value['amount'] ?? "",
+					'discount_amount' => $value['discount_amount'] ?? "",
+					'discount_percent' => $value['discount_percent'] ?? "",
+					'gross_amount' => $value['gross_amount'] ?? "",
+					'created_at' => Carbon::now(),
 					'created_by' => $request->login_user_id,
 				];
 
@@ -174,7 +272,7 @@ class ChargeOrderController extends Controller
 
 
 		// Validation Rules
-		$isError = $this->validateRequest($request->all(), $id);
+		$isError = $this->Validator($request->all(), $id);
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
 
@@ -194,6 +292,9 @@ class ChargeOrderController extends Controller
 		$data->agent_id = $request->agent_id;
 		$data->remarks = $request->remarks;
 		$data->total_quantity = $request->total_quantity;
+		$data->total_amount = $request->total_amount;
+		$data->discount_amount = $request->discount_amount;
+		$data->net_amount = $request->net_amount;
 		$data->updated_at = date('Y-m-d H:i:s');
 		$data->updated_by = $request->login_user_id;
 		$data->update();
@@ -210,11 +311,18 @@ class ChargeOrderController extends Controller
 					'product_code' => $value['product_code'] ?? "",
 					'product_id' => $value['product_id'] ?? "",
 					'product_name' => $value['product_name'] ?? "",
-					'product_type' => $value['product_type'] ?? "",
+					'product_type_id' => $value['product_type_id'] ?? "",
 					'description' => $value['description'] ?? "",
+					'warehouse_id' => $value['warehouse_id'] ?? "",
 					'unit_id' => $value['unit_id'] ?? "",
 					'supplier_id' => $value['supplier_id'] ?? "",
 					'quantity' => $value['quantity'] ?? "",
+					'cost_price' => $value['cost_price'] ?? "",
+					'rate' => $value['rate'] ?? "",
+					'amount' => $value['amount'] ?? "",
+					'discount_amount' => $value['discount_amount'] ?? "",
+					'discount_percent' => $value['discount_percent'] ?? "",
+					'gross_amount' => $value['gross_amount'] ?? "",
 					'created_at' => date('Y-m-d H:i:s'),
 					'created_by' => $request->login_user_id,
 				];

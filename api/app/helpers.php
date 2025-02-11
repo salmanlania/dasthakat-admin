@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Validator;
+
 
 if (!function_exists('hello')) {
 
@@ -102,4 +104,21 @@ if (!function_exists('splitString')) {
 
 		return $output;
 	}
+}
+
+
+function validateRequest(array $request, array $rules)
+{
+	$validator = Validator::make($request, $rules);
+
+	if ($validator->fails()) {
+		// return response()->json([
+		// 	'success' => false,
+		// 	'errors' => $validator->errors()->all(),
+		// 	'first_error' => $validator->errors()->first(),
+		// ], 422);
+		return $validator->errors()->first();
+	}
+
+	return [];
 }

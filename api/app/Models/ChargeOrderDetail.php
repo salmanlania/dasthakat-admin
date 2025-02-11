@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Support\Facades\DB;
 
 class ChargeOrderDetail extends Model
 {
@@ -20,17 +20,29 @@ class ChargeOrderDetail extends Model
         "product_code",
         "product_id",
         "product_name",
-        "product_type",
+        "product_type_id",
+        "warehouse_id",
         "description",
-        "quantity",
         "unit_id",
         "supplier_id",
+        "purchase_order_id",
+        "quantity",
+        "cost_price",
+        "rate",
+        "amount",
+        "discount_amount",
+        "discount_percent",
+        "gross_amount",
         "created_by",
         "updated_by"
     ];
     public function product()
     {
-        return $this->hasOne(Product::class, 'product_id','product_id');
+        return $this->hasOne(Product::class, 'product_id','product_id')->select('*',DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
+    }
+    public function product_type()
+    {
+        return $this->hasOne(ProductType::class, 'product_type_id','product_type_id');
     }
     public function unit()
     {

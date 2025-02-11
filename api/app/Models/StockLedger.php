@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 
 class StockLedger extends Model
 {
@@ -44,6 +45,10 @@ class StockLedger extends Model
 
         static public function handleStockMovement(array $arg, $type = 'I')
         {
+
+                // dd(1);
+
+
                 $row = $arg['row'] ?? [];
                 $document = $arg['master_model']::find($arg['document_id']);
                 $multiplier = $type == 'O' ? -1 : 1;
@@ -77,7 +82,28 @@ class StockLedger extends Model
                         'created_by'         => $document->created_by,
                         'created_at'            => Carbon::now(),
                 ];
-
                 StockLedger::create($stock);
+        }
+        
+        static public function Check($data, $request)
+        {
+
+                if (!isset($data->product_id)) {
+                        return ['error' => 'Missing product id'];
+                }
+
+                $stock = StockLedger::where('product_id', $data->product_id);
+                if (!empty($data->warehouse_id)) {
+                        $stock->where('warehouse_id', $data->warehouse_id);
+                }
+                $stock->where('company_id', $request['company_id']);
+                $stock->where('company_branch_id', $request['company_branch_id']);
+
+                $qty = $stock->sum('base_qty');
+                $amount = $stock->sum('base_amount');
+                return [
+                        'quantity' => (int)$qty,
+                        'amount'   => (int)$amount,
+                ];
         }
 }
