@@ -139,3 +139,11 @@ INSERT INTO const_document_type
 VALUES 
 (42, 'Purchase Invoice', '{BC}/PI-', 'purchase_invoice', 'purchase_invoice_id');
 
+
+ALTER TABLE `core_stock_ledger`   
+  DROP COLUMN `fiscal_year_id`, 
+  DROP PRIMARY KEY,
+  ADD PRIMARY KEY (`company_id`, `company_branch_id`, `document_type_id`, `document_id`, `document_detail_id`, `warehouse_id`);
+
+ALTER TABLE `charge_order_detail`   
+  ADD COLUMN `warehouse_id` CHAR(36) NULL AFTER `description`;
