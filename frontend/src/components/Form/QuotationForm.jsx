@@ -160,6 +160,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
       if (!res.data.length) return;
 
       const product = res.data[0];
+      const stockQuantity = product?.stock?.quantity || 0;
+
       dispatch(
         changeQuotationDetailValue({
           index,
@@ -189,6 +191,14 @@ const QuotationForm = ({ mode, onSubmit }) => {
           index,
           key: 'unit_id',
           value: { value: product.unit_id, label: product.unit_name }
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'stock_quantity',
+          value: stockQuantity
         })
       );
 
@@ -266,6 +276,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
 
     try {
       const product = await dispatch(getProduct(selected.value)).unwrap();
+      const stockQuantity = product?.stock?.quantity || 0;
 
       dispatch(
         changeQuotationDetailValue({
@@ -293,6 +304,14 @@ const QuotationForm = ({ mode, onSubmit }) => {
           index,
           key: 'unit_id',
           value: { value: product.unit_id, label: product.unit_name }
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'stock_quantity',
+          value: stockQuantity
         })
       );
 

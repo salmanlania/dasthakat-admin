@@ -23,6 +23,17 @@ import {
 } from '../../store/features/purchaseOrderSlice';
 import { createPurchaseOrderPrint } from '../../utils/prints/purchase-order-print';
 
+export const purchaseOrderTypes = [
+  {
+    value: 'Inventory',
+    label: 'Inventory'
+  },
+  {
+    value: 'Buyout',
+    label: 'Buyout'
+  }
+];
+
 const PurchaseOrder = () => {
   const dispatch = useDispatch();
   const handleError = useError();
@@ -136,16 +147,7 @@ const PurchaseOrder = () => {
             className="w-full font-normal"
             size="small"
             value={params.type}
-            options={[
-              {
-                value: 'Inventory',
-                label: 'Inventory'
-              },
-              {
-                value: 'Billable',
-                label: 'Billable'
-              }
-            ]}
+            options={purchaseOrderTypes}
             onChange={(e) =>
               dispatch(
                 setPurchaseOrderListParams({

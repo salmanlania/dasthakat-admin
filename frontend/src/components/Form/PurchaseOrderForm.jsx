@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import useError from '../../hooks/useError';
+import { purchaseOrderTypes } from '../../pages/PurchaseOrder';
 import { getProduct, getProductList } from '../../store/features/productSlice';
 import {
   addPurchaseOrderDetail,
@@ -34,7 +35,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
   );
 
   const POType = Form.useWatch('type', form);
-  const isBillable = POType === 'Billable';
+  const isBuyout = POType === 'Buyout';
 
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
@@ -544,22 +545,11 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
                 message: 'Purchase Order Type is required'
               }
             ]}>
-            <Select
-              options={[
-                {
-                  value: 'Inventory',
-                  label: 'Inventory'
-                },
-                {
-                  value: 'Billable',
-                  label: 'Billable'
-                }
-              ]}
-            />
+            <Select options={purchaseOrderTypes} />
           </Form.Item>
         </Col>
 
-        {isBillable ? (
+        {isBuyout ? (
           <>
             <Col span={24} sm={12} md={8} lg={8} className="flex gap-3">
               <Form.Item name="charge_no" label="Charge No" className="w-full">

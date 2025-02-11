@@ -1,9 +1,9 @@
-import { Button, Col, DatePicker, Dropdown, Form, Input, Row, Select, Table } from 'antd';
+import { Button, Col, DatePicker, Dropdown, Form, Input, Popover, Row, Select, Table } from 'antd';
 import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
 import { BiPlus } from 'react-icons/bi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
-import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
+import { IoIosWarning, IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useSearchParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
@@ -14,7 +14,8 @@ import {
   changeChargeOrderDetailValue,
   copyChargeOrderDetail,
   removeChargeOrderDetail,
-  resetChargeOrderDetail
+  resetChargeOrderDetail,
+  splitChargeOrderQuantity
 } from '../../store/features/chargeOrderSlice';
 import { getEvent } from '../../store/features/eventSlice';
 import { getProduct, getProductList } from '../../store/features/productSlice';
@@ -44,9 +45,15 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
   const chargeOrder_id = searchParams.get('chargeOrder_id') || null;
 
   let totalQuantity = 0;
+  let totalAmount = 0;
+  let discountAmount = 0;
+  let totalNet = 0;
 
   chargeOrderDetails.forEach((detail) => {
     totalQuantity += +detail.quantity || 0;
+    totalAmount += +detail.amount || 0;
+    discountAmount += +detail.discount_amount || 0;
+    totalNet += +detail.gross_amount || 0;
   });
 
   const onFinish = (values) => {
@@ -62,17 +69,15 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       vessel_id: values.vessel_id ? values.vessel_id.value : null,
       agent_id: values.agent_id ? values.agent_id.value : null,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
-      charge_order_detail: chargeOrderDetails.map(
-        // eslint-disable-next-line no-unused-vars
-        ({ id, ...detail }, index) => ({
-          ...detail,
-          supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
-          product_id: detail.product_id ? detail.product_id.value : null,
-          product_name: detail.product_id ? detail.product_id.label : null,
-          unit_id: detail.unit_id ? detail.unit_id.value : null,
-          sort_order: index
-        })
-      ),
+      charge_order_detail: chargeOrderDetails.map(({ id, product_type, ...detail }, index) => ({
+        ...detail,
+        product_id: detail.product_type_id?.label === 'Others' ? null : detail?.product_id?.value,
+        product_name: detail.product_type_id?.label === 'Others' ? detail?.product_name : null,
+        supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
+        product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
+        unit_id: detail.unit_id ? detail.unit_id.value : null,
+        sort_order: index
+      })),
       total_quantity: totalQuantity
     };
 
@@ -82,11 +87,13 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
   const onProductCodeChange = async (index, value) => {
     if (!value.trim()) return;
     try {
-      const res = await dispatch(getProductList({ product_code: value })).unwrap();
+      const res = await dispatch(getProductList({ product_code: value, stock: true })).unwrap();
 
       if (!res.data.length) return;
 
       const product = res.data[0];
+      const stockQuantity = product?.stock?.quantity || 0;
+
       dispatch(
         changeChargeOrderDetailValue({
           index,
@@ -116,6 +123,14 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           index,
           key: 'unit_id',
           value: { value: product.unit_id, label: product.unit_name }
+        })
+      );
+
+      dispatch(
+        changeChargeOrderDetailValue({
+          index,
+          key: 'stock_quantity',
+          value: stockQuantity
         })
       );
 
@@ -194,6 +209,8 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
     try {
       const product = await dispatch(getProduct(selected.value)).unwrap();
 
+      const stockQuantity = product?.stock?.quantity || 0;
+
       dispatch(
         changeChargeOrderDetailValue({
           index,
@@ -220,6 +237,14 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           index,
           key: 'unit_id',
           value: { value: product.unit_id, label: product.unit_name }
+        })
+      );
+
+      dispatch(
+        changeChargeOrderDetailValue({
+          index,
+          key: 'stock_quantity',
+          value: stockQuantity
         })
       );
 
@@ -295,7 +320,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       title: 'Product Type',
       dataIndex: 'product_type',
       key: 'product_type',
-      render: (_, { product_code, product_type_id }, index) => {
+      render: (_, { product_code, product_type_id, editable }, index) => {
         return (
           <AsyncSelectNoPaginate
             endpoint="/lookups/product-types"
@@ -304,6 +329,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             labelInValue
             className="w-full"
             value={product_type_id}
+            disabled={editable === false}
             onChange={(selected) => {
               dispatch(resetChargeOrderDetail(index));
               dispatch(
@@ -323,7 +349,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       title: 'Product Code',
       dataIndex: 'product_code',
       key: 'product_code',
-      render: (_, { product_code, product_type_id }, index) => {
+      render: (_, { product_code, product_type_id, editable }, index) => {
         return (
           <DebounceInput
             value={product_code}
@@ -336,7 +362,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
                 })
               )
             }
-            disabled={product_type_id?.label === 'Others'}
+            disabled={product_type_id?.label === 'Others' || editable === false}
             onBlur={(e) => onProductCodeChange(index, e.target.value)}
             onPressEnter={(e) => onProductCodeChange(index, e.target.value)}
           />
@@ -348,7 +374,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       title: 'Description',
       dataIndex: 'product_name',
       key: 'product_name',
-      render: (_, { product_id, product_name, product_type_id }, index) => {
+      render: (_, { product_id, product_name, product_type_id, editable }, index) => {
         return product_type_id?.label === 'Others' ? (
           <Form.Item
             className="m-0"
@@ -363,6 +389,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             ]}>
             <DebounceInput
               value={product_name}
+              disabled={editable === false}
               onChange={(value) =>
                 dispatch(
                   changeChargeOrderDetailValue({
@@ -381,6 +408,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             labelKey="product_name"
             labelInValue
             className="w-full"
+            disabled={editable === false}
             value={product_id}
             onChange={(selected) => onProductChange(index, selected)}
             addNewLink={
@@ -395,10 +423,11 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       title: 'Customer Notes',
       dataIndex: 'description',
       key: 'description',
-      render: (_, { description }, index) => {
+      render: (_, { description, editable }, index) => {
         return (
           <DebounceInput
             value={description}
+            disabled={editable === false}
             onChange={(value) =>
               dispatch(
                 changeChargeOrderDetailValue({
@@ -426,33 +455,66 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       title: 'Quantity',
       dataIndex: 'quantity',
       key: 'quantity',
-      render: (_, { quantity }, index) => {
+      render: (_, { stock_quantity, quantity, editable, product_type_id }, index) => {
+        const stockQuantityNum = stock_quantity ? parseFloat(stock_quantity) : 0;
+        const quantityNum = quantity ? parseFloat(quantity) : 0;
+
+        const isQuantityExceedsStock =
+          (product_type_id?.label === 'Inventory' || product_type_id?.label === 'IMPA') &&
+          quantityNum > stockQuantityNum;
+
         form.setFieldsValue({ [`quantity-${index}`]: quantity });
         return (
-          <Form.Item
-            className="m-0"
-            name={`quantity-${index}`}
-            initialValue={quantity}
-            rules={[
-              {
-                required: true,
-                message: 'Quantity is required'
-              }
-            ]}>
-            <DebouncedCommaSeparatedInput
-              decimalPlaces={2}
-              value={quantity}
-              onChange={(value) =>
-                dispatch(
-                  changeChargeOrderDetailValue({
-                    index,
-                    key: 'quantity',
-                    value: value
-                  })
-                )
-              }
-            />
-          </Form.Item>
+          <div className="relative">
+            <Form.Item
+              className="m-0"
+              name={`quantity-${index}`}
+              initialValue={quantity}
+              rules={[
+                {
+                  required: true,
+                  message: 'Quantity is required'
+                }
+              ]}>
+              <DebouncedCommaSeparatedInput
+                decimalPlaces={2}
+                value={quantity}
+                disabled={editable === false}
+                onChange={(value) =>
+                  dispatch(
+                    changeChargeOrderDetailValue({
+                      index,
+                      key: 'quantity',
+                      value: value
+                    })
+                  )
+                }
+              />
+            </Form.Item>
+            {isQuantityExceedsStock && (
+              <Popover
+                content={
+                  <div>
+                    <p>Would you like to split the quantity?</p>
+
+                    <div className="mt-2 flex w-full justify-end gap-2">
+                      <Button
+                        type="primary"
+                        size="small"
+                        onClick={() => dispatch(splitChargeOrderQuantity(index))}>
+                        Yes
+                      </Button>
+                    </div>
+                  </div>
+                }
+                title="Quantity Exceeds Stock">
+                <IoIosWarning
+                  size={18}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer text-red-500"
+                />
+              </Popover>
+            )}
+          </div>
         );
       },
       width: 100
@@ -461,13 +523,13 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       title: 'Unit',
       dataIndex: 'unit_id',
       key: 'unit_id',
-      render: (_, { unit_id, product_type_id }, index) => {
+      render: (_, { unit_id, product_type_id, editable }, index) => {
         return (
           <AsyncSelect
             endpoint="/unit"
             valueKey="unit_id"
             labelKey="name"
-            disabled={product_type_id?.label !== 'Others'}
+            disabled={product_type_id?.label !== 'Others' || editable === false}
             labelInValue
             className="w-full"
             value={unit_id}
@@ -490,7 +552,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       title: 'Vendor',
       dataIndex: 'supplier_id',
       key: 'supplier_id',
-      render: (_, { supplier_id, product_type_id }, index) => {
+      render: (_, { supplier_id, product_type_id, editable }, index) => {
         return (
           <AsyncSelect
             endpoint="/supplier"
@@ -498,7 +560,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             labelKey="name"
             labelInValue
             className="w-full"
-            disabled={product_type_id?.label === 'Service'}
+            disabled={product_type_id?.label === 'Service' || editable === false}
             value={supplier_id}
             onChange={(selected) =>
               dispatch(
@@ -518,32 +580,10 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       width: 240
     },
     {
-      title: 'Vendor Part #',
-      dataIndex: 'vendor_part_no',
-      key: 'vendor_part_no',
-      render: (_, { vendor_part_no }, index) => {
-        return (
-          <DebounceInput
-            value={vendor_part_no}
-            onChange={(value) =>
-              dispatch(
-                changeChargeOrderDetailValue({
-                  index,
-                  key: 'vendor_part_no',
-                  value: value
-                })
-              )
-            }
-          />
-        );
-      },
-      width: 120
-    },
-    {
       title: 'Selling Price',
       dataIndex: 'rate',
       key: 'rate',
-      render: (_, { rate }, index) => {
+      render: (_, { rate, editable }, index) => {
         form.setFieldsValue({ [`rate-${index}`]: rate });
         return (
           <Form.Item
@@ -558,6 +598,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             ]}>
             <DebouncedCommaSeparatedInput
               value={rate}
+              disabled={editable === false}
               onChange={(value) =>
                 dispatch(
                   changeChargeOrderDetailValue({
@@ -586,7 +627,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       title: 'Discount %',
       dataIndex: 'discount_percent',
       key: 'discount_percent',
-      render: (_, { discount_percent }, index) => {
+      render: (_, { discount_percent, editable }, index) => {
         form.setFieldsValue({
           [`discount_percent-${index}`]: discount_percent
         });
@@ -608,6 +649,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             <DebouncedNumberInput
               value={discount_percent}
               type="decimal"
+              disabled={editable === false}
               onChange={(value) =>
                 dispatch(
                   changeChargeOrderDetailValue({
@@ -659,7 +701,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         />
       ),
       key: 'action',
-      render: (_, { id }, index) => (
+      render: (_, { id, editable }, index) => (
         <Dropdown
           trigger={['click']}
           arrow
@@ -679,7 +721,8 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
                 key: '3',
                 label: 'Delete',
                 danger: true,
-                onClick: () => dispatch(removeChargeOrderDetail(id))
+                onClick: () => dispatch(removeChargeOrderDetail(id)),
+                disabled: editable === false
               }
             ]
           }}>
@@ -842,24 +885,62 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           offsetHeader: 56
         }}
       />
+
       <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
-        <DetailSummaryInfo
-          title="Total Quantity:"
-          value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
-        />
+        <Row gutter={[12, 12]}>
+          <Col span={24} sm={12} md={6} lg={6}>
+            <DetailSummaryInfo
+              title="Total Quantity:"
+              value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
+            />
+          </Col>
+
+          <Col span={24} sm={12} md={6} lg={6}>
+            <DetailSummaryInfo
+              title="Total Amount:"
+              value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
+            />
+          </Col>
+
+          <Col span={24} sm={12} md={6} lg={6}>
+            <DetailSummaryInfo
+              title="Discount Amount:"
+              value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
+            />
+          </Col>
+
+          <Col span={24} sm={12} md={6} lg={6}>
+            <DetailSummaryInfo
+              title="Net Amount:"
+              value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
+            />
+          </Col>
+        </Row>
       </div>
 
       <div className="mt-4 flex items-center justify-end gap-2">
         <Link to="/charge-order">
           <Button className="w-28">Cancel</Button>
         </Link>
-        <Button
-          type="primary"
-          className="w-28"
-          loading={isFormSubmitting}
-          onClick={() => form.submit()}>
-          Save
-        </Button>
+
+        {mode === 'edit' ? (
+          <>
+            <Button type="primary" className="w-28 bg-slate-600 hover:!bg-slate-500">
+              Pick List
+            </Button>
+            <Button type="primary" loading={isFormSubmitting} onClick={() => form.submit()}>
+              Save & Create PO
+            </Button>
+          </>
+        ) : (
+          <Button
+            type="primary"
+            className="w-28"
+            loading={isFormSubmitting}
+            onClick={() => form.submit()}>
+            Save
+          </Button>
+        )}
       </div>
     </Form>
   );

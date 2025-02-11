@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import dayjs from 'dayjs';
 import api from '../../axiosInstance';
+import { roundUpto } from '../../utils/number';
 
 export const getChargeOrderList = createAsyncThunk(
   'chargeOrder/list',
@@ -55,6 +56,17 @@ export const updateChargeOrder = createAsyncThunk(
   async ({ id, data }, { rejectWithValue }) => {
     try {
       await api.put(`/charge-order/${id}`, data);
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
+export const createChargeOrderPO = createAsyncThunk(
+  'chargeOrder/PO',
+  async (id, { rejectWithValue }) => {
+    try {
+      await api.get(`charge-order/${id}/purchase-orders`);
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -223,6 +235,54 @@ export const chargeOrderSlice = createSlice({
       } else {
         detail.gross_amount = '';
       }
+    },
+
+    splitChargeOrderQuantity: (state, action) => {
+      const index = action.payload;
+      const detail = state.chargeOrderDetails[index];
+      const splittedQuantity = parseFloat(detail.quantity) - parseFloat(detail.stock_quantity);
+
+      const row = {
+        ...detail,
+        quantity: detail.stock_quantity,
+        rate: detail.rate,
+        amount: detail.rate * detail.stock_quantity,
+        discount_percent: detail.discount_percent,
+        discount_amount: detail.discount_percent
+          ? detail.rate * detail.stock_quantity * (detail.discount_percent / 100)
+          : '',
+        gross_amount:
+          detail.rate * detail.stock_quantity -
+          (detail.discount_percent
+            ? detail.rate * detail.stock_quantity * (detail.discount_percent / 100)
+            : 0)
+      };
+
+      const splittedRow = {
+        id: Date.now(),
+        product_type_id: {
+          value: 4,
+          label: 'Others'
+        },
+        product_name: detail.product_id?.label,
+        description: detail.description,
+        unit_id: detail.unit_id,
+        supplier_id: detail.supplier_id,
+        quantity: splittedQuantity,
+        rate: detail.rate,
+        amount: detail.rate * splittedQuantity,
+        discount_percent: detail.discount_percent,
+        discount_amount: detail.discount_percent
+          ? detail.rate * splittedQuantity * (detail.discount_percent / 100)
+          : '',
+        gross_amount:
+          detail.rate * splittedQuantity -
+          (detail.discount_percent
+            ? detail.rate * splittedQuantity * (detail.discount_percent / 100)
+            : 0)
+      };
+
+      state.chargeOrderDetails.splice(index, 1, row, splittedRow);
     }
   },
   extraReducers: ({ addCase }) => {
@@ -316,18 +376,35 @@ export const chargeOrderSlice = createSlice({
 
       if (!data.charge_order_detail) return;
       state.chargeOrderDetails = data.charge_order_detail.map((detail) => ({
-        id: data.charge_order_detail_id,
+        id: detail.quotation_detail_id,
         product_code: detail.product ? detail.product.product_code : null,
-        product_type: detail.product_type,
         product_id: detail.product
-          ? { value: detail.product.product_id, label: detail.product.name }
+          ? { value: detail.product.product_id, label: detail.product.product_name }
           : null,
+        product_type_id: detail.product_type
+          ? {
+              value: detail.product_type.product_type_id,
+              label: detail.product_type.name
+            }
+          : null,
+        product_name: detail.product_name,
         description: detail.description,
+        stock_quantity: detail?.product?.stock?.quantity
+          ? parseFloat(detail.product.stock.quantity)
+          : 0,
         quantity: detail.quantity ? parseFloat(detail.quantity) : null,
         unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
         supplier_id: detail.supplier
           ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
-          : null
+          : null,
+        vendor_part_no: detail.vendor_part_no,
+        markup: detail.markup,
+        rate: detail.rate,
+        amount: detail.amount,
+        discount_percent: detail.discount_percent,
+        discount_amount: detail.discount_amount,
+        gross_amount: detail.gross_amount,
+        editable: detail.editable
       }));
     });
     addCase(getChargeOrder.rejected, (state) => {
@@ -340,9 +417,19 @@ export const chargeOrderSlice = createSlice({
     });
     addCase(updateChargeOrder.fulfilled, (state) => {
       state.isFormSubmitting = false;
-      state.initialFormValues = null;
     });
     addCase(updateChargeOrder.rejected, (state) => {
+      state.isFormSubmitting = false;
+    });
+
+    addCase(createChargeOrderPO.pending, (state) => {
+      state.isFormSubmitting = true;
+    });
+    addCase(createChargeOrderPO.fulfilled, (state) => {
+      state.isFormSubmitting = false;
+      state.initialFormValues = null;
+    });
+    addCase(createChargeOrderPO.rejected, (state) => {
       state.isFormSubmitting = false;
     });
 
@@ -368,6 +455,7 @@ export const {
   resetChargeOrderDetail,
   changeChargeOrderDetailOrder,
   changeChargeOrderDetailValue,
-  setChargeQuotationID
+  setChargeQuotationID,
+  splitChargeOrderQuantity
 } = chargeOrderSlice.actions;
 export default chargeOrderSlice.reducer;

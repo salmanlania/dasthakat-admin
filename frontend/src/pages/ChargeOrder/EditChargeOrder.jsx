@@ -6,7 +6,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ChargeOrderForm from '../../components/Form/ChargeOrderForm';
 import PageHeading from '../../components/heading/PageHeading';
 import useError from '../../hooks/useError';
-import { getChargeOrder, updateChargeOrder } from '../../store/features/chargeOrderSlice';
+import {
+  createChargeOrderPO,
+  getChargeOrder,
+  updateChargeOrder
+} from '../../store/features/chargeOrderSlice';
 
 const EditChargeOrder = () => {
   const dispatch = useDispatch();
@@ -18,6 +22,7 @@ const EditChargeOrder = () => {
   const onChargeOrderUpdate = async (data) => {
     try {
       await dispatch(updateChargeOrder({ id, data })).unwrap();
+      await dispatch(createChargeOrderPO(id)).unwrap();
       toast.success('ChargeOrder updated successfully');
       navigate('/charge-order');
     } catch (error) {

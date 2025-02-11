@@ -69,7 +69,7 @@ const ChargeOrderModal = () => {
           <Form.Item
             className="m-0"
             initialValue={quantity}
-            name={`markup-${uuidv4()}`}
+            name={`quantity-${uuidv4()}`}
             rules={[
               {
                 required: true,
@@ -112,11 +112,10 @@ const ChargeOrderModal = () => {
       flag_id: initialFormValues.flag_id ? initialFormValues.flag_id.value : null,
       agent_id: initialFormValues.agent_id ? initialFormValues.agent_id.value : null,
       charge_order_detail: selectedDetails.map((detail, index) => ({
-        product_code: detail.product_code,
+        ...detail,
         product_id: detail.product_id ? detail.product_id.value : null,
         product_name: detail.product_id ? detail.product_id.label : null,
-        description: detail.description,
-        quantity: detail.quantity,
+        product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
         unit_id: detail.unit_id ? detail.unit_id.value : null,
         supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
         sort_order: index
