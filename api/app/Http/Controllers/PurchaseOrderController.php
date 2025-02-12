@@ -31,6 +31,8 @@ class PurchaseOrderController extends Controller
 		$data = PurchaseOrder::LeftJoin('supplier as s', 's.supplier_id', '=', 'purchase_order.supplier_id')
 			->LeftJoin('quotation as q', 'q.quotation_id', '=', 'purchase_order.quotation_id')
 			->LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'purchase_order.charge_order_id');
+			$data = $data->where('purchase_order.company_id', '=', $request->company_id);
+			$data = $data->where('purchase_order.company_branch_id', '=', $request->company_branch_id);
 
 		if (!empty($supplier_id)) $data = $data->where('purchase_order.supplier_id', '=',  $supplier_id);
 		if (!empty($quotation_id)) $data = $data->where('purchase_order.quotation_id', '=',  $quotation_id);
@@ -38,7 +40,6 @@ class PurchaseOrderController extends Controller
 		if (!empty($document_identity)) $data = $data->where('purchase_order.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($document_date)) $data = $data->where('purchase_order.document_date', '=',  $document_date);
 		if (!empty($required_date)) $data = $data->where('purchase_order.required_date', '=',  $required_date);
-		$data = $data->where('purchase_order.company_id', '=', $request->company_id);
 
 		if (!empty($search)) {
 			$search = strtolower($search);

@@ -112,7 +112,7 @@ class ChargeOrderController extends Controller
 
 		$quotation = Quotation::where('document_identity', $record->ref_document_identity)->first();
 
-		$filteredDetails = collect($record->charge_order_detail)->filter(fn($row) => ($row->product_type_id === 4 && empty($row->purchase_order_detail_id)));
+		$filteredDetails = collect($record->charge_order_detail)->filter(fn($row) => ($row->product_type_id == 4 && empty($row->purchase_order_detail_id)));
 
 		$vendorWiseDetails = $filteredDetails->groupBy('supplier_id');
 		if (!empty($vendorWiseDetails)) {

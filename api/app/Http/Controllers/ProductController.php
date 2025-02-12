@@ -6,7 +6,6 @@ use App\Models\Product;
 use App\Models\StockLedger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
@@ -39,9 +38,10 @@ class ProductController extends Controller
 			->leftJoin('product_type as pt', 'pt.product_type_id', '=', 'product.product_type_id')
 			->leftJoin('unit as u', 'u.unit_id', '=', 'product.unit_id')
 			->leftJoin('brand as b', 'b.brand_id', '=', 'product.brand_id');
-
+			$query->where('product.company_id', '=', $request->company_id);
+			$query->where('product.company_branch_id', '=', $request->company_branch_id);
+	
 		if (!empty($name)) $query->where('product.name', 'like', '%' . $name . '%');
-		if (!empty($product_code)) $query->where('product.product_code', '=',  $product_code)->orWhere('product.impa_code', '=', $product_code);
 		if (!empty($impa_code)) $query->where('product.impa_code', 'like', '%' . $impa_code . '%');
 		if (!empty($product_type_id)) $query->where('product.product_type_id', $product_type_id);
 		if (!empty($unit_id)) $query->where('product.unit_id', $unit_id);
@@ -52,8 +52,8 @@ class ProductController extends Controller
 		if (!empty($cost_price)) $query->where('product.cost_price', 'like', '%' . $cost_price . '%');
 		if ($all != 1) $query->where('product.status', '=', 1);
 		if ($status !== "") $query->where('product.status', '=', $status);
-		$query->where('product.company_id', '=', $request->company_id);
-
+		if (!empty($product_code)) $query->where('product.product_code', '=',  $product_code)->orWhere('product.impa_code', '=', $product_code);
+		
 		if (!empty($search)) {
 			$query->where(function ($query) use ($search) {
 				$query->where('product.name', 'like', '%' . $search . '%')
@@ -131,14 +131,14 @@ class ProductController extends Controller
 			'product_type_id' => 'required',
 			'name' => [
 				'required',
-				Rule::unique('product')->ignore($id, 'product_id')->where('company_id', $request->input('company_id'))
+				Rule::unique('product')->ignore($id, 'product_id')->where('company_id', $request->company_id)
 			],
 			'impa_code' => [
-				Rule::unique('product')->ignore($id, 'product_id')->where('company_id', $request->input('company_id'))
+				Rule::unique('product')->ignore($id, 'product_id')->where('company_id', $request->company_id)
 			]
 		];
 
-		$msg = validateRequest($request->all(), $rules);
+		$msg = validateRequest($request, $rules);
 		if (!empty($msg)) return $msg;
 	}
 

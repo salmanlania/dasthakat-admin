@@ -32,18 +32,19 @@ class EventController extends Controller
 			->LeftJoin('vessel as v', 'event.vessel_id', 'v.vessel_id')
 			->LeftJoin('class as c1', 'c1.class_id', 'event.class1_id')
 			->LeftJoin('class as c2', 'c2.class_id', 'event.class2_id');
+		$data = $data->where('event.company_id', '=', $request->company_id);
+		$data = $data->where('event.company_branch_id', '=', $request->company_branch_id);
 
 
 
+		if ($all != 1) $data = $data->where('event.status', '=', 1);
+		if (!empty($status) || $status == '0') $data = $data->where('event.status', '=', $status);
 		if (!empty($event_code)) $data = $data->where('event_code', 'like', '%' . $event_code . '%');
 		if (!empty($customer_id)) $data = $data->where('event.customer_id', '=', $customer_id);
 		if (!empty($vessel_id)) $data = $data->where('event.vessel_id', '=', $vessel_id);
 		if (!empty($class1_id)) $data = $data->where('c1.class_id', '=', $class1_id);
 		if (!empty($class2_id)) $data = $data->where('c2.class_id', '=', $class2_id);
-		if ($all != 1) $data = $data->where('event.status', '=', 1);
-		if (!empty($status) || $status == '0') $data = $data->where('event.status', '=', $status);
 
-		$data = $data->where('event.company_id', '=', $request->company_id);
 
 		if (!empty($search)) {
 			$search = strtolower($search);

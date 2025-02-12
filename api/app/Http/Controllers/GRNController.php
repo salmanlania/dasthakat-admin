@@ -29,13 +29,14 @@ class GRNController extends Controller
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
 		$data = GRN::LeftJoin('supplier as s', 's.supplier_id', '=', 'good_received_note.supplier_id')
-			->LeftJoin('purchase_order as p', 'p.purchase_order_id', '=', 'good_received_note.purchase_order_id');
+		->LeftJoin('purchase_order as p', 'p.purchase_order_id', '=', 'good_received_note.purchase_order_id');
+		$data = $data->where('good_received_note.company_id', '=', $request->company_id);
+		$data = $data->where('good_received_note.company_branch_id', '=', $request->company_branch_id);
 
 		if (!empty($supplier_id)) $data = $data->where('good_received_note.supplier_id', '=',  $supplier_id);
 		if (!empty($purchase_order_id)) $data = $data->where('good_received_note.purchase_order_id', '=',  $purchase_order_id);
 		if (!empty($document_identity)) $data = $data->where('good_received_note.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($document_date)) $data = $data->where('good_received_note.document_date', '=',  $document_date);
-		$data = $data->where('good_received_note.company_id', '=', $request->company_id);
 
 		if (!empty($search)) {
 			$search = strtolower($search);
@@ -177,8 +178,8 @@ class GRNController extends Controller
 		$data->document_date = $request->document_date;
 		$data->supplier_id = $request->supplier_id;
 		$data->purchase_order_id = $request->purchase_order_id;
-		$data->quotation_id = $po_ref->quotation_id;
-		$data->charge_order_id = $po_ref->charge_order_id;
+		$data->quotation_id = $po_ref->quotation_id ?? "";
+		$data->charge_order_id = $po_ref->charge_order_id ?? "";
 		$data->payment_id = $request->payment_id;
 		$data->remarks = $request->remarks;
 		$data->total_quantity = $request->total_quantity;

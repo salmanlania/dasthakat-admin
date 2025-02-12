@@ -27,6 +27,7 @@ class SubCategoryController extends Controller
 		if (!empty($name)) $data = $data->where('sub_category.name', 'like', '%' . $name . '%');
 		if (!empty($category_id)) $data = $data->where('sub_category.category_id', '=', $category_id);
 		$data = $data->where('sub_category.company_id', '=', $request->company_id);
+		$data = $data->where('sub_category.company_branch_id', '=', $request->company_branch_id);
 
 		if (!empty($search)) {
 			$search = strtolower($search);

@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
 
 class StockLedger extends Model
 {
@@ -55,7 +54,11 @@ class StockLedger extends Model
                 if (!$document) {
                         throw new \Exception("Document not found with ID: {$arg['document_id']}");
                 }
-
+                $unit_conversion = $row['unit_conversion'] ?? 1;
+                $currency_conversion = $row['currency_conversion'] ?? 1;
+                $quantity = $multiplier * ($row['quantity'] ?? 0) * $unit_conversion;
+                $rate = ($row['rate'] ?? 0) * $currency_conversion;
+                $amount = $multiplier *$quantity * ($row['rate'] ?? 0) * $currency_conversion;
                 $stock = [
                         'company_id'            => $document->company_id,
                         'company_branch_id'     => $document->company_branch_id,
@@ -67,24 +70,26 @@ class StockLedger extends Model
                         'document_date'         => $document->document_date,
                         'product_id'            => $row['product_id'] ?? '',
                         'warehouse_id'          => $row['warehouse_id'] ?? '',
-                        'document_unit_id'      => $row['unit_id'] ?? '',
-                        'base_unit_id'          => $row['unit_id'] ?? '',
                         'unit'                  => $row['unit_name'] ?? '',
+                        'document_unit_id'      => $row['unit_id'] ?? '',
                         'document_currency_id'  => $document->base_currency_id,
-                        'base_currency_id'      => $document->base_currency_id,
                         'document_qty'          => $multiplier * ($row['quantity'] ?? 0),
                         'document_rate'         => $row['rate'] ?? 0,
                         'document_amount'       => $multiplier * ($row['amount'] ?? 0),
-                        'base_qty'              => $multiplier * ($row['quantity'] ?? 0),
-                        'base_rate'             => $row['rate'] ?? 0,
-                        'base_amount'           => $multiplier * ($row['amount'] ?? 0),
+                        'unit_conversion'       => $unit_conversion,
+                        'currency_conversion'   => $currency_conversion,
+                        'base_unit_id'          => $row['unit_id'] ?? '',
+                        'base_currency_id'      => $document->base_currency_id,
+                        'base_qty'              => $quantity,
+                        'base_rate'             => $rate,
+                        'base_amount'           => $amount,
                         'remarks'               => $row['vendor_notes'] ?? $row['remarks'] ?? '',
                         'created_by'         => $document->created_by,
                         'created_at'            => Carbon::now(),
                 ];
                 StockLedger::create($stock);
         }
-        
+
         static public function Check($data, $request)
         {
 

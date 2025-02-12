@@ -46,6 +46,8 @@ class QuotationController extends Controller
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'quotation.vessel_id')
 			->leftJoinSub($latestStatusSubquery, 'latest_qs', 'latest_qs.quotation_id', '=', 'quotation.quotation_id')
 			->leftJoin('user as u', 'u.user_id', '=', 'latest_qs.created_by');
+		$data = $data->where('quotation.company_id', '=', $request->company_id);
+		$data = $data->where('quotation.company_branch_id', '=', $request->company_branch_id);
 
 		if (!empty($status_updated_by)) $data = $data->where('u.user_id', '=',  $status_updated_by);
 		if (!empty($status)) $data = $data->where('quotation.status', '=',  $status);
@@ -54,7 +56,6 @@ class QuotationController extends Controller
 		if (!empty($event_id)) $data = $data->where('quotation.event_id', '=',  $event_id);
 		if (!empty($document_identity)) $data = $data->where('quotation.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($document_date)) $data = $data->where('quotation.document_date', '=',  $document_date);
-		$data = $data->where('quotation.company_id', '=', $request->company_id);
 
 		if (!empty($search)) {
 			$search = strtolower($search);

@@ -23,9 +23,10 @@ class SalesmanController extends Controller
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
 		$data = new Salesman;
+		$data = $data->where('company_id', '=', $request->company_id);
+		$data = $data->where('company_branch_id', '=', $request->company_branch_id);
 		if (!empty($name)) $data = $data->where('name', 'like', '%' . $name . '%');
 		if (!empty($commission_percentage)) $data = $data->where('commission_percentage', 'like', '%' . $commission_percentage . '%');
-		$data = $data->where('company_id', '=', $request->company_id);
 
 		if (!empty($search)) {
 			$search = strtolower($search);

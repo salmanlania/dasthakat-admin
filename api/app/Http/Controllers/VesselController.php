@@ -32,6 +32,8 @@ class VesselController extends Controller
 		$data =  Vessel::LeftJoin('flag as f', 'vessel.flag_id', 'f.flag_id')
 			->LeftJoin('class as c1', 'vessel.class1_id', 'c1.class_id')
 			->LeftJoin('class as c2', 'vessel.class2_id', 'c2.class_id');
+		$data = $data->where('vessel.company_id', '=', $request->company_id);
+		$data = $data->where('vessel.company_branch_id', '=', $request->company_branch_id);
 
 
 
@@ -41,7 +43,6 @@ class VesselController extends Controller
 		if (!empty($flag_id)) $data = $data->where('vessel.flag_id', '=',  $flag_id);
 		if (!empty($class1_id)) $data = $data->where('vessel.class1_id', '=',  $class1_id);
 		if (!empty($class2_id)) $data = $data->where('vessel.class2_id', '=',  $class2_id);
-		$data = $data->where('vessel.company_id', '=', $request->company_id);
 
 		if (!empty($search)) {
 			$search = strtolower($search);
@@ -195,7 +196,7 @@ class VesselController extends Controller
 							['model' => new Event],
 						]
 					];
-			
+
 					$res = $this->checkAndDelete($req);
 					if ($res['error']) {
 						return $this->jsonResponse($res['msg'], $res['error_code'], "Deletion Failed!");

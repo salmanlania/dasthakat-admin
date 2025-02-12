@@ -29,6 +29,8 @@ class AgentController extends Controller
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
 		$data = new Agent;
+		$data = $data->where('company_id', '=', $request->company_id);
+		$data = $data->where('company_branch_id', '=', $request->company_branch_id);
 		if (!empty($name)) $data = $data->where('name', 'like', '%' . $name . '%');
 		if (!empty($agent_code)) $data = $data->where('agent_code', 'like', '%' . $agent_code . '%');
 		if (!empty($address)) $data = $data->where('address', 'like', '%' . $address . '%');
@@ -38,7 +40,6 @@ class AgentController extends Controller
 		if (!empty($phone)) $data = $data->where('phone', 'like', '%' . $phone . '%');
 		if (!empty($fax)) $data = $data->where('fax', 'like', '%' . $fax . '%');
 		if (!empty($email)) $data = $data->where('email', 'like', '%' . $email . '%');
-		$data = $data->where('company_id', '=', $request->company_id);
 
 		if (!empty($search)) {
 			$search = strtolower($search);

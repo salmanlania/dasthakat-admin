@@ -24,6 +24,7 @@ class WarehouseController extends Controller
 		$data = new Warehouse;
 		if (!empty($name)) $data = $data->where('name', 'like', '%' . $name . '%');
 		$data = $data->where('company_id', '=', $request->company_id);
+		$data = $data->where('company_branch_id', '=', $request->company_branch_id);
 
 		if (!empty($search)) {
 			$search = strtolower($search);

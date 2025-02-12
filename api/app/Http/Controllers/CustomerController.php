@@ -45,20 +45,21 @@ class CustomerController extends Controller
 		$data =  Customer::with("vessel")
 			->LeftJoin('salesman as s', 's.salesman_id', '=', 'customer.salesman_id')
 			->LeftJoin('payment as p', 'p.payment_id', '=', 'customer.payment_id');
+		$data = $data->where('customer.company_id', '=', $request->company_id);
+		$data = $data->where('customer.company_branch_id', '=', $request->company_branch_id);
 		if (!empty($customer_code)) $data = $data->where('customer.customer_code', 'like', '%' . $customer_code . '%');
 		if (!empty($name)) $data = $data->where('customer.name', 'like', '%' . $name . '%');
 		if (!empty($salesman_id)) $data = $data->where('customer.salesman_id', "=", $salesman_id);
 		if (!empty($payment_id)) $data = $data->where('customer.payment_id', "=", $payment_id);
 		if (!empty($country)) $data = $data->where('customer.country', 'like', '%' . $country . '%');
-		if ($all != 1) $data = $data->where('customer.status', '=', 1);
-		if (!empty($status) || $status == '0') $data = $data->where('customer.status', '=', $status);
 		if (!empty($address)) $data = $data->where('customer.address', 'like', '%' . $address . '%');
 		if (!empty($phone_no)) $data = $data->where('customer.phone_no', 'like', '%' . $phone_no . '%');
 		if (!empty($email_sales)) $data = $data->where('customer.email_sales', 'like', '%' . $email_sales . '%');
 		if (!empty($email_accounting)) $data = $data->where('customer.email_accounting', 'like', '%' . $email_accounting . '%');
 		if (!empty($billing_address)) $data = $data->where('customer.billing_address', 'like', '%' . $billing_address . '%');
 		if (!empty($rebate_percent)) $data = $data->where('customer.rebate_percent', 'like', '%' . $rebate_percent . '%');
-		$data = $data->where('customer.company_id', '=', $request->company_id);
+		if ($all != 1) $data = $data->where('customer.status', '=', 1);
+		if (!empty($status) || $status == '0') $data = $data->where('customer.status', '=', $status);
 		if (!empty($vessel_id) && is_array($vessel_id)) {
 			$data = $data->whereHas('vessel', function ($query) use ($vessel_id) {
 				$query->whereIn('vessel.vessel_id', $vessel_id); // Fully qualify the column name

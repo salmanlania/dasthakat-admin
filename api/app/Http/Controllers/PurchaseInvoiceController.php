@@ -32,6 +32,8 @@ class PurchaseInvoiceController extends Controller
 		$data = PurchaseInvoice::LeftJoin('supplier as s', 's.supplier_id', '=', 'purchase_invoice.supplier_id')
 			->LeftJoin('quotation as q', 'q.quotation_id', '=', 'purchase_invoice.quotation_id')
 			->LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'purchase_invoice.charge_order_id');
+			$data = $data->where('purchase_invoice.company_id', '=', $request->company_id);
+			$data = $data->where('purchase_invoice.company_branch_id', '=', $request->company_branch_id);
 
 		if (!empty($supplier_id)) $data = $data->where('purchase_invoice.supplier_id', '=',  $supplier_id);
 		if (!empty($quotation_id)) $data = $data->where('purchase_invoice.quotation_id', '=',  $quotation_id);
@@ -39,7 +41,6 @@ class PurchaseInvoiceController extends Controller
 		if (!empty($document_identity)) $data = $data->where('purchase_invoice.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($document_date)) $data = $data->where('purchase_invoice.document_date', '=',  $document_date);
 		if (!empty($required_date)) $data = $data->where('purchase_invoice.required_date', '=',  $required_date);
-		$data = $data->where('purchase_invoice.company_id', '=', $request->company_id);
 
 		if (!empty($search)) {
 			$search = strtolower($search);
