@@ -191,6 +191,23 @@ export const purchaseOrderSlice = createSlice({
 
     setSalesmanPercentage: (state, action) => {
       state.salesmanPercentage = action.payload;
+    },
+
+    resetPurchaseOrderDetail: (state, action) => {
+      const index = action.payload;
+
+      state.purchaseOrderDetails[index] = {
+        id: state.purchaseOrderDetails[index].id,
+        product_code: null,
+        product_id: null,
+        description: null,
+        quantity: null,
+        unit_id: null,
+        rate: null,
+        amount: null,
+        vpart: null,
+        vendor_notes: null
+      };
     }
   },
   extraReducers: ({ addCase }) => {
@@ -320,6 +337,7 @@ export const {
   changePurchaseOrderDetailOrder,
   changePurchaseOrderDetailValue,
   setRebatePercentage,
-  setSalesmanPercentage
+  setSalesmanPercentage,
+  resetPurchaseOrderDetail
 } = purchaseOrderSlice.actions;
 export default purchaseOrderSlice.reducer;

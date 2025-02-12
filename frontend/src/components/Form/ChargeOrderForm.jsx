@@ -6,7 +6,6 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoIosWarning, IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useSearchParams } from 'react-router-dom';
-import { v4 as uuidv4 } from 'uuid';
 import useError from '../../hooks/useError';
 import {
   addChargeOrderDetail,
@@ -56,7 +55,14 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
     totalNet += +detail.gross_amount || 0;
   });
 
-  const onFinish = (values) => {
+  const onFinish = async (poWillCreate = false) => {
+    // validate the form
+    const isValidFields = await form.validateFields();
+    if (!isValidFields) return;
+
+    // Get form values
+    const values = form.getFieldsValue();
+
     const data = {
       chargeOrder_id,
       remarks: values.remarks,
@@ -81,7 +87,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       total_quantity: totalQuantity
     };
 
-    onSubmit(data);
+    onSubmit(data, poWillCreate);
   };
 
   const onProductCodeChange = async (index, value) => {
@@ -766,15 +772,13 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       layout="vertical"
       autoComplete="off"
       form={form}
-      onFinish={onFinish}
       initialValues={
         mode === 'edit' || chargeOrder_id
           ? initialFormValues
           : {
               document_date: dayjs()
             }
-      }
-      scrollToFirstError>
+      }>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
         <span className="text-gray-500">Charge order No:</span>
@@ -934,19 +938,23 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             <Button type="primary" className="w-28 bg-slate-600 hover:!bg-slate-500">
               Pick List
             </Button>
-            <Button type="primary" loading={isFormSubmitting} onClick={() => form.submit()}>
+            <Button
+              type="primary"
+              loading={isFormSubmitting === 'PO_CREATING'}
+              onClick={() => (isFormSubmitting ? null : onFinish(true))} // pass true for create PO also
+            >
               Save & Create PO
             </Button>
           </>
-        ) : (
-          <Button
-            type="primary"
-            className="w-28"
-            loading={isFormSubmitting}
-            onClick={() => form.submit()}>
-            Save
-          </Button>
-        )}
+        ) : null}
+
+        <Button
+          type="primary"
+          className="w-28"
+          loading={isFormSubmitting === true}
+          onClick={() => (isFormSubmitting ? null : onFinish())}>
+          Save
+        </Button>
       </div>
     </Form>
   );

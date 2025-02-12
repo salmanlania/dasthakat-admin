@@ -19,10 +19,14 @@ const EditChargeOrder = () => {
   const { id } = useParams();
   const { isItemLoading, initialFormValues } = useSelector((state) => state.chargeOrder);
 
-  const onChargeOrderUpdate = async (data) => {
+  const onChargeOrderUpdate = async (data, poWillCreate = false) => {
     try {
-      await dispatch(updateChargeOrder({ id, data })).unwrap();
-      await dispatch(createChargeOrderPO(id)).unwrap();
+      await dispatch(updateChargeOrder({ id, data, poWillCreate })).unwrap();
+
+      if (poWillCreate) {
+        await dispatch(createChargeOrderPO(id)).unwrap();
+      }
+
       toast.success('ChargeOrder updated successfully');
       navigate('/charge-order');
     } catch (error) {

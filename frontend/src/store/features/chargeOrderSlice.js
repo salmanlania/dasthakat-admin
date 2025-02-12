@@ -412,8 +412,9 @@ export const chargeOrderSlice = createSlice({
       state.initialFormValues = null;
     });
 
-    addCase(updateChargeOrder.pending, (state) => {
-      state.isFormSubmitting = true;
+    addCase(updateChargeOrder.pending, (state, action) => {
+      const isPOCreating = action.meta.arg?.poWillCreate || false;
+      state.isFormSubmitting = isPOCreating ? 'PO_CREATING' : true;
     });
     addCase(updateChargeOrder.fulfilled, (state) => {
       state.isFormSubmitting = false;
@@ -423,7 +424,7 @@ export const chargeOrderSlice = createSlice({
     });
 
     addCase(createChargeOrderPO.pending, (state) => {
-      state.isFormSubmitting = true;
+      state.isFormSubmitting = 'PO_CREATING';
     });
     addCase(createChargeOrderPO.fulfilled, (state) => {
       state.isFormSubmitting = false;

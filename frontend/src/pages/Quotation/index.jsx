@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Table, Tooltip, Select } from 'antd';
+import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Select, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -9,6 +9,7 @@ import { MdOutlineEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect';
+import { quotationStatusOptions } from '../../components/Form/QuotationForm.jsx';
 import PageHeading from '../../components/heading/PageHeading';
 import ChargeOrderModal from '../../components/Modals/ChargeOrderModal';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
@@ -24,7 +25,6 @@ import {
   setQuotationListParams
 } from '../../store/features/quotationSlice';
 import { createQuotationPrint } from '../../utils/prints/quotation-print';
-import { quotationStatusOptions } from '../../components/Form/QuotationForm.jsx';
 const Quotation = () => {
   const dispatch = useDispatch();
   const handleError = useError();
@@ -71,11 +71,11 @@ const Quotation = () => {
 
     try {
       const data = await dispatch(getQuotationForPrint(id)).unwrap();
-      toast.dismiss(loadingToast);
       createQuotationPrint(data);
     } catch (error) {
-      console.log(error);
       handleError(error);
+    } finally {
+      toast.dismiss(loadingToast);
     }
   };
 

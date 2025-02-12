@@ -3,9 +3,11 @@ import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { GoTrash } from 'react-icons/go';
+import { IoCheckmarkDoneCircleSharp } from 'react-icons/io5';
+import { LuClipboardList } from 'react-icons/lu';
 import { MdOutlineEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
@@ -13,6 +15,7 @@ import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
 import {
   bulkDeleteChargeOrder,
+  createChargeOrderPO,
   deleteChargeOrder,
   getChargeOrderList,
   setChargeOrderDeleteIDs,
@@ -20,6 +23,7 @@ import {
 } from '../../store/features/chargeOrderSlice';
 
 const ChargeOrder = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
@@ -57,6 +61,58 @@ const ChargeOrder = () => {
       await dispatch(getChargeOrderList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
+    }
+  };
+
+  const onCreateChargePO = async (id) => {
+    const loadingToast = toast.loading('PO is being processed...');
+    try {
+      await dispatch(createChargeOrderPO(id)).unwrap();
+      toast.custom(
+        (t) => (
+          <div
+            className={`${
+              t.visible ? 'animate-enter' : 'animate-leave'
+            } pointer-events-auto flex w-full max-w-md rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5`}>
+            <div className="w-0 flex-1 p-4">
+              <div className="flex items-start">
+                <div className="flex-shrink-0 pt-0.5">
+                  <IoCheckmarkDoneCircleSharp size={40} className="text-green-500" />
+                </div>
+                <div className="ml-3 flex-1">
+                  <p className="text-sm font-medium text-gray-900">
+                    Purchase Order has been created.
+                  </p>
+                  {permissions.edit ? (
+                    <p
+                      className="mt-1 cursor-pointer text-sm text-blue-500 hover:underline"
+                      onClick={() => {
+                        toast.dismiss(t.id);
+                        navigate('/purchase-order');
+                      }}>
+                      View Details
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+            <div className="flex border-l border-gray-200">
+              <button
+                onClick={() => toast.dismiss(t.id)}
+                className="flex w-full items-center justify-center rounded-none rounded-r-lg border border-transparent p-4 text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                Close
+              </button>
+            </div>
+          </div>
+        ),
+        {
+          duration: 8000
+        }
+      );
+    } catch (error) {
+      handleError(error);
+    } finally {
+      toast.dismiss(loadingToast);
     }
   };
 
@@ -181,6 +237,15 @@ const ChargeOrder = () => {
       key: 'action',
       render: (_, { charge_order_id }) => (
         <div className="flex items-center gap-2">
+          <Tooltip title="Create PO">
+            <Button
+              size="small"
+              type="primary"
+              icon={<LuClipboardList size={14} />}
+              onClick={() => onCreateChargePO(charge_order_id)}
+            />
+          </Tooltip>
+
           {permissions.edit ? (
             <Tooltip title="Edit">
               <Link to={`/charge-order/edit/${charge_order_id}`}>
@@ -193,6 +258,7 @@ const ChargeOrder = () => {
               </Link>
             </Tooltip>
           ) : null}
+
           {permissions.delete ? (
             <Tooltip title="Delete">
               <Popconfirm
@@ -208,7 +274,7 @@ const ChargeOrder = () => {
           ) : null}
         </div>
       ),
-      width: 70,
+      width: 105,
       fixed: 'right'
     }
   ];
