@@ -5,7 +5,6 @@ import { HiRefresh } from 'react-icons/hi';
 import { IoCheckmarkDoneCircleSharp } from 'react-icons/io5';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { v4 as uuidv4 } from 'uuid';
 import useError from '../../hooks/useError';
 import { createChargeOrder, setChargeQuotationID } from '../../store/features/chargeOrderSlice';
 import { changeQuotationDetailValue, getQuotation } from '../../store/features/quotationSlice';
@@ -67,11 +66,12 @@ const ChargeOrderModal = () => {
       width: 120,
       fixed: 'right',
       render: (_, { quantity }, index) => {
+        form.setFieldsValue({ [`quantity-${index}`]: quantity });
         return (
           <Form.Item
             className="m-0"
             initialValue={quantity}
-            name={`quantity-${uuidv4()}`}
+            name={`quantity-${index}`}
             rules={[
               {
                 required: true,
@@ -116,7 +116,6 @@ const ChargeOrderModal = () => {
       charge_order_detail: selectedDetails.map((detail, index) => ({
         ...detail,
         product_id: detail.product_id ? detail.product_id.value : null,
-        product_name: detail.product_id ? detail.product_id.label : null,
         product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
         unit_id: detail.unit_id ? detail.unit_id.value : null,
         supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
