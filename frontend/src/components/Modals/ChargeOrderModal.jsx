@@ -42,14 +42,16 @@ const ChargeOrderModal = () => {
       title: 'Product Code',
       dataIndex: 'product_code',
       key: 'product_code',
-      width: 120
+      width: 120,
+      render: (_, { product_code }) => product_code || '-'
     },
     {
       title: 'Product Name',
       dataIndex: 'product_name',
       key: 'product_name',
       width: 200,
-      render: (_, { product_id }) => product_id.label
+      render: (_, { product_id, product_name, product_type_id }) =>
+        product_type_id?.value == 4 ? product_name : product_id?.label
     },
     {
       title: 'Description',
