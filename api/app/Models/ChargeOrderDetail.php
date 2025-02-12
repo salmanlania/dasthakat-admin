@@ -26,6 +26,7 @@ class ChargeOrderDetail extends Model
         "unit_id",
         "supplier_id",
         "purchase_order_id",
+        "purchase_order_detail_id",
         "quantity",
         "cost_price",
         "rate",

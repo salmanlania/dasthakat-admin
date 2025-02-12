@@ -112,14 +112,14 @@ class ChargeOrderController extends Controller
 
 		$quotation = Quotation::where('document_identity', $record->ref_document_identity)->first();
 
-		$filteredDetails = collect($record->charge_order_detail)->filter(fn($row) => ($row->product_type_id == 4 && empty($row->purchase_order_detail_id)));
-
+		$filteredDetails = collect($record->charge_order_detail)->filter(fn($row) => ($row->product_type_id == 4 && empty($row->purchase_order_detail_id) ));
 		$vendorWiseDetails = $filteredDetails->groupBy('supplier_id');
 		if (!empty($vendorWiseDetails)) {
+
 			DB::transaction(function () use ($vendorWiseDetails, $record, $quotation, $request) {
+			try {
 				$purchaseOrders = [];
 				$purchaseOrderDetails = [];
-
 				foreach ($vendorWiseDetails as $supplierId => $items) {
 					$uuid = $this->get_uuid();
 					$document = DocumentType::getNextDocument(40, $request);
@@ -178,7 +178,9 @@ class ChargeOrderController extends Controller
 				if ($purchaseOrderDetails) {
 					PurchaseOrderDetail::insert($purchaseOrderDetails);
 				}
-			
+			} catch (\Exception $e) {
+				throw $e;
+			}
 			});
 		}
 
@@ -307,6 +309,8 @@ class ChargeOrderController extends Controller
 					'charge_order_detail_id' => $detail_uuid,
 					'sort_order' => $value['sort_order'] ?? "",
 					'product_code' => $value['product_code'] ?? "",
+					'purchase_order_id' => $value['purchase_order_id'] ?? "",
+					'purchase_order_detail_id' => $value['purchase_order_detail_id'] ?? "",
 					'product_id' => $value['product_id'] ?? "",
 					'product_name' => $value['product_name'] ?? "",
 					'product_type_id' => $value['product_type_id'] ?? "",
