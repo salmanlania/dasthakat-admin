@@ -767,7 +767,13 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       autoComplete="off"
       form={form}
       onFinish={onFinish}
-      initialValues={mode === 'edit' || chargeOrder_id ? initialFormValues : null}
+      initialValues={
+        mode === 'edit' || chargeOrder_id
+          ? initialFormValues
+          : {
+              document_date: dayjs()
+            }
+      }
       scrollToFirstError>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
