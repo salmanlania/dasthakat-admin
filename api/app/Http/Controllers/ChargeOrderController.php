@@ -154,6 +154,8 @@ class ChargeOrderController extends Controller
 							'purchase_order_detail_id' => $purchase_order_detail_id,
 							'sort_order'              => $index,
 							'product_id'              => $item['product_id'] ?? null,
+							'product_type_id'         => $item['product_type_id'] ?? null,
+							'product_name'            => $item['product_name'] ?? null,
 							'description'             => $item['description'] ?? null,
 							'unit_id'                 => $item['unit_id'] ?? null,
 							'quantity'                => $item['quantity'] ?? 0,
