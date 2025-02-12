@@ -259,7 +259,6 @@ export const chargeOrderSlice = createSlice({
       };
 
       const splittedRow = {
-        id: Date.now(),
         product_type_id: {
           value: 4,
           label: 'Others'
@@ -279,7 +278,8 @@ export const chargeOrderSlice = createSlice({
           detail.rate * splittedQuantity -
           (detail.discount_percent
             ? detail.rate * splittedQuantity * (detail.discount_percent / 100)
-            : 0)
+            : 0),
+        id: Date.now()
       };
 
       state.chargeOrderDetails.splice(index, 1, row, splittedRow);
@@ -376,7 +376,7 @@ export const chargeOrderSlice = createSlice({
 
       if (!data.charge_order_detail) return;
       state.chargeOrderDetails = data.charge_order_detail.map((detail) => ({
-        id: detail.quotation_detail_id,
+        id: detail.charge_order_detail_id,
         product_code: detail.product ? detail.product.product_code : null,
         product_id: detail.product
           ? { value: detail.product.product_id, label: detail.product.product_name }
