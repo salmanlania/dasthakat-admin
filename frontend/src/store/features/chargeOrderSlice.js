@@ -153,7 +153,8 @@ export const chargeOrderSlice = createSlice({
     copyChargeOrderDetail: (state, action) => {
       const index = action.payload;
 
-      const detail = state.chargeOrderDetails[index];
+      const { editable, purchase_order_id, purchase_order_detail_id, ...detail } =
+        state.chargeOrderDetails[index];
       const newDetail = {
         ...detail,
         id: Date.now()
@@ -339,7 +340,7 @@ export const chargeOrderSlice = createSlice({
         event_id: data.event
           ? {
               value: data.event.event_id,
-              label: data.event.event_code
+              label: data.event.event_name
             }
           : null,
         vessel_id: data.vessel
@@ -377,6 +378,8 @@ export const chargeOrderSlice = createSlice({
       if (!data.charge_order_detail) return;
       state.chargeOrderDetails = data.charge_order_detail.map((detail) => ({
         id: detail.charge_order_detail_id,
+        purchase_order_id: detail.purchase_order_id,
+        purchase_order_detail_id: detail.purchase_order_detail_id,
         product_code: detail.product ? detail.product.product_code : null,
         product_id: detail.product
           ? { value: detail.product.product_id, label: detail.product.product_name }

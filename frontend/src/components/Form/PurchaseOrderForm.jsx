@@ -7,7 +7,6 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
-import { v4 as uuidv4 } from 'uuid';
 import useError from '../../hooks/useError';
 import { purchaseOrderTypes } from '../../pages/PurchaseOrder';
 import { getProduct, getProductList } from '../../store/features/productSlice';
@@ -17,10 +16,12 @@ import {
   changePurchaseOrderDetailValue,
   copyPurchaseOrderDetail,
   getPurchaseOrderForPrint,
-  removePurchaseOrderDetail
+  removePurchaseOrderDetail,
+  resetPurchaseOrderDetail
 } from '../../store/features/purchaseOrderSlice';
 import { createPurchaseOrderPrint } from '../../utils/prints/purchase-order-print';
 import AsyncSelect from '../AsyncSelect';
+import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
 import { DetailSummaryInfo } from './QuotationForm';
@@ -69,8 +70,10 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       required_date: values.required_date ? dayjs(values.required_date).format('YYYY-MM-DD') : null,
       purchase_order_detail: purchaseOrderDetails.map(({ id, ...detail }, index) => ({
         ...detail,
-        product_id: detail.product_id ? detail.product_id.value : null,
+        product_id: detail.product_type_id?.value == 4 ? null : detail.product_id.value,
+        product_name: detail.product_type_id?.value == 4 ? detail.product_name : null,
         unit_id: detail.unit_id ? detail.unit_id.value : null,
+        product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
         sort_order: index
       })),
       total_amount: totalAmount,
@@ -83,11 +86,12 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
   const onProductCodeChange = async (index, value) => {
     if (!value.trim()) return;
     try {
-      const res = await dispatch(getProductList({ product_code: value })).unwrap();
+      const res = await dispatch(getProductList({ product_code: value, stock: true })).unwrap();
 
       if (!res.data.length) return;
 
       const product = res.data[0];
+
       dispatch(
         changePurchaseOrderDetailValue({
           index,
@@ -102,16 +106,21 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       dispatch(
         changePurchaseOrderDetailValue({
           index,
-          key: 'unit_id',
-          value: { value: product.unit_id, label: product.unit_name }
+          key: 'product_type_id',
+          value: product.product_type_id
+            ? {
+                value: product.product_type_id,
+                label: product.product_type_name
+              }
+            : null
         })
       );
 
       dispatch(
         changePurchaseOrderDetailValue({
           index,
-          key: 'rate',
-          value: product.cost_price
+          key: 'unit_id',
+          value: { value: product.unit_id, label: product.unit_name }
         })
       );
     } catch (error) {
@@ -127,7 +136,35 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
         value: selected
       })
     );
-    if (!selected) return;
+
+    if (!selected) {
+      dispatch(
+        changePurchaseOrderDetailValue({
+          index,
+          key: 'product_code',
+          value: null
+        })
+      );
+
+      dispatch(
+        changePurchaseOrderDetailValue({
+          index,
+          key: 'product_type',
+          value: null
+        })
+      );
+
+      dispatch(
+        changePurchaseOrderDetailValue({
+          index,
+          key: 'unit_id',
+          value: null
+        })
+      );
+
+      return;
+    }
+
     try {
       const product = await dispatch(getProduct(selected.value)).unwrap();
 
@@ -142,16 +179,21 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       dispatch(
         changePurchaseOrderDetailValue({
           index,
-          key: 'unit_id',
-          value: { value: product.unit_id, label: product.unit_name }
+          key: 'product_type_id',
+          value: product.product_type_id
+            ? {
+                value: product.product_type_id,
+                label: product.product_type_name
+              }
+            : null
         })
       );
 
       dispatch(
         changePurchaseOrderDetailValue({
           index,
-          key: 'rate',
-          value: product.cost_price
+          key: 'unit_id',
+          value: { value: product.unit_id, label: product.unit_name }
         })
       );
     } catch (error) {
@@ -219,10 +261,38 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       width: 50
     },
     {
+      title: 'Product Type',
+      dataIndex: 'product_type',
+      key: 'product_type',
+      render: (_, { product_code, product_type_id }, index) => {
+        return (
+          <AsyncSelectNoPaginate
+            endpoint="/lookups/product-types"
+            valueKey="product_type_id"
+            labelKey="name"
+            labelInValue
+            className="w-full"
+            value={product_type_id}
+            onChange={(selected) => {
+              dispatch(resetPurchaseOrderDetail(index));
+              dispatch(
+                changePurchaseOrderDetailValue({
+                  index,
+                  key: 'product_type_id',
+                  value: selected
+                })
+              );
+            }}
+          />
+        );
+      },
+      width: 150
+    },
+    {
       title: 'Product Code',
       dataIndex: 'product_code',
       key: 'product_code',
-      render: (_, { product_code }, index) => {
+      render: (_, { product_code, product_type_id }, index) => {
         return (
           <DebounceInput
             value={product_code}
@@ -235,6 +305,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
                 })
               )
             }
+            disabled={product_type_id?.value == 4}
             onBlur={(e) => onProductCodeChange(index, e.target.value)}
             onPressEnter={(e) => onProductCodeChange(index, e.target.value)}
           />
@@ -246,8 +317,33 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       title: 'Description',
       dataIndex: 'product_name',
       key: 'product_name',
-      render: (_, { product_id }, index) => {
-        return (
+      render: (_, { product_id, product_name, product_type_id }, index) => {
+        return product_type_id?.value == 4 ? (
+          <Form.Item
+            className="m-0"
+            name={`product_name-${index}`}
+            initialValue={product_name}
+            rules={[
+              {
+                required: true,
+                whitespace: true,
+                message: 'Description is required'
+              }
+            ]}>
+            <DebounceInput
+              value={product_name}
+              onChange={(value) =>
+                dispatch(
+                  changePurchaseOrderDetailValue({
+                    index,
+                    key: 'product_name',
+                    value: value
+                  })
+                )
+              }
+            />
+          </Form.Item>
+        ) : (
           <AsyncSelect
             endpoint="/product"
             valueKey="product_id"
@@ -347,13 +443,13 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       title: 'Unit',
       dataIndex: 'unit_id',
       key: 'unit_id',
-      render: (_, { unit_id }, index) => {
+      render: (_, { unit_id, product_type_id }, index) => {
         return (
           <AsyncSelect
             endpoint="/unit"
             valueKey="unit_id"
-            disabled
             labelKey="name"
+            disabled={product_type_id?.value != 4}
             labelInValue
             className="w-full"
             value={unit_id}
@@ -372,24 +468,37 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       },
       width: 120
     },
+
     {
       title: 'Unit Price',
       dataIndex: 'rate',
       key: 'rate',
       render: (_, { rate }, index) => {
+        form.setFieldsValue({ [`rate-${index}`]: rate });
         return (
-          <DebouncedCommaSeparatedInput
-            value={rate}
-            onChange={(value) =>
-              dispatch(
-                changePurchaseOrderDetailValue({
-                  index,
-                  key: 'rate',
-                  value: value
-                })
-              )
-            }
-          />
+          <Form.Item
+            className="m-0"
+            name={`rate-${index}`}
+            initialValue={rate}
+            rules={[
+              {
+                required: true,
+                message: 'Selling price is required'
+              }
+            ]}>
+            <DebouncedCommaSeparatedInput
+              value={rate}
+              onChange={(value) =>
+                dispatch(
+                  changePurchaseOrderDetailValue({
+                    index,
+                    key: 'rate',
+                    value: value
+                  })
+                )
+              }
+            />
+          </Form.Item>
         );
       },
       width: 120
@@ -556,7 +665,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
                 <Input disabled />
               </Form.Item>
 
-              <Form.Item name="quotation_no" label="Quotation No" className="w-full">
+              <Form.Item name="quotation_no" label="PurchaseOrder No" className="w-full">
                 <Input disabled />
               </Form.Item>
             </Col>
