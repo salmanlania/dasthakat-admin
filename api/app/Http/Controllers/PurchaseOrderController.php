@@ -211,7 +211,7 @@ class PurchaseOrderController extends Controller
 					'purchase_order_detail_id' => $detail_uuid,
 					'sort_order' => $value['sort_order'] ?? "",
 					'product_id' => $value['product_id'] ?? "",
-					'product_typ_ide' => $value['product_type_id'] ?? "",
+					'product_type_id' => $value['product_type_id'] ?? "",
 					'product_name' => $value['product_name'] ?? "",
 					'description' => $value['description'] ?? "",
 					'vpart' => $value['vpart'] ?? "",
