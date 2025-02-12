@@ -18,3 +18,7 @@ ALTER TABLE charge_order
 ADD COLUMN total_amount DECIMAL(10,2) AFTER total_quantity,
 ADD COLUMN discount_amount DECIMAL(10,2) AFTER total_amount,
 ADD COLUMN net_amount DECIMAL(10,2) AFTER discount_amount;
+
+ALTER TABLE purchase_order_detail 
+ADD COLUMN product_name VARCHAR(255) AFTER product_id,
+ADD COLUMN product_type_id INT(11) AFTER product_name;

@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Support\Facades\DB;
 
 class ChargeOrder extends Model
 {
@@ -50,7 +50,13 @@ class ChargeOrder extends Model
     }
     public function event()
     {
-        return $this->hasOne(Event::class, 'event_id','event_id')->select('event_id', 'event_code');
+        return $this->hasOne(Event::class, 'event_id', 'event_id')
+            ->join('vessel', 'vessel.vessel_id', '=', 'event.vessel_id')
+            ->select(
+                'event.event_id',
+                'event.event_code',
+                DB::raw("CONCAT(event.event_code, ' (', COALESCE(vessel.name, 'Unknown'), ')') as event_name")
+            );
     }
     public function vessel()
     {
