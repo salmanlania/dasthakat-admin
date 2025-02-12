@@ -155,7 +155,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
   const onProductCodeChange = async (index, value) => {
     if (!value.trim()) return;
     try {
-      const res = await dispatch(getProductList({ product_code: value })).unwrap();
+      const res = await dispatch(getProductList({ product_code: value, stock: true })).unwrap();
 
       if (!res.data.length) return;
 

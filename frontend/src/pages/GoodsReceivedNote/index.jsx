@@ -213,7 +213,7 @@ const GoodsReceivedNote = () => {
                 okButtonProps={{ danger: true }}
                 okText="Yes"
                 cancelText="No"
-                onConfirm={() => onGoodsReceivedNoteDelete(purchase_order_id)}>
+                onConfirm={() => onGoodsReceivedNoteDelete(good_received_note_id)}>
                 <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
               </Popconfirm>
             </Tooltip>
