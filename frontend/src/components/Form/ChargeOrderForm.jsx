@@ -77,8 +77,10 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
       charge_order_detail: chargeOrderDetails.map(({ id, product_type, ...detail }, index) => ({
         ...detail,
-        product_id: detail.product_type_id?.label === 'Others' ? null : detail?.product_id?.value,
-        product_name: detail.product_type_id?.label === 'Others' ? detail?.product_name : null,
+        purchase_order_id: detail?.purchase_order_id || '',
+        purchase_order_detail_id: detail?.purchase_order_detail_id || '',
+        product_id: detail.product_type_id?.value == 4 ? null : detail?.product_id?.value,
+        product_name: detail.product_type_id?.value == 4 ? detail?.product_name : null,
         supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
         product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
         unit_id: detail.unit_id ? detail.unit_id.value : null,
@@ -368,7 +370,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
                 })
               )
             }
-            disabled={product_type_id?.label === 'Others' || editable === false}
+            disabled={product_type_id?.value == 4 || editable === false}
             onBlur={(e) => onProductCodeChange(index, e.target.value)}
             onPressEnter={(e) => onProductCodeChange(index, e.target.value)}
           />
@@ -381,7 +383,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       dataIndex: 'product_name',
       key: 'product_name',
       render: (_, { product_id, product_name, product_type_id, editable }, index) => {
-        return product_type_id?.label === 'Others' ? (
+        return product_type_id?.value == 4 ? (
           <Form.Item
             className="m-0"
             name={`product_name-${index}`}
@@ -535,7 +537,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             endpoint="/unit"
             valueKey="unit_id"
             labelKey="name"
-            disabled={product_type_id?.label !== 'Others' || editable === false}
+            disabled={product_type_id?.value != 4 || editable === false}
             labelInValue
             className="w-full"
             value={unit_id}

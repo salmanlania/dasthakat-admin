@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Select, Table } from 'antd';
+import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Table } from 'antd';
 import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
 import { BiPlus } from 'react-icons/bi';
@@ -7,7 +7,6 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
-import { v4 as uuidv4 } from 'uuid';
 import useError from '../../hooks/useError';
 import {
   addGoodsReceivedNoteDetail,
@@ -15,11 +14,15 @@ import {
   changeGoodsReceivedNoteDetailValue,
   copyGoodsReceivedNoteDetail,
   getGoodsReceivedNoteForPrint,
-  removeGoodsReceivedNoteDetail
+  removeGoodsReceivedNoteDetail,
+  resetGoodsReceivedNoteDetail,
+  setGoodsReceivedNoteDetails
 } from '../../store/features/goodsReceivedNoteSlice';
 import { getProduct, getProductList } from '../../store/features/productSlice';
+import { getPurchaseOrder } from '../../store/features/purchaseOrderSlice';
 import { createGoodsReceivedNotePrint } from '../../utils/prints/goods-received-note-print';
 import AsyncSelect from '../AsyncSelect';
+import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
 import { DetailSummaryInfo } from './QuotationForm';
@@ -58,7 +61,9 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
       good_received_note_detail: goodsReceivedNoteDetails.map(({ id, ...detail }, index) => ({
         ...detail,
-        product_id: detail.product_id ? detail.product_id.value : null,
+        product_id: detail.product_type_id?.value == 4 ? null : detail.product_id.value,
+        product_name: detail.product_type_id?.value == 4 ? detail.product_name : null,
+        product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
         warehouse_id: detail.warehouse_id ? detail.warehouse_id.value : null,
         unit_id: detail.unit_id ? detail.unit_id.value : null,
         sort_order: index
@@ -73,11 +78,12 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
   const onProductCodeChange = async (index, value) => {
     if (!value.trim()) return;
     try {
-      const res = await dispatch(getProductList({ product_code: value })).unwrap();
+      const res = await dispatch(getProductList({ product_code: value, stock: true })).unwrap();
 
       if (!res.data.length) return;
 
       const product = res.data[0];
+
       dispatch(
         changeGoodsReceivedNoteDetailValue({
           index,
@@ -86,6 +92,19 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
             value: product.product_id,
             label: product.name
           }
+        })
+      );
+
+      dispatch(
+        changeGoodsReceivedNoteDetailValue({
+          index,
+          key: 'product_type_id',
+          value: product.product_type_id
+            ? {
+                value: product.product_type_id,
+                label: product.product_type_name
+              }
+            : null
         })
       );
 
@@ -101,7 +120,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
         changeGoodsReceivedNoteDetailValue({
           index,
           key: 'rate',
-          value: product.cost_price
+          value: product.sale_price
         })
       );
     } catch (error) {
@@ -117,7 +136,42 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
         value: selected
       })
     );
-    if (!selected) return;
+
+    if (!selected) {
+      dispatch(
+        changeGoodsReceivedNoteDetailValue({
+          index,
+          key: 'product_code',
+          value: null
+        })
+      );
+
+      dispatch(
+        changeGoodsReceivedNoteDetailValue({
+          index,
+          key: 'product_type',
+          value: null
+        })
+      );
+
+      dispatch(
+        changeGoodsReceivedNoteDetailValue({
+          index,
+          key: 'unit_id',
+          value: null
+        })
+      );
+
+      dispatch(
+        changeGoodsReceivedNoteDetailValue({
+          index,
+          key: 'rate',
+          value: null
+        })
+      );
+      return;
+    }
+
     try {
       const product = await dispatch(getProduct(selected.value)).unwrap();
 
@@ -132,6 +186,19 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       dispatch(
         changeGoodsReceivedNoteDetailValue({
           index,
+          key: 'product_type_id',
+          value: product.product_type_id
+            ? {
+                value: product.product_type_id,
+                label: product.product_type_name
+              }
+            : null
+        })
+      );
+
+      dispatch(
+        changeGoodsReceivedNoteDetailValue({
+          index,
           key: 'unit_id',
           value: { value: product.unit_id, label: product.unit_name }
         })
@@ -140,10 +207,52 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       dispatch(
         changeGoodsReceivedNoteDetailValue({
           index,
-          key: 'rate',
+          key: 'cost_price',
           value: product.cost_price
         })
       );
+
+      dispatch(
+        changeGoodsReceivedNoteDetailValue({
+          index,
+          key: 'rate',
+          value: product.sale_price
+        })
+      );
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const onPOChange = async (selected) => {
+    if (!selected) return;
+
+    try {
+      const { purchase_order_detail } = await dispatch(getPurchaseOrder(selected.value)).unwrap();
+      console.log(purchase_order_detail);
+
+      if (!purchase_order_detail || !purchase_order_detail.length) return;
+
+      const details = purchase_order_detail.map((detail) => ({
+        product_type_id: detail.product_type
+          ? {
+              value: detail.product_type.product_type_id,
+              label: detail.product_type.name
+            }
+          : null,
+        product_code: detail.product ? detail.product.product_code : null,
+        product_id: detail.product
+          ? { value: detail.product.product_id, label: detail.product.product_name }
+          : null,
+        product_name: detail.product_name,
+        description: detail.description,
+        quantity: detail.quantity ? parseFloat(detail.quantity) : null,
+        unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
+        rate: detail.rate,
+        amount: detail.amount
+      }));
+
+      dispatch(setGoodsReceivedNoteDetails(details));
     } catch (error) {
       handleError(error);
     }
@@ -209,10 +318,38 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       width: 50
     },
     {
+      title: 'Product Type',
+      dataIndex: 'product_type',
+      key: 'product_type',
+      render: (_, { product_code, product_type_id }, index) => {
+        return (
+          <AsyncSelectNoPaginate
+            endpoint="/lookups/product-types"
+            valueKey="product_type_id"
+            labelKey="name"
+            labelInValue
+            className="w-full"
+            value={product_type_id}
+            onChange={(selected) => {
+              dispatch(resetGoodsReceivedNoteDetail(index));
+              dispatch(
+                changeGoodsReceivedNoteDetailValue({
+                  index,
+                  key: 'product_type_id',
+                  value: selected
+                })
+              );
+            }}
+          />
+        );
+      },
+      width: 150
+    },
+    {
       title: 'Product Code',
       dataIndex: 'product_code',
       key: 'product_code',
-      render: (_, { product_code }, index) => {
+      render: (_, { product_code, product_type_id }, index) => {
         return (
           <DebounceInput
             value={product_code}
@@ -225,6 +362,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
                 })
               )
             }
+            disabled={product_type_id?.value == 4}
             onBlur={(e) => onProductCodeChange(index, e.target.value)}
             onPressEnter={(e) => onProductCodeChange(index, e.target.value)}
           />
@@ -236,12 +374,37 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       title: 'Description',
       dataIndex: 'product_name',
       key: 'product_name',
-      render: (_, { product_id }, index) => {
-        return (
+      render: (_, { product_id, product_name, product_type_id }, index) => {
+        return product_type_id?.value == 4 ? (
+          <Form.Item
+            className="m-0"
+            name={`product_name-${index}`}
+            initialValue={product_name}
+            rules={[
+              {
+                required: true,
+                whitespace: true,
+                message: 'Description is required'
+              }
+            ]}>
+            <DebounceInput
+              value={product_name}
+              onChange={(value) =>
+                dispatch(
+                  changeGoodsReceivedNoteDetailValue({
+                    index,
+                    key: 'product_name',
+                    value: value
+                  })
+                )
+              }
+            />
+          </Form.Item>
+        ) : (
           <AsyncSelect
             endpoint="/product"
             valueKey="product_id"
-            labelKey="name"
+            labelKey="product_name"
             labelInValue
             className="w-full"
             value={product_id}
@@ -281,10 +444,11 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       dataIndex: 'quantity',
       key: 'quantity',
       render: (_, { quantity }, index) => {
+        form.setFieldsValue({ [`quantity-${index}`]: quantity });
         return (
           <Form.Item
             className="m-0"
-            name={`quantity-${uuidv4()}`}
+            name={`quantity-${index}`}
             initialValue={quantity}
             rules={[
               {
@@ -314,14 +478,14 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       title: 'Unit',
       dataIndex: 'unit_id',
       key: 'unit_id',
-      render: (_, { unit_id }, index) => {
+      render: (_, { unit_id, product_type_id }, index) => {
         return (
           <AsyncSelect
             endpoint="/unit"
             valueKey="unit_id"
             labelKey="name"
+            disabled={product_type_id?.value != 4}
             labelInValue
-            disabled
             className="w-full"
             value={unit_id}
             onChange={(selected) =>
@@ -374,19 +538,31 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       dataIndex: 'rate',
       key: 'rate',
       render: (_, { rate }, index) => {
+        form.setFieldsValue({ [`rate-${index}`]: rate });
         return (
-          <DebouncedCommaSeparatedInput
-            value={rate}
-            onChange={(value) =>
-              dispatch(
-                changeGoodsReceivedNoteDetailValue({
-                  index,
-                  key: 'rate',
-                  value: value
-                })
-              )
-            }
-          />
+          <Form.Item
+            className="m-0"
+            name={`rate-${index}`}
+            initialValue={rate}
+            rules={[
+              {
+                required: true,
+                message: 'Selling price is required'
+              }
+            ]}>
+            <DebouncedCommaSeparatedInput
+              value={rate}
+              onChange={(value) =>
+                dispatch(
+                  changeGoodsReceivedNoteDetailValue({
+                    index,
+                    key: 'rate',
+                    value: value
+                  })
+                )
+              }
+            />
+          </Form.Item>
         );
       },
       width: 120
@@ -507,6 +683,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
               valueKey="purchase_order_id"
               labelKey="document_identity"
               labelInValue
+              onChange={onPOChange}
               addNewLink={
                 permissions.purchase_order.list && permissions.purchase_order.add
                   ? '/purchase-order/create'

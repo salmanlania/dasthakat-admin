@@ -286,6 +286,13 @@ export const purchaseOrderSlice = createSlice({
         product_id: detail.product
           ? { value: detail.product.product_id, label: detail.product.product_name }
           : null,
+        product_type_id: detail.product_type
+          ? {
+              value: detail.product_type.product_type_id,
+              label: detail.product_type.name
+            }
+          : null,
+        product_name: detail.product_name,
         description: detail.description,
         vpart: detail.vpart,
         quantity: detail.quantity ? parseFloat(detail.quantity) : null,

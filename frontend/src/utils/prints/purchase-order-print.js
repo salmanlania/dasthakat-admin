@@ -74,10 +74,12 @@ const addHeader = (doc, data, sideMargin) => {
       value: data.required_date ? dayjs(data.required_date).format('MM-DD-YYYY') : ''
     },
     { label: 'Terms', value: data.payment ? data.payment.name : '' },
-    { label: 'Charge No.', value: data.charge_order || '' },
+    { label: 'Charge No.', value: data?.charge_order?.document_identity || '' },
     { label: 'Quotation No.', value: data.quotation || '' },
     { label: 'Page', value: `Page ${currentPage} of ${totalPages}` }
   ];
+
+  console.log('rows: ===> ', rows);
 
   // Draw boxes with content
   doc.setFontSize(8);

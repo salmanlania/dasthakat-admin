@@ -132,8 +132,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
       status: values.status,
       quotation_detail: quotationDetails.map(({ id, product_type, ...detail }, index) => ({
         ...detail,
-        product_id: detail.product_type_id?.label === 'Others' ? null : detail.product_id.value,
-        product_name: detail.product_type_id?.label === 'Others' ? detail.product_name : null,
+        product_id: detail.product_type_id?.value == 4 ? null : detail.product_id.value,
+        product_name: detail.product_type_id?.value == 4 ? detail.product_name : null,
         supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
         product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
         unit_id: detail.unit_id ? detail.unit_id.value : null,
@@ -439,7 +439,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
                 })
               )
             }
-            disabled={product_type_id?.label === 'Others'}
+            disabled={product_type_id?.value == 4}
             onBlur={(e) => onProductCodeChange(index, e.target.value)}
             onPressEnter={(e) => onProductCodeChange(index, e.target.value)}
           />
@@ -452,7 +452,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       dataIndex: 'product_name',
       key: 'product_name',
       render: (_, { product_id, product_name, product_type_id }, index) => {
-        return product_type_id?.label === 'Others' ? (
+        return product_type_id?.value == 4 ? (
           <Form.Item
             className="m-0"
             name={`product_name-${index}`}
@@ -570,7 +570,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             endpoint="/unit"
             valueKey="unit_id"
             labelKey="name"
-            disabled={product_type_id?.label !== 'Others'}
+            disabled={product_type_id?.value != 4}
             labelInValue
             className="w-full"
             value={unit_id}

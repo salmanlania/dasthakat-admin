@@ -167,6 +167,27 @@ const PurchaseOrder = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
+          <p>Vendor</p>
+          <AsyncSelect
+            endpoint="/supplier"
+            size="small"
+            className="w-full font-normal"
+            valueKey="supplier_id"
+            labelKey="name"
+            value={params.supplier_id}
+            onChange={(value) => dispatch(setPurchaseOrderListParams({ supplier_id: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'supplier_name',
+      key: 'supplier_name',
+      sorter: true,
+      width: 200,
+      ellipsis: true
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Customer</p>
           <AsyncSelect
             endpoint="/customer"
@@ -304,6 +325,7 @@ const PurchaseOrder = () => {
     params.sort_direction,
     params.document_date,
     params.customer_id,
+    params.supplier_id,
     debouncedSearch,
     debouncedPurchaseOrderNo,
     debouncedChargeNo,
