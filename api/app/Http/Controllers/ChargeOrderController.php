@@ -159,8 +159,8 @@ class ChargeOrderController extends Controller
 							'description'             => $item['description'] ?? null,
 							'unit_id'                 => $item['unit_id'] ?? null,
 							'quantity'                => $item['quantity'] ?? 0,
-							'rate'                    => $item['rate'] ?? 0,
-							'amount'                  => $item['amount'] ?? 0,
+							'rate'                    => $item['cost_price'] ?? 0,
+							'amount'                  => ($item['cost_price'] * $item['quantity']) ?? 0,
 							'created_at'              => Carbon::now(),
 							'created_by'              => $request->login_user_id,
 						];

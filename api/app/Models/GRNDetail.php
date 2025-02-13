@@ -17,7 +17,9 @@ class GRNDetail extends Model
         "good_received_note_id",
         "good_received_note_detail_id",
         "sort_order",
+        "product_type_id",
         "product_id",
+        "product_name",
         "description",
         "warehouse_id",
         "unit_id",
@@ -35,6 +37,10 @@ class GRNDetail extends Model
     public function product()
     {
         return $this->hasOne(Product::class, 'product_id', 'product_id');
+    }
+    public function product_type()
+    {
+        return $this->hasOne(ProductType::class, 'product_type_id', 'product_type_id');
     }
     public function unit()
     {
