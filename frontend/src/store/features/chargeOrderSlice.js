@@ -402,6 +402,7 @@ export const chargeOrderSlice = createSlice({
           : null,
         vendor_part_no: detail.vendor_part_no,
         markup: detail.markup,
+        cost_price: detail.cost_price,
         rate: detail.rate,
         amount: detail.amount,
         discount_percent: detail.discount_percent,

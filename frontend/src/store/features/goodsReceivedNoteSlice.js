@@ -186,6 +186,26 @@ export const goodsReceivedNoteSlice = createSlice({
       }
     },
 
+    resetGoodsReceivedNoteDetail: (state, action) => {
+      const index = action.payload;
+
+      state.goodsReceivedNoteDetails[index] = {
+        id: state.goodsReceivedNoteDetails[index].id,
+        product_code: null,
+        product_id: null,
+        description: null,
+        quantity: null,
+        unit_id: null,
+        warehouse_id: null,
+        rate: null,
+        amount: null
+      };
+    },
+
+    setGoodsReceivedNoteDetails: (state, action) => {
+      state.goodsReceivedNoteDetails = action.payload;
+    },
+
     setRebatePercentage: (state, action) => {
       state.rebatePercentage = action.payload;
     },
@@ -259,9 +279,13 @@ export const goodsReceivedNoteSlice = createSlice({
       state.goodsReceivedNoteDetails = data.grn_detail.map((detail) => ({
         id: detail.good_received_note_detail_id,
         product_code: detail.product ? detail.product.product_code : null,
-        product_id: detail.product
-          ? { value: detail.product.product_id, label: detail.product.name }
+        product_type_id: detail.product_type
+          ? {
+              value: detail.product_type.product_type_id,
+              label: detail.product_type.name
+            }
           : null,
+        product_name: detail.product_name,
         description: detail.description,
         quantity: detail.quantity ? parseFloat(detail.quantity) : null,
         unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
@@ -314,6 +338,8 @@ export const {
   copyGoodsReceivedNoteDetail,
   changeGoodsReceivedNoteDetailOrder,
   changeGoodsReceivedNoteDetailValue,
+  resetGoodsReceivedNoteDetail,
+  setGoodsReceivedNoteDetails,
   setRebatePercentage,
   setSalesmanPercentage
 } = goodsReceivedNoteSlice.actions;
