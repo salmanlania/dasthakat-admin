@@ -3,13 +3,14 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
 import GMSLogo from '../../assets/logo-with-title.png';
-import Logo1 from '../../assets/quotationPrintLogo/logo1.png';
-import Logo2 from '../../assets/quotationPrintLogo/logo2.png';
-import Logo3 from '../../assets/quotationPrintLogo/logo3.png';
-import Logo4 from '../../assets/quotationPrintLogo/logo4.png';
-import Logo5 from '../../assets/quotationPrintLogo/logo5.png';
-import Logo6 from '../../assets/quotationPrintLogo/logo6.png';
-import Logo7 from '../../assets/quotationPrintLogo/logo7.png';
+import Logo1 from '../../assets/quotation/logo1.png';
+import Logo2 from '../../assets/quotation/logo2.png';
+import Logo3 from '../../assets/quotation/logo3.png';
+import Logo4 from '../../assets/quotation/logo4.png';
+import Logo5 from '../../assets/quotation/logo5.png';
+import Logo6 from '../../assets/quotation/logo6.png';
+import Logo7 from '../../assets/quotation/logo7.png';
+import QuotationTerms from '../../assets/quotation/quotationTerms.pdf';
 
 import { formatThreeDigitCommas, roundUpto } from '../number';
 
@@ -163,7 +164,7 @@ const addFooter = (doc, pageWidth, pageHeight) => {
   const currentPage = doc.internal.getCurrentPageInfo().pageNumber;
   const totalPages = doc.internal.getNumberOfPages();
 
-  doc.setFont('helvetica', 'bolditalic');
+  doc.setFont('times', 'bolditalic');
   doc.text(
     currentPage === totalPages ? `Last page` : `Continue to page ${currentPage + 1}`,
     pageWidth / 2,
@@ -173,7 +174,7 @@ const addFooter = (doc, pageWidth, pageHeight) => {
     }
   );
 
-  doc.setFont('helvetica', 'normal');
+  doc.setFont('times', 'normal');
   const deliveryText =
     'Remit Payment to: Global Marine Safety Service Inc Frost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44';
   doc.text(deliveryText, pageWidth / 2, pageHeight, {

@@ -324,6 +324,7 @@ export const chargeOrderSlice = createSlice({
       state.initialFormValues = {
         document_identity: data.document_identity,
         document_date: data.document_date ? dayjs(data.document_date) : null,
+        customer_po_no: data.customer_po_no,
         remarks: data.remarks,
         agent_id: data.agent
           ? {

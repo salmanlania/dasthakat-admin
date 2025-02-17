@@ -594,7 +594,11 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
               type: 'Inventory'
             }
       }
-      scrollToFirstError>
+      scrollToFirstError={{
+        behavior: 'smooth',
+        block: 'center',
+        scrollMode: 'always'
+      }}>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
         <span className="text-gray-500">Purchase Order No:</span>
@@ -620,6 +624,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
         </Col>
+
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
             name="required_date"
@@ -665,7 +670,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
                 <Input disabled />
               </Form.Item>
 
-              <Form.Item name="quotation_no" label="PurchaseOrder No" className="w-full">
+              <Form.Item name="purchase_order_no" label="Purchase Order No" className="w-full">
                 <Input disabled />
               </Form.Item>
             </Col>
@@ -718,7 +723,23 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
 
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="ship_via" label="Ship Via">
-            <Input />
+            <Select
+              options={[
+                {
+                  value: 'Courier',
+                  label: 'Courier'
+                },
+                {
+                  value: 'Delivery',
+                  label: 'Delivery'
+                },
+                {
+                  value: 'Will Call',
+                  label: 'Will Call'
+                }
+              ]}
+              allowClear
+            />
           </Form.Item>
         </Col>
 

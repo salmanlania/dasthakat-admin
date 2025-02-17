@@ -66,6 +66,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
     const data = {
       chargeOrder_id,
       remarks: values.remarks,
+      customer_po_no: values.customer_po_no,
       salesman_id: values.salesman_id ? values.salesman_id.value : null,
       class1_id: values.class1_id ? values.class1_id.value : null,
       class2_id: values.class2_id ? values.class2_id.value : null,
@@ -468,8 +469,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         const quantityNum = quantity ? parseFloat(quantity) : 0;
 
         const isQuantityExceedsStock =
-          (product_type_id?.label === 'Inventory' || product_type_id?.label === 'IMPA') &&
-          quantityNum > stockQuantityNum;
+          product_type_id?.value == 2 && quantityNum > stockQuantityNum;
 
         form.setFieldsValue({ [`quantity-${index}`]: quantity });
         return (
@@ -568,7 +568,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             labelKey="name"
             labelInValue
             className="w-full"
-            disabled={product_type_id?.label === 'Service' || editable === false}
+            disabled={product_type_id?.value == 1 || editable === false}
             value={supplier_id}
             onChange={(selected) =>
               dispatch(
@@ -796,6 +796,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           {mode === 'edit' ? initialFormValues.document_identity : 'AUTO'}
         </span>
       </p>
+      
       <Row gutter={12}>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
@@ -803,6 +804,11 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             label="Charge Order Date"
             rules={[{ required: true, message: 'charge order date is required' }]}>
             <DatePicker format="MM-DD-YYYY" className="w-full" />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="customer_po_no" label="Customer PO No">
+            <Input />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>

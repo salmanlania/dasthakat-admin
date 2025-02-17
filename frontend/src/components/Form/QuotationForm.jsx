@@ -601,7 +601,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             labelKey="name"
             labelInValue
             className="w-full"
-            disabled={product_type_id?.label === 'Service'}
+            disabled={product_type_id?.value == 1}
             value={supplier_id}
             onChange={(selected) =>
               dispatch(
@@ -650,7 +650,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
         return (
           <DebouncedCommaSeparatedInput
             value={cost_price}
-            disabled={product_type_id?.label === 'Service'}
+            disabled={product_type_id?.value == 1}
             onChange={(value) =>
               dispatch(
                 changeQuotationDetailValue({
@@ -674,7 +674,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           <DebouncedNumberInput
             value={markup}
             type="decimal"
-            disabled={product_type_id?.label === 'Service'}
+            disabled={product_type_id?.value == 1}
             onChange={(value) =>
               dispatch(
                 changeQuotationDetailValue({

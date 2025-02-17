@@ -3,9 +3,9 @@ import 'jspdf-autotable';
 
 import dayjs from 'dayjs';
 import GMSLogo from '../../assets/logo-with-title.png';
-import Logo1 from '../../assets/purchaseOrderPrintLogo/logo1.png';
-import Logo2 from '../../assets/purchaseOrderPrintLogo/logo2.png';
-import Logo3 from '../../assets/purchaseOrderPrintLogo/logo3.png';
+import Logo1 from '../../assets/purchaseOrder/logo1.png';
+import Logo2 from '../../assets/purchaseOrder/logo2.png';
+import Logo3 from '../../assets/purchaseOrder/logo3.png';
 import { formatThreeDigitCommas } from '../number';
 
 const fillEmptyRows = (rows, rowsPerPage) => {
