@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { PDFDocument } from 'pdf-lib';
 
 import GMSLogo from '../../assets/logo-with-title.png';
 import Logo1 from '../../assets/quotation/logo1.png';
@@ -13,6 +14,29 @@ import Logo7 from '../../assets/quotation/logo7.png';
 import QuotationTerms from '../../assets/quotation/quotationTerms.pdf';
 
 import { formatThreeDigitCommas, roundUpto } from '../number';
+
+const mergePDFs = async (quotationPDFBlob) => {
+  const quotationPDFBytes = await quotationPDFBlob.arrayBuffer();
+  const quotationPDF = await PDFDocument.load(quotationPDFBytes);
+
+  const termsPDFBytes = await fetch(QuotationTerms).then((res) => res.arrayBuffer());
+  const termsPDF = await PDFDocument.load(termsPDFBytes);
+
+  const mergedPDF = await PDFDocument.create();
+  const quotationPages = await mergedPDF.copyPages(quotationPDF, quotationPDF.getPageIndices());
+  const termsPages = await mergedPDF.copyPages(termsPDF, termsPDF.getPageIndices());
+
+  // Add quotation pages first
+  quotationPages.forEach((page) => mergedPDF.addPage(page));
+
+  // Add terms pages at the end
+  termsPages.forEach((page) => mergedPDF.addPage(page));
+
+  const finalPDFBytes = await mergedPDF.save();
+  const finalBlob = new Blob([finalPDFBytes], { type: 'application/pdf' });
+  const finalUrl = URL.createObjectURL(finalBlob);
+  window.open(finalUrl, '_blank');
+};
 
 const fillEmptyRows = (rows, rowsPerPage, notesLength = 1) => {
   // Calculate how many rows are required to fill the current page
@@ -35,11 +59,11 @@ const fillEmptyRows = (rows, rowsPerPage, notesLength = 1) => {
 
 const addHeader = (doc, data, pageWidth, sideMargin) => {
   doc.setFontSize(20);
-  doc.setFont('times', 'bold');
+  doc.setFont('helvetica', 'bold');
   doc.text('Global Marine Safety - America', pageWidth / 2, 12, {
     align: 'center'
   });
-  doc.setFont('times', 'normal');
+  doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   doc.text('9145 Wallisville Rd, Houston TX 77029, USA', pageWidth / 2, 18, {
     align: 'center'
@@ -58,10 +82,10 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
 
   // Bill To and Ship To
   doc.setFontSize(10);
-  doc.setFont('times', 'bold');
+  doc.setFont('helvetica', 'bold');
   doc.text('Bill To', sideMargin, 40);
   doc.text('Ship To', 140, 40);
-  doc.setFont('times', 'normal');
+  doc.setFont('helvetica', 'normal');
 
   const billTo = doc.splitTextToSize(
     `${data.customer ? `${data.customer.name},` : ''}\n${
@@ -75,11 +99,11 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   doc.text(shipTo, 140, 45);
 
   doc.setFontSize(16);
-  doc.setFont('times', 'bold');
+  doc.setFont('helvetica', 'bold');
   doc.text('ESTIMATE', pageWidth / 2, 62, {
     align: 'center'
   });
-  doc.setFont('times', 'normal');
+  doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
 
   // Table 1
@@ -122,6 +146,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       fillColor: [221, 217, 196]
     },
     styles: {
+      font: 'helvetica',
       halign: 'center',
       valign: 'middle',
       lineWidth: 0.1,
@@ -164,7 +189,7 @@ const addFooter = (doc, pageWidth, pageHeight) => {
   const currentPage = doc.internal.getCurrentPageInfo().pageNumber;
   const totalPages = doc.internal.getNumberOfPages();
 
-  doc.setFont('times', 'bolditalic');
+  doc.setFont('helvetica', 'bolditalic');
   doc.text(
     currentPage === totalPages ? `Last page` : `Continue to page ${currentPage + 1}`,
     pageWidth / 2,
@@ -174,7 +199,7 @@ const addFooter = (doc, pageWidth, pageHeight) => {
     }
   );
 
-  doc.setFont('times', 'normal');
+  doc.setFont('helvetica', 'normal');
   const deliveryText =
     'Remit Payment to: Global Marine Safety Service Inc Frost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44';
   doc.text(deliveryText, pageWidth / 2, pageHeight, {
@@ -182,7 +207,7 @@ const addFooter = (doc, pageWidth, pageHeight) => {
   });
 };
 
-export const createQuotationPrint = (data) => {
+export const createQuotationPrint = async (data) => {
   const doc = new jsPDF();
   doc.setTextColor(32, 50, 114);
 
@@ -261,6 +286,7 @@ export const createQuotationPrint = (data) => {
     styles: {
       halign: 'center',
       valign: 'middle',
+      font: 'helvetica',
       fontSize: 7,
       lineWidth: 0.1,
       lineColor: [116, 116, 116]
@@ -383,7 +409,8 @@ export const createQuotationPrint = (data) => {
       lineWidth: 0.1,
       lineColor: [116, 116, 116],
       valign: 'middle',
-      halign: 'center'
+      halign: 'center',
+      font: 'helvetica'
     },
     bodyStyles: {
       fontSize: 7,
@@ -415,7 +442,7 @@ export const createQuotationPrint = (data) => {
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     const pageSize = doc.internal.pageSize;
-    const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
+    const pageWidth = pageSize.width ? pageSize.width : pcageSize.getWidth();
     const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
 
     // Header
@@ -429,6 +456,5 @@ export const createQuotationPrint = (data) => {
     title: `Quotation - ${data.document_identity}`
   });
   const pdfBlob = doc.output('blob');
-  const pdfUrl = URL.createObjectURL(pdfBlob, {});
-  window.open(pdfUrl, '_blank');
+  await mergePDFs(pdfBlob);
 };
