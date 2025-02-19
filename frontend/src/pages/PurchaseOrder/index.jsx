@@ -146,6 +146,7 @@ const PurchaseOrder = () => {
           <Select
             className="w-full font-normal"
             size="small"
+            allowClear
             value={params.type}
             options={purchaseOrderTypes}
             onChange={(e) =>
@@ -326,6 +327,7 @@ const PurchaseOrder = () => {
     params.document_date,
     params.customer_id,
     params.supplier_id,
+    params.type,
     debouncedSearch,
     debouncedPurchaseOrderNo,
     debouncedChargeNo,

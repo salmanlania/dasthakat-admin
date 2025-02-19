@@ -258,6 +258,22 @@ export const purchaseOrderSlice = createSlice({
         department: data.department,
         remarks: data.remarks,
         ship_to: data.ship_to,
+        charge_no: data?.charge_order?.document_identity,
+        purchase_order_no: data?.charge_order?.customer_po_no,
+        quotation_id: data.quotation_id,
+        charge_order_id: data.charge_order_id,
+        event_id: data?.charge_order?.event
+          ? {
+              value: data?.charge_order?.event.event_id,
+              label: data?.charge_order?.event.event_name
+            }
+          : null,
+        customer_id: data?.charge_order?.customer
+          ? {
+              value: data?.charge_order?.customer.customer_id,
+              label: data?.charge_order?.customer.name
+            }
+          : null,
         buyer_id: data.user
           ? {
               value: data.user.user_id,
@@ -270,7 +286,6 @@ export const purchaseOrderSlice = createSlice({
               label: data.payment.name
             }
           : null,
-
         supplier_id: data.supplier
           ? {
               value: data.supplier.supplier_id,

@@ -91,6 +91,8 @@ const ChargeOrder = lazy(() => import('./pages/ChargeOrder'));
 const CreateChargeOrder = lazy(() => import('./pages/ChargeOrder/CreateChargeOrder'));
 const EditChargeOrder = lazy(() => import('./pages/ChargeOrder/EditChargeOrder'));
 
+const PickList = lazy(() => import('./pages/PickList'));
+
 function Routes() {
   const router = createBrowserRouter(
     [
@@ -585,6 +587,14 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditChargeOrder />
+              </Suspense>
+            )
+          },
+          {
+            path: '/pick-list',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <PickList />
               </Suspense>
             )
           }

@@ -62,10 +62,10 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       department: values.department,
       supplier_id: values.supplier_id ? values.supplier_id.value : null,
       class1_id: values.class1_id ? values.class1_id.value : null,
-      customer_id: values.customer_id ? values.customer_id.value : null,
       buyer_id: values.buyer_id ? values.buyer_id.value : null,
-      event_id: values.event_id ? values.event_id.value : null,
       payment_id: values.payment_id ? values.payment_id.value : null,
+      quotation_id: initialFormValues.quotation_id,
+      charge_order_id: initialFormValues.charge_order_id,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
       required_date: values.required_date ? dayjs(values.required_date).format('YYYY-MM-DD') : null,
       purchase_order_detail: purchaseOrderDetails.map(({ id, ...detail }, index) => ({
@@ -677,33 +677,13 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
 
             <Col span={24} sm={12} md={8} lg={8}>
               <Form.Item name="event_id" label="Event">
-                <AsyncSelect
-                  endpoint="/event"
-                  valueKey="event_id"
-                  labelKey="name"
-                  labelInValue
-                  disabled
-                  addNewLink={
-                    permissions.event.list && permissions.event.add ? '/event/create' : null
-                  }
-                />
+                <Select labelInValue disabled />
               </Form.Item>
             </Col>
 
             <Col span={24} sm={12} md={8} lg={8}>
               <Form.Item name="customer_id" label="Customer">
-                <AsyncSelect
-                  endpoint="/customer"
-                  valueKey="customer_id"
-                  labelKey="name"
-                  labelInValue
-                  disabled
-                  addNewLink={
-                    permissions.customer.list && permissions.customer.add
-                      ? '/customer/create'
-                      : null
-                  }
-                />
+                <Select labelInValue disabled />
               </Form.Item>
             </Col>
           </>

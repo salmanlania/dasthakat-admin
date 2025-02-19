@@ -7,6 +7,7 @@ import ChargeOrderForm from '../../components/Form/ChargeOrderForm';
 import PageHeading from '../../components/heading/PageHeading';
 import useError from '../../hooks/useError';
 import {
+  createChargeOrderPickList,
   createChargeOrderPO,
   getChargeOrder,
   updateChargeOrder
@@ -19,15 +20,23 @@ const EditChargeOrder = () => {
   const { id } = useParams();
   const { isItemLoading, initialFormValues } = useSelector((state) => state.chargeOrder);
 
-  const onChargeOrderUpdate = async (data, poWillCreate = false) => {
+  const onChargeOrderUpdate = async (data, additionalRequest = null) => {
     try {
-      await dispatch(updateChargeOrder({ id, data, poWillCreate })).unwrap();
+      await dispatch(updateChargeOrder({ id, data, additionalRequest })).unwrap();
 
-      if (poWillCreate) {
+      if (additionalRequest === 'CREATE_PO') {
         await dispatch(createChargeOrderPO(id)).unwrap();
       }
 
-      toast.success('ChargeOrder updated successfully');
+      if (additionalRequest === 'CREATE_PICK_LIST') {
+        await dispatch(
+          createChargeOrderPickList({
+            charge_order_id: id
+          })
+        ).unwrap();
+      }
+
+      toast.success('Charge Order updated successfully');
       navigate('/charge-order');
     } catch (error) {
       handleError(error);

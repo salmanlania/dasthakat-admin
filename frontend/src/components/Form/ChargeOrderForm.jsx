@@ -24,7 +24,6 @@ import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate';
 import DebounceInput from '../Input/DebounceInput';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebouncedNumberInput from '../Input/DebouncedNumberInput';
-import { productTypeOptions } from './ProductForm';
 import { DetailSummaryInfo } from './QuotationForm';
 
 // eslint-disable-next-line react/prop-types
@@ -55,7 +54,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
     totalNet += +detail.gross_amount || 0;
   });
 
-  const onFinish = async (poWillCreate = false) => {
+  const onFinish = async (additionalRequest = null) => {
     // validate the form
     const isValidFields = await form.validateFields();
     if (!isValidFields) return;
@@ -78,6 +77,8 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
       charge_order_detail: chargeOrderDetails.map(({ id, product_type, ...detail }, index) => ({
         ...detail,
+        picklist_id: detail?.picklist_id || '',
+        picklist_detail_id: detail?.picklist_id || '',
         purchase_order_id: detail?.purchase_order_id || '',
         purchase_order_detail_id: detail?.purchase_order_detail_id || '',
         product_id: detail.product_type_id?.value == 4 ? null : detail?.product_id?.value,
@@ -90,7 +91,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       total_quantity: totalQuantity
     };
 
-    onSubmit(data, poWillCreate);
+    onSubmit(data, additionalRequest);
   };
 
   const onProductCodeChange = async (index, value) => {
@@ -796,7 +797,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           {mode === 'edit' ? initialFormValues.document_identity : 'AUTO'}
         </span>
       </p>
-      
+
       <Row gutter={12}>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
@@ -943,14 +944,17 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
 
         {mode === 'edit' ? (
           <>
-            <Button type="primary" className="w-28 bg-slate-600 hover:!bg-slate-500">
+            <Button
+              type="primary"
+              loading={isFormSubmitting === 'CREATE_PICK_LIST'}
+              className="w-28 bg-slate-600 hover:!bg-slate-500"
+              onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PICK_LIST'))}>
               Pick List
             </Button>
             <Button
               type="primary"
-              loading={isFormSubmitting === 'PO_CREATING'}
-              onClick={() => (isFormSubmitting ? null : onFinish(true))} // pass true for create PO also
-            >
+              loading={isFormSubmitting === 'CREATE_PO'}
+              onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PO'))}>
               Save & Create PO
             </Button>
           </>
