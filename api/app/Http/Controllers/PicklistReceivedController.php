@@ -26,6 +26,7 @@ class PicklistReceivedController extends Controller
 		// Fetch received picklist history
 		$receivedData = PicklistReceived::with("picklist_received_detail", "picklist_received_detail.product")
 			->where('picklist_id', $id)
+			->orderBy('created_at', 'asc')
 			->get();
 
 		$picklist_remainings = [];
@@ -48,7 +49,7 @@ class PicklistReceivedController extends Controller
 
 				// Calculate remaining quantity
 				$remainingQty = max(0, $originalQty - $receivedQty);
-				
+				if ($remainingQty > 0) {
 					$picklist_remainings[] = [
 						"picklist_detail_id" => $detail->picklist_detail_id,
 						"product_id" => $productId,
@@ -57,7 +58,7 @@ class PicklistReceivedController extends Controller
 						"received_quantity" => $receivedQty,
 						"remaining_quantity" => $remainingQty,
 					];
-				
+				}
 			}
 		}
 
