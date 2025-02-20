@@ -265,6 +265,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       if (!purchase_order_detail || !purchase_order_detail.length) return;
 
       const details = purchase_order_detail.map((detail) => ({
+        id: detail.purchase_order_detail_id,
         product_type_id: detail.product_type
           ? {
               value: detail.product_type.product_type_id,
