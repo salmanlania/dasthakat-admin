@@ -66,6 +66,10 @@ class GRNController extends Controller
 			"payment",
 			"supplier",
 			"purchase_order",
+			"purchase_order.charge_order",
+			"purchase_order.charge_order.event",
+			"purchase_order.charge_order.vessel",
+			"purchase_order.charge_order.customer",
 		)
 			->where('good_received_note_id', $id)->first();
 
@@ -148,12 +152,14 @@ class GRNController extends Controller
 					'created_at' => date('Y-m-d H:i:s'),
 					'created_by' => $request->login_user_id,
 				];
-			 		StockLedger::handleStockMovement([
-					'master_model' => new GRN,
-					'document_id' => $uuid,
-					'document_detail_id' => $detail_uuid,
-					'row' => $value,
-				],'I');
+				if($value['product_type_id'] == 2){
+					StockLedger::handleStockMovement([
+						'master_model' => new GRN,
+						'document_id' => $uuid,
+						'document_detail_id' => $detail_uuid,
+						'row' => $value,
+					],'I');
+				}
 
 				GRNDetail::create($insert);
 			}
@@ -214,13 +220,14 @@ class GRNController extends Controller
 					'created_at' => date('Y-m-d H:i:s'),
 					'created_by' => $request->login_user_id,
 				];
-
-				StockLedger::handleStockMovement([
-					'master_model' => new GRN,
-					'document_id' => $id,
-					'document_detail_id' => $detail_uuid,
-					'row' => $value,
-				],'I');
+				if($value['product_type_id'] == 2){
+					StockLedger::handleStockMovement([
+						'master_model' => new GRN,
+						'document_id' => $id,
+						'document_detail_id' => $detail_uuid,
+						'row' => $value,
+					],'I');
+				}
 				GRNDetail::create($insertArr);
 			}
 		}

@@ -127,6 +127,16 @@
   ('Sale Management', 'Charge Order', 'charge_order', 'edit', 'Edit', 1.103),
   ('Sale Management', 'Charge Order', 'charge_order', 'delete', 'Delete', 1.104),
 
+  ('Sale Management', 'Picklist', 'picklist', 'list', 'List', 1.101),
+  ('Sale Management', 'Picklist', 'picklist', 'add', 'Add', 1.102),
+  ('Sale Management', 'Picklist', 'picklist', 'edit', 'Edit', 1.103),
+  ('Sale Management', 'Picklist', 'picklist', 'delete', 'Delete', 1.104),
+
+  ('Sale Management', 'Picklist Received', 'picklist_received', 'list', 'List', 1.101),
+  ('Sale Management', 'Picklist Received', 'picklist_received', 'add', 'Add', 1.102),
+  ('Sale Management', 'Picklist Received', 'picklist_received', 'edit', 'Edit', 1.103),
+  ('Sale Management', 'Picklist Received', 'picklist_received', 'delete', 'Delete', 1.104),
+
   ('Purchase Management', 'Purchase Order', 'purchase_order', 'list', 'List', 1.101),
   ('Purchase Management', 'Purchase Order', 'purchase_order', 'add', 'Add', 1.102),
   ('Purchase Management', 'Purchase Order', 'purchase_order', 'edit', 'Edit', 1.103),
