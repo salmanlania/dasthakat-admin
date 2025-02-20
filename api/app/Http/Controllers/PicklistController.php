@@ -17,7 +17,7 @@ class PicklistController extends Controller
 
 	public function index(Request $request)
 	{
-		$query = Picklist::with('charge_order')
+		$query = Picklist::with('charge_order','charge_order.event','charge_order.vessel')
 			->where('company_id', $request->company_id)
 			->where('company_branch_id', $request->company_branch_id);
 
