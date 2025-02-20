@@ -144,11 +144,11 @@ const NewReceivesTab = ({ details }) => {
       onFinish={onSubmit}>
       <Form.Item
         name="document_date"
-        label="Receives Date"
+        label="Receive Date"
         rules={[
           {
             required: true,
-            message: 'Receives Date is required!'
+            message: 'Receive Date is required!'
           }
         ]}>
         <DatePicker format="MM-DD-YYYY" />
