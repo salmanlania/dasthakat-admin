@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\DocumentType;
+use App\Models\GRN;
+use App\Models\GRNDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
+use Illuminate\Support\Facades\DB;
 
 class PurchaseOrderController extends Controller
 {
@@ -71,8 +74,27 @@ class PurchaseOrderController extends Controller
 			"supplier",
 			"quotation",
 			"charge_order",
+			"charge_order.event",
+			"charge_order.vessel",
+			"charge_order.customer",
 		)
 			->where('purchase_order_id', $id)->first();
+
+		foreach ($data->purchase_order_detail as $key => &$value) {
+			$grn = GRN::with("grn_detail")->where('purchase_order_id', $id)->get();
+			$receivedQty = 0;
+			foreach ($grn as $grnData) {
+				foreach ($grnData->grn_detail as $grnDetail) {
+					if ($value->product_id == $grnDetail->product_id) {
+						$receivedQty += $grnDetail->quantity;
+					}
+				}
+			}
+			if ($receivedQty > 0) {
+				$value->editable = false;
+			}
+		}
+
 
 		return $this->jsonResponse($data, 200, "Purchase Order Data");
 	}
@@ -101,7 +123,7 @@ class PurchaseOrderController extends Controller
 	public function store(Request $request)
 	{
 
-		if (!isPermission('add', 'charge_order', $request->permission_list))
+		if (!isPermission('add', 'purchase_order', $request->permission_list))
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
 		// Validation Rules
