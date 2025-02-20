@@ -71,6 +71,10 @@ export const pickListSlice = createSlice({
 
     setPickListOpenModalId: (state, action) => {
       state.pickListOpenModalId = action.payload;
+
+      if (!action.payload) {
+        state.pickListReceives = null;
+      }
     }
   },
   extraReducers: ({ addCase }) => {

@@ -1,4 +1,4 @@
-import { Button, Form, Input, Modal, Table, Tabs } from 'antd';
+import { Button, DatePicker, Form, Input, Modal, Table, Tabs } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
@@ -116,6 +116,7 @@ const NewReceivesTab = ({ details }) => {
     const totalQuantity = details.reduce((total, detail) => +total + (+detail.quantity || 0), 0);
 
     const payload = {
+      document_date: dayjs(values.document_date).format('YYYY-MM-DD'),
       total_quantity: totalQuantity,
       picklist_detail: details
     };
@@ -135,10 +136,24 @@ const NewReceivesTab = ({ details }) => {
     <Form
       name="pick-list-receives"
       form={form}
+      layout="vertical"
+      autoComplete="off"
       initialValues={{
         details: dataSource
       }}
       onFinish={onSubmit}>
+      <Form.Item
+        name="document_date"
+        label="Receives Date"
+        rules={[
+          {
+            required: true,
+            message: 'Receives Date is required!'
+          }
+        ]}>
+        <DatePicker format="MM-DD-YYYY" />
+      </Form.Item>
+
       <Form.List name="details">
         {(fields) => (
           <Table
@@ -188,14 +203,19 @@ const PickListReceiveModal = () => {
   return (
     <Modal
       open={pickListOpenModalId}
-      closable={false}
       onCancel={closeModal}
       loading={isPickListReceivesLoading}
       footer={null}
       width={840}>
       {pickListReceives ? (
         <Tabs
-          defaultActiveKey="newReceives"
+          defaultActiveKey={
+            pickListReceives.picklist.length
+              ? 'newReceives'
+              : pickListReceives.history.length
+                ? pickListReceives.history.at(-1).document_identity
+                : null
+          }
           items={[
             ...pickListReceives.history.map((history) => ({
               label: history.document_date
@@ -203,13 +223,18 @@ const PickListReceiveModal = () => {
                 : dayjs().format('MMM-DD-YYYY'),
               key: history.document_identity,
               children: <HistoryTab details={history.picklist_received_detail || []} />
-            })),
-            {
-              label: 'New Receives',
-              key: 'newReceives',
-              children: <NewReceivesTab details={pickListReceives.picklist || []} />
-            }
-          ]}
+            }))
+          ].concat(
+            pickListReceives.picklist.length
+              ? [
+                  {
+                    label: 'New Receives',
+                    key: 'newReceives',
+                    children: <NewReceivesTab details={pickListReceives.picklist || []} />
+                  }
+                ]
+              : []
+          )}
         />
       ) : null}
     </Modal>
