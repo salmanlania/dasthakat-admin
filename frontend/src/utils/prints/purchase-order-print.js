@@ -134,7 +134,7 @@ const addHeader = (doc, data, sideMargin) => {
   // Add the content
   doc.setFontSize(8);
   doc.setFont('times', 'normal');
-  const shipTo = doc.splitTextToSize(data.ship_to, 88);
+  const shipTo = doc.splitTextToSize(data.ship_to || '', 88);
   doc.text(shipTo, startShipToX + 4, startShipToY + 16);
 
   // Buyer's Info Table
