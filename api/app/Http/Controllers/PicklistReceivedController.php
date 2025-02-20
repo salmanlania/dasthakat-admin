@@ -48,15 +48,16 @@ class PicklistReceivedController extends Controller
 
 				// Calculate remaining quantity
 				$remainingQty = max(0, $originalQty - $receivedQty);
-
-				$picklist_remainings[] = [
-					"picklist_detail_id" => $detail->picklist_detail_id,
-					"product_id" => $productId,
-					"product_name" => $detail->product->name,
-					"original_quantity" => $originalQty,
-					"received_quantity" => $receivedQty,
-					"remaining_quantity" => $remainingQty,
-				];
+				
+					$picklist_remainings[] = [
+						"picklist_detail_id" => $detail->picklist_detail_id,
+						"product_id" => $productId,
+						"product_name" => $detail->product->name,
+						"original_quantity" => $originalQty,
+						"received_quantity" => $receivedQty,
+						"remaining_quantity" => $remainingQty,
+					];
+				
 			}
 		}
 
@@ -84,7 +85,7 @@ class PicklistReceivedController extends Controller
 			'picklist_received_id' => $uuid,
 			'document_type_id' => $document['document_type_id'],
 			'document_no' => $document['document_no'],
-			'document_date' => Carbon::now(),
+			'document_date' => $request->document_date,
 			'document_identity' => $document['document_identity'],
 			'document_prefix' => $document['document_prefix'],
 			'picklist_id' => $id,
