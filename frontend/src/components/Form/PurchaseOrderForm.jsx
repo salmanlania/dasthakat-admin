@@ -479,7 +479,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       title: 'Unit Price',
       dataIndex: 'rate',
       key: 'rate',
-      render: (_, { rate }, index) => {
+      render: (_, { rate, editable }, index) => {
         form.setFieldsValue({ [`rate-${index}`]: rate });
         return (
           <Form.Item
@@ -494,7 +494,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             ]}>
             <DebouncedCommaSeparatedInput
               value={rate}
-              disabled
+              disabled={editable === false}
               onChange={(value) =>
                 dispatch(
                   changePurchaseOrderDetailValue({
