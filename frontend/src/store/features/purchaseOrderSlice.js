@@ -314,7 +314,8 @@ export const purchaseOrderSlice = createSlice({
         unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
         rate: detail.rate,
         vendor_notes: detail.vendor_notes,
-        amount: detail.amount
+        amount: detail.amount,
+        editable: detail.editable
       }));
     });
     addCase(getPurchaseOrder.rejected, (state) => {

@@ -227,7 +227,13 @@ export const createPurchaseOrderPrint = (data) => {
         detail.quantity ? parseFloat(detail.quantity) : '',
         detail.unit ? detail.unit.name : '',
         detail.vpart || '',
-        { content: detail.product ? detail.product.product_name : '', styles: { halign: 'left' } },
+        {
+          content:
+            detail?.product_type?.product_type_id === 4
+              ? detail?.product_name || ''
+              : detail?.product?.product_name || '',
+          styles: { halign: 'left' }
+        },
         detail.description || '',
         {
           content: detail.rate ? formatThreeDigitCommas(detail.rate) : '',

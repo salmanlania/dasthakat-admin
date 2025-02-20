@@ -64,8 +64,8 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       class1_id: values.class1_id ? values.class1_id.value : null,
       buyer_id: values.buyer_id ? values.buyer_id.value : null,
       payment_id: values.payment_id ? values.payment_id.value : null,
-      quotation_id: initialFormValues.quotation_id,
-      charge_order_id: initialFormValues.charge_order_id,
+      quotation_id: initialFormValues?.quotation_id,
+      charge_order_id: initialFormValues?.charge_order_id,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
       required_date: values.required_date ? dayjs(values.required_date).format('YYYY-MM-DD') : null,
       purchase_order_detail: purchaseOrderDetails.map(({ id, ...detail }, index) => ({
@@ -264,12 +264,13 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       title: 'Product Type',
       dataIndex: 'product_type',
       key: 'product_type',
-      render: (_, { product_code, product_type_id }, index) => {
+      render: (_, { product_code, product_type_id, editable }, index) => {
         return (
           <AsyncSelectNoPaginate
             endpoint="/lookups/product-types"
             valueKey="product_type_id"
             labelKey="name"
+            disabled={editable === false}
             labelInValue
             className="w-full"
             value={product_type_id}
@@ -292,7 +293,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       title: 'Product Code',
       dataIndex: 'product_code',
       key: 'product_code',
-      render: (_, { product_code, product_type_id }, index) => {
+      render: (_, { product_code, product_type_id, editable }, index) => {
         return (
           <DebounceInput
             value={product_code}
@@ -305,7 +306,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
                 })
               )
             }
-            disabled={product_type_id?.value == 4}
+            disabled={product_type_id?.value == 4 || editable === false}
             onBlur={(e) => onProductCodeChange(index, e.target.value)}
             onPressEnter={(e) => onProductCodeChange(index, e.target.value)}
           />
@@ -317,7 +318,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       title: 'Description',
       dataIndex: 'product_name',
       key: 'product_name',
-      render: (_, { product_id, product_name, product_type_id }, index) => {
+      render: (_, { product_id, product_name, product_type_id, editable }, index) => {
         return product_type_id?.value == 4 ? (
           <Form.Item
             className="m-0"
@@ -332,6 +333,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             ]}>
             <DebounceInput
               value={product_name}
+              disabled={editable === false}
               onChange={(value) =>
                 dispatch(
                   changePurchaseOrderDetailValue({
@@ -350,6 +352,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             labelKey="product_name"
             labelInValue
             className="w-full"
+            disabled={editable === false}
             value={product_id}
             onChange={(selected) => onProductChange(index, selected)}
             addNewLink={
@@ -364,10 +367,11 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       title: 'Customer Notes',
       dataIndex: 'description',
       key: 'description',
-      render: (_, { description }, index) => {
+      render: (_, { description, editable }, index) => {
         return (
           <DebounceInput
             value={description}
+            disabled={editable === false}
             onChange={(value) =>
               dispatch(
                 changePurchaseOrderDetailValue({
@@ -386,10 +390,11 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       title: 'V.Part#',
       dataIndex: 'vpart',
       key: 'vpart',
-      render: (_, { vpart }, index) => {
+      render: (_, { vpart, editable }, index) => {
         return (
           <DebounceInput
             value={vpart}
+            disabled={editable === false}
             onChange={(value) =>
               dispatch(
                 changePurchaseOrderDetailValue({
@@ -408,7 +413,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       title: 'Quantity',
       dataIndex: 'quantity',
       key: 'quantity',
-      render: (_, { quantity }, index) => {
+      render: (_, { quantity, editable }, index) => {
         form.setFieldsValue({ [`quantity-${index}`]: quantity });
         return (
           <Form.Item
@@ -424,6 +429,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             <DebouncedCommaSeparatedInput
               decimalPlaces={2}
               value={quantity}
+              disabled={editable === false}
               onChange={(value) =>
                 dispatch(
                   changePurchaseOrderDetailValue({
@@ -443,13 +449,13 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       title: 'Unit',
       dataIndex: 'unit_id',
       key: 'unit_id',
-      render: (_, { unit_id, product_type_id }, index) => {
+      render: (_, { unit_id, product_type_id, editable }, index) => {
         return (
           <AsyncSelect
             endpoint="/unit"
             valueKey="unit_id"
             labelKey="name"
-            disabled={product_type_id?.value != 4}
+            disabled={product_type_id?.value != 4 || editable === false}
             labelInValue
             className="w-full"
             value={unit_id}
@@ -488,6 +494,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             ]}>
             <DebouncedCommaSeparatedInput
               value={rate}
+              disabled
               onChange={(value) =>
                 dispatch(
                   changePurchaseOrderDetailValue({
@@ -516,10 +523,11 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       title: 'Vend Notes',
       dataIndex: 'vendor_notes',
       key: 'vendor_notes',
-      render: (_, { vendor_notes }, index) => {
+      render: (_, { vendor_notes, editable }, index) => {
         return (
           <DebounceInput
             value={vendor_notes}
+            disabled={editable === false}
             onChange={(value) =>
               dispatch(
                 changePurchaseOrderDetailValue({
