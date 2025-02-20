@@ -264,6 +264,16 @@ $router->group(['prefix' => 'charge-order'], function ($router) {
    $router->post('/bulk-delete', 'ChargeOrderController@bulkDelete');
 });
 
+$router->group(['prefix' => 'picklist'], function ($router) {
+   $router->get('/', 'PicklistController@index');
+   $router->post('/', 'PicklistController@store');  
+});
+
+$router->group(['prefix' => 'picklist-received'], function ($router) {
+   $router->get('/{id}', 'PicklistReceivedController@show');
+   $router->put('/{id}', 'PicklistReceivedController@update');  
+});
+
 $router->group(['prefix' => 'purchase-order'], function ($router) {
    $router->get('/', 'PurchaseOrderController@index');
    $router->get('/{id}', 'PurchaseOrderController@show');

@@ -194,7 +194,6 @@ class ChargeOrderController extends Controller
 		return $this->jsonResponse($record, 200, "Purchase Orders Generated Grouped by Vendor!");
 	}
 
-
 	public function store(Request $request)
 	{
 
@@ -221,6 +220,7 @@ class ChargeOrderController extends Controller
 			'ref_document_identity' => $request->ref_document_identity ?? "",
 			'document_date' => ($request->document_date) ?? "",
 			'salesman_id' => $request->salesman_id ?? "",
+			'customer_po_no' => $request->customer_po_no ?? "",
 			'customer_id' => $request->customer_id ?? "",
 			'event_id' => $request->event_id ?? "",
 			'vessel_id' => $request->vessel_id ?? "",
@@ -290,6 +290,7 @@ class ChargeOrderController extends Controller
 		$data->ref_document_identity = $request->ref_document_identity;
 		$data->document_date = $request->document_date;
 		$data->salesman_id = $request->salesman_id;
+		$data->customer_po_no = $request->customer_po_no;
 		$data->customer_id = $request->customer_id;
 		$data->event_id = $request->event_id;
 		$data->vessel_id = $request->vessel_id;
@@ -318,6 +319,8 @@ class ChargeOrderController extends Controller
 					'product_code' => $value['product_code'] ?? "",
 					'purchase_order_id' => $value['purchase_order_id'] ?? "",
 					'purchase_order_detail_id' => $value['purchase_order_detail_id'] ?? "",
+					'picklist_id' => $value['picklist_id'] ?? "",
+					'picklist_detail_id' => $value['picklist_detail_id'] ?? "",
 					'product_id' => $value['product_id'] ?? "",
 					'product_name' => $value['product_name'] ?? "",
 					'product_type_id' => $value['product_type_id'] ?? "",

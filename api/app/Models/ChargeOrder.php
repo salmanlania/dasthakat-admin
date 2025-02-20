@@ -24,6 +24,7 @@ class ChargeOrder extends Model
         "ref_document_identity",
         "document_date",
         "salesman_id",
+        "customer_po_no",
         "customer_id",
         "event_id",
         "vessel_id",
