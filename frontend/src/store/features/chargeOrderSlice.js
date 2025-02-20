@@ -73,6 +73,17 @@ export const createChargeOrderPO = createAsyncThunk(
   }
 );
 
+export const createChargeOrderPickList = createAsyncThunk(
+  'chargeOrder/PickList',
+  async (data, { rejectWithValue }) => {
+    try {
+      await api.post('/picklist', data);
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const bulkDeleteChargeOrder = createAsyncThunk(
   'chargeOrder/bulkDelete',
   async (ids, { rejectWithValue }) => {
@@ -324,6 +335,7 @@ export const chargeOrderSlice = createSlice({
       state.initialFormValues = {
         document_identity: data.document_identity,
         document_date: data.document_date ? dayjs(data.document_date) : null,
+        customer_po_no: data.customer_po_no,
         remarks: data.remarks,
         agent_id: data.agent
           ? {
@@ -392,6 +404,8 @@ export const chargeOrderSlice = createSlice({
           : null,
         product_name: detail.product_name,
         description: detail.description,
+        picklist_id: detail.picklist_id || null,
+        picklist_detail_id: detail.picklist_detail_id || null,
         stock_quantity: detail?.product?.stock?.quantity
           ? parseFloat(detail.product.stock.quantity)
           : 0,
@@ -417,8 +431,8 @@ export const chargeOrderSlice = createSlice({
     });
 
     addCase(updateChargeOrder.pending, (state, action) => {
-      const isPOCreating = action.meta.arg?.poWillCreate || false;
-      state.isFormSubmitting = isPOCreating ? 'PO_CREATING' : true;
+      const additionalRequest = action.meta.arg?.additionalRequest || false;
+      state.isFormSubmitting = additionalRequest || true;
     });
     addCase(updateChargeOrder.fulfilled, (state) => {
       state.isFormSubmitting = false;
@@ -428,13 +442,24 @@ export const chargeOrderSlice = createSlice({
     });
 
     addCase(createChargeOrderPO.pending, (state) => {
-      state.isFormSubmitting = 'PO_CREATING';
+      state.isFormSubmitting = 'CREATE_PO';
     });
     addCase(createChargeOrderPO.fulfilled, (state) => {
       state.isFormSubmitting = false;
       state.initialFormValues = null;
     });
     addCase(createChargeOrderPO.rejected, (state) => {
+      state.isFormSubmitting = false;
+    });
+
+    addCase(createChargeOrderPickList.pending, (state) => {
+      state.isFormSubmitting = 'CREATE_PICK_LIST';
+    });
+    addCase(createChargeOrderPickList.fulfilled, (state) => {
+      state.isFormSubmitting = false;
+      state.initialFormValues = null;
+    });
+    addCase(createChargeOrderPickList.rejected, (state) => {
       state.isFormSubmitting = false;
     });
 

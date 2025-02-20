@@ -7,7 +7,7 @@ import { MdOutlineEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect';
-import { productTypeOptions } from '../../components/Form/ProductForm';
+import AsyncSelectNoPaginate from '../../components/AsyncSelect/AsyncSelectNoPaginate.jsx';
 import PageHeading from '../../components/heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
@@ -20,7 +20,6 @@ import {
   setProductListParams
 } from '../../store/features/productSlice';
 import { formatThreeDigitCommas, removeCommas } from '../../utils/number';
-import AsyncSelectNoPaginate from '../../components/AsyncSelect/AsyncSelectNoPaginate.jsx';
 
 const Product = () => {
   const dispatch = useDispatch();

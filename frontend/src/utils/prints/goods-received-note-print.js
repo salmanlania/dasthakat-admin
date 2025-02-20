@@ -3,12 +3,12 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
 import GMSLogo from '../../assets/logo-with-title.png';
-import Logo1 from '../../assets/quotationPrintLogo/logo1.png';
-import Logo2 from '../../assets/quotationPrintLogo/logo2.png';
-import Logo3 from '../../assets/quotationPrintLogo/logo3.png';
-import Logo4 from '../../assets/quotationPrintLogo/logo4.png';
-import Logo5 from '../../assets/quotationPrintLogo/logo5.png';
-import Logo6 from '../../assets/quotationPrintLogo/logo6.png';
+import Logo1 from '../../assets/quotation/logo1.png';
+import Logo2 from '../../assets/quotation/logo2.png';
+import Logo3 from '../../assets/quotation/logo3.png';
+import Logo4 from '../../assets/quotation/logo4.png';
+import Logo5 from '../../assets/quotation/logo5.png';
+import Logo6 from '../../assets/quotation/logo6.png';
 
 import { formatThreeDigitCommas, roundUpto } from '../number';
 

@@ -3,10 +3,12 @@ import 'jspdf-autotable';
 
 import dayjs from 'dayjs';
 import GMSLogo from '../../assets/logo-with-title.png';
-import Logo1 from '../../assets/purchaseOrderPrintLogo/logo1.png';
-import Logo2 from '../../assets/purchaseOrderPrintLogo/logo2.png';
-import Logo3 from '../../assets/purchaseOrderPrintLogo/logo3.png';
+import Logo1 from '../../assets/purchaseOrder/logo1.png';
+import Logo2 from '../../assets/purchaseOrder/logo2.png';
+import Logo3 from '../../assets/purchaseOrder/logo3.png';
 import { formatThreeDigitCommas } from '../number';
+
+const gmsAddress = 'Global Marine Safety 9145 Wallisville Road Houston TX 77029';
 
 const fillEmptyRows = (rows, rowsPerPage) => {
   // Calculate how many rows are required to fill the current page
@@ -104,21 +106,21 @@ const addHeader = (doc, data, sideMargin) => {
 
   // Add "Send To :" text
   doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont('times', 'bold');
   doc.text('Send To :', startSendToX + 4, startSendToY + 6); // x, y
   doc.rect(startSendToX, startSendToY + 10, sentToWidth, 0);
 
   // Add the content
   doc.setFontSize(8);
-  doc.setFont('helvetica', 'normal');
-  doc.setFont('helvetica', 'bold');
-  doc.text(data.supplier?.name || '', startSendToX + 4, startSendToY + 16);
-  doc.setFont('helvetica', 'normal');
-  const billToAddress = doc.splitTextToSize(data.supplier?.address, 88);
+  doc.setFont('times', 'normal');
+  doc.setFont('times', 'bold');
+  doc.text(data?.supplier?.name || '', startSendToX + 4, startSendToY + 16);
+  doc.setFont('times', 'normal');
+  const billToAddress = doc.splitTextToSize(data?.supplier?.address || '', 88);
   doc.text(billToAddress, startSendToX + 4, startSendToY + 20);
-  doc.text(`Tel : ${data.supplier?.contact1}`, startSendToX + 4, startSendToY + 30);
+  doc.text(`Tel : ${data?.supplier?.contact1 || ''}`, startSendToX + 4, startSendToY + 30);
   doc.text('Fax :', startSendToX + 4, startSendToY + 34);
-  doc.text(`Email : ${data.supplier?.email}`, startSendToX + 4, startSendToY + 38);
+  doc.text(`Email : ${data?.supplier?.email || ''}`, startSendToX + 4, startSendToY + 38);
 
   // Ship To box
   // Draw the main box
@@ -130,25 +132,24 @@ const addHeader = (doc, data, sideMargin) => {
 
   // Add "Ship To :" text
   doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont('times', 'bold');
   doc.text('Ship To :', startShipToX + 4, startShipToY + 6); // x, y
   doc.rect(startShipToX, startShipToY + 10, shipToWidth, 0);
 
   // Add the content
   doc.setFontSize(8);
-  doc.setFont('helvetica', 'normal');
-  const shipTo = doc.splitTextToSize(data.ship_to || '', 88);
+  doc.setFont('times', 'normal');
+  const shipTo = doc.splitTextToSize(data.ship_to || gmsAddress, 88);
   doc.text(shipTo, startShipToX + 4, startShipToY + 16);
 
   // Buyer's Info Table
-  const table1Column = ["Buyer's Name", "Buyer's Email", 'Required Date', 'Ship via', 'Department'];
+  const table1Column = ["Buyer's Name", "Buyer's Email", 'Required Date', 'Ship via'];
   const table1Rows = [
     [
       data.user ? data.user.user_name : '',
       data.user ? data.user.email : '',
       data.required_date ? dayjs(data.required_date).format('MM-DD-YYYY') : '',
-      data.ship_via || '',
-      data.department || ''
+      data.ship_via || ''
     ]
   ];
   doc.autoTable({
@@ -180,8 +181,8 @@ const addHeader = (doc, data, sideMargin) => {
       fillColor: [255, 255, 255]
     },
     columnStyles: {
-      1: { cellWidth: 61 },
-      0: { cellWidth: 61 },
+      0: { cellWidth: 69 },
+      1: { cellWidth: 81 },
       2: { cellWidth: 26 },
       3: { cellWidth: 26 },
       4: { cellWidth: 28 }
@@ -189,7 +190,12 @@ const addHeader = (doc, data, sideMargin) => {
   });
 };
 
-const addFooter = (doc, sideMargin, pageHeight) => {
+const addFooter = (doc, data, sideMargin, pageHeight) => {
+  console.log(data);
+  doc.setFont('times', 'bold');
+  doc.text('', sideMargin, pageHeight + 1); // Todo show vessel name from API
+  doc.setFont('times', 'normal');
+
   doc.text('Global Marine Safety - America All Rights Reserved', sideMargin, pageHeight + 8);
   doc.text('gms.com.sg', sideMargin, pageHeight + 12);
 
@@ -300,7 +306,7 @@ export const createPurchaseOrderPrint = (data) => {
     addHeader(doc, data, sideMargin);
 
     // Footer
-    addFooter(doc, sideMargin, pageHeight - 25);
+    addFooter(doc, data, sideMargin, pageHeight - 25);
   }
 
   doc.setProperties({

@@ -4,20 +4,8 @@ import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import productImagePlaceholder from '../../assets/img-placeholder.png';
 import AsyncSelect from '../AsyncSelect';
-import CommaSeparatedInput from '../Input/CommaSeparatedInput';
 import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate.jsx';
-import {
-  changeQuotationDetailValue,
-  resetQuotationDetail
-} from '../../store/features/quotationSlice.js';
-
-// eslint-disable-next-line react-refresh/only-export-components
-export const productTypeOptions = [
-  { value: 'Service', label: 'Service' },
-  { value: 'Inventory', label: 'Inventory' },
-  { value: 'IMPA', label: 'IMPA' },
-  { value: 'Other', label: 'Other' }
-];
+import CommaSeparatedInput from '../Input/CommaSeparatedInput';
 
 // eslint-disable-next-line react/prop-types
 const ProductForm = ({ mode, onSubmit }) => {

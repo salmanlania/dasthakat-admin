@@ -289,6 +289,10 @@ const Sidebar = () => {
           key: 'charge-order',
           label: <Link to="/charge-order">Charge Order</Link>,
           disabled: !permissions?.charge_order?.list
+        },
+        {
+          key: 'pick-list',
+          label: <Link to="/pick-list">Pick List</Link>
         }
       ]
     }

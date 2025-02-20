@@ -255,6 +255,23 @@ export const goodsReceivedNoteSlice = createSlice({
         document_identity: data.document_identity,
         document_date: data.document_date ? dayjs(data.document_date) : null,
         remarks: data.remarks,
+        quotation_id: data.quotation_id,
+        charge_order_id: data.charge_order_id,
+        type: data?.purchase_order?.type || null,
+        charge_no: data?.purchase_order?.charge_order?.document_identity,
+        purchase_order_no: data?.purchase_order?.charge_order?.customer_po_no,
+        event_id: data?.purchase_order?.charge_order?.event
+          ? {
+              value: data?.purchase_order?.charge_order?.event.event_id,
+              label: data?.purchase_order?.charge_order?.event.event_name
+            }
+          : null,
+        customer_id: data?.purchase_order?.charge_order?.customer
+          ? {
+              value: data?.purchase_order?.charge_order?.customer.customer_id,
+              label: data?.purchase_order?.charge_order?.customer.name
+            }
+          : null,
         payment_id: data.payment
           ? {
               value: data.payment.payment_id,

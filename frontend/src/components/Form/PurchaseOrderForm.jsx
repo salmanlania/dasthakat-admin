@@ -62,10 +62,10 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       department: values.department,
       supplier_id: values.supplier_id ? values.supplier_id.value : null,
       class1_id: values.class1_id ? values.class1_id.value : null,
-      customer_id: values.customer_id ? values.customer_id.value : null,
       buyer_id: values.buyer_id ? values.buyer_id.value : null,
-      event_id: values.event_id ? values.event_id.value : null,
       payment_id: values.payment_id ? values.payment_id.value : null,
+      quotation_id: initialFormValues.quotation_id,
+      charge_order_id: initialFormValues.charge_order_id,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
       required_date: values.required_date ? dayjs(values.required_date).format('YYYY-MM-DD') : null,
       purchase_order_detail: purchaseOrderDetails.map(({ id, ...detail }, index) => ({
@@ -594,7 +594,11 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
               type: 'Inventory'
             }
       }
-      scrollToFirstError>
+      scrollToFirstError={{
+        behavior: 'smooth',
+        block: 'center',
+        scrollMode: 'always'
+      }}>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
         <span className="text-gray-500">Purchase Order No:</span>
@@ -620,6 +624,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
         </Col>
+
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
             name="required_date"
@@ -665,40 +670,20 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
                 <Input disabled />
               </Form.Item>
 
-              <Form.Item name="quotation_no" label="PurchaseOrder No" className="w-full">
+              <Form.Item name="purchase_order_no" label="Purchase Order No" className="w-full">
                 <Input disabled />
               </Form.Item>
             </Col>
 
             <Col span={24} sm={12} md={8} lg={8}>
               <Form.Item name="event_id" label="Event">
-                <AsyncSelect
-                  endpoint="/event"
-                  valueKey="event_id"
-                  labelKey="name"
-                  labelInValue
-                  disabled
-                  addNewLink={
-                    permissions.event.list && permissions.event.add ? '/event/create' : null
-                  }
-                />
+                <Select labelInValue disabled />
               </Form.Item>
             </Col>
 
             <Col span={24} sm={12} md={8} lg={8}>
               <Form.Item name="customer_id" label="Customer">
-                <AsyncSelect
-                  endpoint="/customer"
-                  valueKey="customer_id"
-                  labelKey="name"
-                  labelInValue
-                  disabled
-                  addNewLink={
-                    permissions.customer.list && permissions.customer.add
-                      ? '/customer/create'
-                      : null
-                  }
-                />
+                <Select labelInValue disabled />
               </Form.Item>
             </Col>
           </>
@@ -718,7 +703,23 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
 
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="ship_via" label="Ship Via">
-            <Input />
+            <Select
+              options={[
+                {
+                  value: 'Courier',
+                  label: 'Courier'
+                },
+                {
+                  value: 'Delivery',
+                  label: 'Delivery'
+                },
+                {
+                  value: 'Will Call',
+                  label: 'Will Call'
+                }
+              ]}
+              allowClear
+            />
           </Form.Item>
         </Col>
 

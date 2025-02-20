@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Table } from 'antd';
+import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Select, Table } from 'antd';
 import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
 import { BiPlus } from 'react-icons/bi';
@@ -29,6 +29,8 @@ import { DetailSummaryInfo } from './QuotationForm';
 
 const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
+  const type = Form.useWatch('type', form);
+
   const handleError = useError();
   const dispatch = useDispatch();
   const { id } = useParams();
@@ -56,6 +58,8 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       type: values.type,
       remarks: values.remarks,
       supplier_id: values.supplier_id ? values.supplier_id.value : null,
+      quotation_id: values.quotation_id,
+      charge_order_id: values.charge_order_id,
       purchase_order_id: values.purchase_order_id ? values.purchase_order_id.value : null,
       payment_id: values.payment_id ? values.payment_id.value : null,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
@@ -228,8 +232,35 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
     if (!selected) return;
 
     try {
-      const { purchase_order_detail } = await dispatch(getPurchaseOrder(selected.value)).unwrap();
-      console.log(purchase_order_detail);
+      const { purchase_order_detail, ...values } = await dispatch(
+        getPurchaseOrder(selected.value)
+      ).unwrap();
+
+      if (values.type === 'Buyout') {
+        form.setFieldsValue({
+          type: values.type,
+          charge_order_id: values.charge_order_id || null,
+          quotation_id: values.quotation_id || null,
+          event_id: values?.charge_order?.event
+            ? {
+                value: values?.charge_order?.event.event_id,
+                label: values?.charge_order?.event.event_name
+              }
+            : null,
+          customer_id: values?.charge_order?.customer
+            ? {
+                value: values?.charge_order?.customer.customer_id,
+                label: values?.charge_order?.customer.name
+              }
+            : null,
+          charge_no: values?.charge_order?.document_identity || null,
+          purchase_order_no: values?.charge_order?.customer_po_no || null
+        });
+      } else {
+        form.setFieldsValue({
+          type: values.type
+        });
+      }
 
       if (!purchase_order_detail || !purchase_order_detail.length) return;
 
@@ -651,6 +682,12 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
           {mode === 'edit' ? initialFormValues?.document_identity : 'AUTO'}
         </span>
       </p>
+
+      {/* Hidden Fields */}
+      <Form.Item name="type" hidden />
+      <Form.Item name="type" hidden />
+      <Form.Item name="type" hidden />
+
       <Row gutter={12}>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
@@ -683,6 +720,9 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
               valueKey="purchase_order_id"
               labelKey="document_identity"
               labelInValue
+              params={{
+                available_po: 1
+              }}
               onChange={onPOChange}
               addNewLink={
                 permissions.purchase_order.list && permissions.purchase_order.add
@@ -692,6 +732,32 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
             />
           </Form.Item>
         </Col>
+
+        {type === 'Buyout' && (
+          <>
+            <Col span={24} sm={12} md={8} lg={8} className="flex gap-3">
+              <Form.Item name="charge_no" label="Charge No" className="w-full">
+                <Input disabled />
+              </Form.Item>
+
+              <Form.Item name="purchase_order_no" label="Purchase Order No" className="w-full">
+                <Input disabled />
+              </Form.Item>
+            </Col>
+
+            <Col span={24} sm={12} md={8} lg={8}>
+              <Form.Item name="event_id" label="Event">
+                <Select labelInValue disabled />
+              </Form.Item>
+            </Col>
+
+            <Col span={24} sm={12} md={8} lg={8}>
+              <Form.Item name="customer_id" label="Customer">
+                <Select labelInValue disabled />
+              </Form.Item>
+            </Col>
+          </>
+        )}
 
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="payment_id" label="Payment Terms">
