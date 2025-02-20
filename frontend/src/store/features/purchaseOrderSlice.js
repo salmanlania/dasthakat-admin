@@ -255,7 +255,6 @@ export const purchaseOrderSlice = createSlice({
         buyer_name: data.buyer_name,
         buyer_email: data.buyer_email,
         ship_via: data.ship_via,
-        department: data.department,
         remarks: data.remarks,
         ship_to: data.ship_to,
         charge_no: data?.charge_order?.document_identity,

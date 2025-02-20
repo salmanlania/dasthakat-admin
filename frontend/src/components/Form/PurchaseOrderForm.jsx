@@ -59,7 +59,6 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       buyer_name: values.buyer_name,
       yer_email: values.buyer_email,
       ship_via: values.ship_via,
-      department: values.department,
       supplier_id: values.supplier_id ? values.supplier_id.value : null,
       class1_id: values.class1_id ? values.class1_id.value : null,
       buyer_id: values.buyer_id ? values.buyer_id.value : null,
@@ -599,7 +598,8 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
           ? initialFormValues
           : {
               document_date: dayjs(),
-              type: 'Inventory'
+              type: 'Inventory',
+              ship_to: 'Global Marine Safety 9145 Wallisville Road Houston TX 77029'
             }
       }
       scrollToFirstError={{
@@ -728,12 +728,6 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
               ]}
               allowClear
             />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="department" label="Department">
-            <Input />
           </Form.Item>
         </Col>
 

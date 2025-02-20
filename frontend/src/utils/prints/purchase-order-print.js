@@ -8,8 +8,6 @@ import Logo2 from '../../assets/purchaseOrder/logo2.png';
 import Logo3 from '../../assets/purchaseOrder/logo3.png';
 import { formatThreeDigitCommas } from '../number';
 
-const gmsAddress = 'Global Marine Safety 9145 Wallisville Road Houston TX 77029';
-
 const fillEmptyRows = (rows, rowsPerPage) => {
   // Calculate how many rows are required to fill the current page
   const rowsOnLastPage = rows.length % rowsPerPage;
@@ -25,11 +23,8 @@ const fillEmptyRows = (rows, rowsPerPage) => {
 
 const addHeader = (doc, data, sideMargin) => {
   // *** Header ***
-  // Logo's
+  // Logo
   doc.addImage(GMSLogo, 'PNG', 8, 3, 32, 26); // x, y, width, height
-  doc.addImage(Logo1, 'PNG', 104, 5, 26, 18); // x, y, width, height
-  doc.addImage(Logo2, 'PNG', 136, 5, 42, 24); // x, y, width, height
-  doc.addImage(Logo3, 'PNG', 178, 5, 26, 22); // x, y, width, height
 
   // Main Heading
   doc.setFontSize(18);
@@ -139,7 +134,7 @@ const addHeader = (doc, data, sideMargin) => {
   // Add the content
   doc.setFontSize(8);
   doc.setFont('times', 'normal');
-  const shipTo = doc.splitTextToSize(data.ship_to || gmsAddress, 88);
+  const shipTo = doc.splitTextToSize(data.ship_to, 88);
   doc.text(shipTo, startShipToX + 4, startShipToY + 16);
 
   // Buyer's Info Table
@@ -191,9 +186,9 @@ const addHeader = (doc, data, sideMargin) => {
 };
 
 const addFooter = (doc, data, sideMargin, pageHeight) => {
-  console.log(data);
+  const vesselName = data?.charge_order?.vessel?.name || '';
   doc.setFont('times', 'bold');
-  doc.text('', sideMargin, pageHeight + 1); // Todo show vessel name from API
+  doc.text(vesselName, sideMargin, pageHeight + 1);
   doc.setFont('times', 'normal');
 
   doc.text('Global Marine Safety - America All Rights Reserved', sideMargin, pageHeight + 8);
