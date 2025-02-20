@@ -15,9 +15,36 @@ export const getPickListList = createAsyncThunk(
   }
 );
 
+export const getPickListListReceives = createAsyncThunk(
+  'picklist/getReceives',
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/picklist-received/${id}`);
+      return res.data.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
+export const updatePickListListReceives = createAsyncThunk(
+  'picklist/updateReceives',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      await api.put(`/picklist-received/${id}`, data);
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 const initialState = {
   isListLoading: false,
   list: [],
+  pickListOpenModalId: null,
+  pickListReceives: null,
+  isPickListReceivesLoading: false,
+  isPickListReceivesSaving: false,
   params: {
     page: 1,
     limit: 50,
@@ -40,6 +67,10 @@ export const pickListSlice = createSlice({
         ...state.params,
         ...action.payload
       };
+    },
+
+    setPickListOpenModalId: (state, action) => {
+      state.pickListOpenModalId = action.payload;
     }
   },
   extraReducers: ({ addCase }) => {
@@ -58,8 +89,30 @@ export const pickListSlice = createSlice({
     addCase(getPickListList.rejected, (state) => {
       state.isListLoading = false;
     });
+
+    addCase(getPickListListReceives.pending, (state) => {
+      state.isPickListReceivesLoading = true;
+    });
+    addCase(getPickListListReceives.fulfilled, (state, action) => {
+      state.isPickListReceivesLoading = false;
+      state.pickListReceives = action.payload;
+    });
+    addCase(getPickListListReceives.rejected, (state) => {
+      state.isPickListReceivesLoading = false;
+    });
+
+    addCase(updatePickListListReceives.pending, (state) => {
+      state.isPickListReceivesSaving = true;
+    });
+    addCase(updatePickListListReceives.fulfilled, (state, action) => {
+      state.isPickListReceivesSaving = false;
+      state.pickListReceives = null;
+    });
+    addCase(updatePickListListReceives.rejected, (state) => {
+      state.isPickListReceivesSaving = false;
+    });
   }
 });
 
-export const { setPickListListParams } = pickListSlice.actions;
+export const { setPickListListParams, setPickListOpenModalId } = pickListSlice.actions;
 export default pickListSlice.reducer;
