@@ -1,12 +1,18 @@
-import { Input, Table } from 'antd';
+import { Button, Input, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect } from 'react';
+import { LuHand, LuListChecks } from 'react-icons/lu';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/heading/PageHeading';
+import PickListReceiveModal from '../../components/Modals/PickListReceiveModal';
 import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
-import { getPickListList, setPickListListParams } from '../../store/features/pickListSlice';
+import {
+  getPickListList,
+  setPickListListParams,
+  setPickListOpenModalId
+} from '../../store/features/pickListSlice';
 
 const PickList = () => {
   const dispatch = useDispatch();
@@ -95,7 +101,18 @@ const PickList = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_, {}) => <></>,
+      render: (_, { id }) => (
+        <div className="flex items-center gap-2">
+          <Tooltip title="Items Receive">
+            <Button
+              size="small"
+              type="primary"
+              icon={<LuListChecks size={18} />}
+              onClick={() => dispatch(setPickListOpenModalId(id))}
+            />
+          </Tooltip>
+        </div>
+      ),
       width: 70,
       fixed: 'right'
     }
@@ -165,6 +182,8 @@ const PickList = () => {
           }}
         />
       </div>
+
+      <PickListReceiveModal />
     </>
   );
 };

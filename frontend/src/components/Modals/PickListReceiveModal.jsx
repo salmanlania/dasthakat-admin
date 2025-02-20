@@ -1,0 +1,219 @@
+import { Button, Form, Input, Modal, Table, Tabs } from 'antd';
+import dayjs from 'dayjs';
+import { useEffect } from 'react';
+import toast from 'react-hot-toast';
+import { useDispatch, useSelector } from 'react-redux';
+import useError from '../../hooks/useError';
+import {
+  getPickListListReceives,
+  setPickListOpenModalId,
+  updatePickListListReceives
+} from '../../store/features/pickListSlice';
+import NumberInput from '../Input/NumberInput';
+
+const HistoryTab = ({ details }) => {
+  console.log(details);
+
+  const columns = [
+    {
+      title: 'Sr #',
+      dataIndex: 'sr',
+      key: 'sr',
+      width: 60
+    },
+    {
+      title: 'Product',
+      dataIndex: 'product',
+      key: 'product',
+      width: 200
+    },
+    {
+      title: 'Quantity',
+      dataIndex: 'quantity',
+      key: 'quantity',
+      width: 120
+    }
+  ];
+
+  const dataSource = details.map((detail) => ({
+    id: detail.picklist_received_detail_id,
+    key: detail.picklist_received_detail_id,
+    product: detail?.product?.name || '',
+    quantity: detail.quantity,
+    sr: detail.sort_order + 1
+  }));
+
+  return <Table dataSource={dataSource} columns={columns} pagination={false} size="small" />;
+};
+
+const NewReceivesTab = ({ details }) => {
+  const handleError = useError();
+  const dispatch = useDispatch();
+  const [form] = Form.useForm();
+  const { isPickListReceivesSaving, pickListOpenModalId } = useSelector((state) => state.pickList);
+
+  const dataSource = details.map((detail) => ({
+    id: detail.picklist_detail_id,
+    key: detail.picklist_detail_id,
+    product_name: detail?.product_name || '',
+    product_id: detail.product_id,
+    remaining_quantity: detail.remaining_quantity
+  }));
+
+  const detailColumns = [
+    {
+      title: 'Sr #',
+      dataIndex: 'sr',
+      key: 'sr',
+      width: 60,
+      render: (_, __, index) => `${index + 1}.`
+    },
+    {
+      title: 'Product',
+      dataIndex: 'product_name',
+      key: 'product_name',
+      width: 200,
+      render: (_, __, index) => <p>{dataSource[index].product_name}</p>
+    },
+    {
+      title: 'Quantity',
+      dataIndex: 'remaining_quantity',
+      key: 'remaining_quantity',
+      width: 120,
+      render: (_, __, index) => (
+        <Form.Item
+          name={[index, 'remaining_quantity']}
+          validateFirst
+          rules={[
+            { required: true, message: 'Quantity required' },
+            {
+              validator: (_, value) => {
+                if (+value < 1) {
+                  return Promise.reject('Quantity must be greater than 0');
+                } else if (value > dataSource[index].remaining_quantity) {
+                  return Promise.reject(
+                    `Quantity cannot be greater than ${dataSource[index].remaining_quantity}`
+                  );
+                }
+                return Promise.resolve();
+              }
+            }
+          ]}
+          className="m-0">
+          <NumberInput />
+        </Form.Item>
+      )
+    }
+  ];
+
+  const onSubmit = async (values) => {
+    const details = values.details.map((detail, index) => ({
+      picklist_detail_id: dataSource[index].id,
+      product_id: dataSource[index].product_id,
+      quantity: detail.remaining_quantity
+    }));
+
+    const totalQuantity = details.reduce((total, detail) => +total + (+detail.quantity || 0), 0);
+
+    const payload = {
+      total_quantity: totalQuantity,
+      picklist_detail: details
+    };
+
+    try {
+      await dispatch(
+        updatePickListListReceives({ id: pickListOpenModalId, data: payload })
+      ).unwrap();
+      dispatch(setPickListOpenModalId(null));
+      toast.success('Picklist receives updated successfully');
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  return (
+    <Form
+      name="pick-list-receives"
+      form={form}
+      initialValues={{
+        details: dataSource
+      }}
+      onFinish={onSubmit}>
+      <Form.List name="details">
+        {(fields) => (
+          <Table
+            dataSource={fields}
+            columns={detailColumns}
+            size="small"
+            pagination={false}
+            rowKey="key"
+          />
+        )}
+      </Form.List>
+
+      <div className="mt-4 flex items-center justify-end">
+        <Button
+          type="primary"
+          className="w-28"
+          onClick={() => form.submit()}
+          loading={isPickListReceivesSaving}>
+          Save
+        </Button>
+      </div>
+    </Form>
+  );
+};
+
+const PickListReceiveModal = () => {
+  const dispatch = useDispatch();
+  const handleError = useError();
+  const { pickListOpenModalId, pickListReceives, isPickListReceivesLoading } = useSelector(
+    (state) => state.pickList
+  );
+
+  const closeModal = () => {
+    dispatch(setPickListOpenModalId(null));
+  };
+
+  useEffect(() => {
+    if (!pickListOpenModalId) {
+      return closeModal();
+    }
+
+    dispatch(getPickListListReceives(pickListOpenModalId)).unwrap().catch(handleError);
+  }, [pickListOpenModalId]);
+
+  console.log(pickListReceives);
+
+  return (
+    <Modal
+      open={pickListOpenModalId}
+      closable={false}
+      onCancel={closeModal}
+      loading={isPickListReceivesLoading}
+      footer={null}
+      width={840}>
+      {pickListReceives ? (
+        <Tabs
+          defaultActiveKey="newReceives"
+          items={[
+            ...pickListReceives.history.map((history) => ({
+              label: history.document_date
+                ? dayjs(history.document_date).format('MMM-DD-YYYY')
+                : dayjs().format('MMM-DD-YYYY'),
+              key: history.document_identity,
+              children: <HistoryTab details={history.picklist_received_detail || []} />
+            })),
+            {
+              label: 'New Receives',
+              key: 'newReceives',
+              children: <NewReceivesTab details={pickListReceives.picklist || []} />
+            }
+          ]}
+        />
+      ) : null}
+    </Modal>
+  );
+};
+
+export default PickListReceiveModal;
