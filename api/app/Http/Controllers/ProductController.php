@@ -38,9 +38,9 @@ class ProductController extends Controller
 			->leftJoin('product_type as pt', 'pt.product_type_id', '=', 'product.product_type_id')
 			->leftJoin('unit as u', 'u.unit_id', '=', 'product.unit_id')
 			->leftJoin('brand as b', 'b.brand_id', '=', 'product.brand_id');
-			$query->where('product.company_id', '=', $request->company_id);
-			$query->where('product.company_branch_id', '=', $request->company_branch_id);
-	
+		$query->where('product.company_id', '=', $request->company_id);
+		$query->where('product.company_branch_id', '=', $request->company_branch_id);
+
 		if (!empty($name)) $query->where('product.name', 'like', '%' . $name . '%');
 		if (!empty($impa_code)) $query->where('product.impa_code', 'like', '%' . $impa_code . '%');
 		if (!empty($product_type_id)) $query->where('product.product_type_id', $product_type_id);
@@ -53,7 +53,7 @@ class ProductController extends Controller
 		if ($all != 1) $query->where('product.status', '=', 1);
 		if ($status !== "") $query->where('product.status', '=', $status);
 		if (!empty($product_code)) $query->where('product.product_code', '=',  $product_code)->orWhere('product.impa_code', '=', $product_code);
-		
+
 		if (!empty($search)) {
 			$query->where(function ($query) use ($search) {
 				$query->where('product.name', 'like', '%' . $search . '%')
@@ -131,10 +131,10 @@ class ProductController extends Controller
 			'product_type_id' => 'required',
 			'name' => [
 				'required',
-				Rule::unique('product')->ignore($id, 'product_id')->where('company_id', $request->company_id)
+				Rule::unique('product')->ignore($id, 'product_id')->where('company_id', $request['company_id'])
 			],
 			'impa_code' => [
-				Rule::unique('product')->ignore($id, 'product_id')->where('company_id', $request->company_id)
+				Rule::unique('product')->ignore($id, 'product_id')->where('company_id', $request['company_id'])
 			]
 		];
 
@@ -145,7 +145,6 @@ class ProductController extends Controller
 	public function store(Request $request)
 	{
 		$data = $request->all();
-
 		// Validation Rules
 		$isError = $this->Validator($request->all());
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
