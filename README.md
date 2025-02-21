@@ -9,7 +9,7 @@ This project is a full-stack application built with **React** on the frontend an
 To set up the project, ensure the following are installed on your system:
 
 - **Laragon** or **XAMPP**: A local development environment for PHP projects.
-- **PHP**: Version 8.1 or higher.
+- **PHP**: Version 8.1 <> 8.2.
 - **Composer**: Dependency manager for PHP.
 - **Node.js**: For managing frontend dependencies.
 
@@ -115,4 +115,32 @@ php -S localhost:8000 -t public
 cd ./frontend
 npm install
 npm run dev
+```
+
+### Setup Github Secret Variables
+
+```
+BASE_PATH=/staging/gms
+API_URL=https://dev82.bharmalsystems.net/staging/gms/api
+
+APP_NAME=GMS
+APP_KEY=
+APP_TIMEZONE=Asia/Karachi
+
+DB_HOST=localhost
+DB_NAME=
+DB_USERNAME=
+DB_PASSWORD=
+
+MAILER=
+MAIL_HOST=
+MAIL_PORT=
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_FROM_ADDRESS=
+MAIL_FROM_NAME=
+
+FTP_HOST=
+FTP_USERNAME=
+FTP_PASSWORD=
 ```

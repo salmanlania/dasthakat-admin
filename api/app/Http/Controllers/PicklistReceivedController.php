@@ -27,7 +27,7 @@ class PicklistReceivedController extends Controller
 		$receivedData = PicklistReceived::with("picklist_received_detail", "picklist_received_detail.product")
 			->where('picklist_id', $id)
 			->orderBy('created_at', 'asc')
-			->get();
+		->get();
 
 		$picklist_remainings = [];
 
