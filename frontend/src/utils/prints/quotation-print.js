@@ -15,6 +15,8 @@ import QuotationTerms from '../../assets/quotation/quotationTerms.pdf';
 
 import { formatThreeDigitCommas, roundUpto } from '../number';
 
+import { boldFont, regularFont } from './font';
+
 const mergePDFs = async (quotationPDFBlob) => {
   const quotationPDFBytes = await quotationPDFBlob.arrayBuffer();
   const quotationPDF = await PDFDocument.load(quotationPDFBytes);
@@ -59,11 +61,11 @@ const fillEmptyRows = (rows, rowsPerPage, notesLength = 1) => {
 
 const addHeader = (doc, data, pageWidth, sideMargin) => {
   doc.setFontSize(20);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont('Radiate', 'bold');
   doc.text('Global Marine Safety - America', pageWidth / 2, 12, {
     align: 'center'
   });
-  doc.setFont('helvetica', 'normal');
+  doc.setFont('Radiate', 'normal');
   doc.setFontSize(10);
   doc.text('9145 Wallisville Rd, Houston TX 77029, USA', pageWidth / 2, 18, {
     align: 'center'
@@ -82,10 +84,10 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
 
   // Bill To and Ship To
   doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont('Radiate', 'bold');
   doc.text('Bill To', sideMargin, 40);
   doc.text('Ship To', 140, 40);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont('Radiate', 'normal');
 
   const billTo = doc.splitTextToSize(
     `${data.customer ? `${data.customer.name},` : ''}\n${
@@ -98,12 +100,17 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   const shipTo = doc.splitTextToSize(data.vessel ? data.vessel.name : '', 68);
   doc.text(shipTo, 140, 45);
 
+  // ESTIMATE
   doc.setFontSize(16);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont('Radiate', 'bold');
   doc.text('ESTIMATE', pageWidth / 2, 62, {
     align: 'center'
   });
-  doc.setFont('helvetica', 'normal');
+  doc.setDrawColor(32, 50, 114);
+  doc.setLineWidth(0.6);
+  doc.line(pageWidth / 2 + 16, 64, 89, 64);
+
+  doc.setFont('Radiate', 'normal');
   doc.setFontSize(10);
 
   // Table 1
@@ -146,7 +153,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       fillColor: [221, 217, 196]
     },
     styles: {
-      font: 'helvetica',
+      font: 'Radiate',
       halign: 'center',
       valign: 'middle',
       lineWidth: 0.1,
@@ -189,7 +196,7 @@ const addFooter = (doc, pageWidth, pageHeight) => {
   const currentPage = doc.internal.getCurrentPageInfo().pageNumber;
   const totalPages = doc.internal.getNumberOfPages();
 
-  doc.setFont('helvetica', 'bolditalic');
+  doc.setFont('Radiate', 'bold');
   doc.text(
     currentPage === totalPages ? `Last page` : `Continue to page ${currentPage + 1}`,
     pageWidth / 2,
@@ -198,8 +205,8 @@ const addFooter = (doc, pageWidth, pageHeight) => {
       align: 'center'
     }
   );
-
-  doc.setFont('helvetica', 'normal');
+  doc.setFont('Radiate', 'normal');
+  doc.setFontSize(9);
   const deliveryText =
     'Remit Payment to: Global Marine Safety Service Inc Frost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44';
   doc.text(deliveryText, pageWidth / 2, pageHeight, {
@@ -210,6 +217,16 @@ const addFooter = (doc, pageWidth, pageHeight) => {
 export const createQuotationPrint = async (data) => {
   const doc = new jsPDF();
   doc.setTextColor(32, 50, 114);
+
+  // Set Regular Font
+  doc.addFileToVFS('Radiate-normal.ttf', regularFont);
+  doc.addFont('Radiate-normal.ttf', 'Radiate', 'normal');
+
+  // Set Bold Font
+  doc.addFileToVFS('Radiate-bold.ttf', boldFont);
+  doc.addFont('Radiate-bold.ttf', 'Radiate', 'bold');
+
+  doc.setFont('Radiate');
 
   const sideMargin = 4;
 
@@ -232,8 +249,9 @@ export const createQuotationPrint = async (data) => {
   const table2Rows = [];
   if (data.quotation_detail) {
     data.quotation_detail.forEach((detail, index) => {
+      console.log(detail);
       const sr = detail.sort_order + 1;
-      const description = `${detail?.product_type?.product_type_id === 4 ? detail?.product_name || '' : detail?.product?.product_name || ''}\n \n${detail?.description || ''}`;
+      const description = `${detail?.product_type?.product_type_id === 4 ? detail?.product_name || '' : detail?.product?.product_name || ''}`;
       const uom = detail.unit ? detail.unit.name : '';
       const quantity = detail.quantity ? formatThreeDigitCommas(parseFloat(detail.quantity)) : '';
       const pricePerUnit = detail.rate ? `$${formatThreeDigitCommas(detail.rate)}` : '';
@@ -249,21 +267,23 @@ export const createQuotationPrint = async (data) => {
         : '';
 
       const row = [
-        sr,
+        { content: sr, rowSpan: 2 },
         {
           content: description,
           styles: { halign: 'left' }
         },
-        uom,
-        quantity,
-        { content: pricePerUnit, styles: { halign: 'right' } },
-        { content: grossAmount, styles: { halign: 'right' } },
-        discountPercent,
-        { content: discountAmount, styles: { halign: 'right' } },
-        { content: netAmount, styles: { halign: 'right' } }
+        { content: uom, rowSpan: 2 },
+        { content: quantity, rowSpan: 2 },
+        { content: pricePerUnit, styles: { halign: 'right' }, rowSpan: 2 },
+        { content: grossAmount, styles: { halign: 'right' }, rowSpan: 2 },
+        { content: discountPercent, rowSpan: 2 },
+        { content: discountAmount, styles: { halign: 'right' }, rowSpan: 2 },
+        { content: netAmount, styles: { halign: 'right' }, rowSpan: 2 }
       ];
 
-      table2Rows.push(row);
+      const notesRow = [{ content: 'ssss', styles: { halign: 'left' } }];
+
+      table2Rows.push(row, notesRow);
     });
   }
 
@@ -286,7 +306,7 @@ export const createQuotationPrint = async (data) => {
     styles: {
       halign: 'center',
       valign: 'middle',
-      font: 'helvetica',
+      font: 'Radiate',
       fontSize: 7,
       lineWidth: 0.1,
       lineColor: [116, 116, 116]
@@ -301,17 +321,17 @@ export const createQuotationPrint = async (data) => {
     rowPageBreak: 'avoid',
     columnStyles: {
       0: { cellWidth: 10 },
-      1: { cellWidth: 84 },
+      1: { cellWidth: 82 },
       2: { cellWidth: 10 },
       3: { cellWidth: 10 },
       4: { cellWidth: 14 },
       5: { cellWidth: 19 },
-      6: { cellWidth: 14 },
-      7: { cellWidth: 14 },
+      6: { cellWidth: 15 },
+      7: { cellWidth: 15 },
       8: { cellWidth: 27 }
     },
     didParseCell: function (data) {
-      data.cell.styles.minCellHeight = 12;
+      data.cell.styles.minCellHeight = 9;
     }
   });
 
@@ -410,7 +430,7 @@ export const createQuotationPrint = async (data) => {
       lineColor: [116, 116, 116],
       valign: 'middle',
       halign: 'center',
-      font: 'helvetica'
+      font: 'Radiate'
     },
     bodyStyles: {
       fontSize: 7,

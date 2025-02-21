@@ -39,7 +39,7 @@ const HistoryTab = ({ details }) => {
     id: detail.picklist_received_detail_id,
     key: detail.picklist_received_detail_id,
     product: detail?.product?.name || '',
-    quantity: detail.quantity,
+    quantity: parseFloat(detail.quantity || 0),
     sr: detail.sort_order + 1
   }));
 
@@ -57,7 +57,7 @@ const NewReceivesTab = ({ details }) => {
     key: detail.picklist_detail_id,
     product_name: detail?.product_name || '',
     product_id: detail.product_id,
-    remaining_quantity: detail.remaining_quantity
+    remaining_quantity: detail.remaining_quantity ? parseFloat(detail.remaining_quantity) : 0
   }));
 
   const detailColumns = [
@@ -197,8 +197,6 @@ const PickListReceiveModal = () => {
 
     dispatch(getPickListListReceives(pickListOpenModalId)).unwrap().catch(handleError);
   }, [pickListOpenModalId]);
-
-  console.log(pickListReceives);
 
   return (
     <Modal

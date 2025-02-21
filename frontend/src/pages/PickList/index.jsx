@@ -133,7 +133,7 @@ const PickList = () => {
 
   const dataSource = list.map((item) => ({
     document_identity: item.document_identity,
-    total_quantity: item.total_quantity,
+    total_quantity: item.total_quantity ? parseFloat(item.total_quantity) : 0,
     charge_order_no: item.charge_order?.document_identity,
     id: item.picklist_id,
     key: item.picklist_id
@@ -162,7 +162,7 @@ const PickList = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} companies`
+            showTotal: (total) => `Total ${total} pick list`
           }}
           onChange={(page, _, sorting) => {
             dispatch(
