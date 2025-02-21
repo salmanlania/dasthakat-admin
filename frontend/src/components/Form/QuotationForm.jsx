@@ -1128,7 +1128,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
               mode="multiple"
               maxTagCount="responsive"
               onChange={(selected) => onTermChange(selected)}
-              addNewLink={permissions.terms.list && permissions.terms.add ? '/terms' : null}
+              addNewLink={permissions.terms.list && permissions.terms.add ? '/notes' : null}
             />
           </Form.Item>
         </div>
