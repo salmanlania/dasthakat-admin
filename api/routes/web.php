@@ -3,6 +3,9 @@
 
 /** @var \Laravel\Lumen\Routing\Router $router */
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -19,6 +22,14 @@
 $router->group([
    'middleware' => ['cors'],
 ], function ($router) {});
+
+$router->get('/run-migrations', function (Request $request) {
+   if ($request->header('X-DEPLOY-TOKEN') !== env('APP_KEY')) {
+       return response()->json(['error' => 'Unauthorized'], 403);
+   }
+   Artisan::call('migrate --force');
+   return response()->json(['message' => 'Migrations run successfully']);
+});
 
 $router->get('test', 'Controller@testApi');
 
