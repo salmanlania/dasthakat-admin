@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import EventForm from '../../components/Form/EventForm';
-import PageHeading from '../../components/heading/PageHeading';
+import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
 import { getEvent, updateEvent } from '../../store/features/eventSlice';
 

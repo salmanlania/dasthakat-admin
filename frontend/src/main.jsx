@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import './index.css';
 import Routes from './Routes.jsx';
 import { store } from './store/index.js';
-import Theme from './utils/theme.jsx';
+import Theme from './utils/Theme.jsx';
 
 createRoot(document.getElementById('root')).render(
   <Theme>

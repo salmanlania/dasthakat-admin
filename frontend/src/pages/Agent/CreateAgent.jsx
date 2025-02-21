@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import AgentForm from '../../components/Form/AgentForm';
-import PageHeading from '../../components/heading/PageHeading';
+import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
 import { createAgent } from '../../store/features/agentSlice';
 

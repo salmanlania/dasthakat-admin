@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import VendorForm from '../../components/Form/VendorForm';
-import PageHeading from '../../components/heading/PageHeading';
+import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
 import { getVendor, updateVendor } from '../../store/features/vendorSlice';
 

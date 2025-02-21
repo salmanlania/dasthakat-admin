@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import CompanyForm from '../../components/Form/CompanyForm';
-import PageHeading from '../../components/heading/PageHeading';
+import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
 import { getCompany, updateCompany } from '../../store/features/companySlice';
 

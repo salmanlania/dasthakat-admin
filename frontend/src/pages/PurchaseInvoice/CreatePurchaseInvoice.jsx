@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import PurchaseInvoiceForm from '../../components/Form/PurchaseInvoiceForm';
-import PageHeading from '../../components/heading/PageHeading';
+import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
 import { createPurchaseInvoice } from '../../store/features/purchaseInvoiceSlice';
 

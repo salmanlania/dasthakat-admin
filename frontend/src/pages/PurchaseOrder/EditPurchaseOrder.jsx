@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import PurchaseOrderForm from '../../components/Form/PurchaseOrderForm';
-import PageHeading from '../../components/heading/PageHeading';
+import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
 import { getPurchaseOrder, updatePurchaseOrder } from '../../store/features/purchaseOrderSlice';
 

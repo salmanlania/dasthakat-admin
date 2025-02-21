@@ -1,6 +1,6 @@
 import { Breadcrumb } from 'antd';
 import VendorForm from '../../components/Form/VendorForm';
-import PageHeading from '../../components/heading/PageHeading';
+import PageHeading from '../../components/Heading/PageHeading';
 import { useNavigate } from 'react-router-dom';
 import useError from '../../hooks/useError';
 import { useDispatch } from 'react-redux';

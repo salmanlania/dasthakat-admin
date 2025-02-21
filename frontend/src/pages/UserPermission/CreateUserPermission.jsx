@@ -1,5 +1,5 @@
 import { Breadcrumb, Spin } from 'antd';
-import PageHeading from '../../components/heading/PageHeading';
+import PageHeading from '../../components/Heading/PageHeading';
 import { useDispatch, useSelector } from 'react-redux';
 import useError from '../../hooks/useError';
 import { useNavigate } from 'react-router-dom';

@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { LuHand, LuListChecks } from 'react-icons/lu';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncSelect from '../../components/AsyncSelect';
-import PageHeading from '../../components/heading/PageHeading';
+import PageHeading from '../../components/Heading/PageHeading';
 import PickListReceiveModal from '../../components/Modals/PickListReceiveModal';
 import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';

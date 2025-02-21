@@ -2,7 +2,7 @@ import { Col, DatePicker, Row, Select } from 'antd';
 import { FaArrowDown, FaArrowUp, FaDollarSign, FaReceipt } from 'react-icons/fa6';
 import { GoArrowUpRight } from 'react-icons/go';
 import DashboardCard from '../../components/Card/DashboardCard';
-import PageHeading from '../../components/heading/PageHeading';
+import PageHeading from '../../components/Heading/PageHeading';
 
 const shortcuts = [
   { title: 'Chart of Accounts' },

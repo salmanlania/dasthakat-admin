@@ -7,7 +7,7 @@ import { FcCancel } from 'react-icons/fc';
 import { GoTrash } from 'react-icons/go';
 import { MdOutlineEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
-import PageHeading from '../../components/heading/PageHeading';
+import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
