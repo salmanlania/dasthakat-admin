@@ -26,12 +26,12 @@ class PicklistController extends Controller
 					WHEN NOT EXISTS (
 						SELECT 1 FROM picklist_received_detail prd 
 						JOIN picklist_received pr ON pr.id = prd.picklist_received_id 
-						WHERE pr.picklist_id = picklist.id
+						WHERE pr.picklist_id = picklist.picklist_id
 					) THEN 3
 					WHEN NOT EXISTS (
 						SELECT 1 FROM picklist_detail pd 
-						LEFT JOIN picklist_received_detail prd ON pd.id = prd.picklist_detail_id 
-						WHERE pd.picklist_id = picklist.id 
+						LEFT JOIN picklist_received_detail prd ON pd.picklist_detail_id = prd.picklist_detail_id 
+						WHERE pd.picklist_id = picklist.picklist_id 
 						AND (prd.quantity IS NULL OR prd.quantity < pd.quantity)
 					) THEN 1
 					ELSE 2
