@@ -97,26 +97,17 @@ jobs:
           MAIL_FROM_NAME=${{ secrets.MAIL_FROM_NAME }}
           EOF
 
-      # Step 7: Check if composer.json or composer.lock changed
-      - name: 📥 Check if composer.json or composer.lock changed
-        id: composer_check
-        run: |
-          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
-          if echo "$CHANGED_FILES" | grep -qE "api/composer.(json|lock)"; then
-            echo "composer_changed=true" >> $GITHUB_ENV
-          else
-            echo "composer_changed=false" >> $GITHUB_ENV
-          fi
-
-      - name: 📥 Install Composer Dependencies (if needed)
-        if: env.composer_changed == 'true'
+      # Step 7: Install Composer Dependencies (Always Run)
+      - name: 📥 Install Composer Dependencies
         working-directory: api
         run: |
           composer install --no-dev --optimize-autoloader --prefer-dist --no-progress --no-interaction
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GITHUB_TOKEN }}"}}'
 
-      # Step 8: Deploy API
+     
+    
+     # Step 8: Deploy API
       - name: 🚀 Deploy API
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
