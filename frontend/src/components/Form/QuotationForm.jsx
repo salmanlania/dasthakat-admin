@@ -55,8 +55,8 @@ export const quotationStatusOptions = [
     label: 'Approved'
   },
   {
-    value: 'Ready to Sent',
-    label: 'Ready to Sent'
+    value: 'Sent to customer',
+    label: 'Sent to customer'
   }
 ];
 

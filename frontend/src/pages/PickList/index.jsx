@@ -1,4 +1,4 @@
-import { Button, Input, Table, Tooltip } from 'antd';
+import { Button, Input, Select, Table, Tag, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect } from 'react';
 import { LuHand, LuListChecks } from 'react-icons/lu';
@@ -13,6 +13,12 @@ import {
   setPickListListParams,
   setPickListOpenModalId
 } from '../../store/features/pickListSlice';
+
+const pickListStatus = {
+  1: 'Complete',
+  2: 'In Complete',
+  3: 'In Progress'
+};
 
 const PickList = () => {
   const dispatch = useDispatch();
@@ -89,6 +95,49 @@ const PickList = () => {
       sorter: true,
       width: 150,
       ellipsis: true
+    },
+    {
+      title: (
+        <div>
+          <p>Status</p>
+          <Select
+            className="w-full font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            options={[
+              {
+                value: 1,
+                label: pickListStatus[1]
+              },
+              {
+                value: 2,
+                label: pickListStatus[2]
+              },
+              {
+                value: 3,
+                label: pickListStatus[3]
+              }
+            ]}
+            value={params.status}
+            onChange={(value) => dispatch(setCurrencyListParams({ status: value }))}
+            allowClear
+          />
+        </div>
+      ),
+      dataIndex: 'status',
+      key: 'status',
+      sorter: true,
+      render: (status) =>
+        status === 1 ? (
+          <Tag color="success" className="w-16 text-center">
+            Active
+          </Tag>
+        ) : (
+          <Tag color="error" className="w-16 text-center">
+            Inactive
+          </Tag>
+        ),
+      width: 120
     },
     {
       title: 'Created At',
