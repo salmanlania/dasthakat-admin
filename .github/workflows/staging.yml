@@ -1,4 +1,4 @@
-name: 🚀 Deploy Staging Frontend and APIs
+name: 🚀 Pipeline | Deploy code on staging server
 
 on:
   push:
@@ -16,13 +16,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Step 2: Create `.env` file for React (Vite)
+      # Step 2: Load environment variables from STAGING_SECRETS
+      - name: 🔐 Load STAGING_SECRETS
+        run: |
+          echo "${{ secrets.STAGING_SECRETS }}" > .env
+
+      # Step 3: Create `.env` file for React (Vite)
       - name: 📝 Create .env file for React
         working-directory: frontend
         run: |
-          printf "VITE_BASE_URL=${{ secrets.BASE_PATH }}\n" > .env
+          cat ../.env | grep VITE_ > .env
 
-      # Step 3: Install & Build Frontend
+      # Step 4: Install & Build Frontend
       - name: 🔧 Setup Node.js & Build Frontend
         uses: actions/setup-node@v3
         with:
@@ -34,7 +39,7 @@ jobs:
           npm ci
           npm run build
 
-      # Step 4: Generate `.htaccess` file inside frontend/dist/
+      # Step 5: Generate `.htaccess` file inside frontend/dist/
       - name: 📝 Create .htaccess File
         run: |
           echo "<IfModule mod_rewrite.c>
@@ -51,7 +56,7 @@ jobs:
           RewriteRule ^ index.html [L]
           </IfModule>" > frontend/dist/.htaccess
 
-      # Step 5: Deploy Frontend & .htaccess Together
+      # Step 6: Deploy Frontend & .htaccess
       - name: 🚀 Deploy Frontend & .htaccess
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -63,42 +68,13 @@ jobs:
           include: ".htaccess"
           dangerous-clean-slate: false
 
-      # Step 6: Create API `.env` file
+      # Step 7: Create API `.env` file
       - name: 📝 Create API .env file
         working-directory: api
         run: |
-          cat <<EOF > .env
-          APP_NAME=${{ secrets.APP_NAME }}
-          APP_ENV=${{ secrets.APP_ENV }}
-          APP_KEY=${{ secrets.APP_KEY }}
-          APP_DEBUG=true
-          APP_URL=${{ secrets.API_URL }}
-          APP_TIMEZONE=${{ secrets.APP_TIMEZONE }}
+          cp ../.env .env
 
-          LOG_CHANNEL=stack
-          LOG_SLACK_WEBHOOK_URL=${{ secrets.LOG_SLACK_WEBHOOK_URL }}
-
-          DB_CONNECTION=mysql
-          DB_HOST=${{ secrets.DB_HOST }}
-          DB_PORT=3306
-          DB_DATABASE=${{ secrets.DB_NAME }}
-          DB_USERNAME=${{ secrets.DB_USERNAME }}
-          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-
-          CACHE_DRIVER=file
-          QUEUE_CONNECTION=sync
-
-          MAIL_MAILER=${{ secrets.MAILER }}
-          MAIL_HOST=${{ secrets.MAIL_HOST }}
-          MAIL_PORT=${{ secrets.MAIL_PORT }}
-          MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
-          MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
-          MAIL_ENCRYPTION=tls
-          MAIL_FROM_ADDRESS=${{ secrets.MAIL_FROM_ADDRESS }}
-          MAIL_FROM_NAME=${{ secrets.MAIL_FROM_NAME }}
-          EOF
-
-      # Step 7: Deploy API (Exclude vendor folder)
+      # Step 8: Deploy API (Exclude vendor folder)
       - name: 🚀 Deploy API
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -106,11 +82,11 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: "api/"
-          server-dir: "public_html${{ secrets.BASE_PATH }}/api/"
+          server-dir: "public_html/${{ secrets.BASE_PATH }}/api/"
           exclude: "vendor/"
           dangerous-clean-slate: false
 
-      # Step 8: Run Migrations via API
+      # Step 9: Run Migrations via API
       - name: 🔄 Run Migrations
         run: |
           curl -X GET "${{ secrets.API_URL }}/run-migrations" -H "X-DEPLOY-TOKEN: ${{ secrets.APP_KEY }}"

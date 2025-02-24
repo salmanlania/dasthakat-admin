@@ -1,0 +1,92 @@
+name: 🚀 Pipeline | Deploy code on production server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: 🎉 Deploy Frontend and APIs
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout the latest code
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Step 2: Load environment variables from PRODUCTION_SECRETS
+      - name: 🔐 Load PRODUCTION_SECRETS
+        run: |
+          echo "${{ secrets.PRODUCTION_SECRETS }}" > .env
+
+      # Step 3: Create `.env` file for React (Vite)
+      - name: 📝 Create .env file for React
+        working-directory: frontend
+        run: |
+          cat ../.env | grep VITE_ > .env
+
+      # Step 4: Install & Build Frontend
+      - name: 🔧 Setup Node.js & Build Frontend
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+
+      - name: 📦 Install & Build Frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      # Step 5: Generate `.htaccess` file inside frontend/dist/
+      - name: 📝 Create .htaccess File
+        run: |
+          echo "<IfModule mod_rewrite.c>
+          RewriteEngine On
+          RewriteBase /${{ secrets.BASE_PATH }}/
+
+          # Redirect Trailing Slashes...
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule ^(.*)/$ /$1 [L,R=301]
+
+          # Handle Front Controller...
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule ^ index.html [L]
+          </IfModule>" > frontend/dist/.htaccess
+
+      # Step 6: Deploy Frontend & .htaccess
+      - name: 🚀 Deploy Frontend & .htaccess
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: "frontend/dist/"
+          server-dir: "public_html/${{ secrets.BASE_PATH }}/"
+          include: ".htaccess"
+          dangerous-clean-slate: false
+
+      # Step 7: Create API `.env` file
+      - name: 📝 Create API .env file
+        working-directory: api
+        run: |
+          cp ../.env .env
+
+      # Step 8: Deploy API (Exclude vendor folder)
+      - name: 🚀 Deploy API
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: "api/"
+          server-dir: "public_html/${{ secrets.BASE_PATH }}/api/"
+          exclude: "vendor/"
+          dangerous-clean-slate: false
+
+      # Step 9: Run Migrations via API
+      - name: 🔄 Run Migrations
+        run: |
+          curl -X GET "${{ secrets.API_URL }}/run-migrations" -H "X-DEPLOY-TOKEN: ${{ secrets.APP_KEY }}"
