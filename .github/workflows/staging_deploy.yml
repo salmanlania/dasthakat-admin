@@ -101,7 +101,7 @@ jobs:
       - name: 📥 Install Composer Dependencies
         working-directory: api
         run: |
-          composer install --no-dev --optimize-autoloader --prefer-dist --no-progress --no-interaction
+          composer update --no-dev --optimize-autoloader --prefer-dist --no-progress --no-interaction
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GITHUB_TOKEN }}"}}'
 
