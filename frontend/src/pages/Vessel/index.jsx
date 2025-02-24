@@ -99,6 +99,28 @@ const Vessel = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
+          <p>Customer</p>
+          <AsyncSelect
+            endpoint="/customer"
+            size="small"
+            labelKey="name"
+            valueKey="customer_id"
+            className="w-full font-normal"
+            value={params.customer_id}
+            onChange={(value) => dispatch(setVesselListParams({ customer_id: value }))}
+          />
+          <Select size="small" className="w-full font-normal" />
+        </div>
+      ),
+      dataIndex: 'customer_name',
+      key: 'customer_name',
+      sorter: true,
+      width: 200,
+      ellipsis: true
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Flag</p>
           <AsyncSelect
             endpoint="/flag"
@@ -238,6 +260,7 @@ const Vessel = () => {
     params.limit,
     params.sort_column,
     params.sort_direction,
+    params.customer_id,
     params.flag_id,
     params.class1_id,
     params.class2_id,

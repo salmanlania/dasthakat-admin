@@ -11,7 +11,6 @@
         "illuminate/support": "^9.52",
         "laravel/lumen-framework": "^9.1",
         "league/flysystem": "^3.29",
-        "league/flysystem-aws-s3-v3": "^3.29",
         "tecnickcom/tcpdf": "^6.7",
         "tymon/jwt-auth": "^2.1"
     },

@@ -569,7 +569,9 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             labelKey="name"
             labelInValue
             className="w-full"
-            disabled={product_type_id?.value == 1 || editable === false}
+            disabled={
+              product_type_id?.value == 1 || product_type_id?.value == 2 || editable === false
+            }
             value={supplier_id}
             onChange={(selected) =>
               dispatch(

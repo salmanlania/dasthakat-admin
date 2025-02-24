@@ -12,6 +12,7 @@ const VesselForm = ({ mode, onSubmit }) => {
   const onFinish = (values) => {
     const data = {
       ...values,
+      customer_id: values.customer_id ? values.customer_id.value : null,
       flag_id: values.flag_id ? values.flag_id.value : null,
       class1_id: values.class1_id ? values.class1_id.value : null,
       class2_id: values.class2_id ? values.class2_id.value : null
@@ -26,8 +27,7 @@ const VesselForm = ({ mode, onSubmit }) => {
       layout="vertical"
       autoComplete="off"
       onFinish={onFinish}
-      initialValues={mode === 'edit' ? initialFormValues : null}
-    >
+      initialValues={mode === 'edit' ? initialFormValues : null}>
       <Row gutter={[12, 12]} className="w-full">
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
@@ -39,9 +39,8 @@ const VesselForm = ({ mode, onSubmit }) => {
                 whitespace: true,
                 message: 'IMO is required!'
               }
-            ]}
-          >
-            <Input />
+            ]}>
+            <Input autoFocus />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
@@ -54,17 +53,31 @@ const VesselForm = ({ mode, onSubmit }) => {
                 whitespace: true,
                 message: 'Name is required!'
               }
-            ]}
-          >
+            ]}>
             <Input />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item
+            name="customer_id"
+            label="Customer"
+            rules={[{ required: true, message: 'Customer is required!' }]}>
+            <AsyncSelect
+              endpoint="/customer"
+              valueKey="customer_id"
+              labelKey="name"
+              labelInValue
+              addNewLink={
+                permissions.customer.list && permissions.customer.add ? '/customer/create' : null
+              }
+            />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
             name="flag_id"
             label="Flag"
-            rules={[{ required: true, message: 'Flag is required!' }]}
-          >
+            rules={[{ required: true, message: 'Flag is required!' }]}>
             <AsyncSelect
               endpoint="/flag"
               valueKey="flag_id"
@@ -96,7 +109,7 @@ const VesselForm = ({ mode, onSubmit }) => {
             />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={24}>
           <Form.Item name="billing_address" label="Billing Address">
             <Input.TextArea rows={1} />
           </Form.Item>
