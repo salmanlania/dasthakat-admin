@@ -22,7 +22,7 @@ jobs:
         run: |
           printf "VITE_BASE_URL=${{ secrets.BASE_PATH }}\n" > .env
 
-      # Step 4: Install & Build Frontend
+      # Step 3: Install & Build Frontend
       - name: 🔧 Setup Node.js & Build Frontend
         uses: actions/setup-node@v3
         with:
@@ -34,7 +34,7 @@ jobs:
           npm ci
           npm run build
 
-      # Step 3: Generate `.htaccess` file inside frontend/dist/
+      # Step 4: Generate `.htaccess` file inside frontend/dist/
       - name: 📝 Create .htaccess File
         run: |
           echo "<IfModule mod_rewrite.c>
@@ -61,6 +61,7 @@ jobs:
           local-dir: "frontend/dist/"
           server-dir: "public_html/${{ secrets.BASE_PATH }}/"
           include: ".htaccess"
+          dangerous-clean-slate: false
 
       # Step 6: Create API `.env` file
       - name: 📝 Create API .env file
@@ -97,17 +98,7 @@ jobs:
           MAIL_FROM_NAME=${{ secrets.MAIL_FROM_NAME }}
           EOF
 
-      # Step 7: Install Composer Dependencies (Always Run)
-      - name: 📥 Install Composer Dependencies
-        working-directory: api
-        run: |
-          composer update --no-dev --optimize-autoloader --prefer-dist --no-progress --no-interaction
-        env:
-          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GITHUB_TOKEN }}"}}'
-
-     
-    
-     # Step 8: Deploy API
+      # Step 7: Deploy API (Exclude vendor folder)
       - name: 🚀 Deploy API
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -116,8 +107,10 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: "api/"
           server-dir: "public_html${{ secrets.BASE_PATH }}/api/"
+          exclude: "vendor/"
+          dangerous-clean-slate: false
 
-      # Step 9: Run Migrations via API
+      # Step 8: Run Migrations via API
       - name: 🔄 Run Migrations
         run: |
           curl -X GET "${{ secrets.API_URL }}/run-migrations" -H "X-DEPLOY-TOKEN: ${{ secrets.APP_KEY }}"
