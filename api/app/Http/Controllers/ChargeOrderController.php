@@ -111,80 +111,81 @@ class ChargeOrderController extends Controller
 		$record = ChargeOrder::with(['charge_order_detail', 'charge_order_detail.product'])
 			->where('charge_order_id', $id)
 			->firstOrFail();
-			
+
 
 		$quotation = Quotation::where('document_identity', $record->ref_document_identity)->first();
 
-		$filteredDetails = collect($record->charge_order_detail)->filter(fn($row) => (($row->product_type_id == 4 || $row->product_type_id == 3) && empty($row->purchase_order_detail_id) ));
+		$filteredDetails = collect($record->charge_order_detail)->filter(fn($row) => (($row->product_type_id == 4 || $row->product_type_id == 3) && empty($row->purchase_order_detail_id)));
 		$vendorWiseDetails = $filteredDetails->groupBy('supplier_id');
 		if (!empty($vendorWiseDetails)) {
 
 			// DB::transaction(function () use ($vendorWiseDetails, $record, $quotation, $request) {
 			// try {
-				// $purchaseOrders = [];
-				// $purchaseOrderDetails = [];
-				foreach ($vendorWiseDetails as $supplierId => $items) {
-					$uuid = $this->get_uuid();
-					$document = DocumentType::getNextDocument(40, $request);
+			// $purchaseOrders = [];
+			// $purchaseOrderDetails = [];
+			foreach ($vendorWiseDetails as $supplierId => $items) {
+				$uuid = $this->get_uuid();
+				$document = DocumentType::getNextDocument(40, $request);
 
-					$totalQuantity = $items->sum('quantity');
-					$totalRate = $items->sum('cost_price');
+				$totalQuantity = $items->sum('quantity');
+				$totalRate = $items->sum('cost_price');
 
-					$purchaseOrders = [
-						'company_id'         => $request->company_id,
-						'company_branch_id'  => $request->company_branch_id,
-						'purchase_order_id'  => $uuid,
-						'document_type_id'   => $document['document_type_id'] ?? null,
-						'document_no'        => $document['document_no'] ?? null,
-						'document_prefix'    => $document['document_prefix'] ?? null,
-						'document_identity'  => $document['document_identity'] ?? null,
-						'document_date'      => Carbon::now(),
-						'supplier_id'        => $supplierId,
-						'type'               => "Buyout",
-						'buyer_id'               => $request->login_user_id,
-						'quotation_id'       => $quotation->quotation_id ?? null,
-						'charge_order_id'    => $record->charge_order_id,
-						'total_quantity'     => $totalQuantity,
-						'total_amount'       => $totalQuantity* $totalRate,
-						'created_at'         => Carbon::now(),
-						'created_by'         => $request->login_user_id,
+				$purchaseOrders = [
+					'company_id'         => $request->company_id,
+					'company_branch_id'  => $request->company_branch_id,
+					'purchase_order_id'  => $uuid,
+					'document_type_id'   => $document['document_type_id'] ?? null,
+					'document_no'        => $document['document_no'] ?? null,
+					'document_prefix'    => $document['document_prefix'] ?? null,
+					'document_identity'  => $document['document_identity'] ?? null,
+					'document_date'      => Carbon::now(),
+					'supplier_id'        => $supplierId,
+					'type'               => "Buyout",
+					'ship_to'            => "Global Marine Safety 9145 Wallisville Road Houston TX 77029.",
+					'buyer_id'           => $request->login_user_id,
+					'quotation_id'       => $quotation->quotation_id ?? null,
+					'charge_order_id'    => $record->charge_order_id,
+					'total_quantity'     => $totalQuantity,
+					'total_amount'       => $totalQuantity * $totalRate,
+					'created_at'         => Carbon::now(),
+					'created_by'         => $request->login_user_id,
+				];
+
+				if ($purchaseOrders) {
+					PurchaseOrder::insert($purchaseOrders);
+				}
+				foreach ($items as $index => $item) {
+					$purchase_order_detail_id = $this->get_uuid();
+
+					$purchaseOrderDetails = [
+						'purchase_order_id'       => $uuid,
+						'purchase_order_detail_id' => $purchase_order_detail_id,
+						'sort_order'              => $index,
+						'product_id'              => $item['product_id'] ?? null,
+						'product_type_id'         => $item['product_type_id'] ?? null,
+						'product_name'            => $item['product_name'] ?? null,
+						'description'             => $item['description'] ?? null,
+						'unit_id'                 => $item['unit_id'] ?? null,
+						'quantity'                => $item['quantity'] ?? 0,
+						'rate'                    => $item['cost_price'] ?? 0,
+						'amount'                  => $item['cost_price'] * $item['quantity'] ?? 0,
+						'created_at'              => Carbon::now(),
+						'created_by'              => $request->login_user_id,
 					];
 
-					if ($purchaseOrders) {
-						PurchaseOrder::insert($purchaseOrders);
+					if ($purchaseOrderDetails) {
+						PurchaseOrderDetail::insert($purchaseOrderDetails);
 					}
-					foreach ($items as $index => $item) {
-						$purchase_order_detail_id = $this->get_uuid();
-
-						$purchaseOrderDetails = [
-							'purchase_order_id'       => $uuid,
+					ChargeOrderDetail::where('charge_order_detail_id', $item->charge_order_detail_id)
+						->update([
+							'purchase_order_id'        => $uuid,
 							'purchase_order_detail_id' => $purchase_order_detail_id,
-							'sort_order'              => $index,
-							'product_id'              => $item['product_id'] ?? null,
-							'product_type_id'         => $item['product_type_id'] ?? null,
-							'product_name'            => $item['product_name'] ?? null,
-							'description'             => $item['description'] ?? null,
-							'unit_id'                 => $item['unit_id'] ?? null,
-							'quantity'                => $item['quantity'] ?? 0,
-							'rate'                    => $item['cost_price'] ?? 0,
-							'amount'                  => $item['cost_price'] * $item['quantity'] ?? 0,
-							'created_at'              => Carbon::now(),
-							'created_by'              => $request->login_user_id,
-						];
-
-						if ($purchaseOrderDetails) {
-							PurchaseOrderDetail::insert($purchaseOrderDetails);
-						}
-						ChargeOrderDetail::where('charge_order_detail_id', $item->charge_order_detail_id)
-							->update([
-								'purchase_order_id'        => $uuid,
-								'purchase_order_detail_id' => $purchase_order_detail_id,
-							]);
-					}
+						]);
 				}
+			}
 
 
-				
+
 			// } catch (\Exception $e) {
 			// 	throw $e;
 			// }
