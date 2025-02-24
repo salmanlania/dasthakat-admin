@@ -74,7 +74,6 @@ class AuthController extends Controller
     public function session(Request $request)
     {
 
-        dd(1);
         $this->validate($request, [
             'company_id' => 'required',
             'company_branch_id' => 'required',
