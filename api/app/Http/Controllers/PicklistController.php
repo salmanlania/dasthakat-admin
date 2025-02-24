@@ -25,7 +25,7 @@ class PicklistController extends Controller
 				CASE 
 					WHEN NOT EXISTS (
 						SELECT 1 FROM picklist_received_detail prd 
-						JOIN picklist_received pr ON pr.id = prd.picklist_received_id 
+						JOIN picklist_received pr ON pr.picklist_received_id = prd.picklist_received_id 
 						WHERE pr.picklist_id = picklist.picklist_id
 					) THEN 3
 					WHEN NOT EXISTS (
