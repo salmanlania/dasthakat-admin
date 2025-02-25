@@ -112,3 +112,5 @@ ADD COLUMN document_date DATETIME AFTER document_identity;
 
 ALTER TABLE vessel
 ADD COLUMN customer_id CHAR(36) AFTER name;
+ALTER TABLE supplier
+ADD COLUMN payment_id CHAR(36) AFTER location;

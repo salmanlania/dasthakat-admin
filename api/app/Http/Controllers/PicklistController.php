@@ -21,22 +21,33 @@ class PicklistController extends Controller
 			->where('company_id', $request->company_id)
 			->where('company_branch_id', $request->company_branch_id)
 			->selectRaw("
-				picklist.*,
-				CASE 
-					WHEN NOT EXISTS (
-						SELECT 1 FROM picklist_received_detail prd 
-						JOIN picklist_received pr ON pr.picklist_received_id = prd.picklist_received_id 
-						WHERE pr.picklist_id = picklist.picklist_id
-					) THEN 3
-					WHEN NOT EXISTS (
-						SELECT 1 FROM picklist_detail pd 
-						LEFT JOIN picklist_received_detail prd ON pd.picklist_detail_id = prd.picklist_detail_id 
-						WHERE pd.picklist_id = picklist.picklist_id 
-						AND (prd.quantity = pd.quantity)
-					) THEN 1
-					ELSE 2
-				END AS status
-			");
+        picklist.*,
+        CASE 
+            -- If no received records exist, status = 3 (Nothing received)
+            WHEN NOT EXISTS (
+                SELECT 1 FROM picklist_received_detail prd 
+                JOIN picklist_received pr ON pr.picklist_received_id = prd.picklist_received_id 
+                WHERE pr.picklist_id = picklist.picklist_id
+            ) THEN 3
+
+            -- If total received quantity for any picklist_detail is still less than required, status = 2 (Some items pending)
+            WHEN EXISTS (
+                SELECT 1 FROM picklist_detail pd
+                LEFT JOIN (
+                    SELECT prd.picklist_detail_id, SUM(prd.quantity) AS total_received
+                    FROM picklist_received_detail prd
+                    GROUP BY prd.picklist_detail_id
+                ) received_summary
+                ON pd.picklist_detail_id = received_summary.picklist_detail_id
+                WHERE pd.picklist_id = picklist.picklist_id
+                AND (received_summary.total_received IS NULL OR received_summary.total_received < pd.quantity)
+            ) THEN 2
+
+            -- If all items are fully received, status = 1 (All received completely)
+            ELSE 1
+        END AS status
+    ");
+
 
 		// Apply filters dynamically
 		$filters = [

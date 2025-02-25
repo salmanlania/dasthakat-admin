@@ -27,6 +27,7 @@ class SupplierController extends Controller
 		$location =  $request->input('location', '');
 		$contact1 =  $request->input('contact1', '');
 		$contact2 =  $request->input('contact2', '');
+		$payment_id =  $request->input('payment_id', '');
 		$email =  $request->input('email', '');
 		$status =  $request->input('status', '');
 		$all =  $request->input('all', '');
@@ -37,34 +38,36 @@ class SupplierController extends Controller
 		$sort_column = $request->input('sort_column', 'created_at');
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
-		$data = new Supplier;
+		$data = Supplier::LeftJoin('payment as p', 'supplier.payment_id', '=', 'p.payment_id');
 		$data = $data->where('company_id', '=', $request->company_id);
 		// $data = $data->where('company_branch_id', '=', $request->company_branch_id);
 
 		if (!empty($supplier_code)) $data = $data->where('supplier_code', 'like', '%' . $supplier_code . '%');
-		if (!empty($name)) $data = $data->where('name', 'like', '%' . $name . '%');
-		if (!empty($location)) $data = $data->where('location', 'like', '%' . $location . '%');
-		if (!empty($contact1)) $data = $data->where('contact1', 'like', '%' . $contact1 . '%');
-		if (!empty($contact2)) $data = $data->where('contact2', 'like', '%' . $contact1 . '%');
-		if (!empty($email)) $data = $data->where('email', 'like', '%' . $email . '%');
-		if ($all != 1) $data = $data->where('status', '=', 1);
-		if ($status != "") $data = $data->where('status', '=', $status);
+		if (!empty($payment_id)) $data = $data->where('supplier.payment_id', '=', $payment_id);
+		if (!empty($name)) $data = $data->where('supplier.name', 'like', '%' . $name . '%');
+		if (!empty($location)) $data = $data->where('supplier.location', 'like', '%' . $location . '%');
+		if (!empty($contact1)) $data = $data->where('supplier.contact1', 'like', '%' . $contact1 . '%');
+		if (!empty($contact2)) $data = $data->where('supplier.contact2', 'like', '%' . $contact1 . '%');
+		if (!empty($email)) $data = $data->where('supplier.email', 'like', '%' . $email . '%');
+		if ($all != 1) $data = $data->where('supplier.status', '=', 1);
+		if ($status != "") $data = $data->where('supplier.status', '=', $status);
 
 		if (!empty($search)) {
 			$search = strtolower($search);
 			$data = $data->where(function ($query) use ($search) {
 				$query
-					->where('supplier_code', 'like', '%' . $search . '%')
-					->orWhere('name', 'like', '%' . $search . '%')
-					->orWhere('location', 'like', '%' . $search . '%')
-					->orWhere('contact1', 'like', '%' . $search . '%')
-					->orWhere('contact2', 'like', '%' . $search . '%')
-					->orWhere('email', 'like', '%' . $search . '%')
-					->orWhere('created_at', 'like', '%' . $search . '%');
+					->where('supplier.supplier_code', 'like', '%' . $search . '%')
+					->orWhere('p.name', 'like', '%' . $search . '%')
+					->orWhere('supplier.name', 'like', '%' . $search . '%')
+					->orWhere('supplier.location', 'like', '%' . $search . '%')
+					->orWhere('supplier.contact1', 'like', '%' . $search . '%')
+					->orWhere('supplier.contact2', 'like', '%' . $search . '%')
+					->orWhere('supplier.email', 'like', '%' . $search . '%')
+					->orWhere('supplier.created_at', 'like', '%' . $search . '%');
 			});
 		}
 
-		$data = $data->select("*");
+		$data = $data->select("supplier.*", "p.name as payment_name");
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
@@ -73,7 +76,7 @@ class SupplierController extends Controller
 	public function show($id, Request $request)
 	{
 
-		$data = Supplier::where('supplier_id', $id)->first();
+		$data = Supplier::with('payment')->where('supplier_id', $id)->first();
 		return $this->jsonResponse($data, 200, "Supplier Data");
 	}
 
@@ -119,6 +122,7 @@ class SupplierController extends Controller
 			'supplier_id' => $uuid,
 			'name' => $request->name,
 			'supplier_code' => intval($maxCode) + 1,
+			'payment_id' => $request->payment_id ?? "",
 			'location' => $request->location ?? "",
 			'contact_person' => $request->contact_person ?? "",
 			'contact1' => $request->contact1 ?? "",
@@ -151,6 +155,7 @@ class SupplierController extends Controller
 		$data->company_id = $request->company_id ?? "";
 		$data->company_branch_id = $request->company_branch_id ?? "";
 		$data->name = $request->name ?? "";
+		$data->payment_id = $request->payment_id ?? "";
 		$data->location = $request->location ?? "";
 		$data->contact_person = $request->contact_person ?? "";
 		$data->contact1 = $request->contact1 ?? "";

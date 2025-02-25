@@ -32,6 +32,7 @@ class Supplier extends Model implements AuthenticatableContract, AuthorizableCon
         'supplier_id',
         'name',
         'supplier_code',
+        'payment_id',
         'location',
         'contact_person',
         'contact1',
@@ -48,6 +49,9 @@ class Supplier extends Model implements AuthenticatableContract, AuthorizableCon
      *
      * @var string[]
      */
- 
+    public function payment()
+    {
+        return $this->hasOne(Payment::class, 'payment_id','payment_id')->select('*');
+    }
     
 }
