@@ -15,12 +15,14 @@ import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
 import {
   bulkDeleteGoodsReceivedNote,
+  createGoodsReceivedNote,
   deleteGoodsReceivedNote,
   getGoodsReceivedNoteForPrint,
   getGoodsReceivedNoteList,
   setGoodsReceivedNoteDeleteIDs,
   setGoodsReceivedNoteListParams
 } from '../../store/features/goodsReceivedNoteSlice';
+import { getPurchaseOrder } from '../../store/features/purchaseOrderSlice';
 import { createGoodsReceivedNotePrint } from '../../utils/prints/goods-received-note-print';
 
 const GoodsReceivedNote = () => {
@@ -30,10 +32,15 @@ const GoodsReceivedNote = () => {
     (state) => state.goodsReceivedNote
   );
   const { user } = useSelector((state) => state.auth);
+  const otherPermissions = user.permission;
   const permissions = user.permission.good_received_note;
+  const currency = user.currency;
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
+
+  const [selectedPO, setSelectedPO] = useState(null);
+  const [isGRNCreating, setIsGRNCreating] = useState(false);
 
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedGoodsReceivedNoteNo = useDebounce(params.document_identity, 500);
@@ -73,6 +80,43 @@ const GoodsReceivedNote = () => {
       createGoodsReceivedNotePrint(data);
     } catch (error) {
       handleError(error);
+    }
+  };
+
+  const onGRNCreate = async () => {
+    try {
+      setIsGRNCreating(true);
+      const { purchase_order_detail } = await dispatch(getPurchaseOrder(selectedPO)).unwrap();
+
+      const details = purchase_order_detail.map((detail, index) => ({
+        id: detail.purchase_order_detail_id,
+        product_type_id: detail.product_type ? detail.product_type.product_type_id : null,
+        product_code: detail.product ? detail.product.product_code : null,
+        product_id: detail.product ? detail.product.product_id : null,
+        product_name: detail.product_name,
+        description: detail.description,
+        quantity: detail.quantity ? parseFloat(detail.quantity) : 0,
+        unit_id: detail.unit ? detail.unit.unit_id : null,
+        sort_order: index
+      }));
+
+      const totalQuantity = details.reduce((total, detail) => total + detail.quantity, 0);
+      const payload = {
+        default_currency_id: currency ? currency.currency_id : null,
+        document_date: dayjs().format('YYYY-MM-DD'),
+        good_received_note_detail: details,
+        total_quantity: totalQuantity
+      };
+
+      await dispatch(createGoodsReceivedNote(payload)).unwrap();
+      toast.success('Goods Received Note created successfully');
+      setSelectedPO(null);
+
+      dispatch(getGoodsReceivedNoteList(formattedParams)).unwrap();
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setIsGRNCreating(false);
     }
   };
 
@@ -252,7 +296,7 @@ const GoodsReceivedNote = () => {
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <Input
             placeholder="Search..."
             className="w-full sm:w-64"
@@ -260,7 +304,35 @@ const GoodsReceivedNote = () => {
             onChange={(e) => dispatch(setGoodsReceivedNoteListParams({ search: e.target.value }))}
           />
 
-          <div className="flex items-center gap-2">
+          <div className="ml-auto flex flex-wrap items-center gap-2">
+            {permissions.add ? (
+              <>
+                <AsyncSelect
+                  endpoint="/purchase-order"
+                  valueKey="purchase_order_id"
+                  labelKey="document_identity"
+                  className="min-w-40"
+                  placeholder="Purchase Order"
+                  params={{
+                    available_po: 1
+                  }}
+                  value={selectedPO}
+                  onChange={(selected) => setSelectedPO(selected)}
+                  addNewLink={
+                    otherPermissions.purchase_order.list && otherPermissions.purchase_order.add
+                      ? '/purchase-order/create'
+                      : null
+                  }
+                />
+                <Button
+                  type="primary"
+                  onClick={onGRNCreate}
+                  disabled={!selectedPO}
+                  loading={isGRNCreating}>
+                  Create GRN
+                </Button>
+              </>
+            ) : null}
             {permissions.delete ? (
               <Button
                 type="primary"

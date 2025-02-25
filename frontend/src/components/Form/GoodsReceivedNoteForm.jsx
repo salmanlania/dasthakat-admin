@@ -636,8 +636,6 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
 
       {/* Hidden Fields */}
       <Form.Item name="type" hidden />
-      <Form.Item name="type" hidden />
-      <Form.Item name="type" hidden />
 
       <Row gutter={12}>
         <Col span={24} sm={12} md={8} lg={8}>

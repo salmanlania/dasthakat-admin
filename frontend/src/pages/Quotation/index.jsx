@@ -360,6 +360,12 @@ const Quotation = () => {
             current: params.page,
             showTotal: (total) => `Total ${total} quotations`
           }}
+          expandable={{
+            expandedRowRender: (record) => {
+              console.log(1);
+              return <p>Hello</p>;
+            }
+          }}
           onChange={(page, _, sorting) => {
             dispatch(
               setQuotationListParams({

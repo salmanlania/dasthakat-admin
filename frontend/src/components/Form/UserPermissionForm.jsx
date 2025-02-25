@@ -34,15 +34,13 @@ const UserPermissionForm = ({ mode = 'create', onSubmit }) => {
                 />
               }
               className="w-80"
-              key={name}
-            >
+              key={name}>
               <Row gutter={16}>
                 {Object.values(values).map(({ permission_name, permission_id, route }) => (
                   <Col span={12} key={permission_id}>
                     <Checkbox
                       checked={permissionsGroup[route][permission_id] === 1}
-                      onClick={() => dispatch(changeCheckbox({ route, permission_id }))}
-                    >
+                      onClick={() => dispatch(changeCheckbox({ route, permission_id }))}>
                       {permission_name}
                     </Checkbox>
                   </Col>
@@ -79,8 +77,7 @@ const UserPermissionForm = ({ mode = 'create', onSubmit }) => {
       onFinish={onSubmit}
       autoComplete="off"
       layout="vertical"
-      initialValues={mode === 'edit' ? initialFormValues : {}}
-    >
+      initialValues={mode === 'edit' ? initialFormValues : {}}>
       <Row gutter={16}>
         <Col span={24} md={8} lg={6}>
           <Form.Item
@@ -92,8 +89,7 @@ const UserPermissionForm = ({ mode = 'create', onSubmit }) => {
                 whitespace: true,
                 message: 'Name is required!'
               }
-            ]}
-          >
+            ]}>
             <Input autoFocus />
           </Form.Item>
         </Col>
