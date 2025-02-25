@@ -1,13 +1,16 @@
 import { Button, Col, Form, Input, Row, Select } from 'antd';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import AsyncSelect from '../AsyncSelect';
 
 // eslint-disable-next-line react/prop-types
 const VendorForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues } = useSelector((state) => state.vendor);
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user.permission;
 
   const onFinish = (values) => {
-    onSubmit(values);
+    onSubmit({ ...values, payment_id: values.payment_id ? values.payment_id.value : null });
   };
 
   return (
@@ -16,8 +19,7 @@ const VendorForm = ({ mode, onSubmit }) => {
       layout="vertical"
       autoComplete="off"
       initialValues={mode === 'edit' ? initialFormValues : { status: 1 }}
-      onFinish={onFinish}
-    >
+      onFinish={onFinish}>
       <Row gutter={[12, 12]}>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="supplier_code" label="Code">
@@ -34,8 +36,7 @@ const VendorForm = ({ mode, onSubmit }) => {
                 whitespace: true,
                 message: 'Name is required!'
               }
-            ]}
-          >
+            ]}>
             <Input />
           </Form.Item>
         </Col>
@@ -63,6 +64,17 @@ const VendorForm = ({ mode, onSubmit }) => {
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="email" label="Email">
             <Input />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="payment_id" label="Payment Terms">
+            <AsyncSelect
+              endpoint="/payment"
+              valueKey="payment_id"
+              labelKey="name"
+              labelInValue
+              addNewLink={permissions.payment.list && permissions.payment.add ? '/payment' : null}
+            />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
