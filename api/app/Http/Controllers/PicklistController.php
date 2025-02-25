@@ -32,7 +32,7 @@ class PicklistController extends Controller
 						SELECT 1 FROM picklist_detail pd 
 						LEFT JOIN picklist_received_detail prd ON pd.picklist_detail_id = prd.picklist_detail_id 
 						WHERE pd.picklist_id = picklist.picklist_id 
-						AND (prd.quantity IS NULL OR prd.quantity < pd.quantity)
+						AND (prd.quantity = pd.quantity)
 					) THEN 1
 					ELSE 2
 				END AS status
@@ -43,6 +43,8 @@ class PicklistController extends Controller
 			'document_identity' => 'like',
 			'document_date' => '=',
 			'charge_order_id' => '=',
+			'event_id' => '=',
+			'vessel_id' => '=',
 			'total_quantity' => 'like',
 			'status' => '=' // Allow filtering by status
 		];

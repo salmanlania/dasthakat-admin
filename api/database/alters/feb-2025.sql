@@ -109,3 +109,6 @@ ADD COLUMN document_date DATETIME AFTER document_identity;
 
 ALTER TABLE picklist_received
 ADD COLUMN document_date DATETIME AFTER document_identity;
+
+ALTER TABLE vessel
+ADD COLUMN customer_id CHAR(36) AFTER name;
