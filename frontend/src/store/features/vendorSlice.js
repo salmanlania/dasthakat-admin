@@ -147,7 +147,6 @@ export const vendorSlice = createSlice({
       state.initialFormValues = {
         supplier_code: data.supplier_code,
         name: data.name,
-        payment_id: data.payment_id ? { value: data.payment_id, label: data.payment_name } : null,
         location: data.location,
         contact_person: data.contact_person,
         contact1: data.contact1,

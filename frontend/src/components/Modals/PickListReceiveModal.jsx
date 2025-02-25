@@ -29,12 +29,6 @@ const HistoryTab = ({ details }) => {
     },
     {
       title: 'Quantity',
-      dataIndex: 'original_quantity',
-      key: 'original_quantity',
-      width: 120
-    },
-    {
-      title: 'Received Quantity',
       dataIndex: 'quantity',
       key: 'quantity',
       width: 120
@@ -45,8 +39,7 @@ const HistoryTab = ({ details }) => {
     id: detail.picklist_received_detail_id,
     key: detail.picklist_received_detail_id,
     product: detail?.product?.name || '',
-    original_quantity: parseFloat(detail.original_quantity || 0),
-    quantity: parseFloat(detail?.quantity || 0),
+    quantity: parseFloat(detail.quantity || 0),
     sr: detail.sort_order + 1
   }));
 
@@ -64,8 +57,7 @@ const NewReceivesTab = ({ details }) => {
     key: detail.picklist_detail_id,
     product_name: detail?.product_name || '',
     product_id: detail.product_id,
-    remaining_quantity: detail.remaining_quantity ? parseFloat(detail.remaining_quantity) : 0,
-    original_quantity: detail.original_quantity ? parseFloat(detail.original_quantity) : 0
+    remaining_quantity: detail.remaining_quantity ? parseFloat(detail.remaining_quantity) : 0
   }));
 
   const detailColumns = [
@@ -85,13 +77,6 @@ const NewReceivesTab = ({ details }) => {
     },
     {
       title: 'Quantity',
-      dataIndex: 'original_quantity',
-      key: 'original_quantity',
-      width: 200,
-      render: (_, __, index) => <p>{parseFloat(dataSource[index]?.original_quantity || 0)}</p>
-    },
-    {
-      title: 'Remaining Quantity',
       dataIndex: 'remaining_quantity',
       key: 'remaining_quantity',
       width: 120,
@@ -100,14 +85,14 @@ const NewReceivesTab = ({ details }) => {
           name={[index, 'remaining_quantity']}
           validateFirst
           rules={[
-            { required: true, message: 'Remaining Quantity required' },
+            { required: true, message: 'Quantity required' },
             {
               validator: (_, value) => {
                 if (+value < 1) {
-                  return Promise.reject('Remaining Quantity must be greater than 0');
+                  return Promise.reject('Quantity must be greater than 0');
                 } else if (value > dataSource[index].remaining_quantity) {
                   return Promise.reject(
-                    `Remaining Quantity cannot be greater than ${dataSource[index].remaining_quantity}`
+                    `Quantity cannot be greater than ${dataSource[index].remaining_quantity}`
                   );
                 }
                 return Promise.resolve();

@@ -99,56 +99,6 @@ const PickList = () => {
     {
       title: (
         <div>
-          <p>Event</p>
-          <AsyncSelect
-            endpoint="/event"
-            valueKey="event_id"
-            labelKey="event_name"
-            className="w-full font-normal"
-            size="small"
-            labelInValue
-            onClick={(e) => e.stopPropagation()}
-            value={params.event_id}
-            onChange={(selected) =>
-              dispatch(setPickListListParams({ event_id: selected ? selected.value : null }))
-            }
-            allowClear
-          />
-        </div>
-      ),
-      dataIndex: 'event_name',
-      key: 'event_name',
-      sorter: true,
-      width: 180
-    },
-    {
-      title: (
-        <div>
-          <p>Vessel</p>
-          <AsyncSelect
-            endpoint="/vessel"
-            valueKey="vessel_id"
-            labelKey="name"
-            className="w-full font-normal"
-            size="small"
-            labelInValue
-            onClick={(e) => e.stopPropagation()}
-            value={params.vessel_id}
-            onChange={(selected) =>
-              dispatch(setPickListListParams({ vessel_id: selected ? selected.value : null }))
-            }
-            allowClear
-          />
-        </div>
-      ),
-      dataIndex: 'vessel_name',
-      key: 'vessel_name',
-      sorter: true,
-      width: 180
-    },
-    {
-      title: (
-        <div>
           <p>Status</p>
           <Select
             className="w-full font-normal"
@@ -168,46 +118,27 @@ const PickList = () => {
                 label: pickListStatus[3]
               }
             ]}
-            value={params.picklist_status}
-            onChange={(value) => dispatch(setPickListListParams({ picklist_status: value }))}
+            value={params.status}
+            onChange={(value) => dispatch(setCurrencyListParams({ status: value }))}
             allowClear
           />
         </div>
       ),
-      dataIndex: 'picklist_status',
-      key: 'picklist_status',
+      dataIndex: 'status',
+      key: 'status',
       sorter: true,
-      render: (_, { picklist_status }) => {
-        console.log(picklist_status);
-        if (picklist_status == 1) {
-          return (
-            <div className="flex items-center justify-center">
-              <Tag color="success" className="w-28 text-center">
-                {pickListStatus[1]}
-              </Tag>
-            </div>
-          );
-        } else if (2 == 2) {
-          return (
-            <div className="flex items-center justify-center">
-              <Tag color="volcano" className="w-28 text-center">
-                {pickListStatus[2]}
-              </Tag>
-            </div>
-          );
-        } else {
-          return (
-            <div className="flex items-center justify-center">
-              <Tag color="yellow" className="w-28 text-center">
-                {pickListStatus[3]}
-              </Tag>
-            </div>
-          );
-        }
-      },
-      width: 140
+      render: (status) =>
+        status === 1 ? (
+          <Tag color="success" className="w-16 text-center">
+            Active
+          </Tag>
+        ) : (
+          <Tag color="error" className="w-16 text-center">
+            Inactive
+          </Tag>
+        ),
+      width: 120
     },
-
     {
       title: 'Created At',
       dataIndex: 'created_at',
@@ -220,7 +151,7 @@ const PickList = () => {
       title: 'Action',
       key: 'action',
       render: (_, { id }) => (
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center gap-2">
           <Tooltip title="Items Receive">
             <Button
               size="small"
@@ -231,7 +162,7 @@ const PickList = () => {
           </Tooltip>
         </div>
       ),
-      width: 65,
+      width: 70,
       fixed: 'right'
     }
   ];
@@ -244,9 +175,6 @@ const PickList = () => {
     params.sort_column,
     params.sort_direction,
     params.charge_order_id,
-    params.event_id,
-    params.vessel_id,
-    params.picklist_status,
     debouncedSearch,
     debouncedPickListNo,
     debouncedTotalQuantity
@@ -254,11 +182,8 @@ const PickList = () => {
 
   const dataSource = list.map((item) => ({
     document_identity: item.document_identity,
-    total_quantity: parseFloat(item?.total_quantity || 0),
+    total_quantity: item.total_quantity ? parseFloat(item.total_quantity) : 0,
     charge_order_no: item.charge_order?.document_identity,
-    event_name: item.charge_order?.event?.event_code,
-    vessel_name: item.charge_order?.vessel?.name,
-    picklist_status: item.picklist_status,
     id: item.picklist_id,
     key: item.picklist_id
   }));
@@ -286,7 +211,7 @@ const PickList = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} picklist`
+            showTotal: (total) => `Total ${total} pick list`
           }}
           onChange={(page, _, sorting) => {
             dispatch(

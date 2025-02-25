@@ -42,13 +42,17 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
   const permissions = user.permission;
   const currency = user.currency;
 
+  let totalAmount = 0;
   let totalQuantity = 0;
 
   goodsReceivedNoteDetails.forEach((detail) => {
+    totalAmount += +detail.amount || 0;
     totalQuantity += +detail.quantity || 0;
   });
 
   const onFinish = (values) => {
+    if (!totalAmount) return toast.error('Total Amount cannot be zero');
+
     const data = {
       default_currency_id: currency ? currency.currency_id : null,
       type: values.type,
@@ -68,6 +72,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
         unit_id: detail.unit_id ? detail.unit_id.value : null,
         sort_order: index
       })),
+      total_amount: totalAmount,
       total_quantity: totalQuantity
     };
 
@@ -274,7 +279,9 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
         product_name: detail.product_name,
         description: detail.description,
         quantity: detail.quantity ? parseFloat(detail.quantity) : null,
-        unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null
+        unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
+        rate: detail.rate,
+        amount: detail.amount
       }));
 
       dispatch(setGoodsReceivedNoteDetails(details));
@@ -559,6 +566,49 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       width: 200
     },
     {
+      title: 'Unit Price',
+      dataIndex: 'rate',
+      key: 'rate',
+      render: (_, { rate }, index) => {
+        form.setFieldsValue({ [`rate-${index}`]: rate });
+        return (
+          <Form.Item
+            className="m-0"
+            name={`rate-${index}`}
+            initialValue={rate}
+            rules={[
+              {
+                required: true,
+                message: 'Selling price is required'
+              }
+            ]}>
+            <DebouncedCommaSeparatedInput
+              value={rate}
+              onChange={(value) =>
+                dispatch(
+                  changeGoodsReceivedNoteDetailValue({
+                    index,
+                    key: 'rate',
+                    value: value
+                  })
+                )
+              }
+            />
+          </Form.Item>
+        );
+      },
+      width: 120
+    },
+    {
+      title: 'Amount',
+      dataIndex: 'amount',
+      key: 'amount',
+      render: (_, { amount }) => (
+        <DebouncedCommaSeparatedInput value={amount ? amount + '' : ''} disabled />
+      ),
+      width: 120
+    },
+    {
       title: (
         <Button
           size="small"
@@ -747,6 +797,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
 
       <div className="flex flex-wrap gap-4 rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
         <DetailSummaryInfo title="Total Quantity:" value={totalQuantity} />
+        <DetailSummaryInfo title="Total Amount:" value={totalAmount} />
       </div>
 
       <div className="mt-4 flex items-center justify-end gap-2">

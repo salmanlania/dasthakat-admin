@@ -1,13 +1,12 @@
 import { Button, Col, Form, Input, Row, Select } from 'antd';
 import { useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import AsyncSelect from '../AsyncSelect';
 import NumberInput from '../Input/NumberInput';
 import CountrySelect from '../Select/CountrySelect';
 
 // eslint-disable-next-line react/prop-types
-const CustomerForm = ({ mode = 'create', onSubmit }) => {
-  const { id } = useParams();
+const CustomerForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues } = useSelector((state) => state.customer);
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
@@ -98,11 +97,7 @@ const CustomerForm = ({ mode = 'create', onSubmit }) => {
               endpoint="/vessel"
               valueKey="vessel_id"
               labelKey="name"
-              params={{
-                customer_id: id
-              }}
               labelInValue
-              disabled={mode === 'create'}
               addNewLink={permissions.vessel.list && permissions.vessel.add ? '/vessel' : null}
               mode="multiple"
             />

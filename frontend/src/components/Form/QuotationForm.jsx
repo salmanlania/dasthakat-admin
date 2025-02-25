@@ -517,28 +517,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
       width: 240
     },
     {
-      title: 'Internal Notes',
-      dataIndex: 'internal_notes',
-      key: 'internal_notes',
-      render: (_, { internal_notes }, index) => {
-        return (
-          <DebounceInput
-            value={internal_notes}
-            onChange={(value) =>
-              dispatch(
-                changeQuotationDetailValue({
-                  index,
-                  key: 'internal_notes',
-                  value: value
-                })
-              )
-            }
-          />
-        );
-      },
-      width: 240
-    },
-    {
       title: 'Stock Quantity',
       dataIndex: 'stock_quantity',
       key: 'stock_quantity',
@@ -664,7 +642,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
       },
       width: 120
     },
-
     {
       title: 'Cost Price',
       dataIndex: 'cost_price',
@@ -1063,13 +1040,11 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
 
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={24} sm={12} md={8} lg={8} className="flex items-center gap-2">
           <Form.Item name="due_date" label="Due Date" className="w-full">
             <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
-        </Col>
 
-        <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="service_date" label="Date of Service" className="w-full">
             <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
@@ -1112,6 +1087,12 @@ const QuotationForm = ({ mode, onSubmit }) => {
               defaultFirstSelected
               addNewLink={permissions.payment.list && permissions.payment.add ? '/payment' : null}
             />
+          </Form.Item>
+        </Col>
+
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="internal_notes" label="Internal Notes">
+            <Input />
           </Form.Item>
         </Col>
 
