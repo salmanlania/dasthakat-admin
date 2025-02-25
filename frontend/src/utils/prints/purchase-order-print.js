@@ -192,7 +192,7 @@ const addFooter = (doc, data, sideMargin, pageHeight) => {
   doc.setFont('times', 'normal');
 
   doc.text('Global Marine Safety - America All Rights Reserved', sideMargin, pageHeight + 8);
-  doc.text('gms.com.sg', sideMargin, pageHeight + 12);
+  doc.text('gms-america.com', sideMargin, pageHeight + 12);
 
   const currentPage = doc.internal.getCurrentPageInfo().pageNumber;
   doc.text(`Page ${currentPage}`, 190, pageHeight + 10);
@@ -210,7 +210,6 @@ export const createPurchaseOrderPrint = (data) => {
     'Unit',
     'V.Part#',
     'Description',
-    'Cust Notes',
     'Unit Price',
     'Ext. Cos',
     'Vend Notes'
@@ -229,7 +228,6 @@ export const createPurchaseOrderPrint = (data) => {
               : detail?.product?.product_name || '',
           styles: { halign: 'left' }
         },
-        detail.description || '',
         {
           content: detail.rate ? formatThreeDigitCommas(detail.rate) : '',
           styles: { halign: 'right' }
@@ -278,11 +276,10 @@ export const createPurchaseOrderPrint = (data) => {
       2: { cellWidth: 12 },
       3: { cellWidth: 10 },
       4: { cellWidth: 12 },
-      5: { cellWidth: 64 },
-      6: { cellWidth: 24 },
+      5: { cellWidth: 88 },
+      6: { cellWidth: 16 },
       7: { cellWidth: 16 },
-      8: { cellWidth: 16 },
-      9: { cellWidth: 24 }
+      8: { cellWidth: 24 }
     },
     didParseCell: function (data) {
       data.cell.styles.minCellHeight = 11;

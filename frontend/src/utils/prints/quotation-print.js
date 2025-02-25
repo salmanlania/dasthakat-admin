@@ -281,20 +281,24 @@ export const createQuotationPrint = async (data) => {
         { content: netAmount, styles: { halign: 'right' }, rowSpan: 2 }
       ];
 
-      const notesRow = [{ content: 'ssss', styles: { halign: 'left' } }];
+      const notesRow = [
+        { content: detail?.description || '', styles: { halign: 'left', fontStyle: 'bold' } }
+      ];
 
       table2Rows.push(row, notesRow);
     });
   }
 
-  const filledRows = fillEmptyRows(table2Rows, 13, descriptions.length + 1);
+  console.log(table2Rows);
+
+  const filledRows = fillEmptyRows(table2Rows, 18, descriptions.length + 1);
 
   // Adding Table
   doc.autoTable({
     startY: 84,
     head: [table2Column],
     body: filledRows,
-    margin: { left: sideMargin, right: sideMargin, bottom: 32, top: 84 },
+    margin: { left: sideMargin, right: sideMargin, bottom: 38, top: 84 },
     headStyles: {
       fontSize: 7,
       fontStyle: 'bold',

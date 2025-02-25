@@ -388,6 +388,7 @@ export const quotationSlice = createSlice({
           ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
           : null,
         vendor_part_no: detail.vendor_part_no,
+        internal_notes: detail.internal_notes,
         cost_price: +detail.cost_price || +detail.rate,
         markup: detail.markup,
         rate: detail.rate,
