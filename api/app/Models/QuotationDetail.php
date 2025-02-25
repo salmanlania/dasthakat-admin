@@ -25,6 +25,7 @@ class QuotationDetail extends Model
         "unit_id",
         "supplier_id",
         "vendor_part_no",
+        "internal_notes",
         "quantity",
         "cost_price",
         "markup",

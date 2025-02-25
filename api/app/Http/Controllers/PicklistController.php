@@ -17,11 +17,25 @@ class PicklistController extends Controller
 
 	public function index(Request $request)
 	{
-		$query = Picklist::with('charge_order', 'charge_order.event', 'charge_order.vessel')
-			->where('company_id', $request->company_id)
-			->where('company_branch_id', $request->company_branch_id)
+
+		$sortColumn = $request->input('sort_column', 'picklist.created_at');
+		$sortDirection = $request->input('sort_direction') === 'ascend' ? 'asc' : 'desc';
+		$document_date = $request->input('document_date', '');
+		$document_identity = $request->input('document_identity', '');
+		$charge_order_no = $request->input('charge_order_no', '');
+		$charge_order_id = $request->input('charge_order_id', '');
+		$vessel_id = $request->input('vessel_id', '');
+		$event_id = $request->input('event_id', '');
+		$total_quantity = $request->input('total_quantity', '');
+		
+
+		$query = Picklist::LeftJoin('charge_order as c', 'c.charge_order_id', '=', 'picklist.charge_order_id')
+			->LeftJoin('event as e', 'e.event_id', '=', 'c.event_id')
+			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'c.vessel_id')
+			->where('picklist.company_id', $request->company_id)
+			->where('picklist.company_branch_id', $request->company_branch_id)
 			->selectRaw("
-        picklist.*,
+        picklist.*,e.event_id,e.event_code,v.vessel_id,v.name as vessel_name,
         CASE 
             -- If no received records exist, status = 3 (Nothing received)
             WHEN NOT EXISTS (
@@ -45,40 +59,63 @@ class PicklistController extends Controller
 
             -- If all items are fully received, status = 1 (All received completely)
             ELSE 1
-        END AS status
+        END AS picklist_status
     ");
 
 
-		// Apply filters dynamically
-		$filters = [
-			'document_identity' => 'like',
-			'document_date' => '=',
-			'charge_order_id' => '=',
-			'event_id' => '=',
-			'vessel_id' => '=',
-			'total_quantity' => 'like',
-			'status' => '=' // Allow filtering by status
-		];
+		if (!empty($document_date)) $query = $query->where('picklist.document_date', 'like', '%' . $document_date . '%');
+		if (!empty($document_identity)) $query = $query->where('picklist.document_identity', 'like', '%' . $document_identity . '%');
+		if (!empty($charge_order_no)) $query = $query->where('c.document_identity', 'like', '%' . $charge_order_no . '%');
+		if (!empty($charge_order_id)) $query = $query->where('c.charge_order_id', '=',  $charge_order_id);
+		if (!empty($vessel_id)) $query = $query->where('v.vessel_id', '=', $vessel_id);
+		if (!empty($event_id)) $query = $query->where('e.event_id', '=', $event_id);
+		if (!empty($total_quantity)) $query = $query->where('total_quantity', 'like', '%' . $total_quantity . '%');
 
-		foreach ($filters as $field => $operator) {
-			if ($value = $request->input($field)) {
-				$query->where($field, $operator, $operator === 'like' ? "%$value%" : $value);
-			}
+
+		if ($picklist_status = $request->input('picklist_status')) {
+			$query->having('picklist_status', '=', $picklist_status);
 		}
+
 
 		// Global search
 		if ($search = strtolower($request->input('search', ''))) {
-			$query->where(fn($q) => $q
-				->where('charge_order.document_identity', 'like', "%$search%")
-				->orWhere('picklist.document_identity', 'like', "%$search%"));
+			$query->where(
+				fn($q) => $q
+					->where('c.document_identity', 'like', "%$search%")
+					->orWhere('picklist.document_identity', 'like', "%$search%")
+					->orWhere('v.name', 'like', "%$search%")
+					->orWhere('e.event_code', 'like', "%$search%")
+			);
 		}
 
-		return response()->json(
-			$query->orderBy(
-				$request->input('sort_column', 'picklist.created_at'),
-				$request->input('sort_direction') === 'ascend' ? 'asc' : 'desc'
-			)->paginate($request->input('limit', 10))
-		);
+
+		if ($sortColumn === 'picklist_status') {
+			$query->orderByRaw("
+            CASE 
+                WHEN NOT EXISTS (
+                    SELECT 1 FROM picklist_received_detail prd 
+                    JOIN picklist_received pr ON pr.picklist_received_id = prd.picklist_received_id 
+                    WHERE pr.picklist_id = picklist.picklist_id
+                ) THEN 3
+                WHEN EXISTS (
+                    SELECT 1 FROM picklist_detail pd
+                    LEFT JOIN (
+                        SELECT prd.picklist_detail_id, SUM(prd.quantity) AS total_received
+                        FROM picklist_received_detail prd
+                        GROUP BY prd.picklist_detail_id
+                    ) received_summary
+                    ON pd.picklist_detail_id = received_summary.picklist_detail_id
+                    WHERE pd.picklist_id = picklist.picklist_id
+                    AND (received_summary.total_received IS NULL OR received_summary.total_received < pd.quantity)
+                ) THEN 2
+                ELSE 1
+            END $sortDirection
+        ");
+		} else {
+			$query->orderBy($sortColumn, $sortDirection);
+		}
+
+		return response()->json($query->paginate($request->input('limit', 10)));
 	}
 
 	private function validateRequest(array $data): ?array
