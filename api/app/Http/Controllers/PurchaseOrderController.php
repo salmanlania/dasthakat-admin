@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChargeOrderDetail;
 use App\Models\DocumentType;
 use App\Models\GRN;
 use App\Models\GRNDetail;
@@ -15,115 +16,6 @@ class PurchaseOrderController extends Controller
 {
 	protected $document_type_id = 40;
 	protected $db;
-
-	// public function index(Request $request)
-	// {
-	// 	$supplier_id = $request->input('supplier_id', '');
-	// 	$document_identity = $request->input('document_identity', '');
-	// 	$document_date = $request->input('document_date', '');
-	// 	$required_date = $request->input('required_date', '');
-	// 	$quotation_id = $request->input('quotation_id', '');
-	// 	$charge_order_id = $request->input('charge_order_id', '');
-	// 	$type = $request->input('type', '');
-
-	// 	$search = $request->input('search', '');
-	// 	$page =  $request->input('page', 1);
-	// 	$perPage =  $request->input('limit', 10);
-	// 	$sort_column = $request->input('sort_column', 'purchase_order.created_at');
-	// 	$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
-
-	// 	$data = PurchaseOrder::LeftJoin('supplier as s', 's.supplier_id', '=', 'purchase_order.supplier_id')
-	// 		->LeftJoin('quotation as q', 'q.quotation_id', '=', 'purchase_order.quotation_id')
-	// 		->LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'purchase_order.charge_order_id');
-	// 	$data = $data->where('purchase_order.company_id', '=', $request->company_id);
-	// 	$data = $data->where('purchase_order.company_branch_id', '=', $request->company_branch_id);
-
-	// 	if (!empty($supplier_id)) $data = $data->where('purchase_order.supplier_id', '=',  $supplier_id);
-	// 	if (!empty($quotation_id)) $data = $data->where('purchase_order.quotation_id', '=',  $quotation_id);
-	// 	if (!empty($charge_order_id)) $data = $data->where('purchase_order.charge_order_id', '=',  $charge_order_id);
-	// 	if (!empty($document_identity)) $data = $data->where('purchase_order.document_identity', 'like', '%' . $document_identity . '%');
-	// 	if (!empty($document_date)) $data = $data->where('purchase_order.document_date', '=',  $document_date);
-	// 	if (!empty($required_date)) $data = $data->where('purchase_order.required_date', '=',  $required_date);
-	// 	if (!empty($type)) $data = $data->where('purchase_order.type', '=',  $type);
-
-	// 	if (!empty($search)) {
-	// 		$search = strtolower($search);
-	// 		$data = $data->where(function ($query) use ($search) {
-	// 			$query
-	// 				->where('s.name', 'like', '%' . $search . '%')
-	// 				->OrWhere('purchase_order.type', 'like', '%' . $search . '%')
-	// 				->OrWhere('q.document_identity', 'like', '%' . $search . '%')
-	// 				->OrWhere('co.document_identity', 'like', '%' . $search . '%')
-	// 				->OrWhere('purchase_order.document_identity', 'like', '%' . $search . '%');
-	// 		});
-	// 	}
-
-	// 	// **Filter Available POs where at least one product is not fully received**
-	// 	if ($request->has('available_po') && $request->available_po == 1) {
-	// 		$data = $data->whereExists(function ($query) {
-	// 			$query->select(DB::raw(1))
-	// 				->from('purchase_order_detail as pod')
-	// 				->leftJoin('good_received_note as grn', 'grn.purchase_order_id', '=', 'pod.purchase_order_id')
-	// 				->leftJoin('good_received_note_detail as grnd', function ($join) {
-	// 					$join->on('grnd.good_received_note_id', '=', 'grn.good_received_note_id')
-	// 						->on('grnd.product_id', '=', 'pod.product_id'); // Match product
-	// 				})
-	// 				->whereRaw('pod.purchase_order_id = purchase_order.purchase_order_id')
-	// 				->groupBy('pod.product_id', 'pod.quantity')
-	// 				->havingRaw("SUM(IFNULL(grnd.quantity, 0)) < pod.quantity"); // Ensure at least one product is not fully received
-	// 		});
-	// 	}
-	// 	$data = $data->select("purchase_order.*", "s.name as supplier_name", "q.document_identity as quotation_no", "co.document_identity as charge_no");
-
-	// 	$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
-
-	// 	foreach ($data as $po) {
-	// 		$poDetails = PurchaseOrderDetail::where('purchase_order_id', $po->purchase_order_id)->get();
-	// 		$grnDetails = GRNDetail::whereHas('grn', function ($query) use ($po) {
-	// 			$query->where('purchase_order_id', $po->purchase_order_id);
-	// 		})->get();
-
-	// 		$receivedQuantities = [];
-
-	// 		foreach ($grnDetails as $grnDetail) {
-	// 			if (!isset($receivedQuantities[$grnDetail->product_id])) {
-	// 				$receivedQuantities[$grnDetail->product_id] = 0;
-	// 			}
-	// 			$receivedQuantities[$grnDetail->product_id] += $grnDetail->quantity;
-	// 		}
-
-	// 		$allReceived = true;
-	// 		$partiallyReceived = false;
-	// 		$hasReceivedAny = false;
-
-	// 		foreach ($poDetails as $poDetail) {
-	// 			$orderedQty = $poDetail->quantity;
-	// 			$receivedQty = $receivedQuantities[$poDetail->product_id] ?? 0;
-
-	// 			if ($receivedQty > 0) {
-	// 				$hasReceivedAny = true;
-	// 			}
-
-	// 			if ($receivedQty < $orderedQty) {
-	// 				$allReceived = false;
-	// 			}
-
-	// 			if ($receivedQty > 0 && $receivedQty < $orderedQty) {
-	// 				$partiallyReceived = true;
-	// 			}
-	// 		}
-
-	// 		if (!$hasReceivedAny) {
-	// 			$po->status = "Pending";
-	// 		} elseif ($allReceived) {
-	// 			$po->status = "Full Received";
-	// 		} elseif ($partiallyReceived) {
-	// 			$po->status = "Partial Received";
-	// 		}
-	// 	}
-
-	// 	return response()->json($data);
-	// }
 
 	public function index(Request $request)
 	{
@@ -393,6 +285,16 @@ class PurchaseOrderController extends Controller
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		$data  = PurchaseOrder::where('purchase_order_id', $id)->first();
 		if (!$data) return $this->jsonResponse(['purchase_order_id' => $id], 404, "Purchase Order Not Found!");
+
+		$purchaseOrderDetailIds = PurchaseOrderDetail::where('purchase_order_id', $id)->pluck('purchase_order_detail_id');
+
+		// Update ChargeOrderDetail to set editable to true for the associated items
+		ChargeOrderDetail::whereIn('purchase_order_detail_id', $purchaseOrderDetailIds)
+			->update([
+				'purchase_order_id' => null,
+				'purchase_order_detail_id' => null,
+			]);
+
 		$data->delete();
 		PurchaseOrderDetail::where('purchase_order_id', $id)->delete();
 		return $this->jsonResponse(['purchase_order_id' => $id], 200, "Delete Purchase Order Successfully!");
@@ -406,6 +308,15 @@ class PurchaseOrderController extends Controller
 			if (isset($request->purchase_order_ids) && !empty($request->purchase_order_ids) && is_array($request->purchase_order_ids)) {
 				foreach ($request->purchase_order_ids as $purchase_order_id) {
 					$user = PurchaseOrder::where(['purchase_order_id' => $purchase_order_id])->first();
+
+					$purchaseOrderDetailIds = PurchaseOrderDetail::where('purchase_order_id', $purchase_order_id)->pluck('purchase_order_detail_id');
+
+					// Update ChargeOrderDetail to set editable to true for the associated items
+					ChargeOrderDetail::whereIn('purchase_order_detail_id', $purchaseOrderDetailIds)
+						->update([
+							'purchase_order_id' => null,
+							'purchase_order_detail_id' => null,
+						]);
 					$user->delete();
 					PurchaseOrderDetail::where('purchase_order_id', $purchase_order_id)->delete();
 				}

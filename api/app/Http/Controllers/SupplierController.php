@@ -35,11 +35,11 @@ class SupplierController extends Controller
 		$search = $request->input('search', '');
 		$page =  $request->input('page', 1);
 		$perPage =  $request->input('limit', 10);
-		$sort_column = $request->input('sort_column', 'created_at');
+		$sort_column = $request->input('sort_column', 'supplier.created_at');
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
 		$data = Supplier::LeftJoin('payment as p', 'supplier.payment_id', '=', 'p.payment_id');
-		$data = $data->where('company_id', '=', $request->company_id);
+		$data = $data->where('supplier.company_id', '=', $request->company_id);
 		// $data = $data->where('company_branch_id', '=', $request->company_branch_id);
 
 		if (!empty($supplier_code)) $data = $data->where('supplier_code', 'like', '%' . $supplier_code . '%');
