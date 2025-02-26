@@ -27,7 +27,7 @@ class PicklistReceivedController extends Controller
 		$receivedData = PicklistReceived::with("picklist_received_detail", "picklist_received_detail.product")
 			->where('picklist_id', $id)
 			->orderBy('created_at', 'asc')
-		->get();
+			->get();
 
 		$picklist_remainings = [];
 
@@ -62,8 +62,19 @@ class PicklistReceivedController extends Controller
 			}
 		}
 
+		// Add original quantity for history items
+		$historyWithOriginalQty = $receivedData->map(function ($received) use ($picklist) {
+			$received->picklist_received_detail->transform(function ($detail) use ($picklist) {
+				// Find the original quantity from the picklist details
+				$originalQty = optional($picklist->picklist_detail->firstWhere('product_id', $detail->product_id))->quantity ?? 0;
+				$detail->original_quantity = $originalQty;
+				return $detail;
+			});
+			return $received;
+		});
+
 		$response = [
-			"history" => $receivedData,
+			"history" => $historyWithOriginalQty,
 			"picklist" => $picklist_remainings
 		];
 
