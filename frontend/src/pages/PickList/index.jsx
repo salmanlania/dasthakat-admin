@@ -178,7 +178,6 @@ const PickList = () => {
       key: 'picklist_status',
       sorter: true,
       render: (_, { picklist_status }) => {
-        console.log(picklist_status);
         if (picklist_status == 1) {
           return (
             <div className="flex items-center justify-center">
@@ -187,7 +186,7 @@ const PickList = () => {
               </Tag>
             </div>
           );
-        } else if (2 == 2) {
+        } else if (picklist_status == 2) {
           return (
             <div className="flex items-center justify-center">
               <Tag color="volcano" className="w-28 text-center">

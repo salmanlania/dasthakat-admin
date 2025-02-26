@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import useError from '../../hooks/useError';
 import {
+  getPickListList,
   getPickListListReceives,
   setPickListOpenModalId,
   updatePickListListReceives
@@ -57,7 +58,9 @@ const NewReceivesTab = ({ details }) => {
   const handleError = useError();
   const dispatch = useDispatch();
   const [form] = Form.useForm();
-  const { isPickListReceivesSaving, pickListOpenModalId } = useSelector((state) => state.pickList);
+  const { params, isPickListReceivesSaving, pickListOpenModalId } = useSelector(
+    (state) => state.pickList
+  );
 
   const dataSource = details.map((detail) => ({
     id: detail.picklist_detail_id,
@@ -142,6 +145,7 @@ const NewReceivesTab = ({ details }) => {
       ).unwrap();
       dispatch(setPickListOpenModalId(null));
       toast.success('Picklist receives updated successfully');
+      dispatch(getPickListList(params)).unwrap().catch(handleError);
     } catch (error) {
       handleError(error);
     }
