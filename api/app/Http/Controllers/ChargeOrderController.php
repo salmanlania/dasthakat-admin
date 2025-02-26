@@ -287,8 +287,6 @@ class ChargeOrderController extends Controller
 		$data  = ChargeOrder::where('charge_order_id', $id)->first();
 		$data->company_id = $request->company_id;
 		$data->company_branch_id = $request->company_branch_id;
-		$data->ref_document_type_id = $request->ref_document_type_id;
-		$data->ref_document_identity = $request->ref_document_identity;
 		$data->document_date = $request->document_date;
 		$data->salesman_id = $request->salesman_id;
 		$data->customer_po_no = $request->customer_po_no;

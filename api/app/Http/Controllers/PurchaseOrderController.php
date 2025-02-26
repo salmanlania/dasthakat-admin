@@ -24,6 +24,7 @@ class PurchaseOrderController extends Controller
 		$document_date = $request->input('document_date', '');
 		$required_date = $request->input('required_date', '');
 		$quotation_id = $request->input('quotation_id', '');
+		$customer_id = $request->input('customer_id', '');
 		$charge_order_id = $request->input('charge_order_id', '');
 		$type = $request->input('type', '');
 
@@ -35,7 +36,10 @@ class PurchaseOrderController extends Controller
 
 		$data = PurchaseOrder::LeftJoin('supplier as s', 's.supplier_id', '=', 'purchase_order.supplier_id')
 			->LeftJoin('quotation as q', 'q.quotation_id', '=', 'purchase_order.quotation_id')
-			->LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'purchase_order.charge_order_id');
+			->LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'purchase_order.charge_order_id')
+			->LeftJoin('event as e', 'e.event_id', '=', 'co.event_id')
+			->LeftJoin('customer as c', 'c.customer_id', '=', 'e.customer_id')
+			;
 
 		$data = $data->where('purchase_order.company_id', '=', $request->company_id);
 		$data = $data->where('purchase_order.company_branch_id', '=', $request->company_branch_id);
@@ -46,6 +50,7 @@ class PurchaseOrderController extends Controller
 		if (!empty($document_identity)) $data->where('purchase_order.document_identity', 'like', "%$document_identity%");
 		if (!empty($document_date)) $data->where('purchase_order.document_date', $document_date);
 		if (!empty($required_date)) $data->where('purchase_order.required_date', $required_date);
+		if (!empty($customer_id)) $data->where('c.customer_id', $customer_id);
 		if (!empty($type)) $data->where('purchase_order.type', $type);
 
 		if (!empty($search)) {
@@ -55,6 +60,7 @@ class PurchaseOrderController extends Controller
 					->where('s.name', 'like', "%$search%")
 					->orWhere('purchase_order.type', 'like', "%$search%")
 					->orWhere('q.document_identity', 'like', "%$search%")
+					->orWhere('c.name', 'like', "%$search%")
 					->orWhere('co.document_identity', 'like', "%$search%")
 					->orWhere('purchase_order.document_identity', 'like', "%$search%");
 			});
@@ -76,7 +82,7 @@ class PurchaseOrderController extends Controller
 			});
 		}
 
-		$data = $data->select("purchase_order.*", "s.name as supplier_name", "q.document_identity as quotation_no", "co.document_identity as charge_no")
+		$data = $data->select("purchase_order.*",'c.name as customer_name', "s.name as supplier_name", "q.document_identity as quotation_no", "co.document_identity as charge_no")
 			->orderBy($sort_column, $sort_direction)
 			->paginate($perPage, ['*'], 'page', $page);
 
