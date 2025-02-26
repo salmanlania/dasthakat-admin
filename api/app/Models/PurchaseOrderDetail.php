@@ -16,6 +16,7 @@ class PurchaseOrderDetail extends Model
     protected $fillable = [
         "purchase_order_id",
         "purchase_order_detail_id",
+        "charge_order_detail_id",
         "sort_order",
         "product_id",
         "product_type_id",
