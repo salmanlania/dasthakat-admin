@@ -11,6 +11,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
+import PurchaseOrderModal from '../../components/Modals/PurchaseOrderModal';
 import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
 import {
@@ -21,6 +22,7 @@ import {
   setChargeOrderDeleteIDs,
   setChargeOrderListParams
 } from '../../store/features/chargeOrderSlice';
+import { setChargePoID } from '../../store/features/purchaseOrderSlice';
 
 const ChargeOrder = () => {
   const navigate = useNavigate();
@@ -242,7 +244,7 @@ const ChargeOrder = () => {
               size="small"
               type="primary"
               icon={<LuClipboardList size={14} />}
-              onClick={() => onCreateChargePO(charge_order_id)}
+              onClick={() => dispatch(setChargePoID(charge_order_id))}
             />
           </Tooltip>
 
@@ -372,6 +374,8 @@ const ChargeOrder = () => {
           }}
         />
       </div>
+
+      <PurchaseOrderModal />
 
       <DeleteConfirmModal
         open={deleteModalIsOpen ? true : false}

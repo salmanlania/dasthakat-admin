@@ -51,6 +51,18 @@ export const getChargeOrder = createAsyncThunk(
   }
 );
 
+export const getChargeOrderVendorWise = createAsyncThunk(
+  'chargeOrder/getDetailsVenderWise',
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/charge-order/${id}/vendor-wise-details`);
+      return res.data.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const updateChargeOrder = createAsyncThunk(
   'chargeOrder/update',
   async ({ id, data }, { rejectWithValue }) => {
@@ -64,9 +76,9 @@ export const updateChargeOrder = createAsyncThunk(
 
 export const createChargeOrderPO = createAsyncThunk(
   'chargeOrder/PO',
-  async (id, { rejectWithValue }) => {
+  async ({ id, data }, { rejectWithValue }) => {
     try {
-      await api.get(`charge-order/${id}/purchase-orders`);
+      await api.post(`charge-order/${id}/purchase-orders`, data);
     } catch (err) {
       throw rejectWithValue(err);
     }

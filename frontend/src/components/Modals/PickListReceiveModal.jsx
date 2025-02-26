@@ -13,8 +13,6 @@ import {
 import NumberInput from '../Input/NumberInput';
 
 const HistoryTab = ({ details }) => {
-  console.log(details);
-
   const columns = [
     {
       title: 'Sr #',

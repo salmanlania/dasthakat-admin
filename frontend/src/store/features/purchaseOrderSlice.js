@@ -98,6 +98,7 @@ const initialState = {
   rebatePercentage: null,
   salesmanPercentage: null,
   purchaseOrderDetails: [],
+  poChargeID: null,
   params: {
     page: 1,
     limit: 50,
@@ -124,6 +125,10 @@ export const purchaseOrderSlice = createSlice({
 
     setPurchaseOrderDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
+    },
+
+    setChargePoID: (state, action) => {
+      state.poChargeID = action.payload;
     },
 
     addPurchaseOrderDetail: (state, action) => {
@@ -361,6 +366,7 @@ export const {
   changePurchaseOrderDetailValue,
   setRebatePercentage,
   setSalesmanPercentage,
-  resetPurchaseOrderDetail
+  resetPurchaseOrderDetail,
+  setChargePoID
 } = purchaseOrderSlice.actions;
 export default purchaseOrderSlice.reducer;
