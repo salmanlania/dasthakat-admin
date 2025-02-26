@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
 use App\Models\DocumentType;
 use App\Models\GRN;
@@ -39,7 +38,8 @@ class PurchaseOrderController extends Controller
 			->LeftJoin('quotation as q', 'q.quotation_id', '=', 'purchase_order.quotation_id')
 			->LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'purchase_order.charge_order_id')
 			->LeftJoin('event as e', 'e.event_id', '=', 'co.event_id')
-			->LeftJoin('customer as c', 'c.customer_id', '=', 'e.customer_id');
+			->LeftJoin('customer as c', 'c.customer_id', '=', 'e.customer_id')
+			;
 
 		$data = $data->where('purchase_order.company_id', '=', $request->company_id);
 		$data = $data->where('purchase_order.company_branch_id', '=', $request->company_branch_id);
@@ -82,7 +82,7 @@ class PurchaseOrderController extends Controller
 			});
 		}
 
-		$data = $data->select("purchase_order.*", 'c.name as customer_name', "s.name as supplier_name", "q.document_identity as quotation_no", "co.document_identity as charge_no")
+		$data = $data->select("purchase_order.*",'c.name as customer_name', "s.name as supplier_name", "q.document_identity as quotation_no", "co.document_identity as charge_no")
 			->orderBy($sort_column, $sort_direction)
 			->paginate($perPage, ['*'], 'page', $page);
 
@@ -256,8 +256,8 @@ class PurchaseOrderController extends Controller
 		$data->updated_by = $request->login_user_id;
 		$data->update();
 		PurchaseOrderDetail::where('purchase_order_id', $id)->delete();
-
 		if ($request->purchase_order_detail) {
+
 			foreach ($request->purchase_order_detail as $key => $value) {
 				$detail_uuid = $this->get_uuid();
 
@@ -279,39 +279,8 @@ class PurchaseOrderController extends Controller
 					'created_by' => $request->login_user_id,
 				];
 				PurchaseOrderDetail::create($insertArr);
-
-
-				// Update Charge Order Detail if linked
-				if (!empty($value['charge_order_detail_id'])) {
-					$chargeOrderDetail = ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id']);
-					$data = $chargeOrderDetail->first();
-					$quantity = $value['quantity'];
-					$rate = $data->rate;
-					$amount = $quantity * $rate;
-					$discount_percent = $data->discount_percent;
-					$discount_amount = ($amount * $discount_percent) / 100;
-					$gross_amount = $amount - $discount_amount;
-
-					$chargeOrderDetail->update([
-						'quantity' => $quantity,
-						'rate' => $rate,
-						'amount' => $amount,
-						'discount_percent' => $discount_percent,
-						'discount_amount' => $discount_amount,
-						'gross_amount' => $gross_amount
-					]);
-				}
+				
 			}
-		}
-
-		if (!empty($request->charge_order_id)) {
-			$data = ChargeOrder::where('charge_order_id', $request->charge_order_id)->first();
-			$detail = ChargeOrderDetail::where('charge_order_id', $request->charge_order_id);
-			$data->total_quantity = $detail->sum('quantity');
-			$data->total_amount = $detail->sum('amount');
-			$data->discount_amount = $detail->sum('discount_amount');
-			$data->net_amount = $detail->sum('gross_amount');
-			$data->update();
 		}
 
 
