@@ -116,3 +116,5 @@ ALTER TABLE supplier
 ADD COLUMN payment_id CHAR(36) AFTER location;
 ALTER TABLE quotation_detail
 ADD COLUMN internal_notes VARCHAR(255) AFTER vendor_part_no;
+ALTER TABLE purchase_order_detail
+ADD COLUMN charge_order_detail_id CHAR(36) AFTER purchase_order_detail_id;

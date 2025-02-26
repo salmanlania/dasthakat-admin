@@ -268,7 +268,8 @@ $router->group(['prefix' => 'quotation'], function ($router) {
 $router->group(['prefix' => 'charge-order'], function ($router) {
    $router->get('/', 'ChargeOrderController@index');
    $router->get('/{id}', 'ChargeOrderController@show');
-   $router->get('/{id}/purchase-orders', 'ChargeOrderController@createPurchaseOrder');
+   $router->get('/{id}/vendor-wise-details', 'ChargeOrderController@getVendorWiseDetails');
+   $router->post('/{id}/purchase-orders', 'ChargeOrderController@createPurchaseOrders');
    $router->post('/', 'ChargeOrderController@store');
    $router->put('/{id}', 'ChargeOrderController@update');
    $router->delete('/{id}', 'ChargeOrderController@delete');
