@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\Job;
 use App\Models\DocumentType;
 use Illuminate\Http\Request;
 use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
+use App\Models\JobOrder;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
 use App\Models\Quotation;
@@ -20,44 +22,34 @@ class JobOrderController extends Controller
 
 	public function index(Request $request)
 	{
-		$customer_id = $request->input('customer_id', '');
-		$document_identity = $request->input('document_identity', '');
-		$document_date = $request->input('document_date', '');
-		$vessel_id = $request->input('vessel_id', '');
 		$event_id = $request->input('event_id', '');
+		$customer_id = $request->input('customer_id', '');
 		$search = $request->input('search', '');
 		$page =  $request->input('page', 1);
 		$perPage =  $request->input('limit', 10);
-		$sort_column = $request->input('sort_column', 'charge_order.created_at');
+		$sort_column = $request->input('sort_column', 'job_order.created_at');
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
-		$data = ChargeOrder::LeftJoin('customer as c', 'c.customer_id', '=', 'charge_order.customer_id')
-			->LeftJoin('event as e', 'e.event_id', '=', 'charge_order.event_id')
-			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'charge_order.vessel_id');
-
-		if (!empty($customer_id)) $data = $data->where('charge_order.customer_id', '=',  $customer_id);
-		if (!empty($vessel_id)) $data = $data->where('charge_order.vessel_id', '=',  $vessel_id);
-		if (!empty($event_id)) $data = $data->where('charge_order.event_id', '=',  $event_id);
-		if (!empty($document_identity)) $data = $data->where('charge_order.document_identity', 'like', '%' . $document_identity . '%');
-		if (!empty($document_date)) $data = $data->where('charge_order.document_date', '=',  $document_date);
-		$data = $data->where('charge_order.company_id', '=', $request->company_id);
-		$data = $data->where('charge_order.company_branch_id', '=', $request->company_branch_id);
+		$data = JobOrder::LeftJoin('event as e', 'e.event_id', '=', 'job_order.event_id')
+			->LeftJoin('customer as c', 'c.customer_id', '=', 'job_order.customer_id');
+		if (!empty($event_id)) $data = $data->where('job_order.event_id', '=',  $event_id);
+		if (!empty($customer_id)) $data = $data->where('job_order.customer_id', '=',  $customer_id);
+		if (!empty($document_identity)) $data = $data->where('job_order.document_identity', 'like', '%' . $document_identity . '%');
+		if (!empty($document_date)) $data = $data->where('job_order.document_date', '=',  $document_date);
+		$data = $data->where('job_order.company_id', '=', $request->company_id);
+		$data = $data->where('job_order.company_branch_id', '=', $request->company_branch_id);
 
 		if (!empty($search)) {
 			$search = strtolower($search);
 			$data = $data->where(function ($query) use ($search) {
 				$query
-					->where('c.name', 'like', '%' . $search . '%')
-					->OrWhere('v.name', 'like', '%' . $search . '%')
+					->OrWhere('c.name', 'like', '%' . $search . '%')
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
-					->OrWhere('charge_order.document_identity', 'like', '%' . $search . '%');
+					->OrWhere('job_order.document_identity', 'like', '%' . $search . '%');
 			});
 		}
 
-		$data = $data->select("charge_order.*", DB::raw("CONCAT(e.event_code, ' (', CASE 
-		WHEN e.status = 1 THEN 'Active' 
-		ELSE 'Inactive' 
-	END, ')') AS event_code"), "c.name as customer_name", "v.name as vessel_name");
+		$data = $data->select("job_order.*", "c.name as customer_name", "e.event_code");
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);

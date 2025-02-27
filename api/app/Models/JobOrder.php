@@ -20,8 +20,6 @@ class JobOrder extends Model
         "document_no",
         "document_prefix",
         "document_identity",
-        "ref_document_type_id",
-        "ref_document_identity",
         "document_date",
         "event_id",
         "created_by",

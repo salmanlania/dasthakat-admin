@@ -35,7 +35,7 @@ class PicklistController extends Controller
 			->where('picklist.company_id', $request->company_id)
 			->where('picklist.company_branch_id', $request->company_branch_id)
 			->selectRaw("
-        picklist.*,e.event_id,e.event_code,v.vessel_id,v.name as vessel_name,
+        picklist.*,e.event_id,e.event_code,v.vessel_id,v.name as vessel_name,c.document_identity as charge_order_no,
         CASE 
             -- If no received records exist, status = 3 (Nothing received)
             WHEN NOT EXISTS (

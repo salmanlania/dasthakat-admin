@@ -121,3 +121,34 @@ ADD COLUMN charge_order_detail_id CHAR(36) AFTER purchase_order_detail_id;
 
 insert into const_document_type (document_type_id, document_name, document_prefix, table_name, primary_key)
 values (45, 'Internal Job Order', '{BC}/IJO-', 'job_order', 'job_order_id');
+
+
+CREATE TABLE job_order (
+    company_id CHAR(36),
+    company_branch_id CHAR(36),
+    job_order_id CHAR(36) PRIMARY KEY,
+    document_type_id INT NOT NULL,
+    document_no INT NOT NULL,
+    document_prefix VARCHAR(50),
+    document_identity VARCHAR(100),
+    document_date DATETIME,
+    event_id CHAR(36),
+    created_by CHAR(36),
+    updated_by CHAR(36),
+    created_at DATETIME,
+    updated_at DATETIME
+);
+
+CREATE TABLE job_order_detail (
+    company_id CHAR(36),
+    company_branch_id CHAR(36),
+    job_order_id CHAR(36),
+    job_order_detail_id CHAR(36) PRIMARY KEY,
+    charge_order_id CHAR(36),
+    charge_order_detail_id CHAR(36),
+    quantity DECIMAL(10, 2),
+    created_by CHAR(36),
+    updated_by CHAR(36),
+    created_at DATETIME,
+    updated_at DATETIME
+);

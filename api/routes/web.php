@@ -143,6 +143,7 @@ $router->group(['prefix' => 'vessel'], function ($router) {
 $router->group(['prefix' => 'event'], function ($router) {
    $router->get('/', 'EventController@index');
    $router->get('/{id}', 'EventController@show');
+   $router->get('/{id}/charge-orders', 'EventController@getChargeOrders');
    $router->post('/', 'EventController@store');
    $router->put('/{id}', 'EventController@update');
    $router->delete('/{id}', 'EventController@delete');
@@ -274,6 +275,14 @@ $router->group(['prefix' => 'charge-order'], function ($router) {
    $router->put('/{id}', 'ChargeOrderController@update');
    $router->delete('/{id}', 'ChargeOrderController@delete');
    $router->post('/bulk-delete', 'ChargeOrderController@bulkDelete');
+});
+
+$router->group(['prefix' => 'job-order'], function ($router) {
+   $router->get('/', 'JobOrder@index');
+   $router->get('/{id}', 'JobOrder@show');
+   $router->put('/{id}', 'JobOrder@update');
+   $router->delete('/{id}', 'JobOrder@delete');
+   $router->post('/bulk-delete', 'JobOrder@bulkDelete');
 });
 
 $router->group(['prefix' => 'picklist'], function ($router) {

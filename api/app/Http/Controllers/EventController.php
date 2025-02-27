@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChargeOrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Event;
@@ -70,6 +71,14 @@ class EventController extends Controller
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
+	}
+
+	public function getChargeOrders($id, Request $request)
+	{
+		$data =  ChargeOrderDetail::with('charge_order')
+			->select('*')
+			->where('chargeevent_id', $id)->first();
+		return $this->jsonResponse($data, 200, "Event Data");
 	}
 
 	public function show($id, Request $request)

@@ -151,3 +151,8 @@
   ('Purchase Management', 'Purchase Invoice', 'purchase_invoice', 'add', 'Add', 1.102),
   ('Purchase Management', 'Purchase Invoice', 'purchase_invoice', 'edit', 'Edit', 1.103),
   ('Purchase Management', 'Purchase Invoice', 'purchase_invoice', 'delete', 'Delete', 1.104);
+
+  ('Sale Management', 'Internal Job Order', 'job_order', 'list', 'List', 1.101),
+  ('Sale Management', 'Internal Job Order', 'job_order', 'add', 'Add', 1.102),
+  ('Sale Management', 'Internal Job Order', 'job_order', 'edit', 'Edit', 1.103),
+  ('Sale Management', 'Internal Job Order', 'job_order', 'delete', 'Delete', 1.104);
