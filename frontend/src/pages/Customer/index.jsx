@@ -54,7 +54,7 @@ const Customer = () => {
   const onBulkDelete = async () => {
     try {
       await dispatch(bulkDeleteCustomer(deleteIDs)).unwrap();
-      toast.success('Companies deleted successfully');
+      toast.success('Customers deleted successfully');
       closeDeleteModal();
       await dispatch(getCustomerList(params)).unwrap();
     } catch (error) {
