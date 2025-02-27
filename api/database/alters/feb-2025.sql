@@ -118,3 +118,6 @@ ALTER TABLE quotation_detail
 ADD COLUMN internal_notes VARCHAR(255) AFTER vendor_part_no;
 ALTER TABLE purchase_order_detail
 ADD COLUMN charge_order_detail_id CHAR(36) AFTER purchase_order_detail_id;
+
+insert into const_document_type (document_type_id, document_name, document_prefix, table_name, primary_key)
+values (45, 'Internal Job Order', '{BC}/IJO-', 'job_order', 'job_order_id');
