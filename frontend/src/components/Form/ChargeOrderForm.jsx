@@ -953,12 +953,12 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
               onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PICK_LIST'))}>
               Pick List
             </Button>
-            <Button
+            {/* <Button
               type="primary"
               loading={isFormSubmitting === 'CREATE_PO'}
               onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PO'))}>
               Save & Create PO
-            </Button>
+            </Button> */}
           </>
         ) : null}
 

@@ -55,6 +55,7 @@ const PurchaseOrderModal = () => {
           data: { charge_order_id: poChargeID, vendors: payload }
         })
       );
+      toast.success('Purchase Order created successfully');
       dispatch(setChargePoID(null));
       setDetails([]);
     } catch (error) {
@@ -98,13 +99,12 @@ const PurchaseOrderModal = () => {
       dispatch(getChargeOrderVendorWise(poChargeID))
         .unwrap()
         .then((data) => {
-          setDetails(data);
-
           const details = data.map((detail) => ({
             ...detail,
             ship_to: GMS_ADDRESS,
             checked: false
           }));
+
           setDetails(details);
         })
         .catch(handleError)
