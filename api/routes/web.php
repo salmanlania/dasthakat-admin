@@ -278,11 +278,12 @@ $router->group(['prefix' => 'charge-order'], function ($router) {
 });
 
 $router->group(['prefix' => 'job-order'], function ($router) {
-   $router->get('/', 'JobOrder@index');
-   $router->get('/{id}', 'JobOrder@show');
-   $router->put('/{id}', 'JobOrder@update');
-   $router->delete('/{id}', 'JobOrder@delete');
-   $router->post('/bulk-delete', 'JobOrder@bulkDelete');
+   $router->get('/', 'JobOrderController@index');
+   $router->get('/{id}', 'JobOrderController@show');
+   $router->post('/', 'JobOrderController@store');
+   $router->put('/{id}', 'JobOrderController@update');
+   $router->delete('/{id}', 'JobOrderController@delete');
+   $router->post('/bulk-delete', 'JobOrderController@bulkDelete');
 });
 
 $router->group(['prefix' => 'picklist'], function ($router) {
