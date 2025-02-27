@@ -119,195 +119,110 @@ class ChargeOrderController extends Controller
 			return [
 				"supplier_id" => $supplierId,
 				"supplier_name" => optional($items->first()->supplier)->name ?? "Unknown Supplier",
-				"total_quantity" => $items->sum('quantity'),
-				"total_amount" => $items->sum(fn($item) => $item->quantity * $item->cost_price),
-				"items" => $items->map(function ($item) {
-					return [
-						"charge_order_detail_id" => $item->charge_order_detail_id,
-						"product_id" => $item->product_id,
-						"product_name" => $item->product->name ?? null,
-						"quantity" => $item->quantity,
-						"cost_price" => $item->cost_price,
-						"amount" => $item->quantity * $item->cost_price,
-					];
-				})->values(),
+				// "total_quantity" => $items->sum('quantity'),
+				// "total_amount" => $items->sum(fn($item) => $item->quantity * $item->cost_price),
+				// "items" => $items->map(function ($item) {
+				// 	return [
+				// 		"charge_order_detail_id" => $item->charge_order_detail_id,
+				// 		"product_id" => $item->product_id,
+				// 		"product_name" => $item->product_type_id == 3 ? $item->product->name : $item->product_name ?? null,
+				// 		"quantity" => $item->quantity,
+				// 		"cost_price" => $item->cost_price,
+				// 		"amount" => $item->quantity * $item->cost_price,
+				// 	];
+				// })->values(),
 			];
 		})->values();
 
 		return $this->jsonResponse($vendorWiseDetails, 200, "Vendor-wise charge order details fetched successfully.");
 	}
-
 	public function createPurchaseOrders(Request $request)
-	{
-		$validatedData = $request->validate([
-			'charge_order_id' => 'required|exists:charge_order,charge_order_id',
-			'vendors' => 'required|array',
-			'vendors.*.supplier_id' => 'required|exists:supplier,id',
-			'vendors.*.receive_date' => 'date',
-			'vendors.*.ship_via' => 'string',
-			'vendors.*.ship_to' => 'string',
-		]);
+{
+    $data = $request->all();
+    $chargeOrderId = $data['charge_order_id'];
 
-		$chargeOrder = ChargeOrder::with(['charge_order_detail', 'charge_order_detail.product'])
-			->where('charge_order_id', $validatedData['charge_order_id'])
-			->firstOrFail();
+    foreach ($data['vendors'] as $vendor) {
+        $supplierId = $vendor['supplier_id'];
+        $requiredDate = $vendor['required_date'];
+        $shipVia = $vendor['ship_via'];
+        $shipTo = $vendor['ship_to'];
 
-		$quotation = Quotation::where('document_identity', $chargeOrder->ref_document_identity)->first();
+        // Fetch charge order details using charge_order_id and supplier_id
+        $chargeOrderDetails = ChargeOrderDetail::whereHas('charge_order', function ($query) use ($chargeOrderId, $supplierId) {
+            $query->where('charge_order_id', $chargeOrderId)
+                  ->where('supplier_id', $supplierId);
+        })->with('product')->get();
 
-		foreach ($validatedData['vendors'] as $vendor) {
-			$supplierId = $vendor['supplier_id'];
-			$receiveDate = $vendor['receive_date']??null;
-			$shipVia = $vendor['ship_via']??null;
-			$shipTo = $vendor['ship_to']??null;
+        if ($chargeOrderDetails->isEmpty()) {
+            continue;
+        }
 
-			$filteredDetails = collect($chargeOrder->charge_order_detail)->where('supplier_id', $supplierId);
+        $uuid = $this->get_uuid();
+        $document = DocumentType::getNextDocument(40, $request);
 
-			if ($filteredDetails->isEmpty()) {
-				continue;
-			}
+        $totalQuantity = $chargeOrderDetails->sum('quantity');
+        $totalAmount = $chargeOrderDetails->sum(fn($item) => $item->quantity * $item->cost_price);
 
-			$uuid = $this->get_uuid();
-			$document = DocumentType::getNextDocument(40, $request);
+        // Create Purchase Order
+        $purchaseOrder = [
+            'company_id'        => $request->company_id,
+            'company_branch_id' => $request->company_branch_id,
+            'purchase_order_id' => $uuid,
+            'charge_order_id'   => $chargeOrderId, // Linking Charge Order ID
+            'document_type_id'  => $document['document_type_id'] ?? null,
+            'document_no'       => $document['document_no'] ?? null,
+            'document_prefix'   => $document['document_prefix'] ?? null,
+            'document_identity' => $document['document_identity'] ?? null,
+            'document_date'     => Carbon::now(),
+            'supplier_id'       => $supplierId,
+            'type'              => "Buyout",
+            'buyer_id'          => $request->login_user_id,
+            'total_quantity'    => $totalQuantity,
+            'total_amount'      => $totalAmount,
+            'required_date'     => $requiredDate ?? null,
+            'ship_via'          => $shipVia ?? null,
+            'ship_to'           => $shipTo ?? null,
+            'created_at'        => Carbon::now(),
+            'created_by'        => $request->login_user_id,
+        ];
 
-			$totalQuantity = $filteredDetails->sum('quantity');
-			$totalAmount = $filteredDetails->sum(fn($item) => $item->quantity * $item->cost_price);
+        PurchaseOrder::insert($purchaseOrder);
 
-			$purchaseOrder = [
-				'company_id'        => $request->company_id,
-				'company_branch_id' => $request->company_branch_id,
-				'purchase_order_id' => $uuid,
-				'document_type_id'  => $document['document_type_id'] ?? null,
-				'document_no'       => $document['document_no'] ?? null,
-				'document_prefix'   => $document['document_prefix'] ?? null,
-				'document_identity' => $document['document_identity'] ?? null,
-				'document_date'     => Carbon::now(),
-				'supplier_id'       => $supplierId,
-				'type'              => "Buyout",
-				'ship_to'           => $shipTo,
-				'ship_via'          => $shipVia,
-				'receive_date'      => $receiveDate,
-				'buyer_id'          => $request->login_user_id,
-				'quotation_id'      => $quotation->quotation_id ?? null,
-				'charge_order_id'   => $chargeOrder->charge_order_id,
-				'total_quantity'    => $totalQuantity,
-				'total_amount'      => $totalAmount,
-				'created_at'        => Carbon::now(),
-				'created_by'        => $request->login_user_id,
-			];
+        // Insert Purchase Order Details
+        foreach ($chargeOrderDetails as $index => $detail) {
+            $purchase_order_detail_id = $this->get_uuid();
 
-			PurchaseOrder::insert($purchaseOrder);
+            $purchaseOrderDetail = [
+                'purchase_order_id'        => $uuid,
+                'purchase_order_detail_id' => $purchase_order_detail_id,
+                'charge_order_detail_id'   => $detail->charge_order_detail_id,
+                'sort_order'               => $index,
+                'product_id'               => $detail->product_id ?? null,
+                'product_type_id'          => $detail->product_type_id ?? null,
+                'product_name'             => $detail->product_name ?? null,
+                'description'              => $detail->description ?? null,
+                'unit_id'                  => $detail->unit_id ?? null,
+                'quantity'                 => $detail->quantity ?? null,
+                'rate'                     => $detail->cost_price ?? null,
+                'amount'                   => ($detail->quantity ?? 0) * ($detail->cost_price ?? 0),
+                'created_at'               => Carbon::now(),
+                'created_by'               => $request->login_user_id,
+            ];
 
-			foreach ($filteredDetails as $index => $item) {
-				$purchase_order_detail_id = $this->get_uuid();
+            PurchaseOrderDetail::insert($purchaseOrderDetail);
 
-				$purchaseOrderDetail = [
-					'purchase_order_id'       => $uuid,
-					'purchase_order_detail_id'=> $purchase_order_detail_id,
-					'charge_order_detail_id'  => $item['charge_order_detail_id'],
-					'sort_order'              => $index,
-					'product_id'              => $item['product_id'],
-					'product_type_id'         => $item['product_type_id'],
-					'product_name'            => $item['product_name'],
-					'description'             => $item['description'],
-					'unit_id'                 => $item['unit_id'],
-					'quantity'                => $item['quantity'],
-					'rate'                    => $item['cost_price'],
-					'amount'                  => $item['quantity'] * $item['cost_price'],
-					'created_at'              => Carbon::now(),
-					'created_by'              => $request->login_user_id,
-				];
+            // Update Charge Order Details with Purchase Order ID
+            ChargeOrderDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)
+                ->update([
+                    'purchase_order_id'        => $uuid,
+                    'purchase_order_detail_id' => $purchase_order_detail_id,
+                ]);
+        }
+    }
 
-				PurchaseOrderDetail::insert($purchaseOrderDetail);
+    return $this->jsonResponse(null, 200, "Purchase Orders Created Successfully.");
+}
 
-				ChargeOrderDetail::where('charge_order_detail_id', $item->charge_order_detail_id)
-					->update([
-						'purchase_order_id'        => $uuid,
-						'purchase_order_detail_id' => $purchase_order_detail_id,
-					]);
-			}
-		}
-
-		return $this->jsonResponse(null, 200, "Purchase Orders Created Successfully.");
-	}
-
-
-	// public function createPurchaseOrder($id, Request $request)
-	// {
-	// 	$record = ChargeOrder::with(['charge_order_detail', 'charge_order_detail.product'])
-	// 		->where('charge_order_id', $id)
-	// 		->firstOrFail();
-
-
-	// 	$quotation = Quotation::where('document_identity', $record->ref_document_identity)->first();
-
-	// 	$filteredDetails = collect($record->charge_order_detail)->filter(fn($row) => (($row->product_type_id == 4 || $row->product_type_id == 3) && empty($row->purchase_order_detail_id)));
-	// 	$vendorWiseDetails = $filteredDetails->groupBy('supplier_id');
-	// 	if (!empty($vendorWiseDetails)) {
-
-	// 		foreach ($vendorWiseDetails as $supplierId => $items) {
-	// 			$uuid = $this->get_uuid();
-	// 			$document = DocumentType::getNextDocument(40, $request);
-
-	// 			$totalQuantity = $items->sum('quantity');
-	// 			$totalRate = $items->sum('cost_price');
-
-	// 			$purchaseOrders = [
-	// 				'company_id'         => $request->company_id,
-	// 				'company_branch_id'  => $request->company_branch_id,
-	// 				'purchase_order_id'  => $uuid,
-	// 				'document_type_id'   => $document['document_type_id'] ?? null,
-	// 				'document_no'        => $document['document_no'] ?? null,
-	// 				'document_prefix'    => $document['document_prefix'] ?? null,
-	// 				'document_identity'  => $document['document_identity'] ?? null,
-	// 				'document_date'      => Carbon::now(),
-	// 				'supplier_id'        => $supplierId,
-	// 				'type'               => "Buyout",
-	// 				'ship_to'            => "Global Marine Safety 9145 Wallisville Road Houston TX 77029.",
-	// 				'buyer_id'           => $request->login_user_id,
-	// 				'quotation_id'       => $quotation->quotation_id ?? null,
-	// 				'charge_order_id'    => $record->charge_order_id,
-	// 				'total_quantity'     => $totalQuantity,
-	// 				'total_amount'       => $totalQuantity * $totalRate,
-	// 				'created_at'         => Carbon::now(),
-	// 				'created_by'         => $request->login_user_id,
-	// 			];
-
-	// 			if ($purchaseOrders) {
-	// 				PurchaseOrder::insert($purchaseOrders);
-	// 			}
-	// 			foreach ($items as $index => $item) {
-	// 				$purchase_order_detail_id = $this->get_uuid();
-
-	// 				$purchaseOrderDetails = [
-	// 					'purchase_order_id'       => $uuid,
-	// 					'purchase_order_detail_id' => $purchase_order_detail_id,
-	// 					'sort_order'              => $index,
-	// 					'product_id'              => $item['product_id'] ?? null,
-	// 					'product_type_id'         => $item['product_type_id'] ?? null,
-	// 					'product_name'            => $item['product_name'] ?? null,
-	// 					'description'             => $item['description'] ?? null,
-	// 					'unit_id'                 => $item['unit_id'] ?? null,
-	// 					'quantity'                => $item['quantity'] ?? 0,
-	// 					'rate'                    => $item['cost_price'] ?? 0,
-	// 					'amount'                  => $item['cost_price'] * $item['quantity'] ?? 0,
-	// 					'created_at'              => Carbon::now(),
-	// 					'created_by'              => $request->login_user_id,
-	// 				];
-
-	// 				if ($purchaseOrderDetails) {
-	// 					PurchaseOrderDetail::insert($purchaseOrderDetails);
-	// 				}
-	// 				ChargeOrderDetail::where('charge_order_detail_id', $item->charge_order_detail_id)
-	// 					->update([
-	// 						'purchase_order_id'        => $uuid,
-	// 						'purchase_order_detail_id' => $purchase_order_detail_id,
-	// 					]);
-	// 			}
-	// 		}
-	// 	}
-
-	// 	return $this->jsonResponse($record, 200, "Purchase Orders Generated Grouped by Vendor!");
-	// }
 
 	public function store(Request $request)
 	{
@@ -354,7 +269,7 @@ class ChargeOrderController extends Controller
 		ChargeOrder::create($insertArr);
 
 		if ($request->charge_order_detail) {
-			foreach ($request->charge_order_detail as $key => $value) {
+			foreach ($request->charge_order_detail as $key => $value) {		
 				$detail_uuid = $this->get_uuid();
 				$insert = [
 					'charge_order_id' => $insertArr['charge_order_id'],

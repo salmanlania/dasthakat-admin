@@ -39,6 +39,10 @@ class ChargeOrderDetail extends Model
         "created_by",
         "updated_by"
     ];
+    public function charge_order()
+    {
+        return $this->hasOne(ChargeOrder::class, 'charge_order_id','charge_order_id')->select('*');
+    }
     public function product()
     {
         return $this->hasOne(Product::class, 'product_id','product_id')->select('*',DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
