@@ -13,9 +13,9 @@ use App\Models\StockLedger;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class ChargeOrderController extends Controller
+class JobOrderController extends Controller
 {
-	protected $document_type_id = 39;
+	protected $document_type_id = 45;
 	protected $db;
 
 	public function index(Request $request)
