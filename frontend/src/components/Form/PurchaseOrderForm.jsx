@@ -7,6 +7,7 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
+import { GMS_ADDRESS } from '../../constants';
 import useError from '../../hooks/useError';
 import { purchaseOrderTypes } from '../../pages/PurchaseOrder';
 import { getProduct, getProductList } from '../../store/features/productSlice';
@@ -599,7 +600,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
           : {
               document_date: dayjs(),
               type: 'Inventory',
-              ship_to: 'Global Marine Safety 9145 Wallisville Road Houston TX 77029'
+              ship_to: GMS_ADDRESS
             }
       }
       scrollToFirstError={{
