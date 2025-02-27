@@ -78,13 +78,13 @@ class EventController extends Controller
 	{
 		$data = ChargeOrder::with([
 			'event',
+			'customer',
+			'salesman',
+			'agent',
 			'vessel',
 			'flag',
 			'class1',
 			'class2',
-			'customer',
-			'salesman',
-			'agent',
 			'charge_order_detail',
 			'charge_order_detail.product_type',
 			'charge_order_detail.product',
@@ -92,7 +92,14 @@ class EventController extends Controller
 			'charge_order_detail.supplier',
 		])->where('event_id', $id)->get();
 
-		return $this->jsonResponse($data, 200, "Event Charge Orders Data");
+		$event = Event::with([
+			'customer',
+			'customer.salesman',
+			'vessel',
+			'class1',
+			'class2',
+		])->where('event_id', $id)->first();
+		return $this->jsonResponse(['charge_orders' => $data, 'event' => $event], 200, "Event Charge Orders Data");
 	}
 
 	public function show($id, Request $request)

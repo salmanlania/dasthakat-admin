@@ -23,7 +23,7 @@
   ('General Group', 'Company Branch', 'company_branch', 'delete', 'Delete', 1.104),
 
   ('General Group', 'Currency', 'currency', 'list', 'List', 1.101),
-  ('General Group', 'Currency', 'currency', 'add', 'Aist', 1.101),
+  ('General Group', 'Currency', 'currency', 'add', 'Add', 1.101),
   ('General Group', 'Currency', 'currency', 'edit', 'Edit', 1.101),
   ('General Group', 'Currency', 'currency', 'delete', 'Delete', 1.101),
 
