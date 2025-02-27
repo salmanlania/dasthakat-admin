@@ -116,8 +116,8 @@ const PickList = () => {
           />
         </div>
       ),
-      dataIndex: 'event_name',
-      key: 'event_name',
+      dataIndex: 'event_code',
+      key: 'event_code',
       sorter: true,
       width: 180
     },
@@ -254,9 +254,9 @@ const PickList = () => {
   const dataSource = list.map((item) => ({
     document_identity: item.document_identity,
     total_quantity: parseFloat(item?.total_quantity || 0),
-    charge_order_no: item.charge_order?.document_identity,
-    event_name: item.charge_order?.event?.event_code,
-    vessel_name: item.charge_order?.vessel?.name,
+    charge_order_no: item.charge_order_no,
+    event_code: item.event_code,
+    vessel_name: item?.vessel_name,
     picklist_status: item.picklist_status,
     id: item.picklist_id,
     key: item.picklist_id
