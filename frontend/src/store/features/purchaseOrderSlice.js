@@ -210,6 +210,7 @@ export const purchaseOrderSlice = createSlice({
         unit_id: null,
         rate: null,
         amount: null,
+        purchase_order_detail_id: null,
         vpart: null,
         vendor_notes: null
       };
@@ -314,6 +315,7 @@ export const purchaseOrderSlice = createSlice({
         product_name: detail.product_name,
         charge_order_detail_id: detail.charge_order_detail_id,
         description: detail.description,
+        purchase_order_detail_id: detail.purchase_order_detail_id,
         vpart: detail.vpart,
         quantity: detail.quantity ? parseFloat(detail.quantity) : null,
         unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,

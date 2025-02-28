@@ -254,9 +254,34 @@ class PurchaseOrderController extends Controller
 		$data->total_amount = $request->total_amount;
 		$data->updated_at = date('Y-m-d H:i:s');
 		$data->updated_by = $request->login_user_id;
-		$data->update();
-		PurchaseOrderDetail::where('purchase_order_id', $id)->delete();
+		// $data->update();
 
+
+		// Fetch existing purchase order details
+		$existingPurchaseOrderDetails = PurchaseOrderDetail::where('purchase_order_id', $id)
+			->pluck('purchase_order_detail_id')
+			->toArray();
+
+		// Get new purchase order details from the request
+		$newPurchaseOrderDetails = collect($request->purchase_order_detail)
+			->pluck('purchase_order_detail_id')
+			->toArray();
+
+		// Identify deleted purchase order details
+		$deletedPurchaseOrderDetails = array_diff($existingPurchaseOrderDetails, $newPurchaseOrderDetails);
+		
+		
+		if (!empty($deletedPurchaseOrderDetails)) {
+				ChargeOrderDetail::whereIn('purchase_order_detail_id', $deletedPurchaseOrderDetails)
+					->update([
+							'purchase_order_id' => null,
+					'purchase_order_detail_id' => null,
+				]);
+			}
+		
+		PurchaseOrderDetail::where('purchase_order_id', $id)->delete();
+		$newDetailMappings = [];
+		
 		if ($request->purchase_order_detail) {
 			foreach ($request->purchase_order_detail as $key => $value) {
 				$detail_uuid = $this->get_uuid();
@@ -267,6 +292,7 @@ class PurchaseOrderController extends Controller
 					'sort_order' => $value['sort_order'] ?? "",
 					'product_id' => $value['product_id'] ?? "",
 					'product_type_id' => $value['product_type_id'] ?? "",
+					'charge_order_detail_id' => $value['charge_order_detail_id'] ?? "",
 					'product_name' => $value['product_name'] ?? "",
 					'description' => $value['description'] ?? "",
 					'vpart' => $value['vpart'] ?? "",
@@ -279,8 +305,10 @@ class PurchaseOrderController extends Controller
 					'created_by' => $request->login_user_id,
 				];
 				PurchaseOrderDetail::create($insertArr);
-
-
+				if(isset($value['charge_order_detail_id'])){
+					$newDetailMappings[$value['charge_order_detail_id']] = $detail_uuid;
+				}
+				
 				// Update Charge Order Detail if linked
 				if (!empty($value['charge_order_detail_id'])) {
 					$chargeOrderDetail = ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id']);
@@ -291,7 +319,7 @@ class PurchaseOrderController extends Controller
 					$discount_percent = $data->discount_percent;
 					$discount_amount = ($amount * $discount_percent) / 100;
 					$gross_amount = $amount - $discount_amount;
-
+					
 					$chargeOrderDetail->update([
 						'quantity' => $quantity,
 						'rate' => $rate,
@@ -301,6 +329,15 @@ class PurchaseOrderController extends Controller
 						'gross_amount' => $gross_amount
 					]);
 				}
+			}
+		}
+		// return $this->jsonResponse($newDetailMappings, 400, "Delete Purchase Order successfully!");
+		
+		// Update ChargeOrderDetail with new PO detail IDs
+		foreach ($newDetailMappings as $chargeOrderDetailId => $newPoDetailId) {
+			if (!empty($chargeOrderDetailId)) {
+				ChargeOrderDetail::where('charge_order_detail_id', $chargeOrderDetailId)
+					->update(['purchase_order_detail_id' => $newPoDetailId]);
 			}
 		}
 
