@@ -88,7 +88,10 @@ const VesselForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="class1_id" label="Class 1">
+          <Form.Item
+            name="class1_id"
+            label="Class 1"
+            rules={[{ required: true, message: 'Class 1 is required!' }]}>
             <AsyncSelect
               endpoint="/class"
               valueKey="class_id"

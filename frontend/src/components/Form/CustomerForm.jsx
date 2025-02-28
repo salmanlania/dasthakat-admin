@@ -102,7 +102,7 @@ const CustomerForm = ({ mode = 'create', onSubmit }) => {
                 customer_id: id
               }}
               labelInValue
-              disabled={mode === 'create'}
+              disabled
               addNewLink={permissions.vessel.list && permissions.vessel.add ? '/vessel' : null}
               mode="multiple"
             />
