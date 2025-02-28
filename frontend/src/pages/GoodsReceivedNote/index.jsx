@@ -86,7 +86,7 @@ const GoodsReceivedNote = () => {
   const onGRNCreate = async () => {
     try {
       setIsGRNCreating(true);
-      const { purchase_order_detail, charge_order, ...otherDetails } = await dispatch(
+      const { purchase_order_detail, supplier } = await dispatch(
         getPurchaseOrder(selectedPO)
       ).unwrap();
 
@@ -107,6 +107,7 @@ const GoodsReceivedNote = () => {
         default_currency_id: currency ? currency.currency_id : null,
         document_date: dayjs().format('YYYY-MM-DD'),
         purchase_order_id: selectedPO,
+        supplier_id: supplier.supplier_id,
         good_received_note_detail: details,
         total_quantity: totalQuantity
       };

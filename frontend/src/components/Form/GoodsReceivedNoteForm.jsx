@@ -248,12 +248,24 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
                 label: values?.charge_order?.customer.name
               }
             : null,
+          supplier_id: values?.supplier
+            ? {
+                value: values?.supplier.supplier_id,
+                label: values?.supplier.name
+              }
+            : null,
           charge_no: values?.charge_order?.document_identity || null,
           purchase_order_no: values?.charge_order?.customer_po_no || null
         });
       } else {
         form.setFieldsValue({
-          type: values.type
+          type: values.type,
+          supplier_id: values?.supplier
+            ? {
+                value: values?.supplier.supplier_id,
+                label: values?.supplier.name
+              }
+            : null
         });
       }
 
