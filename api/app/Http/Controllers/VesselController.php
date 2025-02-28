@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CustomerVessel;
 use App\Models\Event;
 use App\Models\Log;
 use Illuminate\Http\Request;
@@ -34,7 +35,7 @@ class VesselController extends Controller
 			->LeftJoin('class as c1', 'vessel.class1_id', 'c1.class_id')
 			->LeftJoin('customer as c', 'vessel.customer_id', 'c.customer_id')
 			->LeftJoin('class as c2', 'vessel.class2_id', 'c2.class_id');
-			$data = $data->where('vessel.company_id', '=', $request->company_id);
+		$data = $data->where('vessel.company_id', '=', $request->company_id);
 		$data = $data->where('vessel.company_branch_id', '=', $request->company_branch_id);
 
 
@@ -61,7 +62,7 @@ class VesselController extends Controller
 			});
 		}
 
-		$data = $data->select("vessel.*","c.name as customer_name", "f.name as flag_name", "c1.name as class1_name", "c2.name as class2_name");
+		$data = $data->select("vessel.*", "c.name as customer_name", "f.name as flag_name", "c1.name as class1_name", "c2.name as class2_name");
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
@@ -74,7 +75,7 @@ class VesselController extends Controller
 			->LeftJoin('customer as c', 'c.customer_id', 'vessel.customer_id')
 			->LeftJoin('class as c1', 'vessel.class1_id', 'c1.class_id')
 			->LeftJoin('class as c2', 'vessel.class2_id', 'c2.class_id')
-			->select("vessel.*", "c.name as customer_name","f.name as flag_name", "c1.name as class1_name", "c2.name as class2_name")
+			->select("vessel.*", "c.name as customer_name", "f.name as flag_name", "c1.name as class1_name", "c2.name as class2_name")
 			->where('vessel_id', $id)->first();
 		return $this->jsonResponse($data, 200, "Flag Data");
 	}
@@ -131,6 +132,16 @@ class VesselController extends Controller
 
 		$vessel = Vessel::create($insertArr);
 
+		$insert = [
+			'customer_vessel_id' => $this->get_uuid(),
+			'customer_id' => $request->customer_id,
+			'vessel_id' => $uuid,
+			'created_at' => date('Y-m-d H:i:s'),
+			'created_by' => $request->login_user_id,
+		];
+		CustomerVessel::insert($insert);
+
+
 		return $this->jsonResponse(['vessel_id' => $uuid], 200, "Add Vessel Successfully!");
 	}
 
@@ -143,6 +154,10 @@ class VesselController extends Controller
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
 		$data  = Vessel::where('vessel_id', $id)->first();
+
+		CustomerVessel::where(['vessel_id' => $id, 'customer_id' => $data->customer_id])->delete();
+
+
 		$data->company_id  = $request->company_id;
 		$data->company_branch_id  = $request->company_branch_id;
 		$data->imo  = $request->imo ?? "";
@@ -157,6 +172,14 @@ class VesselController extends Controller
 
 		$data->update();
 
+		$insert = [
+			'customer_vessel_id' => $this->get_uuid(),
+			'customer_id' => $request->customer_id,
+			'vessel_id' => $id,
+			'created_at' => date('Y-m-d H:i:s'),
+			'created_by' => $request->login_user_id,
+		];
+		CustomerVessel::insert($insert);
 
 		return $this->jsonResponse(['vessel_id' => $id], 200, "Update Vessel Successfully!");
 	}
@@ -181,6 +204,9 @@ class VesselController extends Controller
 		if ($res['error']) {
 			return $this->jsonResponse($res['msg'], $res['error_code'], "Deletion Failed!");
 		}
+
+		CustomerVessel::where(['vessel_id' => $id, 'customer_id' => $data->customer_id])->delete();
+
 		$data->delete();
 
 		return $this->jsonResponse(['vessel_id' => $id], 200, "Delete Vessel Successfully!");
@@ -208,6 +234,8 @@ class VesselController extends Controller
 					if ($res['error']) {
 						return $this->jsonResponse($res['msg'], $res['error_code'], "Deletion Failed!");
 					}
+					CustomerVessel::where(['vessel_id' => $vessel_id, 'customer_id' => $user->customer_id])->delete();
+
 					$user->delete();
 				}
 			}
