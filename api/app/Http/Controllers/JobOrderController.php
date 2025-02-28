@@ -20,8 +20,12 @@ class JobOrderController extends Controller
 		$event_id = $request->input('event_id', '');
 		$vessel_id = $request->input('vessel_id', '');
 		$customer_id = $request->input('customer_id', '');
+		$flag_id = $request->input('flag_id', '');
 		$agent_id = $request->input('agent_id', '');
 		$salesman_id = $request->input('salesman_id', '');
+		$class1_id = $request->input('class1_id', '');
+		$class2_id = $request->input('class2_id', '');
+		$imo = $request->input('imo', '');
 		$search = $request->input('search', '');
 		$page =  $request->input('page', 1);
 		$perPage =  $request->input('limit', 10);
@@ -29,15 +33,22 @@ class JobOrderController extends Controller
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
 		$data = JobOrder::LeftJoin('event as e', 'e.event_id', '=', 'job_order.event_id')
+			->LeftJoin('flag as f', 'f.flag_id', '=', 'job_order.flag_id')
 			->LeftJoin('customer as c', 'c.customer_id', '=', 'job_order.customer_id')
+			->LeftJoin('class as c1', 'c1.class_id', '=', 'job_order.class1_id')
+			->LeftJoin('class as c2', 'c2.class_id', '=', 'job_order.class2_id')
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'job_order.vessel_id')
 			->LeftJoin('agent as a', 'a.agent_id', '=', 'job_order.agent_id')
 			->LeftJoin('salesman as s', 's.salesman_id', '=', 'job_order.salesman_id');
 		if (!empty($event_id)) $data = $data->where('job_order.event_id', '=',  $event_id);
+		if (!empty($flag_id)) $data = $data->where('job_order.flag_id', '=',  $flag_id);
 		if (!empty($vessel_id)) $data = $data->where('job_order.vessel_id', '=',  $vessel_id);
 		if (!empty($agent_id)) $data = $data->where('job_order.agent_id', '=',  $agent_id);
 		if (!empty($salesman_id)) $data = $data->where('job_order.salesman_id', '=',  $salesman_id);
 		if (!empty($customer_id)) $data = $data->where('job_order.customer_id', '=',  $customer_id);
+		if (!empty($imo)) $data = $data->where('v.imo', 'like',  "%" . $imo . "%");
+		if (!empty($class1_id)) $data = $data->where('job_order.class1_id', '=',  $class1_id);
+		if (!empty($class2_id)) $data = $data->where('job_order.class2_id', '=',  $class2_id);
 		if (!empty($document_identity)) $data = $data->where('job_order.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($document_date)) $data = $data->where('job_order.document_date', '=',  $document_date);
 		$data = $data->where('job_order.company_id', '=', $request->company_id);
@@ -47,6 +58,10 @@ class JobOrderController extends Controller
 			$search = strtolower($search);
 			$data = $data->where(function ($query) use ($search) {
 				$query
+					->OrWhere('v.imo', 'like', '%' . $search . '%')
+					->OrWhere('f.name', 'like', '%' . $search . '%')
+					->OrWhere('c1.name', 'like', '%' . $search . '%')
+					->OrWhere('c2.name', 'like', '%' . $search . '%')
 					->OrWhere('c.name', 'like', '%' . $search . '%')
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
 					->OrWhere('a.name', 'like', '%' . $search . '%')
@@ -56,7 +71,7 @@ class JobOrderController extends Controller
 			});
 		}
 
-		$data = $data->select("job_order.*", "c.name as customer_name", "e.event_code", "v.name as vessel_name", "a.name as agent_name", "s.name as salesman_name");
+		$data = $data->select("job_order.*", "c.name as customer_name", "e.event_code", "v.name as vessel_name","v.imo", "a.name as agent_name", "s.name as salesman_name", "f.name as flag_name", "c1.name as class1_name", "c2.name as class2_name");
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
@@ -144,11 +159,11 @@ class JobOrderController extends Controller
 			'product',
 			'unit',
 			'supplier',
-			])->whereHas('charge_order', function ($query) use ($request) {
-				$query->where('event_id', $request->event_id);
-			})->get();
-			
-			if ($detail) {
+		])->whereHas('charge_order', function ($query) use ($request) {
+			$query->where('event_id', $request->event_id);
+		})->get();
+
+		if ($detail) {
 			foreach ($detail as $key => $value) {
 				$detail_uuid = $this->get_uuid();
 				$insert = [
