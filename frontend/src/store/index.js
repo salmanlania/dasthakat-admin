@@ -13,6 +13,7 @@ import customerReducer from './features/customerSlice';
 import eventReducer from './features/eventSlice';
 import flagReducer from './features/flagSlice';
 import goodsReceivedNoteReducer from './features/goodsReceivedNoteSlice';
+import ijoReducer from './features/ijoSlice';
 import paymentReducer from './features/paymentSlice';
 import pickListReducer from './features/pickListSlice';
 import portReducer from './features/portSlice';
@@ -63,7 +64,8 @@ const rootReducer = combineReducers({
   purchaseInvoice: purchaseInvoiceReducer,
   goodsReceivedNote: goodsReceivedNoteReducer,
   quotation: quotationReducer,
-  chargeOrder: chargeOrderReducer
+  chargeOrder: chargeOrderReducer,
+  ijo: ijoReducer
 });
 
 export const store = configureStore({

@@ -196,7 +196,7 @@ const Unit = () => {
     }
   ];
 
-  if (!permissions.edit && !permissions.delete) {
+  if (!permissions.edit && !permissions.delete && !permissions.add) {
     columns.pop();
   }
 

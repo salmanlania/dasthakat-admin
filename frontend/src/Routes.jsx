@@ -91,6 +91,10 @@ const ChargeOrder = lazy(() => import('./pages/ChargeOrder'));
 const CreateChargeOrder = lazy(() => import('./pages/ChargeOrder/CreateChargeOrder'));
 const EditChargeOrder = lazy(() => import('./pages/ChargeOrder/EditChargeOrder'));
 
+const IJO = lazy(() => import('./pages/IJO'));
+const CreateIJO = lazy(() => import('./pages/IJO/CreateIJO'));
+const EditIJO = lazy(() => import('./pages/IJO/EditIJO'));
+
 const PickList = lazy(() => import('./pages/PickList'));
 
 function Routes() {
@@ -587,6 +591,30 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditChargeOrder />
+              </Suspense>
+            )
+          },
+          {
+            path: '/ijo',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <IJO />
+              </Suspense>
+            )
+          },
+          {
+            path: '/ijo/create',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreateIJO />
+              </Suspense>
+            )
+          },
+          {
+            path: '/ijo/edit/:id',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditIJO />
               </Suspense>
             )
           },

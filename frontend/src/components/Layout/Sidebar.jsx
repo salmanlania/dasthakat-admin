@@ -92,7 +92,9 @@ const Sidebar = () => {
     !permissions?.purchase_invoice?.list;
 
   const saleManagementPermission =
-    !permissions?.quotation?.list && !permissions?.charge_order?.list;
+    !permissions?.quotation?.list &&
+    !permissions?.charge_order?.list &&
+    !permissions?.job_order?.list;
 
   const items = [
     {
@@ -293,6 +295,11 @@ const Sidebar = () => {
         {
           key: 'pick-list',
           label: <Link to="/pick-list">Pick List</Link>
+        },
+        {
+          key: 'ijo',
+          disabled: !permissions?.job_order?.list,
+          label: <Link to="/ijo">Internal Job Order</Link>
         }
       ]
     }
