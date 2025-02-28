@@ -623,7 +623,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             labelKey="name"
             labelInValue
             className="w-full"
-            disabled={product_type_id?.value == 1}
+            disabled={product_type_id?.value == 1 || product_type_id?.value == 2}
             value={supplier_id}
             onChange={(selected) =>
               dispatch(

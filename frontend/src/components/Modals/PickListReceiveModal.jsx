@@ -156,6 +156,7 @@ const NewReceivesTab = ({ details }) => {
       layout="vertical"
       autoComplete="off"
       initialValues={{
+        document_date: dayjs(),
         details: dataSource
       }}
       onFinish={onSubmit}>

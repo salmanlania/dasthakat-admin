@@ -20,6 +20,7 @@ import {
   removePurchaseOrderDetail,
   resetPurchaseOrderDetail
 } from '../../store/features/purchaseOrderSlice';
+import { getVendor } from '../../store/features/vendorSlice';
 import { createPurchaseOrderPrint } from '../../utils/prints/purchase-order-print';
 import AsyncSelect from '../AsyncSelect';
 import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate';
@@ -196,6 +197,25 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
           value: { value: product.unit_id, label: product.unit_name }
         })
       );
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const onVendorChange = async (selected) => {
+    if (!selected) return;
+
+    try {
+      const { payment } = await dispatch(getVendor(selected.value)).unwrap();
+
+      if (payment) {
+        form.setFieldsValue({
+          payment_id: {
+            value: payment.payment_id,
+            label: payment.name
+          }
+        });
+      }
     } catch (error) {
       handleError(error);
     }
@@ -649,6 +669,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             <AsyncSelect
               endpoint="/supplier"
               valueKey="supplier_id"
+              onChange={onVendorChange}
               labelKey="name"
               labelInValue
               addNewLink={

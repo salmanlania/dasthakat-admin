@@ -1,12 +1,15 @@
 import { Button, Col, Form, Input, Row, Select, Table } from 'antd';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
+import useError from '../../hooks/useError';
 import { getEventChargeOrders } from '../../store/features/ijoSlice';
 import AsyncSelect from '../AsyncSelect';
 
 // eslint-disable-next-line react/prop-types
 const IJOForm = ({ mode = 'create', onSubmit }) => {
   const { id } = useParams();
+  const dispatch = useDispatch();
+  const handleError = useError();
   const [form] = Form.useForm();
   const { isFormSubmitting, initialFormValues } = useSelector((state) => state.ijo);
   const { user } = useSelector((state) => state.auth);
@@ -87,12 +90,23 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
     if (!selected) return;
     try {
       const data = await dispatch(getEventChargeOrders(selected.value)).unwrap();
+      console.log(data);
+
+      const { event } = data;
       form.setFieldsValue({
-        vessel_id: { value: data.vessel_id, label: data.vessel_name },
-        customer_id: { value: data.customer_id, label: data.customer_name },
-        class1_id: { value: data.class1_id, label: data.class1_name },
-        class2_id: { value: data.class2_id, label: data.class2_name },
-        flag_id: { value: data.flag_id, label: data.flag_name }
+        vessel_id: event?.vessel
+          ? { value: event.vessel.class_id, label: event.vessel.name }
+          : null,
+        customer_id: event?.customer
+          ? { value: event.customer.class_id, label: event.customer.name }
+          : null,
+        class1_id: event?.class1
+          ? { value: event.class1.class_id, label: event.class1.name }
+          : null,
+        class2_id: event?.class2
+          ? { value: event.class2.class_id, label: event.class2.name }
+          : null,
+        flag_id: event?.flag ? { value: event.flag.class_id, label: event.flag.name } : null
       });
     } catch (error) {
       handleError(error);
@@ -116,6 +130,7 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
               labelKey="event_code"
               labelInValue
               addNewLink={permissions.event.list && permissions.event.add ? '/event/create' : null}
+              onChange={onEventChange}
             />
           </Form.Item>
         </Col>
