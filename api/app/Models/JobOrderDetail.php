@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\DB;
 class JobOrderDetail extends Model
 {
 
-    protected $table = 'job_order';
-    protected $primaryKey = 'job_order_id';
+    protected $table = 'job_order_detail';
+    protected $primaryKey = 'job_order_detail_id';
     public $incrementing = false;
 
     protected $fillable = [
@@ -20,6 +20,7 @@ class JobOrderDetail extends Model
         "charge_order_id",
         "charge_order_detail_id",
         "product_id",
+        "product_name",
         "product_type_id",
         "unit_id",
         "supplier_id",

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChargeOrderDetail;
 use App\Models\DocumentType;
 use Illuminate\Http\Request;
 use App\Models\JobOrder;
 use App\Models\JobOrderDetail;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class JobOrderController extends Controller
 {
@@ -105,7 +107,6 @@ class JobOrderController extends Controller
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
 
-
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument($this->document_type_id, $request);
 		$insertArr = [
@@ -116,7 +117,7 @@ class JobOrderController extends Controller
 			'document_no' => $document['document_no'] ?? "",
 			'document_identity' => $document['document_identity'] ?? "",
 			'document_prefix' => $document['document_prefix'] ?? "",
-			'document_date' => ($request->document_date) ?? "",
+			'document_date' => $request->document_date ?? "",
 			'salesman_id' => $request->salesman_id ?? "",
 			'customer_id' => $request->customer_id ?? "",
 			'event_id' => $request->event_id ?? "",
@@ -129,14 +130,32 @@ class JobOrderController extends Controller
 			'created_by' => $request->login_user_id,
 		];
 		JobOrder::create($insertArr);
-
-		if ($request->job_order_detail) {
-			foreach ($request->job_order_detail as $key => $value) {
+		$detail = ChargeOrderDetail::with([
+			'charge_order',
+			'charge_order.event',
+			'charge_order.customer',
+			'charge_order.salesman',
+			'charge_order.agent',
+			'charge_order.vessel',
+			'charge_order.flag',
+			'charge_order.class1',
+			'charge_order.class2',
+			'product_type',
+			'product',
+			'unit',
+			'supplier',
+			])->whereHas('charge_order', function ($query) use ($request) {
+				$query->where('event_id', $request->event_id);
+			})->get();
+			
+			if ($detail) {
+			foreach ($detail as $key => $value) {
 				$detail_uuid = $this->get_uuid();
 				$insert = [
+					'company_id' => $request->company_id,
+					'company_branch_id' => $request->company_branch_id,
 					'job_order_id' => $insertArr['job_order_id'],
 					'job_order_detail_id' => $detail_uuid,
-					'sort_order' => $value['sort_order'] ?? "",
 					'charge_order_id' => $value['charge_order_id'] ?? "",
 					'charge_order_detail_id' => $value['charge_order_detail_id'] ?? "",
 					'product_id' => $value['product_id'] ?? "",
@@ -152,6 +171,7 @@ class JobOrderController extends Controller
 				JobOrderDetail::create($insert);
 			}
 		}
+		// dd($detail);
 
 
 		return $this->jsonResponse(['job_order_id' => $uuid], 200, "Add Job Order Successfully!");

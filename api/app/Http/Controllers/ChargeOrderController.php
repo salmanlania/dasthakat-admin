@@ -10,6 +10,7 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
 use App\Models\Quotation;
 use App\Models\StockLedger;
+use App\Models\Supplier;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -162,7 +163,7 @@ class ChargeOrderController extends Controller
 
 			$totalQuantity = $chargeOrderDetails->sum('quantity');
 			$totalAmount = $chargeOrderDetails->sum(fn($item) => $item->quantity * $item->cost_price);
-
+			$vendorDetails = Supplier::where('supplier_id', $supplierId)->firstOrFail();
 			// Create Purchase Order
 			$purchaseOrder = [
 				'company_id'        => $request->company_id,
@@ -175,6 +176,7 @@ class ChargeOrderController extends Controller
 				'document_identity' => $document['document_identity'] ?? null,
 				'document_date'     => Carbon::now(),
 				'supplier_id'       => $supplierId,
+				'payment_id'       => $vendorDetails['payment_id'] ?? null,
 				'type'              => "Buyout",
 				'buyer_id'          => $request->login_user_id,
 				'total_quantity'    => $totalQuantity,

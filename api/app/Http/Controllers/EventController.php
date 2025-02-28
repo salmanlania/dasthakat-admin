@@ -90,7 +90,7 @@ class EventController extends Controller
 			'charge_order_detail.product',
 			'charge_order_detail.unit',
 			'charge_order_detail.supplier',
-		])->where('event_id', $id)->get();
+		])->where('event_id', $id)->orderBy('created_at', 'desc')->get();
 
 		$event = Event::with([
 			'customer',
