@@ -719,7 +719,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
             </Col>
           </>
         )}
-
+        {/* 
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="payment_id" label="Payment Terms">
             <AsyncSelect
@@ -730,7 +730,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
               addNewLink={permissions.payment.list && permissions.payment.add ? '/payment' : null}
             />
           </Form.Item>
-        </Col>
+        </Col> */}
 
         <Col span={24} sm={24} md={16} lg={16}>
           <Form.Item name="remarks" label="Remarks">
