@@ -81,8 +81,7 @@ const EventForm = ({ mode, onSubmit }) => {
           : {
               status: 1
             }
-      }
-    >
+      }>
       <Row gutter={[12, 12]} className="w-full">
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="event_code" label="Event Code">
@@ -120,13 +119,13 @@ const EventForm = ({ mode, onSubmit }) => {
               onChange={onVesselSelect}
               onDropdownVisibleChange={(open) => (open && customerID ? getCustomerVessels() : null)}
               suffixIcon={
-                customerID && permissions.customer.edit ? (
+                permissions.vessel.add ? (
                   <MdOutlineAddCircle
                     className="absolute !-top-4 cursor-pointer rounded-full bg-white text-primary hover:text-blue-700"
                     size={18}
                     onClick={() => {
                       window.open(
-                        `/gms/customer/edit/${customerID?.value}`,
+                        `${import.meta.env.VITE_BASE_URL}/vessel/create`,
                         '_blank',
                         'toolbar=yes,scrollbars=yes,top=100,left=400,width=600,height=600'
                       );

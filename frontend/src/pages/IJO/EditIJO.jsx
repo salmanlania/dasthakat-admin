@@ -18,7 +18,7 @@ const EditIJO = () => {
   const onIJOUpdate = async (data) => {
     try {
       await dispatch(updateIJO({ id, data })).unwrap();
-      toast.success('Internal Job Order updated successfully');
+      toast.success('IJO updated successfully');
       navigate('/ijo');
     } catch (error) {
       handleError(error);
@@ -32,8 +32,8 @@ const EditIJO = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>EDIT INTERNAL JOB ORDER</PageHeading>
-        <Breadcrumb items={[{ title: 'Internal Job Order' }, { title: 'Edit' }]} separator=">" />
+        <PageHeading>EDIT IJO</PageHeading>
+        <Breadcrumb items={[{ title: 'IJO' }, { title: 'Edit' }]} separator=">" />
       </div>
 
       {isItemLoading && (

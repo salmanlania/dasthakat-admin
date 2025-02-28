@@ -15,7 +15,7 @@ const CreateIJO = () => {
   const onIJOCreate = async (data) => {
     try {
       await dispatch(createIJO(data)).unwrap();
-      toast.success('Internal Job Order created successfully');
+      toast.success('IJO created successfully');
       navigate('/ijo');
     } catch (error) {
       handleError(error);
@@ -25,8 +25,8 @@ const CreateIJO = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>CREATE INTERNAL JOB ORDER</PageHeading>
-        <Breadcrumb items={[{ title: 'Internal Job Order' }, { title: 'Create' }]} separator=">" />
+        <PageHeading>CREATE IJO</PageHeading>
+        <Breadcrumb items={[{ title: 'IJO' }, { title: 'Create' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2 sm:p-4">

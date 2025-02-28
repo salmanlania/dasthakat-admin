@@ -299,7 +299,7 @@ const Sidebar = () => {
         {
           key: 'ijo',
           disabled: !permissions?.job_order?.list,
-          label: <Link to="/ijo">Internal Job Order</Link>
+          label: <Link to="/ijo">IJO</Link>
         }
       ]
     }

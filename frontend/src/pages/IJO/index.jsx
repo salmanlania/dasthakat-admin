@@ -44,7 +44,7 @@ const IJO = () => {
   const onIJODelete = async (id) => {
     try {
       await dispatch(deleteIJO(id)).unwrap();
-      toast.success('Internal Job Order deleted successfully');
+      toast.success('IJO deleted successfully');
       dispatch(getIJOList(params)).unwrap();
     } catch (error) {
       handleError(error);
@@ -54,7 +54,7 @@ const IJO = () => {
   const onBulkDelete = async () => {
     try {
       await dispatch(bulkDeleteIJO(deleteIDs)).unwrap();
-      toast.success('Internal Job Orders deleted successfully');
+      toast.success('IJOs deleted successfully');
       closeDeleteModal();
       await dispatch(getIJOList(params)).unwrap();
     } catch (error) {
@@ -71,13 +71,13 @@ const IJO = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.IJO_code}
-            onChange={(e) => dispatch(setIJOListParams({ IJO_code: e.target.value }))}
+            value={params.document_identity}
+            onChange={(e) => dispatch(setIJOListParams({ document_identity: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: 'IJO_code',
-      key: 'IJO_code',
+      dataIndex: 'document_identity',
+      key: 'document_identity',
       sorter: true,
       width: 120,
       ellipsis: true
@@ -232,11 +232,11 @@ const IJO = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_, { ijo_id }) => (
+      render: (_, { job_order_id }) => (
         <div className="flex items-center gap-2">
           {permissions.edit ? (
             <Tooltip title="Edit">
-              <Link to={`/ijo/edit/${ijo_id}`}>
+              <Link to={`/ijo/edit/${job_order_id}`}>
                 <Button
                   size="small"
                   type="primary"
@@ -254,7 +254,7 @@ const IJO = () => {
                 okButtonProps={{ danger: true }}
                 okText="Yes"
                 cancelText="No"
-                onConfirm={() => onIJODelete(ijo_id)}>
+                onConfirm={() => onIJODelete(job_order_id)}>
                 <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
               </Popconfirm>
             </Tooltip>
@@ -295,8 +295,8 @@ const IJO = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>INTERNAL JOB ORDER</PageHeading>
-        <Breadcrumb items={[{ title: 'Internal Job Order' }, { title: 'List' }]} separator=">" />
+        <PageHeading>IJO</PageHeading>
+        <Breadcrumb items={[{ title: 'IJO' }, { title: 'List' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
@@ -339,13 +339,13 @@ const IJO = () => {
           }
           loading={isListLoading}
           className="mt-2"
-          rowKey="ijo_id"
+          rowKey="job_order_id"
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} internal job orders`
+            showTotal: (total) => `Total ${total} IJO`
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -371,7 +371,7 @@ const IJO = () => {
         onCancel={closeDeleteModal}
         onDelete={onBulkDelete}
         isDeleting={isBulkDeleting}
-        title="Are you sure you want to delete these internal job orders?"
+        title="Are you sure you want to delete these IJO?"
         description="After deleting, you will not be able to recover."
       />
     </>
