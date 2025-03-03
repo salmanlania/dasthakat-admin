@@ -36,7 +36,7 @@ class JobOrder extends Model
 
     public function job_order_detail()
     {
-        return $this->hasMany(JobOrderDetail::class, 'job_order_detail_id', 'job_order_detail_id')->orderBy('sort_order');
+        return $this->hasMany(JobOrderDetail::class, 'job_order_id', 'job_order_id')->orderBy('sort_order');
     }
     public function salesman()
     {
