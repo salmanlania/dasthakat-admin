@@ -13,6 +13,9 @@ const getBaseURL = async () => {
   const response = await fetch(`${import.meta.env.VITE_BASE_URL}/config.json`);
   const config = await response.json();
   API_URL = config.baseURL;
+  if (!config.baseURL) {
+    return import.meta.env.VITE_API_URL;
+  }
   return config.baseURL;
 };
 

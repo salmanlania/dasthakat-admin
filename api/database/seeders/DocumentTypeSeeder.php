@@ -21,7 +21,7 @@ class DocumentTypeSeeder extends Seeder
             ['document_type_id' => 42, 'document_name' => 'Purchase Invoice', 'document_prefix' => '{BC}/PI-', 'table_name' => 'purchase_invoice', 'primary_key' => 'purchase_invoice_id'],
             ['document_type_id' => 43, 'document_name' => 'Picklist', 'document_prefix' => '{BC}/PL-', 'table_name' => 'picklist', 'primary_key' => 'picklist_id'],
             ['document_type_id' => 44, 'document_name' => 'Picklist Received', 'document_prefix' => '{BC}/PLR-', 'table_name' => 'picklist_received', 'primary_key' => 'picklist_received_id'],
-            ['document_type_id' => 45, 'document_name' => 'Picklist Received', 'document_prefix' => '{BC}/PLR-', 'table_name' => 'picklist_received', 'primary_key' => 'picklist_received_id'],
+            ['document_type_id' => 45, 'document_name' => 'Internal Job Order', 'document_prefix' => '{BC}/IJO-', 'table_name' => 'job_order', 'primary_key' => 'job_order_id'],
         ];
         DocumentType::insert($data);
     }

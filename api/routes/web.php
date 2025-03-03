@@ -5,6 +5,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,13 +24,28 @@ $router->group([
    'middleware' => ['cors'],
 ], function ($router) {});
 
-$router->get('/run-migrations', function (Request $request) {
-   if ($request->header('X-DEPLOY-TOKEN') !== env('APP_KEY')) {
-       return response()->json(['error' => 'Unauthorized'], 403);
-   }
-   Artisan::call('migrate --force');
-   return response()->json(['message' => 'Migrations run successfully']);
+// $router->get('/run-migrations', function (Request $request) {
+//    if ($request->header('X-DEPLOY-TOKEN') !== env('APP_KEY')) {
+//        return response()->json(['error' => 'Unauthorized'], 403);
+//    }
+//    Artisan::call('migrate --force');
+//    return response()->json(['message' => 'Migrations run successfully']);
+// });
+
+
+$router->get('/run-migrations', function () {
+    $isSeeded = DB::table('users')->exists(); 
+
+    Artisan::call('migrate', ['--force' => true]);
+
+    if (!$isSeeded) {
+        Artisan::call('db:seed', ['--force' => true]);
+        return response()->json(['message' => 'Migrations and Seeders executed']);
+    }
+
+    return response()->json(['message' => 'Migrations executed']);
 });
+
 
 $router->get('test', 'Controller@testApi');
 
