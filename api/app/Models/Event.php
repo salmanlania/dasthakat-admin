@@ -13,18 +13,18 @@ class Event extends Model
     ];
     public function customer()
     {
-        return $this->hasOne(Customer::class, 'customer_id','customer_id')->select('customer_id', 'name');
+        return $this->hasOne(Customer::class, 'customer_id','customer_id')->select('*');
     }
     public function vessel()
     {
-        return $this->hasOne(Vessel::class, 'vessel_id','vessel_id')->select('vessel_id', 'name');
+        return $this->hasOne(Vessel::class, 'vessel_id','vessel_id')->select('*');
     }
     public function class1()
     {
-        return $this->hasOne(SetupClass::class, 'class_id', 'class1_id')->select('class_id', 'name');
+        return $this->hasOne(SetupClass::class, 'class_id', 'class1_id')->select('*');
     }
     public function class2()
     {
-        return $this->hasOne(SetupClass::class, 'class_id', 'class2_id')->select('class_id', 'name');
+        return $this->hasOne(SetupClass::class, 'class_id', 'class2_id')->select('*');
     }
 }

@@ -96,6 +96,7 @@ class EventController extends Controller
 			'customer',
 			'customer.salesman',
 			'vessel',
+			'vessel.flag',
 			'class1',
 			'class2',
 		])->where('event_id', $id)->first();

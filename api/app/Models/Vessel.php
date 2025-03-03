@@ -11,5 +11,8 @@ class Vessel extends Model
     protected $fillable = [
         'company_id','company_branch_id','vessel_id','customer_id','imo','name','flag_id','class1_id','class2_id','billing_address','created_by','updated_by'
     ];
-    
+    public function flag()
+    {
+        return $this->hasOne(Flag::class, 'flag_id', 'flag_id')->select('*');
+    }
 }

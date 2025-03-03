@@ -17,6 +17,7 @@ class JobOrderController extends Controller
 
 	public function index(Request $request)
 	{
+		$document_identity = $request->input('document_identity', '');
 		$event_id = $request->input('event_id', '');
 		$vessel_id = $request->input('vessel_id', '');
 		$customer_id = $request->input('customer_id', '');
@@ -40,6 +41,7 @@ class JobOrderController extends Controller
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'job_order.vessel_id')
 			->LeftJoin('agent as a', 'a.agent_id', '=', 'job_order.agent_id')
 			->LeftJoin('salesman as s', 's.salesman_id', '=', 'job_order.salesman_id');
+		if (!empty($document_identity)) $data = $data->where('job_order.document_identity', 'like', '%'. $document_identity.'%');
 		if (!empty($event_id)) $data = $data->where('job_order.event_id', '=',  $event_id);
 		if (!empty($flag_id)) $data = $data->where('job_order.flag_id', '=',  $flag_id);
 		if (!empty($vessel_id)) $data = $data->where('job_order.vessel_id', '=',  $vessel_id);
@@ -58,6 +60,7 @@ class JobOrderController extends Controller
 			$search = strtolower($search);
 			$data = $data->where(function ($query) use ($search) {
 				$query
+					->OrWhere('job_order.document_identity', 'like', '%' . $search . '%')
 					->OrWhere('v.imo', 'like', '%' . $search . '%')
 					->OrWhere('f.name', 'like', '%' . $search . '%')
 					->OrWhere('c1.name', 'like', '%' . $search . '%')
