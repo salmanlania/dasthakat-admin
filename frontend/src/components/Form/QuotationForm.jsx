@@ -102,7 +102,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
   const finalAmount = roundUpto((totalNet || 0) - (rebateAmount || 0) - (salesmanAmount || 0)) || 0;
 
   const onFinish = (values) => {
-    if (!totalNet) return toast.error('Net Amount cannot be zero');
     if (rebatePercentage > 100) return toast.error('Rebate Percentage cannot be greater than 100');
     if (salesmanPercentage > 100)
       return toast.error('Salesman Percentage cannot be greater than 100');
@@ -554,16 +553,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       render: (_, { quantity }, index) => {
         form.setFieldsValue({ [`quantity-${index}`]: quantity });
         return (
-          <Form.Item
-            className="m-0"
-            name={`quantity-${index}`}
-            initialValue={quantity}
-            rules={[
-              {
-                required: true,
-                message: 'Quantity is required'
-              }
-            ]}>
+          <Form.Item className="m-0" name={`quantity-${index}`} initialValue={quantity}>
             <DebouncedCommaSeparatedInput
               decimalPlaces={2}
               value={quantity}
@@ -719,16 +709,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       render: (_, { rate }, index) => {
         form.setFieldsValue({ [`rate-${index}`]: rate });
         return (
-          <Form.Item
-            className="m-0"
-            name={`rate-${index}`}
-            initialValue={rate}
-            rules={[
-              {
-                required: true,
-                message: 'Selling price is required'
-              }
-            ]}>
+          <Form.Item className="m-0" name={`rate-${index}`} initialValue={rate}>
             <DebouncedCommaSeparatedInput
               value={rate}
               onChange={(value) =>

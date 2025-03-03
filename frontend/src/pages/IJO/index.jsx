@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, Input, Popconfirm, Select, Table, Tag, Tooltip } from 'antd';
+import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -9,7 +9,6 @@ import { Link } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
-import CountrySelect from '../../components/Select/CountrySelect';
 import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
 import {
@@ -33,13 +32,8 @@ const IJO = () => {
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
-  const debouncedCode = useDebounce(params.IJO_code, 500);
-  const debouncedName = useDebounce(params.name, 500);
-  const debouncedAddress = useDebounce(params.address, 500);
-  const debouncedPhone = useDebounce(params.phone_no, 500);
-  const debouncedEmailSales = useDebounce(params.email_sales, 500);
-  const debouncedEmailAccounting = useDebounce(params.email_accounting, 500);
-  const debouncedBillingAddress = useDebounce(params.billing_address, 500);
+  const debouncedCode = useDebounce(params.document_identity, 500);
+  const debouncedIMO = useDebounce(params.imo, 500);
 
   const onIJODelete = async (id) => {
     try {
@@ -89,7 +83,7 @@ const IJO = () => {
           <AsyncSelect
             endpoint="/event"
             valueKey="event_id"
-            labelKey="name"
+            labelKey="event_code"
             size="small"
             className="w-full font-normal"
             value={params.event_id}
@@ -97,8 +91,8 @@ const IJO = () => {
           />
         </div>
       ),
-      dataIndex: 'event_name',
-      key: 'event_name',
+      dataIndex: 'event_code',
+      key: 'event_code',
       sorter: true,
       width: 150,
       ellipsis: true
@@ -108,18 +102,18 @@ const IJO = () => {
         <div onClick={(e) => e.stopPropagation()}>
           <p>Sales Person</p>
           <AsyncSelect
-            endpoint="/sales_person"
-            valueKey="sales_person_id"
+            endpoint="/salesman"
+            valueKey="salesman_id"
             labelKey="name"
             size="small"
             className="w-full font-normal"
-            value={params.sales_person_id}
-            onChange={(value) => dispatch(setIJOListParams({ sales_person_id: value }))}
+            value={params.salesman_id}
+            onChange={(value) => dispatch(setIJOListParams({ salesman_id: value }))}
           />
         </div>
       ),
-      dataIndex: 'sales_person_name',
-      key: 'sales_person_name',
+      dataIndex: 'salesman_name',
+      key: 'salesman_name',
       sorter: true,
       width: 150,
       ellipsis: true
@@ -133,17 +127,15 @@ const IJO = () => {
             valueKey="vessel_id"
             labelKey="name"
             size="small"
-            mode="multiple"
             className="w-full font-normal"
             value={params.vessel_id}
             onChange={(value) => dispatch(setIJOListParams({ vessel_id: value }))}
           />
         </div>
       ),
-      dataIndex: 'vessel',
-      key: 'vessel',
-      width: 220,
-      render: (_, { vessel }) => (vessel ? vessel.map((v) => v.name).join(', ') : null)
+      dataIndex: 'vessel_name',
+      key: 'vessel_name',
+      width: 220
     },
     {
       title: (
@@ -179,8 +171,27 @@ const IJO = () => {
           />
         </div>
       ),
-      dataIndex: 'flag',
-      key: 'flag',
+      dataIndex: 'flag_name',
+      key: 'flag_name',
+      width: 150
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Class 1</p>
+          <AsyncSelect
+            endpoint="/class"
+            valueKey="class_id"
+            labelKey="name"
+            size="small"
+            className="w-full font-normal"
+            value={params.class1_id}
+            onChange={(value) => dispatch(setIJOListParams({ class1_id: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'class1_name',
+      key: 'class1_name',
       width: 150
     },
     {
@@ -188,8 +199,8 @@ const IJO = () => {
         <div onClick={(e) => e.stopPropagation()}>
           <p>Class 2</p>
           <AsyncSelect
-            endpoint="/class2"
-            valueKey="class2_id"
+            endpoint="/class"
+            valueKey="class_id"
             labelKey="name"
             size="small"
             className="w-full font-normal"
@@ -198,8 +209,8 @@ const IJO = () => {
           />
         </div>
       ),
-      dataIndex: 'class2',
-      key: 'class2',
+      dataIndex: 'class2_name',
+      key: 'class2_name',
       width: 150
     },
     {
@@ -217,8 +228,8 @@ const IJO = () => {
           />
         </div>
       ),
-      dataIndex: 'agent',
-      key: 'agent',
+      dataIndex: 'agent_name',
+      key: 'agent_name',
       width: 150
     },
     {
@@ -278,18 +289,16 @@ const IJO = () => {
     params.limit,
     params.sort_column,
     params.sort_direction,
-    params.status,
+    params.event_id,
     params.salesman_id,
     params.vessel_id,
-    params.country,
+    params.flag_id,
+    params.class1_id,
+    params.class2_id,
+    params.agent_id,
     debouncedSearch,
     debouncedCode,
-    debouncedName,
-    debouncedAddress,
-    debouncedPhone,
-    debouncedEmailSales,
-    debouncedEmailAccounting,
-    debouncedBillingAddress
+    debouncedIMO
   ]);
 
   return (

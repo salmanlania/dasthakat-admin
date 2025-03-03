@@ -164,6 +164,7 @@ const addHeader = (doc, data, sideMargin) => {
       halign: 'center',
       valign: 'middle',
       lineWidth: 0.1,
+      font: 'times',
       lineColor: [0, 0, 0],
       cellPadding: 2
     },
@@ -257,6 +258,7 @@ export const createPurchaseOrderPrint = (data) => {
     styles: {
       halign: 'center',
       valign: 'middle',
+      font: 'times',
       lineWidth: 0.1,
       lineColor: [0, 0, 0],
       cellPadding: 1

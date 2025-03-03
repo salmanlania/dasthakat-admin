@@ -9,7 +9,6 @@ import Theme from './utils/Theme.jsx';
 createRoot(document.getElementById('root')).render(
   <Theme>
     <Provider store={store}>
-      Testflow
       <Routes />
     </Provider>
     <Toaster toastOptions={{ duration: 5000 }} />

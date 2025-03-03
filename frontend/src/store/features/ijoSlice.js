@@ -87,6 +87,7 @@ const initialState = {
   isItemLoading: false,
   list: [],
   deleteIDs: [],
+  chargeOrderDetails: [],
   params: {
     page: 1,
     limit: 50,
@@ -116,10 +117,15 @@ export const ijoSlice = createSlice({
 
     setIJODeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
+    },
+
+    setChargeOrderDetails: (state, action) => {
+      state.chargeOrderDetails = action.payload;
     }
   },
   extraReducers: ({ addCase }) => {
     addCase(getIJOList.pending, (state) => {
+      state.chargeOrderDetails = [];
       state.isListLoading = true;
       state.initialFormValues = null;
     });
@@ -151,35 +157,76 @@ export const ijoSlice = createSlice({
     });
     addCase(getIJO.fulfilled, (state, action) => {
       state.isItemLoading = false;
-      const data = action.payload;
+      const { event, salesman, vessel, flag, class1, class2, agent, job_order_detail } =
+        action.payload;
 
       state.initialFormValues = {
-        name: data.name,
-        ijo_code: data.ijo_code,
-        salesman_id: data.salesman_id
+        event_id: event
           ? {
-              value: data.salesman_id,
-              label: data.salesman_name
+              value: event.event_id,
+              label: event.event_code
             }
           : null,
-        payment_id: data.payment_id
+        salesman_id: salesman
           ? {
-              value: data.payment_id,
-              label: data.name
+              value: salesman.salesman_id,
+              label: salesman.name
             }
           : null,
-        vessel_id: data.vessel
-          ? data.vessel.map((v) => ({ value: v.vessel_id, label: v.name }))
+        vessel_id: vessel
+          ? {
+              value: vessel.vessel_id,
+              label: vessel.name
+            }
           : null,
-        country: data.country,
-        address: data.address,
-        billing_address: data.billing_address,
-        phone_no: data.phone_no,
-        email_sales: data.email_sales,
-        email_accounting: data.email_accounting,
-        rebate_percent: data.rebate_percent,
-        status: data.status
+        imo: vessel?.imo || null,
+        flag_id: flag
+          ? {
+              value: flag.flag_id,
+              label: flag.name
+            }
+          : null,
+        class1_id: class1
+          ? {
+              value: class1.class_id,
+              label: class1.name
+            }
+          : null,
+        class2_id: class2
+          ? {
+              value: class2.class_id,
+              label: class2.name
+            }
+          : null,
+        agent_id: agent
+          ? {
+              value: agent.agent_id,
+              label: agent.name
+            }
+          : null
       };
+
+      if (!job_order_detail || !job_order_detail.length) return;
+
+      const jobOrderDetails = [];
+
+      job_order_detail.forEach(({ charge_order, job_order_detail_id, ...detail }) => {
+        jobOrderDetails.push({
+          id: job_order_detail_id,
+          charge_order_no: charge_order.document_identity,
+          product_type: detail?.product_type?.name,
+          product_code: detail?.product?.product_code || null,
+          description:
+            detail?.product_type?.product_type_id == 4
+              ? detail?.product_name
+              : detail?.product?.product_name,
+          customer_notes: detail?.description,
+          quantity: parseFloat(detail?.quantity || 0),
+          unit: detail?.unit?.name || null
+        });
+      });
+
+      state.chargeOrderDetails = jobOrderDetails;
     });
     addCase(getIJO.rejected, (state) => {
       state.isItemLoading = false;
@@ -210,5 +257,5 @@ export const ijoSlice = createSlice({
   }
 });
 
-export const { setIJOListParams, setIJODeleteIDs } = ijoSlice.actions;
+export const { setIJOListParams, setIJODeleteIDs, setChargeOrderDetails } = ijoSlice.actions;
 export default ijoSlice.reducer;
