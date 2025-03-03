@@ -54,7 +54,7 @@ class JobOrder extends Model
     }
     public function vessel()
     {
-        return $this->hasOne(Vessel::class, 'vessel_id', 'vessel_id')->select('vessel_id', 'name');
+        return $this->hasOne(Vessel::class, 'vessel_id', 'vessel_id')->select('*');
     }
     public function customer()
     {

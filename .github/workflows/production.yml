@@ -3,7 +3,7 @@ name: 🚀 Pipeline | Deploy code on production server
 on:
   push:
     branches:
-      - production
+      - main
 
 jobs:
   deploy:
