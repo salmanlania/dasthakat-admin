@@ -1,17 +1,19 @@
 import { Button, Col, Form, Input, Row, Select, Table } from 'antd';
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import useError from '../../hooks/useError';
-import { getEventChargeOrders } from '../../store/features/ijoSlice';
+import { getEventChargeOrders, setChargeOrderDetails } from '../../store/features/ijoSlice';
 import AsyncSelect from '../AsyncSelect';
 
 // eslint-disable-next-line react/prop-types
 const IJOForm = ({ mode = 'create', onSubmit }) => {
-  const { id } = useParams();
   const dispatch = useDispatch();
   const handleError = useError();
   const [form] = Form.useForm();
-  const { isFormSubmitting, initialFormValues } = useSelector((state) => state.ijo);
+  const { isFormSubmitting, initialFormValues, chargeOrderDetails } = useSelector(
+    (state) => state.ijo
+  );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
 
@@ -45,14 +47,14 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
     },
     {
       title: 'Description',
-      dataIndex: 'product_name',
-      key: 'product_name',
+      dataIndex: 'description',
+      key: 'description',
       width: 560
     },
     {
       title: 'Customer Notes',
-      dataIndex: 'description',
-      key: 'description',
+      dataIndex: 'customer_notes',
+      key: 'customer_notes',
       width: 240
     },
     {
@@ -70,12 +72,18 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
   ];
 
   const onFinish = (values) => {
-    onSubmit({
-      ...values,
-      salesman_id: values.salesman_id ? values.salesman_id.value : null,
-      payment_id: values.payment_id ? values.payment_id.value : null,
-      vessel_id: values.vessel_id ? values.vessel_id.map((v) => v.value) : null
-    });
+    const payload = {
+      imo: values.imo,
+      event_id: values?.event_id?.value || null,
+      salesman_id: values?.salesman_id?.value || null,
+      vessel_id: values?.vessel_id?.value || null,
+      flag_id: values?.flag_id?.value || null,
+      class1_id: values?.class1_id?.value || null,
+      class2_id: values?.class2_id?.value || null,
+      agent_id: values?.agent_id?.value || null
+    };
+
+    onSubmit(payload);
   };
 
   const onEventChange = async (selected) => {
@@ -87,27 +95,65 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
       flag_id: null
     });
 
-    if (!selected) return;
+    if (!selected) {
+      dispatch(setChargeOrderDetails([]));
+      return;
+    }
+
     try {
       const data = await dispatch(getEventChargeOrders(selected.value)).unwrap();
-      console.log(data);
 
-      const { event } = data;
+      const { event, charge_orders } = data;
       form.setFieldsValue({
+        salesman_id: event?.customer?.salesman
+          ? {
+              value: event.customer.salesman.salesman_id,
+              label: event.customer.salesman.name
+            }
+          : null,
         vessel_id: event?.vessel
-          ? { value: event.vessel.class_id, label: event.vessel.name }
+          ? { value: event.vessel.vessel_id, label: event.vessel.name }
           : null,
-        customer_id: event?.customer
-          ? { value: event.customer.class_id, label: event.customer.name }
-          : null,
+        imo: event?.vessel?.imo || null,
         class1_id: event?.class1
           ? { value: event.class1.class_id, label: event.class1.name }
           : null,
         class2_id: event?.class2
           ? { value: event.class2.class_id, label: event.class2.name }
           : null,
-        flag_id: event?.flag ? { value: event.flag.class_id, label: event.flag.name } : null
+        flag_id: event?.vessel?.flag
+          ? {
+              value: event.vessel.flag.flag_id,
+              label: event.vessel.flag.name
+            }
+          : null
       });
+
+      if (!charge_orders || !charge_orders.length) return;
+
+      const eventChargeDetails = [];
+
+      charge_orders.forEach(({ document_identity, charge_order_detail }) => {
+        const chargeOrderNo = document_identity;
+
+        charge_order_detail.forEach((detail) => {
+          eventChargeDetails.push({
+            id: detail.charge_order_detail_id,
+            charge_order_no: chargeOrderNo,
+            product_type: detail?.product_type?.name,
+            product_code: detail?.product_code,
+            description:
+              detail?.product_type?.product_type_id == 4
+                ? detail?.product_name
+                : detail?.product?.product_name,
+            customer_notes: detail?.description,
+            quantity: parseFloat(detail?.quantity || 0),
+            unit: detail?.unit?.name || null
+          });
+        });
+      });
+
+      dispatch(setChargeOrderDetails(eventChargeDetails));
     } catch (error) {
       handleError(error);
     }
@@ -118,12 +164,20 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
       name="ijo"
       layout="vertical"
       form={form}
+      scrollToFirstError={{
+        behavior: 'smooth',
+        block: 'center',
+        scrollMode: 'always'
+      }}
       autoComplete="off"
-      initialValues={mode === 'edit' ? initialFormValues : { status: 1, country: 'United States' }}
+      initialValues={mode === 'edit' ? initialFormValues : null}
       onFinish={onFinish}>
       <Row gutter={[12, 12]}>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="event_id" label="Event">
+          <Form.Item
+            name="event_id"
+            label="Event"
+            rules={[{ required: true, message: 'Event is required!' }]}>
             <AsyncSelect
               endpoint="/event"
               valueKey="event_id"
@@ -135,7 +189,7 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="sales_person" label="Sales Person">
+          <Form.Item name="salesman_id" label="Sales Person">
             <Select disabled />
           </Form.Item>
         </Col>
@@ -169,7 +223,7 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
             <AsyncSelect
               endpoint="/agent"
               valueKey="agent_id"
-              labelKey="agent_code"
+              labelKey="name"
               labelInValue
               addNewLink={permissions.agent.list && permissions.agent.add ? '/agent/create' : null}
             />
@@ -179,7 +233,7 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
 
       <Table
         columns={columns}
-        dataSource={[]}
+        dataSource={chargeOrderDetails}
         rowKey="id"
         size="small"
         scroll={{ x: 'calc(100% - 200px)' }}

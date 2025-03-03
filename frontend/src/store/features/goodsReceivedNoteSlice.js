@@ -296,6 +296,9 @@ export const goodsReceivedNoteSlice = createSlice({
       state.goodsReceivedNoteDetails = data.grn_detail.map((detail) => ({
         id: detail.good_received_note_detail_id,
         product_code: detail.product ? detail.product.product_code : null,
+        product_id: detail.product
+          ? { value: detail.product.product_id, label: detail.product.product_name }
+          : null,
         product_type_id: detail.product_type
           ? {
               value: detail.product_type.product_type_id,

@@ -689,7 +689,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
                 message: 'Purchase Order Type is required'
               }
             ]}>
-            <Select options={purchaseOrderTypes} />
+            <Select disabled options={purchaseOrderTypes} />
           </Form.Item>
         </Col>
 
