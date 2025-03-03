@@ -34,14 +34,14 @@ $router->group([
 
 
 $router->get('/run-migrations', function () {
-    $isSeeded = DB::table('users')->exists(); 
+   //  $isSeeded = DB::table('users')->exists(); 
 
-    Artisan::call('migrate', ['--force' => true]);
+    Artisan::call('migrate --force');
 
-    if (!$isSeeded) {
-        Artisan::call('db:seed', ['--force' => true]);
-        return response()->json(['message' => 'Migrations and Seeders executed']);
-    }
+   //  if (!$isSeeded) {
+   //      Artisan::call('db:seed', ['--force' => true]);
+   //      return response()->json(['message' => 'Migrations and Seeders executed']);
+   //  }
 
     return response()->json(['message' => 'Migrations executed']);
 });
