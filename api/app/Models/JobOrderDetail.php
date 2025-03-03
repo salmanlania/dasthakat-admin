@@ -21,6 +21,7 @@ class JobOrderDetail extends Model
         "charge_order_detail_id",
         "sort_order",
         "product_id",
+        "description",
         "product_name",
         "product_type_id",
         "unit_id",
