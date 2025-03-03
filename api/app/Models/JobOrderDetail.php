@@ -19,6 +19,7 @@ class JobOrderDetail extends Model
         "job_order_detail_id",
         "charge_order_id",
         "charge_order_detail_id",
+        "sort_order",
         "product_id",
         "product_name",
         "product_type_id",
@@ -40,5 +41,21 @@ class JobOrderDetail extends Model
     public function job_order()
     {
         return $this->hasOne(JobOrder::class, 'job_order_id', 'job_order_id')->select('*');
+    }
+    public function product()
+    {
+        return $this->hasOne(Product::class, 'product_id','product_id')->select('*',DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
+    }
+    public function product_type()
+    {
+        return $this->hasOne(ProductType::class, 'product_type_id','product_type_id');
+    }
+    public function unit()
+    {
+        return $this->hasOne(Unit::class, 'unit_id','unit_id');
+    }
+    public function supplier()
+    {
+        return $this->hasOne(Supplier::class, 'supplier_id','supplier_id');
     }
 }
