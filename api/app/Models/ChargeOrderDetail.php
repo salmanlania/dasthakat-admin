@@ -27,6 +27,8 @@ class ChargeOrderDetail extends Model
         "supplier_id",
         "purchase_order_id",
         "purchase_order_detail_id",
+        "quotation_detail_id",
+        "internal_notes",
         "picklist_id",
         "picklist_detail_id",
         "quantity",

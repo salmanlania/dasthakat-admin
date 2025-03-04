@@ -24,6 +24,7 @@ class JobOrderDetail extends Model
         "description",
         "product_name",
         "product_type_id",
+        "internal_notes",
         "unit_id",
         "supplier_id",
         "quantity",

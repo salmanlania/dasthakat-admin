@@ -281,6 +281,8 @@ class ChargeOrderController extends Controller
 					'product_id' => $value['product_id'] ?? "",
 					'product_name' => $value['product_name'] ?? "",
 					'product_type_id' => $value['product_type_id'] ?? "",
+					'quotation_detail_id' => $value['quotation_detail_id'] ?? "",
+					'internal_notes' => $value['internal_notes'] ?? "",
 					'description' => $value['description'] ?? "",
 					'warehouse_id' => $value['warehouse_id'] ?? "",
 					'unit_id' => $value['unit_id'] ?? "",
