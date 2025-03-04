@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import ChargeOrderForm from '../../components/Form/ChargeOrderForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import PurchaseOrderModal from '../../components/Modals/PurchaseOrderModal';
 import useError from '../../hooks/useError';
 import {
   createChargeOrderPickList,
@@ -12,6 +13,7 @@ import {
   getChargeOrder,
   updateChargeOrder
 } from '../../store/features/chargeOrderSlice';
+import { setChargePoID } from '../../store/features/purchaseOrderSlice';
 
 const EditChargeOrder = () => {
   const dispatch = useDispatch();
@@ -24,10 +26,6 @@ const EditChargeOrder = () => {
     try {
       await dispatch(updateChargeOrder({ id, data, additionalRequest })).unwrap();
 
-      if (additionalRequest === 'CREATE_PO') {
-        await dispatch(createChargeOrderPO(id)).unwrap();
-      }
-
       if (additionalRequest === 'CREATE_PICK_LIST') {
         await dispatch(
           createChargeOrderPickList({
@@ -38,6 +36,10 @@ const EditChargeOrder = () => {
 
       toast.success('Charge Order updated successfully');
       navigate('/charge-order');
+
+      if (additionalRequest === 'CREATE_PO') {
+        dispatch(setChargePoID(id));
+      }
     } catch (error) {
       handleError(error);
     }
@@ -66,6 +68,8 @@ const EditChargeOrder = () => {
           <ChargeOrderForm mode="edit" onSubmit={onChargeOrderUpdate} />
         </div>
       ) : null}
+
+      <PurchaseOrderModal />
     </>
   );
 };

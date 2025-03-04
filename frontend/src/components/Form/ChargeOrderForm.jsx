@@ -945,22 +945,21 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         </Link>
 
         {mode === 'edit' ? (
-          <>
-            <Button
-              type="primary"
-              loading={isFormSubmitting === 'CREATE_PICK_LIST'}
-              className="w-28 bg-slate-600 hover:!bg-slate-500"
-              onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PICK_LIST'))}>
-              Pick List
-            </Button>
-            {/* <Button
-              type="primary"
-              loading={isFormSubmitting === 'CREATE_PO'}
-              onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PO'))}>
-              Save & Create PO
-            </Button> */}
-          </>
+          <Button
+            type="primary"
+            loading={isFormSubmitting === 'CREATE_PICK_LIST'}
+            className="w-28 bg-slate-600 hover:!bg-slate-500"
+            onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PICK_LIST'))}>
+            Pick List
+          </Button>
         ) : null}
+
+        <Button
+          type="primary"
+          loading={isFormSubmitting === 'CREATE_PO'}
+          onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PO'))}>
+          Save & Create PO
+        </Button>
 
         <Button
           type="primary"

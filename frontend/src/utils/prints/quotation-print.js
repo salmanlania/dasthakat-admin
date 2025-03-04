@@ -447,7 +447,7 @@ export const createQuotationPrint = async (data) => {
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     const pageSize = doc.internal.pageSize;
-    const pageWidth = pageSize.width ? pageSize.width : pcageSize.getWidth();
+    const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
     const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
 
     // Header

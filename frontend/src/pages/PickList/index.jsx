@@ -1,6 +1,7 @@
 import { Button, Input, Select, Table, Tag, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect } from 'react';
+import { FaRegFilePdf } from 'react-icons/fa';
 import { LuHand, LuListChecks } from 'react-icons/lu';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncSelect from '../../components/AsyncSelect';
@@ -13,6 +14,7 @@ import {
   setPickListListParams,
   setPickListOpenModalId
 } from '../../store/features/pickListSlice';
+import { createPickListPrint } from '../../utils/prints/pick-list-print';
 
 const pickListStatus = {
   1: 'Complete',
@@ -28,6 +30,10 @@ const PickList = () => {
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedPickListNo = useDebounce(params.document_identity, 500);
   const debouncedTotalQuantity = useDebounce(params.total_quantity, 500);
+
+  const printPickList = (id) => {
+    createPickListPrint({ document_identity: 'KHI/PL-0015' });
+  };
 
   const columns = [
     {
@@ -228,9 +234,18 @@ const PickList = () => {
               onClick={() => dispatch(setPickListOpenModalId(id))}
             />
           </Tooltip>
+          <Tooltip title="Print">
+            <Button
+              size="small"
+              type="primary"
+              className="bg-rose-600 hover:!bg-rose-500"
+              icon={<FaRegFilePdf size={14} />}
+              onClick={() => printPickList(id)}
+            />
+          </Tooltip>
         </div>
       ),
-      width: 65,
+      width: 80,
       fixed: 'right'
     }
   ];
