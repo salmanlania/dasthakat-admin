@@ -5,11 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\DocumentType;
 use Illuminate\Http\Request;
 use App\Models\Picklist;
-use App\Models\PicklistDetail;
 use App\Models\PicklistReceived;
 use App\Models\PicklistReceivedDetail;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Validator;
 
 class PicklistReceivedController extends Controller
 {
@@ -84,10 +82,7 @@ class PicklistReceivedController extends Controller
 
 	public function update(Request $request, $id)
 	{
-		// if (!isPermission('edit', 'picklist_received', $request->permission_list)) {
-		//     return $this->jsonResponse('Permission Denied!', 403, "No Permission");
-		// }
-
+	
 
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument($this->documentTypeId, $request);
@@ -115,6 +110,7 @@ class PicklistReceivedController extends Controller
 				'sort_order' => $key,
 				'picklist_detail_id' => $item['picklist_detail_id'],
 				'product_id' => $item['product_id'],
+				'remarks' => $item['remarks'] ?? null,
 				'quantity' => $item['quantity'] ?? 0,
 				'created_at' => Carbon::now(),
 				'created_by' => $request->login_user_id,

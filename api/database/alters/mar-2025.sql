@@ -9,3 +9,6 @@ ADD COLUMN internal_notes VARCHAR(255) AFTER quotation_detail_id,
 
 ALTER TABLE job_order_detail
 ADD COLUMN internal_notes VARCHAR(255) AFTER product_type_id,
+
+ALTER TABLE picklist_received_detail
+ADD COLUMN remarks VARCHAR(255) AFTER product_id,
