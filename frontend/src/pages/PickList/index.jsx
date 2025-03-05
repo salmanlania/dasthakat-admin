@@ -10,11 +10,15 @@ import PickListReceiveModal from '../../components/Modals/PickListReceiveModal';
 import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
 import {
+  getPickListForPrint,
   getPickListList,
   setPickListListParams,
   setPickListOpenModalId
 } from '../../store/features/pickListSlice';
 import { createPickListPrint } from '../../utils/prints/pick-list-print';
+import toast from 'react-hot-toast';
+import { getQuotationForPrint } from '../../store/features/quotationSlice.js';
+import { createQuotationPrint } from '../../utils/prints/quotation-print.js';
 
 const pickListStatus = {
   1: 'Complete',
@@ -31,8 +35,17 @@ const PickList = () => {
   const debouncedPickListNo = useDebounce(params.document_identity, 500);
   const debouncedTotalQuantity = useDebounce(params.total_quantity, 500);
 
-  const printPickList = (id) => {
-    createPickListPrint({ document_identity: 'KHI/PL-0015' });
+  const printPickList = async (id) => {
+    const loadingToast = toast.loading('Loading print...');
+
+    try {
+      const data = await dispatch(getPickListForPrint(id)).unwrap();
+      createPickListPrint(data);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      toast.dismiss(loadingToast);
+    }
   };
 
   const columns = [

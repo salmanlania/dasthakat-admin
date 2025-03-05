@@ -180,6 +180,8 @@ export const chargeOrderSlice = createSlice({
         state.chargeOrderDetails[index];
       const newDetail = {
         ...detail,
+        picklist_id: null,
+        picklist_detail_id: null,
         id: Date.now()
       };
 

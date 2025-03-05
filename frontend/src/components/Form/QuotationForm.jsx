@@ -477,6 +477,16 @@ const QuotationForm = ({ mode, onSubmit }) => {
             />
           </Form.Item>
         ) : (
+          <Form.Item
+            className="m-0"
+            name={`product_id-${index}`}
+            initialValue={product_id}
+            rules={[
+              {
+                required: true,
+                message: 'Description is required'
+              }
+            ]}>
           <AsyncSelect
             endpoint="/product"
             valueKey="product_id"
@@ -488,7 +498,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             addNewLink={
               permissions.product.list && permissions.product.add ? '/product/create' : null
             }
-          />
+          /></Form.Item>
         );
       },
       width: 560

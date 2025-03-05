@@ -30,13 +30,19 @@ const HistoryTab = ({ details }) => {
       title: 'Quantity',
       dataIndex: 'original_quantity',
       key: 'original_quantity',
-      width: 120
+      width: 80
     },
     {
       title: 'Received Quantity',
       dataIndex: 'quantity',
       key: 'quantity',
-      width: 120
+      width: 80
+    },
+    {
+      title: 'Remarks',
+      dataIndex: 'remarks',
+      key: 'remarks',
+      width: 200
     }
   ];
 
@@ -46,6 +52,7 @@ const HistoryTab = ({ details }) => {
     product: detail?.product?.name || '',
     original_quantity: parseFloat(detail.original_quantity || 0),
     quantity: parseFloat(detail?.quantity || 0),
+    remarks: detail.remarks,
     sr: detail.sort_order + 1
   }));
 
@@ -66,7 +73,8 @@ const NewReceivesTab = ({ details }) => {
     product_name: detail?.product_name || '',
     product_id: detail.product_id,
     remaining_quantity: detail.remaining_quantity ? parseFloat(detail.remaining_quantity) : 0,
-    original_quantity: detail.original_quantity ? parseFloat(detail.original_quantity) : 0
+    original_quantity: detail.original_quantity ? parseFloat(detail.original_quantity) : 0,
+    remarks: detail.remarks
   }));
 
   const detailColumns = [
@@ -88,14 +96,14 @@ const NewReceivesTab = ({ details }) => {
       title: 'Quantity',
       dataIndex: 'original_quantity',
       key: 'original_quantity',
-      width: 200,
+      width: 80,
       render: (_, __, index) => <p>{parseFloat(dataSource[index]?.original_quantity || 0)}</p>
     },
     {
       title: 'Remaining Quantity',
       dataIndex: 'remaining_quantity',
       key: 'remaining_quantity',
-      width: 120,
+      width: 80,
       render: (_, __, index) => (
         <Form.Item
           name={[index, 'remaining_quantity']}
@@ -119,6 +127,19 @@ const NewReceivesTab = ({ details }) => {
           <NumberInput />
         </Form.Item>
       )
+    },
+    {
+      title: 'Remarks',
+      dataIndex: 'remarks',
+      key: 'remarks',
+      width: 200,
+      render: (_, __, index) => (
+        <Form.Item
+          name={[index, 'remarks']}
+          className="m-0">
+          <NumberInput />
+        </Form.Item>
+      )
     }
   ];
 
@@ -126,7 +147,8 @@ const NewReceivesTab = ({ details }) => {
     const details = values.details.map((detail, index) => ({
       picklist_detail_id: dataSource[index].id,
       product_id: dataSource[index].product_id,
-      quantity: detail.remaining_quantity
+      quantity: detail.remaining_quantity,
+      remarks: detail.remarks
     }));
 
     const totalQuantity = details.reduce((total, detail) => +total + (+detail.quantity || 0), 0);

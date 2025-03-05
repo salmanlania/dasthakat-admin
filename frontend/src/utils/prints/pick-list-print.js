@@ -1,9 +1,6 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-
-import dayjs from 'dayjs';
 import GMSLogo from '../../assets/logo-with-title.png';
-import { formatThreeDigitCommas } from '../number';
 
 const fillEmptyRows = (rows, rowsPerPage) => {
   // Calculate how many rows are required to fill the current page
@@ -92,6 +89,8 @@ export const createPickListPrint = (data) => {
   const sideMargin = 4;
   const pageSize = doc.internal.pageSize;
   const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
+
+  console.log(data)
 
   // Purchase Order Items Table
   const table2Column = [

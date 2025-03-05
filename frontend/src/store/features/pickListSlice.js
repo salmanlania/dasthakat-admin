@@ -27,6 +27,19 @@ export const getPickListListReceives = createAsyncThunk(
   }
 );
 
+
+export const getPickListForPrint = createAsyncThunk(
+  'picklist/getById',
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/picklist/${id}`);
+      return res.data.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const updatePickListListReceives = createAsyncThunk(
   'picklist/updateReceives',
   async ({ id, data }, { rejectWithValue }) => {
