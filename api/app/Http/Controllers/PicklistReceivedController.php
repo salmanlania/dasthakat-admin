@@ -53,7 +53,8 @@ class PicklistReceivedController extends Controller
 					$picklist_remainings[] = [
 						"picklist_detail_id" => $detail->picklist_detail_id,
 						"product_id" => $productId,
-						"product_name" => $detail->product->name,
+						"product_name" => $detail->product->name ?? "",
+						"product" => $detail->product ?? "",
 						"original_quantity" => $originalQty,
 						"received_quantity" => $receivedQty,
 						"remaining_quantity" => $remainingQty,

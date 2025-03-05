@@ -155,6 +155,7 @@ class PicklistController extends Controller
 			$items[] = [
 				"picklist_detail_id" => $picklistDetailId,
 				"product" => optional($detail->product),
+				"remarks" => $detail->remarks ?? "",
 				"original_quantity" => $detail->quantity,
 				"total_received_quantity" => $totalReceivedQty
 			];
@@ -162,14 +163,7 @@ class PicklistController extends Controller
 
 		// Final response structure
 		$response = [
-			"picklist_id" => $picklist->picklist_id,
-			"document_no" => $picklist->document_no,
-			"document_date" => $picklist->document_date,
-			"charge_order" => [
-				...optional($picklist->charge_order),
-				"vessel" => optional($picklist->charge_order->vessel),
-				"event" => optional($picklist->charge_order->event),
-			],
+			$picklist,
 			"items" => $items
 		];
 

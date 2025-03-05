@@ -304,6 +304,7 @@ $router->group(['prefix' => 'job-order'], function ($router) {
 
 $router->group(['prefix' => 'picklist'], function ($router) {
    $router->get('/', 'PicklistController@index');
+   $router->get('/{id}', 'PicklistController@show');
    $router->post('/', 'PicklistController@store');  
 });
 
