@@ -16,6 +16,7 @@ class PicklistReceivedDetail extends Model
         "picklist_received_detail_id",
         "sort_order",
         "picklist_detail_id",
+        "remarks",
         "product_id",
         "quantity",
         "created_by",
