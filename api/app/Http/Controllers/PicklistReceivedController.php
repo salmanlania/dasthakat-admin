@@ -8,6 +8,7 @@ use App\Models\Picklist;
 use App\Models\PicklistReceived;
 use App\Models\PicklistReceivedDetail;
 use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 
 class PicklistReceivedController extends Controller
 {
@@ -79,10 +80,26 @@ class PicklistReceivedController extends Controller
 
 		return $this->jsonResponse($response, 200, "Picklist Received History");
 	}
+	public function Validator($request, $id = null)
+	{
+		$rules = [
+			'document_date' => 'required|date',
+			'picklist_detail' => 'required|array|min:1',
+			'picklist_detail.*.picklist_detail_id' => 'required',
+			'picklist_detail.*.quantity' => 'required|numeric|min:0',
+		];
+
+		$msg = validateRequest($request, $rules);
+		if (!empty($msg)) return $msg;
+	}
 
 	public function update(Request $request, $id)
 	{
-	
+
+
+		$isError = $this->Validator($request->all());
+		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
+
 
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument($this->documentTypeId, $request);

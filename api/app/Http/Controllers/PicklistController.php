@@ -163,9 +163,10 @@ class PicklistController extends Controller
 
 		// Final response structure
 		$response = [
-			$picklist,
+			...$picklist->toArray(), // Convert picklist model to an array
 			"items" => $items
 		];
+		
 
 		return $this->jsonResponse($response, 200, "Picklist Details");
 	}
