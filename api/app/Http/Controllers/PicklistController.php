@@ -8,6 +8,7 @@ use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
 use App\Models\Picklist;
 use App\Models\PicklistDetail;
+use App\Models\PicklistReceived;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 
@@ -27,7 +28,7 @@ class PicklistController extends Controller
 		$vessel_id = $request->input('vessel_id', '');
 		$event_id = $request->input('event_id', '');
 		$total_quantity = $request->input('total_quantity', '');
-		
+
 
 		$query = Picklist::LeftJoin('charge_order as c', 'c.charge_order_id', '=', 'picklist.charge_order_id')
 			->LeftJoin('event as e', 'e.event_id', '=', 'c.event_id')
@@ -118,6 +119,65 @@ class PicklistController extends Controller
 		return response()->json($query->paginate($request->input('limit', 10)));
 	}
 
+	public function show($id, Request $request)
+	{
+		// Fetch the original picklist with related details
+		$picklist = Picklist::with([
+			"charge_order",
+			"charge_order.vessel",
+			"charge_order.event",
+			"picklist_detail",
+			"picklist_detail.product"
+		])->where('picklist_id', $id)->first();
+	
+		if (!$picklist) {
+			return $this->jsonResponse(null, 404, "Picklist not found");
+		}
+	
+		// Fetch received picklist history
+		$receivedData = PicklistReceived::with([
+			"picklist_received_detail",
+			"picklist_received_detail.product"
+		])->where('picklist_id', $id)->get();
+	
+		// Prepare response data
+		$items = [];
+	
+		foreach ($picklist->picklist_detail as $detail) {
+			$picklistDetailId = $detail->picklist_detail_id;
+	
+			// Sum received quantity for this picklist item across all received chunks
+			$totalReceivedQty = $receivedData->flatMap(function ($received) {
+				return $received->picklist_received_detail;
+			})->where('picklist_detail_id', $picklistDetailId)
+			  ->sum('quantity');
+	
+			$items[] = [
+				"picklist_detail_id" => $picklistDetailId,
+				"product" => optional($detail->product),
+				"product_id" => $detail->product_id,
+				"product_name" => $detail->product_name,
+				"original_quantity" => $detail->quantity,
+				"total_received_quantity" => $totalReceivedQty
+			];
+		}
+	
+		// Final response structure
+		$response = [
+			"picklist_id" => $picklist->picklist_id,
+			"document_no" => $picklist->document_no,
+			"document_date" => $picklist->document_date,
+			"charge_order" => [
+				"charge_order_id" => optional($picklist->charge_order)->charge_order_id,
+				"vessel" => optional($picklist->charge_order->vessel)->name,
+				"event" => optional($picklist->charge_order->event)->name,
+			],
+			"items" => $items
+		];
+	
+		return $this->jsonResponse($response, 200, "Picklist Details");
+	}
+	
 	private function validateRequest(array $data): ?array
 	{
 		$validator = Validator::make($data, [
