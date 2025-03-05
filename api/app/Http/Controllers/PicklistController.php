@@ -129,55 +129,53 @@ class PicklistController extends Controller
 			"picklist_detail",
 			"picklist_detail.product"
 		])->where('picklist_id', $id)->first();
-	
+
 		if (!$picklist) {
 			return $this->jsonResponse(null, 404, "Picklist not found");
 		}
-	
+
 		// Fetch received picklist history
 		$receivedData = PicklistReceived::with([
 			"picklist_received_detail",
 			"picklist_received_detail.product"
 		])->where('picklist_id', $id)->get();
-	
+
 		// Prepare response data
 		$items = [];
-	
+
 		foreach ($picklist->picklist_detail as $detail) {
 			$picklistDetailId = $detail->picklist_detail_id;
-	
+
 			// Sum received quantity for this picklist item across all received chunks
 			$totalReceivedQty = $receivedData->flatMap(function ($received) {
 				return $received->picklist_received_detail;
 			})->where('picklist_detail_id', $picklistDetailId)
-			  ->sum('quantity');
-	
+				->sum('quantity');
+
 			$items[] = [
 				"picklist_detail_id" => $picklistDetailId,
 				"product" => optional($detail->product),
-				"product_id" => $detail->product_id,
-				"product_name" => $detail->product_name,
 				"original_quantity" => $detail->quantity,
 				"total_received_quantity" => $totalReceivedQty
 			];
 		}
-	
+
 		// Final response structure
 		$response = [
 			"picklist_id" => $picklist->picklist_id,
 			"document_no" => $picklist->document_no,
 			"document_date" => $picklist->document_date,
 			"charge_order" => [
-				"charge_order_id" => optional($picklist->charge_order)->charge_order_id,
-				"vessel" => optional($picklist->charge_order->vessel)->name,
-				"event" => optional($picklist->charge_order->event)->name,
+				...optional($picklist->charge_order),
+				"vessel" => optional($picklist->charge_order->vessel),
+				"event" => optional($picklist->charge_order->event),
 			],
 			"items" => $items
 		];
-	
+
 		return $this->jsonResponse($response, 200, "Picklist Details");
 	}
-	
+
 	private function validateRequest(array $data): ?array
 	{
 		$validator = Validator::make($data, [

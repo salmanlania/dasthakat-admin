@@ -9,6 +9,7 @@ use App\Models\ControlAccess;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class PermissionController extends Controller
 {
@@ -28,6 +29,7 @@ class PermissionController extends Controller
         $sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
         $user_permission = UserPermission::query();
+		$user_permission = $user_permission->where('company_id', '=', $request->company_id);
 
         if (!empty($name)) $user_permission = $user_permission->where('name', 'like', '%' . $name . '%');
         if (!empty($user_permission_id)) $user_permission = $user_permission->where('user_permission_id', '=', $user_permission_id);
@@ -82,7 +84,7 @@ class PermissionController extends Controller
     public function validateRequest($request, $id = null)
     {
         $rules = [
-            'name' => 'required|unique:user_permission,name,' . $id . ',user_permission_id',
+			'name' => ['required', Rule::unique('user_permission')->ignore($id, 'user_permission_id')->where('company_id', $request['company_id'])],
         ];
         $validator = Validator::make($request, $rules);
         $response = [];

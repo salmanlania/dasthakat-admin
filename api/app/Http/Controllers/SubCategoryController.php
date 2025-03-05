@@ -24,10 +24,10 @@ class SubCategoryController extends Controller
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
 		$data = SubCategory::LeftJoin('category as c', 'c.category_id', '=', 'sub_category.category_id');
-		if (!empty($name)) $data = $data->where('sub_category.name', 'like', '%' . $name . '%');
-		if (!empty($category_id)) $data = $data->where('sub_category.category_id', '=', $category_id);
 		$data = $data->where('sub_category.company_id', '=', $request->company_id);
 		$data = $data->where('sub_category.company_branch_id', '=', $request->company_branch_id);
+		if (!empty($name)) $data = $data->where('sub_category.name', 'like', '%' . $name . '%');
+		if (!empty($category_id)) $data = $data->where('sub_category.category_id', '=', $category_id);
 
 		if (!empty($search)) {
 			$search = strtolower($search);
@@ -56,7 +56,7 @@ class SubCategoryController extends Controller
 	{
 		$rules = [
 			'category_id' => ['required'],
-			'name' => ['required', Rule::unique('sub_category')->ignore($id, 'sub_category_id')->where('company_id', $request['company_id'])],
+			'name' => ['required', Rule::unique('sub_category')->ignore($id, 'sub_category_id')->where('company_id', $request['company_id'])->where('company_branch_id', $request['company_branch_id'])],
 		];
 
 

@@ -41,6 +41,8 @@ class JobOrderController extends Controller
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'job_order.vessel_id')
 			->LeftJoin('agent as a', 'a.agent_id', '=', 'job_order.agent_id')
 			->LeftJoin('salesman as s', 's.salesman_id', '=', 'job_order.salesman_id');
+			$data = $data->where('job_order.company_id', '=', $request->company_id);
+			$data = $data->where('job_order.company_branch_id', '=', $request->company_branch_id);
 		if (!empty($document_identity)) $data = $data->where('job_order.document_identity', 'like', '%'. $document_identity.'%');
 		if (!empty($event_id)) $data = $data->where('job_order.event_id', '=',  $event_id);
 		if (!empty($flag_id)) $data = $data->where('job_order.flag_id', '=',  $flag_id);
@@ -53,8 +55,6 @@ class JobOrderController extends Controller
 		if (!empty($class2_id)) $data = $data->where('job_order.class2_id', '=',  $class2_id);
 		if (!empty($document_identity)) $data = $data->where('job_order.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($document_date)) $data = $data->where('job_order.document_date', '=',  $document_date);
-		$data = $data->where('job_order.company_id', '=', $request->company_id);
-		$data = $data->where('job_order.company_branch_id', '=', $request->company_branch_id);
 
 		if (!empty($search)) {
 			$search = strtolower($search);

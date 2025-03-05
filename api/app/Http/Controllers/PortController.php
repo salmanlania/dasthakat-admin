@@ -49,7 +49,7 @@ class PortController extends Controller
 	public function validateRequest($request, $id = null)
 	{
 		$rules = [
-			'name' => ['required', Rule::unique('port')->ignore($id, 'port_id')->where('company_id', $request['company_id'])],
+			'name' => ['required', Rule::unique('port')->ignore($id, 'port_id')->where('company_id', $request['company_id'])->where('company_branch_id', $request['company_branch_id'])],
 		];
 
 

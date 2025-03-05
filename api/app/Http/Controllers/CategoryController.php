@@ -23,9 +23,9 @@ class CategoryController extends Controller
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
 		$data = new Category;
-		if (!empty($name)) $data = $data->where('name', 'like', '%' . $name . '%');
 		$data = $data->where('company_id', '=', $request->company_id);
 		$data = $data->where('company_branch_id', '=', $request->company_branch_id);
+		if (!empty($name)) $data = $data->where('name', 'like', '%' . $name . '%');
 
 		if (!empty($search)) {
 			$search = strtolower($search);
@@ -50,7 +50,7 @@ class CategoryController extends Controller
 	public function validateRequest($request, $id = null)
 	{
 		$rules = [
-			'name' => ['required', Rule::unique('category')->ignore($id, 'category_id')->where('company_id', $request['company_id'])],
+			'name' => ['required', Rule::unique('category')->ignore($id, 'category_id')->where('company_id', $request['company_id'])->where('company_branch_id', $request['company_branch_id'])],
 		];
 
 

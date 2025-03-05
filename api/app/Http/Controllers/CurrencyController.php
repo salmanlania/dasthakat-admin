@@ -28,6 +28,7 @@ class CurrencyController extends Controller
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
 		$data = new Currency;
+		$data = $data->where('company_id', '=', $request->company_id);
 		if (!empty($name)) $data = $data->where('name', 'like', '%' . $name . '%');
 		if (!empty($currency_code)) $data = $data->where('currency_code', 'like', '%' . $currency_code . '%');
 		if (!empty($symbol_left)) $data = $data->where('symbol_left', 'like', '%' . $symbol_left . '%');
@@ -35,7 +36,6 @@ class CurrencyController extends Controller
 		if (!empty($value)) $data = $data->where('value', 'like', '%' . $value . '%');
 		if ($all != 1) $data = $data->where('status', '=', 1);
 		if ($status != "") $data = $data->where('status', '=', $status);
-		// $data = $data->where('company_id', '=', $request->company_id);
 
 		if (!empty($search)) {
 			$search = strtolower($search);

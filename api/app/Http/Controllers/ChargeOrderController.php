@@ -35,14 +35,14 @@ class ChargeOrderController extends Controller
 		$data = ChargeOrder::LeftJoin('customer as c', 'c.customer_id', '=', 'charge_order.customer_id')
 			->LeftJoin('event as e', 'e.event_id', '=', 'charge_order.event_id')
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'charge_order.vessel_id');
+		$data = $data->where('charge_order.company_id', '=', $request->company_id);
+		$data = $data->where('charge_order.company_branch_id', '=', $request->company_branch_id);
 
 		if (!empty($customer_id)) $data = $data->where('charge_order.customer_id', '=',  $customer_id);
 		if (!empty($vessel_id)) $data = $data->where('charge_order.vessel_id', '=',  $vessel_id);
 		if (!empty($event_id)) $data = $data->where('charge_order.event_id', '=',  $event_id);
 		if (!empty($document_identity)) $data = $data->where('charge_order.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($document_date)) $data = $data->where('charge_order.document_date', '=',  $document_date);
-		$data = $data->where('charge_order.company_id', '=', $request->company_id);
-		$data = $data->where('charge_order.company_branch_id', '=', $request->company_branch_id);
 
 		if (!empty($search)) {
 			$search = strtolower($search);

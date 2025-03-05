@@ -72,8 +72,8 @@ class AgentController extends Controller
 	public function validateRequest($request, $id = null)
 	{
 		$rules = [
-			'agent_code' => ['required', Rule::unique('agent')->ignore($id, 'agent_id')->where('company_id', $request['company_id'])],
-			'name' => ['required', Rule::unique('agent')->ignore($id, 'agent_id')->where('company_id', $request['company_id'])],
+			'agent_code' => ['required', Rule::unique('agent')->ignore($id, 'agent_id')->where('company_id', $request['company_id'])->where('company_branch_id', $request['company_branch_id'])],
+			'name' => ['required', Rule::unique('agent')->ignore($id, 'agent_id')->where('company_id', $request['company_id'])->where('company_branch_id', $request['company_branch_id'])],
 		];
 
 		$validator = Validator::make($request, $rules);
