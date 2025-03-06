@@ -165,7 +165,7 @@ class PicklistController extends Controller
 				"original_quantity" => $detail->quantity,
 				"total_received_quantity" => $totalReceivedQty,
 				"remarks" => $remarks ?: null, // Show null if empty
-				"warehouse" => $warehouseNames ?: null, // Show null if empty
+				"warehouse" => ["name" => $warehouseNames ?: null], // Show null if empty
 			];
 		}
 
