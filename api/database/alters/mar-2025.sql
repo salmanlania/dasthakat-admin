@@ -5,26 +5,26 @@ ADD COLUMN description TEXT ;
 
 ALTER TABLE charge_order_detail
 ADD COLUMN quotation_detail_id CHAR(36) AFTER purchase_order_detail_id,
-ADD COLUMN internal_notes VARCHAR(255) AFTER quotation_detail_id,
+ADD COLUMN internal_notes VARCHAR(255) AFTER quotation_detail_id;
 
 ALTER TABLE job_order_detail
-ADD COLUMN internal_notes VARCHAR(255) AFTER product_type_id,
+ADD COLUMN internal_notes VARCHAR(255) AFTER product_type_id;
 
 ALTER TABLE picklist_received_detail
-ADD COLUMN remarks VARCHAR(255) AFTER product_id,
+ADD COLUMN remarks VARCHAR(255) AFTER product_id;
 
 ALTER TABLE good_received_note_detail
-ADD COLUMN purchase_order_detail_id CHAR(36) AFTER good_received_note_id,
+ADD COLUMN purchase_order_detail_id CHAR(36) AFTER good_received_note_id;
 
 ALTER TABLE picklist_received_detail
-ADD COLUMN warehouse_id CHAR(36) AFTER product_id,
+ADD COLUMN warehouse_id CHAR(36) AFTER product_id;
 
 
 INSERT INTO const_document_type (document_type_id, document_name, document_prefix, table_name, primary_key) 
 VALUES (46, 'Service List', '{BC}/SL-', 'servicelist', 'servicelist_id');
 
 INSERT INTO const_document_type (document_type_id, document_name, document_prefix, table_name, primary_key)
-VALUES (47, 'Service List Received', '{BC}/SLR-', 'servicelist_received', 'servicelist_received_id')
+VALUES (47, 'Service List Received', '{BC}/SLR-', 'servicelist_received', 'servicelist_received_id');
 
 CREATE TABLE servicelist (
     servicelist_id CHAR(36) PRIMARY KEY,
@@ -126,3 +126,6 @@ CREATE TABLE job_order_detail_certificate (
     created_at DATETIME,
     updated_at DATETIME
 );
+
+ALTER TABLE agent 
+ADD COLUMN office_no VARCHAR(255) AFTER phone;

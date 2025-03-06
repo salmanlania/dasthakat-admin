@@ -191,8 +191,14 @@ class JobOrderController extends Controller
 				];
 
 				JobOrderDetail::create($insert);
+				if($value['product_type_id'] == 1){
+					$charge_order_detail = ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id'])->first();
+					$charge_order_detail->status = 1;
+					$charge_order_detail->update();
+				}
 			}
 		}
+
 		// dd($detail);
 
 
