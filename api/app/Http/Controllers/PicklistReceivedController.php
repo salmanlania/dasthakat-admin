@@ -23,7 +23,7 @@ class PicklistReceivedController extends Controller
 			->first();
 
 		// Fetch received picklist history
-		$receivedData = PicklistReceived::with("picklist_received_detail", "picklist_received_detail.product")
+		$receivedData = PicklistReceived::with("picklist_received_detail", "picklist_received_detail.product", "picklist_received_detail.warehouse")
 			->where('picklist_id', $id)
 			->orderBy('created_at', 'asc')
 			->get();
@@ -126,6 +126,7 @@ class PicklistReceivedController extends Controller
 				'picklist_received_detail_id' => $this->get_uuid(),
 				'sort_order' => $key,
 				'picklist_detail_id' => $item['picklist_detail_id'],
+				'warehouse_id' => $item['warehouse_id'],
 				'product_id' => $item['product_id'],
 				'remarks' => $item['remarks'] ?? null,
 				'quantity' => $item['quantity'] ?? 0,

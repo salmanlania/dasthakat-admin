@@ -16,6 +16,7 @@ class GRNDetail extends Model
     protected $fillable = [
         "good_received_note_id",
         "good_received_note_detail_id",
+        "purchase_order_detail_id",
         "sort_order",
         "product_type_id",
         "product_id",

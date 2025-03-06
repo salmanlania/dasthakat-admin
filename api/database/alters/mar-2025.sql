@@ -12,3 +12,9 @@ ADD COLUMN internal_notes VARCHAR(255) AFTER product_type_id,
 
 ALTER TABLE picklist_received_detail
 ADD COLUMN remarks VARCHAR(255) AFTER product_id,
+
+ALTER TABLE good_received_note_detail
+ADD COLUMN purchase_order_detail_id CHAR(36) AFTER good_received_note_id,
+
+ALTER TABLE picklist_received_detail
+ADD COLUMN warehouse_id CHAR(36) AFTER product_id,

@@ -30,6 +30,10 @@ class PicklistReceivedDetail extends Model
     {
         return $this->hasOne(Product::class, 'product_id', 'product_id');
     }
+    public function warehouse()
+    {
+        return $this->hasOne(Warehouse::class, 'warehouse_id', 'warehouse_id');
+    }
    
    
 }

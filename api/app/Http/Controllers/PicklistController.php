@@ -154,7 +154,7 @@ class PicklistController extends Controller
 
 			$items[] = [
 				"picklist_detail_id" => $picklistDetailId,
-				"product" => optional($detail->product),
+				"product" => $detail['product'] ?? null,
 				"remarks" => $detail->remarks ?? "",
 				"original_quantity" => $detail->quantity,
 				"total_received_quantity" => $totalReceivedQty
