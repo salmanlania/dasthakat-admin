@@ -86,3 +86,7 @@ CREATE TABLE servicelist_received_detail (
     created_at DATETIME,
     updated_at DATETIME
 );
+
+ALTER TABLE charge_order_detail 
+ADD COLUMN servicelist_id CHAR(36) AFTER purchase_order_detail_id,
+ADD COLUMN servicelist_detail_id CHAR(36) AFTER servicelist_id;
