@@ -18,3 +18,71 @@ ADD COLUMN purchase_order_detail_id CHAR(36) AFTER good_received_note_id,
 
 ALTER TABLE picklist_received_detail
 ADD COLUMN warehouse_id CHAR(36) AFTER product_id,
+
+
+INSERT INTO const_document_type (document_type_id, document_name, document_prefix, table_name, primary_key) 
+VALUES (46, 'Service List', '{BC}/SL-', 'servicelist', 'servicelist_id');
+
+INSERT INTO const_document_type (document_type_id, document_name, document_prefix, table_name, primary_key)
+VALUES (47, 'Service List Received', '{BC}/SLR-', 'servicelist_received', 'servicelist_received_id')
+
+CREATE TABLE servicelist (
+    servicelist_id CHAR(36) PRIMARY KEY,
+    company_id CHAR(36) NOT NULL,
+    company_branch_id CHAR(36) NOT NULL,
+    document_type_id INT NOT NULL,
+    document_no INT NOT NULL,
+    document_prefix VARCHAR(50) NOT NULL,
+    document_identity VARCHAR(100) NOT NULL,
+    document_date DATETIME,
+    charge_order_id CHAR(36) NOT NULL,
+    total_quantity DECIMAL(10,2) NOT NULL DEFAULT 0,
+    created_by CHAR(36) NOT NULL,
+    updated_by CHAR(36) NOT NULL,
+    created_at DATETIME,
+    updated_at DATETIME
+);
+
+CREATE TABLE servicelist_detail (
+    servicelist_detail_id CHAR(36) PRIMARY KEY,
+    servicelist_id CHAR(36) NOT NULL,
+    charge_order_detail_id CHAR(36) NOT NULL,
+    sort_order INT NOT NULL,
+    product_id CHAR(36) NOT NULL,
+    quantity DECIMAL(10,2) NOT NULL DEFAULT 0,
+    created_by CHAR(36) NOT NULL,
+    updated_by CHAR(36) NOT NULL,
+    created_at DATETIME,
+    updated_at DATETIME
+);
+
+
+CREATE TABLE servicelist_received (
+    servicelist_received_id CHAR(36) PRIMARY KEY,
+    company_id CHAR(36) NOT NULL,
+    company_branch_id CHAR(36) NOT NULL,
+    document_type_id INT NOT NULL,
+    document_no INT NOT NULL,
+    document_prefix VARCHAR(50) NOT NULL,
+    document_identity VARCHAR(100) NOT NULL,
+    document_date DATETIME,
+    servicelist_id CHAR(36) NOT NULL,
+    total_quantity DECIMAL(10,2) NOT NULL DEFAULT 0,
+    created_by CHAR(36) NOT NULL,
+    updated_by CHAR(36) NOT NULL,
+    created_at DATETIME,
+    updated_at DATETIME
+);
+
+CREATE TABLE servicelist_received_detail (
+    servicelist_received_detail_id CHAR(36) PRIMARY KEY,
+    servicelist_received_id CHAR(36) NOT NULL,
+    servicelist_detail_id CHAR(36) NOT NULL,
+    sort_order INT NOT NULL,
+    product_id CHAR(36) NOT NULL,
+    quantity DECIMAL(10,2) NOT NULL DEFAULT 0,
+    created_by CHAR(36) NOT NULL,
+    updated_by CHAR(36) NOT NULL,
+    created_at DATETIME,
+    updated_at DATETIME
+);
