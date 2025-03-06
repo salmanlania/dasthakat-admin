@@ -16,6 +16,7 @@ import goodsReceivedNoteReducer from './features/goodsReceivedNoteSlice';
 import ijoReducer from './features/ijoSlice';
 import paymentReducer from './features/paymentSlice';
 import pickListReducer from './features/pickListSlice';
+import serviceListReducer from './features/serviceListSlice';
 import portReducer from './features/portSlice';
 import productReducer from './features/productSlice';
 import purchaseInvoiceReducer from './features/purchaseInvoiceSlice';
@@ -41,6 +42,7 @@ const rootReducer = combineReducers({
   currency: currencyReducer,
   company: companyReducer,
   pickList: pickListReducer,
+  serviceList: serviceListReducer,
   companyBranch: companyBranchReducer,
   customer: customerReducer,
   vendor: vendorReducer,
