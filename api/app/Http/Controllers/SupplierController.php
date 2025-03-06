@@ -40,7 +40,7 @@ class SupplierController extends Controller
 
 		$data = Supplier::LeftJoin('payment as p', 'supplier.payment_id', '=', 'p.payment_id');
 		$data = $data->where('supplier.company_id', '=', $request->company_id);
-		$data = $data->where('company_branch_id', '=', $request->company_branch_id);
+		$data = $data->where('supplier.company_branch_id', '=', $request->company_branch_id);
 
 		if (!empty($supplier_code)) $data = $data->where('supplier_code', 'like', '%' . $supplier_code . '%');
 		if (!empty($payment_id)) $data = $data->where('supplier.payment_id', '=', $payment_id);
