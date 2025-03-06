@@ -107,7 +107,8 @@ export const createPickListPrint = (data) => {
             },
             item?.warehouse?.name || '', // Location
             parseFloat(item?.original_quantity || 0),
-            parseFloat(item?.total_received_quantity || 0),
+            // parseFloat(item?.total_received_quantity || 0),
+            "",
             item.remarks || ''
           ];
         })
