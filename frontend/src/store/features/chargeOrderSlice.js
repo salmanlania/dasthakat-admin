@@ -472,7 +472,6 @@ export const chargeOrderSlice = createSlice({
     });
     addCase(createChargeOrderPO.fulfilled, (state) => {
       state.isFormSubmitting = false;
-      state.initialFormValues = null;
     });
     addCase(createChargeOrderPO.rejected, (state) => {
       state.isFormSubmitting = false;
