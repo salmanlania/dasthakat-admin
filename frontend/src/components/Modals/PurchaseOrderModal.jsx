@@ -10,6 +10,7 @@ import {
 } from '../../store/features/chargeOrderSlice';
 import { setChargePoID } from '../../store/features/purchaseOrderSlice';
 import DebounceInput from '../Input/DebounceInput';
+import dayjs from 'dayjs';
 
 const PurchaseOrderModal = () => {
   const [form] = Form.useForm();
@@ -41,7 +42,12 @@ const PurchaseOrderModal = () => {
     details.forEach((detail) => {
       if (detail.checked) {
         const { checked, supplier_name, ...otherDetails } = detail;
-        payload.push(otherDetails);
+        payload.push({
+          ...otherDetails,
+          required_date: otherDetails.required_date
+            ? dayjs(otherDetails.required_date).format('YYYY-MM-DD')
+            : null
+        });
       }
     });
 
