@@ -125,7 +125,7 @@ class PurchaseOrderController extends Controller
 			// Check if this product has received any GRN quantities
 			foreach ($grns as $grn) {
 				foreach ($grn->grn_detail as $grnDetail) {
-					if ($detail->product_id == $grnDetail->product_id) {
+					if ($detail->purchase_order_detail_id == $grnDetail->purchase_order_detail_id) {
 						$receivedQty += $grnDetail->quantity;
 					}
 				}
