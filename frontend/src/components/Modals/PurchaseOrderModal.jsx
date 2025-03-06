@@ -1,9 +1,7 @@
-import { Button, Checkbox, Col, DatePicker, Form, Input, Modal, Row } from 'antd';
-import dayjs from 'dayjs';
+import { Button, Checkbox, Col, DatePicker, Form, Modal, Row } from 'antd';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import { GMS_ADDRESS } from '../../constants';
 import useError from '../../hooks/useError';
 import {
@@ -16,14 +14,13 @@ import DebounceInput from '../Input/DebounceInput';
 const PurchaseOrderModal = () => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const handleError = useError();
 
   const { poChargeID } = useSelector((state) => state.purchaseOrder);
-  const { isFormSubmitting } = useSelector((state) => state.chargeOrder);
 
   const [details, setDetails] = useState([]);
   const [isLoading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const closeModal = () => {
     dispatch(setChargePoID(null));
@@ -49,6 +46,7 @@ const PurchaseOrderModal = () => {
     });
 
     try {
+      setIsSubmitting(true);
       await dispatch(
         createChargeOrderPO({
           id: poChargeID,
@@ -60,6 +58,8 @@ const PurchaseOrderModal = () => {
       setDetails([]);
     } catch (error) {
       handleError(error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -190,7 +190,7 @@ const PurchaseOrderModal = () => {
           <Button className="w-40" onClick={closeModal}>
             Cancel
           </Button>
-          <Button className="w-40" type="primary" onClick={form.submit} loading={isFormSubmitting}>
+          <Button className="w-40" type="primary" onClick={form.submit} loading={isSubmitting}>
             Create
           </Button>
         </div>

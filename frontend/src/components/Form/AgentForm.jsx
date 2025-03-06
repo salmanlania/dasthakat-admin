@@ -16,8 +16,7 @@ const AgentForm = ({ mode, onSubmit }) => {
       layout="vertical"
       autoComplete="off"
       initialValues={mode === 'edit' ? initialFormValues : { status: 1 }}
-      onFinish={onFinish}
-    >
+      onFinish={onFinish}>
       <Row gutter={[12, 12]}>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
@@ -29,8 +28,7 @@ const AgentForm = ({ mode, onSubmit }) => {
                 whitespace: true,
                 message: 'Code is required!'
               }
-            ]}
-          >
+            ]}>
             <Input />
           </Form.Item>
         </Col>
@@ -44,8 +42,7 @@ const AgentForm = ({ mode, onSubmit }) => {
                 whitespace: true,
                 message: 'Name is required!'
               }
-            ]}
-          >
+            ]}>
             <Input />
           </Form.Item>
         </Col>
@@ -70,7 +67,12 @@ const AgentForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="phone" label="Phone">
+          <Form.Item name="phone" label="Mobile No">
+            <Input />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="office_no" label="Office No">
             <Input />
           </Form.Item>
         </Col>
