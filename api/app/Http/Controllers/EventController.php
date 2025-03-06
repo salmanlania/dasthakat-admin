@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Event;
 use App\Models\GRNDetail;
 use App\Models\PicklistReceived;
+use App\Models\ServicelistReceived;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
@@ -141,7 +142,15 @@ class EventController extends Controller
 
 		foreach ($chargeOrders as $chargeOrder) {
 			foreach ($chargeOrder->charge_order_detail as $detail) {
-				if ($detail->product_type_id == 2) {
+				if ($detail->product_type_id == 1) {
+					// Sum of received servicelist qty
+					$receivedQty = ServicelistReceived::whereHas('servicelist_detail', function ($query) use ($detail) {
+						$query->where('charge_order_detail_id', $detail->id);
+					})->sum('qty');
+
+					// Replace original qty with received qty
+					$detail->qty = $receivedQty;
+				} else if ($detail->product_type_id == 2) {
 					// Sum of received picklist qty
 					$receivedQty = PicklistReceived::whereHas('picklist_detail', function ($query) use ($detail) {
 						$query->where('charge_order_detail_id', $detail->id);
@@ -149,7 +158,7 @@ class EventController extends Controller
 
 					// Replace original qty with received qty
 					$detail->qty = $receivedQty;
-				} elseif ($detail->product_type_id == 3) {
+				} elseif ($detail->product_type_id == 3 || $detail->product_type_id == 4) {
 					// Sum of GRN detail qty
 					$receivedGRNQty = GRNDetail::whereHas('purchase_order_detail', function ($query) use ($detail) {
 						$query->where('charge_order_detail_id', $detail->id);
