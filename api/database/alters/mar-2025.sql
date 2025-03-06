@@ -113,3 +113,19 @@ ADD COLUMN product_description VARCHAR(255) AFTER product_name;
 ALTER TABLE purchase_invoice_detail 
 ADD COLUMN product_name VARCHAR(255) AFTER product_id,
 ADD COLUMN product_description VARCHAR(255) AFTER product_name;
+
+
+CREATE TABLE job_order_detail_certificate (
+    certifiate_id CHAR(36) PRIMARY KEY,
+    job_order_id CHAR(36) NOT NULL,
+    job_order_detail_id CHAR(36) NOT NULL,
+    document_type_id INT NOT NULL,
+    document_no INT NOT NULL,
+    document_prefix VARCHAR(50) NOT NULL,
+    document_identity VARCHAR(100) NOT NULL,
+    document_date DATETIME,
+    created_by CHAR(36) NOT NULL,
+    updated_by CHAR(36) NOT NULL,
+    created_at DATETIME,
+    updated_at DATETIME
+);
