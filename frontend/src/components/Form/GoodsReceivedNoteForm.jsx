@@ -273,6 +273,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
 
       const details = purchase_order_detail.map((detail) => ({
         id: detail.purchase_order_detail_id,
+        purchase_order_detail_id: detail.purchase_order_detail_id,
         product_type_id: detail.product_type
           ? {
               value: detail.product_type.product_type_id,
@@ -285,9 +286,9 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
           : null,
         product_name: detail.product_name,
         description: detail.description,
-        quantity: detail.quantity ? parseFloat(detail.quantity) : null,
+        quantity: detail?.available_quantity ? parseFloat(detail?.available_quantity) : null,
         unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null
-      }));
+      })).filter((item) => item.quantity > 0);
 
       dispatch(setGoodsReceivedNoteDetails(details));
     } catch (error) {

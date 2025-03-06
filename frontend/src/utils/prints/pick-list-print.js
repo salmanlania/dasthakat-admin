@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import GMSLogo from '../../assets/logo-with-title.png';
+import dayjs from 'dayjs';
 
 const fillEmptyRows = (rows, rowsPerPage) => {
   // Calculate how many rows are required to fill the current page
@@ -41,17 +42,23 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   let boxHeight = 7;
 
   const rows = [
-    { label: 'Pick List Number.', value: '0001' },
+    { label: 'Pick List Number.', value: data?.document_identity || '' },
     {
       label: 'Vessel Name.',
-      value: 'Vessel 1'
+      value: data?.charge_order?.vessel?.name || ''
     },
     {
       label: 'Event No.',
-      value: '123'
+      value: data?.charge_order?.event?.event_code || ''
     },
-    { label: 'Charge NO', value: '456' },
-    { label: 'Customer PO Number.', value: '873' }
+    { label: 'Charge NO', value: data?.charge_order?.document_identity || '' },
+    { label: 'Customer PO Number.', value: data?.charge_order?.customer_po_no || '' },
+    {
+      label: 'Date.',
+      value: data?.charge_order?.document_date
+        ? dayjs(data?.charge_order?.document_date).format('MM-DD-YYYY')
+        : ''
+    }
   ];
 
   // Draw boxes with content
@@ -77,7 +84,7 @@ const addFooter = (doc, pageWidth, pageHeight) => {
   doc.text(
     currentPage === totalPages ? `Last page` : `Continue to page ${currentPage + 1}`,
     pageWidth / 2,
-    pageHeight + 4,
+    pageHeight + 6,
     {
       align: 'center'
     }
@@ -90,8 +97,6 @@ export const createPickListPrint = (data) => {
   const pageSize = doc.internal.pageSize;
   const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
 
-  console.log(data)
-
   // Purchase Order Items Table
   const table2Column = [
     'SN',
@@ -102,71 +107,33 @@ export const createPickListPrint = (data) => {
     'Qty Picked',
     'Remark'
   ];
-  const table2Rows = [
-    [
-      '1',
-      '0001',
-      {
-        content: 'Description....',
-        styles: {
-          halign: 'left'
-        }
-      },
-      'Location......',
-      80,
-      40,
-      'Remark........'
-    ],
-    [
-      '2',
-      '0002',
-      {
-        content: 'Description....',
-        styles: {
-          halign: 'left'
-        }
-      },
-      'Location......',
-      80,
-      40,
-      'Remark........'
-    ],
-    [
-      '3',
-      '0003',
-      {
-        content: 'Description....',
-        styles: {
-          halign: 'left'
-        }
-      },
-      'Location......',
-      80,
-      40,
-      'Remark........'
-    ],
-    [
-      '4',
-      '0004',
-      {
-        content: 'Description....',
-        styles: {
-          halign: 'left'
-        }
-      },
-      'Location......',
-      80,
-      40,
-      'Remark........'
-    ]
-  ];
+
+  const table2Rows =
+    data.items && data.items.length
+      ? data.items.map((item, index) => {
+          return [
+            index + 1,
+            item?.product?.product_code || '',
+            {
+              content: item?.product?.name || '',
+              styles: {
+                halign: 'left'
+              }
+            },
+            item?.warehouse?.name || '', // Location
+            parseFloat(item?.original_quantity || 0),
+            parseFloat(item?.total_received_quantity || 0),
+            item.remarks || ''
+          ];
+        })
+      : [];
 
   const filledRows = fillEmptyRows(table2Rows, 16);
   doc.autoTable({
-    startY: 84,
+    startY: 86,
     head: [table2Column],
     body: filledRows,
-    margin: { left: 4, top: 84, bottom: 22 },
+    margin: { left: 4, top: 86, bottom: 22 },
     headStyles: {
       halign: 'center',
       valign: 'middle',
@@ -206,19 +173,12 @@ export const createPickListPrint = (data) => {
     }
   });
 
-  // Pulled By & Date
+  // Date
   doc.setFontSize(10);
   doc.setFont('times', 'bold');
 
-  const pulledBy = `Pulled By: Muhammad Usman Khalid`;
-  doc.text(pulledBy, pageWidth - sideMargin, doc.previousAutoTable.finalY + 8, {
-    align: 'right'
-  });
-
-  const pullByWidth = doc.getTextWidth(pulledBy);
-
-  const date = `Date:          2-3-2025`;
-  doc.text(date, pageWidth - pullByWidth - 4, doc.previousAutoTable.finalY + 12);
+  const date = `Date:  ${dayjs().format('MM-DD-YYYY')}`;
+  doc.text(date, pageWidth - 33, doc.previousAutoTable.finalY + 12);
 
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {

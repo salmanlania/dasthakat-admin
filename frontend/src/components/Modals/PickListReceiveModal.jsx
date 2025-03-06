@@ -11,6 +11,7 @@ import {
   updatePickListListReceives
 } from '../../store/features/pickListSlice';
 import NumberInput from '../Input/NumberInput';
+import AsyncSelect from '../AsyncSelect/index.jsx';
 
 const HistoryTab = ({ details }) => {
   const columns = [
@@ -39,6 +40,12 @@ const HistoryTab = ({ details }) => {
       width: 80
     },
     {
+      title: 'Warehouse',
+      dataIndex: 'warehouse',
+      key: 'warehouse',
+      width: 120
+    },
+    {
       title: 'Remarks',
       dataIndex: 'remarks',
       key: 'remarks',
@@ -53,6 +60,7 @@ const HistoryTab = ({ details }) => {
     original_quantity: parseFloat(detail.original_quantity || 0),
     quantity: parseFloat(detail?.quantity || 0),
     remarks: detail.remarks,
+    warehouse: detail?.warehouse?.name || '',
     sr: detail.sort_order + 1
   }));
 
@@ -63,6 +71,8 @@ const NewReceivesTab = ({ details }) => {
   const handleError = useError();
   const dispatch = useDispatch();
   const [form] = Form.useForm();
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user.permission;
   const { params, isPickListReceivesSaving, pickListOpenModalId } = useSelector(
     (state) => state.pickList
   );
@@ -129,6 +139,28 @@ const NewReceivesTab = ({ details }) => {
       )
     },
     {
+      title: 'Warehouse',
+      dataIndex: 'warehouse_id',
+      key: 'warehouse_id',
+      width: 200,
+      render: (_, __, index) => (
+        <Form.Item
+          name={[index, 'warehouse_id']}
+          className="m-0">
+          <AsyncSelect
+            endpoint="/warehouse"
+            valueKey="warehouse_id"
+            labelKey="name"
+            labelInValue
+            className="w-full"
+            addNewLink={
+              permissions.warehouse.list && permissions.warehouse.add ? '/warehouse' : null
+            }
+          />
+        </Form.Item>
+      )
+    },
+    {
       title: 'Remarks',
       dataIndex: 'remarks',
       key: 'remarks',
@@ -137,7 +169,7 @@ const NewReceivesTab = ({ details }) => {
         <Form.Item
           name={[index, 'remarks']}
           className="m-0">
-          <NumberInput />
+          <Input />
         </Form.Item>
       )
     }
@@ -148,7 +180,8 @@ const NewReceivesTab = ({ details }) => {
       picklist_detail_id: dataSource[index].id,
       product_id: dataSource[index].product_id,
       quantity: detail.remaining_quantity,
-      remarks: detail.remarks
+      remarks: detail.remarks,
+      warehouse_id: detail?.warehouse_id ? detail?.warehouse_id?.value : null
     }));
 
     const totalQuantity = details.reduce((total, detail) => +total + (+detail.quantity || 0), 0);
