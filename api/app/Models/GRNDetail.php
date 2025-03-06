@@ -35,13 +35,17 @@ class GRNDetail extends Model
     {
         return $this->belongsTo(GRN::class, 'good_received_note_id');
     }
+    public function purchase_order_detail()
+    {
+        return $this->hasOne(PurchaseOrderDetail::class, 'purchase_order_detail_id');
+    }
     public function warehouse()
     {
         return $this->hasOne(Warehouse::class, 'warehouse_id', 'warehouse_id');
     }
     public function product()
     {
-        return $this->hasOne(Product::class, 'product_id','product_id')->select('*',DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
+        return $this->hasOne(Product::class, 'product_id', 'product_id')->select('*', DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
     }
     public function product_type()
     {
@@ -51,5 +55,4 @@ class GRNDetail extends Model
     {
         return $this->hasOne(Unit::class, 'unit_id', 'unit_id');
     }
-  
 }
