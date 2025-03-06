@@ -5,11 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\DocumentType;
 use Illuminate\Http\Request;
 use App\Models\Picklist;
-use App\Models\PicklistDetail;
 use App\Models\PicklistReceived;
 use App\Models\PicklistReceivedDetail;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class PicklistReceivedController extends Controller
 {
@@ -24,7 +23,7 @@ class PicklistReceivedController extends Controller
 			->first();
 
 		// Fetch received picklist history
-		$receivedData = PicklistReceived::with("picklist_received_detail", "picklist_received_detail.product")
+		$receivedData = PicklistReceived::with("picklist_received_detail", "picklist_received_detail.product", "picklist_received_detail.warehouse")
 			->where('picklist_id', $id)
 			->orderBy('created_at', 'asc')
 			->get();
@@ -53,7 +52,8 @@ class PicklistReceivedController extends Controller
 					$picklist_remainings[] = [
 						"picklist_detail_id" => $detail->picklist_detail_id,
 						"product_id" => $productId,
-						"product_name" => $detail->product->name,
+						"product_name" => $detail->product->name ?? "",
+						"product" => $detail->product ?? "",
 						"original_quantity" => $originalQty,
 						"received_quantity" => $receivedQty,
 						"remaining_quantity" => $remainingQty,
@@ -80,12 +80,25 @@ class PicklistReceivedController extends Controller
 
 		return $this->jsonResponse($response, 200, "Picklist Received History");
 	}
+	public function Validator($request, $id = null)
+	{
+		$rules = [
+			'document_date' => 'required|date',
+			'picklist_detail' => 'required|array|min:1',
+			'picklist_detail.*.picklist_detail_id' => 'required',
+			'picklist_detail.*.quantity' => 'required|numeric|min:0',
+		];
+
+		$msg = validateRequest($request, $rules);
+		if (!empty($msg)) return $msg;
+	}
 
 	public function update(Request $request, $id)
 	{
-		// if (!isPermission('edit', 'picklist_received', $request->permission_list)) {
-		//     return $this->jsonResponse('Permission Denied!', 403, "No Permission");
-		// }
+
+
+		$isError = $this->Validator($request->all());
+		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
 
 		$uuid = $this->get_uuid();
@@ -113,7 +126,9 @@ class PicklistReceivedController extends Controller
 				'picklist_received_detail_id' => $this->get_uuid(),
 				'sort_order' => $key,
 				'picklist_detail_id' => $item['picklist_detail_id'],
+				'warehouse_id' => $item['warehouse_id'],
 				'product_id' => $item['product_id'],
+				'remarks' => $item['remarks'] ?? null,
 				'quantity' => $item['quantity'] ?? 0,
 				'created_at' => Carbon::now(),
 				'created_by' => $request->login_user_id,

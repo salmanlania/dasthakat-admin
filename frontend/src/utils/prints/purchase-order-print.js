@@ -76,8 +76,6 @@ const addHeader = (doc, data, sideMargin) => {
     { label: 'Page', value: `Page ${currentPage} of ${totalPages}` }
   ];
 
-  console.log('rows: ===> ', rows);
-
   // Draw boxes with content
   doc.setFontSize(8);
   doc.setFont('times', 'normal');

@@ -131,10 +131,10 @@ class ProductController extends Controller
 			'product_type_id' => 'required',
 			'name' => [
 				'required',
-				Rule::unique('product')->ignore($id, 'product_id')->where('company_id', $request['company_id'])
+				Rule::unique('product')->ignore($id, 'product_id')->where('company_id', $request['company_id']->where('company_branch_id', $request['company_branch_id']))
 			],
 			'impa_code' => [
-				Rule::unique('product')->ignore($id, 'product_id')->where('company_id', $request['company_id'])
+				Rule::unique('product')->ignore($id, 'product_id')->where('company_id', $request['company_id']->where('company_branch_id', $request['company_branch_id']))
 			]
 		];
 

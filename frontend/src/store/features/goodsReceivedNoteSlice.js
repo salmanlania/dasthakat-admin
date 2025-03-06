@@ -154,6 +154,7 @@ export const goodsReceivedNoteSlice = createSlice({
       const detail = state.goodsReceivedNoteDetails[index];
       const newDetail = {
         ...detail,
+        purchase_order_detail_id: null,
         id: Date.now()
       };
 
@@ -295,6 +296,7 @@ export const goodsReceivedNoteSlice = createSlice({
       if (!data.grn_detail) return;
       state.goodsReceivedNoteDetails = data.grn_detail.map((detail) => ({
         id: detail.good_received_note_detail_id,
+        purchase_order_detail_id: detail.purchase_order_detail_id,
         product_code: detail.product ? detail.product.product_code : null,
         product_id: detail.product
           ? { value: detail.product.product_id, label: detail.product.product_name }

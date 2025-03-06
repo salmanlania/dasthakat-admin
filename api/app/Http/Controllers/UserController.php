@@ -36,7 +36,6 @@ class UserController extends Controller
 		if ($all != 1) $users = $users->where('status', '=', 1);
 		if (!empty($status) || $status == '0') $users = $users->where('status', '=', $status);
 		
-		$users = $users->where('user.company_id', '=', $request->company_id);
 		if (!empty($search)) {
 			$search = strtolower($search);
 			$users = $users->where(function ($query) use ($search) {

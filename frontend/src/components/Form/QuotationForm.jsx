@@ -131,11 +131,11 @@ const QuotationForm = ({ mode, onSubmit }) => {
       status: values.status,
       quotation_detail: quotationDetails.map(({ id, product_type, ...detail }, index) => ({
         ...detail,
-        product_id: detail.product_type_id?.value == 4 ? null : detail.product_id.value,
-        product_name: detail.product_type_id?.value == 4 ? detail.product_name : null,
-        supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
-        product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
-        unit_id: detail.unit_id ? detail.unit_id.value : null,
+        product_id: detail.product_type_id?.value == 4 ? null : detail?.product_id?.value,
+        product_name: detail.product_type_id?.value == 4 ? detail?.product_name : null,
+        supplier_id: detail.supplier_id ? detail?.supplier_id?.value : null,
+        product_type_id: detail?.product_type_id ? detail?.product_type_id?.value : null,
+        unit_id: detail?.unit_id ? detail?.unit_id?.value : null,
         sort_order: index
       })),
       total_quantity: totalQuantity,
@@ -477,6 +477,16 @@ const QuotationForm = ({ mode, onSubmit }) => {
             />
           </Form.Item>
         ) : (
+          <Form.Item
+            className="m-0"
+            name={`product_id-${index}`}
+            initialValue={product_id}
+            rules={[
+              {
+                required: true,
+                message: 'Description is required'
+              }
+            ]}>
           <AsyncSelect
             endpoint="/product"
             valueKey="product_id"
@@ -488,7 +498,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             addNewLink={
               permissions.product.list && permissions.product.add ? '/product/create' : null
             }
-          />
+          /></Form.Item>
         );
       },
       width: 560

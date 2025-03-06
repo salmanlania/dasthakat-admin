@@ -303,14 +303,28 @@ $router->group(['prefix' => 'job-order'], function ($router) {
    $router->post('/bulk-delete', 'JobOrderController@bulkDelete');
 });
 
+// pick list routes
 $router->group(['prefix' => 'picklist'], function ($router) {
    $router->get('/', 'PicklistController@index');
+   $router->get('/{id}', 'PicklistController@show');
    $router->post('/', 'PicklistController@store');  
 });
 
 $router->group(['prefix' => 'picklist-received'], function ($router) {
    $router->get('/{id}', 'PicklistReceivedController@show');
    $router->put('/{id}', 'PicklistReceivedController@update');  
+});
+
+// service list routes
+$router->group(['prefix' => 'servicelist'], function ($router) {
+   $router->get('/', 'ServicelistController@index');
+   $router->get('/{id}', 'ServicelistController@show');
+   $router->post('/', 'ServicelistController@store');  
+});
+
+$router->group(['prefix' => 'servicelist-received'], function ($router) {
+   $router->get('/{id}', 'ServicelistReceivedController@show');
+   $router->put('/{id}', 'ServicelistReceivedController@update');  
 });
 
 $router->group(['prefix' => 'purchase-order'], function ($router) {

@@ -1,7 +1,8 @@
 import { Button, Input, Select, Table, Tag, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect } from 'react';
-import { LuHand, LuListChecks } from 'react-icons/lu';
+import { FaRegFilePdf } from 'react-icons/fa';
+import { LuListChecks } from 'react-icons/lu';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
@@ -9,10 +10,13 @@ import PickListReceiveModal from '../../components/Modals/PickListReceiveModal';
 import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
 import {
+  getPickListForPrint,
   getPickListList,
   setPickListListParams,
   setPickListOpenModalId
 } from '../../store/features/pickListSlice';
+import { createPickListPrint } from '../../utils/prints/pick-list-print';
+import toast from 'react-hot-toast';
 
 const pickListStatus = {
   1: 'Complete',
@@ -28,6 +32,19 @@ const PickList = () => {
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedPickListNo = useDebounce(params.document_identity, 500);
   const debouncedTotalQuantity = useDebounce(params.total_quantity, 500);
+
+  const printPickList = async (id) => {
+    const loadingToast = toast.loading('Loading print...');
+
+    try {
+      const data = await dispatch(getPickListForPrint(id)).unwrap();
+      createPickListPrint(data);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      toast.dismiss(loadingToast);
+    }
+  };
 
   const columns = [
     {
@@ -228,9 +245,18 @@ const PickList = () => {
               onClick={() => dispatch(setPickListOpenModalId(id))}
             />
           </Tooltip>
+          <Tooltip title="Print">
+            <Button
+              size="small"
+              type="primary"
+              className="bg-rose-600 hover:!bg-rose-500"
+              icon={<FaRegFilePdf size={14} />}
+              onClick={() => printPickList(id)}
+            />
+          </Tooltip>
         </div>
       ),
-      width: 65,
+      width: 80,
       fixed: 'right'
     }
   ];

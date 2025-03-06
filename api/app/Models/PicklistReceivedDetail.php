@@ -16,6 +16,7 @@ class PicklistReceivedDetail extends Model
         "picklist_received_detail_id",
         "sort_order",
         "picklist_detail_id",
+        "remarks",
         "product_id",
         "quantity",
         "created_by",
@@ -28,6 +29,14 @@ class PicklistReceivedDetail extends Model
     public function product()
     {
         return $this->hasOne(Product::class, 'product_id', 'product_id');
+    }
+    public function pulled_by()
+    {
+        return $this->hasOne(User::class, 'user_id', 'created_by')->select('user_id', 'user_name','email');
+    }
+    public function warehouse()
+    {
+        return $this->hasOne(Warehouse::class, 'warehouse_id', 'warehouse_id');
     }
    
    

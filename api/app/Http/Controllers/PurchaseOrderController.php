@@ -96,8 +96,8 @@ class PurchaseOrderController extends Controller
 
 	public function show($id, Request $request)
 	{
-
-		$data = PurchaseOrder::with(
+		// Fetch the Purchase Order with related details
+		$data = PurchaseOrder::with([
 			"purchase_order_detail",
 			"purchase_order_detail.product",
 			"purchase_order_detail.product_type",
@@ -110,24 +110,33 @@ class PurchaseOrderController extends Controller
 			"charge_order.event",
 			"charge_order.vessel",
 			"charge_order.customer",
-		)
-			->where('purchase_order_id', $id)->first();
+		])->where('purchase_order_id', $id)->first();
 
-		foreach ($data->purchase_order_detail as $key => &$value) {
-			$grn = GRN::with("grn_detail")->where('purchase_order_id', $id)->get();
+		if (!$data) {
+			return $this->jsonResponse(null, 404, "Purchase Order not found");
+		}
+
+		// Fetch all GRNs related to this PO
+		$grns = GRN::with("grn_detail")->where('purchase_order_id', $id)->get();
+
+		foreach ($data->purchase_order_detail as &$detail) {
 			$receivedQty = 0;
-			foreach ($grn as $grnData) {
-				foreach ($grnData->grn_detail as $grnDetail) {
-					if ($value->product_id == $grnDetail->product_id) {
+
+			// Check if this product has received any GRN quantities
+			foreach ($grns as $grn) {
+				foreach ($grn->grn_detail as $grnDetail) {
+					if ($detail->purchase_order_detail_id == $grnDetail->purchase_order_detail_id) {
 						$receivedQty += $grnDetail->quantity;
 					}
 				}
 			}
-			if ($receivedQty > 0) {
-				$value->editable = false;
-			}
-		}
 
+			// Calculate the remaining quantity
+			$remainingQty = max($detail->quantity - $receivedQty, 0);
+
+			$detail->available_quantity = $remainingQty;
+			$detail->editable = ($receivedQty > 0) ? false : true;
+		}
 
 		return $this->jsonResponse($data, 200, "Purchase Order Data");
 	}
@@ -204,6 +213,7 @@ class PurchaseOrderController extends Controller
 					'product_id' => $value['product_id'] ?? "",
 					'product_type_id' => $value['product_type_id'] ?? "",
 					'product_name' => $value['product_name'] ?? "",
+					'product_description' => $value['product_description'] ?? "",
 					'description' => $value['description'] ?? "",
 					'vpart' => $value['vpart'] ?? "",
 					'unit_id' => $value['unit_id'] ?? "",
@@ -269,19 +279,19 @@ class PurchaseOrderController extends Controller
 
 		// Identify deleted purchase order details
 		$deletedPurchaseOrderDetails = array_diff($existingPurchaseOrderDetails, $newPurchaseOrderDetails);
-		
-		
+
+
 		if (!empty($deletedPurchaseOrderDetails)) {
-				ChargeOrderDetail::whereIn('purchase_order_detail_id', $deletedPurchaseOrderDetails)
-					->update([
-							'purchase_order_id' => null,
+			ChargeOrderDetail::whereIn('purchase_order_detail_id', $deletedPurchaseOrderDetails)
+				->update([
+					'purchase_order_id' => null,
 					'purchase_order_detail_id' => null,
 				]);
-			}
-		
+		}
+
 		PurchaseOrderDetail::where('purchase_order_id', $id)->delete();
 		$newDetailMappings = [];
-		
+
 		if ($request->purchase_order_detail) {
 			foreach ($request->purchase_order_detail as $key => $value) {
 				$detail_uuid = $this->get_uuid();
@@ -294,6 +304,7 @@ class PurchaseOrderController extends Controller
 					'product_type_id' => $value['product_type_id'] ?? "",
 					'charge_order_detail_id' => $value['charge_order_detail_id'] ?? "",
 					'product_name' => $value['product_name'] ?? "",
+					'product_description' => $value['product_description'] ?? "",
 					'description' => $value['description'] ?? "",
 					'vpart' => $value['vpart'] ?? "",
 					'unit_id' => $value['unit_id'] ?? "",
@@ -305,10 +316,10 @@ class PurchaseOrderController extends Controller
 					'created_by' => $request->login_user_id,
 				];
 				PurchaseOrderDetail::create($insertArr);
-				if(isset($value['charge_order_detail_id'])){
+				if (isset($value['charge_order_detail_id'])) {
 					$newDetailMappings[$value['charge_order_detail_id']] = $detail_uuid;
 				}
-				
+
 				// Update Charge Order Detail if linked
 				if (!empty($value['charge_order_detail_id'])) {
 					$chargeOrderDetail = ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id']);
@@ -319,7 +330,7 @@ class PurchaseOrderController extends Controller
 					$discount_percent = $data->discount_percent;
 					$discount_amount = ($amount * $discount_percent) / 100;
 					$gross_amount = $amount - $discount_amount;
-					
+
 					$chargeOrderDetail->update([
 						'quantity' => $quantity,
 						'rate' => $rate,
@@ -332,7 +343,7 @@ class PurchaseOrderController extends Controller
 			}
 		}
 		// return $this->jsonResponse($newDetailMappings, 400, "Delete Purchase Order successfully!");
-		
+
 		// Update ChargeOrderDetail with new PO detail IDs
 		foreach ($newDetailMappings as $chargeOrderDetailId => $newPoDetailId) {
 			if (!empty($chargeOrderDetailId)) {

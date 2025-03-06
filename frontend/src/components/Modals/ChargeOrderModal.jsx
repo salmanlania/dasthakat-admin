@@ -115,6 +115,7 @@ const ChargeOrderModal = () => {
       agent_id: initialFormValues.agent_id ? initialFormValues.agent_id.value : null,
       charge_order_detail: selectedDetails.map((detail, index) => ({
         ...detail,
+        quotation_detail_id: detail.id,
         product_id: detail.product_id ? detail.product_id.value : null,
         product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
         unit_id: detail.unit_id ? detail.unit_id.value : null,
@@ -124,7 +125,7 @@ const ChargeOrderModal = () => {
     };
 
     try {
-      const res = await dispatch(createChargeOrder(data)).unwrap();
+      const res = await dispatch(createChargeOrder({ data })).unwrap();
       const chargeOrderID = res.data.data.charge_order_id;
       closeModal();
 

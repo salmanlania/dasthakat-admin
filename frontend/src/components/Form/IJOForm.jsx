@@ -31,13 +31,13 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
       title: 'Charge Order No.',
       dataIndex: 'charge_order_no',
       key: 'charge_order_no',
-      width: 150
+      width: 140
     },
     {
       title: 'Product Type',
       dataIndex: 'product_type',
       key: 'product_type',
-      width: 150
+      width: 120
     },
     {
       title: 'Product Code',
@@ -49,7 +49,7 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
       title: 'Description',
       dataIndex: 'description',
       key: 'description',
-      width: 560
+      width: 300
     },
     {
       title: 'Customer Notes',
@@ -58,16 +58,22 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
       width: 240
     },
     {
+      title: 'Internal Notes',
+      dataIndex: 'internal_notes',
+      key: 'internal_notes',
+      width: 240
+    },
+    {
       title: 'Quantity',
       dataIndex: 'quantity',
       key: 'quantity',
-      width: 100
+      width: 80
     },
     {
       title: 'Unit',
       dataIndex: 'unit',
       key: 'unit',
-      width: 100
+      width: 80
     }
   ];
 
@@ -147,6 +153,7 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
                 ? detail?.product_name
                 : detail?.product?.product_name,
             customer_notes: detail?.description,
+            internal_notes: detail?.internal_notes,
             quantity: parseFloat(detail?.quantity || 0),
             unit: detail?.unit?.name || null
           });

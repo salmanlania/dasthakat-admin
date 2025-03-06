@@ -30,7 +30,7 @@ export const deleteChargeOrder = createAsyncThunk(
 
 export const createChargeOrder = createAsyncThunk(
   'chargeOrder/create',
-  async (data, { rejectWithValue }) => {
+  async ({ data }, { rejectWithValue }) => {
     try {
       return await api.post('/charge-order', data);
     } catch (err) {
@@ -180,6 +180,8 @@ export const chargeOrderSlice = createSlice({
         state.chargeOrderDetails[index];
       const newDetail = {
         ...detail,
+        picklist_id: null,
+        picklist_detail_id: null,
         id: Date.now()
       };
 
@@ -328,8 +330,9 @@ export const chargeOrderSlice = createSlice({
       state.isListLoading = false;
     });
 
-    addCase(createChargeOrder.pending, (state) => {
-      state.isFormSubmitting = true;
+    addCase(createChargeOrder.pending, (state, action) => {
+      const additionalRequest = action.meta.arg?.additionalRequest || false;
+      state.isFormSubmitting = additionalRequest || true;
     });
     addCase(createChargeOrder.fulfilled, (state) => {
       state.isFormSubmitting = false;

@@ -4,16 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use App\Models\CompanyBranch;
-use Illuminate\Database\DatabaseManager;
-use App\Models\Country;
 use App\Models\ControlAccess;
-use App\Models\ParlourModule;
-use App\Models\EmailTemplate;
 use App\Models\ProductType;
 use App\Models\User;
 use App\Models\UserBranchAccess;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 class LookUpsController extends Controller
 {

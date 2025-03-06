@@ -6,17 +6,24 @@ import ChargeOrderForm from '../../components/Form/ChargeOrderForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
 import { createChargeOrder } from '../../store/features/chargeOrderSlice';
+import { setChargePoID } from '../../store/features/purchaseOrderSlice';
 
 const CreateChargeOrder = () => {
   const navigate = useNavigate();
   const handleError = useError();
   const dispatch = useDispatch();
 
-  const onChargeOrderCreate = async (data) => {
+  const onChargeOrderCreate = async (data, additionalRequest = null) => {
     try {
-      await dispatch(createChargeOrder(data)).unwrap();
+      const res = await dispatch(createChargeOrder({ data, additionalRequest })).unwrap();
+
       toast.success('Charge Order created successfully');
       navigate('/charge-order');
+
+      if (additionalRequest === 'CREATE_PO') {
+        const createdChargeID = res.data.data.charge_order_id;
+        dispatch(setChargePoID(createdChargeID));
+      }
     } catch (error) {
       handleError(error);
     }

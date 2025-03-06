@@ -18,6 +18,9 @@ import {
   setIJODeleteIDs,
   setIJOListParams
 } from '../../store/features/ijoSlice';
+import { FaRegFilePdf } from 'react-icons/fa';
+import { createPickListPrint } from '../../utils/prints/pick-list-print.js';
+import { createIJOPrint } from '../../utils/prints/ijo-print.js';
 
 const IJO = () => {
   const dispatch = useDispatch();
@@ -54,6 +57,10 @@ const IJO = () => {
     } catch (error) {
       handleError(error);
     }
+  };
+
+  const printIJO = async (id) => {
+    createIJOPrint({ document_identity: 'KHI/PL-0015' });
   };
 
   const columns = [
@@ -245,6 +252,15 @@ const IJO = () => {
       key: 'action',
       render: (_, { job_order_id }) => (
         <div className="flex items-center gap-2">
+          <Tooltip title="Print">
+            <Button
+              size="small"
+              type="primary"
+              className="bg-rose-600 hover:!bg-rose-500"
+              icon={<FaRegFilePdf size={14} />}
+              onClick={() => printIJO(job_order_id)}
+            />
+          </Tooltip>
           {permissions.edit ? (
             <Tooltip title="Edit">
               <Link to={`/ijo/edit/${job_order_id}`}>
@@ -272,7 +288,7 @@ const IJO = () => {
           ) : null}
         </div>
       ),
-      width: 70,
+      width: 110,
       fixed: 'right'
     }
   ];

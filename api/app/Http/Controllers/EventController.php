@@ -7,6 +7,9 @@ use App\Models\ChargeOrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Event;
+use App\Models\GRNDetail;
+use App\Models\PicklistReceived;
+use App\Models\ServicelistReceived;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
@@ -74,9 +77,38 @@ class EventController extends Controller
 		return response()->json($data);
 	}
 
+	// public function getChargeOrders($id, Request $request)
+	// {
+	// 	$data = ChargeOrder::with([
+	// 		'event',
+	// 		'customer',
+	// 		'salesman',
+	// 		'agent',
+	// 		'vessel',
+	// 		'flag',
+	// 		'class1',
+	// 		'class2',
+	// 		'charge_order_detail',
+	// 		'charge_order_detail.product_type',
+	// 		'charge_order_detail.product',
+	// 		'charge_order_detail.unit',
+	// 		'charge_order_detail.supplier',
+	// 	])->where('event_id', $id)->orderBy('created_at', 'desc')->get();
+
+	// 	$event = Event::with([
+	// 		'customer',
+	// 		'customer.salesman',
+	// 		'vessel',
+	// 		'vessel.flag',
+	// 		'class1',
+	// 		'class2',
+	// 	])->where('event_id', $id)->first();
+	// 	return $this->jsonResponse(['charge_orders' => $data, 'event' => $event], 200, "Event Charge Orders Data");
+	// }
+
 	public function getChargeOrders($id, Request $request)
 	{
-		$data = ChargeOrder::with([
+		$chargeOrders = ChargeOrder::with([
 			'event',
 			'customer',
 			'salesman',
@@ -90,7 +122,10 @@ class EventController extends Controller
 			'charge_order_detail.product',
 			'charge_order_detail.unit',
 			'charge_order_detail.supplier',
-		])->where('event_id', $id)->orderBy('created_at', 'desc')->get();
+		])
+			->where('event_id', $id)
+			->orderBy('created_at', 'desc')
+			->get();
 
 		$event = Event::with([
 			'customer',
@@ -99,9 +134,49 @@ class EventController extends Controller
 			'vessel.flag',
 			'class1',
 			'class2',
-		])->where('event_id', $id)->first();
-		return $this->jsonResponse(['charge_orders' => $data, 'event' => $event], 200, "Event Charge Orders Data");
+		])->find($id);
+
+		if (!$event) {
+			return $this->jsonResponse([], 404, "Event not found");
+		}
+
+		// foreach ($chargeOrders as $chargeOrder) {
+		// 	foreach ($chargeOrder->charge_order_detail as $detail) {
+		// 		if ($detail->product_type_id == 1) {
+		// 			// Sum of received servicelist quantity
+		// 			$receivedQty = ServicelistReceived::whereHas('servicelist_detail', function ($query) use ($detail) {
+		// 				$query->where('charge_order_detail_id', $detail->id);
+		// 			})->sum('quantity');
+
+		// 			// Replace original quantity with received quantity
+		// 			$detail->quantity = $receivedQty;
+		// 		} else if ($detail->product_type_id == 2) {
+		// 			// Sum of received picklist quantity
+		// 			$receivedQty = PicklistReceived::whereHas('picklist_detail', function ($query) use ($detail) {
+		// 				$query->where('charge_order_detail_id', $detail->id);
+		// 			})->sum('quantity');
+
+		// 			// Replace original quantity with received quantity
+		// 			$detail->quantity = $receivedQty;
+		// 		} elseif ($detail->product_type_id == 3 || $detail->product_type_id == 4) {
+		// 			// Sum of GRN detail quantity
+		// 			$receivedGRNQty = GRNDetail::whereHas('purchase_order_detail', function ($query) use ($detail) {
+		// 				$query->where('charge_order_detail_id', $detail->id);
+		// 			})->sum('quantity');
+
+		// 			// Replace original quantity with GRN received quantity
+		// 			$detail->quantity = $receivedGRNQty;
+		// 		}
+		// 	}
+		// }
+
+		return $this->jsonResponse([
+			'charge_orders' => $chargeOrders,
+			'event' => $event
+		], 200, "Event Charge Orders Data");
 	}
+
+
 
 	public function show($id, Request $request)
 	{

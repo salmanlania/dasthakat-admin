@@ -86,7 +86,7 @@ class VesselController extends Controller
 			'flag_id' => 'required',
 			'class1_id' => 'required',
 			'imo' => 'required',
-			'name' => ['required', Rule::unique('vessel')->ignore($id, 'vessel_id')->where('customer_id', $request['customer_id'])->where('company_id', $request['company_id'])],
+			'name' => ['required', Rule::unique('vessel')->ignore($id, 'vessel_id')->where('customer_id', $request['customer_id'])->where('company_id', $request['company_id'])->where('company_branch_id', $request['company_branch_id'])],
 		];
 
 
