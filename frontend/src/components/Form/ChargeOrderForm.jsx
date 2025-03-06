@@ -5,7 +5,7 @@ import { BiPlus } from 'react-icons/bi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoIosWarning, IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import useError from '../../hooks/useError';
 import {
   addChargeOrderDetail,
@@ -25,15 +25,19 @@ import DebounceInput from '../Input/DebounceInput';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebouncedNumberInput from '../Input/DebouncedNumberInput';
 import { DetailSummaryInfo } from './QuotationForm';
+import PurchaseOrderModal from '../Modals/PurchaseOrderModal.jsx';
+import { setChargePoID } from '../../store/features/purchaseOrderSlice.js';
 
 // eslint-disable-next-line react/prop-types
 const ChargeOrderForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
   const handleError = useError();
+  const { id } = useParams();
   const dispatch = useDispatch();
-  const { isFormSubmitting, initialFormValues, chargeOrderDetails } = useSelector(
+  const { isFormSubmitting, initialFormValues, chargeOrderDetails,  } = useSelector(
     (state) => state.chargeOrder
   );
+  const { poChargeID } = useSelector((state) => state.purchaseOrder);
 
   const [searchParams] = useSearchParams();
 
@@ -91,7 +95,11 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       total_quantity: totalQuantity
     };
 
-    onSubmit(data, additionalRequest);
+    await onSubmit(data, additionalRequest);
+
+    if (additionalRequest === 'CREATE_PO') {
+      dispatch(setChargePoID(id));
+    }
   };
 
   const onProductCodeChange = async (index, value) => {
@@ -939,27 +947,36 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         </Row>
       </div>
 
-      <div className="mt-4 flex items-center justify-end gap-2">
+      <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
         <Link to="/charge-order">
           <Button className="w-28">Cancel</Button>
         </Link>
 
         {mode === 'edit' ? (
-          <Button
-            type="primary"
-            loading={isFormSubmitting === 'CREATE_PICK_LIST'}
-            className="w-28 bg-slate-600 hover:!bg-slate-500"
-            onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PICK_LIST'))}>
-            Pick List
-          </Button>
-        ) : null}
+          <>
+            <Button
+              type="primary"
+              loading={isFormSubmitting === 'CREATE_PICK_LIST'}
+              className="w-28 bg-slate-600 hover:!bg-slate-500"
+              onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PICK_LIST'))}>
+              Pick List
+            </Button>
+            <Button
+              type="primary"
+              loading={isFormSubmitting === 'CREATE_SERVICE_LIST'}
+              className="w-28 bg-slate-600 hover:!bg-slate-500"
+              onClick={() => (isFormSubmitting ? null : onFinish('CREATE_SERVICE_LIST'))}>
+              Service List
+            </Button>
 
-        <Button
-          type="primary"
-          loading={isFormSubmitting === 'CREATE_PO'}
-          onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PO'))}>
-          Save & Create PO
-        </Button>
+            <Button
+              type="primary"
+              loading={isFormSubmitting === 'CREATE_PO' && !poChargeID}
+              onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PO'))}>
+              Save & Create PO
+            </Button>
+          </>
+        ) : null}
 
         <Button
           type="primary"

@@ -9,7 +9,7 @@ const fillEmptyRows = (rows, rowsPerPage) => {
 
   // Add empty rows to the table
   for (let i = 0; i < emptyRowsNeeded; i++) {
-    rows.push(['', '', '', '', '',]);
+    rows.push(['', '', '', '', '']);
   }
 
   return rows;
@@ -21,6 +21,8 @@ export const createIJOPrint = (data) => {
   const sideMargin = 1;
   const pageSize = doc.internal.pageSize;
   const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
+
+  console.log(data);
 
   // Header
   doc.setFontSize(20);
@@ -63,7 +65,7 @@ export const createIJOPrint = (data) => {
         }
       },
       {
-        content: '593530',
+        content: data?.event?.event_code || '',
         styles: {
           textColor: '#d51902', // Red Color
           fontSize: 11,
@@ -77,7 +79,7 @@ export const createIJOPrint = (data) => {
         }
       },
       {
-        content: 'Hussain Mansoor',
+        content: data?.salesman?.name || '',
         styles: {
           fontSize: 11,
           fillColor: 'ebf1de' // gray color
@@ -145,7 +147,7 @@ export const createIJOPrint = (data) => {
         }
       },
       {
-        content: 'SFL THELON',
+        content: data?.vessel?.name || '',
         styles: {
           textColor: '#d51902', // Red Color
           fontSize: 9
@@ -158,7 +160,7 @@ export const createIJOPrint = (data) => {
         }
       },
       {
-        content: 'PROMAR AGENCY LTD',
+        content: data?.agent?.name || '',
         styles: {
           textColor: '#d51902', // Red Color
           fontSize: 9
@@ -173,7 +175,7 @@ export const createIJOPrint = (data) => {
         }
       },
       {
-        content: '9593000',
+        content: data?.vessel?.imo || '',
         styles: {
           fontSize: 9
         }
@@ -199,7 +201,7 @@ export const createIJOPrint = (data) => {
         }
       },
       {
-        content: 'MARSHAL ISLANDS',
+        content: data?.flag?.name || '',
         styles: {
           fontSize: 9
         }
@@ -225,7 +227,7 @@ export const createIJOPrint = (data) => {
         }
       },
       {
-        content: 'ABS',
+        content: `${data?.class1?.name || ''}, ${data?.class2?.name || ''}`,
         styles: {
           fontSize: 9
         }
@@ -305,7 +307,7 @@ export const createIJOPrint = (data) => {
     [
       {
         content: 'Job Scope',
-        colSpan: 5,
+        colSpan: 4,
         styles: {
           textColor: '#ffffff', // white color
           fontSize: 8,
@@ -322,12 +324,6 @@ export const createIJOPrint = (data) => {
       },
       {
         content: 'Customer PO #',
-        styles: {
-          fillColor: 'ebf1de' // gray color
-        }
-      },
-      {
-        content: 'Singapore SO #',
         styles: {
           fillColor: 'ebf1de' // gray color
         }
@@ -359,10 +355,10 @@ export const createIJOPrint = (data) => {
         }
       },
       {
-        content: ''
-      },
-      {
-        content: 'Annual Inspection of Portable Fire Extinguisher'
+        content: 'Annual Inspection of Portable Fire Extinguisher',
+        styles: {
+          halign: 'left'
+        }
       },
       {
         content: '10',
@@ -385,10 +381,10 @@ export const createIJOPrint = (data) => {
         }
       },
       {
-        content: ''
-      },
-      {
-        content: 'Annual Inspection of Portable Fire Extinguisher'
+        content: 'Annual Inspection of Portable Fire Extinguisher',
+        styles: {
+          halign: 'left'
+        }
       },
       {
         content: '10',
@@ -411,10 +407,10 @@ export const createIJOPrint = (data) => {
         }
       },
       {
-        content: ''
-      },
-      {
-        content: 'Annual Inspection of Portable Fire Extinguisher'
+        content: 'Annual Inspection of Portable Fire Extinguisher',
+        styles: {
+          halign: 'left'
+        }
       },
       {
         content: '10',
@@ -424,7 +420,7 @@ export const createIJOPrint = (data) => {
       }
     ]
   ];
-  const filledRows = fillEmptyRows(table3Row, 15)
+  const filledRows = fillEmptyRows(table3Row, 15);
   doc.autoTable({
     startY: doc.previousAutoTable.finalY,
     body: filledRows,
@@ -448,9 +444,9 @@ export const createIJOPrint = (data) => {
     didParseCell: function (data) {
       const cellIndex = data.column.index;
       if (cellIndex === 0) data.cell.styles.cellWidth = 24; // First column width
-      if (cellIndex === 1 || cellIndex === 2) data.cell.styles.cellWidth = 30; // Second and Third column width
-      if (cellIndex === 3) data.cell.styles.cellWidth = 108; // Fourth column width
-      if (cellIndex === 4) data.cell.styles.cellWidth = 16; // Fifth column width
+      if (cellIndex === 1) data.cell.styles.cellWidth = 30; // Second column width
+      if (cellIndex === 2) data.cell.styles.cellWidth = 138; // Third column width
+      if (cellIndex === 3) data.cell.styles.cellWidth = 16; // Fourth column width
     }
   });
 
@@ -461,14 +457,14 @@ export const createIJOPrint = (data) => {
         content: 'Certificate Number',
         styles: {
           fillColor: '#244062', // Blue Color
-          textColor: "#ffffff", // White Color
+          textColor: '#ffffff' // White Color
         }
       },
       {
         content: 'Type',
         styles: {
           fillColor: '#244062', // Blue Color
-          textColor: "#ffffff", // White Color
+          textColor: '#ffffff' // White Color
         }
       },
       {
@@ -476,7 +472,7 @@ export const createIJOPrint = (data) => {
         colSpan: 2,
         styles: {
           fillColor: '#244062', // Blue Color
-          textColor: "#ffffff", // White Color
+          textColor: '#ffffff' // White Color
         }
       }
     ],
@@ -528,15 +524,15 @@ export const createIJOPrint = (data) => {
     ],
     [
       {
-        content: "General Notes",
+        content: 'General Notes',
         styles: {
           fillColor: 'ebf1de', // gray color
           textColor: '#244062' // Blue Color
         }
       },
       {
-        content: "",
-        colSpan:  3
+        content: '',
+        colSpan: 3
       }
     ]
   ];
@@ -562,9 +558,9 @@ export const createIJOPrint = (data) => {
     },
     didParseCell: function (data) {
       const cellIndex = data.column.index;
-      if (cellIndex === 0) data.cell.styles.cellWidth = 54;  // First column width
-      if (cellIndex === 1 ) data.cell.styles.cellWidth = 30; // Second column width
-      if (cellIndex === 2 ) data.cell.styles.cellWidth = 62; // Third column width
+      if (cellIndex === 0) data.cell.styles.cellWidth = 54; // First column width
+      if (cellIndex === 1) data.cell.styles.cellWidth = 30; // Second column width
+      if (cellIndex === 2) data.cell.styles.cellWidth = 62; // Third column width
       if (cellIndex === 3) data.cell.styles.cellWidth = 62; // Fourth column width
     }
   });

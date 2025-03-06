@@ -43,6 +43,15 @@ export const getIJO = createAsyncThunk('job-order/get', async (id, { rejectWithV
   }
 });
 
+export const getIJOForPrint = createAsyncThunk('job-order/getForPrint', async (id, { rejectWithValue }) => {
+  try {
+    const res = await api.get(`/job-order/${id}`);
+    return res.data.data;
+  } catch (err) {
+    throw rejectWithValue(err);
+  }
+});
+
 export const getEventChargeOrders = createAsyncThunk(
   'event-charge-orders/get',
   async (id, { rejectWithValue }) => {

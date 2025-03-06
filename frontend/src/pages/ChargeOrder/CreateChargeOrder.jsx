@@ -15,15 +15,9 @@ const CreateChargeOrder = () => {
 
   const onChargeOrderCreate = async (data, additionalRequest = null) => {
     try {
-      const res = await dispatch(createChargeOrder({ data, additionalRequest })).unwrap();
-
+      await dispatch(createChargeOrder({ data, additionalRequest })).unwrap();
       toast.success('Charge Order created successfully');
       navigate('/charge-order');
-
-      if (additionalRequest === 'CREATE_PO') {
-        const createdChargeID = res.data.data.charge_order_id;
-        dispatch(setChargePoID(createdChargeID));
-      }
     } catch (error) {
       handleError(error);
     }

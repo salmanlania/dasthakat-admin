@@ -10,6 +10,7 @@ import useError from '../../hooks/useError';
 import {
   createChargeOrderPickList,
   createChargeOrderPO,
+  createChargeOrderServiceList,
   getChargeOrder,
   updateChargeOrder
 } from '../../store/features/chargeOrderSlice';
@@ -34,11 +35,18 @@ const EditChargeOrder = () => {
         ).unwrap();
       }
 
-      toast.success('Charge Order updated successfully');
-      navigate('/charge-order');
+      if (additionalRequest === 'CREATE_SERVICE_LIST') {
+        await dispatch(
+          createChargeOrderServiceList({
+            charge_order_id: id
+          })
+        ).unwrap();
+      }
 
-      if (additionalRequest === 'CREATE_PO') {
-        dispatch(setChargePoID(id));
+      toast.success('Charge Order updated successfully');
+
+      if (additionalRequest !== 'CREATE_PO') {
+        navigate('/charge-order');
       }
     } catch (error) {
       handleError(error);

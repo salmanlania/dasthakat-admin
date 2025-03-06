@@ -13,7 +13,7 @@ import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
 import {
   bulkDeleteIJO,
-  deleteIJO,
+  deleteIJO, getIJOForPrint,
   getIJOList,
   setIJODeleteIDs,
   setIJOListParams
@@ -21,6 +21,8 @@ import {
 import { FaRegFilePdf } from 'react-icons/fa';
 import { createPickListPrint } from '../../utils/prints/pick-list-print.js';
 import { createIJOPrint } from '../../utils/prints/ijo-print.js';
+import { getPurchaseOrderForPrint } from '../../store/features/purchaseOrderSlice.js';
+import { createPurchaseOrderPrint } from '../../utils/prints/purchase-order-print.js';
 
 const IJO = () => {
   const dispatch = useDispatch();
@@ -60,7 +62,15 @@ const IJO = () => {
   };
 
   const printIJO = async (id) => {
-    createIJOPrint({ document_identity: 'KHI/PL-0015' });
+    const loadingToast = toast.loading('Loading print...');
+
+    try {
+      const data = await dispatch(getIJOForPrint(id)).unwrap();
+      toast.dismiss(loadingToast);
+      createIJOPrint(data);
+    } catch (error) {
+      handleError(error);
+    }
   };
 
   const columns = [

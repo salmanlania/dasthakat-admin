@@ -75,21 +75,6 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   });
 };
 
-const addFooter = (doc, pageWidth, pageHeight) => {
-  const currentPage = doc.internal.getCurrentPageInfo().pageNumber;
-  const totalPages = doc.internal.getNumberOfPages();
-
-  doc.setFontSize(10);
-  doc.setFont('times', 'bolditalic');
-  doc.text(
-    currentPage === totalPages ? `Last page` : `Continue to page ${currentPage + 1}`,
-    pageWidth / 2,
-    pageHeight + 6,
-    {
-      align: 'center'
-    }
-  );
-};
 
 export const createPickListPrint = (data) => {
   const doc = new jsPDF();
@@ -128,11 +113,10 @@ export const createPickListPrint = (data) => {
         })
       : [];
 
-  const filledRows = fillEmptyRows(table2Rows, 16);
   doc.autoTable({
     startY: 86,
     head: [table2Column],
-    body: filledRows,
+    body: table2Rows,
     margin: { left: 4, top: 86, bottom: 22 },
     headStyles: {
       halign: 'center',
@@ -185,10 +169,7 @@ export const createPickListPrint = (data) => {
     doc.setPage(i);
     const pageSize = doc.internal.pageSize;
     const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
-    const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
-
     addHeader(doc, data, pageWidth, sideMargin);
-    addFooter(doc, pageWidth, pageHeight - 25);
   }
 
   doc.setProperties({
