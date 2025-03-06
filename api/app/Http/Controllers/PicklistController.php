@@ -173,7 +173,6 @@ class PicklistController extends Controller
 		$response = [
 			...$picklist->toArray(), // Convert picklist model to an array
 			"items" => $items,
-			"pulled_by" => $latestReceived->pulled_by['user_name'] ?? null
 		];
 	
 		return $this->jsonResponse($response, 200, "Picklist Details");
