@@ -129,11 +129,11 @@ class PicklistController extends Controller
 			"picklist_detail",
 			"picklist_detail.product"
 		])->where('picklist_id', $id)->first();
-	
+
 		if (!$picklist) {
 			return $this->jsonResponse(null, 404, "Picklist not found");
 		}
-	
+
 		// Fetch received picklist history
 		$receivedData = PicklistReceived::with([
 			"picklist_received_detail",
@@ -141,43 +141,43 @@ class PicklistController extends Controller
 			"picklist_received_detail.product",
 			"picklist_received_detail.warehouse"
 		])->where('picklist_id', $id)->get();
-	
+
 		// Prepare response data
 		$items = [];
-	
+
 		foreach ($picklist->picklist_detail as $detail) {
 			$picklistDetailId = $detail->picklist_detail_id;
-	
+
 			// Get received details for this specific picklist detail item
 			$receivedDetails = $receivedData->flatMap(function ($received) {
 				return $received->picklist_received_detail;
 			})->where('picklist_detail_id', $picklistDetailId);
-	
+
 			// Sum received quantity
 			$totalReceivedQty = $receivedDetails->sum('quantity');
-	
-			// Get the latest received record based on created_at timestamp
-			$latestReceived = $receivedDetails->sortByDesc('created_at')->first();
-	
+
+			$warehouseNames = $receivedDetails->pluck('warehouse.name')->filter()->unique()->implode(', ');
+			$remarks = $receivedDetails->pluck('remarks')->filter()->unique()->implode(', ');
+
 			$items[] = [
 				"picklist_detail_id" => $picklistDetailId,
 				"product" => $detail->product ?? null,
 				"original_quantity" => $detail->quantity,
 				"total_received_quantity" => $totalReceivedQty,
-				"remarks" => $latestReceived->remarks ?? null,
-				"warehouse" => $latestReceived->warehouse ?? null,
+				"remarks" => $remarks ?: null, // Show null if empty
+				"warehouse" => $warehouseNames ?: null, // Show null if empty
 			];
 		}
-	
+
 		// Final response structure
 		$response = [
 			...$picklist->toArray(), // Convert picklist model to an array
 			"items" => $items,
 		];
-	
+
 		return $this->jsonResponse($response, 200, "Picklist Details");
 	}
-	
+
 
 	private function validateRequest(array $data): ?array
 	{

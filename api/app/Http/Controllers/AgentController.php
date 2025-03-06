@@ -111,6 +111,7 @@ class AgentController extends Controller
 			'state' => $request->state ?? "",
 			'zip_code' => $request->zip_code ?? "",
 			'phone' => $request->phone ?? "",
+			'office_no' => $request->office_no ?? "",
 			'fax' => $request->fax ?? "",
 			'email' => $request->email ?? "",
 			'created_at' => date('Y-m-d H:i:s'),
@@ -144,6 +145,7 @@ class AgentController extends Controller
 		$data->state  = $request->state ?? "";
 		$data->zip_code  = $request->zip_code ?? "";
 		$data->phone  = $request->phone ?? "";
+		$data->office_no  = $request->office_no ?? "";
 		$data->fax  = $request->fax ?? "";
 		$data->email  = $request->email ?? "";
 		$data->updated_at = date('Y-m-d H:i:s');
