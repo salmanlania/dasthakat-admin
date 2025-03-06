@@ -2,7 +2,7 @@ import { Button, Input, Select, Table, Tag, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect } from 'react';
 import { FaRegFilePdf } from 'react-icons/fa';
-import { LuHand, LuListChecks } from 'react-icons/lu';
+import { LuListChecks } from 'react-icons/lu';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
@@ -17,8 +17,6 @@ import {
 } from '../../store/features/pickListSlice';
 import { createPickListPrint } from '../../utils/prints/pick-list-print';
 import toast from 'react-hot-toast';
-import { getQuotationForPrint } from '../../store/features/quotationSlice.js';
-import { createQuotationPrint } from '../../utils/prints/quotation-print.js';
 
 const pickListStatus = {
   1: 'Complete',
