@@ -96,6 +96,7 @@ const CreateIJO = lazy(() => import('./pages/IJO/CreateIJO'));
 const EditIJO = lazy(() => import('./pages/IJO/EditIJO'));
 
 const PickList = lazy(() => import('./pages/PickList'));
+const ServiceList = lazy(() => import('./pages/ServiceList'));
 
 function Routes() {
   const router = createBrowserRouter(
@@ -623,6 +624,14 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <PickList />
+              </Suspense>
+            )
+          },
+          {
+            path: '/service-list',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <ServiceList />
               </Suspense>
             )
           }

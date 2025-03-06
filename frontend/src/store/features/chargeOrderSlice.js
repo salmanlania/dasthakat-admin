@@ -96,6 +96,17 @@ export const createChargeOrderPickList = createAsyncThunk(
   }
 );
 
+export const createChargeOrderServiceList = createAsyncThunk(
+  'chargeOrder/ServiceList',
+  async (data, { rejectWithValue }) => {
+    try {
+      await api.post('/servicelist', data);
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const bulkDeleteChargeOrder = createAsyncThunk(
   'chargeOrder/bulkDelete',
   async (ids, { rejectWithValue }) => {
@@ -475,6 +486,17 @@ export const chargeOrderSlice = createSlice({
       state.initialFormValues = null;
     });
     addCase(createChargeOrderPickList.rejected, (state) => {
+      state.isFormSubmitting = false;
+    });
+
+    addCase(createChargeOrderServiceList.pending, (state) => {
+      state.isFormSubmitting = 'CREATE_SERVICE_LIST';
+    });
+    addCase(createChargeOrderServiceList.fulfilled, (state) => {
+      state.isFormSubmitting = false;
+      state.initialFormValues = null;
+    });
+    addCase(createChargeOrderServiceList.rejected, (state) => {
       state.isFormSubmitting = false;
     });
 
