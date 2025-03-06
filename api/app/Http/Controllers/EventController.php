@@ -140,35 +140,35 @@ class EventController extends Controller
 			return $this->jsonResponse([], 404, "Event not found");
 		}
 
-		foreach ($chargeOrders as $chargeOrder) {
-			foreach ($chargeOrder->charge_order_detail as $detail) {
-				if ($detail->product_type_id == 1) {
-					// Sum of received servicelist qty
-					$receivedQty = ServicelistReceived::whereHas('servicelist_detail', function ($query) use ($detail) {
-						$query->where('charge_order_detail_id', $detail->id);
-					})->sum('qty');
+		// foreach ($chargeOrders as $chargeOrder) {
+		// 	foreach ($chargeOrder->charge_order_detail as $detail) {
+		// 		if ($detail->product_type_id == 1) {
+		// 			// Sum of received servicelist quantity
+		// 			$receivedQty = ServicelistReceived::whereHas('servicelist_detail', function ($query) use ($detail) {
+		// 				$query->where('charge_order_detail_id', $detail->id);
+		// 			})->sum('quantity');
 
-					// Replace original qty with received qty
-					$detail->qty = $receivedQty;
-				} else if ($detail->product_type_id == 2) {
-					// Sum of received picklist qty
-					$receivedQty = PicklistReceived::whereHas('picklist_detail', function ($query) use ($detail) {
-						$query->where('charge_order_detail_id', $detail->id);
-					})->sum('qty');
+		// 			// Replace original quantity with received quantity
+		// 			$detail->quantity = $receivedQty;
+		// 		} else if ($detail->product_type_id == 2) {
+		// 			// Sum of received picklist quantity
+		// 			$receivedQty = PicklistReceived::whereHas('picklist_detail', function ($query) use ($detail) {
+		// 				$query->where('charge_order_detail_id', $detail->id);
+		// 			})->sum('quantity');
 
-					// Replace original qty with received qty
-					$detail->qty = $receivedQty;
-				} elseif ($detail->product_type_id == 3 || $detail->product_type_id == 4) {
-					// Sum of GRN detail qty
-					$receivedGRNQty = GRNDetail::whereHas('purchase_order_detail', function ($query) use ($detail) {
-						$query->where('charge_order_detail_id', $detail->id);
-					})->sum('qty');
+		// 			// Replace original quantity with received quantity
+		// 			$detail->quantity = $receivedQty;
+		// 		} elseif ($detail->product_type_id == 3 || $detail->product_type_id == 4) {
+		// 			// Sum of GRN detail quantity
+		// 			$receivedGRNQty = GRNDetail::whereHas('purchase_order_detail', function ($query) use ($detail) {
+		// 				$query->where('charge_order_detail_id', $detail->id);
+		// 			})->sum('quantity');
 
-					// Replace original qty with GRN received qty
-					$detail->qty = $receivedGRNQty;
-				}
-			}
-		}
+		// 			// Replace original quantity with GRN received quantity
+		// 			$detail->quantity = $receivedGRNQty;
+		// 		}
+		// 	}
+		// }
 
 		return $this->jsonResponse([
 			'charge_orders' => $chargeOrders,

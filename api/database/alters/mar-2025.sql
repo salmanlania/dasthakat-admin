@@ -90,3 +90,26 @@ CREATE TABLE servicelist_received_detail (
 ALTER TABLE charge_order_detail 
 ADD COLUMN servicelist_id CHAR(36) AFTER purchase_order_detail_id,
 ADD COLUMN servicelist_detail_id CHAR(36) AFTER servicelist_id;
+
+
+ALTER TABLE quotation_detail 
+ADD COLUMN product_description VARCHAR(255) AFTER product_name;
+
+ALTER TABLE charge_order_detail 
+ADD COLUMN product_description VARCHAR(255) AFTER product_name;
+
+ALTER TABLE purchase_order_detail 
+ADD COLUMN product_description VARCHAR(255) AFTER product_name;
+
+ALTER TABLE good_received_note_detail 
+ADD COLUMN product_description VARCHAR(255) AFTER product_name;
+
+ALTER TABLE picklist_detail 
+ADD COLUMN product_description VARCHAR(255) AFTER product_id;
+
+ALTER TABLE job_order_detail 
+ADD COLUMN product_description VARCHAR(255) AFTER product_name;
+
+ALTER TABLE purchase_invoice_detail 
+ADD COLUMN product_name VARCHAR(255) AFTER product_id,
+ADD COLUMN product_description VARCHAR(255) AFTER product_name;

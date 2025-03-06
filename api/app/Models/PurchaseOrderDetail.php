@@ -21,6 +21,7 @@ class PurchaseOrderDetail extends Model
         "product_id",
         "product_type_id",
         "product_name",
+        "product_description",
         "description",
         "vpart",
         "unit_id",

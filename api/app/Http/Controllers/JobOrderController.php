@@ -179,6 +179,7 @@ class JobOrderController extends Controller
 					'charge_order_detail_id' => $value['charge_order_detail_id'] ?? "",
 					'product_id' => $value['product_id'] ?? "",
 					'product_name' => $value['product_name'] ?? "",
+					'product_description' => $value['product_description'] ?? "",
 					'internal_notes' => $value['internal_notes'] ?? "",
 					'description' => $value['description'] ?? "",
 					'product_type_id' => $value['product_type_id'] ?? "",

@@ -17,6 +17,7 @@ class PicklistDetail extends Model
         "sort_order",
         "charge_order_detail_id",
         "product_id",
+        "product_description",
         "quantity",
         "created_by",
         "updated_by"

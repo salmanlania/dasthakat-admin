@@ -21,6 +21,7 @@ class GRNDetail extends Model
         "product_type_id",
         "product_id",
         "product_name",
+        "product_description",
         "description",
         "warehouse_id",
         "unit_id",

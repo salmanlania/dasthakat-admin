@@ -20,6 +20,7 @@ class ChargeOrderDetail extends Model
         "product_code",
         "product_id",
         "product_name",
+        "product_description",
         "product_type_id",
         "warehouse_id",
         "description",
