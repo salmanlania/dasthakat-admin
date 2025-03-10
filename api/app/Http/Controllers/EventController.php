@@ -124,9 +124,6 @@ class EventController extends Controller
 			'charge_order_detail.supplier',
 		])
 			->where('event_id', $id)
-			->whereHas('charge_order_detail', function ($query) {
-				$query->whereNull('job_order_detail_id');
-			})
 			->orderBy('created_at', 'desc')
 			->get();
 
