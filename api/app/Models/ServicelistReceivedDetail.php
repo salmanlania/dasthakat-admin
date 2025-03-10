@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Aws\Api\Service;
 use Illuminate\Database\Eloquent\Model;
 
 class ServicelistReceivedDetail extends Model
@@ -24,7 +25,7 @@ class ServicelistReceivedDetail extends Model
     ];
     public function servicelist_detail()
     {
-        return $this->hasOne(PicklistDetail::class, 'servicelist_detail_id', 'servicelist_detail_id');
+        return $this->hasOne(ServicelistDetail::class, 'servicelist_detail_id', 'servicelist_detail_id');
     }
     public function product()
     {

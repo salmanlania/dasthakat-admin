@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { GMS_ADDRESS } from '../../constants';
 import useError from '../../hooks/useError';
 import {
-  createChargeOrderPO,
+  createChargeOrderPO, getChargeOrder,
   getChargeOrderVendorWise
 } from '../../store/features/chargeOrderSlice';
 import { setChargePoID } from '../../store/features/purchaseOrderSlice';
@@ -18,6 +18,8 @@ const PurchaseOrderModal = () => {
   const handleError = useError();
 
   const { poChargeID } = useSelector((state) => state.purchaseOrder);
+  const { initialFormValues } = useSelector((state) => state.chargeOrder);
+
 
   const [details, setDetails] = useState([]);
   const [isLoading, setLoading] = useState(false);
@@ -62,6 +64,11 @@ const PurchaseOrderModal = () => {
       toast.success('Purchase Order created successfully');
       dispatch(setChargePoID(null));
       setDetails([]);
+
+      // if initialFormValues is available, that means we are in edit charge order screen, so we need to fetch the updated charge order
+      if (initialFormValues) {
+        dispatch(getChargeOrder(poChargeID)).unwrap()
+      }
     } catch (error) {
       handleError(error);
     } finally {

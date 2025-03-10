@@ -15,16 +15,7 @@ class ControlAccessSeeder extends Seeder
     public function run()
     {
         $data = [
-            ['module_name' => 'Administrator', 'form_name' => 'User Permission', 'route' => 'user_permission', 'permission_id' => 'list', 'permission_name' => 'List', 'sort_order' => 1.101],
-            ['module_name' => 'Administrator', 'form_name' => 'User Permission', 'route' => 'user_permission', 'permission_id' => 'add', 'permission_name' => 'Add', 'sort_order' => 1.102],
-            ['module_name' => 'Administrator', 'form_name' => 'User Permission', 'route' => 'user_permission', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
-            ['module_name' => 'Administrator', 'form_name' => 'User Permission', 'route' => 'user_permission', 'permission_id' => 'delete', 'permission_name' => 'Delete', 'sort_order' => 1.104],
-
-            ['module_name' => 'Administrator', 'form_name' => 'User', 'route' => 'user', 'permission_id' => 'list', 'permission_name' => 'List', 'sort_order' => 1.101],
-            ['module_name' => 'Administrator', 'form_name' => 'User', 'route' => 'user', 'permission_id' => 'add', 'permission_name' => 'Add', 'sort_order' => 1.102],
-            ['module_name' => 'Administrator', 'form_name' => 'User', 'route' => 'user', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
-            ['module_name' => 'Administrator', 'form_name' => 'User', 'route' => 'user', 'permission_id' => 'delete', 'permission_name' => 'Delete', 'sort_order' => 1.104],
-
+          
             ['module_name' => 'General Group', 'form_name' => 'Company', 'route' => 'company', 'permission_id' => 'list', 'permission_name' => 'List', 'sort_order' => 1.101],
             ['module_name' => 'General Group', 'form_name' => 'Company', 'route' => 'company', 'permission_id' => 'add', 'permission_name' => 'Add', 'sort_order' => 1.102],
             ['module_name' => 'General Group', 'form_name' => 'Company', 'route' => 'company', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
@@ -90,6 +81,16 @@ class ControlAccessSeeder extends Seeder
             ['module_name' => 'General Group', 'form_name' => 'Vessel', 'route' => 'vessel', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
             ['module_name' => 'General Group', 'form_name' => 'Vessel', 'route' => 'vessel', 'permission_id' => 'delete', 'permission_name' => 'Delete', 'sort_order' => 1.104],
 
+            ['module_name' => 'User Management', 'form_name' => 'User Permission', 'route' => 'user_permission', 'permission_id' => 'list', 'permission_name' => 'List', 'sort_order' => 1.101],
+            ['module_name' => 'User Management', 'form_name' => 'User Permission', 'route' => 'user_permission', 'permission_id' => 'add', 'permission_name' => 'Add', 'sort_order' => 1.102],
+            ['module_name' => 'User Management', 'form_name' => 'User Permission', 'route' => 'user_permission', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
+            ['module_name' => 'User Management', 'form_name' => 'User Permission', 'route' => 'user_permission', 'permission_id' => 'delete', 'permission_name' => 'Delete', 'sort_order' => 1.104],
+
+            ['module_name' => 'User Management', 'form_name' => 'User', 'route' => 'user', 'permission_id' => 'list', 'permission_name' => 'List', 'sort_order' => 1.101],
+            ['module_name' => 'User Management', 'form_name' => 'User', 'route' => 'user', 'permission_id' => 'add', 'permission_name' => 'Add', 'sort_order' => 1.102],
+            ['module_name' => 'User Management', 'form_name' => 'User', 'route' => 'user', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
+            ['module_name' => 'User Management', 'form_name' => 'User', 'route' => 'user', 'permission_id' => 'delete', 'permission_name' => 'Delete', 'sort_order' => 1.104],
+
             ['module_name' => 'Inventory Setup', 'form_name' => 'Category', 'route' => 'category', 'permission_id' => 'list', 'permission_name' => 'List', 'sort_order' => 1.101],
             ['module_name' => 'Inventory Setup', 'form_name' => 'Category', 'route' => 'category', 'permission_id' => 'add', 'permission_name' => 'Add', 'sort_order' => 1.102],
             ['module_name' => 'Inventory Setup', 'form_name' => 'Category', 'route' => 'category', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
@@ -145,20 +146,28 @@ class ControlAccessSeeder extends Seeder
             ['module_name' => 'Sale Management', 'form_name' => 'Internal Job Order', 'route' => 'job_order', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
             ['module_name' => 'Sale Management', 'form_name' => 'Internal Job Order', 'route' => 'job_order', 'permission_id' => 'delete', 'permission_name' => 'Delete', 'sort_order' => 1.104],
 
-            ['module_name' => 'Purchase Management', 'form_name' => 'Purchase Order', 'route' => 'purchase_order', 'permission_id' => 'list', 'permission_name' => 'List', 'sort_order' => 1.101],
-            ['module_name' => 'Purchase Management', 'form_name' => 'Purchase Order', 'route' => 'purchase_order', 'permission_id' => 'add', 'permission_name' => 'Add', 'sort_order' => 1.102],
-            ['module_name' => 'Purchase Management', 'form_name' => 'Purchase Order', 'route' => 'purchase_order', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
-            ['module_name' => 'Purchase Management', 'form_name' => 'Purchase Order', 'route' => 'purchase_order', 'permission_id' => 'delete', 'permission_name' => 'Delete', 'sort_order' => 1.104],
+            ['module_name' => 'Sale Management', 'form_name' => 'Purchase Order', 'route' => 'purchase_order', 'permission_id' => 'list', 'permission_name' => 'List', 'sort_order' => 1.101],
+            ['module_name' => 'Sale Management', 'form_name' => 'Purchase Order', 'route' => 'purchase_order', 'permission_id' => 'add', 'permission_name' => 'Add', 'sort_order' => 1.102],
+            ['module_name' => 'Sale Management', 'form_name' => 'Purchase Order', 'route' => 'purchase_order', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
+            ['module_name' => 'Sale Management', 'form_name' => 'Purchase Order', 'route' => 'purchase_order', 'permission_id' => 'delete', 'permission_name' => 'Delete', 'sort_order' => 1.104],
 
-            ['module_name' => 'Purchase Management', 'form_name' => 'Goods Received Note', 'route' => 'good_received_note', 'permission_id' => 'list', 'permission_name' => 'List', 'sort_order' => 1.101],
-            ['module_name' => 'Purchase Management', 'form_name' => 'Goods Received Note', 'route' => 'good_received_note', 'permission_id' => 'add', 'permission_name' => 'Add', 'sort_order' => 1.102],
-            ['module_name' => 'Purchase Management', 'form_name' => 'Goods Received Note', 'route' => 'good_received_note', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
-            ['module_name' => 'Purchase Management', 'form_name' => 'Goods Received Note', 'route' => 'good_received_note', 'permission_id' => 'delete', 'permission_name' => 'Delete', 'sort_order' => 1.104],
+            ['module_name' => 'Warehousing', 'form_name' => 'Picklist', 'route' => 'picklist', 'permission_id' => 'list', 'permission_name' => 'List', 'sort_order' => 1.101],
+            ['module_name' => 'Warehousing', 'form_name' => 'Picklist', 'route' => 'picklist', 'permission_id' => 'add', 'permission_name' => 'Add', 'sort_order' => 1.102],
+            ['module_name' => 'Warehousing', 'form_name' => 'Picklist', 'route' => 'picklist', 'permission_id' => 'receive', 'permission_name' => 'Receive', 'sort_order' => 1.103],
 
-            ['module_name' => 'Purchase Management', 'form_name' => 'Purchase Invoice', 'route' => 'purchase_invoice', 'permission_id' => 'list', 'permission_name' => 'List', 'sort_order' => 1.101],
-            ['module_name' => 'Purchase Management', 'form_name' => 'Purchase Invoice', 'route' => 'purchase_invoice', 'permission_id' => 'add', 'permission_name' => 'Add', 'sort_order' => 1.102],
-            ['module_name' => 'Purchase Management', 'form_name' => 'Purchase Invoice', 'route' => 'purchase_invoice', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
-            ['module_name' => 'Purchase Management', 'form_name' => 'Purchase Invoice', 'route' => 'purchase_invoice', 'permission_id' => 'delete', 'permission_name' => 'Delete', 'sort_order' => 1.104],
+            ['module_name' => 'Warehousing', 'form_name' => 'Servicelist', 'route' => 'servicelist', 'permission_id' => 'list', 'permission_name' => 'List', 'sort_order' => 1.101],
+            ['module_name' => 'Warehousing', 'form_name' => 'Servicelist', 'route' => 'servicelist', 'permission_id' => 'add', 'permission_name' => 'Add', 'sort_order' => 1.102],
+            ['module_name' => 'Warehousing', 'form_name' => 'Servicelist', 'route' => 'servicelist', 'permission_id' => 'receive', 'permission_name' => 'Receive', 'sort_order' => 1.103],
+
+            ['module_name' => 'Warehousing', 'form_name' => 'Goods Received Note', 'route' => 'good_received_note', 'permission_id' => 'list', 'permission_name' => 'List', 'sort_order' => 1.101],
+            ['module_name' => 'Warehousing', 'form_name' => 'Goods Received Note', 'route' => 'good_received_note', 'permission_id' => 'add', 'permission_name' => 'Add', 'sort_order' => 1.102],
+            ['module_name' => 'Warehousing', 'form_name' => 'Goods Received Note', 'route' => 'good_received_note', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
+            ['module_name' => 'Warehousing', 'form_name' => 'Goods Received Note', 'route' => 'good_received_note', 'permission_id' => 'delete', 'permission_name' => 'Delete', 'sort_order' => 1.104],
+
+            ['module_name' => 'Accounting', 'form_name' => 'Purchase Invoice', 'route' => 'purchase_invoice', 'permission_id' => 'list', 'permission_name' => 'List', 'sort_order' => 1.101],
+            ['module_name' => 'Accounting', 'form_name' => 'Purchase Invoice', 'route' => 'purchase_invoice', 'permission_id' => 'add', 'permission_name' => 'Add', 'sort_order' => 1.102],
+            ['module_name' => 'Accounting', 'form_name' => 'Purchase Invoice', 'route' => 'purchase_invoice', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
+            ['module_name' => 'Accounting', 'form_name' => 'Purchase Invoice', 'route' => 'purchase_invoice', 'permission_id' => 'delete', 'permission_name' => 'Delete', 'sort_order' => 1.104],
 
         ];
         ControlAccess::insert($data);

@@ -47,10 +47,10 @@ class Product extends Model
     //     return $this->hasMany(ProductImage::class, 'product_id')->orderBy('sort_order');
     // }
 
-    // public function variants()
-    // {
-    //     return $this->hasMany(ProductVariants::class, 'product_id')->orderBy('sort_order');
-    // }
+    public function sub_category()
+    {
+        return $this->hasOne(SubCategory::class, 'sub_category_id')->select('*');
+    }
 
 
     /**

@@ -190,9 +190,9 @@ class PicklistController extends Controller
 
 	public function store(Request $request)
 	{
-		// if (!isPermission('add', 'picklist', $request->permission_list)) {
-		//     return $this->jsonResponse('Permission Denied!', 403, "No Permission");
-		// }
+		if (!isPermission('add', 'picklist', $request->permission_list)) {
+		    return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+		}
 
 		// Validation
 		if ($errors = $this->validateRequest($request->all())) {

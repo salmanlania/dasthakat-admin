@@ -2,16 +2,6 @@
   TRUNCATE TABLE  `control_access`;
   INSERT  INTO `control_access`(`module_name`,`form_name`,`route`,`permission_id`,`permission_name`,`sort_order`) 
   VALUES
-  ('Administrator', 'User Permission', 'user_permission', 'list', 'List', 1.101),
-  ('Administrator', 'User Permission', 'user_permission', 'add', 'Add', 1.102),
-  ('Administrator', 'User Permission', 'user_permission', 'edit', 'Edit', 1.103),
-  ('Administrator', 'User Permission', 'user_permission', 'delete', 'Delete', 1.104),
-
-  ('Administrator', 'User', 'user', 'list', 'List', 1.101),
-  ('Administrator', 'User', 'user', 'add', 'Add', 1.102),
-  ('Administrator', 'User', 'user', 'edit', 'Edit', 1.103),
-  ('Administrator', 'User', 'user', 'delete', 'Delete', 1.104),
-
   ('General Group', 'Company', 'company', 'list', 'List', 1.101),
   ('General Group', 'Company', 'company', 'add', 'Add', 1.102),
   ('General Group', 'Company', 'company', 'edit', 'Edit', 1.103),
@@ -77,6 +67,16 @@
   ('General Group', 'Vessel', 'vessel', 'edit', 'Edit', 1.103),
   ('General Group', 'Vessel', 'vessel', 'delete', 'Delete', 1.104),
 
+ ('User Management', 'User Permission', 'user_permission', 'list', 'List', 1.101),
+  ('User Management', 'User Permission', 'user_permission', 'add', 'Add', 1.102),
+  ('User Management', 'User Permission', 'user_permission', 'edit', 'Edit', 1.103),
+  ('User Management', 'User Permission', 'user_permission', 'delete', 'Delete', 1.104),
+
+  ('User Management', 'User', 'user', 'list', 'List', 1.101),
+  ('User Management', 'User', 'user', 'add', 'Add', 1.102),
+  ('User Management', 'User', 'user', 'edit', 'Edit', 1.103),
+  ('User Management', 'User', 'user', 'delete', 'Delete', 1.104),
+  
   ('Inventory Setup', 'Category', 'category', 'list', 'List', 1.101),
   ('Inventory Setup', 'Category', 'category', 'add', 'Add', 1.102),
   ('Inventory Setup', 'Category', 'category', 'edit', 'Edit', 1.103),
@@ -127,32 +127,30 @@
   ('Sale Management', 'Charge Order', 'charge_order', 'edit', 'Edit', 1.103),
   ('Sale Management', 'Charge Order', 'charge_order', 'delete', 'Delete', 1.104),
 
-  ('Sale Management', 'Picklist', 'picklist', 'list', 'List', 1.101),
-  ('Sale Management', 'Picklist', 'picklist', 'add', 'Add', 1.102),
-  ('Sale Management', 'Picklist', 'picklist', 'edit', 'Edit', 1.103),
-  ('Sale Management', 'Picklist', 'picklist', 'delete', 'Delete', 1.104),
-
-  ('Sale Management', 'Picklist Received', 'picklist_received', 'list', 'List', 1.101),
-  ('Sale Management', 'Picklist Received', 'picklist_received', 'add', 'Add', 1.102),
-  ('Sale Management', 'Picklist Received', 'picklist_received', 'edit', 'Edit', 1.103),
-  ('Sale Management', 'Picklist Received', 'picklist_received', 'delete', 'Delete', 1.104),
-
-  ('Purchase Management', 'Purchase Order', 'purchase_order', 'list', 'List', 1.101),
-  ('Purchase Management', 'Purchase Order', 'purchase_order', 'add', 'Add', 1.102),
-  ('Purchase Management', 'Purchase Order', 'purchase_order', 'edit', 'Edit', 1.103),
-  ('Purchase Management', 'Purchase Order', 'purchase_order', 'delete', 'Delete', 1.104),
-
-  ('Purchase Management', 'Goods Received Note', 'good_received_note', 'list', 'List', 1.101),
-  ('Purchase Management', 'Goods Received Note', 'good_received_note', 'add', 'Add', 1.102),
-  ('Purchase Management', 'Goods Received Note', 'good_received_note', 'edit', 'Edit', 1.103),
-  ('Purchase Management', 'Goods Received Note', 'good_received_note', 'delete', 'Delete', 1.104),
-
-  ('Purchase Management', 'Purchase Invoice', 'purchase_invoice', 'list', 'List', 1.101),
-  ('Purchase Management', 'Purchase Invoice', 'purchase_invoice', 'add', 'Add', 1.102),
-  ('Purchase Management', 'Purchase Invoice', 'purchase_invoice', 'edit', 'Edit', 1.103),
-  ('Purchase Management', 'Purchase Invoice', 'purchase_invoice', 'delete', 'Delete', 1.104),
+  ('Sale Management', 'Purchase Order', 'purchase_order', 'list', 'List', 1.101),
+  ('Sale Management', 'Purchase Order', 'purchase_order', 'add', 'Add', 1.102),
+  ('Sale Management', 'Purchase Order', 'purchase_order', 'edit', 'Edit', 1.103),
+  ('Sale Management', 'Purchase Order', 'purchase_order', 'delete', 'Delete', 1.104),
 
   ('Sale Management', 'Internal Job Order', 'job_order', 'list', 'List', 1.101),
   ('Sale Management', 'Internal Job Order', 'job_order', 'add', 'Add', 1.102),
   ('Sale Management', 'Internal Job Order', 'job_order', 'edit', 'Edit', 1.103),
-  ('Sale Management', 'Internal Job Order', 'job_order', 'delete', 'Delete', 1.104);
+  ('Sale Management', 'Internal Job Order', 'job_order', 'delete', 'Delete', 1.104),
+
+  ('Warehousing', 'Picklist', 'picklist', 'list', 'List', 1.101),
+  ('Warehousing', 'Picklist', 'picklist', 'add', 'Add', 1.102),
+  ('Warehousing', 'Picklist', 'picklist', 'receive', 'Receive', 1.103),
+
+  ('Warehousing', 'Servicelist', 'servicelist', 'list', 'List', 1.101),
+  ('Warehousing', 'Servicelist', 'servicelist', 'add', 'Add', 1.102),
+  ('Warehousing', 'Servicelist', 'servicelist', 'receive', 'Receive', 1.103),
+
+  ('Warehousing', 'Goods Received Note', 'good_received_note', 'list', 'List', 1.101),
+  ('Warehousing', 'Goods Received Note', 'good_received_note', 'add', 'Add', 1.102),
+  ('Warehousing', 'Goods Received Note', 'good_received_note', 'edit', 'Edit', 1.103),
+  ('Warehousing', 'Goods Received Note', 'good_received_note', 'delete', 'Delete', 1.104),
+
+  ('Accounting', 'Purchase Invoice', 'purchase_invoice', 'list', 'List', 1.101),
+  ('Accounting', 'Purchase Invoice', 'purchase_invoice', 'add', 'Add', 1.102),
+  ('Accounting', 'Purchase Invoice', 'purchase_invoice', 'edit', 'Edit', 1.103),
+  ('Accounting', 'Purchase Invoice', 'purchase_invoice', 'delete', 'Delete', 1.104);

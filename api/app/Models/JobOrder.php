@@ -74,6 +74,6 @@ class JobOrder extends Model
     }
     public function agent()
     {
-        return $this->hasOne(Agent::class, 'agent_id', 'agent_id')->select('agent_id', 'name');
+        return $this->hasOne(Agent::class, 'agent_id', 'agent_id')->select('*');
     }
 }
