@@ -95,7 +95,9 @@ class PicklistReceivedController extends Controller
 
 	public function update(Request $request, $id)
 	{
-
+		if (!isPermission('receive', 'picklist', $request->permission_list)) {
+		    return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+		}
 
 		$isError = $this->Validator($request->all());
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
