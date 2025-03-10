@@ -7,6 +7,7 @@ use App\Models\DocumentType;
 use Illuminate\Http\Request;
 use App\Models\JobOrder;
 use App\Models\JobOrderDetail;
+use App\Models\JobOrderDetailCertificate;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -41,9 +42,9 @@ class JobOrderController extends Controller
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'job_order.vessel_id')
 			->LeftJoin('agent as a', 'a.agent_id', '=', 'job_order.agent_id')
 			->LeftJoin('salesman as s', 's.salesman_id', '=', 'job_order.salesman_id');
-			$data = $data->where('job_order.company_id', '=', $request->company_id);
-			$data = $data->where('job_order.company_branch_id', '=', $request->company_branch_id);
-		if (!empty($document_identity)) $data = $data->where('job_order.document_identity', 'like', '%'. $document_identity.'%');
+		$data = $data->where('job_order.company_id', '=', $request->company_id);
+		$data = $data->where('job_order.company_branch_id', '=', $request->company_branch_id);
+		if (!empty($document_identity)) $data = $data->where('job_order.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($event_id)) $data = $data->where('job_order.event_id', '=',  $event_id);
 		if (!empty($flag_id)) $data = $data->where('job_order.flag_id', '=',  $flag_id);
 		if (!empty($vessel_id)) $data = $data->where('job_order.vessel_id', '=',  $vessel_id);
@@ -74,7 +75,7 @@ class JobOrderController extends Controller
 			});
 		}
 
-		$data = $data->select("job_order.*", "c.name as customer_name", "e.event_code", "v.name as vessel_name","v.imo", "a.name as agent_name", "s.name as salesman_name", "f.name as flag_name", "c1.name as class1_name", "c2.name as class2_name");
+		$data = $data->select("job_order.*", "c.name as customer_name", "e.event_code", "v.name as vessel_name", "v.imo", "a.name as agent_name", "s.name as salesman_name", "f.name as flag_name", "c1.name as class1_name", "c2.name as class2_name");
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
@@ -115,16 +116,18 @@ class JobOrderController extends Controller
 		if (!empty($msg)) return $msg;
 	}
 
+
 	public function store(Request $request)
 	{
-
-		if (!isPermission('add', 'job_order', $request->permission_list))
+		if (!isPermission('add', 'job_order', $request->permission_list)) {
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+		}
 
 		// Validation Rules
 		$isError = $this->Validator($request->all());
-		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
-
+		if (!empty($isError)) {
+			return $this->jsonResponse($isError, 400, "Request Failed!");
+		}
 
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument($this->document_type_id, $request);
@@ -149,6 +152,8 @@ class JobOrderController extends Controller
 			'created_by' => $request->login_user_id,
 		];
 		JobOrder::create($insertArr);
+
+		// Fetch ChargeOrderDetail records, excluding those with an existing job_order_id
 		$detail = ChargeOrderDetail::with([
 			'charge_order',
 			'charge_order.event',
@@ -161,14 +166,19 @@ class JobOrderController extends Controller
 			'charge_order.class2',
 			'product_type',
 			'product',
+			'product.sub_category',
+			'product',
 			'unit',
 			'supplier',
-		])->whereHas('charge_order', function ($query) use ($request) {
-			$query->where('event_id', $request->event_id);
-		})->get();
+		])
+			->whereHas('charge_order', function ($query) use ($request) {
+				$query->where('event_id', $request->event_id);
+			})
+			->whereNull('job_order_detail_id') // Restrict to records without a job_order_id
+			->get();
 
-		if ($detail) {
-			foreach ($detail as $key => $value) {
+		if ($detail->isNotEmpty()) {
+			foreach ($detail as $value) {
 				$detail_uuid = $this->get_uuid();
 				$insert = [
 					'company_id' => $request->company_id,
@@ -191,20 +201,30 @@ class JobOrderController extends Controller
 				];
 
 				JobOrderDetail::create($insert);
-				if($value['product_type_id'] == 1){
+				if ($value['product_type_id'] == 1) { // services type
+					$Product = $value['product'];
+					$Certificate = [
+						'certificate_id' => $this->get_uuid(),
+						'job_order_id' => $insertArr['job_order_id'],
+						'job_order_detail_id' => $detail_uuid,
+						'certificate_number' => $value['product']['sub_category']['name'] ?? "",
+						'certificate_date' => Carbon::now(),
+						'created_at' => Carbon::now(),
+						'created_by' => $request->login_user_id,
+					];
+					JobOrderDetailCertificate::create($Certificate);
+				}
+				if (!empty($value['charge_order_detail_id'])) {
 					$charge_order_detail = ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id'])->first();
-					$charge_order_detail->status = 1;
+					$charge_order_detail->job_order_id = $insertArr['job_order_id'];
+					$charge_order_detail->job_order_detail_id = $detail_uuid;
 					$charge_order_detail->update();
 				}
 			}
 		}
 
-		// dd($detail);
-
-
 		return $this->jsonResponse(['job_order_id' => $uuid], 200, "Add Job Order Successfully!");
 	}
-
 	public function update(Request $request, $id)
 	{
 		if (!isPermission('edit', 'job_order', $request->permission_list))

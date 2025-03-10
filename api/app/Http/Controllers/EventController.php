@@ -106,7 +106,7 @@ class EventController extends Controller
 	// 	return $this->jsonResponse(['charge_orders' => $data, 'event' => $event], 200, "Event Charge Orders Data");
 	// }
 
-	public function getChargeOrders($id, Request $request)
+	public function getChargeOrders($id)
 	{
 		$chargeOrders = ChargeOrder::with([
 			'event',
@@ -140,35 +140,11 @@ class EventController extends Controller
 			return $this->jsonResponse([], 404, "Event not found");
 		}
 
-		// foreach ($chargeOrders as $chargeOrder) {
-		// 	foreach ($chargeOrder->charge_order_detail as $detail) {
-		// 		if ($detail->product_type_id == 1) {
-		// 			// Sum of received servicelist quantity
-		// 			$receivedQty = ServicelistReceived::whereHas('servicelist_detail', function ($query) use ($detail) {
-		// 				$query->where('charge_order_detail_id', $detail->id);
-		// 			})->sum('quantity');
-
-		// 			// Replace original quantity with received quantity
-		// 			$detail->quantity = $receivedQty;
-		// 		} else if ($detail->product_type_id == 2) {
-		// 			// Sum of received picklist quantity
-		// 			$receivedQty = PicklistReceived::whereHas('picklist_detail', function ($query) use ($detail) {
-		// 				$query->where('charge_order_detail_id', $detail->id);
-		// 			})->sum('quantity');
-
-		// 			// Replace original quantity with received quantity
-		// 			$detail->quantity = $receivedQty;
-		// 		} elseif ($detail->product_type_id == 3 || $detail->product_type_id == 4) {
-		// 			// Sum of GRN detail quantity
-		// 			$receivedGRNQty = GRNDetail::whereHas('purchase_order_detail', function ($query) use ($detail) {
-		// 				$query->where('charge_order_detail_id', $detail->id);
-		// 			})->sum('quantity');
-
-		// 			// Replace original quantity with GRN received quantity
-		// 			$detail->quantity = $receivedGRNQty;
-		// 		}
-		// 	}
-		// }
+		foreach ($chargeOrders as $chargeOrder) {
+			$chargeOrder->charge_order_detail = $chargeOrder->charge_order_detail->filter(function ($detail) {
+				return empty($detail->job_order_detail_id);
+			});
+		}
 
 		return $this->jsonResponse([
 			'charge_orders' => $chargeOrders,
