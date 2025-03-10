@@ -140,3 +140,6 @@ ADD COLUMN remarks VARCHAR(255) AFTER product_id;
 
 ALTER TABLE servicelist_received_detail
 ADD COLUMN warehouse_id CHAR(36) AFTER product_id;
+
+ALTER TABLE job_order_detail_certificate
+RENAME COLUMN certifiate_id TO certificate_id;

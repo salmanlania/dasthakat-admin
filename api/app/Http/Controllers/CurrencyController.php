@@ -28,7 +28,7 @@ class CurrencyController extends Controller
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
 		$data = new Currency;
-		$data = $data->where('company_id', '=', $request->company_id);
+		// $data = $data->where('company_id', '=', $request->company_id);
 		if (!empty($name)) $data = $data->where('name', 'like', '%' . $name . '%');
 		if (!empty($currency_code)) $data = $data->where('currency_code', 'like', '%' . $currency_code . '%');
 		if (!empty($symbol_left)) $data = $data->where('symbol_left', 'like', '%' . $symbol_left . '%');
@@ -65,8 +65,8 @@ class CurrencyController extends Controller
 	public function validateRequest($request, $id = null)
 	{
 		$rules = [
-			'name' => ['required', Rule::unique('currency')->ignore($id, 'currency_id')->where('company_id', $request['company_id'])],
-			'currency_code' => ['required', Rule::unique('currency')->ignore($id, 'currency_id')->where('company_id', $request['company_id'])],
+			'name' => ['required', Rule::unique('currency')->ignore($id, 'currency_id')],
+			'currency_code' => ['required', Rule::unique('currency')->ignore($id, 'currency_id')],
 			'value' => 'required',
 		];
 
