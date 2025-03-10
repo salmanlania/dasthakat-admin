@@ -136,4 +136,5 @@ ADD COLUMN job_order_detail_id CHAR(36) AFTER job_order_id;
 
 
 ALTER TABLE servicelist_received_detail
+
 ADD COLUMN remarks VARCHAR(255) AFTER product_id;
