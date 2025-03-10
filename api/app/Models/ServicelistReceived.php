@@ -28,11 +28,11 @@ class ServicelistReceived extends Model
 
     public function servicelist_received_detail()
     {
-        return $this->hasMany(PicklistReceivedDetail::class, 'servicelist_received_id', 'servicelist_received_id')->orderBy('sort_order');
+        return $this->hasMany(ServicelistReceivedDetail::class, 'servicelist_received_id', 'servicelist_received_id')->orderBy('sort_order');
     }
 
     public function servicelist()
     {
-        return $this->hasOne(Picklist::class, 'servicelist_id', 'servicelist_id');
+        return $this->hasOne(Servicelist::class, 'servicelist_id', 'servicelist_id');
     }
 }
