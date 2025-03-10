@@ -187,7 +187,7 @@ export const createIJOPrint = (data) => {
         }
       },
       {
-        content: '281-337-3339',
+        content: data?.agent?.office_no || '',
         styles: {
           fontSize: 9
         }
@@ -213,7 +213,7 @@ export const createIJOPrint = (data) => {
         }
       },
       {
-        content: '281-433-2164',
+        content: data?.agent?.phone || '',
         styles: {
           fontSize: 9
         }
@@ -239,7 +239,7 @@ export const createIJOPrint = (data) => {
         }
       },
       {
-        content: 'HOUSTONOPS@PROMARAGENCY.COM',
+        content: data?.agent?.email || '',
         styles: {
           fontSize: 9
         }
@@ -340,86 +340,42 @@ export const createIJOPrint = (data) => {
           fillColor: 'ebf1de' // gray color
         }
       }
-    ],
-    [
-      {
-        content: '532881',
-        styles: {
-          textColor: '#d51902' // Red Color
-        }
-      },
-      {
-        content: '12042023',
-        styles: {
-          textColor: '#d51902' // Red Color
-        }
-      },
-      {
-        content: 'Annual Inspection of Portable Fire Extinguisher',
-        styles: {
-          halign: 'left'
-        }
-      },
-      {
-        content: '10',
-        styles: {
-          textColor: '#d51902' // Red Color
-        }
-      }
-    ],
-    [
-      {
-        content: '532882',
-        styles: {
-          textColor: '#d51902' // Red Color
-        }
-      },
-      {
-        content: '12042023',
-        styles: {
-          textColor: '#d51902' // Red Color
-        }
-      },
-      {
-        content: 'Annual Inspection of Portable Fire Extinguisher',
-        styles: {
-          halign: 'left'
-        }
-      },
-      {
-        content: '10',
-        styles: {
-          textColor: '#d51902' // Red Color
-        }
-      }
-    ],
-    [
-      {
-        content: '532883',
-        styles: {
-          textColor: '#d51902' // Red Color
-        }
-      },
-      {
-        content: '12042023',
-        styles: {
-          textColor: '#d51902' // Red Color
-        }
-      },
-      {
-        content: 'Annual Inspection of Portable Fire Extinguisher',
-        styles: {
-          halign: 'left'
-        }
-      },
-      {
-        content: '10',
-        styles: {
-          textColor: '#d51902' // Red Color
-        }
-      }
     ]
   ];
+
+  if (data?.job_order_detail && data.job_order_detail.length) {
+    data.job_order_detail.forEach((detail) => {
+      table3Row.push([
+        {
+          content: detail?.charge_order?.document_identity || "",
+          styles: {
+            textColor: '#d51902' // Red Color
+          }
+        },
+        {
+          content: detail?.charge_order?.customer_po_no || "",
+          styles: {
+            textColor: '#d51902' // Red Color
+          }
+        },
+        {
+          content:  detail?.product_type?.product_type_id === 4
+            ? detail?.product_name || ''
+            : detail?.product?.product_name || '',
+          styles: {
+            halign: 'left'
+          }
+        },
+        {
+          content: detail.quantity ? parseFloat(detail.quantity) : '',
+          styles: {
+            textColor: '#d51902' // Red Color
+          }
+        }
+      ]);
+    });
+  }
+
   const filledRows = fillEmptyRows(table3Row, 15);
   doc.autoTable({
     startY: doc.previousAutoTable.finalY,

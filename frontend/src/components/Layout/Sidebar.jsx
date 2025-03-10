@@ -4,7 +4,7 @@ import { BiChevronLeft } from 'react-icons/bi';
 import { FaRegUser } from 'react-icons/fa';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import { IoSearchSharp } from 'react-icons/io5';
-import { LuClipboardList, LuPackage2 } from 'react-icons/lu';
+import { LuCalculator, LuClipboardList, LuWarehouse } from 'react-icons/lu';
 import { MdOutlineAdminPanelSettings, MdOutlineDashboard } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -86,15 +86,16 @@ const Sidebar = () => {
     !permissions?.validity?.list &&
     !permissions?.payment?.list;
 
-  const purchaseManagementPermission =
-    !permissions?.purchase_order?.list &&
-    !permissions?.good_received_note?.list &&
-    !permissions?.purchase_invoice?.list;
+
 
   const saleManagementPermission =
     !permissions?.quotation?.list &&
     !permissions?.charge_order?.list &&
+    !permissions?.purchase_order?.list &&
     !permissions?.job_order?.list;
+
+  const warehousingPermission = !permissions?.good_received_note?.list
+  const accountingPermission = !permissions?.purchase_invoice?.list
 
   const items = [
     {
@@ -106,7 +107,7 @@ const Sidebar = () => {
       key: 'administration',
       label: 'Administration',
       icon: <MdOutlineAdminPanelSettings size={18} />,
-      disabled: generalGroupPermission && userManagementPermission,
+      disabled: generalGroupPermission && userManagementPermission && inventorySetupPermission,
       children: [
         {
           key: 'general-setup',
@@ -196,15 +197,7 @@ const Sidebar = () => {
               disabled: !permissions.user_permission?.list
             }
           ]
-        }
-      ]
-    },
-    {
-      key: 'inventory-management',
-      label: 'Inventory Management',
-      icon: <LuPackage2 size={18} />,
-      disabled: inventorySetupPermission && purchaseManagementPermission,
-      children: [
+        },
         {
           key: 'inventory-setup',
           label: 'Inventory Setup',
@@ -251,28 +244,6 @@ const Sidebar = () => {
               disabled: !permissions?.payment?.list
             }
           ]
-        },
-        {
-          key: 'purchase-management',
-          label: 'Purchase Management',
-          disabled: purchaseManagementPermission,
-          children: [
-            {
-              key: 'purchase-order',
-              label: <Link to="/purchase-order">Purchase Order</Link>,
-              disabled: !permissions?.purchase_order?.list
-            },
-            {
-              key: 'goods-received-note',
-              label: <Link to="/goods-received-note">Goods Received Note</Link>,
-              disabled: !permissions?.good_received_note?.list
-            },
-            {
-              key: 'purchase-invoice',
-              label: <Link to="/purchase-invoice">Purchase Invoice</Link>,
-              disabled: !permissions?.purchase_invoice?.list
-            }
-          ]
         }
       ]
     },
@@ -293,13 +264,52 @@ const Sidebar = () => {
           disabled: !permissions?.charge_order?.list
         },
         {
-          key: 'pick-list',
-          label: <Link to="/pick-list">Pick List</Link>
+          key: 'purchase-order',
+          label: <Link to="/purchase-order">Purchase Order</Link>,
+          disabled: !permissions?.purchase_order?.list
+        },
+        {
+          key: 'service-list',
+          label: <Link to="/service-list">Service List</Link>
         },
         {
           key: 'ijo',
           disabled: !permissions?.job_order?.list,
           label: <Link to="/ijo">IJO</Link>
+        }
+      ]
+    },
+    {
+      key: 'warehousing',
+      label: 'Warehousing',
+      icon: <LuWarehouse size={18} />,
+      disabled: warehousingPermission,
+      children: [
+        {
+          key: 'pick-list',
+          label: <Link to="/pick-list">Pick List</Link>
+        },
+        {
+          key: 'service-list',
+          label: <Link to="/service-list">Service List</Link>
+        },
+        {
+          key: 'goods-received-note',
+          label: <Link to="/goods-received-note">Goods Received Note</Link>,
+          disabled: !permissions?.good_received_note?.list
+        },
+      ]
+    },
+    {
+      key: 'accounting',
+      label: 'Accounting',
+      icon: <LuCalculator  size={18} />,
+      disabled: accountingPermission,
+      children: [
+        {
+          key: 'purchase-invoice',
+          label: <Link to="/purchase-invoice">Purchase Invoice</Link>,
+          disabled: !permissions?.purchase_invoice?.list
         }
       ]
     }
