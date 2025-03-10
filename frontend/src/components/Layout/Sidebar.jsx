@@ -269,10 +269,6 @@ const Sidebar = () => {
           disabled: !permissions?.purchase_order?.list
         },
         {
-          key: 'service-list',
-          label: <Link to="/service-list">Service List</Link>
-        },
-        {
           key: 'ijo',
           disabled: !permissions?.job_order?.list,
           label: <Link to="/ijo">IJO</Link>
