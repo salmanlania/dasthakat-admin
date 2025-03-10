@@ -28,7 +28,7 @@ class Servicelist extends Model
 
     public function servicelist_detail()
     {
-        return $this->hasMany(PicklistDetail::class, 'servicelist_id', 'servicelist_id')->orderBy('sort_order');
+        return $this->hasMany(ServicelistDetail::class, 'servicelist_id', 'servicelist_id')->orderBy('sort_order');
     }
 
     public function charge_order()
