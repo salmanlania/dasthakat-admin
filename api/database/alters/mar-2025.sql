@@ -133,3 +133,7 @@ ADD COLUMN office_no VARCHAR(255) AFTER phone;
 ALTER TABLE charge_order_detail
 ADD COLUMN job_order_id CHAR(36) AFTER quotation_detail_id;
 ADD COLUMN job_order_detail_id CHAR(36) AFTER job_order_id;
+
+
+ALTER TABLE servicelist_received_detail
+ADD COLUMN remarks VARCHAR(255) AFTER product_id;
