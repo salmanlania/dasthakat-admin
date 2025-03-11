@@ -90,25 +90,30 @@ const GoodsReceivedNote = () => {
         getPurchaseOrder(selectedPO)
       ).unwrap();
 
-      const details = purchase_order_detail.map((detail, index) => ({
-        id: detail.purchase_order_detail_id,
-        purchase_order_detail_id: detail.purchase_order_detail_id,
-        product_type_id: detail.product_type ? detail.product_type.product_type_id : null,
-        product_code: detail.product ? detail.product.product_code : null,
-        product_id: detail.product ? detail.product.product_id : null,
-        product_name: detail.product_name,
-        description: detail.description,
-        quantity: detail?.available_quantity ? parseFloat(detail?.available_quantity) : 0,
-        unit_id: detail.unit ? detail.unit.unit_id : null,
-        sort_order: index
-      })).filter((detail) => detail.quantity > 0);
+      console.log(purchase_order_detail);
+
+      const details = purchase_order_detail
+        .map((detail, index) => ({
+          id: detail.purchase_order_detail_id,
+          purchase_order_detail_id: detail.purchase_order_detail_id,
+          product_type_id: detail.product_type ? detail.product_type.product_type_id : null,
+          product_code: detail.product ? detail.product.product_code : null,
+          product_id: detail.product ? detail.product.product_id : null,
+          product_name: detail.product_name,
+          product_description: detail.product_description,
+          description: detail.description,
+          quantity: detail?.available_quantity ? parseFloat(detail?.available_quantity) : 0,
+          unit_id: detail.unit ? detail.unit.unit_id : null,
+          sort_order: index
+        }))
+        .filter((detail) => detail.quantity > 0);
 
       const totalQuantity = details.reduce((total, detail) => total + detail.quantity, 0);
       const payload = {
         default_currency_id: currency ? currency.currency_id : null,
         document_date: dayjs().format('YYYY-MM-DD'),
         purchase_order_id: selectedPO,
-        supplier_id: supplier.supplier_id,
+        supplier_id: supplier?.supplier_id,
         good_received_note_detail: details,
         total_quantity: totalQuantity
       };

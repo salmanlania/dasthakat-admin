@@ -43,14 +43,17 @@ export const getIJO = createAsyncThunk('job-order/get', async (id, { rejectWithV
   }
 });
 
-export const getIJOForPrint = createAsyncThunk('job-order/getForPrint', async (id, { rejectWithValue }) => {
-  try {
-    const res = await api.get(`/job-order/${id}`);
-    return res.data.data;
-  } catch (err) {
-    throw rejectWithValue(err);
+export const getIJOForPrint = createAsyncThunk(
+  'job-order/getForPrint',
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/job-order/${id}`);
+      return res.data.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
   }
-});
+);
 
 export const getEventChargeOrders = createAsyncThunk(
   'event-charge-orders/get',
@@ -225,10 +228,11 @@ export const ijoSlice = createSlice({
           charge_order_no: charge_order.document_identity,
           product_type: detail?.product_type?.name,
           product_code: detail?.product?.product_code || null,
-          description:
+          product_name:
             detail?.product_type?.product_type_id == 4
               ? detail?.product_name
               : detail?.product?.product_name,
+          description: detail?.product_description,
           customer_notes: detail?.description,
           quantity: parseFloat(detail?.quantity || 0),
           unit: detail?.unit?.name || null

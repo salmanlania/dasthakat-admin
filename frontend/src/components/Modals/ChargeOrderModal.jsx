@@ -54,6 +54,13 @@ const ChargeOrderModal = () => {
     },
     {
       title: 'Description',
+      dataIndex: 'product_description',
+      key: 'product_description',
+      width: 240,
+      ellipsis: true
+    },
+    {
+      title: 'Customer Notes',
       dataIndex: 'description',
       key: 'description',
       width: 240,

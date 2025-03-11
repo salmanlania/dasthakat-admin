@@ -429,6 +429,7 @@ export const chargeOrderSlice = createSlice({
             }
           : null,
         product_name: detail.product_name,
+        product_description: detail.product_description,
         description: detail.description,
         picklist_id: detail.picklist_id || null,
         picklist_detail_id: detail.picklist_detail_id || null,
