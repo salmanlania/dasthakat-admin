@@ -6,7 +6,6 @@ use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
 use App\Models\DocumentType;
 use App\Models\GRN;
-use App\Models\GRNDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\PurchaseOrder;
@@ -27,6 +26,8 @@ class PurchaseOrderController extends Controller
 		$quotation_id = $request->input('quotation_id', '');
 		$customer_id = $request->input('customer_id', '');
 		$charge_order_id = $request->input('charge_order_id', '');
+		$event_id = $request->input('event_id', '');
+		$vessel_id = $request->input('vessel_id', '');
 		$type = $request->input('type', '');
 
 		$search = $request->input('search', '');
@@ -39,6 +40,7 @@ class PurchaseOrderController extends Controller
 			->LeftJoin('quotation as q', 'q.quotation_id', '=', 'purchase_order.quotation_id')
 			->LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'purchase_order.charge_order_id')
 			->LeftJoin('event as e', 'e.event_id', '=', 'co.event_id')
+			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'co.vessel_id')
 			->LeftJoin('customer as c', 'c.customer_id', '=', 'e.customer_id');
 
 		$data = $data->where('purchase_order.company_id', '=', $request->company_id);
@@ -51,6 +53,8 @@ class PurchaseOrderController extends Controller
 		if (!empty($document_date)) $data->where('purchase_order.document_date', $document_date);
 		if (!empty($required_date)) $data->where('purchase_order.required_date', $required_date);
 		if (!empty($customer_id)) $data->where('c.customer_id', $customer_id);
+		if (!empty($vessel_id)) $data->where('co.vessel_id', $vessel_id);
+		if (!empty($event_id)) $data->where('co.event_id', $event_id);
 		if (!empty($type)) $data->where('purchase_order.type', $type);
 
 		if (!empty($search)) {
@@ -61,6 +65,8 @@ class PurchaseOrderController extends Controller
 					->orWhere('purchase_order.type', 'like', "%$search%")
 					->orWhere('q.document_identity', 'like', "%$search%")
 					->orWhere('c.name', 'like', "%$search%")
+					->orWhere('v.name', 'like', "%$search%")
+					->orWhere('e.event_code', 'like', "%$search%")
 					->orWhere('co.document_identity', 'like', "%$search%")
 					->orWhere('purchase_order.document_identity', 'like', "%$search%");
 			});
