@@ -260,8 +260,19 @@ class JobOrderController extends Controller
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		$data  = JobOrder::where('job_order_id', $id)->first();
 		if (!$data) return $this->jsonResponse(['job_order_id' => $id], 404, "Job Order Not Found!");
+
+
+		$jobOrderDetailIds = JobOrderDetail::where('job_order_id', $id)->pluck('job_order_detail_id');
+
+		ChargeOrderDetail::whereIn('job_order_detail_id', $jobOrderDetailIds)
+			->update([
+				'job_order_id' => null,
+				'job_order_detail_id' => null,
+			]);
+
 		$data->delete();
 		JobOrderDetail::where('job_order_id', $id)->delete();
+
 		return $this->jsonResponse(['job_order_id' => $id], 200, "Delete Job Order Successfully!");
 	}
 	public function bulkDelete(Request $request)
@@ -273,6 +284,14 @@ class JobOrderController extends Controller
 			if (isset($request->job_order_ids) && !empty($request->job_order_ids) && is_array($request->job_order_ids)) {
 				foreach ($request->job_order_ids as $job_order_id) {
 					$user = JobOrder::where(['job_order_id' => $job_order_id])->first();
+					$jobOrderDetailIds = JobOrderDetail::where('job_order_id', $job_order_id)->pluck('job_order_detail_id');
+
+					ChargeOrderDetail::whereIn('job_order_detail_id', $jobOrderDetailIds)
+						->update([
+							'job_order_id' => null,
+							'job_order_detail_id' => null,
+						]);
+
 					$user->delete();
 					JobOrderDetail::where('job_order_id', $job_order_id)->delete();
 				}
