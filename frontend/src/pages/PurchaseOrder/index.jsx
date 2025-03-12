@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Select, Table, Tooltip } from 'antd';
+import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Select, Table, Tag, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -51,6 +51,11 @@ const PurchaseOrder = () => {
   const debouncedChargeNo = useDebounce(params.charge_no, 500);
   const debouncedQuotationNo = useDebounce(params.quotation_no, 500);
 
+  const GRNStatus = {
+    1: 'Complete',
+    2: 'Partial',
+    3: 'In Progress'
+  };
   const formattedParams = {
     ...params,
     document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null
@@ -258,6 +263,108 @@ const PurchaseOrder = () => {
       ellipsis: true
     },
     {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Event</p>
+          <AsyncSelect
+            endpoint="/event"
+            size="small"
+            className="w-full font-normal"
+            valueKey="event_id"
+            labelKey="event_code"
+            value={params.event_id}
+            onChange={(value) => dispatch(setPurchaseOrderListParams({ event_id: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'event_code',
+      key: 'event_code',
+      sorter: true,
+      width: 140,
+      ellipsis: true
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Vessel</p>
+          <AsyncSelect
+            endpoint="/vessel"
+            size="small"
+            className="w-full font-normal"
+            valueKey="vessel_id"
+            labelKey="name"
+            value={params.vessel_id}
+            onChange={(value) => dispatch(setPurchaseOrderListParams({ vessel_id: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'vessel_name',
+      key: 'vessel_name',
+      sorter: true,
+      width: 140,
+      ellipsis: true
+    },
+    {
+      title: (
+        <div>
+          <p>Status</p>
+          <Select
+            className="w-full font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            options={[
+              {
+                value: 1,
+                label: GRNStatus[1]
+              },
+              {
+                value: 2,
+                label: GRNStatus[2]
+              },
+              {
+                value: 3,
+                label: GRNStatus[3]
+              }
+            ]}
+            value={params.grn_status}
+            onChange={(value) => dispatch(setPurchaseOrderListParams({ grn_status: value }))}
+            allowClear
+          />
+        </div>
+      ),
+      dataIndex: 'grn_status',
+      key: 'grn_status',
+      sorter: true,
+      render: (_, { grn_status }) => {
+        if (grn_status == 1) {
+          return (
+            <div className="flex items-center justify-center">
+              <Tag color="success" className="w-28 text-center">
+                {GRNStatus[1]}
+              </Tag>
+            </div>
+          );
+        } else if (grn_status == 2) {
+          return (
+            <div className="flex items-center justify-center">
+              <Tag color="yellow" className="w-28 text-center">
+                {GRNStatus[2]}
+              </Tag>
+            </div>
+          );
+        } else {
+          return (
+            <div className="flex items-center justify-center">
+              <Tag color="volcano" className="w-28 text-center">
+                {GRNStatus[3]}
+              </Tag>
+            </div>
+          );
+        }
+      },
+      width: 140
+    },
+    {
       title: 'Created At',
       dataIndex: 'created_at',
       key: 'created_at',
@@ -328,6 +435,9 @@ const PurchaseOrder = () => {
     params.customer_id,
     params.supplier_id,
     params.type,
+    params.grn_status,
+    params.event_id,
+    params.vessel_id,
     debouncedSearch,
     debouncedPurchaseOrderNo,
     debouncedChargeNo,
@@ -373,11 +483,11 @@ const PurchaseOrder = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: 'checkbox',
-                  selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) =>
-                    dispatch(setPurchaseOrderDeleteIDs(selectedRowKeys))
-                }
+                type: 'checkbox',
+                selectedRowKeys: deleteIDs,
+                onChange: (selectedRowKeys) =>
+                  dispatch(setPurchaseOrderDeleteIDs(selectedRowKeys))
+              }
               : null
           }
           loading={isListLoading}

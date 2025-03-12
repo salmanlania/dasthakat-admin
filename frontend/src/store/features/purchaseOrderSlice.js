@@ -190,14 +190,6 @@ export const purchaseOrderSlice = createSlice({
       }
     },
 
-    setRebatePercentage: (state, action) => {
-      state.rebatePercentage = action.payload;
-    },
-
-    setSalesmanPercentage: (state, action) => {
-      state.salesmanPercentage = action.payload;
-    },
-
     resetPurchaseOrderDetail: (state, action) => {
       const index = action.payload;
 
@@ -313,6 +305,7 @@ export const purchaseOrderSlice = createSlice({
             }
           : null,
         product_name: detail.product_name,
+        product_description: detail.product_description,
         charge_order_detail_id: detail.charge_order_detail_id,
         description: detail.description,
         purchase_order_detail_id: detail.purchase_order_detail_id,
@@ -366,8 +359,6 @@ export const {
   copyPurchaseOrderDetail,
   changePurchaseOrderDetailOrder,
   changePurchaseOrderDetailValue,
-  setRebatePercentage,
-  setSalesmanPercentage,
   resetPurchaseOrderDetail,
   setChargePoID
 } = purchaseOrderSlice.actions;

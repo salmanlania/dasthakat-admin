@@ -221,10 +221,7 @@ export const createPurchaseOrderPrint = (data) => {
         detail.unit ? detail.unit.name : '',
         detail.vpart || '',
         {
-          content:
-            detail?.product_type?.product_type_id === 4
-              ? detail?.product_name || ''
-              : detail?.product?.product_name || '',
+          content: detail?.product_description || '',
           styles: { halign: 'left' }
         },
         {

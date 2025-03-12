@@ -6,7 +6,6 @@ use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
 use App\Models\DocumentType;
 use App\Models\GRN;
-use App\Models\GRNDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\PurchaseOrder;
@@ -27,7 +26,10 @@ class PurchaseOrderController extends Controller
 		$quotation_id = $request->input('quotation_id', '');
 		$customer_id = $request->input('customer_id', '');
 		$charge_order_id = $request->input('charge_order_id', '');
+		$event_id = $request->input('event_id', '');
+		$vessel_id = $request->input('vessel_id', '');
 		$type = $request->input('type', '');
+		$status = $request->input('grn_status', '');
 
 		$search = $request->input('search', '');
 		$page = $request->input('page', 1);
@@ -39,6 +41,7 @@ class PurchaseOrderController extends Controller
 			->LeftJoin('quotation as q', 'q.quotation_id', '=', 'purchase_order.quotation_id')
 			->LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'purchase_order.charge_order_id')
 			->LeftJoin('event as e', 'e.event_id', '=', 'co.event_id')
+			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'co.vessel_id')
 			->LeftJoin('customer as c', 'c.customer_id', '=', 'e.customer_id');
 
 		$data = $data->where('purchase_order.company_id', '=', $request->company_id);
@@ -51,6 +54,8 @@ class PurchaseOrderController extends Controller
 		if (!empty($document_date)) $data->where('purchase_order.document_date', $document_date);
 		if (!empty($required_date)) $data->where('purchase_order.required_date', $required_date);
 		if (!empty($customer_id)) $data->where('c.customer_id', $customer_id);
+		if (!empty($vessel_id)) $data->where('co.vessel_id', $vessel_id);
+		if (!empty($event_id)) $data->where('co.event_id', $event_id);
 		if (!empty($type)) $data->where('purchase_order.type', $type);
 
 		if (!empty($search)) {
@@ -61,6 +66,8 @@ class PurchaseOrderController extends Controller
 					->orWhere('purchase_order.type', 'like', "%$search%")
 					->orWhere('q.document_identity', 'like', "%$search%")
 					->orWhere('c.name', 'like', "%$search%")
+					->orWhere('v.name', 'like', "%$search%")
+					->orWhere('e.event_code', 'like', "%$search%")
 					->orWhere('co.document_identity', 'like', "%$search%")
 					->orWhere('purchase_order.document_identity', 'like', "%$search%");
 			});
@@ -82,8 +89,77 @@ class PurchaseOrderController extends Controller
 			});
 		}
 
-		$data = $data->select("purchase_order.*", 'c.name as customer_name', "s.name as supplier_name", "q.document_identity as quotation_no", "co.document_identity as charge_no")
-			->orderBy($sort_column, $sort_direction)
+
+
+		// $data = $data->select("purchase_order.*", 'c.name as customer_name', "s.name as supplier_name", "q.document_identity as quotation_no", "co.document_identity as charge_no")
+		$data = $data->select(
+			"purchase_order.*",
+			'c.name as customer_name',
+			'e.event_code',
+			'v.name as vessel_name',
+			"s.name as supplier_name",
+			"q.document_identity as quotation_no",
+			"co.document_identity as charge_no",
+			DB::raw("
+				CASE
+					WHEN NOT EXISTS (
+						SELECT 1
+						FROM purchase_order_detail pod
+						WHERE pod.purchase_order_id = purchase_order.purchase_order_id
+					) THEN 3  -- No details exist
+					WHEN NOT EXISTS (
+						SELECT 1
+						FROM good_received_note grn
+						WHERE grn.purchase_order_id = purchase_order.purchase_order_id
+					) THEN 3  -- Details exist but no GRN created
+					WHEN EXISTS (
+						SELECT 1
+						FROM purchase_order_detail pod
+						LEFT JOIN good_received_note grn ON grn.purchase_order_id = pod.purchase_order_id
+						LEFT JOIN good_received_note_detail grnd 
+							ON grnd.good_received_note_id = grn.good_received_note_id 
+							AND grnd.product_id = pod.product_id
+						WHERE pod.purchase_order_id = purchase_order.purchase_order_id
+						GROUP BY pod.product_id, pod.quantity
+						HAVING SUM(IFNULL(grnd.quantity, 0)) < pod.quantity
+					) THEN 2  -- Some items received but not all
+					ELSE 1  -- All items fully received
+				END AS grn_status"
+			)
+		);
+
+		// **Apply Status Filter if Provided**
+		if (!empty($status)) {
+			$data->whereRaw(
+				"
+				CASE
+					WHEN NOT EXISTS (
+						SELECT 1
+						FROM purchase_order_detail pod
+						WHERE pod.purchase_order_id = purchase_order.purchase_order_id
+					) THEN 3  -- No details exist (in_progress)
+					WHEN NOT EXISTS (
+						SELECT 1
+						FROM good_received_note grn
+						WHERE grn.purchase_order_id = purchase_order.purchase_order_id
+					) THEN 3  -- Details exist but no GRN created (in_progress)
+					WHEN EXISTS (
+						SELECT 1
+						FROM purchase_order_detail pod
+						LEFT JOIN good_received_note grn ON grn.purchase_order_id = pod.purchase_order_id
+						LEFT JOIN good_received_note_detail grnd 
+							ON grnd.good_received_note_id = grn.good_received_note_id 
+							AND grnd.product_id = pod.product_id
+						WHERE pod.purchase_order_id = purchase_order.purchase_order_id
+						GROUP BY pod.product_id, pod.quantity
+						HAVING SUM(IFNULL(grnd.quantity, 0)) < pod.quantity
+					) THEN 2  -- Partial receipt
+					ELSE 1  -- Fully received (completed)
+				END = ?",
+				[$status]
+			);
+		}
+		$data = $data->orderBy($sort_column, $sort_direction)
 			->paginate($perPage, ['*'], 'page', $page);
 
 

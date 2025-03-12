@@ -93,14 +93,32 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
 
       const product = res.data[0];
 
+      form.setFieldsValue({
+        [`product_id-${index}`]: product?.product_id
+          ? {
+              value: product.product_id,
+              label: product.product_name
+            }
+          : null,
+        [`product_description-${index}`]: product?.product_name || ''
+      });
+
       dispatch(
         changePurchaseOrderDetailValue({
           index,
           key: 'product_id',
           value: {
             value: product.product_id,
-            label: product.name
+            label: product.product_name
           }
+        })
+      );
+
+      dispatch(
+        changePurchaseOrderDetailValue({
+          index,
+          key: 'product_description',
+          value: product?.product_name || ''
         })
       );
 
@@ -165,6 +183,18 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
 
       return;
     }
+
+    form.setFieldsValue({
+      [`product_description-${index}`]: selected?.label || ''
+    });
+
+    dispatch(
+      changePurchaseOrderDetailValue({
+        index,
+        key: 'product_description',
+        value: selected?.label || ''
+      })
+    );
 
     try {
       const product = await dispatch(getProduct(selected.value)).unwrap();
@@ -313,7 +343,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       title: 'Product Code',
       dataIndex: 'product_code',
       key: 'product_code',
-      render: (_, { product_code, product_type_id, editable }, index) => {
+      render: (_, { product_code, product_type_id }, index) => {
         return (
           <DebounceInput
             value={product_code}
@@ -326,7 +356,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
                 })
               )
             }
-            disabled={product_type_id?.value == 4 || editable === false}
+            disabled={product_type_id?.value == 4}
             onBlur={(e) => onProductCodeChange(index, e.target.value)}
             onPressEnter={(e) => onProductCodeChange(index, e.target.value)}
           />
@@ -335,10 +365,10 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       width: 120
     },
     {
-      title: 'Description',
+      title: 'Product Name',
       dataIndex: 'product_name',
       key: 'product_name',
-      render: (_, { product_id, product_name, product_type_id, editable }, index) => {
+      render: (_, { product_id, product_name, product_type_id }, index) => {
         return product_type_id?.value == 4 ? (
           <Form.Item
             className="m-0"
@@ -348,40 +378,96 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
               {
                 required: true,
                 whitespace: true,
-                message: 'Description is required'
+                message: 'Product Name is required'
               }
             ]}>
             <DebounceInput
               value={product_name}
-              disabled={editable === false}
-              onChange={(value) =>
+              onChange={(value) => {
                 dispatch(
                   changePurchaseOrderDetailValue({
                     index,
                     key: 'product_name',
                     value: value
                   })
+                );
+
+                form.setFieldsValue({
+                  [`product_description-${index}`]: value
+                });
+
+                dispatch(
+                  changePurchaseOrderDetailValue({
+                    index,
+                    key: 'product_description',
+                    value: value
+                  })
+                );
+              }}
+            />
+          </Form.Item>
+        ) : (
+          <Form.Item
+            className="m-0"
+            name={`product_id-${index}`}
+            initialValue={product_id}
+            rules={[
+              {
+                required: true,
+                message: 'Product Name is required'
+              }
+            ]}>
+            <AsyncSelect
+              endpoint="/product"
+              valueKey="product_id"
+              labelKey="product_name"
+              labelInValue
+              className="w-full"
+              value={product_id}
+              onChange={(selected) => onProductChange(index, selected)}
+              addNewLink={
+                permissions.product.list && permissions.product.add ? '/product/create' : null
+              }
+            />
+          </Form.Item>
+        );
+      },
+      width: 560
+    },
+    {
+      title: 'Description',
+      dataIndex: 'product_description',
+      key: 'product_description',
+      render: (_, { product_description, product_type_id }, index) => {
+        return (
+          <Form.Item
+            className="m-0"
+            name={`product_description-${index}`}
+            initialValue={product_description}
+            rules={[
+              {
+                required: true,
+                whitespace: true,
+                message: 'Description is required'
+              }
+            ]}>
+            <DebounceInput
+              value={product_description}
+              disabled={product_type_id?.value == 4}
+              onChange={(value) =>
+                dispatch(
+                  changePurchaseOrderDetailValue({
+                    index,
+                    key: 'product_description',
+                    value: value
+                  })
                 )
               }
             />
           </Form.Item>
-        ) : (
-          <AsyncSelect
-            endpoint="/product"
-            valueKey="product_id"
-            labelKey="product_name"
-            labelInValue
-            className="w-full"
-            disabled={editable === false}
-            value={product_id}
-            onChange={(selected) => onProductChange(index, selected)}
-            addNewLink={
-              permissions.product.list && permissions.product.add ? '/product/create' : null
-            }
-          />
         );
       },
-      width: 560
+      width: 300
     },
     {
       title: 'Customer Notes',

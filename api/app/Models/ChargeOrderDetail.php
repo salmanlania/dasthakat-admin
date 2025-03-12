@@ -32,6 +32,8 @@ class ChargeOrderDetail extends Model
         "internal_notes",
         "picklist_id",
         "picklist_detail_id",
+        "servicelist_id",
+        "servicelist_detail_id",
         "quantity",
         "cost_price",
         "rate",

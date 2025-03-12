@@ -5,7 +5,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { GMS_ADDRESS } from '../../constants';
 import useError from '../../hooks/useError';
 import {
-  createChargeOrderPO, getChargeOrder,
+  createChargeOrderPO,
+  getChargeOrder,
   getChargeOrderVendorWise
 } from '../../store/features/chargeOrderSlice';
 import { setChargePoID } from '../../store/features/purchaseOrderSlice';
@@ -19,7 +20,6 @@ const PurchaseOrderModal = () => {
 
   const { poChargeID } = useSelector((state) => state.purchaseOrder);
   const { initialFormValues } = useSelector((state) => state.chargeOrder);
-
 
   const [details, setDetails] = useState([]);
   const [isLoading, setLoading] = useState(false);
@@ -67,7 +67,7 @@ const PurchaseOrderModal = () => {
 
       // if initialFormValues is available, that means we are in edit charge order screen, so we need to fetch the updated charge order
       if (initialFormValues) {
-        dispatch(getChargeOrder(poChargeID)).unwrap()
+        dispatch(getChargeOrder(poChargeID)).unwrap();
       }
     } catch (error) {
       handleError(error);
@@ -145,7 +145,7 @@ const PurchaseOrderModal = () => {
       ) : null}
 
       <Form
-        name="charge-order-modal"
+        name="purchase-order-modal"
         form={form}
         layout="vertical"
         autoComplete="off"

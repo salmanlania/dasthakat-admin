@@ -347,21 +347,19 @@ export const createIJOPrint = (data) => {
     data.job_order_detail.forEach((detail) => {
       table3Row.push([
         {
-          content: detail?.charge_order?.document_identity || "",
+          content: detail?.charge_order?.document_identity || '',
           styles: {
             textColor: '#d51902' // Red Color
           }
         },
         {
-          content: detail?.charge_order?.customer_po_no || "",
+          content: detail?.charge_order?.customer_po_no || '',
           styles: {
             textColor: '#d51902' // Red Color
           }
         },
         {
-          content:  detail?.product_type?.product_type_id === 4
-            ? detail?.product_name || ''
-            : detail?.product?.product_name || '',
+          content: detail?.product_description || '',
           styles: {
             halign: 'left'
           }

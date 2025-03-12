@@ -99,8 +99,8 @@ class JobOrderController extends Controller
 			"class2",
 			"salesman",
 			"agent",
-		)
-			->where('job_order_id', $id)->first();
+			"certificates",
+		)->where('job_order_id', $id)->first();
 
 
 		return $this->jsonResponse($data, 200, "Job Order Data");
@@ -151,7 +151,6 @@ class JobOrderController extends Controller
 			'created_at' => date('Y-m-d H:i:s'),
 			'created_by' => $request->login_user_id,
 		];
-		JobOrder::create($insertArr);
 
 		// Fetch ChargeOrderDetail records, excluding those with an existing job_order_id
 		$detail = ChargeOrderDetail::with([
@@ -176,8 +175,9 @@ class JobOrderController extends Controller
 			})
 			->whereNull('job_order_detail_id') // Restrict to records without a job_order_id
 			->get();
-
 		if ($detail->isNotEmpty()) {
+			JobOrder::create($insertArr);
+
 			foreach ($detail as $value) {
 				$detail_uuid = $this->get_uuid();
 				$insert = [
@@ -202,17 +202,19 @@ class JobOrderController extends Controller
 
 				JobOrderDetail::create($insert);
 				if ($value['product_type_id'] == 1) { // services type
-					$Product = $value['product'];
+					$subCategory = $value['product']['sub_category']['name'] ?? "";
 					$Certificate = [
 						'certificate_id' => $this->get_uuid(),
 						'job_order_id' => $insertArr['job_order_id'],
 						'job_order_detail_id' => $detail_uuid,
-						'certificate_number' => $value['product']['sub_category']['name'] ?? "",
+						'certificate_number' => $subCategory,
 						'certificate_date' => Carbon::now(),
 						'created_at' => Carbon::now(),
 						'created_by' => $request->login_user_id,
 					];
-					JobOrderDetailCertificate::create($Certificate);
+					if ($subCategory == "Metals" || $subCategory == "PETROLEUM" || $subCategory == "BONDED") {
+						JobOrderDetailCertificate::create($Certificate);
+					}
 				}
 				if (!empty($value['charge_order_detail_id'])) {
 					$charge_order_detail = ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id'])->first();
@@ -261,8 +263,19 @@ class JobOrderController extends Controller
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		$data  = JobOrder::where('job_order_id', $id)->first();
 		if (!$data) return $this->jsonResponse(['job_order_id' => $id], 404, "Job Order Not Found!");
+
+
+		$jobOrderDetailIds = JobOrderDetail::where('job_order_id', $id)->pluck('job_order_detail_id');
+
+		ChargeOrderDetail::whereIn('job_order_detail_id', $jobOrderDetailIds)
+			->update([
+				'job_order_id' => null,
+				'job_order_detail_id' => null,
+			]);
+
 		$data->delete();
 		JobOrderDetail::where('job_order_id', $id)->delete();
+
 		return $this->jsonResponse(['job_order_id' => $id], 200, "Delete Job Order Successfully!");
 	}
 	public function bulkDelete(Request $request)
@@ -274,6 +287,14 @@ class JobOrderController extends Controller
 			if (isset($request->job_order_ids) && !empty($request->job_order_ids) && is_array($request->job_order_ids)) {
 				foreach ($request->job_order_ids as $job_order_id) {
 					$user = JobOrder::where(['job_order_id' => $job_order_id])->first();
+					$jobOrderDetailIds = JobOrderDetail::where('job_order_id', $job_order_id)->pluck('job_order_detail_id');
+
+					ChargeOrderDetail::whereIn('job_order_detail_id', $jobOrderDetailIds)
+						->update([
+							'job_order_id' => null,
+							'job_order_detail_id' => null,
+						]);
+
 					$user->delete();
 					JobOrderDetail::where('job_order_id', $job_order_id)->delete();
 				}

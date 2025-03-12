@@ -137,7 +137,9 @@ class ServicelistController extends Controller
 		// Fetch received servicelist history
 		$receivedData = ServicelistReceived::with([
 			"servicelist_received_detail",
-			"servicelist_received_detail.product"
+			"servicelist_received_detail.pulled_by",
+			"servicelist_received_detail.product",
+			"servicelist_received_detail.warehouse"
 		])->where('servicelist_id', $id)->get();
 
 		// Prepare response data
@@ -146,27 +148,32 @@ class ServicelistController extends Controller
 		foreach ($servicelist->servicelist_detail as $detail) {
 			$servicelistDetailId = $detail->servicelist_detail_id;
 
-			// Sum received quantity for this servicelist item across all received chunks
-			$totalReceivedQty = $receivedData->flatMap(function ($received) {
+			// Get received details for this specific servicelist detail item
+			$receivedDetails = $receivedData->flatMap(function ($received) {
 				return $received->servicelist_received_detail;
-			})->where('servicelist_detail_id', $servicelistDetailId)
-				->sum('quantity');
+			})->where('servicelist_detail_id', $servicelistDetailId);
+
+			// Sum received quantity
+			$totalReceivedQty = $receivedDetails->sum('quantity');
+
+			$warehouseNames = $receivedDetails->pluck('warehouse.name')->filter()->unique()->implode(', ');
+			$remarks = $receivedDetails->pluck('remarks')->filter()->unique()->implode(', ');
 
 			$items[] = [
 				"servicelist_detail_id" => $servicelistDetailId,
-				"product" => $detail['product'] ?? null,
-				"remarks" => $detail->remarks ?? "",
+				"product" => $detail->product ?? null,
 				"original_quantity" => $detail->quantity,
-				"total_received_quantity" => $totalReceivedQty
+				"total_received_quantity" => $totalReceivedQty,
+				"remarks" => $remarks ?: null, // Show null if empty
+				"warehouse" => ["name" => $warehouseNames ?: null], // Show null if empty
 			];
 		}
 
 		// Final response structure
 		$response = [
 			...$servicelist->toArray(), // Convert servicelist model to an array
-			"items" => $items
+			"items" => $items,
 		];
-		
 
 		return $this->jsonResponse($response, 200, "Servicelist Details");
 	}

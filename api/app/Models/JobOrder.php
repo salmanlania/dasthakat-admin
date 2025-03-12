@@ -58,7 +58,7 @@ class JobOrder extends Model
     }
     public function customer()
     {
-        return $this->hasOne(Customer::class, 'customer_id', 'customer_id')->select('customer_id', 'name');
+        return $this->hasOne(Customer::class, 'customer_id', 'customer_id')->select('*');
     }
     public function flag()
     {
@@ -75,5 +75,9 @@ class JobOrder extends Model
     public function agent()
     {
         return $this->hasOne(Agent::class, 'agent_id', 'agent_id')->select('*');
+    }
+    public function certificates()
+    {
+        return $this->hasMany(JobOrderDetailCertificate::class, 'job_order_id', 'job_order_id')->select('*');
     }
 }

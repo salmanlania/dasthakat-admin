@@ -46,6 +46,12 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
       width: 120
     },
     {
+      title: 'Product Name',
+      dataIndex: 'product_name',
+      key: 'product_name',
+      width: 300
+    },
+    {
       title: 'Description',
       dataIndex: 'description',
       key: 'description',
@@ -100,11 +106,7 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
       class2_id: null,
       flag_id: null
     });
-
-    if (!selected) {
-      dispatch(setChargeOrderDetails([]));
-      return;
-    }
+    dispatch(setChargeOrderDetails([]));
 
     try {
       const data = await dispatch(getEventChargeOrders(selected.value)).unwrap();
@@ -141,17 +143,18 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
 
       charge_orders.forEach(({ document_identity, charge_order_detail }) => {
         const chargeOrderNo = document_identity;
-
         charge_order_detail.forEach((detail) => {
+          if(detail.job_order_detail_id) return;
           eventChargeDetails.push({
             id: detail.charge_order_detail_id,
             charge_order_no: chargeOrderNo,
             product_type: detail?.product_type?.name,
             product_code: detail?.product_code,
-            description:
+            product_name:
               detail?.product_type?.product_type_id == 4
                 ? detail?.product_name
                 : detail?.product?.product_name,
+            description: detail?.product_description,
             customer_notes: detail?.description,
             internal_notes: detail?.internal_notes,
             quantity: parseFloat(detail?.quantity || 0),

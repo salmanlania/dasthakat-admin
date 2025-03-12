@@ -238,7 +238,7 @@ export const createQuotationPrint = async (data) => {
   if (data.quotation_detail) {
     data.quotation_detail.forEach((detail, index) => {
       const sr = detail.sort_order + 1;
-      const description = `${detail?.product_type?.product_type_id === 4 ? detail?.product_name || '' : detail?.product?.product_name || ''}\n \n${detail?.description || ''}`;
+      const description = `${detail?.product_description || ''}${detail?.description ? `\n \n${detail.description}` : ''}`;
       const uom = detail.unit ? detail.unit.name : '';
       const quantity = detail.quantity ? formatThreeDigitCommas(parseFloat(detail.quantity)) : '';
       const pricePerUnit = detail.rate ? `$${formatThreeDigitCommas(detail.rate)}` : '';
@@ -257,7 +257,7 @@ export const createQuotationPrint = async (data) => {
         sr,
         {
           content: description,
-          styles: { halign: 'left' }
+          styles: { halign: 'left', valign: detail?.description?.trim() ? 'top' : 'middle' }
         },
         uom,
         quantity,
@@ -306,10 +306,10 @@ export const createQuotationPrint = async (data) => {
     rowPageBreak: 'avoid',
     columnStyles: {
       0: { cellWidth: 10 },
-      1: { cellWidth: 83 },
+      1: { cellWidth: 80 },
       2: { cellWidth: 11 },
       3: { cellWidth: 10 },
-      4: { cellWidth: 14 },
+      4: { cellWidth: 17 },
       5: { cellWidth: 19 },
       6: { cellWidth: 14 },
       7: { cellWidth: 14 },
@@ -429,10 +429,10 @@ export const createQuotationPrint = async (data) => {
     },
     columnStyles: {
       0: { cellWidth: 25 },
-      1: { cellWidth: 69 },
+      1: { cellWidth: 66 },
       2: { cellWidth: 10 },
       3: { cellWidth: 10 },
-      4: { cellWidth: 14 },
+      4: { cellWidth: 17 },
       5: { cellWidth: 19 },
       6: { cellWidth: 14 },
       7: { cellWidth: 14 },

@@ -378,6 +378,7 @@ export const quotationSlice = createSlice({
             }
           : null,
         product_name: detail.product_name,
+        product_description: detail.product_description,
         description: detail.description,
         stock_quantity: detail?.product?.stock?.quantity
           ? parseFloat(detail.product.stock.quantity)
