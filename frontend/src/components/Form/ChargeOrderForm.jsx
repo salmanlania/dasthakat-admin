@@ -886,11 +886,11 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       handleError(error);
     }
   };
-  const getRowClassName = (record, index) => {
-    return record.job_order_detail_id !== null && record.job_order_detail_id !== undefined 
-      ? '!bg-sky-100' 
-      : '';
-  };
+  // const getRowClassName = (record, index) => {
+  //   return record.job_order_detail_id !== null && record.job_order_detail_id !== undefined 
+  //     ? '!bg-sky-100' 
+  //     : '';
+  // };
   return (
     <Form
       name="chargeOrder"
@@ -1025,7 +1025,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         sticky={{
           offsetHeader: 56
         }}
-        rowClassName={getRowClassName}
+        // rowClassName={getRowClassName}
       />
 
       <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
