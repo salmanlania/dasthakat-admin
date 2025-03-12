@@ -359,6 +359,8 @@ class ChargeOrderController extends Controller
 					'purchase_order_detail_id' => $value['purchase_order_detail_id'] ?? "",
 					'picklist_id' => $value['picklist_id'] ?? "",
 					'picklist_detail_id' => $value['picklist_detail_id'] ?? "",
+					'job_order_id' => $value['job_order_id'] ?? "",
+					'job_order_detail_id' => $value['job_order_detail_id'] ?? "",
 					'servicelist_id' => $value['servicelist_id'] ?? "",
 					'quotation_detail_id' => $value['quotation_detail_id'] ?? "",
 					'servicelist_detail_id' => $value['servicelist_detail_id'] ?? "",
