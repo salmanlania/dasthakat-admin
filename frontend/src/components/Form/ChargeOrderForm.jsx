@@ -26,6 +26,7 @@ import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput'
 import DebouncedNumberInput from '../Input/DebouncedNumberInput';
 import { DetailSummaryInfo } from './QuotationForm';
 import { setChargePoID } from '../../store/features/purchaseOrderSlice.js';
+import { changeQuotationDetailValue } from '../../store/features/quotationSlice.js';
 
 // eslint-disable-next-line react/prop-types
 const ChargeOrderForm = ({ mode, onSubmit }) => {
@@ -536,6 +537,28 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
                 changeChargeOrderDetailValue({
                   index,
                   key: 'description',
+                  value: value
+                })
+              )
+            }
+          />
+        );
+      },
+      width: 240
+    },
+    {
+      title: 'Internal Notes',
+      dataIndex: 'internal_notes',
+      key: 'internal_notes',
+      render: (_, { internal_notes }, index) => {
+        return (
+          <DebounceInput
+            value={internal_notes}
+            onChange={(value) =>
+              dispatch(
+                changeQuotationDetailValue({
+                  index,
+                  key: 'internal_notes',
                   value: value
                 })
               )
