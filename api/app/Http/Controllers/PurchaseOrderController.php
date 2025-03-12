@@ -29,6 +29,7 @@ class PurchaseOrderController extends Controller
 		$event_id = $request->input('event_id', '');
 		$vessel_id = $request->input('vessel_id', '');
 		$type = $request->input('type', '');
+		$status = $request->input('status', '');
 
 		$search = $request->input('search', '');
 		$page = $request->input('page', 1);
@@ -88,8 +89,66 @@ class PurchaseOrderController extends Controller
 			});
 		}
 
-		$data = $data->select("purchase_order.*", 'c.name as customer_name', "s.name as supplier_name", "q.document_identity as quotation_no", "co.document_identity as charge_no")
-			->orderBy($sort_column, $sort_direction)
+
+
+		// $data = $data->select("purchase_order.*", 'c.name as customer_name', "s.name as supplier_name", "q.document_identity as quotation_no", "co.document_identity as charge_no")
+		$data->select(
+			"purchase_order.*",
+			'c.name as customer_name',
+			"s.name as supplier_name",
+			"q.document_identity as quotation_no",
+			"co.document_identity as charge_no",
+			DB::raw(
+				"
+				CASE
+					WHEN NOT EXISTS (
+						SELECT 1
+						FROM purchase_order_detail pod
+						WHERE pod.purchase_order_id = purchase_order.purchase_order_id
+					) THEN 'in_progress'
+					WHEN EXISTS (
+						SELECT 1
+						FROM purchase_order_detail pod
+						LEFT JOIN good_received_note grn ON grn.purchase_order_id = pod.purchase_order_id
+						LEFT JOIN good_received_note_detail grnd 
+							ON grnd.good_received_note_id = grn.good_received_note_id 
+							AND grnd.product_id = pod.product_id
+						WHERE pod.purchase_order_id = purchase_order.purchase_order_id
+						GROUP BY pod.product_id, pod.quantity
+						HAVING SUM(IFNULL(grnd.quantity, 0)) < pod.quantity
+					) THEN 'partial'
+					ELSE 'completed'
+				END AS grn_status"
+			)
+		);
+
+		// **Apply Status Filter if Provided**
+		if (!empty($status)) {
+			$data->whereRaw(
+				"
+				CASE
+					WHEN NOT EXISTS (
+						SELECT 1
+						FROM purchase_order_detail pod
+						WHERE pod.purchase_order_id = purchase_order.purchase_order_id
+					) THEN 'in_progress'
+					WHEN EXISTS (
+						SELECT 1
+						FROM purchase_order_detail pod
+						LEFT JOIN good_received_note grn ON grn.purchase_order_id = pod.purchase_order_id
+						LEFT JOIN good_received_note_detail grnd 
+							ON grnd.good_received_note_id = grn.good_received_note_id 
+							AND grnd.product_id = pod.product_id
+						WHERE pod.purchase_order_id = purchase_order.purchase_order_id
+						GROUP BY pod.product_id, pod.quantity
+						HAVING SUM(IFNULL(grnd.quantity, 0)) < pod.quantity
+					) THEN 'partial'
+					ELSE 'completed'
+				END = ?",
+				[$status]
+			);
+		}
+		$data->orderBy($sort_column, $sort_direction)
 			->paginate($perPage, ['*'], 'page', $page);
 
 
