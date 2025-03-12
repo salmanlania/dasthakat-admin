@@ -429,67 +429,51 @@ export const createIJOPrint = (data) => {
           textColor: '#ffffff' // White Color
         }
       }
-    ],
-    [
-      {
-        content: 'GMSH/948/12/2023',
-        styles: {
-          textColor: '#d51902' // Red Color
-        }
-      },
-      {
-        content: 'FRS'
-      },
-      {
-        content: 'Work Order Complied By',
-        styles: {
-          fillColor: 'ebf1de' // gray color
-        }
-      },
-      {
-        content: 'Muhammad Ali',
-        styles: {
-          textColor: '#d51902' // Red Color
-        }
-      }
-    ],
-    [
-      {
-        content: 'GMSHC/674/12/2023 ',
-        styles: {
-          textColor: '#d51902' // Red Color
-        }
-      },
-      {
-        content: 'Calibration'
-      },
-      {
-        content: 'Original Service Order & Certifcate received by',
-        styles: {
-          fillColor: 'ebf1de' // gray color
-        }
-      },
-      {
-        content: '',
-        styles: {
-          textColor: '#d51902' // Red Color
-        }
-      }
-    ],
-    [
-      {
-        content: 'General Notes',
-        styles: {
-          fillColor: 'ebf1de', // gray color
-          textColor: '#244062' // Blue Color
-        }
-      },
-      {
-        content: '',
-        colSpan: 3
-      }
     ]
   ];
+
+  if (data?.certificates && data.certificates.length) {
+    data.certificates.forEach((certificate) => {
+      table4Row.push([
+        {
+          content: certificate?.certificate_number || '',
+          styles: {
+            textColor: '#d51902' // Red Color
+          }
+        },
+        {
+          content: certificate?.certificate_number || ''
+        },
+        {
+          content: 'Work Order Complied By',
+          styles: {
+            fillColor: 'ebf1de' // gray color
+          }
+        },
+        {
+          content: 'Muhammad Ali',
+          styles: {
+            textColor: '#d51902' // Red Color
+          }
+        }
+      ]);
+    });
+  }
+
+  table4Row.push([
+    {
+      content: 'General Notes',
+      styles: {
+        fillColor: 'ebf1de', // gray color
+        textColor: '#244062' // Blue Color
+      }
+    },
+    {
+      content: '',
+      colSpan: 3
+    }
+  ]);
+
   doc.autoTable({
     startY: doc.previousAutoTable.finalY,
     body: table4Row,
