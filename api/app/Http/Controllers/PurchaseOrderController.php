@@ -29,7 +29,7 @@ class PurchaseOrderController extends Controller
 		$event_id = $request->input('event_id', '');
 		$vessel_id = $request->input('vessel_id', '');
 		$type = $request->input('type', '');
-		$status = $request->input('status', '');
+		$status = $request->input('grn_status', '');
 
 		$search = $request->input('search', '');
 		$page = $request->input('page', 1);
@@ -92,20 +92,26 @@ class PurchaseOrderController extends Controller
 
 
 		// $data = $data->select("purchase_order.*", 'c.name as customer_name', "s.name as supplier_name", "q.document_identity as quotation_no", "co.document_identity as charge_no")
-		$data->select(
+		$data = $data->select(
 			"purchase_order.*",
 			'c.name as customer_name',
+			'e.event_code',
+			'v.name as vessel_name',
 			"s.name as supplier_name",
 			"q.document_identity as quotation_no",
 			"co.document_identity as charge_no",
-			DB::raw(
-				"
+			DB::raw("
 				CASE
 					WHEN NOT EXISTS (
 						SELECT 1
 						FROM purchase_order_detail pod
 						WHERE pod.purchase_order_id = purchase_order.purchase_order_id
-					) THEN 'in_progress'
+					) THEN 3  -- No details exist
+					WHEN NOT EXISTS (
+						SELECT 1
+						FROM good_received_note grn
+						WHERE grn.purchase_order_id = purchase_order.purchase_order_id
+					) THEN 3  -- Details exist but no GRN created
 					WHEN EXISTS (
 						SELECT 1
 						FROM purchase_order_detail pod
@@ -116,8 +122,8 @@ class PurchaseOrderController extends Controller
 						WHERE pod.purchase_order_id = purchase_order.purchase_order_id
 						GROUP BY pod.product_id, pod.quantity
 						HAVING SUM(IFNULL(grnd.quantity, 0)) < pod.quantity
-					) THEN 'partial'
-					ELSE 'completed'
+					) THEN 2  -- Some items received but not all
+					ELSE 1  -- All items fully received
 				END AS grn_status"
 			)
 		);
@@ -131,7 +137,12 @@ class PurchaseOrderController extends Controller
 						SELECT 1
 						FROM purchase_order_detail pod
 						WHERE pod.purchase_order_id = purchase_order.purchase_order_id
-					) THEN 'in_progress'
+					) THEN 3  -- No details exist (in_progress)
+					WHEN NOT EXISTS (
+						SELECT 1
+						FROM good_received_note grn
+						WHERE grn.purchase_order_id = purchase_order.purchase_order_id
+					) THEN 3  -- Details exist but no GRN created (in_progress)
 					WHEN EXISTS (
 						SELECT 1
 						FROM purchase_order_detail pod
@@ -142,13 +153,13 @@ class PurchaseOrderController extends Controller
 						WHERE pod.purchase_order_id = purchase_order.purchase_order_id
 						GROUP BY pod.product_id, pod.quantity
 						HAVING SUM(IFNULL(grnd.quantity, 0)) < pod.quantity
-					) THEN 'partial'
-					ELSE 'completed'
+					) THEN 2  -- Partial receipt
+					ELSE 1  -- Fully received (completed)
 				END = ?",
 				[$status]
 			);
 		}
-		$data->orderBy($sort_column, $sort_direction)
+		$data = $data->orderBy($sort_column, $sort_direction)
 			->paginate($perPage, ['*'], 'page', $page);
 
 

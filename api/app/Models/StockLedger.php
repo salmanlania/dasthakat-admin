@@ -50,15 +50,15 @@ class StockLedger extends Model
 
                 $row = $arg['row'] ?? [];
                 $document = $arg['master_model']::find($arg['document_id']);
-                $multiplier = $type == 'O' ? -1 : 1;
+                $multiplier = (int)($type == 'O' ? -1 : 1);
                 if (!$document) {
                         throw new \Exception("Document not found with ID: {$arg['document_id']}");
                 }
-                $unit_conversion = $row['unit_conversion'] ?? 1;
-                $currency_conversion = $row['currency_conversion'] ?? 1;
-                $quantity = $multiplier * ($row['quantity'] ?? 0) * $unit_conversion;
+                $unit_conversion = (int)($row['unit_conversion'] ?? 1);
+                $currency_conversion = (int)($row['currency_conversion'] ?? 1);
+                $quantity = $multiplier * (int)($row['quantity'] ?? 0) * $unit_conversion;
                 $rate = ($row['rate'] ?? 0) * $currency_conversion;
-                $amount = $multiplier *$quantity * ($row['rate'] ?? 0) * $currency_conversion;
+                $amount = $multiplier * $quantity * (int)($row['rate'] ?? 0) * $currency_conversion;
                 $stock = [
                         'company_id'            => $document->company_id,
                         'company_branch_id'     => $document->company_branch_id,
@@ -73,9 +73,9 @@ class StockLedger extends Model
                         'unit'                  => $row['unit_name'] ?? '',
                         'document_unit_id'      => $row['unit_id'] ?? '',
                         'document_currency_id'  => $document->base_currency_id,
-                        'document_qty'          => $multiplier * ($row['quantity'] ?? 0),
+                        'document_qty'          => $multiplier * (int)($row['quantity'] ?? 0),
                         'document_rate'         => $row['rate'] ?? 0,
-                        'document_amount'       => $multiplier * ($row['amount'] ?? 0),
+                        'document_amount'       => $multiplier * (int)($row['amount'] ?? 0),
                         'unit_conversion'       => $unit_conversion,
                         'currency_conversion'   => $currency_conversion,
                         'base_unit_id'          => $row['unit_id'] ?? '',
