@@ -99,8 +99,8 @@ class JobOrderController extends Controller
 			"class2",
 			"salesman",
 			"agent",
-		)
-			->where('job_order_id', $id)->first();
+			"certificates",
+		)->where('job_order_id', $id)->first();
 
 
 		return $this->jsonResponse($data, 200, "Job Order Data");
@@ -202,16 +202,19 @@ class JobOrderController extends Controller
 
 				JobOrderDetail::create($insert);
 				if ($value['product_type_id'] == 1) { // services type
+					$subCategory = $value['product']['sub_category']['name'] ?? "";
 					$Certificate = [
 						'certificate_id' => $this->get_uuid(),
 						'job_order_id' => $insertArr['job_order_id'],
 						'job_order_detail_id' => $detail_uuid,
-						'certificate_number' => $value['product']['sub_category']['name'] ?? "",
+						'certificate_number' => $subCategory,
 						'certificate_date' => Carbon::now(),
 						'created_at' => Carbon::now(),
 						'created_by' => $request->login_user_id,
 					];
-					JobOrderDetailCertificate::create($Certificate);
+					if ($subCategory == "Metals" || $subCategory == "PETROLEUM" || $subCategory == "BONDED") {
+						JobOrderDetailCertificate::create($Certificate);
+					}
 				}
 				if (!empty($value['charge_order_detail_id'])) {
 					$charge_order_detail = ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id'])->first();
