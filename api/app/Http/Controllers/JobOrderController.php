@@ -151,7 +151,6 @@ class JobOrderController extends Controller
 			'created_at' => date('Y-m-d H:i:s'),
 			'created_by' => $request->login_user_id,
 		];
-		JobOrder::create($insertArr);
 
 		// Fetch ChargeOrderDetail records, excluding those with an existing job_order_id
 		$detail = ChargeOrderDetail::with([
@@ -176,8 +175,9 @@ class JobOrderController extends Controller
 			})
 			->whereNull('job_order_detail_id') // Restrict to records without a job_order_id
 			->get();
-
 		if ($detail->isNotEmpty()) {
+			JobOrder::create($insertArr);
+
 			foreach ($detail as $value) {
 				$detail_uuid = $this->get_uuid();
 				$insert = [
@@ -202,7 +202,6 @@ class JobOrderController extends Controller
 
 				JobOrderDetail::create($insert);
 				if ($value['product_type_id'] == 1) { // services type
-					$Product = $value['product'];
 					$Certificate = [
 						'certificate_id' => $this->get_uuid(),
 						'job_order_id' => $insertArr['job_order_id'],

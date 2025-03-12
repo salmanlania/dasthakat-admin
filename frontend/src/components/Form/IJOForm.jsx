@@ -143,8 +143,8 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
 
       charge_orders.forEach(({ document_identity, charge_order_detail }) => {
         const chargeOrderNo = document_identity;
-
         charge_order_detail.forEach((detail) => {
+          if(detail.job_order_detail_id) return;
           eventChargeDetails.push({
             id: detail.charge_order_detail_id,
             charge_order_no: chargeOrderNo,

@@ -49,7 +49,7 @@ class Product extends Model
 
     public function sub_category()
     {
-        return $this->hasOne(SubCategory::class, 'sub_category_id')->select('*');
+        return $this->hasOne(SubCategory::class, 'sub_category_id','sub_category_id');
     }
 
 

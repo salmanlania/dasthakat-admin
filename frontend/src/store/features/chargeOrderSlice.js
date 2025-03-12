@@ -191,8 +191,15 @@ export const chargeOrderSlice = createSlice({
         state.chargeOrderDetails[index];
       const newDetail = {
         ...detail,
+        purchase_order_id: null,
+        purchase_order_detail_id: null,
+        quotation_detail_id: null,
         picklist_id: null,
         picklist_detail_id: null,
+        servicelist_id: null,
+        servicelist_detail_id: null,
+        job_order_id: null,
+        job_order_detail_id: null,
         id: Date.now()
       };
 
@@ -365,51 +372,51 @@ export const chargeOrderSlice = createSlice({
         remarks: data.remarks,
         agent_id: data.agent
           ? {
-              value: data.agent.agent_id,
-              label: data.agent.name
-            }
+            value: data.agent.agent_id,
+            label: data.agent.name
+          }
           : null,
         salesman_id: data.salesman
           ? {
-              value: data.salesman.salesman_id,
-              label: data.salesman.name
-            }
+            value: data.salesman.salesman_id,
+            label: data.salesman.name
+          }
           : null,
         event_id: data.event
           ? {
-              value: data.event.event_id,
-              label: data.event.event_name
-            }
+            value: data.event.event_id,
+            label: data.event.event_name
+          }
           : null,
         vessel_id: data.vessel
           ? {
-              value: data.vessel.vessel_id,
-              label: data.vessel.name
-            }
+            value: data.vessel.vessel_id,
+            label: data.vessel.name
+          }
           : null,
         customer_id: data.customer
           ? {
-              value: data.customer.customer_id,
-              label: data.customer.name
-            }
+            value: data.customer.customer_id,
+            label: data.customer.name
+          }
           : null,
         class1_id: data.class1
           ? {
-              value: data.class1.class1_id,
-              label: data.class1.name
-            }
+            value: data.class1.class1_id,
+            label: data.class1.name
+          }
           : null,
         class2_id: data.class2
           ? {
-              value: data.class2.class2_id,
-              label: data.class2.name
-            }
+            value: data.class2.class2_id,
+            label: data.class2.name
+          }
           : null,
         flag_id: data.flag
           ? {
-              value: data.flag.flag_id,
-              label: data.flag.name
-            }
+            value: data.flag.flag_id,
+            label: data.flag.name
+          }
           : null
       };
 
@@ -424,15 +431,21 @@ export const chargeOrderSlice = createSlice({
           : null,
         product_type_id: detail.product_type
           ? {
-              value: detail.product_type.product_type_id,
-              label: detail.product_type.name
-            }
+            value: detail.product_type.product_type_id,
+            label: detail.product_type.name
+          }
           : null,
         product_name: detail.product_name,
         product_description: detail.product_description,
         description: detail.description,
+        internal_notes: detail.internal_notes,
+        quotation_detail_id: detail.quotation_detail_id || null,
         picklist_id: detail.picklist_id || null,
         picklist_detail_id: detail.picklist_detail_id || null,
+        servicelist_id: detail.servicelist_id || null,
+        servicelist_detail_id: detail.servicelist_detail_id || null,
+        job_order_id: detail.job_order_id || null,
+        job_order_detail_id: detail.job_order_detail_id || null,
         stock_quantity: detail?.product?.stock?.quantity
           ? parseFloat(detail.product.stock.quantity)
           : 0,

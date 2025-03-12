@@ -234,6 +234,7 @@ export const ijoSlice = createSlice({
               : detail?.product?.product_name,
           description: detail?.product_description,
           customer_notes: detail?.description,
+          internal_notes: detail?.internal_notes,
           quantity: parseFloat(detail?.quantity || 0),
           unit: detail?.unit?.name || null
         });
