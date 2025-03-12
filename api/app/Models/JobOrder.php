@@ -76,4 +76,8 @@ class JobOrder extends Model
     {
         return $this->hasOne(Agent::class, 'agent_id', 'agent_id')->select('*');
     }
+    public function certificates()
+    {
+        return $this->hasMany(JobOrderDetailCertificate::class, 'job_order_id', 'job_order_id')->select('*');
+    }
 }
