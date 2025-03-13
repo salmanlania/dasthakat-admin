@@ -236,7 +236,7 @@ export const createQuotationPrint = async (data) => {
 
   const table2Rows = [];
   if (data.quotation_detail) {
-    data.quotation_detail.forEach((detail, index) => {
+    data.quotation_detail.forEach((detail) => {
       const sr = detail.sort_order + 1;
       const description = `${detail?.product_description || ''}${detail?.description ? `\n \n${detail.description}` : ''}`;
       const uom = detail.unit ? detail.unit.name : '';

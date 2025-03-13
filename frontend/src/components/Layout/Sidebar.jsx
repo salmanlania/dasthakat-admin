@@ -86,16 +86,14 @@ const Sidebar = () => {
     !permissions?.validity?.list &&
     !permissions?.payment?.list;
 
-
-
   const saleManagementPermission =
     !permissions?.quotation?.list &&
     !permissions?.charge_order?.list &&
     !permissions?.purchase_order?.list &&
     !permissions?.job_order?.list;
 
-  const warehousingPermission = !permissions?.good_received_note?.list
-  const accountingPermission = !permissions?.purchase_invoice?.list
+  const warehousingPermission = !permissions?.good_received_note?.list;
+  const accountingPermission = !permissions?.purchase_invoice?.list;
 
   const items = [
     {
@@ -294,12 +292,16 @@ const Sidebar = () => {
           label: <Link to="/goods-received-note">Goods Received Note</Link>,
           disabled: !permissions?.good_received_note?.list
         },
+        {
+          key: 'dispatch',
+          label: <Link to="/dispatch">Dispatch</Link>
+        }
       ]
     },
     {
       key: 'accounting',
       label: 'Accounting',
-      icon: <LuCalculator  size={18} />,
+      icon: <LuCalculator size={18} />,
       disabled: accountingPermission,
       children: [
         {
