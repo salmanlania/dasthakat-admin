@@ -150,6 +150,9 @@
   ('Warehousing', 'Goods Received Note', 'good_received_note', 'edit', 'Edit', 1.103),
   ('Warehousing', 'Goods Received Note', 'good_received_note', 'delete', 'Delete', 1.104),
 
+  ('Warehousing', 'Dispatch', 'dispatch', 'list', 'List', 1.101),
+  ('Warehousing', 'Dispatch', 'dispatch', 'update', 'Update', 1.102),
+
   ('Accounting', 'Purchase Invoice', 'purchase_invoice', 'list', 'List', 1.101),
   ('Accounting', 'Purchase Invoice', 'purchase_invoice', 'add', 'Add', 1.102),
   ('Accounting', 'Purchase Invoice', 'purchase_invoice', 'edit', 'Edit', 1.103),

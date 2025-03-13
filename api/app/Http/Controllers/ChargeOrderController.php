@@ -142,6 +142,9 @@ class ChargeOrderController extends Controller
 		$data = $request->all();
 		$chargeOrderId = $data['charge_order_id'];
 
+		$chargeOrder = ChargeOrder::where('charge_order_id', $chargeOrderId)->first();
+		$Quotation = Quotation::where('document_identity', $chargeOrder->ref_document_identity)->first();
+
 		foreach ($data['vendors'] as $vendor) {
 			$supplierId = $vendor['supplier_id'] ?? null;
 			$requiredDate = $vendor['required_date'] ?? null;
@@ -169,7 +172,8 @@ class ChargeOrderController extends Controller
 				'company_id'        => $request->company_id,
 				'company_branch_id' => $request->company_branch_id,
 				'purchase_order_id' => $uuid,
-				'charge_order_id'   => $chargeOrderId, // Linking Charge Order ID
+				'charge_order_id'   => $chargeOrderId ?? "", // Linking Charge Order ID
+				'quotation_id'   => $Quotation->quotation_id ?? "", // Linking Charge Order ID
 				'document_type_id'  => $document['document_type_id'] ?? null,
 				'document_no'       => $document['document_no'] ?? null,
 				'document_prefix'   => $document['document_prefix'] ?? null,
@@ -355,6 +359,8 @@ class ChargeOrderController extends Controller
 					'purchase_order_detail_id' => $value['purchase_order_detail_id'] ?? "",
 					'picklist_id' => $value['picklist_id'] ?? "",
 					'picklist_detail_id' => $value['picklist_detail_id'] ?? "",
+					'job_order_id' => $value['job_order_id'] ?? "",
+					'job_order_detail_id' => $value['job_order_detail_id'] ?? "",
 					'servicelist_id' => $value['servicelist_id'] ?? "",
 					'quotation_detail_id' => $value['quotation_detail_id'] ?? "",
 					'servicelist_detail_id' => $value['servicelist_detail_id'] ?? "",
