@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { FaRegFilePdf } from 'react-icons/fa';
+import { FaRegFileExcel } from 'react-icons/fa6';
 import { GoTrash } from 'react-icons/go';
 import { HiRefresh } from 'react-icons/hi';
 import { MdOutlineEdit } from 'react-icons/md';
@@ -24,7 +25,9 @@ import {
   setQuotationDeleteIDs,
   setQuotationListParams
 } from '../../store/features/quotationSlice';
+import generateQuotationExcel from '../../utils/excel/quotation-excel.js';
 import { createQuotationPrint } from '../../utils/prints/quotation-print';
+
 const Quotation = () => {
   const dispatch = useDispatch();
   const handleError = useError();
@@ -72,6 +75,19 @@ const Quotation = () => {
     try {
       const data = await dispatch(getQuotationForPrint(id)).unwrap();
       createQuotationPrint(data);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      toast.dismiss(loadingToast);
+    }
+  };
+
+  const exportQuotation = async (id) => {
+    const loadingToast = toast.loading('Loading excel...');
+
+    try {
+      const data = await dispatch(getQuotationForPrint(id)).unwrap();
+      generateQuotationExcel(data);
     } catch (error) {
       handleError(error);
     } finally {
@@ -227,18 +243,30 @@ const Quotation = () => {
       title: 'Action',
       key: 'action',
       render: (_, { quotation_id }) => (
-        <div className="flex flex-col items-center justify-center gap-1">
+        <div className="flex flex-col justify-center gap-1">
           <div className="flex items-center gap-1">
             {permissions.edit ? (
-              <Tooltip title="Print">
-                <Button
-                  size="small"
-                  type="primary"
-                  className="bg-rose-600 hover:!bg-rose-500"
-                  icon={<FaRegFilePdf size={14} />}
-                  onClick={() => printQuotation(quotation_id)}
-                />
-              </Tooltip>
+              <>
+                <Tooltip title="Print">
+                  <Button
+                    size="small"
+                    type="primary"
+                    className="bg-rose-600 hover:!bg-rose-500"
+                    icon={<FaRegFilePdf size={14} />}
+                    onClick={() => printQuotation(quotation_id)}
+                  />
+                </Tooltip>
+
+                <Tooltip title="Export">
+                  <Button
+                    size="small"
+                    type="primary"
+                    className="bg-emerald-800 hover:!bg-emerald-700"
+                    icon={<FaRegFileExcel size={14} />}
+                    onClick={() => exportQuotation(quotation_id)}
+                  />
+                </Tooltip>
+              </>
             ) : null}
             <Tooltip title="Charge Order">
               <Button
@@ -279,7 +307,7 @@ const Quotation = () => {
           </div>
         </div>
       ),
-      width: 80,
+      width: 100,
       fixed: 'right'
     }
   ];

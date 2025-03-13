@@ -1,5 +1,5 @@
-import { Suspense, lazy } from 'react';
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import PageLoader from './components/LoadingSpinners/PageLoader';
 import MainLayout from './layouts/MainLayout';
 import ErrorPage from './pages/feedback/ErrorPage';
@@ -97,6 +97,8 @@ const EditIJO = lazy(() => import('./pages/IJO/EditIJO'));
 
 const PickList = lazy(() => import('./pages/PickList'));
 const ServiceList = lazy(() => import('./pages/ServiceList'));
+
+const Dispatch = lazy(() => import('./pages/Dispatch'));
 
 function Routes() {
   const router = createBrowserRouter(
@@ -632,6 +634,14 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <ServiceList />
+              </Suspense>
+            )
+          },
+          {
+            path: '/dispatch',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Dispatch />
               </Suspense>
             )
           }
