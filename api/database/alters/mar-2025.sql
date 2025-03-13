@@ -145,5 +145,11 @@ ALTER TABLE job_order_detail_certificate
 RENAME COLUMN certifiate_id TO certificate_id;
 
 ALTER TABLE charge_order_detail
-ADD COLUMN servicelist_id CHAR(36) picklist_id,
-ADD COLUMN servicelist_detail_id CHAR(36) servicelist_id;
+ADD COLUMN servicelist_id CHAR(36) after picklist_id,
+ADD COLUMN servicelist_detail_id CHAR(36) after servicelist_id;
+
+ALTER TABLE job_order_detail_certificate
+ADD COLUMN sort_order INT after job_order_detail_id;
+
+ALTER TABLE job_order_detail
+ADD COLUMN status CHAR(36) after internal_notes;
