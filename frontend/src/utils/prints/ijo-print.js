@@ -458,6 +458,21 @@ export const createIJOPrint = (data) => {
         }
       ]);
     });
+  } else {
+    table4Row.push([
+      {
+        content: ''
+      },
+      {
+        content: ''
+      },
+      {
+        content: ''
+      },
+      {
+        content: ''
+      }
+    ]);
   }
 
   table4Row.push([
