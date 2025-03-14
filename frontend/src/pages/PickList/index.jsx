@@ -1,6 +1,7 @@
 import { Button, Input, Select, Table, Tag, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { FaRegFilePdf } from 'react-icons/fa';
 import { LuListChecks } from 'react-icons/lu';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,7 +17,6 @@ import {
   setPickListOpenModalId
 } from '../../store/features/pickListSlice';
 import { createPickListPrint } from '../../utils/prints/pick-list-print';
-import toast from 'react-hot-toast';
 
 const pickListStatus = {
   1: 'Complete',
@@ -28,6 +28,8 @@ const PickList = () => {
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo } = useSelector((state) => state.pickList);
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user.permission.picklist;
 
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedPickListNo = useDebounce(params.document_identity, 500);
@@ -237,14 +239,16 @@ const PickList = () => {
       key: 'action',
       render: (_, { id }) => (
         <div className="flex items-center justify-center gap-2">
-          <Tooltip title="Items Receive">
-            <Button
-              size="small"
-              type="primary"
-              icon={<LuListChecks size={18} />}
-              onClick={() => dispatch(setPickListOpenModalId(id))}
-            />
-          </Tooltip>
+          {permissions.receive ? (
+            <Tooltip title="Items Receive">
+              <Button
+                size="small"
+                type="primary"
+                icon={<LuListChecks size={18} />}
+                onClick={() => dispatch(setPickListOpenModalId(id))}
+              />
+            </Tooltip>
+          ) : null}
           <Tooltip title="Print">
             <Button
               size="small"

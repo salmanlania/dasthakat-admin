@@ -92,7 +92,10 @@ const Sidebar = () => {
     !permissions?.purchase_order?.list &&
     !permissions?.job_order?.list;
 
-  const warehousingPermission = !permissions?.good_received_note?.list;
+  const warehousingPermission =
+    !permissions?.good_received_note?.list &&
+    !permissions?.picklist?.list &&
+    !permissions?.servicelist?.list;
   const accountingPermission = !permissions?.purchase_invoice?.list;
 
   const items = [
@@ -281,11 +284,13 @@ const Sidebar = () => {
       children: [
         {
           key: 'pick-list',
-          label: <Link to="/pick-list">Pick List</Link>
+          label: <Link to="/pick-list">Pick List</Link>,
+          disabled: !permissions?.picklist?.list
         },
         {
           key: 'service-list',
-          label: <Link to="/service-list">Service List</Link>
+          label: <Link to="/service-list">Service List</Link>,
+          disabled: !permissions?.servicelist?.list
         },
         {
           key: 'goods-received-note',

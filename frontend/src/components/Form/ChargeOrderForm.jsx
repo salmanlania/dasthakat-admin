@@ -18,6 +18,8 @@ import {
 } from '../../store/features/chargeOrderSlice';
 import { getEvent } from '../../store/features/eventSlice';
 import { getProduct, getProductList } from '../../store/features/productSlice';
+import { setChargePoID } from '../../store/features/purchaseOrderSlice.js';
+import { changeQuotationDetailValue } from '../../store/features/quotationSlice.js';
 import { formatThreeDigitCommas, roundUpto } from '../../utils/number';
 import AsyncSelect from '../AsyncSelect';
 import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate';
@@ -25,8 +27,6 @@ import DebounceInput from '../Input/DebounceInput';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebouncedNumberInput from '../Input/DebouncedNumberInput';
 import { DetailSummaryInfo } from './QuotationForm';
-import { setChargePoID } from '../../store/features/purchaseOrderSlice.js';
-import { changeQuotationDetailValue } from '../../store/features/quotationSlice.js';
 
 // eslint-disable-next-line react/prop-types
 const ChargeOrderForm = ({ mode, onSubmit }) => {
@@ -887,8 +887,8 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
     }
   };
   // const getRowClassName = (record, index) => {
-  //   return record.job_order_detail_id !== null && record.job_order_detail_id !== undefined 
-  //     ? '!bg-sky-100' 
+  //   return record.job_order_detail_id !== null && record.job_order_detail_id !== undefined
+  //     ? '!bg-sky-100'
   //     : '';
   // };
   return (
@@ -1067,27 +1067,34 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
 
         {mode === 'edit' ? (
           <>
-            <Button
-              type="primary"
-              loading={isFormSubmitting === 'CREATE_PICK_LIST'}
-              className="w-28 bg-slate-600 hover:!bg-slate-500"
-              onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PICK_LIST'))}>
-              Pick List
-            </Button>
-            <Button
-              type="primary"
-              loading={isFormSubmitting === 'CREATE_SERVICE_LIST'}
-              className="w-28 bg-slate-600 hover:!bg-slate-500"
-              onClick={() => (isFormSubmitting ? null : onFinish('CREATE_SERVICE_LIST'))}>
-              Service List
-            </Button>
+            {permissions.picklist.add ? (
+              <Button
+                type="primary"
+                loading={isFormSubmitting === 'CREATE_PICK_LIST'}
+                className="w-28 bg-slate-600 hover:!bg-slate-500"
+                onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PICK_LIST'))}>
+                Pick List
+              </Button>
+            ) : null}
 
-            <Button
-              type="primary"
-              loading={isFormSubmitting === 'CREATE_PO' && !poChargeID}
-              onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PO'))}>
-              Save & Create PO
-            </Button>
+            {permissions.servicelist.add ? (
+              <Button
+                type="primary"
+                loading={isFormSubmitting === 'CREATE_SERVICE_LIST'}
+                className="w-28 bg-slate-600 hover:!bg-slate-500"
+                onClick={() => (isFormSubmitting ? null : onFinish('CREATE_SERVICE_LIST'))}>
+                Service List
+              </Button>
+            ) : null}
+
+            {permissions.purchase_order.add ? (
+              <Button
+                type="primary"
+                loading={isFormSubmitting === 'CREATE_PO' && !poChargeID}
+                onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PO'))}>
+                Save & Create PO
+              </Button>
+            ) : null}
           </>
         ) : null}
 

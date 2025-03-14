@@ -95,6 +95,8 @@ const MainLayout = () => {
   if (href.startsWith('/purchase-invoice/edit') && !permissions.purchase_invoice.edit)
     return <NotFound />;
 
+  if (href === '/pick-list' && !permissions.picklist.list) return <NotFound />;
+  if (href === '/service-list' && !permissions.servicelist.list) return <NotFound />;
   if (href === '/goods-received-note' && !permissions.good_received_note.list) return <NotFound />;
   if (href === '/goods-received-note/create' && !permissions.good_received_note.add)
     return <NotFound />;

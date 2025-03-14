@@ -23,6 +23,7 @@ import {
   setSalesmanPercentage
 } from '../../store/features/quotationSlice';
 import { getSalesman } from '../../store/features/salesmanSlice';
+import generateQuotationExcel from '../../utils/excel/quotation-excel.js';
 import { formatThreeDigitCommas, roundUpto } from '../../utils/number';
 import { createQuotationPrint } from '../../utils/prints/quotation-print';
 import toastConfirm from '../../utils/toastConfirm';
@@ -368,10 +369,23 @@ const QuotationForm = ({ mode, onSubmit }) => {
     const loadingToast = toast.loading('Loading print...');
     try {
       const data = await dispatch(getQuotationForPrint(id)).unwrap();
-      toast.dismiss(loadingToast);
       createQuotationPrint(data);
     } catch (error) {
       handleError(error);
+    } finally {
+      toast.dismiss(loadingToast);
+    }
+  };
+
+  const exportQuotation = async () => {
+    const loadingToast = toast.loading('Loading excel...');
+    try {
+      const data = await dispatch(getQuotationForPrint(id)).unwrap();
+      generateQuotationExcel(data);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      toast.dismiss(loadingToast);
     }
   };
 
@@ -1324,12 +1338,21 @@ const QuotationForm = ({ mode, onSubmit }) => {
           <Button className="w-28">Cancel</Button>
         </Link>
         {mode === 'edit' ? (
-          <Button
-            type="primary"
-            className="w-28 bg-rose-600 hover:!bg-rose-500"
-            onClick={printQuotation}>
-            Print
-          </Button>
+          <>
+            <Button
+              type="primary"
+              className="w-28 bg-rose-600 hover:!bg-rose-500"
+              onClick={printQuotation}>
+              Print
+            </Button>
+
+            <Button
+              type="primary"
+              className="w-28 bg-emerald-800 hover:!bg-emerald-700"
+              onClick={exportQuotation}>
+              Export
+            </Button>
+          </>
         ) : null}
         <Button
           type="primary"

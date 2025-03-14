@@ -2,6 +2,14 @@ import dayjs from 'dayjs';
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import GMSLogo from '../../assets/logo-with-title.png';
+import Logo1 from '../../assets/quotation/logo1.png';
+import Logo2 from '../../assets/quotation/logo2.png';
+import Logo3 from '../../assets/quotation/logo3.png';
+import Logo4 from '../../assets/quotation/logo4.png';
+import Logo5 from '../../assets/quotation/logo5.png';
+import Logo6 from '../../assets/quotation/logo6.png';
+import Logo7 from '../../assets/quotation/logo7.png';
+import QuotationTerms from '../../assets/quotation/quotationTerms.jpg';
 import { formatThreeDigitCommas, roundUpto } from '../number';
 
 const getImageBuffer = async (image) => {
@@ -15,8 +23,6 @@ const getImageBuffer = async (image) => {
 const generateQuotationExcel = async (data) => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Quotation');
-
-  console.log(data);
 
   // GMS Logo
   const imageId = workbook.addImage({
@@ -51,15 +57,25 @@ const generateQuotationExcel = async (data) => {
     size: 12
   };
   worksheet.getCell('B8').value = data?.customer?.name || '';
+  worksheet.mergeCells('B9:F11');
   worksheet.getCell('B9').value = data.vessel.billing_address || '';
+  worksheet.getCell('B9').alignment = {
+    vertical: 'top',
+    wrapText: true
+  };
 
   // Ship To
-  worksheet.getCell('P7').value = 'Ship To';
-  worksheet.getCell('P7').font = {
+  worksheet.getCell('N7').value = 'Ship To';
+  worksheet.getCell('N7').font = {
     bold: true,
     size: 12
   };
-  worksheet.getCell('P8').value = data?.vessel?.name || '';
+  worksheet.mergeCells('N8:R11');
+  worksheet.getCell('N8').value = data?.vessel?.name || '';
+  worksheet.getCell('N8').alignment = {
+    vertical: 'top',
+    wrapText: true
+  };
 
   // Add "Estimate" title
   worksheet.mergeCells('J11:K11');
@@ -182,6 +198,7 @@ const generateQuotationExcel = async (data) => {
 
   // Discount %
   worksheet.getCell(`N${currentRow}`).value = 'Discount %';
+  worksheet.getColumn('N').width = 10;
 
   // Discount Amount
   worksheet.mergeCells(`O${currentRow}:P${currentRow}`);
@@ -311,6 +328,174 @@ const generateQuotationExcel = async (data) => {
       };
     });
   }
+
+  // Total
+  currentRow = worksheet.lastRow._number + 1;
+  worksheet.getRow(currentRow).height = 44;
+  worksheet.getRow(currentRow).alignment = { vertical: 'middle', horizontal: 'center' };
+  worksheet.mergeCells(`B${currentRow}:C${currentRow}`);
+  worksheet.getRow(currentRow).getCell('B').value = 'Total:';
+  worksheet.getRow(currentRow).font = {
+    bold: true
+  };
+  worksheet.getRow(currentRow).getCell('B').border = {
+    top: { style: 'thin' },
+    left: { style: 'thin' },
+    bottom: { style: 'thin' },
+    right: { style: 'thin' }
+  };
+
+  worksheet.mergeCells(`D${currentRow}:K${currentRow}`);
+  worksheet.getRow(currentRow).getCell('D').border = {
+    top: { style: 'thin' },
+    left: { style: 'thin' },
+    bottom: { style: 'thin' },
+    right: { style: 'thin' }
+  };
+
+  const totalGrossAmount = data.total_amount ? `$${formatThreeDigitCommas(data.total_amount)}` : '';
+  worksheet.mergeCells(`L${currentRow}:M${currentRow}`);
+  worksheet.getRow(currentRow).getCell('L').value = totalGrossAmount;
+  worksheet.getRow(currentRow).getCell('L').alignment = {
+    horizontal: 'right',
+    vertical: 'middle'
+  };
+  worksheet.getRow(currentRow).getCell('L').border = {
+    top: { style: 'thin' },
+    left: { style: 'thin' },
+    bottom: { style: 'thin' },
+    right: { style: 'thin' }
+  };
+
+  const totalDiscountAmount = data.total_discount
+    ? `$${formatThreeDigitCommas(data.total_discount)}`
+    : '';
+  worksheet.mergeCells(`N${currentRow}:P${currentRow}`);
+  worksheet.getRow(currentRow).getCell('N').value = totalDiscountAmount;
+  worksheet.getRow(currentRow).getCell('N').alignment = {
+    horizontal: 'right',
+    vertical: 'middle'
+  };
+  worksheet.getRow(currentRow).getCell('N').border = {
+    top: { style: 'thin' },
+    left: { style: 'thin' },
+    bottom: { style: 'thin' },
+    right: { style: 'thin' }
+  };
+
+  const netAmount = data.net_amount ? `$${formatThreeDigitCommas(data.net_amount)}` : '';
+  worksheet.mergeCells(`Q${currentRow}:R${currentRow}`);
+  worksheet.getRow(currentRow).getCell('Q').value = netAmount;
+  worksheet.getRow(currentRow).getCell('Q').alignment = {
+    horizontal: 'right',
+    vertical: 'middle'
+  };
+  worksheet.getRow(currentRow).getCell('Q').border = {
+    top: { style: 'thin' },
+    left: { style: 'thin' },
+    bottom: { style: 'thin' },
+    right: { style: 'thin' }
+  };
+
+  if (data.term_desc?.trim()) {
+    currentRow = worksheet.lastRow._number + 1;
+    const descriptions = data.term_desc.split('\n');
+    worksheet.mergeCells(`B${currentRow}:C${currentRow + descriptions.length - 1}`);
+    worksheet.getRow(currentRow).getCell('B').value = 'Notes:';
+    worksheet.getRow(currentRow).getCell('B').alignment = {
+      horizontal: 'center',
+      vertical: 'middle'
+    };
+    worksheet.getRow(currentRow).getCell('B').font = {
+      bold: true
+    };
+    worksheet.getRow(currentRow).getCell('B').border = {
+      top: { style: 'thin' },
+      left: { style: 'thin' },
+      bottom: { style: 'thin' },
+      right: { style: 'thin' }
+    };
+
+    descriptions.forEach((description, index) => {
+      worksheet.getRow(currentRow + index).height = 44;
+      worksheet.mergeCells(`D${currentRow + index}:R${currentRow + index}`);
+      worksheet.getRow(currentRow + index).getCell('D').value = description;
+      worksheet.getRow(currentRow + index).getCell('D').alignment = {
+        wrapText: true,
+        horizontal: 'left',
+        vertical: 'middle'
+      };
+      worksheet.getRow(currentRow + index).getCell('D').border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      };
+    });
+  }
+
+  // Footer
+  currentRow = worksheet.lastRow._number + 2;
+  worksheet.mergeCells(`B${currentRow}:R${currentRow}`);
+  worksheet.getRow(currentRow).getCell('B').value =
+    'Remit Payment to: Global Marine Safety Service Inc Frost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44';
+  worksheet.getRow(currentRow).getCell('B').alignment = {
+    wrapText: true,
+    horizontal: 'center',
+    vertical: 'middle'
+  };
+
+  // Company Logos
+  currentRow = worksheet.lastRow._number + 2;
+  const logo1Id = workbook.addImage({
+    buffer: getImageBuffer(Logo1),
+    extension: 'png'
+  });
+  worksheet.addImage(logo1Id, `B${currentRow}:C${currentRow + 2}`);
+
+  const logo2Id = workbook.addImage({
+    buffer: getImageBuffer(Logo2),
+    extension: 'png'
+  });
+  worksheet.addImage(logo2Id, `D${currentRow}:E${currentRow + 2}`);
+
+  const logo3Id = workbook.addImage({
+    buffer: getImageBuffer(Logo3),
+    extension: 'png'
+  });
+  worksheet.addImage(logo3Id, `G${currentRow}:H${currentRow + 2}`);
+
+  const logo4Id = workbook.addImage({
+    buffer: getImageBuffer(Logo4),
+    extension: 'png'
+  });
+  worksheet.addImage(logo4Id, `J${currentRow}:K${currentRow + 2}`);
+
+  const logo5Id = workbook.addImage({
+    buffer: getImageBuffer(Logo5),
+    extension: 'png'
+  });
+  worksheet.addImage(logo5Id, `L${currentRow}:M${currentRow + 2}`);
+
+  const logo6Id = workbook.addImage({
+    buffer: getImageBuffer(Logo6),
+    extension: 'png'
+  });
+  worksheet.addImage(logo6Id, `O${currentRow}:P${currentRow + 2}`);
+
+  const logo7Id = workbook.addImage({
+    buffer: getImageBuffer(Logo7),
+    extension: 'png'
+  });
+  worksheet.addImage(logo7Id, `Q${currentRow}:R${currentRow + 2}`);
+
+  // Quotation Terms
+  currentRow = worksheet.lastRow._number + 2;
+  const quotationTermsId = workbook.addImage({
+    buffer: getImageBuffer(QuotationTerms),
+    extension: 'jpg'
+  });
+  worksheet.addImage(quotationTermsId, `B${currentRow}:R${currentRow + 80}`);
 
   // Styling
   worksheet.eachRow((row) => {
