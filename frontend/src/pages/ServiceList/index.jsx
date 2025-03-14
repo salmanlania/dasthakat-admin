@@ -1,6 +1,7 @@
 import { Button, Input, Select, Table, Tag, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { FaRegFilePdf } from 'react-icons/fa';
 import { LuListChecks } from 'react-icons/lu';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,7 +17,6 @@ import {
   setServiceListOpenModalId
 } from '../../store/features/serviceListSlice';
 import { createServiceListPrint } from '../../utils/prints/service-list-print';
-import toast from 'react-hot-toast';
 
 const serviceListStatus = {
   1: 'Complete',
@@ -28,6 +28,8 @@ const ServiceList = () => {
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo } = useSelector((state) => state.serviceList);
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user.permission.servicelist;
 
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedServiceListNo = useDebounce(params.document_identity, 500);
@@ -241,14 +243,16 @@ const ServiceList = () => {
       key: 'action',
       render: (_, { id }) => (
         <div className="flex items-center justify-center gap-2">
-          <Tooltip title="Items Receive">
-            <Button
-              size="small"
-              type="primary"
-              icon={<LuListChecks size={18} />}
-              onClick={() => dispatch(setServiceListOpenModalId(id))}
-            />
-          </Tooltip>
+          {permissions.receive ? (
+            <Tooltip title="Items Receive">
+              <Button
+                size="small"
+                type="primary"
+                icon={<LuListChecks size={18} />}
+                onClick={() => dispatch(setServiceListOpenModalId(id))}
+              />
+            </Tooltip>
+          ) : null}
           <Tooltip title="Print">
             <Button
               size="small"
