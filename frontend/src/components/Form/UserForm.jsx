@@ -62,8 +62,7 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
               status: 1
             }
           : initialFormValues
-      }
-    >
+      }>
       <div className="flex flex-col-reverse items-center justify-between gap-6 md:flex-row md:items-start">
         <Row gutter={[12, 12]}>
           <Col span={24} sm={12} md={12} lg={12}>
@@ -76,8 +75,7 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
                   whitespace: true,
                   message: 'User name is required!'
                 }
-              ]}
-            >
+              ]}>
               <Input />
             </Form.Item>
           </Col>
@@ -90,8 +88,7 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
                   required: true,
                   message: 'Email is required!'
                 }
-              ]}
-            >
+              ]}>
               <Input />
             </Form.Item>
           </Col>
@@ -109,8 +106,7 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
                   min: 8,
                   message: 'Password must be at least 8 characters!'
                 }
-              ]}
-            >
+              ]}>
               <Input.Password />
             </Form.Item>
           </Col>
@@ -123,18 +119,13 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
                   required: true,
                   message: 'User Permission is required!'
                 }
-              ]}
-            >
+              ]}>
               <AsyncSelect
                 endpoint="/permission"
                 valueKey="user_permission_id"
                 labelKey="name"
                 labelInValue
-                addNewLink={
-                  permissions.user_permission.list && permissions.user_permission.add
-                    ? '/user-permission/create'
-                    : null
-                }
+                addNewLink={permissions.user_permission.add ? '/user-permission/create' : null}
               />
             </Form.Item>
           </Col>
@@ -192,8 +183,7 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
               block
               type="primary"
               className="bg-gray-500 hover:!bg-gray-600"
-              onClick={() => fileInputRef.current.click()}
-            >
+              onClick={() => fileInputRef.current.click()}>
               Upload
             </Button>
           </div>

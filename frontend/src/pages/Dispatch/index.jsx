@@ -1,5 +1,8 @@
 import { Breadcrumb, DatePicker, Input, Select, Table } from 'antd';
 import dayjs from 'dayjs';
+import { FaPen } from 'react-icons/fa';
+import { MdEdit, MdModeEdit, MdOutlineEdit } from 'react-icons/md';
+import { TbEdit } from 'react-icons/tb';
 import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
 
@@ -19,7 +22,9 @@ const Dispatch = () => {
       sorter: true,
       width: 150,
       ellipsis: true,
-      render: (_, { date }) => (date ? dayjs(date).format('MM-DD-YYYY') : null)
+      render: (_, { date }) => (
+        <DatePicker size="small" className="font-normal" format="MM-DD-YYYY" />
+      )
     },
     {
       title: (
@@ -31,7 +36,7 @@ const Dispatch = () => {
       dataIndex: 'event_no',
       key: 'event_no',
       sorter: true,
-      width: 200,
+      width: 140,
       ellipsis: true
     },
     {
@@ -51,7 +56,39 @@ const Dispatch = () => {
       key: 'vessel_name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
+      render: (_, { agent }) => (
+        <AsyncSelect
+          endpoint="/vessel"
+          labelKey="name"
+          valueKey="vessel_id"
+          size="small"
+          className="w-full"
+        />
+      )
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Technician</p>
+          <AsyncSelect
+            endpoint="/technician"
+            size="small"
+            labelKey="name"
+            multiple
+            valueKey="technician_id"
+            className="w-full font-normal"
+          />
+        </div>
+      ),
+      dataIndex: 'technician',
+      key: 'technician',
+      sorter: true,
+      width: 200,
+      ellipsis: true,
+      render: (_, { technician }) => (
+        <AsyncSelect endpoint="/technician" className="w-full" size="small" />
+      )
     },
     {
       title: (
@@ -64,7 +101,17 @@ const Dispatch = () => {
       key: 'technicians_notes',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
+      render: (notes) => {
+        return (
+          <div className="relative">
+            <p>{notes}</p>
+            <div className="absolute -right-2 -top-[2px] flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-white">
+              <TbEdit size={22} className="text-primary hover:text-blue-600" />
+            </div>
+          </div>
+        );
+      }
     },
     {
       title: (
@@ -74,16 +121,27 @@ const Dispatch = () => {
             endpoint="/agent"
             size="small"
             className="w-full font-normal"
+            multiple
             valueKey="agent_id"
             labelKey="name"
           />
         </div>
       ),
-      dataIndex: 'agent_name',
-      key: 'agent_name',
+      dataIndex: 'agent',
+      key: 'agent',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
+      render: (_, { agent }) => (
+        <AsyncSelect
+          endpoint="/agent"
+          multiple
+          valueKey="agent_id"
+          labelKey="name"
+          size="small"
+          className="w-full"
+        />
+      )
     },
     {
       title: (
@@ -96,7 +154,17 @@ const Dispatch = () => {
       key: 'agent_notes',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
+      render: (notes) => {
+        return (
+          <div className="relative">
+            <p>{notes}</p>
+            <div className="absolute -right-2 -top-[2px] flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-white">
+              <TbEdit size={22} className="text-primary hover:text-blue-600" />
+            </div>
+          </div>
+        );
+      }
     },
     {
       title: (
@@ -109,11 +177,47 @@ const Dispatch = () => {
       key: 'status',
       sorter: true,
       width: 180,
-      ellipsis: true
+      ellipsis: true,
+      render: (_, { status }) => <Select size="small" className="w-full" allowClear />
     }
   ];
 
-  const list = [];
+  const list = [
+    {
+      id: 1,
+      date: dayjs(),
+      event_no: '123',
+      vessel_name: {
+        value: 1,
+        label: 'Vessel1'
+      },
+      technician: [
+        {
+          value: 1,
+          label: 'Technician1'
+        },
+        {
+          value: 2,
+          label: 'Technician2'
+        }
+      ],
+      technicians_notes:
+        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+      agent: [
+        {
+          value: 1,
+          label: 'Agent1'
+        },
+        {
+          value: 2,
+          label: 'Agent2'
+        }
+      ],
+      agent_notes:
+        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+      status: 'F'
+    }
+  ];
 
   return (
     <>
@@ -135,7 +239,7 @@ const Dispatch = () => {
             total: 12,
             pageSize: 50,
             current: 1,
-            showTotal: (total) => `Total ${total}`
+            showTotal: (total) => `Total ${total} dispatch`
           }}
           dataSource={list}
           showSorterTooltip={false}

@@ -48,8 +48,7 @@ const CompanyForm = ({ mode, onSubmit }) => {
       layout="vertical"
       autoComplete="off"
       onFinish={onFinish}
-      initialValues={mode === 'edit' ? initialFormValues : null}
-    >
+      initialValues={mode === 'edit' ? initialFormValues : null}>
       <div className="flex flex-col-reverse items-center justify-between gap-6 md:flex-row md:items-start">
         <Row gutter={[12, 12]} className="w-full">
           <Col span={24} sm={12} md={12} lg={12}>
@@ -62,8 +61,7 @@ const CompanyForm = ({ mode, onSubmit }) => {
                   whitespace: true,
                   message: 'Company name is required!'
                 }
-              ]}
-            >
+              ]}>
               <Input />
             </Form.Item>
           </Col>
@@ -74,9 +72,7 @@ const CompanyForm = ({ mode, onSubmit }) => {
                 valueKey="currency_id"
                 labelKey="name"
                 labelInValue
-                addNewLink={
-                  permissions.currency.list && permissions.currency.add ? '/currency/create' : null
-                }
+                addNewLink={permissions.currency.add ? '/currency/create' : null}
               />
             </Form.Item>
           </Col>
@@ -113,8 +109,7 @@ const CompanyForm = ({ mode, onSubmit }) => {
               block
               type="primary"
               className="bg-gray-500 hover:!bg-gray-600"
-              onClick={() => fileInputRef.current.click()}
-            >
+              onClick={() => fileInputRef.current.click()}>
               Upload
             </Button>
           </div>

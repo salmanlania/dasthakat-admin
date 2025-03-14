@@ -255,9 +255,7 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
             className="w-full"
             value={product_id}
             onChange={(selected) => onProductChange(index, selected)}
-            addNewLink={
-              permissions.product.list && permissions.product.add ? '/product/create' : null
-            }
+            addNewLink={permissions.product.add ? '/product/create' : null}
           />
         );
       },
@@ -526,9 +524,7 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
               valueKey="supplier_id"
               labelKey="name"
               labelInValue
-              addNewLink={
-                permissions.supplier.list && permissions.supplier.add ? '/vendor/create' : null
-              }
+              addNewLink={permissions.supplier.add ? '/vendor/create' : null}
             />
           </Form.Item>
         </Col>
@@ -548,11 +544,7 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
               valueKey="good_received_note_id"
               labelKey="document_identity"
               labelInValue
-              addNewLink={
-                permissions.good_received_note.list && permissions.good_received_note.add
-                  ? '/good-received-note/create'
-                  : null
-              }
+              addNewLink={permissions.good_received_note.add ? '/good-received-note/create' : null}
             />
           </Form.Item>
         </Col>
@@ -577,9 +569,7 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
                   labelKey="name"
                   labelInValue
                   disabled
-                  addNewLink={
-                    permissions.event.list && permissions.event.add ? '/event/create' : null
-                  }
+                  addNewLink={permissions.event.add ? '/event/create' : null}
                 />
               </Form.Item>
             </Col>
@@ -592,11 +582,7 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
                   labelKey="name"
                   labelInValue
                   disabled
-                  addNewLink={
-                    permissions.customer.list && permissions.customer.add
-                      ? '/customer/create'
-                      : null
-                  }
+                  addNewLink={permissions.customer.add ? '/customer/create' : null}
                 />
               </Form.Item>
             </Col>
@@ -634,7 +620,7 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
               valueKey="user_id"
               labelKey="user_name"
               labelInValue
-              addNewLink={permissions.user.list && permissions.user.add ? '/user/create' : null}
+              addNewLink={permissions.user.add ? '/user/create' : null}
             />
           </Form.Item>
         </Col>

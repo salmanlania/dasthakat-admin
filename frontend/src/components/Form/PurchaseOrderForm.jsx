@@ -425,9 +425,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
               className="w-full"
               value={product_id}
               onChange={(selected) => onProductChange(index, selected)}
-              addNewLink={
-                permissions.product.list && permissions.product.add ? '/product/create' : null
-              }
+              addNewLink={permissions.product.add ? '/product/create' : null}
             />
           </Form.Item>
         );
@@ -758,9 +756,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
               onChange={onVendorChange}
               labelKey="name"
               labelInValue
-              addNewLink={
-                permissions.supplier.list && permissions.supplier.add ? '/vendor/create' : null
-              }
+              addNewLink={permissions.supplier.add ? '/vendor/create' : null}
             />
           </Form.Item>
         </Col>
@@ -846,7 +842,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
               valueKey="user_id"
               labelKey="user_name"
               labelInValue
-              addNewLink={permissions.user.list && permissions.user.add ? '/user/create' : null}
+              addNewLink={permissions.user.add ? '/user/create' : null}
             />
           </Form.Item>
         </Col>

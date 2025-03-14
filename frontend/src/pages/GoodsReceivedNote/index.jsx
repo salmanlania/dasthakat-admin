@@ -328,11 +328,7 @@ const GoodsReceivedNote = () => {
                   }}
                   value={selectedPO}
                   onChange={(selected) => setSelectedPO(selected)}
-                  addNewLink={
-                    otherPermissions.purchase_order.list && otherPermissions.purchase_order.add
-                      ? '/purchase-order/create'
-                      : null
-                  }
+                  addNewLink={otherPermissions.purchase_order.add ? '/purchase-order/create' : null}
                 />
                 <Button
                   type="primary"

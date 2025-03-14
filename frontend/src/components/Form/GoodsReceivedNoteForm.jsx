@@ -503,9 +503,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
               className="w-full"
               value={product_id}
               onChange={(selected) => onProductChange(index, selected)}
-              addNewLink={
-                permissions.product.list && permissions.product.add ? '/product/create' : null
-              }
+              addNewLink={permissions.product.add ? '/product/create' : null}
             />
           </Form.Item>
         );
@@ -760,9 +758,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
               valueKey="supplier_id"
               labelKey="name"
               labelInValue
-              addNewLink={
-                permissions.supplier.list && permissions.supplier.add ? '/vendor/create' : null
-              }
+              addNewLink={permissions.supplier.add ? '/vendor/create' : null}
             />
           </Form.Item>
         </Col>
@@ -778,11 +774,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
                 available_po: 1
               }}
               onChange={onPOChange}
-              addNewLink={
-                permissions.purchase_order.list && permissions.purchase_order.add
-                  ? '/purchase-order/create'
-                  : null
-              }
+              addNewLink={permissions.purchase_order.add ? '/purchase-order/create' : null}
             />
           </Form.Item>
         </Col>

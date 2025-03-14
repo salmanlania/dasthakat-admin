@@ -479,9 +479,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
               className="w-full"
               value={product_id}
               onChange={(selected) => onProductChange(index, selected)}
-              addNewLink={
-                permissions.product.list && permissions.product.add ? '/product/create' : null
-              }
+              addNewLink={permissions.product.add ? '/product/create' : null}
             />
           </Form.Item>
         );
@@ -698,9 +696,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
                 })
               )
             }
-            addNewLink={
-              permissions.supplier.list && permissions.supplier.add ? '/vendor/create' : null
-            }
+            addNewLink={permissions.supplier.add ? '/vendor/create' : null}
           />
         );
       },
@@ -961,7 +957,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
               labelKey="event_name"
               labelInValue
               onChange={onEventChange}
-              addNewLink={permissions.event.list && permissions.event.add ? '/event/create' : null}
+              addNewLink={permissions.event.add ? '/event/create' : null}
             />
           </Form.Item>
         </Col>
@@ -1004,7 +1000,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
               valueKey="agent_id"
               labelKey="name"
               labelInValue
-              addNewLink={permissions.agent.list && permissions.agent.add ? '/agent/create' : null}
+              addNewLink={permissions.agent.add ? '/agent/create' : null}
             />
           </Form.Item>
         </Col>

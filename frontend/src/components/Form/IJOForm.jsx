@@ -144,7 +144,7 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
       charge_orders.forEach(({ document_identity, charge_order_detail }) => {
         const chargeOrderNo = document_identity;
         charge_order_detail.forEach((detail) => {
-          if(detail.job_order_detail_id) return;
+          if (detail.job_order_detail_id) return;
           eventChargeDetails.push({
             id: detail.charge_order_detail_id,
             charge_order_no: chargeOrderNo,
@@ -193,7 +193,7 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
               valueKey="event_id"
               labelKey="event_code"
               labelInValue
-              addNewLink={permissions.event.list && permissions.event.add ? '/event/create' : null}
+              addNewLink={permissions.event.add ? '/event/create' : null}
               onChange={onEventChange}
             />
           </Form.Item>
@@ -235,7 +235,7 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
               valueKey="agent_id"
               labelKey="name"
               labelInValue
-              addNewLink={permissions.agent.list && permissions.agent.add ? '/agent/create' : null}
+              addNewLink={permissions.agent.add ? '/agent/create' : null}
             />
           </Form.Item>
         </Col>

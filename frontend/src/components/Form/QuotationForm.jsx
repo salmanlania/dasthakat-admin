@@ -551,9 +551,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
               className="w-full"
               value={product_id}
               onChange={(selected) => onProductChange(index, selected)}
-              addNewLink={
-                permissions.product.list && permissions.product.add ? '/product/create' : null
-              }
+              addNewLink={permissions.product.add ? '/product/create' : null}
             />
           </Form.Item>
         );
@@ -726,9 +724,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
                 })
               )
             }
-            addNewLink={
-              permissions.supplier.list && permissions.supplier.add ? '/vendor/create' : null
-            }
+            addNewLink={permissions.supplier.add ? '/vendor/create' : null}
           />
         );
       },
@@ -1084,7 +1080,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
               labelKey="event_name"
               labelInValue
               onChange={onEventChange}
-              addNewLink={permissions.event.list && permissions.event.add ? '/event/create' : null}
+              addNewLink={permissions.event.add ? '/event/create' : null}
             />
           </Form.Item>
         </Col>
@@ -1135,7 +1131,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
               valueKey="user_id"
               labelKey="user_name"
               labelInValue
-              addNewLink={permissions.user.list && permissions.user.add ? '/user/create' : null}
+              addNewLink={permissions.user.add ? '/user/create' : null}
             />
           </Form.Item>
         </Col>
