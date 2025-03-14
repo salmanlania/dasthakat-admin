@@ -28,7 +28,7 @@ const UserPermission = () => {
     (state) => state.userPermission
   );
   const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.company;
+  const permissions = user.permission.user_permission;
 
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedName = useDebounce(params.name, 500);
