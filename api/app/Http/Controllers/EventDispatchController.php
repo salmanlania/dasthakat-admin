@@ -12,6 +12,8 @@ class EventDispatchController extends Controller
 	{
 		$query = EventDispatch::leftJoin('event as e', 'event_dispatch.event_id', '=', 'e.event_id')
 			->leftJoin('vessel as v', 'e.vessel_id', '=', 'v.vessel_id')
+			->leftJoin('technician as t', 't.technician_id', '=', 'event_dispatch.technician_id')
+			->leftJoin('agent as a', 'a.agent_id', '=', 'event_dispatch.agent_id')
 			->where('e.company_id', $request->company_id)
 			->where('e.company_branch_id', $request->company_branch_id);
 
@@ -34,7 +36,10 @@ class EventDispatchController extends Controller
 			$search = strtolower($search);
 			$query->where(function ($q) use ($search) {
 				$q->where('v.name', 'like', "%$search%")
-					->orWhere('e.event_code', 'like', "%$search%");
+					->orWhere('e.event_code', 'like', "%$search%")
+					->orWhere('t.name', 'like', "%$search%")
+					->orWhere('a.name', 'like', "%$search%")
+				;
 			});
 		}
 
@@ -42,7 +47,7 @@ class EventDispatchController extends Controller
 		$sortDirection = $request->input('sort_direction') === 'ascend' ? 'asc' : 'desc';
 
 		$data = $query
-			->select('event_dispatch.*', 'v.name as vessel_name', 'e.event_code')
+			->select('event_dispatch.*', 'v.name as vessel_name', 'v.vessel_id', 'e.event_code', 'technician_id', 't.name as technician_name', 'agent_id', 'a.name as agent_name')
 			->orderBy($sortColumn, $sortDirection)
 			->paginate($request->input('limit', 10));
 
