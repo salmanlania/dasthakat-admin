@@ -163,6 +163,9 @@ const Dispatch = () => {
             labelKey="name"
             valueKey="technician_id"
             className="w-full font-normal"
+            mode="multiple"
+            value={params.technician_id}
+            onChange={(selected) => dispatch(setDispatchListParams({ technician_id: selected }))}
           />
         </div>
       ),
@@ -350,6 +353,7 @@ const Dispatch = () => {
     params.agent_id,
     params.technician_id,
     params.vessel_id,
+    params.technician_id,
     debouncedSearch,
     debouncedEventCode,
     debouncedTechnicianNotes,
