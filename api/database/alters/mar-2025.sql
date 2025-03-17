@@ -153,3 +153,30 @@ ADD COLUMN sort_order INT after job_order_detail_id;
 
 ALTER TABLE job_order_detail
 ADD COLUMN status CHAR(36) after internal_notes;
+
+CREATE TABLE `technician` (
+    `company_id` CHAR(36) NOT NULL,
+    `company_branch_id` CHAR(36) NOT NULL,
+    `technician_id` CHAR(36) NOT NULL PRIMARY KEY,
+    `name` VARCHAR(255) NOT NULL,
+    `created_by` CHAR(36),
+    `updated_by` CHAR(36),
+    `created_at` DATETIME,
+    `updated_at` DATETIME
+);
+
+CREATE TABLE `event_dispatch` (
+    `company_id` CHAR(36) NOT NULL,
+    `company_branch_id` CHAR(36) NOT NULL,
+    `event_dispatch_id` CHAR(36) NOT NULL PRIMARY KEY,
+    `event_date` DATE ,
+    `event_id` CHAR(36) NOT NULL,
+    `technician_id` CHAR(36),
+    `technician_notes` TEXT,
+    `agent_id` CHAR(36),
+    `agent_notes` TEXT,
+    `created_by` CHAR(36),
+    `updated_by` CHAR(36),
+    `created_at` DATETIME,
+    `updated_at` DATETIME
+);

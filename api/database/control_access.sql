@@ -37,6 +37,11 @@
   ('General Group', 'Agent', 'agent', 'edit', 'Edit', 1.103),
   ('General Group', 'Agent', 'agent', 'delete', 'Delete', 1.104),
 
+  ('General Group', 'Technician', 'technician', 'list', 'List', 1.101),
+  ('General Group', 'Technician', 'technician', 'add', 'Add', 1.102),
+  ('General Group', 'Technician', 'technician', 'edit', 'Edit', 1.103),
+  ('General Group', 'Technician', 'technician', 'delete', 'Delete', 1.104),
+
   ('General Group', 'Terms', 'terms', 'list', 'List', 1.101),
   ('General Group', 'Terms', 'terms', 'add', 'Add', 1.102),
   ('General Group', 'Terms', 'terms', 'edit', 'Edit', 1.103),

@@ -7,6 +7,7 @@ use App\Models\ChargeOrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Event;
+use App\Models\EventDispatch;
 use App\Models\GRNDetail;
 use App\Models\PicklistReceived;
 use App\Models\ServicelistReceived;
@@ -236,6 +237,12 @@ class EventController extends Controller
 
 
 		$user = Event::InsertGetId($insertArr);
+		EventDispatch::create([
+			'event_dispatch_id' => $this->get_uuid(),
+			'company_id' => $request->company_id,
+			'company_branch_id' => $request->company_branch_id,
+			'event_id' => $uuid,
+		]);
 
 		return $this->jsonResponse(['event_id' => $uuid], 200, "Add Event Successfully!");
 	}
@@ -276,7 +283,7 @@ class EventController extends Controller
 		if (!$data) return $this->jsonResponse(['event_id' => $id], 404, "Event Not Found!");
 
 		$data->delete();
-
+		EventDispatch::where(['event_id' => $id])->delete();
 		return $this->jsonResponse(['event_id' => $id], 200, "Delete Event Successfully!");
 	}
 	public function bulkDelete(Request $request)
@@ -289,6 +296,7 @@ class EventController extends Controller
 				foreach ($request->event_ids as $event_id) {
 					$user = Event::where(['event_id' => $event_id])->first();
 					$user->delete();
+					EventDispatch::where(['event_id' => $event_id])->delete();
 				}
 			}
 

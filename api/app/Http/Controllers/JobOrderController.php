@@ -438,12 +438,12 @@ class JobOrderController extends Controller
 
 
 		foreach ($request->detail as $detail) {
-            JobOrderDetail::where('job_order_detail_id', $detail['job_order_detail_id'])
-                ->update([
-                    'status' => $detail['status'],
-                    'updated_at' => Carbon::now()
-                ]);
-        }
+			JobOrderDetail::where('job_order_detail_id', $detail['job_order_detail_id'])
+				->update([
+					'status' => $detail['status'],
+					'updated_at' => Carbon::now()
+				]);
+		}
 
 		return $this->jsonResponse(['job_order_id' => $id], 200, "Update Job Order Successfully!");
 	}
@@ -465,6 +465,7 @@ class JobOrderController extends Controller
 
 		$data->delete();
 		JobOrderDetail::where('job_order_id', $id)->delete();
+		JobOrderDetailCertificate::where('job_order_id', $id)->delete();
 
 		return $this->jsonResponse(['job_order_id' => $id], 200, "Delete Job Order Successfully!");
 	}
@@ -487,6 +488,7 @@ class JobOrderController extends Controller
 
 					$user->delete();
 					JobOrderDetail::where('job_order_id', $job_order_id)->delete();
+					JobOrderDetailCertificate::where('job_order_id', $job_order_id)->delete();
 				}
 			}
 
