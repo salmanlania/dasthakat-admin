@@ -1,6 +1,8 @@
-import { Breadcrumb, DatePicker, Input, Select, Table } from 'antd';
+import { Breadcrumb, Button, DatePicker, Input, Select, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { FaRegFilePdf } from 'react-icons/fa';
 import { TbEdit } from 'react-icons/tb';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncSelect from '../../components/AsyncSelect';
@@ -13,6 +15,8 @@ import {
   setDispatchListParams,
   updateDispatch
 } from '../../store/features/dispatchSlice';
+import { getIJOForPrint } from '../../store/features/ijoSlice';
+import { createIJOPrint } from '../../utils/prints/ijo-print';
 
 const Dispatch = () => {
   const dispatch = useDispatch();
@@ -54,6 +58,18 @@ const Dispatch = () => {
       await updateValue(notesModalIsOpen.id, notesModalIsOpen.column, notes);
       dispatch(getDispatchList(params)).unwrap();
       closeNotesModal();
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const printIJO = async (id) => {
+    const loadingToast = toast.loading('Loading IJO print...');
+
+    try {
+      const data = await dispatch(getIJOForPrint(id)).unwrap();
+      toast.dismiss(loadingToast);
+      createIJOPrint(data);
     } catch (error) {
       handleError(error);
     }
@@ -174,18 +190,18 @@ const Dispatch = () => {
       sorter: true,
       width: 200,
       ellipsis: true,
-      render: (_, { event_id, technician_id, technician_name }) => (
+      render: (_, { event_id, technicians, technician_name }) => (
         <AsyncSelect
           endpoint="/technician"
           labelKey="name"
           valueKey="technician_id"
           labelInValue
           defaultValue={
-            technician_id
-              ? {
-                  value: technician_id,
-                  label: technician_name
-                }
+            technicians
+              ? technicians.map((item) => ({
+                  value: item.technician_id,
+                  label: item.name
+                }))
               : null
           }
           mode="multiple"
@@ -209,13 +225,13 @@ const Dispatch = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.technicians_notes}
-            onChange={(e) => dispatch(setDispatchListParams({ technicians_notes: e.target.value }))}
+            value={params.technician_notes}
+            onChange={(e) => dispatch(setDispatchListParams({ technician_notes: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: 'technicians_notes',
-      key: 'technicians_notes',
+      dataIndex: 'technician_notes',
+      key: 'technician_notes',
       sorter: true,
       width: 200,
       ellipsis: true,
@@ -232,7 +248,7 @@ const Dispatch = () => {
                   setNotesModalIsOpen({
                     open: true,
                     id: event_id,
-                    column: 'technicians_notes',
+                    column: 'technician_notes',
                     notes: technician_notes
                   })
                 }
@@ -339,6 +355,27 @@ const Dispatch = () => {
       width: 180,
       ellipsis: true,
       render: (_, { status }) => <Select size="small" className="w-full" allowClear />
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_, { job_order_id }) => (
+        <div className="flex flex-col justify-center gap-1">
+          <div className="flex items-center gap-1">
+            <Tooltip title="Print IJO">
+              <Button
+                size="small"
+                type="primary"
+                className="bg-rose-600 hover:!bg-rose-500"
+                icon={<FaRegFilePdf size={14} />}
+                onClick={() => printIJO(job_order_id)}
+              />
+            </Tooltip>
+          </div>
+        </div>
+      ),
+      width: 80,
+      fixed: 'right'
     }
   ];
 
@@ -397,7 +434,7 @@ const Dispatch = () => {
       </div>
 
       <NotesModal
-        title={notesModalIsOpen.column === 'technicians_notes' ? 'Technician Notes' : 'Agent Notes'}
+        title={notesModalIsOpen.column === 'technician_notes' ? 'Technician Notes' : 'Agent Notes'}
         initialValue={notesModalIsOpen.notes}
         isSubmitting={isFormSubmitting}
         open={notesModalIsOpen.open}
