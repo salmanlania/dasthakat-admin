@@ -11,6 +11,7 @@ use App\Models\PurchaseOrderDetail;
 use App\Models\Quotation;
 use App\Models\StockLedger;
 use App\Models\Supplier;
+use App\Models\Technician;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -81,10 +82,15 @@ class ChargeOrderController extends Controller
 			"class1",
 			"class2",
 			"agent",
-			"technicians"
 		)
 			->where('charge_order_id', $id)->first();
 
+		$technicianIds = $data->technician_id;
+		if (!is_array($technicianIds) || empty($technicianIds)) {
+			$data->technicians = null;
+		} else {
+			$data->technicians = Technician::whereIn('technician_id', $technicianIds)->get();
+		}
 		if ($data) {
 			foreach ($data->charge_order_detail as $detail) {
 				if ($detail->product) {

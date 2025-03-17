@@ -11,6 +11,9 @@ class ChargeOrder extends Model
     protected $table = 'charge_order';
     protected $primaryKey = 'charge_order_id';
     public $incrementing = false;
+    protected $casts = [
+        'technician_id' => 'array',
+    ];
 
     protected $fillable = [
         "company_id",
@@ -89,11 +92,11 @@ class ChargeOrder extends Model
     public function technicians()
     {
         $technicianIds = json_decode($this->technician_id, true);
+        dd($this);
+        // if (!is_array($technicianIds) || empty($technicianIds)) {
+        //     return collect();
+        // }
 
-        if (!is_array($technicianIds) || empty($technicianIds)) {
-            return collect();
-        }
-
-        return Technician::whereIn('technician_id', $technicianIds)->get();
+        // return Technician::whereRaw('JSON_CONTAINS(?, technician_id)', [json_encode($technicianIds)])->get();
     }
 }
