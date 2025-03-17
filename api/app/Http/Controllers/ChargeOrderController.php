@@ -80,7 +80,8 @@ class ChargeOrderController extends Controller
 			"flag",
 			"class1",
 			"class2",
-			"agent"
+			"agent",
+			"technicians"
 		)
 			->where('charge_order_id', $id)->first();
 
