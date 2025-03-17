@@ -265,6 +265,9 @@ class ChargeOrderController extends Controller
 			'class1_id' => $request->class1_id ?? "",
 			'class2_id' => $request->class2_id ?? "",
 			'agent_id' => $request->agent_id ?? "",
+			'technician_id' => $request->technician_id ?? "",
+			'agent_notes' => $request->agent_notes ?? "",
+			'technician_notes' => $request->technician_notes ?? "",
 			'remarks' => $request->remarks ?? "",
 			'total_quantity' => $request->total_quantity ?? "",
 			'total_amount' => $request->total_amount ?? 0,
@@ -336,6 +339,9 @@ class ChargeOrderController extends Controller
 		$data->class1_id = $request->class1_id;
 		$data->class2_id = $request->class2_id;
 		$data->agent_id = $request->agent_id;
+		$data->technician_id = $request->technician_id;
+		$data->agent_notes = $request->agent_notes;
+		$data->technician_notes = $request->technician_notes;
 		$data->remarks = $request->remarks;
 		$data->total_quantity = $request->total_quantity;
 		$data->total_amount = $request->total_amount;
