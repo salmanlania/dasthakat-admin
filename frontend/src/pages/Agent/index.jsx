@@ -54,7 +54,7 @@ const Agent = () => {
   const onBulkDelete = async () => {
     try {
       await dispatch(bulkDeleteAgent(deleteIDs)).unwrap();
-      toast.success('Companies deleted successfully');
+      toast.success('Agents deleted successfully');
       closeDeleteModal();
       await dispatch(getAgentList(params)).unwrap();
     } catch (error) {

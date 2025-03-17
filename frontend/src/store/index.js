@@ -10,21 +10,23 @@ import companyBranchReducer from './features/companyBranchSlice';
 import companyReducer from './features/companySlice';
 import currencyReducer from './features/currencySlice';
 import customerReducer from './features/customerSlice';
+import dispatchReducer from './features/dispatchSlice';
 import eventReducer from './features/eventSlice';
 import flagReducer from './features/flagSlice';
 import goodsReceivedNoteReducer from './features/goodsReceivedNoteSlice';
 import ijoReducer from './features/ijoSlice';
 import paymentReducer from './features/paymentSlice';
 import pickListReducer from './features/pickListSlice';
-import serviceListReducer from './features/serviceListSlice';
 import portReducer from './features/portSlice';
 import productReducer from './features/productSlice';
 import purchaseInvoiceReducer from './features/purchaseInvoiceSlice';
 import purchaseOrderReducer from './features/purchaseOrderSlice';
 import quotationReducer from './features/quotationSlice';
 import salesmanReducer from './features/salesmanSlice';
+import serviceListReducer from './features/serviceListSlice';
 import sidebarReducer from './features/sidebarSlice';
 import subCategoryReducer from './features/subCategorySlice';
+import technicianReducer from './features/technicianSlice';
 import termsReducer from './features/termsSlice';
 import unitReducer from './features/unitSlice';
 import userPermissionReducer from './features/userPermissionSlice';
@@ -49,6 +51,7 @@ const rootReducer = combineReducers({
   terms: termsReducer,
   flag: flagReducer,
   agent: agentReducer,
+  dispatch: dispatchReducer,
   class: classReducer,
   port: portReducer,
   validity: validityReducer,
@@ -57,6 +60,7 @@ const rootReducer = combineReducers({
   subCategory: subCategoryReducer,
   category: categoryReducer,
   brand: brandReducer,
+  technician: technicianReducer,
   warehouse: warehouseReducer,
   unit: unitReducer,
   vessel: vesselReducer,

@@ -12,10 +12,11 @@ const getBaseURL = async () => {
   if (API_URL) return API_URL;
   const response = await fetch(`${import.meta.env.VITE_BASE_URL}/config.json`);
   const config = await response.json();
-  API_URL = config.baseURL;
   if (!config.baseURL) {
+    API_URL = import.meta.env.VITE_API_URL;
     return import.meta.env.VITE_API_URL;
   }
+  API_URL = config.baseURL;
   return config.baseURL;
 };
 

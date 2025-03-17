@@ -1,22 +1,30 @@
-/* eslint-disable react/prop-types */
-import { Button, Modal } from 'antd';
-import { TbAlertOctagonFilled } from 'react-icons/tb';
+import { Button, Form, Input, Modal } from 'antd';
 
-const NotesModal = ({ open, onCancel, initialValue, onSubmit, isSubmitting }) => {
+const NotesModal = ({ open, onCancel, initialValue, onSubmit, isSubmitting, title }) => {
   return (
-    <Modal open={open} onCancel={onCancel} footer={null} closable={false}>
-      <div className="flex flex-col items-center justify-center">
-        <TbAlertOctagonFilled size={80} className="mb-4 text-error" />
-        <h4 className="text-center text-lg font-semibold">{title}</h4>
-        {description && <p className="text-center">{description}</p>}
+    <Modal destroyOnClose open={open} title={title} onCancel={onCancel} footer={null}>
+      <Form
+        name="notes-form"
+        autoComplete="off"
+        layout="vertical"
+        onFinish={onSubmit}
+        initialValues={{
+          notes: initialValue
+        }}
+        className="flex flex-col items-center justify-center">
+        <Form.Item name="notes" className="w-full">
+          <Input.TextArea rows={12} placeholder="Enter notes..." />
+        </Form.Item>
 
-        <div className="mt-6 flex items-center justify-center gap-2">
-          <Button onClick={onCancel}>Cancel</Button>
-          <Button type="primary" onClick={onSubmit} loading={isSubmitting}>
-            Delete
+        <div className="flex items-center justify-center gap-2">
+          <Button onClick={onCancel} className="w-28">
+            Cancel
+          </Button>
+          <Button type="primary" htmlType="submit" loading={isSubmitting} className="w-28">
+            Save
           </Button>
         </div>
-      </div>
+      </Form>
     </Modal>
   );
 };

@@ -43,6 +43,7 @@ const Agent = lazy(() => import('./pages/Agent'));
 const CreateAgent = lazy(() => import('./pages/Agent/CreateAgent'));
 const EditAgent = lazy(() => import('./pages/Agent/EditAgent'));
 
+const Technician = lazy(() => import('./pages/Technician'));
 const Notes = lazy(() => import('./pages/Notes'));
 const Flag = lazy(() => import('./pages/Flag'));
 const Class = lazy(() => import('./pages/Class'));
@@ -321,6 +322,14 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Notes />
+              </Suspense>
+            )
+          },
+          {
+            path: '/technician',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Technician />
               </Suspense>
             )
           },
