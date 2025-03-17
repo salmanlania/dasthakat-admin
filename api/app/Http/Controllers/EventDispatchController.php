@@ -47,7 +47,7 @@ class EventDispatchController extends Controller
 		$sortDirection = $request->input('sort_direction') === 'ascend' ? 'asc' : 'desc';
 
 		$data = $query
-			->select('event_dispatch.*', 'v.name as vessel_name', 'v.vessel_id', 'e.event_code', 'technician_id', 't.name as technician_name', 'agent_id', 'a.name as agent_name')
+			->select('event_dispatch.*', 'v.name as vessel_name', 'v.vessel_id', 'e.event_code', 't.technician_id', 't.name as technician_name', 'a.agent_id', 'a.name as agent_name')
 			->orderBy($sortColumn, $sortDirection)
 			->paginate($request->input('limit', 10));
 
