@@ -64,7 +64,7 @@ class EventDispatchController extends Controller
 		$dispatch = EventDispatch::where('event_id', $id)->first();
 
 		if ($chargeOrders->isEmpty() || !$dispatch) {
-			return $this->jsonResponse('No matching records found!', 404, "Not Found");
+			return $this->jsonResponse('No Charge Order found!', 400, "Not Found");
 		}
 
 		foreach ($chargeOrders as $chargeOrder) {

@@ -32,6 +32,9 @@ class ChargeOrder extends Model
         "class1_id",
         "class2_id",
         "agent_id",
+        "agent_notes",
+        "technician_id",
+        "technician_notes",
         "remarks",
         "total_quantity",
         "total_amount",
@@ -82,6 +85,10 @@ class ChargeOrder extends Model
     public function agent()
     {
         return $this->hasOne(Agent::class, 'agent_id', 'agent_id')->select('agent_id', 'name');
+    }
+    public function technician()
+    {
+        return $this->hasOne(technician::class, 'technician_id', 'technician_id')->select('technician_id', 'name');
     }
   
 }
