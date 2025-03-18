@@ -180,3 +180,11 @@ CREATE TABLE `event_dispatch` (
     `created_at` DATETIME,
     `updated_at` DATETIME
 );
+
+ALTER TABLE `charge_order`
+ADD COLUMN `agent_notes` TEXT NULL AFTER `agent_id`,
+ADD COLUMN `technician_id` JSON NULL AFTER `agent_notes`,
+ADD COLUMN `technician_notes` TEXT NULL AFTER `technician_id`;
+
+ALTER TABLE `event_dispatch` 
+ADD COLUMN `event_time` TIME NULL AFTER `event_date`;

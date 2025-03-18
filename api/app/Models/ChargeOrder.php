@@ -89,14 +89,5 @@ class ChargeOrder extends Model
     {
         return $this->hasOne(Agent::class, 'agent_id', 'agent_id')->select('agent_id', 'name');
     }
-    public function technicians()
-    {
-        $technicianIds = json_decode($this->technician_id, true);
-        dd($this);
-        // if (!is_array($technicianIds) || empty($technicianIds)) {
-        //     return collect();
-        // }
-
-        // return Technician::whereRaw('JSON_CONTAINS(?, technician_id)', [json_encode($technicianIds)])->get();
-    }
+ 
 }

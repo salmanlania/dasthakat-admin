@@ -141,6 +141,11 @@
   ('Sale Management', 'Internal Job Order', 'job_order', 'add', 'Add', 1.102),
   ('Sale Management', 'Internal Job Order', 'job_order', 'edit', 'Edit', 1.103),
   ('Sale Management', 'Internal Job Order', 'job_order', 'delete', 'Delete', 1.104),
+  
+  ('Sale Management', 'Shipment', 'shipment', 'list', 'List', 1.101),
+  ('Sale Management', 'Shipment', 'shipment', 'add', 'Update', 1.102),
+  ('Sale Management', 'Shipment', 'shipment', 'edit', 'Update', 1.103),
+  ('Sale Management', 'Shipment', 'shipment', 'delete', 'Update', 1.104),
 
   ('Warehousing', 'Picklist', 'picklist', 'list', 'List', 1.101),
   ('Warehousing', 'Picklist', 'picklist', 'add', 'Add', 1.102),
