@@ -24,6 +24,9 @@ const Dispatch = () => {
   const { list, isListLoading, params, paginationInfo, isFormSubmitting } = useSelector(
     (state) => state.dispatch
   );
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user.permission.dispatch;
+
   const [notesModalIsOpen, setNotesModalIsOpen] = useState({
     open: false,
     id: null,
@@ -106,6 +109,7 @@ const Dispatch = () => {
           size="small"
           className="font-normal"
           format="MM-DD-YYYY"
+          disabled={!permissions.update}
           defaultValue={event_date ? dayjs(event_date) : null}
           onChange={(date) =>
             updateValue(event_id, 'event_date', date ? dayjs(date).format('YYYY-MM-DD') : null)
@@ -140,6 +144,7 @@ const Dispatch = () => {
           size="small"
           className="font-normal"
           showSecond={false}
+          disabled={!permissions.update}
           defaultValue={event_time ? dayjs(event_time, 'HH:mm') : null}
           onChange={(date) =>
             updateValue(event_id, 'event_time', date ? dayjs(date).format('HH:mm') : null)
@@ -195,6 +200,7 @@ const Dispatch = () => {
           valueKey="vessel_id"
           size="small"
           labelInValue
+          disabled={!permissions.update}
           defaultValue={
             vessel_id
               ? {
@@ -237,6 +243,7 @@ const Dispatch = () => {
           labelKey="name"
           valueKey="technician_id"
           labelInValue
+          disabled={!permissions.update}
           defaultValue={
             technicians
               ? technicians.map((item) => ({
@@ -326,6 +333,7 @@ const Dispatch = () => {
           valueKey="agent_id"
           labelKey="name"
           labelInValue
+          disabled={!permissions.update}
           defaultValue={
             agent_id
               ? {
@@ -395,7 +403,9 @@ const Dispatch = () => {
       sorter: true,
       width: 180,
       ellipsis: true,
-      render: (_, { status }) => <Select size="small" className="w-full" allowClear />
+      render: (_, { status }) => (
+        <Select size="small" className="w-full" allowClear disabled={!permissions.update} />
+      )
     },
     {
       title: 'Action',
@@ -483,6 +493,7 @@ const Dispatch = () => {
         open={notesModalIsOpen.open}
         onCancel={closeNotesModal}
         onSubmit={onNotesSave}
+        disabled={!permissions.update}
       />
     </>
   );

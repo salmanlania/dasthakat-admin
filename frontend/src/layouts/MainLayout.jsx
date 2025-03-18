@@ -116,6 +116,12 @@ const MainLayout = () => {
   if (href === '/ijo/create' && !permissions.job_order.add) return <NotFound />;
   if (href.startsWith('/ijo/edit') && !permissions.job_order.edit) return <NotFound />;
 
+  if (href === '/shipment' && !permissions.shipment.list) return <NotFound />;
+  if (href === '/shipment/create' && !permissions.shipment.add) return <NotFound />;
+  if (href.startsWith('/shipment/edit') && !permissions.shipment.edit) return <NotFound />;
+
+  if (href === '/dispatch' && !permissions.dispatch.list) return <NotFound />;
+
   return (
     <Layout className="min-h-screen">
       <Sidebar />

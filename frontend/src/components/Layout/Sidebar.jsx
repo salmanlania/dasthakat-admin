@@ -96,6 +96,8 @@ const Sidebar = () => {
   const warehousingPermission =
     !permissions?.good_received_note?.list &&
     !permissions?.picklist?.list &&
+    !permissions?.shipment?.list &&
+    !permissions?.dispatch?.list &&
     !permissions?.servicelist?.list;
   const accountingPermission = !permissions?.purchase_invoice?.list;
 
@@ -304,8 +306,14 @@ const Sidebar = () => {
           disabled: !permissions?.good_received_note?.list
         },
         {
+          key: 'shipment',
+          label: <Link to="/shipment">Shipment</Link>,
+          disabled: !permissions?.shipment?.list
+        },
+        {
           key: 'dispatch',
-          label: <Link to="/dispatch">Dispatch</Link>
+          label: <Link to="/dispatch">Dispatch</Link>,
+          disabled: !permissions?.dispatch?.list
         }
       ]
     },

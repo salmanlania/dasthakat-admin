@@ -1,18 +1,17 @@
 import { Button, Col, Form, Input, Row, Select, Table } from 'antd';
-import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import useError from '../../hooks/useError';
-import { getEventChargeOrders, setChargeOrderDetails } from '../../store/features/ijoSlice';
+import { getChargeOrder } from '../../store/features/chargeOrderSlice';
+import { getEventChargeOrders, setChargeOrderDetails } from '../../store/features/shipmentSlice';
 import AsyncSelect from '../AsyncSelect';
 
-// eslint-disable-next-line react/prop-types
-const IJOForm = ({ mode = 'create', onSubmit }) => {
+const ShipmentForm = ({ mode = 'create', onSubmit }) => {
   const dispatch = useDispatch();
   const handleError = useError();
   const [form] = Form.useForm();
   const { isFormSubmitting, initialFormValues, chargeOrderDetails } = useSelector(
-    (state) => state.ijo
+    (state) => state.shipment
   );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
@@ -80,6 +79,14 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
       dataIndex: 'unit',
       key: 'unit',
       width: 80
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      width: 120,
+      fixed: 'right',
+      render: (_, { status }) => <Select defaultValue={status} className="w-full" />
     }
   ];
 
@@ -95,20 +102,27 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
       agent_id: values?.agent_id?.value || null
     };
 
-    onSubmit(payload);
+    // onSubmit(payload);
   };
 
   const onEventChange = async (selected) => {
+    const chargeId = form.getFieldValue('charge_order_id');
+
     form.setFieldsValue({
       vessel_id: null,
       customer_id: null,
       class1_id: null,
       class2_id: null,
-      flag_id: null,
       salesman_id: null,
-      imo: null
+      imo: null,
+      flag_id: null
     });
-    dispatch(setChargeOrderDetails([]));
+
+    if (!chargeId) {
+      dispatch(setChargeOrderDetails([]));
+    }
+
+    if (!selected) return;
 
     try {
       const data = await dispatch(getEventChargeOrders(selected.value)).unwrap();
@@ -139,7 +153,7 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
           : null
       });
 
-      if (!charge_orders || !charge_orders.length) return;
+      if (!charge_orders || !charge_orders.length || chargeId) return;
 
       const eventChargeDetails = [];
 
@@ -171,9 +185,48 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
     }
   };
 
+  const onChargeOrderChange = async (selected) => {
+    dispatch(setChargeOrderDetails([]));
+
+    if (!selected) {
+      const event_id = form.getFieldValue('event_id');
+
+      if (event_id) {
+        onEventChange(event_id);
+      }
+
+      return;
+    }
+
+    try {
+      const res = await dispatch(getChargeOrder(selected.value)).unwrap();
+      const chargeDetails = res.charge_order_detail
+        ? res.charge_order_detail.map((detail) => ({
+            id: detail.charge_order_detail_id,
+            charge_order_no: res?.document_identity,
+            product_type: detail?.product_type?.name,
+            product_code: detail?.product_code,
+            product_name:
+              detail?.product_type?.product_type_id == 4
+                ? detail?.product_name
+                : detail?.product?.product_name,
+            description: detail?.product_description,
+            customer_notes: detail?.description,
+            internal_notes: detail?.internal_notes,
+            quantity: parseFloat(detail?.quantity || 0),
+            unit: detail?.unit?.name || null
+          }))
+        : [];
+
+      dispatch(setChargeOrderDetails(chargeDetails));
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
   return (
     <Form
-      name="ijo"
+      name="shipment"
       layout="vertical"
       form={form}
       scrollToFirstError={{
@@ -194,9 +247,24 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
               endpoint="/event"
               valueKey="event_id"
               labelKey="event_code"
+              disabled={mode === 'edit'}
               labelInValue
+              allowClear={false}
               addNewLink={permissions.event.add ? '/event/create' : null}
               onChange={onEventChange}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="charge_order_id" label="Charge Order">
+            <AsyncSelect
+              endpoint="/charge-order"
+              valueKey="charge_order_id"
+              labelKey="document_identity"
+              disabled={mode === 'edit'}
+              labelInValue
+              onChange={onChargeOrderChange}
+              addNewLink={permissions.charge_order.add ? '/charge-order/create' : null}
             />
           </Form.Item>
         </Col>
@@ -230,17 +298,6 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
             <Select disabled />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="agent_id" label="Agent">
-            <AsyncSelect
-              endpoint="/agent"
-              valueKey="agent_id"
-              labelKey="name"
-              labelInValue
-              addNewLink={permissions.agent.add ? '/agent/create' : null}
-            />
-          </Form.Item>
-        </Col>
       </Row>
 
       <Table
@@ -256,15 +313,18 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
       />
 
       <div className="mt-4 flex items-center justify-end gap-2">
-        <Link to="/ijo">
+        <Link to="/shipment">
           <Button className="w-28">Cancel</Button>
         </Link>
         <Button type="primary" htmlType="submit" className="w-28" loading={isFormSubmitting}>
-          Save
+          Create SO
+        </Button>
+        <Button type="primary" htmlType="submit" className="w-28" loading={isFormSubmitting}>
+          Create DO
         </Button>
       </div>
     </Form>
   );
 };
 
-export default IJOForm;
+export default ShipmentForm;

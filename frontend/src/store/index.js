@@ -24,6 +24,7 @@ import purchaseOrderReducer from './features/purchaseOrderSlice';
 import quotationReducer from './features/quotationSlice';
 import salesmanReducer from './features/salesmanSlice';
 import serviceListReducer from './features/serviceListSlice';
+import shipmentReducer from './features/shipmentSlice';
 import sidebarReducer from './features/sidebarSlice';
 import subCategoryReducer from './features/subCategorySlice';
 import technicianReducer from './features/technicianSlice';
@@ -71,7 +72,8 @@ const rootReducer = combineReducers({
   goodsReceivedNote: goodsReceivedNoteReducer,
   quotation: quotationReducer,
   chargeOrder: chargeOrderReducer,
-  ijo: ijoReducer
+  ijo: ijoReducer,
+  shipment: shipmentReducer
 });
 
 export const store = configureStore({
