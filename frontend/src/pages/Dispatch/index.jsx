@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, DatePicker, Input, Select, Table, Tooltip } from 'antd';
+import { Breadcrumb, Button, DatePicker, Input, Select, Table, TimePicker, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -32,7 +32,6 @@ const Dispatch = () => {
   });
 
   const debouncedSearch = useDebounce(params.search, 500);
-  const debouncedEventCode = useDebounce(params.event_code, 500);
   const debouncedTechnicianNotes = useDebounce(params.technician_notes, 500);
   const debouncedAgentNotes = useDebounce(params.agent_notes, 500);
 
@@ -83,9 +82,15 @@ const Dispatch = () => {
           <div onClick={(e) => e.stopPropagation()}>
             <DatePicker
               size="small"
-              value={params.event_date}
+              value={params.event_date ? dayjs(params.event_date) : null}
               className="font-normal"
-              onChange={(date) => dispatch(setDispatchListParams({ event_date: date }))}
+              onChange={(date) =>
+                dispatch(
+                  setDispatchListParams({
+                    event_date: date ? dayjs(date).format('YYYY-MM-DD') : null
+                  })
+                )
+              }
               format="MM-DD-YYYY"
             />
           </div>
@@ -111,13 +116,49 @@ const Dispatch = () => {
     {
       title: (
         <div>
+          <p>Time</p>
+          <div onClick={(e) => e.stopPropagation()}>
+            <TimePicker
+              size="small"
+              value={params.event_time ? dayjs(params.event_time, 'HH:mm') : null}
+              className="font-normal"
+              showSecond={false}
+              onChange={(time) =>
+                dispatch(setDispatchListParams({ event_time: time ? time.format('HH:mm') : null }))
+              }
+            />
+          </div>
+        </div>
+      ),
+      dataIndex: 'event_time',
+      key: 'event_time',
+      sorter: true,
+      width: 150,
+      ellipsis: true,
+      render: (_, { event_id, event_time }) => (
+        <TimePicker
+          size="small"
+          className="font-normal"
+          showSecond={false}
+          defaultValue={event_time ? dayjs(event_time, 'HH:mm') : null}
+          onChange={(date) =>
+            updateValue(event_id, 'event_time', date ? dayjs(date).format('HH:mm') : null)
+          }
+        />
+      )
+    },
+    {
+      title: (
+        <div>
           <p>Event Number</p>
-          <Input
-            className="font-normal"
+          <AsyncSelect
+            endpoint="/event"
             size="small"
-            onClick={(e) => e.stopPropagation()}
-            value={params.event_code}
-            onChange={(e) => dispatch(setDispatchListParams({ event_code: e.target.value }))}
+            labelKey="event_code"
+            valueKey="event_id"
+            className="w-full font-normal"
+            value={params.event_id}
+            onChange={(selected) => dispatch(setDispatchListParams({ event_id: selected }))}
           />
         </div>
       ),
@@ -390,9 +431,11 @@ const Dispatch = () => {
     params.agent_id,
     params.technician_id,
     params.vessel_id,
+    params.event_id,
+    params.event_date,
+    params.event_time,
     params.technician_id,
     debouncedSearch,
-    debouncedEventCode,
     debouncedTechnicianNotes,
     debouncedAgentNotes
   ]);
