@@ -43,6 +43,7 @@ const Agent = lazy(() => import('./pages/Agent'));
 const CreateAgent = lazy(() => import('./pages/Agent/CreateAgent'));
 const EditAgent = lazy(() => import('./pages/Agent/EditAgent'));
 
+const Technician = lazy(() => import('./pages/Technician'));
 const Notes = lazy(() => import('./pages/Notes'));
 const Flag = lazy(() => import('./pages/Flag'));
 const Class = lazy(() => import('./pages/Class'));
@@ -97,6 +98,10 @@ const EditIJO = lazy(() => import('./pages/IJO/EditIJO'));
 
 const PickList = lazy(() => import('./pages/PickList'));
 const ServiceList = lazy(() => import('./pages/ServiceList'));
+
+const Shipment = lazy(() => import('./pages/Shipment'));
+const CreateShipment = lazy(() => import('./pages/Shipment/CreateShipment'));
+const EditShipment = lazy(() => import('./pages/Shipment/EditShipment'));
 
 const Dispatch = lazy(() => import('./pages/Dispatch'));
 
@@ -321,6 +326,14 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Notes />
+              </Suspense>
+            )
+          },
+          {
+            path: '/technician',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Technician />
               </Suspense>
             )
           },
@@ -634,6 +647,30 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <ServiceList />
+              </Suspense>
+            )
+          },
+          {
+            path: '/shipment',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Shipment />
+              </Suspense>
+            )
+          },
+          {
+            path: '/shipment/create',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreateShipment />
+              </Suspense>
+            )
+          },
+          {
+            path: '/shipment/edit/:id',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditShipment />
               </Suspense>
             )
           },

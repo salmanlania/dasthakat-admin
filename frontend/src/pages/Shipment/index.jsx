@@ -6,46 +6,67 @@ import { GoTrash } from 'react-icons/go';
 import { MdOutlineEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import PageHeading from '../../components/Heading/PageHeading';
-import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
-import useDebounce from '../../hooks/useDebounce';
-import useError from '../../hooks/useError';
+import AsyncSelect from '../../components/AsyncSelect/index.jsx';
+import PageHeading from '../../components/Heading/PageHeading.jsx';
+import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal.jsx';
+import useDebounce from '../../hooks/useDebounce.js';
+import useError from '../../hooks/useError.jsx';
 import {
-  bulkDeleteAgent,
-  deleteAgent,
-  getAgentList,
-  setAgentDeleteIDs,
-  setAgentListParams
-} from '../../store/features/agentSlice';
+  bulkDeleteShipment,
+  deleteShipment,
+  getShipmentList,
+  setShipmentDeleteIDs,
+  setShipmentListParams
+} from '../../store/features/shipmentSlice.js';
 
-const Agent = () => {
+const DUMMY_LIST = [
+  {
+    shipment_id: 1,
+    document_identity: '1/SH-0001',
+    event_code: '0001',
+    salesman_name: 'Wajid Ali',
+    vessel_name: 'Ameen Agha',
+    imo: '4567',
+    flag_name: 'Flag 1',
+    class1_name: 'Class 1',
+    class2_name: 'Class 2',
+    created_at: dayjs()
+  },
+  {
+    shipment_id: 2,
+    document_identity: '2/SH-0002',
+    event_code: '0002',
+    salesman_name: 'Rayan Ali',
+    vessel_name: 'Sami Khan',
+    imo: '9787',
+    flag_name: 'Flag 2',
+    class1_name: 'Class 3',
+    class2_name: 'Class 4',
+    created_at: dayjs()
+  }
+];
+
+const Shipment = () => {
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.agent
+    (state) => state.shipment
   );
   const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.agent;
+  const permissions = user.permission.shipment;
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
-  const debouncedCode = useDebounce(params.agent_code, 500);
-  const debouncedName = useDebounce(params.name, 500);
-  const debouncedAddress = useDebounce(params.address, 500);
-  const debouncedCity = useDebounce(params.city, 500);
-  const debouncedState = useDebounce(params.state, 500);
-  const debouncedZipCode = useDebounce(params.zip_code, 500);
-  const debouncedPhone = useDebounce(params.phone, 500);
-  const debouncedFax = useDebounce(params.fax, 500);
-  const debouncedEmail = useDebounce(params.email, 500);
+  const debouncedCode = useDebounce(params.document_identity, 500);
+  const debouncedIMO = useDebounce(params.imo, 500);
 
-  const onAgentDelete = async (id) => {
+  const onShipmentDelete = async (id) => {
     try {
-      await dispatch(deleteAgent(id)).unwrap();
-      toast.success('Agent deleted successfully');
-      dispatch(getAgentList(params)).unwrap();
+      // await dispatch(deleteShipment(id)).unwrap();
+      // toast.success('Shipment deleted successfully');
+      // dispatch(getShipmentList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -53,10 +74,10 @@ const Agent = () => {
 
   const onBulkDelete = async () => {
     try {
-      await dispatch(bulkDeleteAgent(deleteIDs)).unwrap();
-      toast.success('Agents deleted successfully');
+      // await dispatch(bulkDeleteShipment(deleteIDs)).unwrap();
+      // toast.success('Shipments deleted successfully');
       closeDeleteModal();
-      await dispatch(getAgentList(params)).unwrap();
+      // await dispatch(getShipmentList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -71,167 +92,153 @@ const Agent = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.agent_code}
-            onChange={(e) => dispatch(setAgentListParams({ agent_code: e.target.value }))}
+            value={params.document_identity}
+            onChange={(e) => dispatch(setShipmentListParams({ document_identity: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: 'agent_code',
-      key: 'agent_code',
+      dataIndex: 'document_identity',
+      key: 'document_identity',
       sorter: true,
-      width: 120
-    },
-    {
-      title: (
-        <div>
-          <p>Name</p>
-          <Input
-            className="font-normal"
-            size="small"
-            onClick={(e) => e.stopPropagation()}
-            value={params.name}
-            onChange={(e) => dispatch(setAgentListParams({ name: e.target.value }))}
-          />
-        </div>
-      ),
-      dataIndex: 'name',
-      key: 'name',
-      sorter: true,
-      width: 200,
+      width: 120,
       ellipsis: true
     },
     {
       title: (
-        <div>
-          <p>Physical Address</p>
-          <Input
-            className="font-normal"
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Event</p>
+          <AsyncSelect
+            endpoint="/event"
+            valueKey="event_id"
+            labelKey="event_code"
             size="small"
-            onClick={(e) => e.stopPropagation()}
-            value={params.address}
-            onChange={(e) => dispatch(setAgentListParams({ address: e.target.value }))}
+            className="w-full font-normal"
+            value={params.event_id}
+            onChange={(value) => dispatch(setShipmentListParams({ event_id: value }))}
           />
         </div>
       ),
-      dataIndex: 'address',
-      key: 'address',
+      dataIndex: 'event_code',
+      key: 'event_code',
       sorter: true,
-      width: 200,
+      width: 150,
       ellipsis: true
     },
     {
       title: (
-        <div>
-          <p>City</p>
-          <Input
-            className="font-normal"
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Sales Person</p>
+          <AsyncSelect
+            endpoint="/salesman"
+            valueKey="salesman_id"
+            labelKey="name"
             size="small"
-            onClick={(e) => e.stopPropagation()}
-            value={params.city}
-            onChange={(e) => dispatch(setAgentListParams({ city: e.target.value }))}
+            className="w-full font-normal"
+            value={params.salesman_id}
+            onChange={(value) => dispatch(setShipmentListParams({ salesman_id: value }))}
           />
         </div>
       ),
-      dataIndex: 'city',
-      key: 'city',
+      dataIndex: 'salesman_name',
+      key: 'salesman_name',
       sorter: true,
-      width: 200,
+      width: 150,
       ellipsis: true
     },
     {
       title: (
-        <div>
-          <p>State</p>
-          <Input
-            className="font-normal"
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Vessels</p>
+          <AsyncSelect
+            endpoint="/vessel"
+            valueKey="vessel_id"
+            labelKey="name"
             size="small"
-            onClick={(e) => e.stopPropagation()}
-            value={params.state}
-            onChange={(e) => dispatch(setAgentListParams({ state: e.target.value }))}
+            className="w-full font-normal"
+            value={params.vessel_id}
+            onChange={(value) => dispatch(setShipmentListParams({ vessel_id: value }))}
           />
         </div>
       ),
-      dataIndex: 'state',
-      key: 'state',
-      sorter: true,
-      width: 200,
-      ellipsis: true
+      dataIndex: 'vessel_name',
+      key: 'vessel_name',
+      width: 220
     },
     {
       title: (
         <div>
-          <p>Zip Code</p>
+          <p>IMO</p>
           <Input
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.zip_code}
-            onChange={(e) => dispatch(setAgentListParams({ zip_code: e.target.value }))}
+            value={params.imo}
+            onChange={(e) => dispatch(setShipmentListParams({ imo: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: 'zip_code',
-      key: 'zip_code',
+      dataIndex: 'imo',
+      key: 'imo',
       sorter: true,
-      width: 200,
+      width: 150,
       ellipsis: true
     },
     {
       title: (
-        <div>
-          <p>Phone</p>
-          <Input
-            className="font-normal"
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Flag</p>
+          <AsyncSelect
+            endpoint="/flag"
+            valueKey="flag_id"
+            labelKey="name"
             size="small"
-            onClick={(e) => e.stopPropagation()}
-            value={params.phone}
-            onChange={(e) => dispatch(setAgentListParams({ phone: e.target.value }))}
+            className="w-full font-normal"
+            value={params.flag_id}
+            onChange={(value) => dispatch(setShipmentListParams({ flag_id: value }))}
           />
         </div>
       ),
-      dataIndex: 'phone',
-      key: 'phone',
-      sorter: true,
-      width: 200,
-      ellipsis: true
+      dataIndex: 'flag_name',
+      key: 'flag_name',
+      width: 150
     },
     {
       title: (
-        <div>
-          <p>Fax</p>
-          <Input
-            className="font-normal"
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Class 1</p>
+          <AsyncSelect
+            endpoint="/class"
+            valueKey="class_id"
+            labelKey="name"
             size="small"
-            onClick={(e) => e.stopPropagation()}
-            value={params.fax}
-            onChange={(e) => dispatch(setAgentListParams({ fax: e.target.value }))}
+            className="w-full font-normal"
+            value={params.class1_id}
+            onChange={(value) => dispatch(setShipmentListParams({ class1_id: value }))}
           />
         </div>
       ),
-      dataIndex: 'fax',
-      key: 'fax',
-      sorter: true,
-      width: 200,
-      ellipsis: true
+      dataIndex: 'class1_name',
+      key: 'class1_name',
+      width: 150
     },
     {
       title: (
-        <div>
-          <p>Email</p>
-          <Input
-            className="font-normal"
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Class 2</p>
+          <AsyncSelect
+            endpoint="/class"
+            valueKey="class_id"
+            labelKey="name"
             size="small"
-            onClick={(e) => e.stopPropagation()}
-            value={params.email}
-            onChange={(e) => dispatch(setAgentListParams({ email: e.target.value }))}
+            className="w-full font-normal"
+            value={params.class2_id}
+            onChange={(value) => dispatch(setShipmentListParams({ class2_id: value }))}
           />
         </div>
       ),
-      dataIndex: 'email',
-      key: 'email',
-      sorter: true,
-      width: 200,
-      ellipsis: true
+      dataIndex: 'class2_name',
+      key: 'class2_name',
+      width: 150
     },
     {
       title: 'Created At',
@@ -244,11 +251,11 @@ const Agent = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_, { agent_id }) => (
+      render: (_, { shipment_id }) => (
         <div className="flex items-center gap-2">
           {permissions.edit ? (
             <Tooltip title="Edit">
-              <Link to={`/agent/edit/${agent_id}`}>
+              <Link to={`/shipment/edit/${shipment_id}`}>
                 <Button
                   size="small"
                   type="primary"
@@ -266,14 +273,14 @@ const Agent = () => {
                 okButtonProps={{ danger: true }}
                 okText="Yes"
                 cancelText="No"
-                onConfirm={() => onAgentDelete(agent_id)}>
+                onConfirm={() => onShipmentDelete(shipment_id)}>
                 <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
               </Popconfirm>
             </Tooltip>
           ) : null}
         </div>
       ),
-      width: 70,
+      width: 110,
       fixed: 'right'
     }
   ];
@@ -283,30 +290,29 @@ const Agent = () => {
   }
 
   useEffect(() => {
-    dispatch(getAgentList(params)).unwrap().catch(handleError);
+    // dispatch(getShipmentList(params)).unwrap().catch(handleError);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params.page,
     params.limit,
     params.sort_column,
     params.sort_direction,
+    params.event_id,
+    params.salesman_id,
+    params.vessel_id,
+    params.flag_id,
+    params.class1_id,
+    params.class2_id,
     debouncedSearch,
     debouncedCode,
-    debouncedName,
-    debouncedAddress,
-    debouncedCity,
-    debouncedState,
-    debouncedZipCode,
-    debouncedPhone,
-    debouncedFax,
-    debouncedEmail
+    debouncedIMO
   ]);
 
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>AGENT</PageHeading>
-        <Breadcrumb items={[{ title: 'Agent' }, { title: 'List' }]} separator=">" />
+        <PageHeading>SHIPMENT</PageHeading>
+        <Breadcrumb items={[{ title: 'Shipment' }, { title: 'List' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
@@ -315,7 +321,7 @@ const Agent = () => {
             placeholder="Search..."
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) => dispatch(setAgentListParams({ search: e.target.value }))}
+            onChange={(e) => dispatch(setShipmentListParams({ search: e.target.value }))}
           />
 
           <div className="flex items-center gap-2">
@@ -329,7 +335,7 @@ const Agent = () => {
               </Button>
             ) : null}
             {permissions.add ? (
-              <Link to="/agent/create">
+              <Link to="/shipment/create">
                 <Button type="primary">Add New</Button>
               </Link>
             ) : null}
@@ -343,23 +349,23 @@ const Agent = () => {
               ? {
                   type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setAgentDeleteIDs(selectedRowKeys))
+                  onChange: (selectedRowKeys) => dispatch(setShipmentDeleteIDs(selectedRowKeys))
                 }
               : null
           }
           loading={isListLoading}
           className="mt-2"
-          rowKey="agent_id"
+          rowKey="shipment_id"
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} agents`
+            showTotal: (total) => `Total ${total} shipments`
           }}
           onChange={(page, _, sorting) => {
             dispatch(
-              setAgentListParams({
+              setShipmentListParams({
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
@@ -367,7 +373,7 @@ const Agent = () => {
               })
             );
           }}
-          dataSource={list}
+          dataSource={DUMMY_LIST}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
@@ -381,11 +387,11 @@ const Agent = () => {
         onCancel={closeDeleteModal}
         onDelete={onBulkDelete}
         isDeleting={isBulkDeleting}
-        title="Are you sure you want to delete these agents?"
+        title="Are you sure you want to delete these shipments?"
         description="After deleting, you will not be able to recover."
       />
     </>
   );
 };
 
-export default Agent;
+export default Shipment;

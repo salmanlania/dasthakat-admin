@@ -19,7 +19,6 @@ import {
 import { getEvent } from '../../store/features/eventSlice';
 import { getProduct, getProductList } from '../../store/features/productSlice';
 import { setChargePoID } from '../../store/features/purchaseOrderSlice.js';
-import { changeQuotationDetailValue } from '../../store/features/quotationSlice.js';
 import { formatThreeDigitCommas, roundUpto } from '../../utils/number';
 import AsyncSelect from '../AsyncSelect';
 import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate';
@@ -78,7 +77,10 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       flag_id: values.flag_id ? values.flag_id.value : null,
       vessel_id: values.vessel_id ? values.vessel_id.value : null,
       agent_id: values.agent_id ? values.agent_id.value : null,
+      technician_notes: values.technician_notes,
+      agent_notes: values.agent_notes,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
+      technician_id: values.technician_id ? values.technician_id.map((v) => v.value) : null,
       charge_order_detail: chargeOrderDetails.map(({ id, product_type, ...detail }, index) => ({
         ...detail,
         picklist_id: detail?.picklist_id || '',
@@ -479,9 +481,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
               className="w-full"
               value={product_id}
               onChange={(selected) => onProductChange(index, selected)}
-              addNewLink={
-                permissions.product.list && permissions.product.add ? '/product/create' : null
-              }
+              addNewLink={permissions.product.add ? '/product/create' : null}
             />
           </Form.Item>
         );
@@ -556,7 +556,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             value={internal_notes}
             onChange={(value) =>
               dispatch(
-                changeQuotationDetailValue({
+                changeChargeOrderDetailValue({
                   index,
                   key: 'internal_notes',
                   value: value
@@ -698,9 +698,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
                 })
               )
             }
-            addNewLink={
-              permissions.supplier.list && permissions.supplier.add ? '/vendor/create' : null
-            }
+            addNewLink={permissions.supplier.add ? '/vendor/create' : null}
           />
         );
       },
@@ -886,11 +884,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       handleError(error);
     }
   };
-  // const getRowClassName = (record, index) => {
-  //   return record.job_order_detail_id !== null && record.job_order_detail_id !== undefined
-  //     ? '!bg-sky-100'
-  //     : '';
-  // };
+
   return (
     <Form
       name="chargeOrder"
@@ -961,7 +955,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
               labelKey="event_name"
               labelInValue
               onChange={onEventChange}
-              addNewLink={permissions.event.list && permissions.event.add ? '/event/create' : null}
+              addNewLink={permissions.event.add ? '/event/create' : null}
             />
           </Form.Item>
         </Col>
@@ -998,14 +992,36 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="technician_id" label="Technician">
+            <AsyncSelect
+              endpoint="/technician"
+              valueKey="technician_id"
+              labelKey="name"
+              mode="multiple"
+              labelInValue
+              addNewLink={permissions.agent.add && permissions.agent.list ? '/technician' : null}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="technician_notes" label="Technician Notes">
+            <Input.TextArea rows={1} />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="agent_id" label="Agent">
             <AsyncSelect
               endpoint="/agent"
               valueKey="agent_id"
               labelKey="name"
               labelInValue
-              addNewLink={permissions.agent.list && permissions.agent.add ? '/agent/create' : null}
+              addNewLink={permissions.agent.add ? '/agent/create' : null}
             />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="agent_notes" label="Agent Notes">
+            <Input.TextArea rows={1} />
           </Form.Item>
         </Col>
         <Col span={24} sm={24} md={16} lg={16}>

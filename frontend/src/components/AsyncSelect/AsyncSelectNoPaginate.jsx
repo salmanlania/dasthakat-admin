@@ -13,6 +13,7 @@ const AsyncSelectNoPaginate = ({
   valueKey,
   labelKey,
   addNewLink,
+  allowClear = true,
   ...props
 }) => {
   const [isClicked, setIsClicked] = useState(false);
@@ -54,7 +55,7 @@ const AsyncSelectNoPaginate = ({
   return (
     <Select
       showSearch
-      allowClear
+      allowClear={allowClear}
       loading={loading}
       labelInValue={labelInValue}
       {...props}

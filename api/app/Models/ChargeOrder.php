@@ -11,6 +11,9 @@ class ChargeOrder extends Model
     protected $table = 'charge_order';
     protected $primaryKey = 'charge_order_id';
     public $incrementing = false;
+    protected $casts = [
+        'technician_id' => 'array',
+    ];
 
     protected $fillable = [
         "company_id",
@@ -32,6 +35,9 @@ class ChargeOrder extends Model
         "class1_id",
         "class2_id",
         "agent_id",
+        "agent_notes",
+        "technician_id",
+        "technician_notes",
         "remarks",
         "total_quantity",
         "total_amount",
@@ -40,14 +46,14 @@ class ChargeOrder extends Model
         "created_by",
         "updated_by"
     ];
-  
+
     public function charge_order_detail()
     {
-        return $this->hasMany(ChargeOrderDetail::class, 'charge_order_id','charge_order_id')->orderBy('sort_order');
+        return $this->hasMany(ChargeOrderDetail::class, 'charge_order_id', 'charge_order_id')->orderBy('sort_order');
     }
     public function salesman()
     {
-        return $this->hasOne(Salesman::class, 'salesman_id','salesman_id')->select('salesman_id', 'name');
+        return $this->hasOne(Salesman::class, 'salesman_id', 'salesman_id')->select('salesman_id', 'name');
     }
     public function event()
     {
@@ -61,15 +67,15 @@ class ChargeOrder extends Model
     }
     public function vessel()
     {
-        return $this->hasOne(Vessel::class, 'vessel_id','vessel_id')->select('vessel_id', 'name');
+        return $this->hasOne(Vessel::class, 'vessel_id', 'vessel_id')->select('vessel_id', 'name');
     }
     public function customer()
     {
-        return $this->hasOne(Customer::class, 'customer_id','customer_id')->select('customer_id', 'name');
+        return $this->hasOne(Customer::class, 'customer_id', 'customer_id')->select('customer_id', 'name');
     }
     public function flag()
     {
-        return $this->hasOne(Flag::class, 'flag_id','flag_id')->select('flag_id', 'name');
+        return $this->hasOne(Flag::class, 'flag_id', 'flag_id')->select('flag_id', 'name');
     }
     public function class1()
     {
@@ -83,5 +89,5 @@ class ChargeOrder extends Model
     {
         return $this->hasOne(Agent::class, 'agent_id', 'agent_id')->select('agent_id', 'name');
     }
-  
+ 
 }

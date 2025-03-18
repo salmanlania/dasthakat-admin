@@ -68,6 +68,7 @@ const Sidebar = () => {
     !permissions?.customer?.list &&
     !permissions?.supplier?.list &&
     !permissions?.agent?.list &&
+    !permissions?.technician?.list &&
     !permissions?.flag?.list &&
     !permissions?.class?.list &&
     !permissions?.port?.list &&
@@ -95,6 +96,8 @@ const Sidebar = () => {
   const warehousingPermission =
     !permissions?.good_received_note?.list &&
     !permissions?.picklist?.list &&
+    !permissions?.shipment?.list &&
+    !permissions?.dispatch?.list &&
     !permissions?.servicelist?.list;
   const accountingPermission = !permissions?.purchase_invoice?.list;
 
@@ -149,6 +152,11 @@ const Sidebar = () => {
               key: 'agent',
               label: <Link to="/agent">Agent</Link>,
               disabled: !permissions?.agent?.list
+            },
+            {
+              key: 'technician',
+              label: <Link to="/technician">Technician</Link>,
+              disabled: !permissions?.technician?.list
             },
             {
               key: 'notes',
@@ -298,8 +306,14 @@ const Sidebar = () => {
           disabled: !permissions?.good_received_note?.list
         },
         {
+          key: 'shipment',
+          label: <Link to="/shipment">Shipment</Link>,
+          disabled: !permissions?.shipment?.list
+        },
+        {
           key: 'dispatch',
-          label: <Link to="/dispatch">Dispatch</Link>
+          label: <Link to="/dispatch">Dispatch</Link>,
+          disabled: !permissions?.dispatch?.list
         }
       ]
     },

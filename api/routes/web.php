@@ -37,24 +37,24 @@ $router->group([
 $router->get('/run-migrations', function () {
    //  $isSeeded = DB::table('users')->exists(); 
 
-    Artisan::call('migrate --force');
+   Artisan::call('migrate --force');
 
    //  if (!$isSeeded) {
    //      Artisan::call('db:seed', ['--force' => true]);
    //      return response()->json(['message' => 'Migrations and Seeders executed']);
    //  }
 
-    return response()->json(['message' => 'Migrations executed']);
+   return response()->json(['message' => 'Migrations executed']);
 });
 
 
 $router->get('test', 'Controller@testApi');
 
 $router->group(['prefix' => 'auth'], function ($router) {
-$router->post('/login', 'AuthController@login');
-$router->post('/session', 'AuthController@session');
-$router->post('/logout', 'AuthController@logout');
-$router->post('/reset-password', 'AuthController@forgotPassword');
+   $router->post('/login', 'AuthController@login');
+   $router->post('/session', 'AuthController@session');
+   $router->post('/logout', 'AuthController@logout');
+   $router->post('/reset-password', 'AuthController@forgotPassword');
 });
 
 
@@ -121,6 +121,15 @@ $router->group(['prefix' => 'agent'], function ($router) {
    $router->post('/bulk-delete', 'AgentController@bulkDelete');
 });
 
+$router->group(['prefix' => 'technician'], function ($router) {
+   $router->get('/', 'TechnicianController@index');
+   $router->get('/{id}', 'TechnicianController@show');
+   $router->post('/', 'TechnicianController@store');
+   $router->put('/{id}', 'TechnicianController@update');
+   $router->delete('/{id}', 'TechnicianController@delete');
+   $router->post('/bulk-delete', 'TechnicianController@bulkDelete');
+});
+
 $router->group(['prefix' => 'flag'], function ($router) {
    $router->get('/', 'FlagController@index');
    $router->get('/{id}', 'FlagController@show');
@@ -165,6 +174,11 @@ $router->group(['prefix' => 'event'], function ($router) {
    $router->put('/{id}', 'EventController@update');
    $router->delete('/{id}', 'EventController@delete');
    $router->post('/bulk-delete', 'EventController@bulkDelete');
+});
+
+$router->group(['prefix' => 'event-dispatch'], function ($router) {
+   $router->get('/', 'EventDispatchController@index');
+   $router->put('/{id}', 'EventDispatchController@update');
 });
 
 $router->group(['prefix' => 'terms'], function ($router) {
@@ -307,24 +321,24 @@ $router->group(['prefix' => 'job-order'], function ($router) {
 $router->group(['prefix' => 'picklist'], function ($router) {
    $router->get('/', 'PicklistController@index');
    $router->get('/{id}', 'PicklistController@show');
-   $router->post('/', 'PicklistController@store');  
+   $router->post('/', 'PicklistController@store');
 });
 
 $router->group(['prefix' => 'picklist-received'], function ($router) {
    $router->get('/{id}', 'PicklistReceivedController@show');
-   $router->put('/{id}', 'PicklistReceivedController@update');  
+   $router->put('/{id}', 'PicklistReceivedController@update');
 });
 
 // service list routes
 $router->group(['prefix' => 'servicelist'], function ($router) {
    $router->get('/', 'ServicelistController@index');
    $router->get('/{id}', 'ServicelistController@show');
-   $router->post('/', 'ServicelistController@store');  
+   $router->post('/', 'ServicelistController@store');
 });
 
 $router->group(['prefix' => 'servicelist-received'], function ($router) {
    $router->get('/{id}', 'ServicelistReceivedController@show');
-   $router->put('/{id}', 'ServicelistReceivedController@update');  
+   $router->put('/{id}', 'ServicelistReceivedController@update');
 });
 
 $router->group(['prefix' => 'purchase-order'], function ($router) {

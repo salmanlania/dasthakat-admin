@@ -16,6 +16,7 @@ const AsyncSelect = ({
   valueKey,
   labelKey,
   addNewLink,
+  allowClear = true,
   defaultFirstSelected = false,
   ...props
 }) => {
@@ -90,7 +91,7 @@ const AsyncSelect = ({
   return (
     <Select
       showSearch
-      allowClear
+      allowClear={allowClear}
       onSearch={handleInputChange}
       onClear={() => {
         setSearchValue('');

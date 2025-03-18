@@ -11,6 +11,7 @@ use App\Models\PurchaseOrderDetail;
 use App\Models\Quotation;
 use App\Models\StockLedger;
 use App\Models\Supplier;
+use App\Models\Technician;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -80,10 +81,16 @@ class ChargeOrderController extends Controller
 			"flag",
 			"class1",
 			"class2",
-			"agent"
+			"agent",
 		)
 			->where('charge_order_id', $id)->first();
 
+		$technicianIds = $data->technician_id;
+		if (!is_array($technicianIds) || empty($technicianIds)) {
+			$data->technicians = null;
+		} else {
+			$data->technicians = Technician::whereIn('technician_id', $technicianIds)->get();
+		}
 		if ($data) {
 			foreach ($data->charge_order_detail as $detail) {
 				if ($detail->product) {
@@ -265,6 +272,9 @@ class ChargeOrderController extends Controller
 			'class1_id' => $request->class1_id ?? "",
 			'class2_id' => $request->class2_id ?? "",
 			'agent_id' => $request->agent_id ?? "",
+			'technician_id' => $request->technician_id ?? "",
+			'agent_notes' => $request->agent_notes ?? "",
+			'technician_notes' => $request->technician_notes ?? "",
 			'remarks' => $request->remarks ?? "",
 			'total_quantity' => $request->total_quantity ?? "",
 			'total_amount' => $request->total_amount ?? 0,
@@ -336,6 +346,9 @@ class ChargeOrderController extends Controller
 		$data->class1_id = $request->class1_id;
 		$data->class2_id = $request->class2_id;
 		$data->agent_id = $request->agent_id;
+		$data->technician_id = $request->technician_id;
+		$data->agent_notes = $request->agent_notes;
+		$data->technician_notes = $request->technician_notes;
 		$data->remarks = $request->remarks;
 		$data->total_quantity = $request->total_quantity;
 		$data->total_amount = $request->total_amount;

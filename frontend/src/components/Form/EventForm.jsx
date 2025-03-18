@@ -96,9 +96,7 @@ const EventForm = ({ mode, onSubmit }) => {
               valueKey="customer_id"
               labelKey="name"
               labelInValue
-              addNewLink={
-                permissions.customer.list && permissions.customer.add ? '/customer/create' : null
-              }
+              addNewLink={permissions.customer.add ? '/customer/create' : null}
               onChange={() => {
                 form.setFieldsValue({
                   vessel_id: null,
