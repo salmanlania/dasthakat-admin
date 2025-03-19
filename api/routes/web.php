@@ -169,6 +169,7 @@ $router->group(['prefix' => 'event'], function ($router) {
    $router->get('/', 'EventController@index');
    $router->get('/{id}', 'EventController@show');
    $router->get('/{id}/charge-orders', 'EventController@getChargeOrders');
+   $router->get('/{id}/job-orders', 'EventController@EventJobOrders');
    $router->post('/', 'EventController@store');
    $router->put('/{id}', 'EventController@update');
    $router->delete('/{id}', 'EventController@delete');
@@ -310,7 +311,7 @@ $router->group(['prefix' => 'charge-order'], function ($router) {
 $router->group(['prefix' => 'job-order'], function ($router) {
    $router->get('/', 'JobOrderController@index');
    $router->get('/{id}', 'JobOrderController@show');
-   $router->get('/{id}/job-orders', 'JobOrderController@eventJobOrders');
+   // $router->get('/{id}/picklists', 'JobOrderController@eventJobOrders');
    $router->post('/', 'JobOrderController@store');
    $router->put('/{id}', 'JobOrderController@update');
    $router->delete('/{id}', 'JobOrderController@delete');

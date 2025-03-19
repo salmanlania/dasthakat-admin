@@ -198,11 +198,25 @@ class EventController extends Controller
 			->where('event_id', $id)
 			->orderBy('created_at', 'desc')
 			->get();
-			return $this->jsonResponse([
-				'charge_orders' => $chargeOrders,
-				// 'event' => $event
-			], 200, "Event Charge Orders Data");
+
+		$event = Event::with([
+			'customer',
+			'customer.salesman',
+			'vessel',
+			'vessel.flag',
+			'class1',
+			'class2',
+		])->find($id);
+
+		if (!$event) {
+			return $this->jsonResponse([], 404, "Event not found");
 		}
+
+		return $this->jsonResponse([
+			'charge_orders' => $chargeOrders,
+			'event' => $event
+		], 200, "Event Charge Orders Data");
+	}
 
 	public function show($id, Request $request)
 	{
