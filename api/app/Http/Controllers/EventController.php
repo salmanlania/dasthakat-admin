@@ -10,6 +10,7 @@ use App\Models\Event;
 use App\Models\EventDispatch;
 use App\Models\GRNDetail;
 use App\Models\JobOrder;
+use App\Models\Picklist;
 use App\Models\PicklistReceived;
 use App\Models\ServicelistReceived;
 use Illuminate\Support\Facades\DB;
@@ -79,34 +80,7 @@ class EventController extends Controller
 		return response()->json($data);
 	}
 
-	// public function getChargeOrders($id, Request $request)
-	// {
-	// 	$data = ChargeOrder::with([
-	// 		'event',
-	// 		'customer',
-	// 		'salesman',
-	// 		'agent',
-	// 		'vessel',
-	// 		'flag',
-	// 		'class1',
-	// 		'class2',
-	// 		'charge_order_detail',
-	// 		'charge_order_detail.product_type',
-	// 		'charge_order_detail.product',
-	// 		'charge_order_detail.unit',
-	// 		'charge_order_detail.supplier',
-	// 	])->where('event_id', $id)->orderBy('created_at', 'desc')->get();
 
-	// 	$event = Event::with([
-	// 		'customer',
-	// 		'customer.salesman',
-	// 		'vessel',
-	// 		'vessel.flag',
-	// 		'class1',
-	// 		'class2',
-	// 	])->where('event_id', $id)->first();
-	// 	return $this->jsonResponse(['charge_orders' => $data, 'event' => $event], 200, "Event Charge Orders Data");
-	// }
 
 	public function getChargeOrders($id)
 	{
@@ -178,44 +152,67 @@ class EventController extends Controller
 		return $this->jsonResponse($data, 200, "Job Order Data");
 	}
 
-	public function getChargeOrderPicklists($id)
+	public function EventChargeOrdersWithPicklists($id, Request $request)
 	{
-		$chargeOrders = ChargeOrder::with([
-			'event',
-			'customer',
-			'salesman',
-			'agent',
-			'vessel',
-			'flag',
-			'class1',
-			'class2',
-			'charge_order_detail',
-			'charge_order_detail.product_type',
-			'charge_order_detail.product',
-			'charge_order_detail.unit',
-			'charge_order_detail.supplier',
-		])
-			->where('event_id', $id)
-			->orderBy('created_at', 'desc')
-			->get();
 
-		$event = Event::with([
-			'customer',
-			'customer.salesman',
-			'vessel',
-			'vessel.flag',
-			'class1',
-			'class2',
-		])->find($id);
+		// Fetch picklists related to the event
+		$picklists = Picklist::with([
+			"charge_order",
+			"charge_order.vessel",
+			"charge_order.event",
+			"picklist_detail",
+			"picklist_detail.product"
+		])->where('event_id', $id)->get();
 
-		if (!$event) {
-			return $this->jsonResponse([], 404, "Event not found");
+		if ($picklists->isEmpty()) {
+			return $this->jsonResponse(null, 404, "Picklist not found");
 		}
 
-		return $this->jsonResponse([
-			'charge_orders' => $chargeOrders,
-			'event' => $event
-		], 200, "Event Charge Orders Data");
+		// Fetch received picklist history for all relevant picklists
+		$receivedData = PicklistReceived::with([
+			"picklist_received_detail",
+			"picklist_received_detail.pulled_by",
+			"picklist_received_detail.product",
+			"picklist_received_detail.warehouse"
+		])->whereIn('picklist_id', $picklists->pluck('picklist_id'))->get();
+
+		// Prepare response data
+		$items = [];
+
+		foreach ($picklists as $picklist) {
+			foreach ($picklist->picklist_detail as $detail) {
+				$picklistDetailId = $detail->picklist_detail_id;
+
+				// Get received details for this specific picklist detail item
+				$receivedDetails = $receivedData->flatMap(function ($received) {
+					return $received->picklist_received_detail;
+				})->where('picklist_detail_id', $picklistDetailId);
+
+				// Sum received quantity
+				$totalReceivedQty = $receivedDetails->sum('quantity');
+
+				$warehouseNames = $receivedDetails->pluck('warehouse.name')->filter()->unique()->implode(', ');
+				$remarks = $receivedDetails->pluck('remarks')->filter()->unique()->implode(', ');
+
+				$items[] = [
+					"picklist_id" => $picklist->picklist_id, // Add picklist ID for reference
+					"picklist_detail_id" => $picklistDetailId,
+					"product" => $detail->product ?? null,
+					"original_quantity" => $detail->quantity,
+					"total_received_quantity" => $totalReceivedQty,
+					"remarks" => $remarks ?: null, // Show null if empty
+					"warehouse" => ["name" => $warehouseNames ?: null], // Show null if empty
+				];
+			}
+		}
+
+		// Final response structure
+		$response = [
+			"picklists" => $picklists->toArray(),
+			"items" => $items,
+		];
+
+		return $this->jsonResponse($response, 200, "Picklist Details");
 	}
 
 	public function show($id, Request $request)
