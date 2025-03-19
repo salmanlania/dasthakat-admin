@@ -29,6 +29,30 @@ export const updateDispatch = createAsyncThunk(
   }
 );
 
+export const getEventJobOrders = createAsyncThunk(
+  'event/get-job-orders',
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/event/${id}/job-orders`);
+      return res.data.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
+export const getEventPickLists = createAsyncThunk(
+  'event/get-picklist',
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/event/${id}/picklists`);
+      return res.data.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 const initialState = {
   isListLoading: false,
   isFormSubmitting: false,

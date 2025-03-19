@@ -1,7 +1,7 @@
+import dayjs from 'dayjs';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import GMSLogo from '../../assets/logo-with-title.png';
-import dayjs from 'dayjs';
 
 const fillEmptyRows = (rows, rowsPerPage) => {
   // Calculate how many rows are required to fill the current page
@@ -75,13 +75,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   });
 };
 
-
-export const createPickListPrint = (data) => {
-  const doc = new jsPDF();
-  const sideMargin = 4;
-  const pageSize = doc.internal.pageSize;
-  const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
-
+const pdfContent = (doc, data, pageWidth) => {
   // Purchase Order Items Table
   const table2Column = [
     'SN',
@@ -108,7 +102,7 @@ export const createPickListPrint = (data) => {
             item?.warehouse?.name || '', // Location
             parseFloat(item?.original_quantity || 0),
             // parseFloat(item?.total_received_quantity || 0),
-            "",
+            '',
             item.remarks || ''
           ];
         })
@@ -164,17 +158,43 @@ export const createPickListPrint = (data) => {
 
   const date = `Date:  ${dayjs().format('MM-DD-YYYY')}`;
   doc.text(date, pageWidth - 33, doc.previousAutoTable.finalY + 12);
+};
 
-  const pageCount = doc.internal.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-    const pageSize = doc.internal.pageSize;
-    const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
-    addHeader(doc, data, pageWidth, sideMargin);
+export const createPickListPrint = (data, multiple = false) => {
+  const doc = new jsPDF();
+  const sideMargin = 4;
+  const pageSize = doc.internal.pageSize;
+  const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
+
+  if (!multiple) {
+    pdfContent(doc, data, pageWidth);
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      const pageSize = doc.internal.pageSize;
+      const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
+      addHeader(doc, data, pageWidth, sideMargin);
+    }
+  } else {
+    data.forEach((item, index) => {
+      pdfContent(doc, item, pageWidth);
+
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = index + 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        const pageSize = doc.internal.pageSize;
+        const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
+        addHeader(doc, item, pageWidth, sideMargin);
+      }
+
+      if (index < data.length - 1) {
+        doc.addPage();
+      }
+    });
   }
 
   doc.setProperties({
-    title: `Pick List - ${data.document_identity}`
+    title: `Pick List - ${multiple ? data[0]?.charge_order?.event.event_code : data.document_identity}`
   });
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob, {});
