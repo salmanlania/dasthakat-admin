@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Event;
 use App\Models\EventDispatch;
 use App\Models\GRNDetail;
+use App\Models\JobOrder;
 use App\Models\PicklistReceived;
 use App\Models\ServicelistReceived;
 use Illuminate\Support\Facades\DB;
@@ -199,7 +200,7 @@ class EventController extends Controller
 			->get();
 			return $this->jsonResponse([
 				'charge_orders' => $chargeOrders,
-				'event' => $event
+				// 'event' => $event
 			], 200, "Event Charge Orders Data");
 		}
 
