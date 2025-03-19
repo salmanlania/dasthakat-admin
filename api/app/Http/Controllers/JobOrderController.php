@@ -112,7 +112,7 @@ class JobOrderController extends Controller
 
 		return $this->jsonResponse($data, 200, "Job Order Data");
 	}
-	public function eventJobOrders($id, Request $request)
+	public function EventJobOrders($id, Request $request)
 	{
 
 		$data = JobOrder::with(
@@ -131,7 +131,7 @@ class JobOrderController extends Controller
 			"salesman",
 			"agent",
 			"certificates",
-		)->where('event_id', $id)->get();
+		)->where('event_id', $id);
 
 
 		return $this->jsonResponse($data, 200, "Job Order Data");

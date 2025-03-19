@@ -153,7 +153,31 @@ class EventController extends Controller
 		], 200, "Event Charge Orders Data");
 	}
 
-
+	public function getChargeOrderPicklists($id)
+	{
+		$chargeOrders = ChargeOrder::with([
+			'event',
+			'customer',
+			'salesman',
+			'agent',
+			'vessel',
+			'flag',
+			'class1',
+			'class2',
+			'charge_order_detail',
+			'charge_order_detail.product_type',
+			'charge_order_detail.product',
+			'charge_order_detail.unit',
+			'charge_order_detail.supplier',
+		])
+			->where('event_id', $id)
+			->orderBy('created_at', 'desc')
+			->get();
+			return $this->jsonResponse([
+				'charge_orders' => $chargeOrders,
+				'event' => $event
+			], 200, "Event Charge Orders Data");
+		}
 
 	public function show($id, Request $request)
 	{
