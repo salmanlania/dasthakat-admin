@@ -28,6 +28,7 @@ class JobOrderController extends Controller
 		$salesman_id = $request->input('salesman_id', '');
 		$class1_id = $request->input('class1_id', '');
 		$class2_id = $request->input('class2_id', '');
+		$details = $request->input('details', '');
 		$imo = $request->input('imo', '');
 		$search = $request->input('search', '');
 		$page =  $request->input('page', 1);
@@ -79,6 +80,11 @@ class JobOrderController extends Controller
 		$data = $data->select("job_order.*", "c.name as customer_name", "e.event_code", "v.name as vessel_name", "v.imo", "a.name as agent_name", "s.name as salesman_name", "f.name as flag_name", "c1.name as class1_name", "c2.name as class2_name");
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
+
+
+
+
+
 		return response()->json($data);
 	}
 
@@ -102,6 +108,30 @@ class JobOrderController extends Controller
 			"agent",
 			"certificates",
 		)->where('job_order_id', $id)->first();
+
+
+		return $this->jsonResponse($data, 200, "Job Order Data");
+	}
+	public function eventJobOrders($id, Request $request)
+	{
+
+		$data = JobOrder::with(
+			"job_order_detail",
+			"job_order_detail.charge_order",
+			"job_order_detail.product",
+			"job_order_detail.product_type",
+			"job_order_detail.unit",
+			"job_order_detail.supplier",
+			"event",
+			"vessel",
+			"customer",
+			"flag",
+			"class1",
+			"class2",
+			"salesman",
+			"agent",
+			"certificates",
+		)->where('event_id', $id)->first();
 
 
 		return $this->jsonResponse($data, 200, "Job Order Data");
