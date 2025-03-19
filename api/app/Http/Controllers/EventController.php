@@ -152,6 +152,30 @@ class EventController extends Controller
 			'event' => $event
 		], 200, "Event Charge Orders Data");
 	}
+	public function EventJobOrders($id, Request $request)
+	{
+
+		$data = JobOrder::with(
+			"job_order_detail",
+			"job_order_detail.charge_order",
+			"job_order_detail.product",
+			"job_order_detail.product_type",
+			"job_order_detail.unit",
+			"job_order_detail.supplier",
+			"event",
+			"vessel",
+			"customer",
+			"flag",
+			"class1",
+			"class2",
+			"salesman",
+			"agent",
+			"certificates",
+		)->where('event_id', $id)->get();
+
+
+		return $this->jsonResponse($data, 200, "Job Order Data");
+	}
 
 	public function getChargeOrderPicklists($id)
 	{
