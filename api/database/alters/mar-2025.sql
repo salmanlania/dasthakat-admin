@@ -188,3 +188,6 @@ ADD COLUMN `technician_notes` TEXT NULL AFTER `technician_id`;
 
 ALTER TABLE `event_dispatch` 
 ADD COLUMN `event_time` TIME NULL AFTER `event_date`;
+
+ALTER TABLE `event_dispatch`
+MODIFY COLUMN `technician_id` JSON NULL;
