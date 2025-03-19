@@ -190,4 +190,4 @@ ALTER TABLE `event_dispatch`
 ADD COLUMN `event_time` TIME NULL AFTER `event_date`;
 
 ALTER TABLE `event_dispatch`
-MODIFY COLUMN `technician_id` JSON NULL;
+MODIFY COLUMN `technician_id` BLOB NULL;

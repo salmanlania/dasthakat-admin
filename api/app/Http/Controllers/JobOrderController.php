@@ -131,7 +131,7 @@ class JobOrderController extends Controller
 			"salesman",
 			"agent",
 			"certificates",
-		)->where('event_id', $id)->first();
+		)->where('event_id', $id)->get();
 
 
 		return $this->jsonResponse($data, 200, "Job Order Data");
