@@ -15,14 +15,8 @@ const fillEmptyRows = (rows, rowsPerPage) => {
   return rows;
 };
 
-export const createIJOPrint = (data) => {
-  const doc = new jsPDF();
+const pdfContent = (doc, data, sideMargin, pageWidth) => {
   doc.setTextColor(32, 50, 114); // set default Blue color for all text
-  const sideMargin = 1;
-  const pageSize = doc.internal.pageSize;
-  const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
-
-  console.log(data);
 
   // Header
   doc.setFontSize(20);
@@ -517,9 +511,29 @@ export const createIJOPrint = (data) => {
       if (cellIndex === 3) data.cell.styles.cellWidth = 62; // Fourth column width
     }
   });
+};
+
+export const createIJOPrint = (data, multiple = false) => {
+  const doc = new jsPDF();
+
+  const sideMargin = 1;
+  const pageSize = doc.internal.pageSize;
+  const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
+
+  if (!multiple) {
+    pdfContent(doc, data, sideMargin, pageWidth);
+  } else {
+    data.forEach((item, index) => {
+      pdfContent(doc, item, sideMargin, pageWidth);
+
+      if (index < data.length - 1) {
+        doc.addPage();
+      }
+    });
+  }
 
   doc.setProperties({
-    title: `IJO - ${data.document_identity}`
+    title: `IJO - ${multiple ? data[0]?.event.event_code : data.document_identity}`
   });
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob, {});

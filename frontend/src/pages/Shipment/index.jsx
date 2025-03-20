@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from 'antd';
+import { Breadcrumb, Button, Form, Input, Popconfirm, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -47,6 +47,7 @@ const DUMMY_LIST = [
 ];
 
 const Shipment = () => {
+  const [form] = Form.useForm();
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
@@ -61,6 +62,8 @@ const Shipment = () => {
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedCode = useDebounce(params.document_identity, 500);
   const debouncedIMO = useDebounce(params.imo, 500);
+
+  const eventId = Form.useWatch('event_id', form);
 
   const onShipmentDelete = async (id) => {
     try {
@@ -315,7 +318,53 @@ const Shipment = () => {
         <Breadcrumb items={[{ title: 'Shipment' }, { title: 'List' }]} separator=">" />
       </div>
 
-      <div className="mt-4 rounded-md bg-white p-2">
+      <div className="mt-4 rounded-md bg-white p-4">
+        <Form
+          layout="vertical"
+          requiredMark="optional"
+          name="shipment-list"
+          form={form}
+          className="mb-2 flex items-end gap-4 rounded-md border border-slate-200 bg-slate-50 p-4">
+          <Form.Item name="event_id" className="m-0 w-48" required label="Event">
+            <AsyncSelect
+              endpoint="/event"
+              valueKey="event_id"
+              labelKey="event_code"
+              labelInValue
+              // addNewLink={permissions.event.add ? '/event/create' : null}
+              // onChange={onEventChange}
+            />
+          </Form.Item>
+          <Form.Item name="charge_order_id" label="Charge Order" className="m-0 w-48">
+            <AsyncSelect
+              endpoint="/charge-order"
+              valueKey="charge_order_id"
+              labelKey="document_identity"
+              // disabled={mode === 'edit'}
+              labelInValue
+              // onChange={onChargeOrderChange}
+              // addNewLink={permissions.charge_order.add ? '/charge-order/create' : null}
+            />
+          </Form.Item>
+
+          <Button
+            type="primary"
+            htmlType="submit"
+            className="mb-[1px] w-28"
+            loading={false}
+            disabled={!eventId}>
+            Create SO
+          </Button>
+          <Button
+            type="primary"
+            htmlType="submit"
+            className="mb-[1px] w-28"
+            loading={false}
+            disabled={!eventId}>
+            Create DO
+          </Button>
+        </Form>
+
         <div className="flex items-center justify-between gap-2">
           <Input
             placeholder="Search..."

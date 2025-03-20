@@ -12,11 +12,13 @@ import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
 import {
   getDispatchList,
+  getEventJobOrders,
+  getEventPickLists,
   setDispatchListParams,
   updateDispatch
 } from '../../store/features/dispatchSlice';
-import { getIJOForPrint } from '../../store/features/ijoSlice';
 import { createIJOPrint } from '../../utils/prints/ijo-print';
+import { createPickListPrint } from '../../utils/prints/pick-list-print';
 
 const Dispatch = () => {
   const dispatch = useDispatch();
@@ -69,11 +71,25 @@ const Dispatch = () => {
     const loadingToast = toast.loading('Loading IJO print...');
 
     try {
-      const data = await dispatch(getIJOForPrint(id)).unwrap();
-      toast.dismiss(loadingToast);
-      createIJOPrint(data);
+      const data = await dispatch(getEventJobOrders(id)).unwrap();
+      createIJOPrint(data, true); // pass true argument to print multiple IJO's
     } catch (error) {
       handleError(error);
+    } finally {
+      toast.dismiss(loadingToast);
+    }
+  };
+
+  const printPickLists = async (id) => {
+    const loadingToast = toast.loading('Loading Pick Lists print...');
+
+    try {
+      const data = await dispatch(getEventPickLists(id)).unwrap();
+      createPickListPrint(data, true); // pass true argument to print multiple IJO's
+    } catch (error) {
+      handleError(error);
+    } finally {
+      toast.dismiss(loadingToast);
     }
   };
 
@@ -288,7 +304,7 @@ const Dispatch = () => {
           <div className="relative">
             <p>{technician_notes}</p>
             <div
-              className={`absolute -right-2 ${technician_notes?.trim() ? '-top-[2px]' : '-top-[12px]'} flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-white`}>
+              className={`absolute -right-2.5 ${technician_notes?.trim() ? '-top-[2px]' : '-top-[12px]'} flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-white`}>
               <TbEdit
                 size={22}
                 className="text-primary hover:text-blue-600"
@@ -373,7 +389,7 @@ const Dispatch = () => {
           <div className="relative">
             <p>{agent_notes}</p>
             <div
-              className={`absolute -right-2 ${agent_notes?.trim() ? '-top-[2px]' : '-top-[12px]'} flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-white`}>
+              className={`absolute -right-2.5 ${agent_notes?.trim() ? '-top-[2px]' : '-top-[12px]'} flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-white`}>
               <TbEdit
                 size={22}
                 className="text-primary hover:text-blue-600"
@@ -408,24 +424,34 @@ const Dispatch = () => {
       )
     },
     {
-      title: 'Action',
-      key: 'action',
-      render: (_, { job_order_id }) => (
+      title: 'Print',
+      key: 'print',
+      align: 'center',
+      render: (_, { event_id }) => (
         <div className="flex flex-col justify-center gap-1">
           <div className="flex items-center gap-1">
             <Tooltip title="Print IJO">
               <Button
                 size="small"
                 type="primary"
-                className="bg-rose-600 hover:!bg-rose-500"
-                icon={<FaRegFilePdf size={14} />}
-                onClick={() => printIJO(job_order_id)}
-              />
+                className="w-20"
+                onClick={() => printIJO(event_id)}>
+                IJO
+              </Button>
+            </Tooltip>
+            <Tooltip title="Print Pick Lists">
+              <Button
+                size="small"
+                type="primary"
+                className="w-20 bg-rose-600 hover:!bg-rose-500"
+                onClick={() => printPickLists(event_id)}>
+                PL
+              </Button>
             </Tooltip>
           </div>
         </div>
       ),
-      width: 80,
+      width: 100,
       fixed: 'right'
     }
   ];
@@ -469,7 +495,7 @@ const Dispatch = () => {
           size="small"
           loading={isListLoading}
           className="mt-2"
-          rowKey="event_id"
+          rowKey="job_order_id"
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,

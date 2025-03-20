@@ -51,6 +51,10 @@ class ChargeOrder extends Model
     {
         return $this->hasMany(ChargeOrderDetail::class, 'charge_order_id', 'charge_order_id')->orderBy('sort_order');
     }
+    public function picklists()
+    {
+        return $this->hasMany(Picklist::class, 'charge_order_id', 'charge_order_id')->orderBy('document_date');
+    }
     public function salesman()
     {
         return $this->hasOne(Salesman::class, 'salesman_id', 'salesman_id')->select('salesman_id', 'name');
@@ -89,5 +93,4 @@ class ChargeOrder extends Model
     {
         return $this->hasOne(Agent::class, 'agent_id', 'agent_id')->select('agent_id', 'name');
     }
- 
 }

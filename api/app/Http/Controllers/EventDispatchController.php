@@ -31,7 +31,6 @@ class EventDispatchController extends Controller
 		if ($vessel_id = $request->input('vessel_id')) {
 			$query->where('e.vessel_id', $vessel_id);
 		}
-
 		if ($agent_id = $request->input('agent_id')) {
 			$query->where('event_dispatch.agent_id', $agent_id);
 		}
@@ -41,6 +40,16 @@ class EventDispatchController extends Controller
 		if ($agent_notes = $request->input('agent_notes')) {
 			$query->where('event_dispatch.agent_notes', 'like', '%' . $agent_notes . '%');
 		}
+		if ($technician_ids = $request->input('technician_id')) {
+			if (is_array($technician_ids)) {
+				$query->where(function ($q) use ($technician_ids) {
+					foreach ($technician_ids as $technician_id) {
+						$q->orWhereJsonContains('event_dispatch.technician_id', $technician_id);
+					}
+				});
+			}
+		}
+
 		if ($search = $request->input('search')) {
 			$search = strtolower($search);
 			$query->where(function ($q) use ($search) {
@@ -57,7 +66,7 @@ class EventDispatchController extends Controller
 
 
 		$data = $query
-			->select('event_dispatch.*', 'v.name as vessel_name', 'v.vessel_id', 'e.event_code', 'event_dispatch.technician_id', 't.name as technician_name', 'a.agent_id', 'a.name as agent_name','jo.job_order_id')
+			->select('event_dispatch.*', 'v.name as vessel_name', 'v.vessel_id', 'e.event_code', 'event_dispatch.technician_id', 't.name as technician_name', 'a.agent_id', 'a.name as agent_name', 'jo.job_order_id')
 			->orderBy($sortColumn, $sortDirection)
 			->paginate($request->input('limit', 10));
 		foreach ($data as $key => $value) {

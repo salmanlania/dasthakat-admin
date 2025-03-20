@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Event;
 use App\Models\EventDispatch;
 use App\Models\GRNDetail;
+use App\Models\JobOrder;
+use App\Models\Picklist;
 use App\Models\PicklistReceived;
 use App\Models\ServicelistReceived;
 use Illuminate\Support\Facades\DB;
@@ -78,34 +80,7 @@ class EventController extends Controller
 		return response()->json($data);
 	}
 
-	// public function getChargeOrders($id, Request $request)
-	// {
-	// 	$data = ChargeOrder::with([
-	// 		'event',
-	// 		'customer',
-	// 		'salesman',
-	// 		'agent',
-	// 		'vessel',
-	// 		'flag',
-	// 		'class1',
-	// 		'class2',
-	// 		'charge_order_detail',
-	// 		'charge_order_detail.product_type',
-	// 		'charge_order_detail.product',
-	// 		'charge_order_detail.unit',
-	// 		'charge_order_detail.supplier',
-	// 	])->where('event_id', $id)->orderBy('created_at', 'desc')->get();
 
-	// 	$event = Event::with([
-	// 		'customer',
-	// 		'customer.salesman',
-	// 		'vessel',
-	// 		'vessel.flag',
-	// 		'class1',
-	// 		'class2',
-	// 	])->where('event_id', $id)->first();
-	// 	return $this->jsonResponse(['charge_orders' => $data, 'event' => $event], 200, "Event Charge Orders Data");
-	// }
 
 	public function getChargeOrders($id)
 	{
@@ -152,7 +127,128 @@ class EventController extends Controller
 			'event' => $event
 		], 200, "Event Charge Orders Data");
 	}
+	public function EventJobOrders($id, Request $request)
+	{
 
+		$data = JobOrder::with(
+			"job_order_detail",
+			"job_order_detail.charge_order",
+			"job_order_detail.product",
+			"job_order_detail.product_type",
+			"job_order_detail.unit",
+			"job_order_detail.supplier",
+			"event",
+			"vessel",
+			"customer",
+			"flag",
+			"class1",
+			"class2",
+			"salesman",
+			"agent",
+			"certificates",
+		)->where('event_id', $id)->get();
+
+
+		return $this->jsonResponse($data, 200, "Job Order Data");
+	}
+
+	public function EventChargeOrdersWithPicklists($id)
+	{
+		// Fetch picklists related to the event with all necessary relationships
+		$picklists = Picklist::with([
+			"charge_order",
+			"charge_order.vessel",
+			"charge_order.event",
+			"picklist_detail",
+			"picklist_detail.product"
+		])->whereHas('charge_order', function ($query) use ($id) {
+			$query->where('event_id', $id);
+		})->get();
+
+		if ($picklists->isEmpty()) {
+			return $this->jsonResponse("Picklist not found", 404, "Picklist not found");
+		}
+
+		// Fetch received picklist history for all relevant picklists
+		$receivedData = PicklistReceived::with([
+			"picklist_received_detail",
+			"picklist_received_detail.pulled_by",
+			"picklist_received_detail.product",
+			"picklist_received_detail.warehouse"
+		])->whereIn('picklist_id', $picklists->pluck('picklist_id'))->get();
+
+		// Prepare response data
+		$response = [];
+
+		foreach ($picklists as $picklist) {
+			$picklistDetails = [];
+			$items = [];
+
+			foreach ($picklist->picklist_detail as $detail) {
+				$picklistDetailId = $detail->picklist_detail_id;
+
+				// Get received details for this specific picklist detail item
+				$receivedDetails = $receivedData->flatMap(function ($received) {
+					return $received->picklist_received_detail;
+				})->where('picklist_detail_id', $picklistDetailId);
+
+				// Sum received quantity
+				$totalReceivedQty = $receivedDetails->sum('quantity');
+
+				$warehouseNames = $receivedDetails->pluck('warehouse.name')->filter()->unique()->implode(', ');
+				$remarks = $receivedDetails->pluck('remarks')->filter()->unique()->implode(', ');
+
+				// Prepare picklist detail data
+				$picklistDetails[] = [
+					"picklist_detail_id" => $picklistDetailId,
+					"picklist_id" => $picklist->picklist_id,
+					"charge_order_detail_id" => $detail->charge_order_detail_id ?? null,
+					"sort_order" => $detail->sort_order ?? 0,
+					"product_id" => $detail->product_id ?? null,
+					"product_description" => $detail->product->impa_code . " " . $detail->product->name ?? null,
+					"quantity" => $detail->quantity,
+					"created_by" => $detail->created_by ?? null,
+					"updated_by" => $detail->updated_by ?? null,
+					"created_at" => $detail->created_at,
+					"updated_at" => $detail->updated_at,
+					"product" => $detail->product
+				];
+
+				// Prepare items (received details)
+				$items[] = [
+					"picklist_detail_id" => $picklistDetailId,
+					"product" => $detail->product,
+					"original_quantity" => $detail->quantity,
+					"total_received_quantity" => $totalReceivedQty,
+					"remarks" => $remarks ?: null,
+					"warehouse" => ["name" => $warehouseNames ?: null],
+				];
+			}
+
+			// Construct full picklist response object
+			$response[] = [
+				"picklist_id" => $picklist->picklist_id,
+				"company_id" => $picklist->company_id,
+				"company_branch_id" => $picklist->company_branch_id,
+				"document_type_id" => $picklist->document_type_id,
+				"document_no" => $picklist->document_no,
+				"document_prefix" => $picklist->document_prefix,
+				"document_identity" => $picklist->document_identity,
+				"document_date" => $picklist->document_date,
+				"charge_order_id" => $picklist->charge_order_id,
+				"total_quantity" => $picklist->total_quantity,
+				"created_by" => $picklist->created_by,
+				"updated_by" => $picklist->updated_by,
+				"created_at" => $picklist->created_at,
+				"updated_at" => $picklist->updated_at,
+				"charge_order" => $picklist->charge_order,
+				"picklist_detail" => $picklistDetails,
+				"items" => $items
+			];
+		}
+
+		return $this->jsonResponse($response, 200, "Picklist Details");
+	}
 
 
 	public function show($id, Request $request)
