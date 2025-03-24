@@ -32,4 +32,8 @@ class Shipment extends Model
     {
         return $this->hasOne(ChargeOrder::class, 'charge_order_id', 'charge_order_id')->select('*');
     }
+    public function shipment_detail()
+    {
+        return $this->hasMany(ShipmentDetail::class, 'shipment_id', 'shipment_id')->select('*');
+    }
 }

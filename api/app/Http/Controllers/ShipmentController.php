@@ -154,32 +154,41 @@ class ShipmentController extends Controller
 		];
 		Shipment::create($insertArr);
 
+		$chargeOrderDetails = ChargeOrderDetail::whereHas('charge_order', function ($query) use ($request) {
+			$query->where('event_id', $request->event_id);
+		});
+		if ($request->charge_order_id) {
+			$chargeOrderDetails = $chargeOrderDetails->where('charge_order_id', $request->charge_order_id);
+		}
 		if ($request->type == "DO") {
-			if (!empty($request->charge_order_id)) {
-				$details = ChargeOrderDetail::where('charge_order_id', $request->charge_order_id)->get();
+			$chargeOrderDetails = $chargeOrderDetails->where('product_type_id', '!=', 1);
+		} else {
+			$chargeOrderDetails = $chargeOrderDetails->where('product_type_id', 1);
+		}
 
-				foreach ($details as $key => $value) {
-					$insertArr = [
-						'shipment_id' => $uuid,
-						'shipment_detail_id' => $this->get_uuid(),
-						'sort_order' =>  $key + 1 ?? "",
-						'charge_order_id' => $request->charge_order_id ?? "",
-						'charge_order_detail_id' => $value->charge_order_detail_id ?? "",
-						'product_id' => $value->product_id ?? "",
-						'product_type_id' => $value->product_type_id ?? "",
-						'product_name' => $value->product_name ?? "",
-						'product_description' => $value->product_description ?? "",
-						'description' => $value->description ?? "",
-						'internal_notes' => $value->internal_notes ?? "",
-						'quantity' => $value->quantity ?? "",
-						'unit_id' => $value->unit_id ?? "",
-						'supplier_id' => $value->supplier_id ?? "",
-						'created_at' => Carbon::now(),
-						'created_by' => $request->login_user_id,
-					];
-					ShipmentDetail::create($insertArr);
-				}
-			}
+		$chargeOrderDetails = $chargeOrderDetails->get();
+
+
+		foreach ($chargeOrderDetails as $key => $value) {
+			$insertArr = [
+				'shipment_id' => $uuid,
+				'shipment_detail_id' => $this->get_uuid(),
+				'sort_order' =>  $key + 1 ?? "",
+				'charge_order_id' => $request->charge_order_id ?? "",
+				'charge_order_detail_id' => $value->charge_order_detail_id ?? "",
+				'product_id' => $value->product_id ?? "",
+				'product_type_id' => $value->product_type_id ?? "",
+				'product_name' => $value->product_name ?? "",
+				'product_description' => $value->product_description ?? "",
+				'description' => $value->description ?? "",
+				'internal_notes' => $value->internal_notes ?? "",
+				'quantity' => $value->quantity ?? "",
+				'unit_id' => $value->unit_id ?? "",
+				'supplier_id' => $value->supplier_id ?? "",
+				'created_at' => Carbon::now(),
+				'created_by' => $request->login_user_id,
+			];
+			ShipmentDetail::create($insertArr);
 		}
 
 
