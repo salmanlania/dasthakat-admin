@@ -1,0 +1,306 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\DocumentType;
+use Illuminate\Http\Request;
+use App\Models\ChargeOrder;
+use App\Models\ChargeOrderDetail;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderDetail;
+use App\Models\Quotation;
+use App\Models\Shipment;
+use App\Models\ShipmentDetail;
+use App\Models\StockLedger;
+use App\Models\Supplier;
+use App\Models\Technician;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+
+class ShipmentController extends Controller
+{
+	protected $DO_document_type_id = 48;
+	protected $SO_document_type_id = 49;
+	protected $db;
+
+	public function index(Request $request)
+	{
+		$document_identity = $request->input('document_identity', '');
+		$event_id = $request->input('event_id', '');
+		$vessel_id = $request->input('vessel_id', '');
+		$customer_id = $request->input('customer_id', '');
+		$flag_id = $request->input('flag_id', '');
+		$salesman_id = $request->input('salesman_id', '');
+		$class1_id = $request->input('class1_id', '');
+		$class2_id = $request->input('class2_id', '');
+		$imo = $request->input('imo', '');
+		$search = $request->input('search', '');
+		$page =  $request->input('page', 1);
+		$perPage =  $request->input('limit', 10);
+		$sort_column = $request->input('sort_column', 'shipment.created_at');
+		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
+
+		$data = Shipment::LeftJoin('event as e', 'e.event_id', '=', 'shipment.event_id')
+			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'e.vessel_id')
+			->LeftJoin('flag as f', 'f.flag_id', '=', 'v.flag_id')
+			->LeftJoin('customer as c', 'c.customer_id', '=', 'v.customer_id')
+			->LeftJoin('class as c1', 'c1.class_id', '=', 'v.class1_id')
+			->LeftJoin('class as c2', 'c2.class_id', '=', 'v.class2_id')
+			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'shipment.vessel_id')
+			->LeftJoin('salesman as s', 's.salesman_id', '=', 'c.salesman_id');
+		$data = $data->where('shipment.company_id', '=', $request->company_id);
+		$data = $data->where('shipment.company_branch_id', '=', $request->company_branch_id);
+		if (!empty($document_identity)) $data = $data->where('shipment.document_identity', 'like', '%' . $document_identity . '%');
+		if (!empty($event_id)) $data = $data->where('shipment.event_id', '=',  $event_id);
+		if (!empty($flag_id)) $data = $data->where('v.flag_id', '=',  $flag_id);
+		if (!empty($vessel_id)) $data = $data->where('v.vessel_id', '=',  $vessel_id);
+		if (!empty($salesman_id)) $data = $data->where('s.salesman_id', '=',  $salesman_id);
+		if (!empty($customer_id)) $data = $data->where('c.customer_id', '=',  $customer_id);
+		if (!empty($imo)) $data = $data->where('v.imo', 'like',  "%" . $imo . "%");
+		if (!empty($class1_id)) $data = $data->where('v.class1_id', '=',  $class1_id);
+		if (!empty($class2_id)) $data = $data->where('v.class2_id', '=',  $class2_id);
+		if (!empty($document_date)) $data = $data->where('shipment.document_date', '=',  $document_date);
+
+		if (!empty($search)) {
+			$search = strtolower($search);
+			$data = $data->where(function ($query) use ($search) {
+				$query
+					->OrWhere('shipment.document_identity', 'like', '%' . $search . '%')
+					->OrWhere('v.imo', 'like', '%' . $search . '%')
+					->OrWhere('f.name', 'like', '%' . $search . '%')
+					->OrWhere('c1.name', 'like', '%' . $search . '%')
+					->OrWhere('c2.name', 'like', '%' . $search . '%')
+					->OrWhere('c.name', 'like', '%' . $search . '%')
+					->OrWhere('e.event_code', 'like', '%' . $search . '%')
+					->OrWhere('s.name', 'like', '%' . $search . '%')
+					->OrWhere('v.name', 'like', '%' . $search . '%');
+			});
+		}
+
+		$data = $data->select("shipment.*", "c.name as customer_name", "e.event_code", "v.name as vessel_name", "v.imo", "s.name as salesman_name", "f.name as flag_name", "c1.name as class1_name", "c2.name as class2_name");
+		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
+
+
+
+
+
+
+		return response()->json($data);
+	}
+
+	public function show($id, Request $request)
+	{
+
+		$data = Shipment::with(
+			"shipment_detail.charge_order",
+			"shipment_detail.charge_order_detail",
+			"shipment_detail.charge_order_detail.product",
+			"shipment_detail.charge_order_detail.product_type",
+			"shipment_detail.charge_order_detail.unit",
+			"shipment_detail.charge_order_detail.supplier",
+			"event",
+			"charge_order",
+			"event.vessel",
+			"event.customer",
+			"event.class1",
+			"event.class2",
+			"event.customer.salesman",
+			"event.vessel.flag"
+		)
+			->where('shipment_id', $id)->first();
+
+		return $this->jsonResponse($data, 200, "Shipment Data");
+	}
+
+	public function Validator($request, $id = null)
+	{
+		$rules = [
+			'event_id' => ['required'],
+		];
+
+		$msg = validateRequest($request, $rules);
+		if (!empty($msg)) return $msg;
+	}
+
+
+
+	public function store(Request $request)
+	{
+
+		if (!isPermission('add', 'shipment', $request->permission_list))
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+
+		// Validation Rules
+		$isError = $this->Validator($request->all());
+		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
+
+
+
+		$uuid = $this->get_uuid();
+		$document = DocumentType::getNextDocument($request->type == "DO" ? $this->DO_document_type_id : $this->SO_document_type_id, $request);
+		$insertArr = [
+			'company_id' => $request->company_id ?? "",
+			'company_branch_id' => $request->company_branch_id ?? "",
+			'shipment_id' => $uuid,
+			'document_type_id' => $document['document_type_id'] ?? "",
+			'document_no' => $document['document_no'] ?? "",
+			'document_identity' => $document['document_identity'] ?? "",
+			'document_prefix' => $document['document_prefix'] ?? "",
+			'document_date' => Carbon::now(),
+			'event_id' => $request->event_id ?? "",
+			'charge_order_id' => $request->charge_order_id ?? "",
+			'created_at' => Carbon::now(),
+			'created_by' => $request->login_user_id,
+		];
+		Shipment::create($insertArr);
+
+		// if ($request->charge_order_detail) {
+		// 	foreach ($request->charge_order_detail as $key => $value) {
+		// 		$detail_uuid = $this->get_uuid();
+		// 		$insert = [
+		// 			'charge_order_id' => $insertArr['charge_order_id'],
+		// 			'charge_order_detail_id' => $detail_uuid,
+		// 			'sort_order' => $value['sort_order'] ?? "",
+		// 			'product_code' => $value['product_code'] ?? "",
+		// 			'product_id' => $value['product_id'] ?? "",
+		// 			'product_name' => $value['product_name'] ?? "",
+		// 			'product_description' => $value['product_description'] ?? "",
+		// 			'product_type_id' => $value['product_type_id'] ?? "",
+		// 			'quotation_detail_id' => $value['quotation_detail_id'] ?? "",
+		// 			'internal_notes' => $value['internal_notes'] ?? "",
+		// 			'description' => $value['description'] ?? "",
+		// 			'warehouse_id' => $value['warehouse_id'] ?? "",
+		// 			'unit_id' => $value['unit_id'] ?? "",
+		// 			'supplier_id' => $value['supplier_id'] ?? "",
+		// 			'quantity' => $value['quantity'] ?? "",
+		// 			'cost_price' => $value['cost_price'] ?? "",
+		// 			'rate' => $value['rate'] ?? "",
+		// 			'amount' => $value['amount'] ?? "",
+		// 			'discount_amount' => $value['discount_amount'] ?? "",
+		// 			'discount_percent' => $value['discount_percent'] ?? "",
+		// 			'gross_amount' => $value['gross_amount'] ?? "",
+		// 			'created_at' => Carbon::now(),
+		// 			'created_by' => $request->login_user_id,
+		// 		];
+
+		// 		ChargeOrderDetail::create($insert);
+		// 	}
+		// }
+
+
+		return $this->jsonResponse(['shipment_id' => $uuid], 200, "Create Shipment Order Successfully!");
+	}
+
+	// public function update(Request $request, $id)
+	// {
+	// 	if (!isPermission('edit', 'shipment', $request->permission_list))
+	// 		return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+
+
+	// 	// Validation Rules
+	// 	$isError = $this->Validator($request->all(), $id);
+	// 	if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
+
+
+	// 	$data  = Shipment::where('shipment_id', $id)->first();
+	// 	$data->company_id = $request->company_id;
+	// 	$data->company_branch_id = $request->company_branch_id;
+	// 	$data->salesman_id = $request->salesman_id;
+	// 	$data->customer_po_no = $request->customer_po_no;
+	// 	$data->customer_id = $request->customer_id;
+	// 	$data->event_id = $request->event_id;
+	// 	$data->vessel_id = $request->vessel_id;
+	// 	$data->flag_id = $request->flag_id;
+	// 	$data->class1_id = $request->class1_id;
+	// 	$data->class2_id = $request->class2_id;
+	// 	$data->agent_id = $request->agent_id;
+	// 	$data->technician_id = $request->technician_id;
+	// 	$data->agent_notes = $request->agent_notes;
+	// 	$data->technician_notes = $request->technician_notes;
+	// 	$data->remarks = $request->remarks;
+	// 	$data->total_quantity = $request->total_quantity;
+	// 	$data->total_amount = $request->total_amount;
+	// 	$data->discount_amount = $request->discount_amount;
+	// 	$data->net_amount = $request->net_amount;
+	// 	$data->updated_at = date('Y-m-d H:i:s');
+	// 	$data->updated_by = $request->login_user_id;
+	// 	$data->update();
+	// 	ChargeOrderDetail::where('charge_order_id', $id)->delete();
+	// 	if ($request->charge_order_detail) {
+	// 		foreach ($request->charge_order_detail as $key => $value) {
+	// 			$detail_uuid = $this->get_uuid();
+	// 			try {
+
+	// 				$insertArr = [
+	// 					'charge_order_id' => $id,
+	// 					'charge_order_detail_id' => $detail_uuid,
+	// 					'sort_order' => $value['sort_order'] ?? "",
+	// 					'product_code' => $value['product_code'] ?? "",
+	// 					'purchase_order_id' => $value['purchase_order_id'] ?? "",
+	// 					'purchase_order_detail_id' => $value['purchase_order_detail_id'] ?? "",
+	// 					'picklist_id' => $value['picklist_id'] ?? "",
+	// 					'picklist_detail_id' => $value['picklist_detail_id'] ?? "",
+	// 					'job_order_id' => $value['job_order_id'] ?? "",
+	// 					'job_order_detail_id' => $value['job_order_detail_id'] ?? "",
+	// 					'servicelist_id' => $value['servicelist_id'] ?? "",
+	// 					'quotation_detail_id' => $value['quotation_detail_id'] ?? "",
+	// 					'servicelist_detail_id' => $value['servicelist_detail_id'] ?? "",
+	// 					'product_id' => $value['product_id'] ?? "",
+	// 					'product_name' => $value['product_name'] ?? "",
+	// 					'internal_notes' => $value['internal_notes'] ?? "",
+	// 					'product_description' => $value['product_description'] ?? "",
+	// 					'product_type_id' => $value['product_type_id'] ?? "",
+	// 					'description' => $value['description'] ?? "",
+	// 					'warehouse_id' => $value['warehouse_id'] ?? "",
+	// 					'unit_id' => $value['unit_id'] ?? "",
+	// 					'supplier_id' => $value['supplier_id'] ?? "",
+	// 					'quantity' => $value['quantity'] ?? "",
+	// 					'cost_price' => $value['cost_price'] ?? "",
+	// 					'rate' => $value['rate'] ?? "",
+	// 					'amount' => $value['amount'] ?? "",
+	// 					'discount_amount' => $value['discount_amount'] ?? "",
+	// 					'discount_percent' => $value['discount_percent'] ?? "",
+	// 					'gross_amount' => $value['gross_amount'] ?? "",
+	// 					'created_at' => date('Y-m-d H:i:s'),
+	// 					'created_by' => $request->login_user_id,
+	// 				];
+	// 				ChargeOrderDetail::create($insertArr);
+	// 			} catch (\Exception $e) {
+	// 				return $this->jsonResponse($e->getMessage(), 500, 'Error');
+	// 			}
+	// 		}
+	// 	}
+
+
+	// 	return $this->jsonResponse(['charge_order_id' => $id], 200, "Update Charge Order Successfully!");
+	// }
+	public function delete($id, Request $request)
+	{
+		if (!isPermission('delete', 'shipment', $request->permission_list))
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+		$data  = Shipment::where('shipment_id', $id)->first();
+		if (!$data) return $this->jsonResponse(['shipment_id' => $id], 404, "Shipment Order Not Found!");
+		$data->delete();
+		ShipmentDetail::where('shipment_id', $id)->delete();
+		return $this->jsonResponse(['shipment_id' => $id], 200, "Delete Shipment Order Successfully!");
+	}
+	public function bulkDelete(Request $request)
+	{
+		if (!isPermission('delete', 'shipment', $request->permission_list))
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+
+		try {
+			if (isset($request->shipment_ids) && !empty($request->shipment_ids) && is_array($request->shipment_ids)) {
+				foreach ($request->shipment_ids as $shipment_id) {
+					$data = Shipment::where(['shipment_id' => $shipment_id])->first();
+					$data->delete();
+					ShipmentDetail::where('shipment_id', $shipment_id)->delete();
+				}
+			}
+
+			return $this->jsonResponse('Deleted', 200, "Delete Shipment Order successfully!");
+		} catch (\Exception $e) {
+			return $this->jsonResponse('some error occured', 500, $e->getMessage());
+		}
+	}
+}

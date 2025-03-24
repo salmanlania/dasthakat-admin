@@ -177,6 +177,15 @@ $router->group(['prefix' => 'event'], function ($router) {
    $router->post('/bulk-delete', 'EventController@bulkDelete');
 });
 
+$router->group(['prefix' => 'shipment'], function ($router) {
+   $router->get('/', 'ShipmentController@index');
+   $router->get('/{id}', 'ShipmentController@show');
+   $router->post('/', 'ShipmentController@store');
+   $router->put('/{id}', 'ShipmentController@update');
+   $router->delete('/{id}', 'ShipmentController@delete');
+   $router->post('/bulk-delete', 'ShipmentController@bulkDelete');
+});
+
 $router->group(['prefix' => 'event-dispatch'], function ($router) {
    $router->get('/', 'EventDispatchController@index');
    $router->put('/{id}', 'EventDispatchController@update');

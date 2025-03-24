@@ -359,44 +359,47 @@ class ChargeOrderController extends Controller
 		$data->update();
 		ChargeOrderDetail::where('charge_order_id', $id)->delete();
 		if ($request->charge_order_detail) {
-
 			foreach ($request->charge_order_detail as $key => $value) {
 				$detail_uuid = $this->get_uuid();
+				try {
 
-				$insertArr = [
-					'charge_order_id' => $id,
-					'charge_order_detail_id' => $detail_uuid,
-					'sort_order' => $value['sort_order'] ?? "",
-					'product_code' => $value['product_code'] ?? "",
-					'purchase_order_id' => $value['purchase_order_id'] ?? "",
-					'purchase_order_detail_id' => $value['purchase_order_detail_id'] ?? "",
-					'picklist_id' => $value['picklist_id'] ?? "",
-					'picklist_detail_id' => $value['picklist_detail_id'] ?? "",
-					'job_order_id' => $value['job_order_id'] ?? "",
-					'job_order_detail_id' => $value['job_order_detail_id'] ?? "",
-					'servicelist_id' => $value['servicelist_id'] ?? "",
-					'quotation_detail_id' => $value['quotation_detail_id'] ?? "",
-					'servicelist_detail_id' => $value['servicelist_detail_id'] ?? "",
-					'product_id' => $value['product_id'] ?? "",
-					'product_name' => $value['product_name'] ?? "",
-					'internal_notes' => $value['internal_notes'] ?? "",
-					'product_description' => $value['product_description'] ?? "",
-					'product_type_id' => $value['product_type_id'] ?? "",
-					'description' => $value['description'] ?? "",
-					'warehouse_id' => $value['warehouse_id'] ?? "",
-					'unit_id' => $value['unit_id'] ?? "",
-					'supplier_id' => $value['supplier_id'] ?? "",
-					'quantity' => $value['quantity'] ?? "",
-					'cost_price' => $value['cost_price'] ?? "",
-					'rate' => $value['rate'] ?? "",
-					'amount' => $value['amount'] ?? "",
-					'discount_amount' => $value['discount_amount'] ?? "",
-					'discount_percent' => $value['discount_percent'] ?? "",
-					'gross_amount' => $value['gross_amount'] ?? "",
-					'created_at' => date('Y-m-d H:i:s'),
-					'created_by' => $request->login_user_id,
-				];
-				ChargeOrderDetail::create($insertArr);
+					$insertArr = [
+						'charge_order_id' => $id,
+						'charge_order_detail_id' => $detail_uuid,
+						'sort_order' => $value['sort_order'] ?? "",
+						'product_code' => $value['product_code'] ?? "",
+						'purchase_order_id' => $value['purchase_order_id'] ?? "",
+						'purchase_order_detail_id' => $value['purchase_order_detail_id'] ?? "",
+						'picklist_id' => $value['picklist_id'] ?? "",
+						'picklist_detail_id' => $value['picklist_detail_id'] ?? "",
+						'job_order_id' => $value['job_order_id'] ?? "",
+						'job_order_detail_id' => $value['job_order_detail_id'] ?? "",
+						'servicelist_id' => $value['servicelist_id'] ?? "",
+						'quotation_detail_id' => $value['quotation_detail_id'] ?? "",
+						'servicelist_detail_id' => $value['servicelist_detail_id'] ?? "",
+						'product_id' => $value['product_id'] ?? "",
+						'product_name' => $value['product_name'] ?? "",
+						'internal_notes' => $value['internal_notes'] ?? "",
+						'product_description' => $value['product_description'] ?? "",
+						'product_type_id' => $value['product_type_id'] ?? "",
+						'description' => $value['description'] ?? "",
+						'warehouse_id' => $value['warehouse_id'] ?? "",
+						'unit_id' => $value['unit_id'] ?? "",
+						'supplier_id' => $value['supplier_id'] ?? "",
+						'quantity' => $value['quantity'] ?? "",
+						'cost_price' => $value['cost_price'] ?? "",
+						'rate' => $value['rate'] ?? "",
+						'amount' => $value['amount'] ?? "",
+						'discount_amount' => $value['discount_amount'] ?? "",
+						'discount_percent' => $value['discount_percent'] ?? "",
+						'gross_amount' => $value['gross_amount'] ?? "",
+						'created_at' => date('Y-m-d H:i:s'),
+						'created_by' => $request->login_user_id,
+					];
+					ChargeOrderDetail::create($insertArr);
+				} catch (\Exception $e) {
+					return $this->jsonResponse($e->getMessage(), 500, 'Error');
+				}
 			}
 		}
 
