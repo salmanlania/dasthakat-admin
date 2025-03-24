@@ -223,3 +223,13 @@ CREATE TABLE shipment_detail (
 
 insert into `const_document_type` (`document_type_id`, `document_name`, `document_prefix`, `zero_padding`, `reset_on_fiscal_year`, `table_name`, `route`, `primary_key`) values('48','Delivery Order','{BC}/DO-','4','Yes','shipment',NULL,'shipment_id');
 insert into `const_document_type` (`document_type_id`, `document_name`, `document_prefix`, `zero_padding`, `reset_on_fiscal_year`, `table_name`, `route`, `primary_key`) values('49','Service Order','{BC}/SO-','4','Yes','shipment',NULL,'shipment_id');
+
+ALTER TABLE shipment_detail
+    ADD COLUMN product_type_id CHAR(36) NULL AFTER product_id,
+    ADD COLUMN product_name VARCHAR(255) NULL AFTER product_type_id,
+    ADD COLUMN product_description TEXT NULL AFTER product_name,
+    ADD COLUMN description TEXT NULL AFTER product_description,
+    ADD COLUMN internal_notes TEXT NULL AFTER description,
+    ADD COLUMN quantity DECIMAL(15,2) NULL AFTER internal_notes,
+    ADD COLUMN unit_id CHAR(36) NULL AFTER quantity,
+    ADD COLUMN supplier_id CHAR(36) NULL AFTER unit_id;

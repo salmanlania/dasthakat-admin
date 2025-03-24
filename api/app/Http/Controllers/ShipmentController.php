@@ -46,7 +46,6 @@ class ShipmentController extends Controller
 			->LeftJoin('customer as c', 'c.customer_id', '=', 'v.customer_id')
 			->LeftJoin('class as c1', 'c1.class_id', '=', 'v.class1_id')
 			->LeftJoin('class as c2', 'c2.class_id', '=', 'v.class2_id')
-			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'shipment.vessel_id')
 			->LeftJoin('salesman as s', 's.salesman_id', '=', 'c.salesman_id');
 		$data = $data->where('shipment.company_id', '=', $request->company_id);
 		$data = $data->where('shipment.company_branch_id', '=', $request->company_branch_id);
@@ -92,12 +91,13 @@ class ShipmentController extends Controller
 	{
 
 		$data = Shipment::with(
+			"shipment_detail",
 			"shipment_detail.charge_order",
 			"shipment_detail.charge_order_detail",
-			"shipment_detail.charge_order_detail.product",
-			"shipment_detail.charge_order_detail.product_type",
-			"shipment_detail.charge_order_detail.unit",
-			"shipment_detail.charge_order_detail.supplier",
+			"shipment_detail.product",
+			"shipment_detail.product_type",
+			"shipment_detail.unit",
+			"shipment_detail.supplier",
 			"event",
 			"charge_order",
 			"event.vessel",
@@ -154,38 +154,33 @@ class ShipmentController extends Controller
 		];
 		Shipment::create($insertArr);
 
-		// if ($request->charge_order_detail) {
-		// 	foreach ($request->charge_order_detail as $key => $value) {
-		// 		$detail_uuid = $this->get_uuid();
-		// 		$insert = [
-		// 			'charge_order_id' => $insertArr['charge_order_id'],
-		// 			'charge_order_detail_id' => $detail_uuid,
-		// 			'sort_order' => $value['sort_order'] ?? "",
-		// 			'product_code' => $value['product_code'] ?? "",
-		// 			'product_id' => $value['product_id'] ?? "",
-		// 			'product_name' => $value['product_name'] ?? "",
-		// 			'product_description' => $value['product_description'] ?? "",
-		// 			'product_type_id' => $value['product_type_id'] ?? "",
-		// 			'quotation_detail_id' => $value['quotation_detail_id'] ?? "",
-		// 			'internal_notes' => $value['internal_notes'] ?? "",
-		// 			'description' => $value['description'] ?? "",
-		// 			'warehouse_id' => $value['warehouse_id'] ?? "",
-		// 			'unit_id' => $value['unit_id'] ?? "",
-		// 			'supplier_id' => $value['supplier_id'] ?? "",
-		// 			'quantity' => $value['quantity'] ?? "",
-		// 			'cost_price' => $value['cost_price'] ?? "",
-		// 			'rate' => $value['rate'] ?? "",
-		// 			'amount' => $value['amount'] ?? "",
-		// 			'discount_amount' => $value['discount_amount'] ?? "",
-		// 			'discount_percent' => $value['discount_percent'] ?? "",
-		// 			'gross_amount' => $value['gross_amount'] ?? "",
-		// 			'created_at' => Carbon::now(),
-		// 			'created_by' => $request->login_user_id,
-		// 		];
+		if ($request->type == "DO") {
+			if (!empty($request->charge_order_id)) {
+				$details = ChargeOrderDetail::where('charge_order_id', $request->charge_order_id)->get();
 
-		// 		ChargeOrderDetail::create($insert);
-		// 	}
-		// }
+				foreach ($details as $key => $value) {
+					$insertArr = [
+						'shipment_id' => $uuid,
+						'shipment_detail_id' => $this->get_uuid(),
+						'sort_order' =>  $key + 1 ?? "",
+						'charge_order_id' => $request->charge_order_id ?? "",
+						'charge_order_detail_id' => $value->charge_order_detail_id ?? "",
+						'product_id' => $value->product_id ?? "",
+						'product_type_id' => $value->product_type_id ?? "",
+						'product_name' => $value->product_name ?? "",
+						'product_description' => $value->product_description ?? "",
+						'description' => $value->description ?? "",
+						'internal_notes' => $value->internal_notes ?? "",
+						'quantity' => $value->quantity ?? "",
+						'unit_id' => $value->unit_id ?? "",
+						'supplier_id' => $value->supplier_id ?? "",
+						'created_at' => Carbon::now(),
+						'created_by' => $request->login_user_id,
+					];
+					ShipmentDetail::create($insertArr);
+				}
+			}
+		}
 
 
 		return $this->jsonResponse(['shipment_id' => $uuid], 200, "Create Shipment Order Successfully!");
