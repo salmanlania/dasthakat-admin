@@ -6,9 +6,13 @@ use App\Models\DocumentType;
 use Illuminate\Http\Request;
 use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
+use App\Models\GRNDetail;
+use App\Models\PicklistReceived;
+use App\Models\PicklistReceivedDetail;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
 use App\Models\Quotation;
+use App\Models\ServicelistReceivedDetail;
 use App\Models\Shipment;
 use App\Models\ShipmentDetail;
 use App\Models\StockLedger;
@@ -168,125 +172,65 @@ class ShipmentController extends Controller
 
 		$chargeOrderDetails = $chargeOrderDetails->get();
 
-
 		foreach ($chargeOrderDetails as $key => $value) {
+
+			if ($value->product_type_id == 2) {
+				$quantity = PicklistReceivedDetail::whereHas('picklist_detail', function ($query) use ($value) {
+					$query->where('charge_order_detail_id', $value->charge_order_detail_id);
+				})->where('product_id', $value->product_id)->sum('quantity');
+			}
+			if ($value->product_type_id == 1) {
+				$quantity = ServicelistReceivedDetail::whereHas('servicelist_detail', function ($query) use ($value) {
+					$query->where('charge_order_detail_id', $value->charge_order_detail_id);
+				})->where('product_id', $value->product_id)->sum('quantity');
+			}
+			if ($value->product_type_id == 3 || $value->product_type_id == 4) {
+				$purchaseOrderDetails = PurchaseOrderDetail::where('charge_order_detail_id', $value->charge_order_detail_id)->first();
+				$quantity = GRNDetail::where('purchase_order_detail_id', $purchaseOrderDetails->purchase_order_detail_id)->sum('quantity');
+			}
 			$insertArr = [
 				'shipment_id' => $uuid,
 				'shipment_detail_id' => $this->get_uuid(),
-				'sort_order' =>  $key + 1 ?? "",
-				'charge_order_id' => $request->charge_order_id ?? "",
-				'charge_order_detail_id' => $value->charge_order_detail_id ?? "",
-				'product_id' => $value->product_id ?? "",
-				'product_type_id' => $value->product_type_id ?? "",
-				'product_name' => $value->product_name ?? "",
-				'product_description' => $value->product_description ?? "",
-				'description' => $value->description ?? "",
-				'internal_notes' => $value->internal_notes ?? "",
-				'quantity' => $value->quantity ?? "",
-				'unit_id' => $value->unit_id ?? "",
-				'supplier_id' => $value->supplier_id ?? "",
+				'sort_order' =>  $key + 1,
+				'charge_order_id' => $value->charge_order_id ?? null,
+				'charge_order_detail_id' => $value->charge_order_detail_id ?? null,
+				'product_id' => $value->product_id ?? null,
+				'product_type_id' => $value->product_type_id ?? null,
+				'product_name' => $value->product_name ?? null,
+				'product_description' => $value->product_description ?? null,
+				'description' => $value->description ?? null,
+				'internal_notes' => $value->internal_notes ?? null,
+				'quantity' => isset($quantity) ? $quantity : 0,
+				'unit_id' => $value->unit_id ?? null,
+				'supplier_id' => $value->supplier_id ?? null,
 				'created_at' => Carbon::now(),
 				'created_by' => $request->login_user_id,
 			];
 			ShipmentDetail::create($insertArr);
-		
+
+			ChargeOrderDetail::where('charge_order_detail_id', $value->charge_order_detail_id)->update(['shipment_id' => $insertArr['shipment_id'], 'shipment_detail_id' => $insertArr['shipment_detail_id']]);
 		}
 
 
 		return $this->jsonResponse(['shipment_id' => $uuid], 200, "Create Shipment Order Successfully!");
 	}
 
-	// public function update(Request $request, $id)
-	// {
-	// 	if (!isPermission('edit', 'shipment', $request->permission_list))
-	// 		return $this->jsonResponse('Permission Denied!', 403, "No Permission");
-
-
-	// 	// Validation Rules
-	// 	$isError = $this->Validator($request->all(), $id);
-	// 	if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
-
-
-	// 	$data  = Shipment::where('shipment_id', $id)->first();
-	// 	$data->company_id = $request->company_id;
-	// 	$data->company_branch_id = $request->company_branch_id;
-	// 	$data->salesman_id = $request->salesman_id;
-	// 	$data->customer_po_no = $request->customer_po_no;
-	// 	$data->customer_id = $request->customer_id;
-	// 	$data->event_id = $request->event_id;
-	// 	$data->vessel_id = $request->vessel_id;
-	// 	$data->flag_id = $request->flag_id;
-	// 	$data->class1_id = $request->class1_id;
-	// 	$data->class2_id = $request->class2_id;
-	// 	$data->agent_id = $request->agent_id;
-	// 	$data->technician_id = $request->technician_id;
-	// 	$data->agent_notes = $request->agent_notes;
-	// 	$data->technician_notes = $request->technician_notes;
-	// 	$data->remarks = $request->remarks;
-	// 	$data->total_quantity = $request->total_quantity;
-	// 	$data->total_amount = $request->total_amount;
-	// 	$data->discount_amount = $request->discount_amount;
-	// 	$data->net_amount = $request->net_amount;
-	// 	$data->updated_at = date('Y-m-d H:i:s');
-	// 	$data->updated_by = $request->login_user_id;
-	// 	$data->update();
-	// 	ChargeOrderDetail::where('charge_order_id', $id)->delete();
-	// 	if ($request->charge_order_detail) {
-	// 		foreach ($request->charge_order_detail as $key => $value) {
-	// 			$detail_uuid = $this->get_uuid();
-	// 			try {
-
-	// 				$insertArr = [
-	// 					'charge_order_id' => $id,
-	// 					'charge_order_detail_id' => $detail_uuid,
-	// 					'sort_order' => $value['sort_order'] ?? "",
-	// 					'product_code' => $value['product_code'] ?? "",
-	// 					'purchase_order_id' => $value['purchase_order_id'] ?? "",
-	// 					'purchase_order_detail_id' => $value['purchase_order_detail_id'] ?? "",
-	// 					'picklist_id' => $value['picklist_id'] ?? "",
-	// 					'picklist_detail_id' => $value['picklist_detail_id'] ?? "",
-	// 					'job_order_id' => $value['job_order_id'] ?? "",
-	// 					'job_order_detail_id' => $value['job_order_detail_id'] ?? "",
-	// 					'servicelist_id' => $value['servicelist_id'] ?? "",
-	// 					'quotation_detail_id' => $value['quotation_detail_id'] ?? "",
-	// 					'servicelist_detail_id' => $value['servicelist_detail_id'] ?? "",
-	// 					'product_id' => $value['product_id'] ?? "",
-	// 					'product_name' => $value['product_name'] ?? "",
-	// 					'internal_notes' => $value['internal_notes'] ?? "",
-	// 					'product_description' => $value['product_description'] ?? "",
-	// 					'product_type_id' => $value['product_type_id'] ?? "",
-	// 					'description' => $value['description'] ?? "",
-	// 					'warehouse_id' => $value['warehouse_id'] ?? "",
-	// 					'unit_id' => $value['unit_id'] ?? "",
-	// 					'supplier_id' => $value['supplier_id'] ?? "",
-	// 					'quantity' => $value['quantity'] ?? "",
-	// 					'cost_price' => $value['cost_price'] ?? "",
-	// 					'rate' => $value['rate'] ?? "",
-	// 					'amount' => $value['amount'] ?? "",
-	// 					'discount_amount' => $value['discount_amount'] ?? "",
-	// 					'discount_percent' => $value['discount_percent'] ?? "",
-	// 					'gross_amount' => $value['gross_amount'] ?? "",
-	// 					'created_at' => date('Y-m-d H:i:s'),
-	// 					'created_by' => $request->login_user_id,
-	// 				];
-	// 				ChargeOrderDetail::create($insertArr);
-	// 			} catch (\Exception $e) {
-	// 				return $this->jsonResponse($e->getMessage(), 500, 'Error');
-	// 			}
-	// 		}
-	// 	}
-
-
-	// 	return $this->jsonResponse(['charge_order_id' => $id], 200, "Update Charge Order Successfully!");
-	// }
 	public function delete($id, Request $request)
 	{
 		if (!isPermission('delete', 'shipment', $request->permission_list))
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		$data  = Shipment::where('shipment_id', $id)->first();
 		if (!$data) return $this->jsonResponse(['shipment_id' => $id], 404, "Shipment Order Not Found!");
+
+		ChargeOrderDetail::where('shipment_id', $id)
+			->update([
+				'shipment_id' => null,
+				'shipment_detail_id' => null,
+			]);
+
 		$data->delete();
 		ShipmentDetail::where('shipment_id', $id)->delete();
+
 		return $this->jsonResponse(['shipment_id' => $id], 200, "Delete Shipment Order Successfully!");
 	}
 	public function bulkDelete(Request $request)
@@ -298,6 +242,11 @@ class ShipmentController extends Controller
 			if (isset($request->shipment_ids) && !empty($request->shipment_ids) && is_array($request->shipment_ids)) {
 				foreach ($request->shipment_ids as $shipment_id) {
 					$data = Shipment::where(['shipment_id' => $shipment_id])->first();
+					ChargeOrderDetail::where('shipment_id', $shipment_id)
+						->update([
+							'shipment_id' => null,
+							'shipment_detail_id' => null,
+						]);
 					$data->delete();
 					ShipmentDetail::where('shipment_id', $shipment_id)->delete();
 				}

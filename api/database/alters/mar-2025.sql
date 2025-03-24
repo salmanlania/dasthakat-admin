@@ -233,3 +233,7 @@ ALTER TABLE shipment_detail
     ADD COLUMN quantity DECIMAL(15,2) NULL AFTER internal_notes,
     ADD COLUMN unit_id CHAR(36) NULL AFTER quantity,
     ADD COLUMN supplier_id CHAR(36) NULL AFTER unit_id;
+
+ALTER TABLE `charge_order_detail`
+    ADD COLUMN `shipment_id` char(36) NULL AFTER `purchase_order_detail_id`,
+    ADD COLUMN `shipment_detail_id` char(36) NULL AFTER `shipment_id`;
