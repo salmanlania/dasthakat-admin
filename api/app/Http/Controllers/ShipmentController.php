@@ -189,6 +189,7 @@ class ShipmentController extends Controller
 				'created_by' => $request->login_user_id,
 			];
 			ShipmentDetail::create($insertArr);
+		
 		}
 
 

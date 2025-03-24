@@ -181,7 +181,7 @@ $router->group(['prefix' => 'shipment'], function ($router) {
    $router->get('/', 'ShipmentController@index');
    $router->get('/{id}', 'ShipmentController@show');
    $router->post('/', 'ShipmentController@store');
-   $router->put('/{id}', 'ShipmentController@update');
+   // $router->put('/{id}', 'ShipmentController@update');
    $router->delete('/{id}', 'ShipmentController@delete');
    $router->post('/bulk-delete', 'ShipmentController@bulkDelete');
 });
