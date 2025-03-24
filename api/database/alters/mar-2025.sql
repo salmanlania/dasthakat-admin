@@ -230,10 +230,16 @@ ALTER TABLE shipment_detail
     ADD COLUMN product_description TEXT NULL AFTER product_name,
     ADD COLUMN description TEXT NULL AFTER product_description,
     ADD COLUMN internal_notes TEXT NULL AFTER description,
-    ADD COLUMN quantity DECIMAL(15,2) NULL AFTER internal_notes,
+    ADD COLUMN quantity DECIMAL(10,2) NULL AFTER internal_notes,
     ADD COLUMN unit_id CHAR(36) NULL AFTER quantity,
     ADD COLUMN supplier_id CHAR(36) NULL AFTER unit_id;
 
 ALTER TABLE `charge_order_detail`
     ADD COLUMN `shipment_id` char(36) NULL AFTER `purchase_order_detail_id`,
     ADD COLUMN `shipment_detail_id` char(36) NULL AFTER `shipment_id`;
+
+ALTER TABLE `good_received_note_detail`
+    ADD COLUMN `document_currency_id` INT NULL AFTER `unit_id`,
+    ADD COLUMN `base_currency_id` INT NULL AFTER `document_currency_id`,
+    ADD COLUMN `unit_conversion` DECIMAL(10,2) NULL AFTER `base_currency_id`,
+    ADD COLUMN `currency_conversion` DECIMAL(10,2) NULL AFTER `unit_conversion`;

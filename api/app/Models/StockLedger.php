@@ -72,7 +72,7 @@ class StockLedger extends Model
                         'warehouse_id'          => $row['warehouse_id'] ?? '',
                         'unit'                  => $row['unit_name'] ?? '',
                         'document_unit_id'      => $row['unit_id'] ?? '',
-                        'document_currency_id'  => $document->base_currency_id,
+                        'document_currency_id'  => $document->document_currency_id,
                         'document_qty'          => $multiplier * (int)($row['quantity'] ?? 0),
                         'document_rate'         => $row['rate'] ?? 0,
                         'document_amount'       => $multiplier * (int)($row['amount'] ?? 0),
