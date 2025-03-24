@@ -17,6 +17,7 @@ class Shipment extends Model
         "document_no",
         "document_prefix",
         "document_identity",
+        "document_date",
         'event_id',
         'charge_order_id',
         'created_at',

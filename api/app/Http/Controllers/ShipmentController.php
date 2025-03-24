@@ -156,7 +156,6 @@ class ShipmentController extends Controller
 			'created_at' => Carbon::now(),
 			'created_by' => $request->login_user_id,
 		];
-		Shipment::create($insertArr);
 
 		$chargeOrderDetails = ChargeOrderDetail::whereHas('charge_order', function ($query) use ($request) {
 			$query->where('event_id', $request->event_id);
@@ -174,6 +173,8 @@ class ShipmentController extends Controller
 
 		if ($chargeOrderDetails->isEmpty()) return $this->jsonResponse('No Items Found For Shipment', 404, "No Data Found!");
 
+		Shipment::create($insertArr);
+
 		foreach ($chargeOrderDetails as $key => $value) {
 
 			if ($value->product_type_id == 2) {
@@ -188,8 +189,14 @@ class ShipmentController extends Controller
 			}
 			if ($value->product_type_id == 3 || $value->product_type_id == 4) {
 				$purchaseOrderDetails = PurchaseOrderDetail::where('charge_order_detail_id', $value->charge_order_detail_id)->first();
-				$quantity = GRNDetail::where('purchase_order_detail_id', $purchaseOrderDetails->purchase_order_detail_id)->sum('quantity');
+				if (isset($purchaseOrderDetails->purchase_order_detail_id)) {
+
+					$quantity = GRNDetail::where('purchase_order_detail_id', $purchaseOrderDetails->purchase_order_detail_id)->sum('quantity');
+				} else {
+					$quantity = 0;
+				}
 			}
+
 			$insertArr = [
 				'shipment_id' => $uuid,
 				'shipment_detail_id' => $this->get_uuid(),
@@ -208,6 +215,7 @@ class ShipmentController extends Controller
 				'created_at' => Carbon::now(),
 				'created_by' => $request->login_user_id,
 			];
+
 			ShipmentDetail::create($insertArr);
 
 			ChargeOrderDetail::where('charge_order_detail_id', $value->charge_order_detail_id)->update(['shipment_id' => $insertArr['shipment_id'], 'shipment_detail_id' => $insertArr['shipment_detail_id']]);
@@ -215,6 +223,64 @@ class ShipmentController extends Controller
 
 
 		return $this->jsonResponse(['shipment_id' => $uuid], 200, "Create Shipment Order Successfully!");
+	}
+	public function viewShipmentBeforeCreate(Request $request)
+	{
+
+		$chargeOrderDetails = ChargeOrderDetail::whereHas('charge_order', function ($query) use ($request) {
+			$query->where('event_id', $request->event_id);
+		})->where('shipment_detail_id', null);
+
+		if ($request->charge_order_id) {
+			$chargeOrderDetails = $chargeOrderDetails->where('charge_order_id', $request->charge_order_id);
+		}
+
+		$chargeOrderDetails = $chargeOrderDetails->get();
+
+		if ($chargeOrderDetails->isEmpty()) return $this->jsonResponse('No Items Found For Shipment', 404, "No Data Found!");
+
+		$view = [];
+		foreach ($chargeOrderDetails as $key => $value) {
+
+			if ($value->product_type_id == 2) {
+				$quantity = PicklistReceivedDetail::whereHas('picklist_detail', function ($query) use ($value) {
+					$query->where('charge_order_detail_id', $value->charge_order_detail_id);
+				})->where('product_id', $value->product_id)->sum('quantity');
+			}
+			if ($value->product_type_id == 1) {
+				$quantity = ServicelistReceivedDetail::whereHas('servicelist_detail', function ($query) use ($value) {
+					$query->where('charge_order_detail_id', $value->charge_order_detail_id);
+				})->where('product_id', $value->product_id)->sum('quantity');
+			}
+			if ($value->product_type_id == 3 || $value->product_type_id == 4) {
+				$purchaseOrderDetails = PurchaseOrderDetail::where('charge_order_detail_id', $value->charge_order_detail_id)->first();
+				if (isset($purchaseOrderDetails->purchase_order_detail_id)) {
+
+					$quantity = GRNDetail::where('purchase_order_detail_id', $purchaseOrderDetails->purchase_order_detail_id)->sum('quantity');
+				} else {
+					$quantity = 0;
+				}
+			}
+
+			$view[] =  [
+				'charge_order_id' => $value->charge_order_id ?? null,
+				'charge_order_detail_id' => $value->charge_order_detail_id ?? null,
+				'product_id' => $value->product_id ?? null,
+				'product_type_id' => $value->product_type_id ?? null,
+				'product_name' => $value->product_name ?? null,
+				'product_description' => $value->product_description ?? null,
+				'description' => $value->description ?? null,
+				'internal_notes' => $value->internal_notes ?? null,
+				'quantity' => isset($quantity) ? $quantity : 0,
+				'unit_id' => $value->unit_id ?? null,
+				'supplier_id' => $value->supplier_id ?? null,
+				'created_at' => Carbon::now(),
+				'created_by' => $request->login_user_id,
+			];
+		}
+
+
+		return $this->jsonResponse($view, 200, "View Shipment Records!");
 	}
 
 	public function delete($id, Request $request)
