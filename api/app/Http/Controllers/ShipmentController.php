@@ -160,7 +160,7 @@ class ShipmentController extends Controller
 
 		$chargeOrderDetails = ChargeOrderDetail::whereHas('charge_order', function ($query) use ($request) {
 			$query->where('event_id', $request->event_id);
-		});
+		})->where('shipment_detail_id', null);
 		if ($request->charge_order_id) {
 			$chargeOrderDetails = $chargeOrderDetails->where('charge_order_id', $request->charge_order_id);
 		}
@@ -171,6 +171,8 @@ class ShipmentController extends Controller
 		}
 
 		$chargeOrderDetails = $chargeOrderDetails->get();
+
+		if ($chargeOrderDetails->isEmpty()) return $this->jsonResponse('No Items Found For Shipment', 404, "No Data Found!");
 
 		foreach ($chargeOrderDetails as $key => $value) {
 
