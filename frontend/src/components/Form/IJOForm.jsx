@@ -95,6 +95,12 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
       agent_id: values?.agent_id?.value || null
     };
 
+    if (mode === 'edit') {
+      payload.job_order_detail = chargeOrderDetails.map(({ id }) => ({
+        job_order_detail_id: id
+      }));
+    }
+
     onSubmit(payload);
   };
 

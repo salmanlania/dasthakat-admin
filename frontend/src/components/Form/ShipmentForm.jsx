@@ -84,25 +84,24 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      width: 120,
+      width: 140,
       fixed: 'right',
       render: (_, { status }) => <Select defaultValue={status} className="w-full" />
     }
   ];
 
-  const onFinish = (values) => {
+  const onFinish = async (type) => {
+    const isValidForm = await form.validateFields();
+    if (!isValidForm) return;
+
+    const values = form.getFieldsValue();
     const payload = {
-      imo: values.imo,
       event_id: values?.event_id?.value || null,
-      salesman_id: values?.salesman_id?.value || null,
-      vessel_id: values?.vessel_id?.value || null,
-      flag_id: values?.flag_id?.value || null,
-      class1_id: values?.class1_id?.value || null,
-      class2_id: values?.class2_id?.value || null,
-      agent_id: values?.agent_id?.value || null
+      charge_order_id: values?.charge_order_id?.value || null,
+      type
     };
 
-    // onSubmit(payload);
+    onSubmit(payload);
   };
 
   const onEventChange = async (selected) => {
@@ -160,7 +159,7 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
       charge_orders.forEach(({ document_identity, charge_order_detail }) => {
         const chargeOrderNo = document_identity;
         charge_order_detail.forEach((detail) => {
-          if (detail.job_order_detail_id) return;
+          if (detail.job_order_detail_id || detail.shipment_detail_id) return;
           eventChargeDetails.push({
             id: detail.charge_order_detail_id,
             charge_order_no: chargeOrderNo,
@@ -235,8 +234,7 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
         scrollMode: 'always'
       }}
       autoComplete="off"
-      initialValues={mode === 'edit' ? initialFormValues : null}
-      onFinish={onFinish}>
+      initialValues={mode === 'edit' ? initialFormValues : null}>
       <Row gutter={[12, 12]}>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
@@ -316,12 +314,25 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
         <Link to="/shipment">
           <Button className="w-28">Cancel</Button>
         </Link>
-        <Button type="primary" htmlType="submit" className="w-28" loading={isFormSubmitting}>
-          Create SO
-        </Button>
-        <Button type="primary" htmlType="submit" className="w-28" loading={isFormSubmitting}>
-          Create DO
-        </Button>
+
+        {mode === 'create' && (
+          <>
+            <Button
+              type="primary"
+              className="w-28"
+              loading={isFormSubmitting === 'SO'}
+              onClick={() => onFinish('SO')}>
+              Create SO
+            </Button>
+            <Button
+              type="primary"
+              className="w-28"
+              loading={isFormSubmitting === 'DO'}
+              onClick={() => onFinish('DO')}>
+              Create DO
+            </Button>
+          </>
+        )}
       </div>
     </Form>
   );

@@ -25,9 +25,9 @@ const EditShipment = () => {
     }
   };
 
-  // useEffect(() => {
-  //   dispatch(getShipment(id)).unwrap().catch(handleError);
-  // }, []);
+  useEffect(() => {
+    dispatch(getShipment(id)).unwrap().catch(handleError);
+  }, []);
 
   return (
     <>
@@ -36,7 +36,7 @@ const EditShipment = () => {
         <Breadcrumb items={[{ title: 'Shipment' }, { title: 'Edit' }]} separator=">" />
       </div>
 
-      {/* {isItemLoading && (
+      {isItemLoading && (
         <div className="mt-4 flex min-h-96 items-center justify-center rounded-md bg-white">
           <Spin size="large" />
         </div>
@@ -46,11 +46,7 @@ const EditShipment = () => {
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
           <ShipmentForm mode="edit" onSubmit={onShipmentUpdate} />
         </div>
-      ) : null} */}
-
-      <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-        <ShipmentForm mode="edit" onSubmit={onShipmentUpdate} />
-      </div>
+      ) : null}
     </>
   );
 };

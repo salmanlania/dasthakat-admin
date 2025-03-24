@@ -89,7 +89,7 @@ export const bulkDeleteShipment = createAsyncThunk(
   async (ids, { rejectWithValue }) => {
     try {
       await api.post('/shipment/bulk-delete', {
-        job_order_ids: ids
+        shipment_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -160,8 +160,8 @@ export const shipmentSlice = createSlice({
       state.isListLoading = false;
     });
 
-    addCase(createShipment.pending, (state) => {
-      state.isFormSubmitting = true;
+    addCase(createShipment.pending, (state, action) => {
+      state.isFormSubmitting = action.meta.arg.type;
     });
     addCase(createShipment.fulfilled, (state) => {
       state.isFormSubmitting = false;
@@ -175,8 +175,7 @@ export const shipmentSlice = createSlice({
     });
     addCase(getShipment.fulfilled, (state, action) => {
       state.isItemLoading = false;
-      const { event, salesman, vessel, flag, class1, class2, agent, job_order_detail } =
-        action.payload;
+      const { event, shipment_detail } = action.payload;
 
       state.initialFormValues = {
         event_id: event
@@ -185,76 +184,61 @@ export const shipmentSlice = createSlice({
               label: event.event_code
             }
           : null,
-        salesman_id: salesman
+        salesman_id: event?.customer?.salesman
           ? {
-              value: salesman.salesman_id,
-              label: salesman.name
+              value: event.customer.salesman.salesman_id,
+              label: event.customer.salesman.name
             }
           : null,
-        vessel_id: vessel
+        vessel_id: event?.vessel
           ? {
-              value: vessel.vessel_id,
-              label: vessel.name
+              value: event.vessel.vessel_id,
+              label: event.vessel.name
             }
           : null,
-        imo: vessel?.imo || null,
-        flag_id: flag
+        imo: event?.vessel?.imo || null,
+        flag_id: event?.vessel?.flag
           ? {
-              value: flag.flag_id,
-              label: flag.name
+              value: event.vessel.flag.flag_id,
+              label: event.vessel.flag.name
             }
           : null,
-        class1_id: class1
+        class1_id: event?.class1
           ? {
-              value: class1.class_id,
-              label: class1.name
+              value: event?.class1.class_id,
+              label: event?.class1.name
             }
           : null,
-        class2_id: class2
+        class2_id: event?.class2
           ? {
-              value: class2.class_id,
-              label: class2.name
-            }
-          : null,
-        agent_id: agent
-          ? {
-              value: agent.agent_id,
-              label: agent.name
+              value: event?.class2.class_id,
+              label: event?.class2.name
             }
           : null
       };
 
-      if (!job_order_detail || !job_order_detail.length) return;
+      if (!shipment_detail || !shipment_detail.length) return;
 
-      const jobOrderDetails = [];
-
-      job_order_detail.forEach(({ charge_order, job_order_detail_id, ...detail }) => {
-        jobOrderDetails.push({
-          id: job_order_detail_id,
-          charge_order_no: charge_order.document_identity,
-          product_type: detail?.product_type?.name,
-          product_code: detail?.product?.product_code || null,
-          product_name:
-            detail?.product_type?.product_type_id == 4
-              ? detail?.product_name
-              : detail?.product?.product_name,
-          description: detail?.product_description,
-          customer_notes: detail?.description,
-          internal_notes: detail?.internal_notes,
-          quantity: parseFloat(detail?.quantity || 0),
-          unit: detail?.unit?.name || null
-        });
-      });
-
-      state.chargeOrderDetails = jobOrderDetails;
+      state.chargeOrderDetails = shipment_detail.map((detail) => ({
+        id: detail.shipment_detail_id,
+        charge_order_no: detail?.charge_order?.document_identity || null,
+        product_type: detail?.product_type?.name || null,
+        product_code: detail?.product?.product_code || null,
+        product_name: detail?.product?.name || null,
+        description: detail?.product_description || null,
+        customer_notes: detail?.description || null,
+        internal_notes: detail?.internal_notes || null,
+        quantity: parseFloat(detail?.quantity || 0),
+        unit: detail?.unit ? detail.unit.name : null
+      }));
     });
     addCase(getShipment.rejected, (state) => {
       state.isItemLoading = false;
       state.initialFormValues = null;
     });
 
-    addCase(updateShipment.pending, (state) => {
-      state.isFormSubmitting = true;
+    addCase(updateShipment.pending, (state, action) => {
+      state.isFormSubmitting = action.meta.arg.data.type;
     });
     addCase(updateShipment.fulfilled, (state) => {
       state.isFormSubmitting = false;

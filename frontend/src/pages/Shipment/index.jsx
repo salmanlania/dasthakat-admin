@@ -13,6 +13,7 @@ import useDebounce from '../../hooks/useDebounce.js';
 import useError from '../../hooks/useError.jsx';
 import {
   bulkDeleteShipment,
+  createShipment,
   deleteShipment,
   getShipmentList,
   setShipmentDeleteIDs,
@@ -50,9 +51,15 @@ const Shipment = () => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const handleError = useError();
-  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.shipment
-  );
+  const {
+    list,
+    isListLoading,
+    params,
+    paginationInfo,
+    isBulkDeleting,
+    deleteIDs,
+    isFormSubmitting
+  } = useSelector((state) => state.shipment);
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.shipment;
 
@@ -67,9 +74,9 @@ const Shipment = () => {
 
   const onShipmentDelete = async (id) => {
     try {
-      // await dispatch(deleteShipment(id)).unwrap();
-      // toast.success('Shipment deleted successfully');
-      // dispatch(getShipmentList(params)).unwrap();
+      await dispatch(deleteShipment(id)).unwrap();
+      toast.success('Shipment deleted successfully');
+      dispatch(getShipmentList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -77,10 +84,31 @@ const Shipment = () => {
 
   const onBulkDelete = async () => {
     try {
-      // await dispatch(bulkDeleteShipment(deleteIDs)).unwrap();
-      // toast.success('Shipments deleted successfully');
+      await dispatch(bulkDeleteShipment(deleteIDs)).unwrap();
+      toast.success('Shipments deleted successfully');
       closeDeleteModal();
-      // await dispatch(getShipmentList(params)).unwrap();
+      await dispatch(getShipmentList(params)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const onShipmentCreate = async (type) => {
+    const isValidForm = await form.validateFields();
+    if (!isValidForm) return;
+
+    try {
+      const values = form.getFieldsValue();
+      await dispatch(
+        createShipment({
+          event_id: values.event_id.value,
+          charge_order_id: values?.charge_order_id?.value || null,
+          type
+        })
+      ).unwrap();
+      toast.success('Shipment created successfully');
+      form.resetFields();
+      dispatch(getShipmentList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -145,7 +173,7 @@ const Shipment = () => {
       dataIndex: 'salesman_name',
       key: 'salesman_name',
       sorter: true,
-      width: 150,
+      width: 200,
       ellipsis: true
     },
     {
@@ -163,6 +191,7 @@ const Shipment = () => {
           />
         </div>
       ),
+      sorter: true,
       dataIndex: 'vessel_name',
       key: 'vessel_name',
       width: 220
@@ -201,9 +230,10 @@ const Shipment = () => {
           />
         </div>
       ),
+      sorter: true,
       dataIndex: 'flag_name',
       key: 'flag_name',
-      width: 150
+      width: 120
     },
     {
       title: (
@@ -220,9 +250,10 @@ const Shipment = () => {
           />
         </div>
       ),
+      sorter: true,
       dataIndex: 'class1_name',
       key: 'class1_name',
-      width: 150
+      width: 120
     },
     {
       title: (
@@ -239,9 +270,10 @@ const Shipment = () => {
           />
         </div>
       ),
+      sorter: true,
       dataIndex: 'class2_name',
       key: 'class2_name',
-      width: 150
+      width: 120
     },
     {
       title: 'Created At',
@@ -255,7 +287,7 @@ const Shipment = () => {
       title: 'Action',
       key: 'action',
       render: (_, { shipment_id }) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center gap-2">
           {permissions.edit ? (
             <Tooltip title="Edit">
               <Link to={`/shipment/edit/${shipment_id}`}>
@@ -283,7 +315,7 @@ const Shipment = () => {
           ) : null}
         </div>
       ),
-      width: 110,
+      width: 80,
       fixed: 'right'
     }
   ];
@@ -293,8 +325,7 @@ const Shipment = () => {
   }
 
   useEffect(() => {
-    // dispatch(getShipmentList(params)).unwrap().catch(handleError);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    dispatch(getShipmentList(params)).unwrap().catch(handleError);
   }, [
     params.page,
     params.limit,
@@ -324,6 +355,7 @@ const Shipment = () => {
           requiredMark="optional"
           name="shipment-list"
           form={form}
+          onFinish={onShipmentCreate}
           className="mb-2 flex items-end gap-4 rounded-md border border-slate-200 bg-slate-50 p-4">
           <Form.Item name="event_id" className="m-0 w-48" required label="Event">
             <AsyncSelect
@@ -346,21 +378,20 @@ const Shipment = () => {
               // addNewLink={permissions.charge_order.add ? '/charge-order/create' : null}
             />
           </Form.Item>
-
           <Button
             type="primary"
-            htmlType="submit"
             className="mb-[1px] w-28"
-            loading={false}
-            disabled={!eventId}>
+            disabled={!eventId}
+            loading={isFormSubmitting === 'SO'}
+            onClick={() => onShipmentCreate('SO')}>
             Create SO
           </Button>
           <Button
             type="primary"
-            htmlType="submit"
             className="mb-[1px] w-28"
-            loading={false}
-            disabled={!eventId}>
+            disabled={!eventId}
+            loading={isFormSubmitting === 'DO'}
+            onClick={() => onShipmentCreate('DO')}>
             Create DO
           </Button>
         </Form>
@@ -422,7 +453,7 @@ const Shipment = () => {
               })
             );
           }}
-          dataSource={DUMMY_LIST}
+          dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
