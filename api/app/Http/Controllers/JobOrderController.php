@@ -450,7 +450,7 @@ class JobOrderController extends Controller
 		foreach ($request->details as $detail) {
 			JobOrderDetail::where('job_order_detail_id', $detail['job_order_detail_id'])
 				->update([
-					'status' => $detail['status'],
+					'status' => $detail['status'] ?? 0,
 					'updated_at' => Carbon::now()
 				]);
 		}
