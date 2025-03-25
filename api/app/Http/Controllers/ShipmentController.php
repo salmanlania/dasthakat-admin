@@ -215,10 +215,11 @@ class ShipmentController extends Controller
 				'created_at' => Carbon::now(),
 				'created_by' => $request->login_user_id,
 			];
+			if ($quantity > 0) {
+				ShipmentDetail::create($insertArr);
 
-			ShipmentDetail::create($insertArr);
-
-			ChargeOrderDetail::where('charge_order_detail_id', $value->charge_order_detail_id)->update(['shipment_id' => $insertArr['shipment_id'], 'shipment_detail_id' => $insertArr['shipment_detail_id']]);
+				ChargeOrderDetail::where('charge_order_detail_id', $value->charge_order_detail_id)->update(['shipment_id' => $insertArr['shipment_id'], 'shipment_detail_id' => $insertArr['shipment_detail_id']]);
+			}
 		}
 
 
