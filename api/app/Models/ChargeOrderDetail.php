@@ -28,6 +28,9 @@ class ChargeOrderDetail extends Model
         "supplier_id",
         "purchase_order_id",
         "purchase_order_detail_id",
+        "shipment_id",
+        "shipment_detail_id",
+        "purchase_order_detail_id",
         "quotation_detail_id",
         "internal_notes",
         "picklist_id",
@@ -48,22 +51,22 @@ class ChargeOrderDetail extends Model
     ];
     public function charge_order()
     {
-        return $this->hasOne(ChargeOrder::class, 'charge_order_id','charge_order_id')->select('*');
+        return $this->hasOne(ChargeOrder::class, 'charge_order_id', 'charge_order_id')->select('*');
     }
     public function product()
     {
-        return $this->hasOne(Product::class, 'product_id','product_id')->select('*',DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
+        return $this->hasOne(Product::class, 'product_id', 'product_id')->select('*', DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
     }
     public function product_type()
     {
-        return $this->hasOne(ProductType::class, 'product_type_id','product_type_id');
+        return $this->hasOne(ProductType::class, 'product_type_id', 'product_type_id');
     }
     public function unit()
     {
-        return $this->hasOne(Unit::class, 'unit_id','unit_id');
+        return $this->hasOne(Unit::class, 'unit_id', 'unit_id');
     }
     public function supplier()
     {
-        return $this->hasOne(Supplier::class, 'supplier_id','supplier_id');
+        return $this->hasOne(Supplier::class, 'supplier_id', 'supplier_id');
     }
 }

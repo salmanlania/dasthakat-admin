@@ -200,6 +200,8 @@ export const chargeOrderSlice = createSlice({
         servicelist_detail_id: null,
         job_order_id: null,
         job_order_detail_id: null,
+        shipment_id: null,
+        shipment_detail_id: null,
         id: Date.now()
       };
 
@@ -455,6 +457,8 @@ export const chargeOrderSlice = createSlice({
         servicelist_detail_id: detail.servicelist_detail_id || null,
         job_order_id: detail.job_order_id || null,
         job_order_detail_id: detail.job_order_detail_id || null,
+        shipment_id: detail.shipment_id || null,
+        shipment_detail_id: detail.shipment_detail_id || null,
         stock_quantity: detail?.product?.stock?.quantity
           ? parseFloat(detail.product.stock.quantity)
           : 0,

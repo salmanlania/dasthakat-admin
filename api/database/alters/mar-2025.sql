@@ -191,3 +191,55 @@ ADD COLUMN `event_time` TIME NULL AFTER `event_date`;
 
 ALTER TABLE `event_dispatch`
 MODIFY COLUMN `technician_id` BLOB NULL;
+
+CREATE TABLE shipment (
+    shipment_id CHAR(36) PRIMARY KEY,
+    company_id CHAR(36) NOT NULL,
+    company_branch_id CHAR(36) NOT NULL,
+    document_type_id CHAR(36),
+    document_no INT NOT NULL,
+    document_prefix VARCHAR(255),
+    document_identity VARCHAR(255),
+    document_date DATE,
+    charge_order_id CHAR(36),
+    event_id CHAR(36),
+    created_at Datetime,
+    created_by CHAR(36),
+    updated_at Datetime,
+    updated_by CHAR(36)
+);
+CREATE TABLE shipment_detail (
+    shipment_detail_id CHAR(36) PRIMARY KEY,
+    shipment_id CHAR(36) NOT NULL,
+    sort_order INT DEFAULT 0,
+    charge_order_id CHAR(36),
+    charge_order_detail_id CHAR(36),
+    product_id CHAR(36) NOT NULL,
+    created_at Datetime,
+    created_by CHAR(36),
+    updated_at Datetime,
+    updated_by CHAR(36)
+);
+
+insert into `const_document_type` (`document_type_id`, `document_name`, `document_prefix`, `zero_padding`, `reset_on_fiscal_year`, `table_name`, `route`, `primary_key`) values('48','Delivery Order','{BC}/DO-','4','Yes','shipment',NULL,'shipment_id');
+insert into `const_document_type` (`document_type_id`, `document_name`, `document_prefix`, `zero_padding`, `reset_on_fiscal_year`, `table_name`, `route`, `primary_key`) values('49','Service Order','{BC}/SO-','4','Yes','shipment',NULL,'shipment_id');
+
+ALTER TABLE shipment_detail
+    ADD COLUMN product_type_id CHAR(36) NULL AFTER product_id,
+    ADD COLUMN product_name VARCHAR(255) NULL AFTER product_type_id,
+    ADD COLUMN product_description TEXT NULL AFTER product_name,
+    ADD COLUMN description TEXT NULL AFTER product_description,
+    ADD COLUMN internal_notes TEXT NULL AFTER description,
+    ADD COLUMN quantity DECIMAL(10,2) NULL AFTER internal_notes,
+    ADD COLUMN unit_id CHAR(36) NULL AFTER quantity,
+    ADD COLUMN supplier_id CHAR(36) NULL AFTER unit_id;
+
+ALTER TABLE `charge_order_detail`
+    ADD COLUMN `shipment_id` char(36) NULL AFTER `purchase_order_detail_id`,
+    ADD COLUMN `shipment_detail_id` char(36) NULL AFTER `shipment_id`;
+
+ALTER TABLE `good_received_note_detail`
+    ADD COLUMN `document_currency_id` INT NULL AFTER `unit_id`,
+    ADD COLUMN `base_currency_id` INT NULL AFTER `document_currency_id`,
+    ADD COLUMN `unit_conversion` DECIMAL(10,2) NULL AFTER `base_currency_id`,
+    ADD COLUMN `currency_conversion` DECIMAL(10,2) NULL AFTER `unit_conversion`;

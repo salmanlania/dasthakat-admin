@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\DocumentType;
 use App\Models\GRN;
 use App\Models\GRNDetail;
@@ -29,7 +30,7 @@ class GRNController extends Controller
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
 		$data = GRN::LeftJoin('supplier as s', 's.supplier_id', '=', 'good_received_note.supplier_id')
-		->LeftJoin('purchase_order as p', 'p.purchase_order_id', '=', 'good_received_note.purchase_order_id');
+			->LeftJoin('purchase_order as p', 'p.purchase_order_id', '=', 'good_received_note.purchase_order_id');
 		$data = $data->where('good_received_note.company_id', '=', $request->company_id);
 		$data = $data->where('good_received_note.company_branch_id', '=', $request->company_branch_id);
 
@@ -107,6 +108,8 @@ class GRNController extends Controller
 
 		$po_ref = PurchaseOrder::where('purchase_order_id', $request->purchase_order_id)->first();
 
+		$base_currency_id = Company::where('company_id', $request->company_id)->pluck('currency_id')->first();
+
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument($this->document_type_id, $request);
 		$insertArr = [
@@ -147,6 +150,10 @@ class GRNController extends Controller
 					'warehouse_id' => $value['warehouse_id'] ?? "",
 					'unit_id' => $value['unit_id'] ?? "",
 					'supplier_id' => $value['supplier_id'] ?? "",
+					"document_currency_id" => $value['document_currency_id'] ?? "",
+					"base_currency_id" => $base_currency_id ?? "",
+					"unit_conversion" => $value['unit_conversion'] ?? 1,
+					"currency_conversion" => $value['currency_conversion'] ?? 1,
 					'quantity' => $value['quantity'] ?? 0,
 					'rate' => $value['rate'] ?? 0,
 					'amount' => $value['amount'] ?? 0,
@@ -154,13 +161,13 @@ class GRNController extends Controller
 					'created_at' => date('Y-m-d H:i:s'),
 					'created_by' => $request->login_user_id,
 				];
-				if($value['product_type_id'] == 2){
+				if ($value['product_type_id'] == 2) {
 					StockLedger::handleStockMovement([
 						'master_model' => new GRN,
 						'document_id' => $uuid,
 						'document_detail_id' => $detail_uuid,
 						'row' => $value,
-					],'I');
+					], 'I');
 				}
 
 				GRNDetail::create($insert);
@@ -182,6 +189,7 @@ class GRNController extends Controller
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
 		$po_ref = PurchaseOrder::where('purchase_order_id', $request->purchase_order_id)->first();
+		$base_currency_id = Company::where('company_id', $request->company_id)->pluck('currency_id')->first();
 
 		$data  = GRN::where('good_received_note_id', $id)->first();
 		$data->company_id = $request->company_id;
@@ -217,6 +225,10 @@ class GRNController extends Controller
 					'description' => $value['description'] ?? "",
 					'warehouse_id' => $value['warehouse_id'] ?? "",
 					'unit_id' => $value['unit_id'] ?? "",
+					"document_currency_id" => $value['document_currency_id'] ?? "",
+					"base_currency_id" => $base_currency_id ?? "",
+					"unit_conversion" => $value['unit_conversion'] ?? 1,
+					"currency_conversion" => $value['currency_conversion'] ?? 1,
 					'quantity' => $value['quantity'] ?? "",
 					'rate' => $value['rate'] ?? "",
 					'amount' => $value['amount'] ?? "",
@@ -224,13 +236,13 @@ class GRNController extends Controller
 					'created_at' => date('Y-m-d H:i:s'),
 					'created_by' => $request->login_user_id,
 				];
-				if($value['product_type_id'] == 2){
+				if ($value['product_type_id'] == 2) {
 					StockLedger::handleStockMovement([
 						'master_model' => new GRN,
 						'document_id' => $id,
 						'document_detail_id' => $detail_uuid,
 						'row' => $value,
-					],'I');
+					], 'I');
 				}
 				GRNDetail::create($insertArr);
 			}
