@@ -230,7 +230,7 @@ export const shipmentSlice = createSlice({
         charge_order_no: detail?.charge_order?.document_identity || null,
         product_type: detail?.product_type?.name || null,
         product_code: detail?.product?.product_code || null,
-        product_name: detail?.product?.name || null,
+        product_name: detail.product_name || null,
         description: detail?.product_description || null,
         customer_notes: detail?.description || null,
         internal_notes: detail?.internal_notes || null,

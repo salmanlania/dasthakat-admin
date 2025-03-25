@@ -31,10 +31,11 @@ class ServicelistReceivedDetail extends Model
     {
         return $this->hasOne(Product::class, 'product_id', 'product_id');
     }
+    public function servicelist_received() {
+        return $this->belongsTo(ServicelistReceived::class,'servicelist_received_id','servicelist_received_id');
+    }
     public function warehouse()
     {
         return $this->hasOne(Warehouse::class, 'warehouse_id', 'warehouse_id');
     }
-   
-   
 }

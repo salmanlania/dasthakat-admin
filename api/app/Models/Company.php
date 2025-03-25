@@ -10,7 +10,7 @@ class Company extends Model
 
     protected $primaryKey = 'company_id'; 
     protected $fillable = [
-        'company_id','name','address','currency_id','created_by','updated_by'
+        'company_id','name','address','base_currency_id','created_by','updated_by'
     ];
     public function branches() {
         return $this->hasMany(CompanyBranch::class, 'company_id', 'company_id');

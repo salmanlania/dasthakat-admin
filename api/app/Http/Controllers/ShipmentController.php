@@ -130,7 +130,7 @@ class ShipmentController extends Controller
 
 	public function store(Request $request)
 	{
-
+	
 		if (!isPermission('add', 'shipment', $request->permission_list))
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
@@ -169,40 +169,43 @@ class ShipmentController extends Controller
 			$chargeOrderDetails = $chargeOrderDetails->where('product_type_id', 1);
 		}
 
-		$chargeOrderDetails = $chargeOrderDetails->get();
+		$chargeOrderDetails = $chargeOrderDetails->orderBy('sort_order')->get();
 
 		if ($chargeOrderDetails->isEmpty()) return $this->jsonResponse('No Items Found For Shipment', 404, "No Data Found!");
 
-		// Shipment::create($insertArr);
+		Shipment::create($insertArr);
 
 
-		foreach ($chargeOrderDetails as $key => &$value) {
+		foreach ($chargeOrderDetails as $key => $value) {
 
-			if ($value->product_type_id == 2) {
-				$quantity = PicklistReceivedDetail::whereHas('picklist_detail', function ($query) use ($value) {
-					$query->where('charge_order_detail_id', $value->charge_order_detail_id);
-				})->get();
-				$value->picklist_debugger = $quantity;
-			}
 			if ($value->product_type_id == 1) {
-				$quantity = ServicelistReceivedDetail::whereHas('servicelist_detail', function ($query) use ($value) {
-					$query->where('charge_order_detail_id', $value->charge_order_detail_id);
-				})->get();
-				$value->servicelist_debugger = $quantity;
+				$quantity = ServicelistReceivedDetail::join('servicelist_received', 'servicelist_received_detail.servicelist_received_id', '=', 'servicelist_received.servicelist_received_id')
+					->join('servicelist', 'servicelist_received.servicelist_id', '=', 'servicelist.servicelist_id')
+					->where('servicelist.charge_order_id', $value->charge_order_id)
+					->where('servicelist_received_detail.product_id', $value->product_id)
+					->sum('servicelist_received_detail.quantity');
+			}
+			if ($value->product_type_id == 2) {
+				$quantity = PicklistReceivedDetail::join('picklist_received', 'picklist_received_detail.picklist_received_id', '=', 'picklist_received.picklist_received_id')
+					->join('picklist', 'picklist_received.picklist_id', '=', 'picklist.picklist_id')
+					->where('picklist.charge_order_id', $value->charge_order_id)
+					->where('picklist_received_detail.product_id', $value->product_id)
+					->sum('picklist_received_detail.quantity');
 			}
 			if ($value->product_type_id == 3 || $value->product_type_id == 4) {
-				$purchaseOrderDetails = PurchaseOrderDetail::where('charge_order_detail_id', $value->charge_order_detail_id)->first();
-				if (isset($purchaseOrderDetails->purchase_order_detail_id)) {
+				$quantity = GRNDetail::join('purchase_order_detail as pod', 'good_received_note_detail.purchase_order_detail_id', '=', 'pod.purchase_order_detail_id')
+					->join('purchase_order as po', 'pod.purchase_order_id', '=', 'po.purchase_order_id')
+					->where('po.charge_order_id', $value->charge_order_id);
 
-					$quantity = GRNDetail::where('purchase_order_detail_id', $purchaseOrderDetails->purchase_order_detail_id)->get();
+				if ($value->product_type_id == 4) {
+					$quantity->where('good_received_note_detail.product_name', $value->product_name);
 				} else {
-					$quantity = 0;
+					$quantity->where('good_received_note_detail.product_id', $value->product_id);
 				}
-				$value->purchase_order_debugger = $quantity;
+
+				$quantity = $quantity->sum('good_received_note_detail.quantity');
+				
 			}
-
-			dd($chargeOrderDetails);
-
 
 			$insertArr = [
 				'shipment_id' => $uuid,
@@ -216,7 +219,7 @@ class ShipmentController extends Controller
 				'product_description' => $value->product_description ?? null,
 				'description' => $value->description ?? null,
 				'internal_notes' => $value->internal_notes ?? null,
-				'quantity' => isset($quantity) ? $quantity : 0,
+				'quantity' => $quantity,
 				'unit_id' => $value->unit_id ?? null,
 				'supplier_id' => $value->supplier_id ?? null,
 				'created_at' => Carbon::now(),
@@ -228,6 +231,7 @@ class ShipmentController extends Controller
 				ChargeOrderDetail::where('charge_order_detail_id', $value->charge_order_detail_id)->update(['shipment_id' => $insertArr['shipment_id'], 'shipment_detail_id' => $insertArr['shipment_detail_id']]);
 			}
 		}
+
 
 
 		return $this->jsonResponse(['shipment_id' => $uuid], 200, "Create Shipment Order Successfully!");
