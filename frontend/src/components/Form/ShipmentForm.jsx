@@ -79,15 +79,15 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
       dataIndex: 'unit',
       key: 'unit',
       width: 80
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      width: 140,
-      fixed: 'right',
-      render: (_, { status }) => <Select defaultValue={status} className="w-full" />
     }
+    // {
+    //   title: 'Status',
+    //   dataIndex: 'status',
+    //   key: 'status',
+    //   width: 140,
+    //   fixed: 'right',
+    //   render: (_, { status }) => <Select defaultValue={status} className="w-full" />
+    // }
   ];
 
   const onFinish = async (type) => {

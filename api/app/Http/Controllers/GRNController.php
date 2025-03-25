@@ -108,7 +108,7 @@ class GRNController extends Controller
 
 		$po_ref = PurchaseOrder::where('purchase_order_id', $request->purchase_order_id)->first();
 
-		$base_currency_id = Company::where('company_id', $request->company_id)->pluck('currency_id')->first();
+		$base_currency_id = Company::where('company_id', $request->company_id)->pluck('base_currency_id')->first();
 
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument($this->document_type_id, $request);
@@ -189,7 +189,7 @@ class GRNController extends Controller
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
 		$po_ref = PurchaseOrder::where('purchase_order_id', $request->purchase_order_id)->first();
-		$base_currency_id = Company::where('company_id', $request->company_id)->pluck('currency_id')->first();
+		$base_currency_id = Company::where('company_id', $request->company_id)->pluck('base_currency_id')->first();
 
 		$data  = GRN::where('good_received_note_id', $id)->first();
 		$data->company_id = $request->company_id;

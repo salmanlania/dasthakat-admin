@@ -175,45 +175,51 @@ export const shipmentSlice = createSlice({
     });
     addCase(getShipment.fulfilled, (state, action) => {
       state.isItemLoading = false;
-      const { event, shipment_detail } = action.payload;
+      const { charge_order, event, shipment_detail } = action.payload;
 
       state.initialFormValues = {
         event_id: event
           ? {
-              value: event.event_id,
-              label: event.event_code
-            }
+            value: event.event_id,
+            label: event.event_code
+          }
           : null,
         salesman_id: event?.customer?.salesman
           ? {
-              value: event.customer.salesman.salesman_id,
-              label: event.customer.salesman.name
-            }
+            value: event.customer.salesman.salesman_id,
+            label: event.customer.salesman.name
+          }
           : null,
         vessel_id: event?.vessel
           ? {
-              value: event.vessel.vessel_id,
-              label: event.vessel.name
-            }
+            value: event.vessel.vessel_id,
+            label: event.vessel.name
+          }
           : null,
         imo: event?.vessel?.imo || null,
         flag_id: event?.vessel?.flag
           ? {
-              value: event.vessel.flag.flag_id,
-              label: event.vessel.flag.name
-            }
+            value: event.vessel.flag.flag_id,
+            label: event.vessel.flag.name
+          }
           : null,
         class1_id: event?.class1
           ? {
-              value: event?.class1.class_id,
-              label: event?.class1.name
-            }
+            value: event?.class1.class_id,
+            label: event?.class1.name
+          }
           : null,
         class2_id: event?.class2
           ? {
-              value: event?.class2.class_id,
-              label: event?.class2.name
-            }
+            value: event?.class2.class_id,
+            label: event?.class2.name
+          }
+          : null,
+        charge_order_id: charge_order
+          ? {
+            value: charge_order?.charge_order_id,
+            label: charge_order?.document_identity
+          }
           : null
       };
 
@@ -224,7 +230,9 @@ export const shipmentSlice = createSlice({
         charge_order_no: detail?.charge_order?.document_identity || null,
         product_type: detail?.product_type?.name || null,
         product_code: detail?.product?.product_code || null,
-        product_name: detail?.product?.name || null,
+        product_name: detail.product?.name
+          ? detail.product.name
+          : detail.product_name,
         description: detail?.product_description || null,
         customer_notes: detail?.description || null,
         internal_notes: detail?.internal_notes || null,
