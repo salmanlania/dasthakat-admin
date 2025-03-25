@@ -317,9 +317,10 @@ class JobOrderController extends Controller
 	 */
 	private function createJobOrderDetails(Request $request, string $jobOrderId, array $details): void
 	{
-		foreach ($details as $detail) {
+		foreach ($details as $key => $detail) {
 			$chargeOrderDetail = ChargeOrderDetail::with('product_type')->where('charge_order_detail_id', $detail['charge_order_detail_id'])->first();
 			$detailId = $this->get_uuid();
+			$chargeOrderDetail['sort_order'] = $key + 1;
 			JobOrderDetail::create(
 				$this->prepareJobOrderDetailData($request, $jobOrderId, $detailId, $chargeOrderDetail)
 			);
@@ -341,6 +342,7 @@ class JobOrderController extends Controller
 			'company_branch_id' => $request->company_branch_id,
 			'job_order_id' => $jobOrderId,
 			'job_order_detail_id' => $detailId,
+			'sort_order' => $detail->sort_order,
 			'charge_order_id' => $detail['charge_order_id'] ?? null,
 			'charge_order_detail_id' => $detail['charge_order_detail_id'] ?? null,
 			'product_id' => $detail['product_id'] ?? null,

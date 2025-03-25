@@ -185,6 +185,9 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
   };
 
   const onChargeOrderChange = async (selected) => {
+    form.setFieldsValue({
+      event_id: null
+    });
     dispatch(setChargeOrderDetails([]));
 
     if (!selected) {
@@ -199,6 +202,17 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
 
     try {
       const res = await dispatch(getChargeOrder(selected.value)).unwrap();
+
+      form.setFieldsValue({
+        event_id: res.event
+          ? {
+              value: res.event.event_id,
+              label: res.event.event_code
+            }
+          : null
+      });
+
+      console.log(res);
       const chargeDetails = res.charge_order_detail
         ? res.charge_order_detail.map((detail) => ({
             id: detail.charge_order_detail_id,
