@@ -19,6 +19,7 @@ import {
   setShipmentDeleteIDs,
   setShipmentListParams
 } from '../../store/features/shipmentSlice.js';
+import { getChargeOrder } from '../../store/features/chargeOrderSlice.js';
 
 const DUMMY_LIST = [
   {
@@ -62,6 +63,7 @@ const Shipment = () => {
   } = useSelector((state) => state.shipment);
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.shipment;
+  const otherPermissions = user.permission;
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
@@ -109,6 +111,26 @@ const Shipment = () => {
       toast.success('Shipment created successfully');
       form.resetFields();
       dispatch(getShipmentList(params)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const onChargeOrderChange = async (selected) => {
+    form.setFieldsValue({
+      event_id: null
+    });
+
+    try {
+      const res = await dispatch(getChargeOrder(selected.value)).unwrap();
+      form.setFieldsValue({
+        event_id: res.event
+          ? {
+              value: res.event.event_id,
+              label: res.event.event_code
+            }
+          : null
+      });
     } catch (error) {
       handleError(error);
     }
@@ -363,8 +385,7 @@ const Shipment = () => {
               valueKey="event_id"
               labelKey="event_code"
               labelInValue
-              // addNewLink={permissions.event.add ? '/event/create' : null}
-              // onChange={onEventChange}
+              addNewLink={otherPermissions.event.add ? '/event/create' : null}
             />
           </Form.Item>
           <Form.Item name="charge_order_id" label="Charge Order" className="m-0 w-48">
@@ -372,10 +393,9 @@ const Shipment = () => {
               endpoint="/charge-order"
               valueKey="charge_order_id"
               labelKey="document_identity"
-              // disabled={mode === 'edit'}
               labelInValue
-              // onChange={onChargeOrderChange}
-              // addNewLink={permissions.charge_order.add ? '/charge-order/create' : null}
+              addNewLink={otherPermissions.charge_order.add ? '/charge-order/create' : null}
+              onChange={onChargeOrderChange}
             />
           </Form.Item>
           <Button
