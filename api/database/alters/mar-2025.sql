@@ -243,3 +243,7 @@ ALTER TABLE `good_received_note_detail`
     ADD COLUMN `base_currency_id` INT NULL AFTER `document_currency_id`,
     ADD COLUMN `unit_conversion` DECIMAL(10,2) NULL AFTER `base_currency_id`,
     ADD COLUMN `currency_conversion` DECIMAL(10,2) NULL AFTER `unit_conversion`;
+
+    
+ALTER TABLE job_order_detail
+MODIFY COLUMN internal_notes VARCHAR(255) NULL;
