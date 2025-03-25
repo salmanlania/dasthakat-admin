@@ -173,29 +173,36 @@ class ShipmentController extends Controller
 
 		if ($chargeOrderDetails->isEmpty()) return $this->jsonResponse('No Items Found For Shipment', 404, "No Data Found!");
 
-		Shipment::create($insertArr);
+		// Shipment::create($insertArr);
 
-		foreach ($chargeOrderDetails as $key => $value) {
+
+		foreach ($chargeOrderDetails as $key => &$value) {
 
 			if ($value->product_type_id == 2) {
 				$quantity = PicklistReceivedDetail::whereHas('picklist_detail', function ($query) use ($value) {
 					$query->where('charge_order_detail_id', $value->charge_order_detail_id);
-				})->where('product_id', $value->product_id)->sum('quantity');
+				})->get();
+				$value->picklist_debugger = $quantity;
 			}
 			if ($value->product_type_id == 1) {
 				$quantity = ServicelistReceivedDetail::whereHas('servicelist_detail', function ($query) use ($value) {
 					$query->where('charge_order_detail_id', $value->charge_order_detail_id);
-				})->where('product_id', $value->product_id)->sum('quantity');
+				})->get();
+				$value->servicelist_debugger = $quantity;
 			}
 			if ($value->product_type_id == 3 || $value->product_type_id == 4) {
 				$purchaseOrderDetails = PurchaseOrderDetail::where('charge_order_detail_id', $value->charge_order_detail_id)->first();
 				if (isset($purchaseOrderDetails->purchase_order_detail_id)) {
 
-					$quantity = GRNDetail::where('purchase_order_detail_id', $purchaseOrderDetails->purchase_order_detail_id)->sum('quantity');
+					$quantity = GRNDetail::where('purchase_order_detail_id', $purchaseOrderDetails->purchase_order_detail_id)->get();
 				} else {
 					$quantity = 0;
 				}
+				$value->purchase_order_debugger = $quantity;
 			}
+
+			dd($chargeOrderDetails);
+
 
 			$insertArr = [
 				'shipment_id' => $uuid,
