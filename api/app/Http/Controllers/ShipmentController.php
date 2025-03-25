@@ -130,7 +130,7 @@ class ShipmentController extends Controller
 
 	public function store(Request $request)
 	{
-	
+
 		if (!isPermission('add', 'shipment', $request->permission_list))
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
@@ -173,9 +173,8 @@ class ShipmentController extends Controller
 
 		if ($chargeOrderDetails->isEmpty()) return $this->jsonResponse('No Items Found For Shipment', 404, "No Data Found!");
 
-		Shipment::create($insertArr);
 
-
+		$shipmentDetails = [];
 		foreach ($chargeOrderDetails as $key => $value) {
 
 			if ($value->product_type_id == 1) {
@@ -204,34 +203,38 @@ class ShipmentController extends Controller
 				}
 
 				$quantity = $quantity->sum('good_received_note_detail.quantity');
-				
 			}
 
-			$insertArr = [
-				'shipment_id' => $uuid,
-				'shipment_detail_id' => $this->get_uuid(),
-				'sort_order' =>  $key + 1,
-				'charge_order_id' => $value->charge_order_id ?? null,
-				'charge_order_detail_id' => $value->charge_order_detail_id ?? null,
-				'product_id' => $value->product_id ?? null,
-				'product_type_id' => $value->product_type_id ?? null,
-				'product_name' => $value->product_name ?? null,
-				'product_description' => $value->product_description ?? null,
-				'description' => $value->description ?? null,
-				'internal_notes' => $value->internal_notes ?? null,
-				'quantity' => $quantity,
-				'unit_id' => $value->unit_id ?? null,
-				'supplier_id' => $value->supplier_id ?? null,
-				'created_at' => Carbon::now(),
-				'created_by' => $request->login_user_id,
-			];
 			if ($quantity > 0) {
-				ShipmentDetail::create($insertArr);
-
-				ChargeOrderDetail::where('charge_order_detail_id', $value->charge_order_detail_id)->update(['shipment_id' => $insertArr['shipment_id'], 'shipment_detail_id' => $insertArr['shipment_detail_id']]);
+				$shipmentDetails[] = [
+					'shipment_id' => $uuid,
+					'shipment_detail_id' => $this->get_uuid(),
+					'sort_order' => $key + 1,
+					'charge_order_id' => $value->charge_order_id ?? null,
+					'charge_order_detail_id' => $value->charge_order_detail_id ?? null,
+					'product_id' => $value->product_id ?? null,
+					'product_type_id' => $value->product_type_id ?? null,
+					'product_name' => $value->product_name ?? null,
+					'product_description' => $value->product_description ?? null,
+					'description' => $value->description ?? null,
+					'internal_notes' => $value->internal_notes ?? null,
+					'quantity' => $quantity,
+					'unit_id' => $value->unit_id ?? null,
+					'supplier_id' => $value->supplier_id ?? null,
+					'created_at' => Carbon::now(),
+					'created_by' => $request->login_user_id,
+				];
 			}
 		}
-
+		if (empty($shipmentDetails)) {
+			return $this->jsonResponse('No Valid Shipment Details Found', 404, "No Data Found!");
+		}
+		Shipment::create($insertArr);
+		foreach ($shipmentDetails as $detail) {
+			ShipmentDetail::create($detail);
+			ChargeOrderDetail::where('charge_order_detail_id', $detail['charge_order_detail_id'])
+				->update(['shipment_id' => $detail['shipment_id'], 'shipment_detail_id' => $detail['shipment_detail_id']]);
+		}
 
 
 		return $this->jsonResponse(['shipment_id' => $uuid], 200, "Create Shipment Order Successfully!");
