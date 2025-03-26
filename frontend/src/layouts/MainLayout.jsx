@@ -120,7 +120,7 @@ const MainLayout = () => {
   if (href === '/shipment/create' && !permissions.shipment.add) return <NotFound />;
   if (href.startsWith('/shipment/edit') && !permissions.shipment.edit) return <NotFound />;
 
-  if (href === '/dispatch' && !permissions.dispatch.list) return <NotFound />;
+  if (href === '/scheduling' && !permissions.dispatch.list) return <NotFound />;
 
   return (
     <Layout className="min-h-screen">

@@ -675,7 +675,7 @@ function Routes() {
             )
           },
           {
-            path: '/dispatch',
+            path: '/scheduling',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Dispatch />
