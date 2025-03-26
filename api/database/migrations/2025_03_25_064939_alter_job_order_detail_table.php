@@ -16,8 +16,11 @@ return new class extends Migration
 
         Schema::table('job_order_detail', function (Blueprint $table) {
             $table->dropColumn('internal_notes');
+        });
+        Schema::table('job_order_detail', function (Blueprint $table) {
             $table->string('internal_notes', 255)->nullable()->after('product_type_id');
         });
+
     }
 
     /**
@@ -29,6 +32,8 @@ return new class extends Migration
     {
         Schema::table('job_order_detail', function (Blueprint $table) {
             $table->dropColumn('internal_notes');
+        });
+        Schema::table('job_order_detail', function (Blueprint $table) {
             $table->string('internal_notes', 255)->nullable(false)->after('product_type_id');
         });
     }
