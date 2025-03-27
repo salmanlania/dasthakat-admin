@@ -9,6 +9,7 @@ use App\Models\JobOrder;
 use App\Models\JobOrderDetail;
 use App\Models\JobOrderDetailCertificate;
 use App\Models\Product;
+use App\Models\Shipment;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -94,7 +95,6 @@ class JobOrderController extends Controller
 		$data = JobOrder::with(
 			"job_order_detail",
 			"job_order_detail.charge_order",
-			"job_order_detail.shipment_detail",
 			"job_order_detail.product",
 			"job_order_detail.product_type",
 			"job_order_detail.unit",
@@ -108,8 +108,22 @@ class JobOrderController extends Controller
 			"salesman",
 			"agent",
 			"certificates",
-		)->where('job_order_id', $id)->first();
-
+		)
+			->leftJoin('job_order_detail', 'job_order.job_order_id', '=', 'job_order_detail.job_order_id')
+			->leftJoin('shipment_detail', function ($join) {
+				$join->on('job_order_detail.product_id', '=', 'shipment_detail.product_id')
+					->on('job_order_detail.charge_order_id', '=', 'shipment_detail.charge_order_id');
+			})
+			->leftJoin('shipment', 'shipment_detail.shipment_id', '=', 'shipment.shipment_id')
+			->select('job_order.*', 'shipment_detail.shipment_id') // Select relevant shipment fields
+			->where('job_order.job_order_id', $id)
+			->first();
+		if ($data) {
+			foreach ($data->job_order_detail as $detail) {
+				$shipment = Shipment::where('shipment_id', optional($detail->shipment_detail)->shipment_id)->first();
+				$detail->shipment = $shipment ?: null; // Attach shipment if found, else null
+			}
+		}
 
 		return $this->jsonResponse($data, 200, "Job Order Data");
 	}
