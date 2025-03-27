@@ -169,53 +169,54 @@ export const ijoSlice = createSlice({
     });
     addCase(getIJO.fulfilled, (state, action) => {
       state.isItemLoading = false;
-      const { event, salesman, vessel, flag, class1, class2, agent, job_order_detail } =
+      const { event, salesman, vessel, flag, class1, class2, agent, job_order_detail, document_identity } =
         action.payload;
 
       state.initialFormValues = {
         event_id: event
           ? {
-              value: event.event_id,
-              label: event.event_code
-            }
+            value: event.event_id,
+            label: event.event_code
+          }
           : null,
         salesman_id: salesman
           ? {
-              value: salesman.salesman_id,
-              label: salesman.name
-            }
+            value: salesman.salesman_id,
+            label: salesman.name
+          }
           : null,
         vessel_id: vessel
           ? {
-              value: vessel.vessel_id,
-              label: vessel.name
-            }
+            value: vessel.vessel_id,
+            label: vessel.name
+          }
           : null,
         imo: vessel?.imo || null,
         flag_id: flag
           ? {
-              value: flag.flag_id,
-              label: flag.name
-            }
+            value: flag.flag_id,
+            label: flag.name
+          }
           : null,
         class1_id: class1
           ? {
-              value: class1.class_id,
-              label: class1.name
-            }
+            value: class1.class_id,
+            label: class1.name
+          }
           : null,
         class2_id: class2
           ? {
-              value: class2.class_id,
-              label: class2.name
-            }
+            value: class2.class_id,
+            label: class2.name
+          }
           : null,
         agent_id: agent
           ? {
-              value: agent.agent_id,
-              label: agent.name
-            }
-          : null
+            value: agent.agent_id,
+            label: agent.name
+          }
+          : null,
+        document_identity: document_identity || null
       };
 
       if (!job_order_detail || !job_order_detail.length) return;
