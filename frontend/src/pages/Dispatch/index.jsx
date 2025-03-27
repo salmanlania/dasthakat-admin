@@ -10,6 +10,9 @@ import PageHeading from '../../components/Heading/PageHeading';
 import NotesModal from '../../components/Modals/NotesModal';
 import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
+import { dispatchExportPdf } from '../../utils/prints/dispatchExportPdf';
+import { dispatchExportExcel } from '../../utils/excel/dispatchExportExcel';
+import { Link } from 'react-router-dom';
 import {
   getDispatchList,
   getEventJobOrders,
@@ -27,6 +30,8 @@ const Dispatch = () => {
   const { list, isListLoading, params, paginationInfo, isFormSubmitting } = useSelector(
     (state) => state.dispatch
   );
+
+  const dispatchData = list || [];
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.dispatch;
 
@@ -94,6 +99,14 @@ const Dispatch = () => {
       toast.dismiss(loadingToast);
     }
   };
+  {
+    /* 
+
+    I want to make a group of date like if two dates are same so show one add border bottom to last
+    date of that particular group, give me particular changeable code only
+    
+    */
+  }
 
   const columns = [
     {
@@ -126,18 +139,21 @@ const Dispatch = () => {
       sorter: true,
       width: 150,
       ellipsis: true,
-      render: (_, { event_id, event_date }) => (
-        <DatePicker
-          size="small"
-          className="font-normal"
-          format="MM-DD-YYYY"
-          disabled={!permissions.update}
-          defaultValue={event_date && event_date !== '0000-00-00' ? dayjs(event_date) : null}
-          onChange={(date) =>
-            updateValue(event_id, 'event_date', date ? dayjs(date).format('YYYY-MM-DD') : null)
-          }
-        />
-      )
+      render: (_, { event_id, event_date }) => {
+        return (
+          <DatePicker
+            size="small"
+            className="font-normal"
+            // className={`font-normal ${}`}
+            format="MM-DD-YYYY"
+            disabled={!permissions.update}
+            defaultValue={event_date && event_date !== '0000-00-00' ? dayjs(event_date) : null}
+            onChange={(date) =>
+              updateValue(event_id, 'event_date', date ? dayjs(date).format('YYYY-MM-DD') : null)
+            }
+          />
+        );
+      }
     },
     {
       title: (
@@ -214,79 +230,8 @@ const Dispatch = () => {
       key: 'vessel_name',
       sorter: true,
       width: 200,
-      ellipsis: true,
-      render: (_, { event_id, vessel_id, vessel_name }) => (
-        <AsyncSelect
-          endpoint="/vessel"
-          labelKey="name"
-          valueKey="vessel_id"
-          size="small"
-          labelInValue
-          disabled={!permissions.update}
-          defaultValue={
-            vessel_id
-              ? {
-                  value: vessel_id,
-                  label: vessel_name
-                }
-              : null
-          }
-          onChange={(selected) =>
-            updateValue(event_id, 'vessel_id', selected ? selected.value : null)
-          }
-          className="w-full"
-        />
-      )
+      ellipsis: true
     },
-    // {
-    //   title: (
-    //     <div onClick={(e) => e.stopPropagation()}>
-    //       <p>Technician</p>
-    //       <AsyncSelect
-    //         endpoint="/technician"
-    //         size="small"
-    //         labelKey="name"
-    //         valueKey="technician_id"
-    //         className="w-full font-normal"
-    //         mode="multiple"
-    //         value={params.technician_id}
-    //         onChange={(selected) => dispatch(setDispatchListParams({ technician_id: selected }))}
-    //       />
-    //     </div>
-    //   ),
-    //   dataIndex: 'technician',
-    //   key: 'technician',
-    //   sorter: true,
-    //   width: 200,
-    //   ellipsis: true,
-    //   render: (_, { event_id, technicians, technician_name }) => (
-    //     <AsyncSelect
-    //       endpoint="/technician"
-    //       labelKey="name"
-    //       valueKey="technician_id"
-    //       labelInValue
-    //       disabled={!permissions.update}
-    //       defaultValue={
-    //         technicians
-    //           ? technicians.map((item) => ({
-    //               value: item.technician_id,
-    //               label: item.name
-    //             }))
-    //           : null
-    //       }
-    //       mode="multiple"
-    //       onChange={(selected) =>
-    //         updateValue(
-    //           event_id,
-    //           'technician_id',
-    //           selected ? selected.map((item) => item.value) : null
-    //         )
-    //       }
-    //       className="w-full"
-    //       size="small"
-    //     />
-    //   )
-    // },
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
@@ -298,8 +243,8 @@ const Dispatch = () => {
             valueKey="user_id"
             className="w-full font-normal"
             mode="multiple"
-            value={params.user_id}
-            onChange={(selected) => dispatch(setDispatchListParams({ user_id: selected }))}
+            value={params.technician_id}
+            onChange={(selected) => dispatch(setDispatchListParams({ technician_id: selected }))}
           />
         </div>
       ),
@@ -326,7 +271,7 @@ const Dispatch = () => {
             }
             mode="multiple"
             onChange={(selected) =>
-              updateValue(event_id, 'user_id', selected ? selected.map((item) => item.value) : null)
+              updateValue(event_id, 'technician_id', selected ? selected.map((item) => item.value) : null)
             }
             className="w-full"
             size="small"
@@ -509,6 +454,38 @@ const Dispatch = () => {
     }
   ];
 
+  // const formattedColumns = columns.map((col) => ({
+  //   header: typeof col.title === 'object' ? col.title.props.children[0] : col.title,
+  //   accessor: col.dataIndex
+  // }));
+
+  const extractTextFromHeader = (header) => {
+    // Check if it's a React element with children
+    if (typeof header === 'object' && header !== null && header.props && header.props.children) {
+      const child = header.props.children;
+
+      // If it's a <p> tag inside, return its content
+      if (child?.type === 'p') {
+        return child.props.children;
+      }
+
+      // If <p> is wrapped or deeply nested, handle arrays or nested structure
+      if (Array.isArray(child)) {
+        for (const c of child) {
+          if (c?.type === 'p') return c.props.children;
+        }
+      }
+    }
+
+    // Fallback: return as is
+    return header;
+  };
+
+  const formattedColumns = columns.map((col) => ({
+    header: extractTextFromHeader(col.title || col.header),
+    accessor: col.dataIndex || col.accessor
+  }));
+
   useEffect(() => {
     dispatch(getDispatchList(params)).unwrap().catch(handleError);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -519,6 +496,7 @@ const Dispatch = () => {
     params.sort_direction,
     params.agent_id,
     params.technician_id,
+    params.user_id,
     params.vessel_id,
     params.event_id,
     params.event_date,
@@ -531,6 +509,14 @@ const Dispatch = () => {
     debouncedAgentNotes
   ]);
 
+  const downloadExcel = () => {
+    console.log('downloadExcel');
+  };
+
+  const downloadPDF = () => {
+    console.log('downloadPDF');
+  };
+
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
@@ -539,31 +525,55 @@ const Dispatch = () => {
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
-        <div className="my-2 flex items-center gap-2">
-          <Input
-            placeholder="Search..."
-            className="w-full sm:w-64"
-            value={params.search}
-            onChange={(e) => dispatch(setDispatchListParams({ search: e.target.value }))}
-          />
+        <div className="flex flex-wrap items-center justify-between">
+          <div className="my-2 flex items-center gap-2">
+            <Input
+              placeholder="Search..."
+              className="w-full sm:w-64"
+              value={params.search}
+              onChange={(e) => dispatch(setDispatchListParams({ search: e.target.value }))}
+            />
 
-          <RangePicker
-            // separator=" - "
-            value={[
-              params.start_date ? dayjs(params.start_date, 'YYYY-MM-DD') : null,
-              params.end_date ? dayjs(params.end_date, 'YYYY-MM-DD') : null
-            ]}
-            onChange={(dates) => {
-              const newParams = {
-                start_date: dates?.[0] ? dayjs(dates[0]).format('YYYY-MM-DD') : null,
-                end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : null
-              };
+            <RangePicker
+              // separator=" - "
+              value={[
+                params.start_date ? dayjs(params.start_date, 'YYYY-MM-DD') : null,
+                params.end_date ? dayjs(params.end_date, 'YYYY-MM-DD') : null
+              ]}
+              onChange={(dates) => {
+                const newParams = {
+                  start_date: dates?.[0] ? dayjs(dates[0]).format('YYYY-MM-DD') : null,
+                  end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : null
+                };
 
-              dispatch(setDispatchListParams(newParams));
-              dispatch(getDispatchList({ ...params, ...newParams }));
-            }}
-            format="MM-DD-YYYY"
-          />
+                dispatch(setDispatchListParams(newParams));
+                dispatch(getDispatchList({ ...params, ...newParams }));
+              }}
+              format="MM-DD-YYYY"
+            />
+          </div>
+          <div className="flex items-center justify-around gap-3">
+            <div onClick={downloadExcel}>
+              {/* <Button type="primary" className="text-xs sm:text-sm">
+                Excel
+              </Button> */}
+              <Button
+                icon={<TbEdit />}
+                onClick={() => {
+                  console.log('Sample Row:', dispatchData[0]);
+                  console.log('formattedColumns:', dispatchData[0]);
+                  // dispatchExportExcel(dispatchData, formattedColumns);
+                }}>
+                Download Excel
+              </Button>
+            </div>
+            <div onClick={downloadPDF}>
+              {/* <Button className="text-xs sm:text-sm">PDF</Button> */}
+              <Button
+                icon={<FaRegFilePdf />}
+                onClick={() => dispatchExportPdf(dispatchData, formattedColumns)}></Button>
+            </div>
+          </div>
         </div>
 
         <Table
