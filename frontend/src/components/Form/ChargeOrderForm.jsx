@@ -14,7 +14,8 @@ import {
   copyChargeOrderDetail,
   removeChargeOrderDetail,
   resetChargeOrderDetail,
-  splitChargeOrderQuantity
+  splitChargeOrderQuantity,
+  getChargeOrder
 } from '../../store/features/chargeOrderSlice';
 import { getEvent } from '../../store/features/eventSlice';
 import { getProduct, getProductList } from '../../store/features/productSlice';
@@ -36,6 +37,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues, chargeOrderDetails } = useSelector(
     (state) => state.chargeOrder
   );
+  
   const { poChargeID } = useSelector((state) => state.purchaseOrder);
 
   const [searchParams] = useSearchParams();
@@ -80,7 +82,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       technician_notes: values.technician_notes,
       agent_notes: values.agent_notes,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
-      technician_id: values.technician_id ? values.technician_id.map((v) => v.value) : null,
+      user_id: values.user_id ? values.user_id.map((v) => v.value) : null,
       charge_order_detail: chargeOrderDetails.map(({ id, product_type, ...detail }, index) => ({
         ...detail,
         picklist_id: detail?.picklist_id || '',
@@ -992,14 +994,14 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="technician_id" label="Technician">
+          <Form.Item name="user_id" label="Technician">
             <AsyncSelect
-              endpoint="/technician"
-              valueKey="technician_id"
-              labelKey="name"
+              endpoint="/user"
+              valueKey="user_id"
+              labelKey="user_name"
               mode="multiple"
               labelInValue
-              addNewLink={permissions.agent.add && permissions.agent.list ? '/technician' : null}
+              addNewLink={permissions.agent.add && permissions.agent.list ? '/user' : null}
             />
           </Form.Item>
         </Col>

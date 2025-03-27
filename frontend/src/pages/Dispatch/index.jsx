@@ -21,6 +21,7 @@ import { createIJOPrint } from '../../utils/prints/ijo-print';
 import { createPickListPrint } from '../../utils/prints/pick-list-print';
 
 const Dispatch = () => {
+  const { RangePicker } = DatePicker;
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isFormSubmitting } = useSelector(
@@ -29,6 +30,7 @@ const Dispatch = () => {
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.dispatch;
 
+  const [dateRange, setDateRange] = useState([null, null]);
   const [notesModalIsOpen, setNotesModalIsOpen] = useState({
     open: false,
     id: null,
@@ -101,7 +103,11 @@ const Dispatch = () => {
           <div onClick={(e) => e.stopPropagation()}>
             <DatePicker
               size="small"
-              value={params.event_date ? dayjs(params.event_date) : null}
+              value={
+                params.event_date && params.event_date !== '0000-00-00'
+                  ? dayjs(params.event_date)
+                  : null
+              }
               className="font-normal"
               onChange={(date) =>
                 dispatch(
@@ -126,7 +132,7 @@ const Dispatch = () => {
           className="font-normal"
           format="MM-DD-YYYY"
           disabled={!permissions.update}
-          defaultValue={event_date ? dayjs(event_date) : null}
+          defaultValue={event_date && event_date !== '0000-00-00' ? dayjs(event_date) : null}
           onChange={(date) =>
             updateValue(event_id, 'event_date', date ? dayjs(date).format('YYYY-MM-DD') : null)
           }
@@ -232,54 +238,101 @@ const Dispatch = () => {
         />
       )
     },
+    // {
+    //   title: (
+    //     <div onClick={(e) => e.stopPropagation()}>
+    //       <p>Technician</p>
+    //       <AsyncSelect
+    //         endpoint="/technician"
+    //         size="small"
+    //         labelKey="name"
+    //         valueKey="technician_id"
+    //         className="w-full font-normal"
+    //         mode="multiple"
+    //         value={params.technician_id}
+    //         onChange={(selected) => dispatch(setDispatchListParams({ technician_id: selected }))}
+    //       />
+    //     </div>
+    //   ),
+    //   dataIndex: 'technician',
+    //   key: 'technician',
+    //   sorter: true,
+    //   width: 200,
+    //   ellipsis: true,
+    //   render: (_, { event_id, technicians, technician_name }) => (
+    //     <AsyncSelect
+    //       endpoint="/technician"
+    //       labelKey="name"
+    //       valueKey="technician_id"
+    //       labelInValue
+    //       disabled={!permissions.update}
+    //       defaultValue={
+    //         technicians
+    //           ? technicians.map((item) => ({
+    //               value: item.technician_id,
+    //               label: item.name
+    //             }))
+    //           : null
+    //       }
+    //       mode="multiple"
+    //       onChange={(selected) =>
+    //         updateValue(
+    //           event_id,
+    //           'technician_id',
+    //           selected ? selected.map((item) => item.value) : null
+    //         )
+    //       }
+    //       className="w-full"
+    //       size="small"
+    //     />
+    //   )
+    // },
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Technician</p>
           <AsyncSelect
-            endpoint="/technician"
+            endpoint="/user"
             size="small"
-            labelKey="name"
-            valueKey="technician_id"
+            labelKey="user_name"
+            valueKey="user_id"
             className="w-full font-normal"
             mode="multiple"
-            value={params.technician_id}
-            onChange={(selected) => dispatch(setDispatchListParams({ technician_id: selected }))}
+            value={params.user_id}
+            onChange={(selected) => dispatch(setDispatchListParams({ user_id: selected }))}
           />
         </div>
       ),
-      dataIndex: 'technician',
-      key: 'technician',
-      sorter: true,
+      dataIndex: 'user',
+      key: 'user',
+      sorter: false,
       width: 200,
       ellipsis: true,
-      render: (_, { event_id, technicians, technician_name }) => (
-        <AsyncSelect
-          endpoint="/technician"
-          labelKey="name"
-          valueKey="technician_id"
-          labelInValue
-          disabled={!permissions.update}
-          defaultValue={
-            technicians
-              ? technicians.map((item) => ({
-                  value: item.technician_id,
-                  label: item.name
-                }))
-              : null
-          }
-          mode="multiple"
-          onChange={(selected) =>
-            updateValue(
-              event_id,
-              'technician_id',
-              selected ? selected.map((item) => item.value) : null
-            )
-          }
-          className="w-full"
-          size="small"
-        />
-      )
+      render: (_, { event_id, users }) => {
+        return (
+          <AsyncSelect
+            endpoint="/user"
+            labelKey="user_name"
+            valueKey="user_id"
+            labelInValue
+            disabled={!permissions.update}
+            defaultValue={
+              users
+                ? users.map((item) => ({
+                    value: item.user_id,
+                    label: item.user_name
+                  }))
+                : null
+            }
+            mode="multiple"
+            onChange={(selected) =>
+              updateValue(event_id, 'user_id', selected ? selected.map((item) => item.value) : null)
+            }
+            className="w-full"
+            size="small"
+          />
+        );
+      }
     },
     {
       title: (
@@ -337,7 +390,7 @@ const Dispatch = () => {
           />
         </div>
       ),
-      dataIndex: 'agent',
+      dataIndex: 'agent_name',
       key: 'agent',
       sorter: true,
       width: 200,
@@ -469,8 +522,10 @@ const Dispatch = () => {
     params.vessel_id,
     params.event_id,
     params.event_date,
+    params.start_date,
+    params.end_date,
     params.event_time,
-    params.technician_id,
+    // params.technician_id,
     debouncedSearch,
     debouncedTechnicianNotes,
     debouncedAgentNotes
@@ -479,35 +534,65 @@ const Dispatch = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>DISPATCH</PageHeading>
-        <Breadcrumb items={[{ title: 'Dispatch' }, { title: 'List' }]} separator=">" />
+        <PageHeading>SCHEDULING</PageHeading>
+        <Breadcrumb items={[{ title: 'Scheduling' }, { title: 'List' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
-        <Input
-          placeholder="Search..."
-          className="w-full sm:w-64"
-          value={params.search}
-          onChange={(e) => dispatch(setDispatchListParams({ search: e.target.value }))}
-        />
+        <div className="my-2 flex items-center gap-2">
+          <Input
+            placeholder="Search..."
+            className="w-full sm:w-64"
+            value={params.search}
+            onChange={(e) => dispatch(setDispatchListParams({ search: e.target.value }))}
+          />
+
+          <RangePicker
+            // separator=" - "
+            value={[
+              params.start_date ? dayjs(params.start_date, 'YYYY-MM-DD') : null,
+              params.end_date ? dayjs(params.end_date, 'YYYY-MM-DD') : null
+            ]}
+            onChange={(dates) => {
+              const newParams = {
+                start_date: dates?.[0] ? dayjs(dates[0]).format('YYYY-MM-DD') : null,
+                end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : null
+              };
+
+              dispatch(setDispatchListParams(newParams));
+              dispatch(getDispatchList({ ...params, ...newParams }));
+            }}
+            format="MM-DD-YYYY"
+          />
+        </div>
 
         <Table
           size="small"
           loading={isListLoading}
           className="mt-2"
-          rowKey="job_order_id"
+          rowKey={(record) => `${record.event_id}-${record.job_order_id}`}
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} dispatch`
+            showTotal: (total) => `Total ${total} scheduling`
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
             offsetHeader: 56
+          }}
+          onChange={(page, _, sorting) => {
+            dispatch(
+              setDispatchListParams({
+                page: page.current,
+                limit: page.pageSize,
+                sort_column: sorting.field,
+                sort_direction: sorting.order
+              })
+            );
           }}
         />
       </div>

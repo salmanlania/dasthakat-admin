@@ -4,7 +4,7 @@ import { BiChevronLeft } from 'react-icons/bi';
 import { FaRegUser } from 'react-icons/fa';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import { IoSearchSharp } from 'react-icons/io5';
-import { LuCalculator, LuClipboardList, LuWarehouse } from 'react-icons/lu';
+import { LuCalculator, LuClipboardList, LuWarehouse , LuPackage } from 'react-icons/lu';
 import { MdOutlineAdminPanelSettings, MdOutlineDashboard } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -36,6 +36,7 @@ const Sidebar = () => {
   const searchRef = useRef(null);
 
   const permissions = user?.permission;
+  console.log('permissions' , permissions)
 
   const activeKey = pathname === '/' ? '/' : pathname.split('/')[1];
   let isSmallScreen = window.innerWidth <= 1000;
@@ -97,9 +98,11 @@ const Sidebar = () => {
     !permissions?.good_received_note?.list &&
     !permissions?.picklist?.list &&
     !permissions?.shipment?.list &&
-    !permissions?.dispatch?.list &&
     !permissions?.servicelist?.list;
+
   const accountingPermission = !permissions?.purchase_invoice?.list;
+
+  const LogisticsPermission = !permissions?.dispatch?.list;
 
   const items = [
     {
@@ -310,11 +313,6 @@ const Sidebar = () => {
           label: <Link to="/shipment">Shipment</Link>,
           disabled: !permissions?.shipment?.list
         },
-        {
-          key: 'dispatch',
-          label: <Link to="/dispatch">Dispatch</Link>,
-          disabled: !permissions?.dispatch?.list
-        }
       ]
     },
     {
@@ -329,7 +327,20 @@ const Sidebar = () => {
           disabled: !permissions?.purchase_invoice?.list
         }
       ]
-    }
+    },
+    {
+      key: 'logistics',
+      label: 'Logistics',
+      icon: <LuPackage  size={18} />,
+      disabled: LogisticsPermission,
+      children: [
+        {
+          key: 'Scheduling',
+          label: <Link to="/scheduling">Scheduling</Link>,
+          disabled: !permissions?.dispatch?.list
+        }
+      ]
+    },
   ];
   const levelKeys = getLevelKeys(items);
 
@@ -403,6 +414,11 @@ const Sidebar = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
+
+  // useEffect(() => {
+  //   const currentParentKeys = getParentKeys(activeKey, items);
+  //   setStateOpenKeys(currentParentKeys);
+  // }, [pathname]);
 
   return (
     <Layout.Sider

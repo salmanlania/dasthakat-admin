@@ -65,7 +65,9 @@ const initialState = {
     sort_direction: null,
     name: null,
     description: null,
-    catering_type: null
+    catering_type: null,
+    start_date: null,
+    end_date: null
   },
   paginationInfo: {
     total_records: 0,

@@ -1,11 +1,13 @@
 <?php
-
+// Dispatch renamed as Scheduling	
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ChargeOrder;
 use App\Models\EventDispatch;
 use App\Models\Technician;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class EventDispatchController extends Controller
 {
@@ -16,11 +18,20 @@ class EventDispatchController extends Controller
 			->leftJoin('job_order as jo', 'jo.event_id', '=', 'e.event_id')
 			->leftJoin('technician as t', 't.technician_id', '=', 'event_dispatch.technician_id')
 			->leftJoin('agent as a', 'a.agent_id', '=', 'event_dispatch.agent_id')
-			->where('e.company_id', $request->company_id)
-			->where('e.company_branch_id', $request->company_branch_id);
 
+			->where('e.company_id', $request->company_id)
+			->where('e.company_branch_id', $request->company_branch_id)
+			->whereExists(function ($query) {
+				$query->select(DB::raw(1))
+					->from('charge_order')
+					->whereRaw('charge_order.event_id = e.event_id');
+			});
 		if ($event_date = $request->input('event_date')) {
 			$query->whereDate('event_dispatch.event_date', $event_date);
+		}
+		if ($start_date = $request->input('start_date') && $end_date =  $request->input('end_date')) {
+			$date_range = [$start_date, $end_date];
+			$query->whereBetween('event_dispatch.event_date', $date_range);
 		}
 		if ($event_time = $request->input('event_time')) {
 			$query->whereTime('event_dispatch.event_time', $event_time);

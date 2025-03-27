@@ -7,5 +7,8 @@ class ControlAccess extends Model
 {
     // protected $connection = 'other_connection';
     protected $table = 'control_access';
+    protected $primaryKey = 'control_access_id';
+    public $timestamps = false;
+    public $updated_at = false;
 
 }
