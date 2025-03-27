@@ -175,7 +175,7 @@ export const shipmentSlice = createSlice({
     });
     addCase(getShipment.fulfilled, (state, action) => {
       state.isItemLoading = false;
-      const { charge_order, event, shipment_detail } = action.payload;
+      const { charge_order, event, shipment_detail, document_identity , document_type_id} = action.payload;
 
       state.initialFormValues = {
         event_id: event
@@ -220,7 +220,9 @@ export const shipmentSlice = createSlice({
             value: charge_order?.charge_order_id,
             label: charge_order?.document_identity
           }
-          : null
+          : null,
+        document_identity: document_identity || null,
+        document_type_id: document_type_id || null
       };
 
       if (!shipment_detail || !shipment_detail.length) return;

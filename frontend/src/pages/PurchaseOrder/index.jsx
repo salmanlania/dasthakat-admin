@@ -1,4 +1,14 @@
-import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Select, Table, Tag, Tooltip } from 'antd';
+import {
+  Breadcrumb,
+  Button,
+  DatePicker,
+  Input,
+  Popconfirm,
+  Select,
+  Table,
+  Tag,
+  Tooltip
+} from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -22,6 +32,7 @@ import {
   setPurchaseOrderListParams
 } from '../../store/features/purchaseOrderSlice';
 import { createPurchaseOrderPrint } from '../../utils/prints/purchase-order-print';
+import { createPurchaseOrderWithoutRatePrint } from '../../utils/prints/purchase-order-print-without-rate';
 
 export const purchaseOrderTypes = [
   {
@@ -89,6 +100,19 @@ const PurchaseOrder = () => {
       const data = await dispatch(getPurchaseOrderForPrint(id)).unwrap();
       toast.dismiss(loadingToast);
       createPurchaseOrderPrint(data);
+    } catch (error) {
+      console.log(error);
+      handleError(error);
+    }
+  };
+
+  const printPurchaseOrderWithoutRate = async (id) => {
+    const loadingToast = toast.loading('Loading print...');
+
+    try {
+      const data = await dispatch(getPurchaseOrderForPrint(id)).unwrap();
+      toast.dismiss(loadingToast);
+      createPurchaseOrderWithoutRatePrint(data);
     } catch (error) {
       console.log(error);
       handleError(error);
@@ -379,6 +403,15 @@ const PurchaseOrder = () => {
         <div className="flex items-center gap-2">
           {permissions.edit ? (
             <>
+              <Tooltip title="Print without rate">
+                <Button
+                  size="small"
+                  type="primary"
+                  className="bg-indigo-600 hover:!bg-indigo-500"
+                  icon={<FaRegFilePdf size={14} />}
+                  onClick={() => printPurchaseOrderWithoutRate(purchase_order_id)}
+                />
+              </Tooltip>
               <Tooltip title="Print">
                 <Button
                   size="small"
@@ -483,11 +516,11 @@ const PurchaseOrder = () => {
           rowSelection={
             permissions.delete
               ? {
-                type: 'checkbox',
-                selectedRowKeys: deleteIDs,
-                onChange: (selectedRowKeys) =>
-                  dispatch(setPurchaseOrderDeleteIDs(selectedRowKeys))
-              }
+                  type: 'checkbox',
+                  selectedRowKeys: deleteIDs,
+                  onChange: (selectedRowKeys) =>
+                    dispatch(setPurchaseOrderDeleteIDs(selectedRowKeys))
+                }
               : null
           }
           loading={isListLoading}

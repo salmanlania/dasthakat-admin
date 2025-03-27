@@ -5,6 +5,7 @@ import useError from '../../hooks/useError';
 import { getChargeOrder } from '../../store/features/chargeOrderSlice';
 import { getEventChargeOrders, setChargeOrderDetails } from '../../store/features/shipmentSlice';
 import AsyncSelect from '../AsyncSelect';
+import toast from 'react-hot-toast';
 
 const ShipmentForm = ({ mode = 'create', onSubmit }) => {
   const dispatch = useDispatch();
@@ -249,6 +250,22 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
       }}
       autoComplete="off"
       initialValues={mode === 'edit' ? initialFormValues : null}>
+      <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
+        <span className="text-gray-500">
+          {initialFormValues?.document_type_id === "49" ? "SO No:" : initialFormValues?.document_type_id === "48" ? "DO No:" : "SO/DO No:"}
+        </span>
+        <span
+          className={`ml-4 text-amber-600 ${
+            mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : 'select-none'
+          } rounded px-1`}
+          onClick={() => {
+            if (mode !== 'edit') return;
+            navigator.clipboard.writeText(initialFormValues?.document_identity);
+            toast.success('Copied');
+          }}>
+          {mode === 'edit' ? initialFormValues?.document_identity : 'AUTO'}
+        </span>
+      </p>
       <Row gutter={[12, 12]}>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item

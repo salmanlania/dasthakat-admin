@@ -434,11 +434,11 @@ const Shipment = () => {
                 Delete
               </Button>
             ) : null}
-            {permissions.add ? (
+            {/* {permissions.add ? (
               <Link to="/shipment/create">
                 <Button type="primary">Add New</Button>
               </Link>
-            ) : null}
+            ) : null} */}
           </div>
         </div>
 

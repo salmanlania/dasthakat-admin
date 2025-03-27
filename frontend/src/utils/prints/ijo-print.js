@@ -311,7 +311,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     ],
     [
       {
-        content: 'SO Number',
+        content: 'Charge Number',
         styles: {
           fillColor: 'ebf1de' // gray color
         }
@@ -322,6 +322,12 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
           fillColor: 'ebf1de' // gray color
         }
       },
+      // {
+      //   content: 'SO/DO Number',
+      //   styles: {
+      //     fillColor: 'ebf1de' // gray color
+      //   }
+      // },
       {
         content: 'Memo',
         styles: {
@@ -337,11 +343,16 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     ]
   ];
 
+  let lastDocumentId = null;
+
   if (data?.job_order_detail && data.job_order_detail.length) {
     data.job_order_detail.forEach((detail) => {
+      const currentDocId = detail?.charge_order?.document_identity || '';
+      const showDocumentId = currentDocId !== lastDocumentId ? currentDocId : '';
+      lastDocumentId = currentDocId
       table3Row.push([
         {
-          content: detail?.charge_order?.document_identity || '',
+          content: showDocumentId,
           styles: {
             textColor: '#d51902' // Red Color
           }
@@ -371,6 +382,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
   const filledRows = fillEmptyRows(table3Row, 15);
   doc.autoTable({
     startY: doc.previousAutoTable.finalY,
+    // body: filledRows
     body: filledRows,
     margin: { left: sideMargin, right: sideMargin },
     styles: {
