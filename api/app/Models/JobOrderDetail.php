@@ -46,8 +46,7 @@ class JobOrderDetail extends Model
     public function shipment_detail()
     {
         return $this->hasOne(ShipmentDetail::class, 'product_id', 'product_id')
-            ->whereColumn('shipment_detail.charge_order_id', 'job_order_detail.charge_order_id')
-            ->select('*');
+            ->whereColumn('shipment_detail.charge_order_id', 'charge_order_id')->select('*');
     }
     public function job_order()
     {

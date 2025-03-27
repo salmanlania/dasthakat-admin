@@ -12,6 +12,7 @@ use App\Models\Quotation;
 use App\Models\StockLedger;
 use App\Models\Supplier;
 use App\Models\Technician;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -89,7 +90,7 @@ class ChargeOrderController extends Controller
 		if (!is_array($technicianIds) || empty($technicianIds)) {
 			$data->technicians = null;
 		} else {
-			$data->technicians = Technician::whereIn('technician_id', $technicianIds)->get();
+			$data->technicians = User::whereIn('user_id', $technicianIds)->get(); // user_id used in technician_id
 		}
 		if ($data) {
 			foreach ($data->charge_order_detail as $detail) {

@@ -86,7 +86,7 @@ class EventDispatchController extends Controller
 			if (!is_array($technicianIds) || empty($technicianIds)) {
 				$value->technicians = null;
 			} else {
-				$value->technicians = Technician::whereIn('technician_id', $technicianIds)->get();
+				$value->technicians = User::whereIn('user_id', $technicianIds)->get(); // user_id used in technician_id
 			}
 		}
 
