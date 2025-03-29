@@ -237,10 +237,10 @@ const Dispatch = () => {
         <div onClick={(e) => e.stopPropagation()}>
           <p>Technician</p>
           <AsyncSelect
-            endpoint="/user"
+            endpoint="/technician"
             size="small"
-            labelKey="user_name"
-            valueKey="user_id"
+            labelKey="technician_name"
+            valueKey="technician_id"
             className="w-full font-normal"
             mode="multiple"
             value={params.technician_id}
@@ -253,7 +253,13 @@ const Dispatch = () => {
       sorter: false,
       width: 200,
       ellipsis: true,
-      render: (_, { event_id, users }) => {
+      render: (_, { event_id, users , technicians  }) => {
+        const selectedValues = technicians
+      ? technicians.map((tech) => ({
+          value: tech.user_id, 
+          label: tech.user_name,
+        }))
+      : [];
         return (
           <AsyncSelect
             endpoint="/user"
@@ -262,12 +268,7 @@ const Dispatch = () => {
             labelInValue
             disabled={!permissions.update}
             defaultValue={
-              users
-                ? users.map((item) => ({
-                    value: item.user_id,
-                    label: item.user_name
-                  }))
-                : null
+              selectedValues
             }
             mode="multiple"
             onChange={(selected) =>
