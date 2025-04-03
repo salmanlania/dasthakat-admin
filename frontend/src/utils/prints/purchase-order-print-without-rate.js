@@ -281,13 +281,13 @@ export const createPurchaseOrderWithoutRatePrint = (data) => {
     }
   });
 
-  doc.setFontSize(12);
-  doc.setFont('times', 'bold');
-  doc.text(
-    `Total Value = ${formatThreeDigitCommas(data.total_amount) || ''}`,
-    142,
-    doc.previousAutoTable.finalY + 5
-  );
+  // doc.setFontSize(12);
+  // doc.setFont('times', 'bold');
+  // doc.text(
+  //   `Total Value = ${formatThreeDigitCommas(data.total_amount) || ''}`,
+  //   142,
+  //   doc.previousAutoTable.finalY + 5
+  // );
 
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
