@@ -179,9 +179,9 @@ $router->group(['prefix' => 'event'], function ($router) {
 
 $router->group(['prefix' => 'shipment'], function ($router) {
    $router->get('/', 'ShipmentController@index');
+   $router->get('/view-before-create', 'ShipmentController@viewBeforeShipment');
    $router->get('/{id}', 'ShipmentController@show');
    $router->post('/', 'ShipmentController@store');
-   $router->post('/view-shipment', 'ShipmentController@viewShipmentBeforeCreate');
    $router->delete('/{id}', 'ShipmentController@delete');
    $router->post('/bulk-delete', 'ShipmentController@bulkDelete');
 });

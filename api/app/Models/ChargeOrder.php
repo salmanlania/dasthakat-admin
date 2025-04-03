@@ -36,7 +36,7 @@ class ChargeOrder extends Model
         "class2_id",
         "agent_id",
         "agent_notes",
-        "technician_id",
+        "technician_id", // user_id used in technician_id
         "technician_notes",
         "remarks",
         "total_quantity",

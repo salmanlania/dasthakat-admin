@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Picklist;
 use App\Models\PicklistReceived;
 use App\Models\PicklistReceivedDetail;
+use App\Models\Product;
+use App\Models\StockLedger;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 
@@ -96,7 +98,7 @@ class PicklistReceivedController extends Controller
 	public function update(Request $request, $id)
 	{
 		if (!isPermission('receive', 'picklist', $request->permission_list)) {
-		    return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		}
 
 		$isError = $this->Validator($request->all());
@@ -105,6 +107,8 @@ class PicklistReceivedController extends Controller
 
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument($this->documentTypeId, $request);
+
+		$picklist = Picklist::where('picklist_id', $id)->first();
 
 		PicklistReceived::create([
 			'company_id' => $request->company_id,
@@ -123,9 +127,11 @@ class PicklistReceivedController extends Controller
 
 		$picklistReceivedDetails = [];
 		foreach ($request->picklist_detail as $key => $item) {
+			$product = Product::with('unit')->where('product_id', $item['product_id'])->first();
+			$detail_uuid = $this->get_uuid();
 			$picklistReceivedDetails[] = [
 				'picklist_received_id' => $uuid,
-				'picklist_received_detail_id' => $this->get_uuid(),
+				'picklist_received_detail_id' => $detail_uuid,
 				'sort_order' => $key,
 				'picklist_detail_id' => $item['picklist_detail_id'],
 				'warehouse_id' => $item['warehouse_id'],
@@ -135,6 +141,19 @@ class PicklistReceivedController extends Controller
 				'created_at' => Carbon::now(),
 				'created_by' => $request->login_user_id,
 			];
+
+			if ($product->product_type_id == 2) {
+				$item['unit_id'] = $product->unit_id ?? null;
+				$item['unit_name'] = $product->unit->name ?? null;
+				$item['remarks'] = $product->impa_code . ' ' . $product->name . ' (' . $item['quantity'] ?? 0 . ' ' . $item['unit_name'] . ') Received From Picklist' . $picklist->doument_identity;
+
+				StockLedger::handleStockMovement([
+					'master_model' => new PicklistReceived,
+					'document_id' => $uuid,
+					'document_detail_id' => $detail_uuid,
+					'row' => $item,
+				], 'O');
+			}
 		}
 		PicklistReceivedDetail::insert($picklistReceivedDetails);
 
