@@ -22,6 +22,7 @@ import {
 } from '../../store/features/dispatchSlice';
 import { createIJOPrint } from '../../utils/prints/ijo-print';
 import { createPickListPrint } from '../../utils/prints/pick-list-print';
+import { FaRegFileExcel } from 'react-icons/fa6';
 
 const Dispatch = () => {
   const { RangePicker } = DatePicker;
@@ -30,12 +31,11 @@ const Dispatch = () => {
   const { list, isListLoading, params, paginationInfo, isFormSubmitting } = useSelector(
     (state) => state.dispatch
   );
+  const [tableKey, setTableKey] = useState(0);
 
-  const dispatchData = list || [];
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.dispatch;
 
-  const [dateRange, setDateRange] = useState([null, null]);
   const [notesModalIsOpen, setNotesModalIsOpen] = useState({
     open: false,
     id: null,
@@ -99,14 +99,6 @@ const Dispatch = () => {
       toast.dismiss(loadingToast);
     }
   };
-  {
-    /* 
-
-    I want to make a group of date like if two dates are same so show one add border bottom to last
-    date of that particular group, give me particular changeable code only
-    
-    */
-  }
 
   const columns = [
     {
@@ -144,13 +136,20 @@ const Dispatch = () => {
           <DatePicker
             size="small"
             className="font-normal"
-            // className={`font-normal ${}`}
             format="MM-DD-YYYY"
             disabled={!permissions.update}
             defaultValue={event_date && event_date !== '0000-00-00' ? dayjs(event_date) : null}
-            onChange={(date) =>
-              updateValue(event_id, 'event_date', date ? dayjs(date).format('YYYY-MM-DD') : null)
-            }
+            onChange={async (date) => {
+              await updateValue(
+                event_id,
+                'event_date',
+                date ? dayjs(date).format('YYYY-MM-DD') : null
+              );
+
+              dispatch(getDispatchList(params))
+                .unwrap()
+                .then(() => setTableKey((prev) => prev + 1));
+            }}
           />
         );
       }
@@ -253,13 +252,13 @@ const Dispatch = () => {
       sorter: false,
       width: 200,
       ellipsis: true,
-      render: (_, { event_id, users , technicians  }) => {
+      render: (_, { event_id, users, technicians }) => {
         const selectedValues = technicians
-      ? technicians.map((tech) => ({
-          value: tech.user_id, 
-          label: tech.user_name,
-        }))
-      : [];
+          ? technicians.map((tech) => ({
+              value: tech.user_id,
+              label: tech.user_name
+            }))
+          : [];
         return (
           <AsyncSelect
             endpoint="/user"
@@ -267,12 +266,14 @@ const Dispatch = () => {
             valueKey="user_id"
             labelInValue
             disabled={!permissions.update}
-            defaultValue={
-              selectedValues
-            }
+            defaultValue={selectedValues}
             mode="multiple"
             onChange={(selected) =>
-              updateValue(event_id, 'technician_id', selected ? selected.map((item) => item.value) : null)
+              updateValue(
+                event_id,
+                'technician_id',
+                selected ? selected.map((item) => item.value) : null
+              )
             }
             className="w-full"
             size="small"
@@ -455,41 +456,8 @@ const Dispatch = () => {
     }
   ];
 
-  // const formattedColumns = columns.map((col) => ({
-  //   header: typeof col.title === 'object' ? col.title.props.children[0] : col.title,
-  //   accessor: col.dataIndex
-  // }));
-
-  const extractTextFromHeader = (header) => {
-    // Check if it's a React element with children
-    if (typeof header === 'object' && header !== null && header.props && header.props.children) {
-      const child = header.props.children;
-
-      // If it's a <p> tag inside, return its content
-      if (child?.type === 'p') {
-        return child.props.children;
-      }
-
-      // If <p> is wrapped or deeply nested, handle arrays or nested structure
-      if (Array.isArray(child)) {
-        for (const c of child) {
-          if (c?.type === 'p') return c.props.children;
-        }
-      }
-    }
-
-    // Fallback: return as is
-    return header;
-  };
-
-  const formattedColumns = columns.map((col) => ({
-    header: extractTextFromHeader(col.title || col.header),
-    accessor: col.dataIndex || col.accessor
-  }));
-
   useEffect(() => {
     dispatch(getDispatchList(params)).unwrap().catch(handleError);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params.page,
     params.limit,
@@ -504,19 +472,10 @@ const Dispatch = () => {
     params.start_date,
     params.end_date,
     params.event_time,
-    // params.technician_id,
     debouncedSearch,
     debouncedTechnicianNotes,
     debouncedAgentNotes
   ]);
-
-  const downloadExcel = () => {
-    console.log('downloadExcel');
-  };
-
-  const downloadPDF = () => {
-    console.log('downloadPDF');
-  };
 
   return (
     <>
@@ -554,30 +513,24 @@ const Dispatch = () => {
             />
           </div>
           <div className="flex items-center justify-around gap-3">
-            <div onClick={downloadExcel}>
-              {/* <Button type="primary" className="text-xs sm:text-sm">
-                Excel
-              </Button> */}
-              <Button
-                icon={<TbEdit />}
-                onClick={() => {
-                  console.log('Sample Row:', dispatchData[0]);
-                  console.log('formattedColumns:', dispatchData[0]);
-                  // dispatchExportExcel(dispatchData, formattedColumns);
-                }}>
-                Download Excel
-              </Button>
-            </div>
-            <div onClick={downloadPDF}>
-              {/* <Button className="text-xs sm:text-sm">PDF</Button> */}
-              <Button
-                icon={<FaRegFilePdf />}
-                onClick={() => dispatchExportPdf(dispatchData, formattedColumns)}></Button>
-            </div>
+            <Button
+              type="primary"
+              icon={<FaRegFileExcel size={14} />}
+              className="bg-emerald-800 hover:!bg-emerald-700"
+              onClick={() => {}}>
+              Export
+            </Button>
+            <Button
+              type="primary"
+              icon={<FaRegFilePdf size={14} />}
+              className="bg-rose-600 hover:!bg-rose-500">
+              Print
+            </Button>
           </div>
         </div>
 
         <Table
+          key={tableKey}
           size="small"
           loading={isListLoading}
           className="mt-2"
@@ -594,6 +547,16 @@ const Dispatch = () => {
           columns={columns}
           sticky={{
             offsetHeader: 56
+          }}
+          rowClassName={({ event_date }, index) => {
+            if (index === 0) return;
+
+            const currentElementDate = dayjs(event_date).date();
+            const previousElementDate = dayjs(list[index - 1].event_date).date();
+
+            if (currentElementDate !== previousElementDate) {
+              return 'tr-separate';
+            }
           }}
           onChange={(page, _, sorting) => {
             dispatch(

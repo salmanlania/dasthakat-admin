@@ -64,6 +64,6 @@
   @apply !text-[#000000f0];
 }
 
-.border-bottom-row td {
-  border-bottom: 2px solid #1890ff; /* Change the color/style as needed */
+.tr-separate td {
+  border-top: 2px solid #064f9871 !important;
 }
