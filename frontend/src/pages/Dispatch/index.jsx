@@ -10,9 +10,8 @@ import PageHeading from '../../components/Heading/PageHeading';
 import NotesModal from '../../components/Modals/NotesModal';
 import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
-import { dispatchExportPdf } from '../../utils/prints/dispatchExportPdf';
-import { dispatchExportExcel } from '../../utils/excel/dispatchExportExcel';
-import { Link } from 'react-router-dom';
+import generateDispatchExcel from '../../utils/excel/dispatch-excel.js';
+import createDispatchListPrint from '../../utils/Pdf/dispatch-list.js';
 import {
   getDispatchList,
   getEventJobOrders,
@@ -80,6 +79,33 @@ const Dispatch = () => {
     try {
       const data = await dispatch(getEventJobOrders(id)).unwrap();
       createIJOPrint(data, true); // pass true argument to print multiple IJO's
+    } catch (error) {
+      handleError(error);
+    } finally {
+      toast.dismiss(loadingToast);
+    }
+  };
+
+  const exportExcel = async () => {
+    const loadingToast = toast.loading('Downloading Excel File...');
+
+    try {
+      const data = await dispatch(getDispatchList(params)).unwrap();
+      generateDispatchExcel(data, true);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      toast.dismiss(loadingToast);
+    }
+  };
+
+  const exportPdf = async () => {
+    const loadingToast = toast.loading('Downloading Excel File...');
+
+    try {
+      const data = await dispatch(getDispatchList(params)).unwrap();
+      // createDispatchListPrint(data, true);
+      createDispatchListPrint(Array.isArray(data) ? data : [data], true);
     } catch (error) {
       handleError(error);
     } finally {
@@ -517,13 +543,14 @@ const Dispatch = () => {
               type="primary"
               icon={<FaRegFileExcel size={14} />}
               className="bg-emerald-800 hover:!bg-emerald-700"
-              onClick={() => {}}>
+              onClick={exportExcel}>
               Export
             </Button>
             <Button
               type="primary"
               icon={<FaRegFilePdf size={14} />}
-              className="bg-rose-600 hover:!bg-rose-500">
+              className="bg-rose-600 hover:!bg-rose-500"
+              onClick={exportPdf}>
               Print
             </Button>
           </div>
