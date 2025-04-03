@@ -293,6 +293,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       if (cellIndex === 1) data.cell.styles.cellWidth = 60; // Second column width
       if (cellIndex === 2) data.cell.styles.cellWidth = 52; // Third column width
       if (cellIndex === 3) data.cell.styles.cellWidth = 72; // Fourth column width
+      if (cellIndex === 4) data.cell.styles.cellWidth = 72; // Fourth column width
     }
   });
 
@@ -301,7 +302,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     [
       {
         content: 'Job Scope',
-        colSpan: 4,
+        colSpan: 5,
         styles: {
           textColor: '#ffffff', // white color
           fontSize: 8,
@@ -322,12 +323,12 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
           fillColor: 'ebf1de' // gray color
         }
       },
-      // {
-      //   content: 'SO/DO Number',
-      //   styles: {
-      //     fillColor: 'ebf1de' // gray color
-      //   }
-      // },
+      {
+        content: 'SO/DO Number',
+        styles: {
+          fillColor: 'ebf1de' // gray color
+        }
+      },
       {
         content: 'Memo',
         styles: {
@@ -359,6 +360,12 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         },
         {
           content: detail?.charge_order?.customer_po_no || '',
+          styles: {
+            textColor: '#d51902' // Red Color
+          }
+        },
+        {
+          content: detail?.shipment?.document_identity || '',
           styles: {
             textColor: '#d51902' // Red Color
           }
@@ -405,8 +412,9 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       const cellIndex = data.column.index;
       if (cellIndex === 0) data.cell.styles.cellWidth = 24; // First column width
       if (cellIndex === 1) data.cell.styles.cellWidth = 30; // Second column width
-      if (cellIndex === 2) data.cell.styles.cellWidth = 138; // Third column width
-      if (cellIndex === 3) data.cell.styles.cellWidth = 16; // Fourth column width
+      if (cellIndex === 2) data.cell.styles.cellWidth = 28; // Second column width
+      if (cellIndex === 3) data.cell.styles.cellWidth = 110; // Third column width
+      if (cellIndex === 4) data.cell.styles.cellWidth = 16; // Fourth column width
     }
   });
 
