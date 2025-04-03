@@ -63,7 +63,7 @@ class StockLedger extends Model
                         'company_id'            => $document->company_id,
                         'company_branch_id'     => $document->company_branch_id,
                         'document_type_id'      => $document->document_type_id,
-                        'sort_order'            => $row['sort_order'] ?? 0,
+                        'sort_order'            => $arg['sort_order'] ?? $row['sort_order'] ?? null,
                         'document_id'           => $arg['document_id'],
                         'document_detail_id'    => $arg['document_detail_id'] ?? null,
                         'document_identity'     => $document->document_identity,

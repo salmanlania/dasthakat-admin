@@ -6,8 +6,10 @@ use App\Models\Company;
 use App\Models\DocumentType;
 use App\Models\GRN;
 use App\Models\GRNDetail;
+use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Models\StockLedger;
+use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -136,6 +138,8 @@ class GRNController extends Controller
 
 		if ($request->good_received_note_detail) {
 			foreach ($request->good_received_note_detail as $value) {
+				$product = Product::with('unit')->where('product_id', $value['product_id'])->first();
+				$warehouse = Warehouse::where('warehouse_id', $value['warehouse_id'])->first();
 				$detail_uuid = $this->get_uuid();
 				$insert = [
 					'good_received_note_id' => $insertArr['good_received_note_id'],
@@ -162,6 +166,17 @@ class GRNController extends Controller
 					'created_by' => $request->login_user_id,
 				];
 				if ($value['product_type_id'] == 2) {
+					$value['unit_id'] = $product->unit_id ?? null;
+					$value['unit_name'] = $product->unit->name ?? null;
+					$value['remarks'] = sprintf(
+						"%d %s of %s (Code: %s) added in %s - Document: %s",
+						$value['quantity'] ?? 0,
+						$value['unit_name'] ?? '',
+						$product->name ?? 'Unknown Product',
+						$product->impa_code ?? 'N/A',
+						$warehouse['name'] ?? 'Unknown Warehouse',
+						$document['document_identity'] ?? ''
+					);
 					StockLedger::handleStockMovement([
 						'master_model' => new GRN,
 						'document_id' => $uuid,

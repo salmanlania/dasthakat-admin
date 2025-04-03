@@ -145,9 +145,17 @@ class PicklistReceivedController extends Controller
 			if ($product->product_type_id == 2) {
 				$item['unit_id'] = $product->unit_id ?? null;
 				$item['unit_name'] = $product->unit->name ?? null;
-				$item['remarks'] = $product->impa_code . ' ' . $product->name . ' (' . $item['quantity'] ?? 0 . ' ' . $item['unit_name'] . ') Received From Picklist' . $picklist->doument_identity;
-
+				$value['remarks'] = sprintf(
+					"%d %s of %s (Code: %s) deducted from %s - Document: %s",
+					$value['quantity'] ?? 0,
+					$value['unit_name'] ?? '',
+					$product->name ?? 'Unknown Product',
+					$product->impa_code ?? 'N/A',
+					$warehouse['name'] ?? 'Unknown Warehouse',
+					$picklist->document_identity ?? ''
+				);
 				StockLedger::handleStockMovement([
+					'sort_order' => $key,
 					'master_model' => new PicklistReceived,
 					'document_id' => $uuid,
 					'document_detail_id' => $detail_uuid,
