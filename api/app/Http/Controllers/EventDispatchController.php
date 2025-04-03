@@ -72,7 +72,7 @@ class EventDispatchController extends Controller
 			});
 		}
 
-		$sortColumn = $request->input('sort_column', 'e.created_at');
+		$sortColumn = $request->input('sort_column', 'event_dispatch.event_date');
 		$sortDirection = $request->input('sort_direction') === 'ascend' ? 'asc' : 'desc';
 
 

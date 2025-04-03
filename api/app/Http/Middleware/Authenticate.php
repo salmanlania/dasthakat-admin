@@ -84,6 +84,7 @@ class Authenticate
          $request['permission_list'] = $permission;
          $request['company_id'] = $payload->company_id;
          $request['company_branch_id'] = $payload->company_branch_id;
+         $request['user'] = $exist;
          $request['login_user_id'] = $payload->user_id;
          //  $this->switchToYearlyDatabase( $db_name);
         return $next($request);
