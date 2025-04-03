@@ -213,183 +213,208 @@ class ShipmentController extends Controller
 
 	public function viewBeforeShipment(Request $request)
 	{
+		// Early permission check
 		if (!isPermission('add', 'shipment', $request->permission_list)) {
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		}
 
-		$isError = $this->Validator($request->all());
-		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
-
-		$chargeOrderDetails = ChargeOrderDetail::with('product', 'product_type', 'unit', 'supplier')
-			->whereHas('charge_order', fn($query) => $query->where('event_id', $request->event_id))
-			->whereNull('shipment_detail_id');
-
-		if (!empty($request->charge_order_id)) {
-			$chargeOrderDetails->where('charge_order_id', $request->charge_order_id);
+		// Validate request early
+		$validationErrors = $this->Validator($request->all());
+		if ($validationErrors) {
+			return $this->jsonResponse($validationErrors, 400, "Request Failed!");
 		}
 
-		$chargeOrderDetails->where('product_type_id', $request->type == "DO" ? '!=' : '=', 1);
-		$chargeOrderDetails = $chargeOrderDetails->orderBy('sort_order')->get();
+		try {
+			// Build query with optimized relationships and conditions
+			$query = ChargeOrderDetail::query()
+				->with([
+					'charge_order' => fn($q) => $q->select('charge_order_id', 'document_identity', 'event_id'),
+					'product' => fn($q) => $q->select('product_id', 'name'),
+					'product_type' => fn($q) => $q->select('product_type_id', 'name'),
+					'unit' => fn($q) => $q->select('unit_id', 'name'),
+					'supplier' => fn($q) => $q->select('supplier_id', 'name')
+				])
+				->whereHas('charge_order', fn($q) => $q->where('event_id', $request->event_id))
+				->when($request->charge_order_id, fn($q) => $q->where('charge_order_id', $request->charge_order_id))
+				->where('product_type_id', $request->type === "DO" ? '!=' : '=', 1)
+				->orderBy('sort_order');
+
+			$chargeOrderDetails = $query->get();
+
+			if ($chargeOrderDetails->isEmpty()) {
+				return $this->jsonResponse('No Items Found For Shipment', 404, "No Data Found!");
+			}
+
+			// Use collection methods for transformation
+			$shipmentDetails = $chargeOrderDetails
+				->filter(fn($item) => $this->getShipmentQuantity($item) > 0)
+				->groupBy('charge_order_id')
+				->map(function ($group, $key) {
+					$firstItem = $group->first();
+					return [
+						'charge_order_id' => $key,
+						'document_identity' => $firstItem->charge_order?->document_identity,
+						'details' => $group->map(fn($item) => [
+							'charge_order_detail_id' => $item->charge_order_detail_id,
+							'product_id' => $item->product_id,
+							'product_name' => $item->product?->name ?? $item->product_name,
+							'product_type_id' => $item->product_type_id,
+							'product_type_name' => $item->product_type?->name,
+							'product_description' => $item->product_description,
+							'description' => $item->description,
+							'internal_notes' => $item->internal_notes,
+							'available_quantity' => $this->getShipmentQuantity($item),
+							'quantity' => $item->quantity,
+							'unit_id' => $item->unit_id,
+							'unit_name' => $item->unit?->name,
+							'supplier_id' => $item->supplier_id,
+							'supplier_name' => $item->supplier?->name,
+						])->values()->all()
+					];
+				})->values()->all();
+
+			if (empty($shipmentDetails)) {
+				return $this->jsonResponse('No Items Found For Shipment', 404, "No Data Found!");
+			}
+
+			return $this->jsonResponse($shipmentDetails, 200, "View Shipment Order");
+		} catch (\Exception $e) {
+			// Add proper error handling
+			return $this->jsonResponse('An error occurred while processing the request', 500, $e->getMessage());
+		}
+	}
+
+	public function store(Request $request)
+	{
+		if (!isPermission('add', 'shipment', $request->permission_list)) {
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+		}
+
+		// Validate Request
+		$isError = $this->Validator($request->all());
+		if (!empty($isError)) {
+			return $this->jsonResponse($isError, 400, "Request Failed!");
+		}
+
+		$uuid = $this->get_uuid();
+		$document = DocumentType::getNextDocument(
+			$request->type == "DO" ? $this->DO_document_type_id : $this->SO_document_type_id,
+			$request
+		);
+
+		// Shipment Insert Array
+		$shipmentInsert = [
+			'company_id'        => $request->company_id ?? "",
+			'company_branch_id' => $request->company_branch_id ?? "",
+			'shipment_id'       => $uuid,
+			'document_type_id'  => $document['document_type_id'] ?? "",
+			'document_no'       => $document['document_no'] ?? "",
+			'document_identity' => $document['document_identity'] ?? "",
+			'document_prefix'   => $document['document_prefix'] ?? "",
+			'document_date'     => Carbon::now(),
+			'event_id'          => $request->event_id ?? "",
+			'charge_order_id'   => $request->charge_order_id ?? "",
+			'created_at'        => Carbon::now(),
+			'created_by'        => $request->login_user_id,
+		];
+
+		// Extract charge order details from the request
+		$chargeOrderIds = collect($request->shipment)->pluck('charge_order_id')->unique()->toArray();
+		$chargeOrderDetailIds = collect($request->shipment)->pluck('details')->flatten()->pluck('charge_order_detail_id')->unique()->toArray();
+
+		// Fetch valid charge order details from DB
+		$chargeOrderDetails = ChargeOrderDetail::whereHas('charge_order', function ($query) use ($request, $chargeOrderIds) {
+			$query->where('event_id', $request->event_id)
+				->whereIn('charge_order_id', $chargeOrderIds);
+		})
+			->whereNull('shipment_detail_id') // Ensure it's not already shipped
+			->whereIn('charge_order_detail_id', $chargeOrderDetailIds)
+			->when($request->charge_order_id, fn($query) => $query->where('charge_order_id', $request->charge_order_id))
+			->when($request->type == "DO", fn($query) => $query->where('product_type_id', '!=', 1), fn($query) => $query->where('product_type_id', 1))
+			->orderBy('sort_order')
+			->get();
 
 		if ($chargeOrderDetails->isEmpty()) {
 			return $this->jsonResponse('No Items Found For Shipment', 404, "No Data Found!");
 		}
 
+		// Process Shipment Details
 		$shipmentDetails = [];
-		foreach ($chargeOrderDetails as $value) {
-			$quantity = $this->getShipmentQuantity($value);
-
-
-			if ($quantity > 0) {
-				$shipmentDetails[$value->charge_order_id][] = [
-					'shipment_detail_id' => $value->charge_order_detail_id ?? null,
-					'product_id' => $value->product_id ?? null,
-					'product_name' => $value->product->name ?? $value->product_name ?? null,
-					'product_type_id' => $value->product_type_id ?? null,
-					'product_type_name' => $value->product_type->name ?? null,
-					'product_description' => $value->product_description ?? null,
-					'description' => $value->description ?? null,
-					'internal_notes' => $value->internal_notes ?? null,
-					'quantity' => $quantity,
-					'unit_id' => $value->unit_id ?? null,
-					'unit_name' => $value->unit->name ?? null,
-					'supplier_id' => $value->supplier_id ?? null,
-					'supplier_name' => $value->supplier->name ?? null,
-				];
-			}
+		foreach ($chargeOrderDetails as $index => $detail) {
+			$shipmentDetails[] = [
+				'shipment_id'           => $uuid,
+				'shipment_detail_id'    => $this->get_uuid(),
+				'sort_order'            => $index + 1,
+				'charge_order_id'       => $detail->charge_order_id,
+				'charge_order_detail_id' => $detail->charge_order_detail_id,
+				'product_id'            => $detail->product_id,
+				'product_type_id'       => $detail->product_type_id,
+				'product_name'          => $detail->product_name,
+				'product_description'   => $detail->product_description,
+				'description'           => $detail->description,
+				'internal_notes'        => $detail->internal_notes,
+				'quantity'              => $this->getShipmentQuantity($detail),
+				'unit_id'               => $detail->unit_id,
+				'supplier_id'           => $detail->supplier_id,
+				'created_at'            => Carbon::now(),
+				'created_by'            => $request->login_user_id,
+			];
 		}
 
-		if (empty($shipmentDetails)) {
-			return $this->jsonResponse('No Items Found For Shipment', 404, "No Data Found!");
-		}
-
-		return $this->jsonResponse($shipmentDetails, 200, "View Shipment Order");
-	}
-
-	public function store(Request $request)
-	{
-
-
-		if (!isPermission('add', 'shipment', $request->permission_list))
-			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
-
-		// Validation Rules
-		$isError = $this->Validator($request->all());
-		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
-
-
-
-		$uuid = $this->get_uuid();
-		$document = DocumentType::getNextDocument($request->type == "DO" ? $this->DO_document_type_id : $this->SO_document_type_id, $request);
-		$insertArr = [
-			'company_id' => $request->company_id ?? "",
-			'company_branch_id' => $request->company_branch_id ?? "",
-			'shipment_id' => $uuid,
-			'document_type_id' => $document['document_type_id'] ?? "",
-			'document_no' => $document['document_no'] ?? "",
-			'document_identity' => $document['document_identity'] ?? "",
-			'document_prefix' => $document['document_prefix'] ?? "",
-			'document_date' => Carbon::now(),
-			'event_id' => $request->event_id ?? "",
-			'charge_order_id' => $request->charge_order_id ?? "",
-			'created_at' => Carbon::now(),
-			'created_by' => $request->login_user_id,
-		];
-
-		$chargeOrderIds = array_keys($request->shipment);
-
-
-		$chargeOrderDetails = ChargeOrderDetail::whereHas('charge_order', function ($query) use ($request, $chargeOrderIds) {
-			$query->where('event_id', $request->event_id);
-			$query->whereIn('charge_order_id', $chargeOrderIds);
-		})->where('shipment_detail_id', null);
-		if (!empty($request->charge_order_id)) {
-			$chargeOrderDetails = $chargeOrderDetails->where('charge_order_id', $request->charge_order_id);
-		}
-		if ($request->type == "DO") {
-			$chargeOrderDetails = $chargeOrderDetails->where('product_type_id', '!=', 1);
-		} else {
-			$chargeOrderDetails = $chargeOrderDetails->where('product_type_id', 1);
-		}
-
-		$chargeOrderDetails = $chargeOrderDetails->orderBy('sort_order')->get();
-
-		if ($chargeOrderDetails->isEmpty()) return $this->jsonResponse('No Items Found For Shipment', 404, "No Data Found!");
-
-
-		$shipmentDetails = [];
-		foreach ($chargeOrderDetails as $key => $value) {
-			if ($request->shipment[$value->charge_order_id]['product_id'] != $value->product_id) {
-				continue;
-			}
-			$quantity = $this->getShipmentQuantity($value);
-
-			if ($quantity > 0) {
-				$shipmentDetails[] = [
-					'shipment_id' => $uuid,
-					'shipment_detail_id' => $this->get_uuid(),
-					'sort_order' => $key + 1,
-					'charge_order_id' => $value->charge_order_id ?? null,
-					'charge_order_detail_id' => $value->charge_order_detail_id ?? null,
-					'product_id' => $value->product_id ?? null,
-					'product_type_id' => $value->product_type_id ?? null,
-					'product_name' => $value->product_name ?? null,
-					'product_description' => $value->product_description ?? null,
-					'description' => $value->description ?? null,
-					'internal_notes' => $value->internal_notes ?? null,
-					'quantity' => $quantity,
-					'unit_id' => $value->unit_id ?? null,
-					'supplier_id' => $value->supplier_id ?? null,
-					'created_at' => Carbon::now(),
-					'created_by' => $request->login_user_id,
-				];
-			}
-		}
 		if (empty($shipmentDetails)) {
 			return $this->jsonResponse('No Valid Shipment Details Found', 404, "No Data Found!");
 		}
-		Shipment::create($insertArr);
-		foreach ($shipmentDetails as $detail) {
-			ShipmentDetail::create($detail);
-			ChargeOrderDetail::where('charge_order_detail_id', $detail['charge_order_detail_id'])
-				->update(['shipment_id' => $detail['shipment_id'], 'shipment_detail_id' => $detail['shipment_detail_id']]);
-		}
 
+		// Insert Shipment & Details (Batch Insert for Performance)
+		Shipment::create($shipmentInsert);
+		ShipmentDetail::insert($shipmentDetails);
+
+		// Update `ChargeOrderDetail` with Shipment Info
+		ChargeOrderDetail::whereIn('charge_order_detail_id', $chargeOrderDetailIds)
+			->update([
+				'shipment_id' => $uuid,
+				'shipment_detail_id' => $this->get_uuid()
+			]);
 
 		return $this->jsonResponse(['shipment_id' => $uuid], 200, "Create Shipment Order Successfully!");
 	}
+
 
 	/**
 	 * Get shipment quantity based on product type.
 	 */
 	private function getShipmentQuantity($chargeOrderDetail)
 	{
-		return match ($chargeOrderDetail->product_type_id) {
-			1 => ServicelistReceivedDetail::join('servicelist_received', 'servicelist_received_detail.servicelist_received_id', '=', 'servicelist_received.servicelist_received_id')
+		if ($chargeOrderDetail->product_type_id == 1) {
+			$quantity = ServicelistReceivedDetail::join('servicelist_received', 'servicelist_received_detail.servicelist_received_id', '=', 'servicelist_received.servicelist_received_id')
 				->join('servicelist', 'servicelist_received.servicelist_id', '=', 'servicelist.servicelist_id')
 				->where('servicelist.charge_order_id', $chargeOrderDetail->charge_order_id)
 				->where('servicelist_received_detail.product_id', $chargeOrderDetail->product_id)
-				->sum('servicelist_received_detail.quantity'),
-
-			2 => PicklistReceivedDetail::join('picklist_received', 'picklist_received_detail.picklist_received_id', '=', 'picklist_received.picklist_received_id')
+				->sum('servicelist_received_detail.quantity');
+		} else
+		if ($chargeOrderDetail->product_type_id == 2) {
+			$quantity = PicklistReceivedDetail::join('picklist_received', 'picklist_received_detail.picklist_received_id', '=', 'picklist_received.picklist_received_id')
 				->join('picklist', 'picklist_received.picklist_id', '=', 'picklist.picklist_id')
 				->where('picklist.charge_order_id', $chargeOrderDetail->charge_order_id)
 				->where('picklist_received_detail.product_id', $chargeOrderDetail->product_id)
-				->sum('picklist_received_detail.quantity'),
-
-			3, 4 => GRNDetail::join('purchase_order_detail as pod', 'good_received_note_detail.purchase_order_detail_id', '=', 'pod.purchase_order_detail_id')
+				->sum('picklist_received_detail.quantity');
+		} else
+		if ($chargeOrderDetail->product_type_id == 3 || $chargeOrderDetail->product_type_id == 4) {
+			$quantity = GRNDetail::join('purchase_order_detail as pod', 'good_received_note_detail.purchase_order_detail_id', '=', 'pod.purchase_order_detail_id')
 				->join('purchase_order as po', 'pod.purchase_order_id', '=', 'po.purchase_order_id')
-				->where('po.charge_order_id', $chargeOrderDetail->charge_order_id)
-				->when(
-					$chargeOrderDetail->product_type_id == 4,
-					fn($q) => $q->where('good_received_note_detail.product_name', $chargeOrderDetail->product_name),
-					fn($q) => $q->where('good_received_note_detail.product_id', $chargeOrderDetail->product_id)
-				)
-				->sum('good_received_note_detail.quantity'),
+				->where('po.charge_order_id', $chargeOrderDetail->charge_order_id);
 
-			default => 0
-		};
+			if ($chargeOrderDetail->product_type_id == 4) {
+				$quantity->where('good_received_note_detail.product_name', $chargeOrderDetail->product_name);
+			} else {
+				$quantity->where('good_received_note_detail.product_id', $chargeOrderDetail->product_id);
+			}
+
+			$quantity = $quantity->sum('good_received_note_detail.quantity');
+		}
+		return $quantity;
 	}
+
 
 	public function delete($id, Request $request)
 	{
