@@ -1,4 +1,15 @@
-import { Breadcrumb, Button, Form, Input, Popconfirm, Table, Tooltip } from 'antd';
+import {
+  Breadcrumb,
+  Button,
+  Checkbox,
+  Form,
+  Input,
+  Modal,
+  Popconfirm,
+  Spin,
+  Table,
+  Tooltip
+} from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -17,36 +28,10 @@ import {
   deleteShipment,
   getShipmentList,
   setShipmentDeleteIDs,
-  setShipmentListParams
+  setShipmentListParams,
+  viewBeforeCreate
 } from '../../store/features/shipmentSlice.js';
 import { getChargeOrder } from '../../store/features/chargeOrderSlice.js';
-
-const DUMMY_LIST = [
-  {
-    shipment_id: 1,
-    document_identity: '1/SH-0001',
-    event_code: '0001',
-    salesman_name: 'Wajid Ali',
-    vessel_name: 'Ameen Agha',
-    imo: '4567',
-    flag_name: 'Flag 1',
-    class1_name: 'Class 1',
-    class2_name: 'Class 2',
-    created_at: dayjs()
-  },
-  {
-    shipment_id: 2,
-    document_identity: '2/SH-0002',
-    event_code: '0002',
-    salesman_name: 'Rayan Ali',
-    vessel_name: 'Sami Khan',
-    imo: '9787',
-    flag_name: 'Flag 2',
-    class1_name: 'Class 3',
-    class2_name: 'Class 4',
-    created_at: dayjs()
-  }
-];
 
 const Shipment = () => {
   const [form] = Form.useForm();
@@ -67,6 +52,16 @@ const Shipment = () => {
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
+
+  const [createModalIsOpen, setCreateModalIsOpen] = useState(null);
+
+  const [chargeData, setChargeData] = useState(null);
+  const [chargeDataGetting, setChargeDataGetting] = useState(false);
+
+  const closeCreateModal = () => {
+    setCreateModalIsOpen(null);
+    setChargeData(null);
+  };
 
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedCode = useDebounce(params.document_identity, 500);
@@ -95,6 +90,29 @@ const Shipment = () => {
     }
   };
 
+  const openCreateModal = async () => {
+    const isValidForm = await form.validateFields();
+    if (!isValidForm) return;
+
+    try {
+      setChargeDataGetting(true);
+      setCreateModalIsOpen(true);
+      const values = form.getFieldsValue();
+      const res = await dispatch(
+        viewBeforeCreate({
+          event_id: values.event_id.value,
+          charge_order_id: values?.charge_order_id?.value || null,
+          type: 'DO'
+        })
+      ).unwrap();
+      setChargeData(res);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setChargeDataGetting(false);
+    }
+  };
+
   const onShipmentCreate = async (type) => {
     const isValidForm = await form.validateFields();
     if (!isValidForm) return;
@@ -110,6 +128,33 @@ const Shipment = () => {
       ).unwrap();
       toast.success('Shipment created successfully');
       form.resetFields();
+      dispatch(getShipmentList(params)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const onDoShipmentCreate = async () => {
+    const filteredChargeData = chargeData
+      .map((charge) => ({
+        ...charge,
+        details: charge.details.filter((detail) => detail.checked) // Keep only checked products
+      }))
+      .filter((charge) => charge.details.length > 0);
+
+    try {
+      const values = form.getFieldsValue();
+      await dispatch(
+        createShipment({
+          event_id: values.event_id.value,
+          charge_order_id: values?.charge_order_id?.value || null,
+          type: 'DO',
+          shipment: filteredChargeData
+        })
+      ).unwrap();
+      toast.success('Shipment created successfully');
+      form.resetFields();
+      closeCreateModal();
       dispatch(getShipmentList(params)).unwrap();
     } catch (error) {
       handleError(error);
@@ -134,6 +179,55 @@ const Shipment = () => {
     } catch (error) {
       handleError(error);
     }
+  };
+
+  const onProductCheck = (chargeId, chargeDetailId) => {
+    console.log(chargeId, chargeDetailId);
+
+    const updatedChargeData = chargeData.map((charge) => {
+      if (charge.charge_order_id === chargeId) {
+        return {
+          ...charge,
+          details: charge.details.map((detail) => {
+            if (detail.charge_order_detail_id === chargeDetailId) {
+              return {
+                ...detail,
+                checked: detail.checked ? false : true
+              };
+            }
+            return detail;
+          })
+        };
+      }
+      return charge;
+    });
+
+    setChargeData(updatedChargeData); // Assuming setChargeData is your state updater
+  };
+
+  const onChargeCheck = (chargeId) => {
+    const updatedChargeData = chargeData.map((charge) => {
+      if (charge.charge_order_id === chargeId) {
+        // Check if all items are already checked
+        const allChecked = charge.details.every((detail) => detail.checked);
+
+        return {
+          ...charge,
+          details: charge.details.map((detail) => ({
+            ...detail,
+            checked: !allChecked // Toggle all to the opposite state
+          }))
+        };
+      }
+      return charge;
+    });
+
+    setChargeData(updatedChargeData); // Assuming setChargeData is your state updater
+  };
+
+  const isAllChargeChecked = (chargeId) => {
+    const charge = chargeData.find((charge) => charge.charge_order_id === chargeId);
+    return charge ? charge.details.every((detail) => detail.checked) : false;
   };
 
   const columns = [
@@ -377,7 +471,6 @@ const Shipment = () => {
           requiredMark="optional"
           name="shipment-list"
           form={form}
-          onFinish={onShipmentCreate}
           className="mb-2 flex items-end gap-4 rounded-md border border-slate-200 bg-slate-50 p-4">
           <Form.Item name="event_id" className="m-0 w-48" required label="Event">
             <AsyncSelect
@@ -411,7 +504,7 @@ const Shipment = () => {
             className="mb-[1px] w-28"
             disabled={!eventId}
             loading={isFormSubmitting === 'DO'}
-            onClick={() => onShipmentCreate('DO')}>
+            onClick={openCreateModal}>
             Create DO
           </Button>
         </Form>
@@ -481,6 +574,53 @@ const Shipment = () => {
           }}
         />
       </div>
+
+      <Modal open={createModalIsOpen} onCancel={closeCreateModal} footer={null} title="Create DO">
+        {chargeDataGetting && (
+          <div className="flex justify-center py-24">
+            <Spin />
+          </div>
+        )}
+
+        {!chargeDataGetting && chargeData ? (
+          <div className="mt-6">
+            {chargeData.map((charge) => (
+              <div className="relative rounded border p-2 pt-6" key={charge.charge_order_id}>
+                <div
+                  className="absolute -top-4 left-2 cursor-pointer rounded border bg-white p-1 px-2"
+                  onClick={() => onChargeCheck(charge.charge_order_id)}>
+                  <Checkbox checked={isAllChargeChecked(charge.charge_order_id)} />
+                  <span className="ml-2">{charge.document_identity}</span>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  {charge.details?.map((detail) => (
+                    <div
+                      className="flex cursor-pointer justify-between rounded border bg-white p-1 px-2"
+                      key={detail.charge_order_detail_id}
+                      onClick={() =>
+                        onProductCheck(charge.charge_order_id, detail.charge_order_detail_id)
+                      }>
+                      <div>
+                        <Checkbox checked={detail.checked ? true : false} />
+                        <span className="ml-2">{detail.product_description}</span>
+                      </div>
+                      <span className="ml-2">{parseFloat(detail?.available_quantity || 0)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            <div className="mt-4 flex justify-end gap-2">
+              <Button onClick={closeCreateModal}>Cancel</Button>
+              <Button type="primary" onClick={onDoShipmentCreate} loading={isFormSubmitting}>
+                Create
+              </Button>
+            </div>
+          </div>
+        ) : null}
+      </Modal>
 
       <DeleteConfirmModal
         open={deleteModalIsOpen ? true : false}

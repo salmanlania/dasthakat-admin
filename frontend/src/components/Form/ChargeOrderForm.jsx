@@ -37,7 +37,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues, chargeOrderDetails } = useSelector(
     (state) => state.chargeOrder
   );
-  
+
   const { poChargeID } = useSelector((state) => state.purchaseOrder);
 
   const [searchParams] = useSearchParams();
@@ -1001,7 +1001,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
               labelKey="user_name"
               mode="multiple"
               labelInValue
-              addNewLink={permissions.agent.add && permissions.agent.list ? '/user' : null}
+              addNewLink={permissions.user.add ? '/user/create' : null}
             />
           </Form.Item>
         </Col>

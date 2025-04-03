@@ -60,8 +60,12 @@ class PermissionController extends Controller
         $userGroup->permission = json_decode($userGroup->permission);
 
         $arrPermissions = [];
-        foreach ($controls as $permission) {
+        $is_admin = (bool)$request['user']['super_admin'];
 
+        foreach ($controls as $permission) {
+            if (($permission->form_name == 'Company' || $permission->form_name == 'Company Branch') && !$is_admin) {
+                continue;
+            }
             $module_name = $permission->module_name;
             $form_name = $permission->form_name;
             $control_access_id = $permission->control_access_id;
