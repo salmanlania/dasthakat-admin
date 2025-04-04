@@ -1,6 +1,6 @@
 import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useEffect, useState , useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { GoTrash } from 'react-icons/go';
 import { IoCheckmarkDoneCircleSharp } from 'react-icons/io5';
@@ -44,6 +44,47 @@ const ChargeOrder = () => {
     ...params,
     document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null
   };
+
+  const groupedData = useMemo(() => {
+    if (!list || !list.length) return []; 
+
+    const result = [];
+    const groupedByEvent = {};
+
+    // Group data by event
+    list.forEach((item) => {
+      const eventCode = item.event_code || 'No Event';
+
+      if (!groupedByEvent[eventCode]) {
+        groupedByEvent[eventCode] = [];
+      }
+
+      groupedByEvent[eventCode].push(item);
+    });
+
+    // Convert to array with header rows
+    Object.keys(groupedByEvent)
+      .sort((a, b) => {
+        if (a === 'No Event') return 1;
+        if (b === 'No Event') return -1;
+        return a.localeCompare(b);
+      })
+      .forEach((eventCode) => {
+        // Add header row
+        result.push({
+          isEventHeader: true,
+          event_code: eventCode,
+          charge_order_id: `header-${eventCode}`
+        });
+
+        // Add data rows
+        groupedByEvent[eventCode].forEach((item) => {
+          result.push(item);
+        });
+      });
+
+    return result;
+  }, [list]);
 
   const onChargeOrderDelete = async (id) => {
     try {
@@ -224,7 +265,11 @@ const ChargeOrder = () => {
       key: 'event_code',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
+      render: (text, record) => {
+        if (record.isEventHeader) return null;
+        return text;
+      }
     },
     {
       title: 'Created At',
@@ -342,13 +387,20 @@ const ChargeOrder = () => {
               ? {
                   type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setChargeOrderDeleteIDs(selectedRowKeys))
+                  onChange: (selectedRowKeys) => dispatch(setChargeOrderDeleteIDs(selectedRowKeys)),
+                  getCheckboxProps: (record) => ({
+                    disabled: record.isEventHeader,
+                    name: record.charge_order_id,
+                  }),
                 }
               : null
           }
           loading={isListLoading}
-          className="mt-2"
-          rowKey="charge_order_id"
+          className="event-grouped-table mt-2"
+          // rowKey="charge_order_id"
+          rowKey={(record) =>
+            record.isEventHeader ? record.charge_order_id : record.charge_order_id
+          }
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
@@ -361,16 +413,42 @@ const ChargeOrder = () => {
               setChargeOrderListParams({
                 page: page.current,
                 limit: page.pageSize,
-                sort_column: sorting.field,
-                sort_direction: sorting.order
+                sort_column: sorting.field || params.sort_column,
+                sort_direction: sorting.order || params.sort_direction
               })
             );
           }}
-          dataSource={list}
+          // dataSource={list}
+          dataSource={groupedData}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
             offsetHeader: 56
+          }}
+          onRow={(record) => {
+            return {
+              className: record.isEventHeader ? 'event-header-row' : ''
+            };
+          }}
+          components={{
+            body: {
+              row: (props) => {
+                const { children, className, ...restProps } = props;
+
+                if (className && className.includes('event-header-row')) {
+                  const eventCode = props['data-row-key'].replace('header-', '');
+                  return (
+                    <tr {...restProps} className="event-header-row bg-[#fafafa] font-bold">
+                      <td colSpan={columns.length + (permissions.delete ? 1 : 0)} className="text-md px-4 py-2 text-[#285198]">
+                        {eventCode !== 'No Event' ? `Event: ${eventCode}` : 'No Event Assigned'}
+                      </td>
+                    </tr>
+                  );
+                }
+
+                return <tr {...props} />;
+              }
+            }
           }}
         />
       </div>
