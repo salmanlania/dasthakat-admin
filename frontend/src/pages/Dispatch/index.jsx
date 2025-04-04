@@ -68,11 +68,6 @@ const Dispatch = () => {
 
     // Convert to array with header rows
     Object.keys(groupedByDate)
-      .sort((a, b) => {
-        if (a === 'No Date') return 1;
-        if (b === 'No Date') return -1;
-        return dayjs(b, 'MM-DD-YYYY').valueOf() - dayjs(a, 'MM-DD-YYYY').valueOf();
-      })
       .forEach((date) => {
         // Add header row
         result.push({
