@@ -56,7 +56,7 @@ const Dispatch = () => {
     list.forEach((item) => {
       const eventDate =
         item.event_date && item.event_date !== '0000-00-00'
-          ? dayjs(item.event_date).format('MM/DD/YYYY')
+          ? dayjs(item.event_date).format('MM-DD-YYYY')
           : 'No Date';
 
       if (!groupedByDate[eventDate]) {
@@ -71,7 +71,7 @@ const Dispatch = () => {
       .sort((a, b) => {
         if (a === 'No Date') return 1;
         if (b === 'No Date') return -1;
-        return dayjs(b, 'MM/DD/YYYY').valueOf() - dayjs(a, 'MM/DD/YYYY').valueOf();
+        return dayjs(b, 'MM-DD-YYYY').valueOf() - dayjs(a, 'MM-DD-YYYY').valueOf();
       })
       .forEach((date) => {
         // Add header row
@@ -198,13 +198,18 @@ const Dispatch = () => {
       ),
       dataIndex: 'event_date',
       key: 'event_date',
-      sorter: true,
+      // sorter: true,
+      sorter: (a, b) => {
+        if (a.isDateHeader || b.isDateHeader) return 0;
+        const aDate = a.event_date ? dayjs(a.event_date) : dayjs(0);
+        const bDate = b.event_date ? dayjs(b.event_date) : dayjs(0);
+        return aDate - bDate;
+      },
       width: 150,
       ellipsis: true,
-      // render: (_, { event_id, event_date }) => {
       render: (text, record) => {
         if (record.isDateHeader) {
-          return null; // The date header is handled in the customRow
+          return null;
         }
         return (
           <DatePicker
@@ -642,8 +647,8 @@ const Dispatch = () => {
                   const dateValue = props['data-row-key'].replace('header-', '');
                   return (
                     <tr {...restProps} className="date-header-row bg-[#fafafa] font-bold" >
-                      <td colSpan={columns.length} className="px-4 py-2 text-md">
-                        {dateValue !== 'No Date' ? `Date - ${dateValue}` : 'Date - Empty'}
+                      <td colSpan={columns.length} className="px-4 py-2 text-md text-[#285198]">
+                        {dateValue !== 'No Date' ? `Date: ${dayjs(dateValue).format('MM-DD-YYYY')}` : 'Date: Empty'}
                       </td>
                     </tr>
                   );
