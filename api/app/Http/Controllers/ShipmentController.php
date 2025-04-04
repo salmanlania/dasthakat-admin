@@ -234,6 +234,7 @@ class ShipmentController extends Controller
 					'unit' => fn($q) => $q->select('unit_id', 'name'),
 					'supplier' => fn($q) => $q->select('supplier_id', 'name')
 				])
+				->whereNull('shipment_detail_id')
 				->whereHas('charge_order', fn($q) => $q->where('event_id', $request->event_id))
 				->when($request->charge_order_id, fn($q) => $q->where('charge_order_id', $request->charge_order_id))
 				->where('product_type_id', $request->type === "DO" ? '!=' : '=', 1)
@@ -320,7 +321,8 @@ class ShipmentController extends Controller
 
 		// Extract charge order details from the request
 		$chargeOrderIds = collect($request->shipment)->pluck('charge_order_id')->unique()->toArray();
-		$chargeOrderDetailIds = collect($request->shipment)->pluck('details')->flatten()->pluck('charge_order_detail_id')->unique()->toArray();
+		$chargeOrderDetailIds = collect($request->shipment)->pluck('details')->flatten(1)->pluck('charge_order_detail_id')->unique()->values()->toArray();
+		// return $this->jsonResponse([$chargeOrderIds,$chargeOrderDetailIds], 404, "No Data Found!");
 
 		// Fetch valid charge order details from DB
 		$chargeOrderDetails = ChargeOrderDetail::whereHas('charge_order', function ($query) use ($request, $chargeOrderIds) {
@@ -329,7 +331,7 @@ class ShipmentController extends Controller
 		})
 			->whereNull('shipment_detail_id') // Ensure it's not already shipped
 			->whereIn('charge_order_detail_id', $chargeOrderDetailIds)
-			->when($request->charge_order_id, fn($query) => $query->where('charge_order_id', $request->charge_order_id))
+			// ->when($request->charge_order_id, fn($query) => $query->where('charge_order_id', $request->charge_order_id))
 			->when($request->type == "DO", fn($query) => $query->where('product_type_id', '!=', 1), fn($query) => $query->where('product_type_id', 1))
 			->orderBy('sort_order')
 			->get();

@@ -1,6 +1,6 @@
 import { Breadcrumb, Button, DatePicker, Input, Select, Table, TimePicker, Tooltip } from 'antd';
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo} from 'react';
 import toast from 'react-hot-toast';
 import { FaRegFilePdf } from 'react-icons/fa';
 import { TbEdit } from 'react-icons/tb';
@@ -45,6 +45,50 @@ const Dispatch = () => {
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedTechnicianNotes = useDebounce(params.technician_notes, 500);
   const debouncedAgentNotes = useDebounce(params.agent_notes, 500);
+
+  const groupedData = useMemo(() => {
+    if (!list || !list.length) return [];
+
+    const result = [];
+    const groupedByDate = {};
+
+    // Group data by formatted date
+    list.forEach((item) => {
+      const eventDate =
+        item.event_date && item.event_date !== '0000-00-00'
+          ? dayjs(item.event_date).format('MM/DD/YYYY')
+          : 'No Date';
+
+      if (!groupedByDate[eventDate]) {
+        groupedByDate[eventDate] = [];
+      }
+
+      groupedByDate[eventDate].push(item);
+    });
+
+    // Convert to array with header rows
+    Object.keys(groupedByDate)
+      .sort((a, b) => {
+        if (a === 'No Date') return 1;
+        if (b === 'No Date') return -1;
+        return dayjs(b, 'MM/DD/YYYY').valueOf() - dayjs(a, 'MM/DD/YYYY').valueOf();
+      })
+      .forEach((date) => {
+        // Add header row
+        result.push({
+          isDateHeader: true,
+          event_date: date,
+          event_id: `header-${date}`
+        });
+
+        // Add data rows
+        groupedByDate[date].forEach((item) => {
+          result.push(item);
+        });
+      });
+
+    return result;
+  }, [list]);
 
   const closeNotesModal = () => {
     setNotesModalIsOpen({ open: false, id: null, column: null, notes: null });
@@ -100,7 +144,7 @@ const Dispatch = () => {
   };
 
   const exportPdf = async () => {
-    const loadingToast = toast.loading('Downloading Excel File...');
+    const loadingToast = toast.loading('loading Print View...');
 
     try {
       const data = await dispatch(getDispatchList(params)).unwrap();
@@ -157,17 +201,22 @@ const Dispatch = () => {
       sorter: true,
       width: 150,
       ellipsis: true,
-      render: (_, { event_id, event_date }) => {
+      // render: (_, { event_id, event_date }) => {
+      render: (text, record) => {
+        if (record.isDateHeader) {
+          return null; // The date header is handled in the customRow
+        }
         return (
           <DatePicker
             size="small"
             className="font-normal"
             format="MM-DD-YYYY"
             disabled={!permissions.update}
-            defaultValue={event_date && event_date !== '0000-00-00' ? dayjs(event_date) : null}
+            defaultValue={record.event_date && record.event_date !== '0000-00-00' ? dayjs(record.event_date) : null}
             onChange={async (date) => {
               await updateValue(
-                event_id,
+                // event_id,
+                record.event_id,
                 'event_date',
                 date ? dayjs(date).format('YYYY-MM-DD') : null
               );
@@ -561,7 +610,11 @@ const Dispatch = () => {
           size="small"
           loading={isListLoading}
           className="mt-2"
-          rowKey={(record) => `${record.event_id}-${record.job_order_id}`}
+          rowKey={(record) =>
+            record.isDateHeader
+              ? `header-${record.event_date}`
+              : `${record.event_id}-${record.job_order_id}`
+          }
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
@@ -569,20 +622,35 @@ const Dispatch = () => {
             current: params.page,
             showTotal: (total) => `Total ${total} scheduling`
           }}
-          dataSource={list}
+          dataSource={groupedData}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
             offsetHeader: 56
           }}
-          rowClassName={({ event_date }, index) => {
-            if (index === 0) return;
+          onRow={(record) => {
+            return {
+              className: record.isDateHeader ? 'date-header-row' : ''
+            };
+          }}
+          components={{
+            body: {
+              row: (props) => {
+                const { children, className, ...restProps } = props;
 
-            const currentElementDate = dayjs(event_date).date();
-            const previousElementDate = dayjs(list[index - 1].event_date).date();
+                if (className && className.includes('date-header-row')) {
+                  const dateValue = props['data-row-key'].replace('header-', '');
+                  return (
+                    <tr {...restProps} className="date-header-row bg-[#fafafa] font-bold" >
+                      <td colSpan={columns.length} className="px-4 py-2 text-md">
+                        {dateValue !== 'No Date' ? `Date - ${dateValue}` : 'Date - Empty'}
+                      </td>
+                    </tr>
+                  );
+                }
 
-            if (currentElementDate !== previousElementDate) {
-              return 'tr-separate';
+                return <tr {...props} />;
+              }
             }
           }}
           onChange={(page, _, sorting) => {
@@ -607,6 +675,22 @@ const Dispatch = () => {
         onSubmit={onNotesSave}
         disabled={!permissions.update}
       />
+      <style>{`
+        :global(.date-header-row) {
+          background-color: #f3f4f6;
+          font-weight: bold;
+        }
+
+        :global(.date-header-row td) {
+          padding: 8px 16px;
+          font-size: 16px;
+          border-bottom: 1px solid #d1d5db;
+        }
+
+        :global(.date-grouped-table .ant-table-tbody > tr.date-header-row:hover > td) {
+          background-color: #f3f4f6 !important;
+        }
+      `}</style>
     </>
   );
 };
