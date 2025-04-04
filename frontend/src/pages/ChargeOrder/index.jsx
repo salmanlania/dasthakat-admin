@@ -64,11 +64,6 @@ const ChargeOrder = () => {
 
     // Convert to array with header rows
     Object.keys(groupedByEvent)
-      .sort((a, b) => {
-        if (a === 'No Event') return 1;
-        if (b === 'No Event') return -1;
-        return a.localeCompare(b);
-      })
       .forEach((eventCode) => {
         // Add header row
         result.push({
