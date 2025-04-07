@@ -103,7 +103,7 @@ const Shipment = lazy(() => import('./pages/Shipment'));
 const CreateShipment = lazy(() => import('./pages/Shipment/CreateShipment'));
 const EditShipment = lazy(() => import('./pages/Shipment/EditShipment'));
 
-const Dispatch = lazy(() => import('./pages/Dispatch'));
+const Scheduling = lazy(() => import('./pages/Scheduling/'));
 
 function Routes() {
   const router = createBrowserRouter(
@@ -678,7 +678,7 @@ function Routes() {
             path: '/scheduling',
             element: (
               <Suspense fallback={<PageLoader />}>
-                <Dispatch />
+                <Scheduling />
               </Suspense>
             )
           }
@@ -706,8 +706,8 @@ function Routes() {
       }
     ],
     {
-      basename: `${import.meta.env.VITE_BASE_URL}`
-    }
+      basename: `${import.meta.env.VITE_BASE_URL}`,
+    },
   );
 
   return <RouterProvider router={router} />;

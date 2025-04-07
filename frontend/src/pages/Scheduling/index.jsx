@@ -1,29 +1,29 @@
 import { Breadcrumb, Button, DatePicker, Input, Select, Table, TimePicker, Tooltip } from 'antd';
 import dayjs from 'dayjs';
-import { useEffect, useState, useMemo} from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { FaRegFilePdf } from 'react-icons/fa';
 import { TbEdit } from 'react-icons/tb';
 import { useDispatch, useSelector } from 'react-redux';
-import AsyncSelect from '../../components/AsyncSelect';
-import PageHeading from '../../components/Heading/PageHeading';
-import NotesModal from '../../components/Modals/NotesModal';
-import useDebounce from '../../hooks/useDebounce';
-import useError from '../../hooks/useError';
-import generateDispatchExcel from '../../utils/excel/dispatch-excel.js';
-import createDispatchListPrint from '../../utils/Pdf/dispatch-list.js';
+import AsyncSelect from '../../components/AsyncSelect/index.jsx';
+import PageHeading from '../../components/Heading/PageHeading.jsx';
+import NotesModal from '../../components/Modals/NotesModal.jsx';
+import useDebounce from '../../hooks/useDebounce.js';
+import useError from '../../hooks/useError.jsx';
+import generateSchedulingExcel from '../../utils/excel/scheduling-excel.js';
+import createSchedulingListPrint from '../../utils/Pdf/scheduling-list.js';
 import {
   getDispatchList,
   getEventJobOrders,
   getEventPickLists,
   setDispatchListParams,
   updateDispatch
-} from '../../store/features/dispatchSlice';
-import { createIJOPrint } from '../../utils/prints/ijo-print';
-import { createPickListPrint } from '../../utils/prints/pick-list-print';
+} from '../../store/features/dispatchSlice.js';
+import { createIJOPrint } from '../../utils/prints/ijo-print.js';
+import { createPickListPrint } from '../../utils/prints/pick-list-print.js';
 import { FaRegFileExcel } from 'react-icons/fa6';
 
-const Dispatch = () => {
+const Scheduling = () => {
   const { RangePicker } = DatePicker;
   const dispatch = useDispatch();
   const handleError = useError();
@@ -67,20 +67,19 @@ const Dispatch = () => {
     });
 
     // Convert to array with header rows
-    Object.keys(groupedByDate)
-      .forEach((date) => {
-        // Add header row
-        result.push({
-          isDateHeader: true,
-          event_date: date,
-          event_id: `header-${date}`
-        });
-
-        // Add data rows
-        groupedByDate[date].forEach((item) => {
-          result.push(item);
-        });
+    Object.keys(groupedByDate).forEach((date) => {
+      // Add header row
+      result.push({
+        isDateHeader: true,
+        event_date: date,
+        event_id: `header-${date}`
       });
+
+      // Add data rows
+      groupedByDate[date].forEach((item) => {
+        result.push(item);
+      });
+    });
 
     return result;
   }, [list]);
@@ -97,6 +96,8 @@ const Dispatch = () => {
           data: { [key]: value }
         })
       ).unwrap();
+      dispatch(getDispatchList(params)).unwrap();
+      setTableKey((prev) => prev + 1);
     } catch (error) {
       handleError(error);
     }
@@ -129,8 +130,22 @@ const Dispatch = () => {
     const loadingToast = toast.loading('Downloading Excel File...');
 
     try {
-      const data = await dispatch(getDispatchList(params)).unwrap();
-      generateDispatchExcel(data, true);
+      const exportParams = {
+        ...params,
+        start_date: null,
+        end_date: null,
+        event_date: null,
+        search: null,
+      };
+
+      dispatch(setDispatchListParams({
+        search: '',
+        start_date: null,
+        end_date: null
+      }));
+
+      const data = await dispatch(getDispatchList(exportParams)).unwrap();
+      generateSchedulingExcel(data, true);
     } catch (error) {
       handleError(error);
     } finally {
@@ -142,9 +157,22 @@ const Dispatch = () => {
     const loadingToast = toast.loading('loading Print View...');
 
     try {
-      const data = await dispatch(getDispatchList(params)).unwrap();
-      // createDispatchListPrint(data, true);
-      createDispatchListPrint(Array.isArray(data) ? data : [data], true);
+      const exportParams = {
+        ...params,
+        start_date: null,
+        end_date: null,
+        event_date: null,
+        search: null,
+      };
+
+      dispatch(setDispatchListParams({
+        search: '',
+        start_date: null,
+        end_date: null
+      }));
+
+      const data = await dispatch(getDispatchList(exportParams)).unwrap();
+      createSchedulingListPrint(Array.isArray(data) ? data : [data], true);
     } catch (error) {
       handleError(error);
     } finally {
@@ -212,7 +240,11 @@ const Dispatch = () => {
             className="font-normal"
             format="MM-DD-YYYY"
             disabled={!permissions.update}
-            defaultValue={record.event_date && record.event_date !== '0000-00-00' ? dayjs(record.event_date) : null}
+            defaultValue={
+              record.event_date && record.event_date !== '0000-00-00'
+                ? dayjs(record.event_date)
+                : null
+            }
             onChange={async (date) => {
               await updateValue(
                 // event_id,
@@ -343,13 +375,14 @@ const Dispatch = () => {
             disabled={!permissions.update}
             defaultValue={selectedValues}
             mode="multiple"
-            onChange={(selected) =>
+            onChange={(selected) => {
               updateValue(
                 event_id,
                 'technician_id',
                 selected ? selected.map((item) => item.value) : null
-              )
-            }
+              );
+              console.log('event_id', event_id);
+            }}
             className="w-full"
             size="small"
           />
@@ -566,11 +599,11 @@ const Dispatch = () => {
               placeholder="Search..."
               className="w-full sm:w-64"
               value={params.search}
+              allowClear
               onChange={(e) => dispatch(setDispatchListParams({ search: e.target.value }))}
             />
 
             <RangePicker
-              // separator=" - "
               value={[
                 params.start_date ? dayjs(params.start_date, 'YYYY-MM-DD') : null,
                 params.end_date ? dayjs(params.end_date, 'YYYY-MM-DD') : null
@@ -610,10 +643,15 @@ const Dispatch = () => {
           size="small"
           loading={isListLoading}
           className="mt-2"
+          // rowKey={(record) =>
+          //   record.isDateHeader
+          //     ? `header-${record.event_id}`
+          //     : `${record.event_id}-${record.job_order_id}`
+          // }
           rowKey={(record) =>
             record.isDateHeader
-              ? `header-${record.event_date}`
-              : `${record.event_id}-${record.job_order_id}`
+              ? `header-${record.event_id}`
+              : `${record.event_id}-${record.job_order_id}-${(record.technicians || []).join(',')}`
           }
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
@@ -628,6 +666,16 @@ const Dispatch = () => {
           sticky={{
             offsetHeader: 56
           }}
+          // rowClassName={({ event_date }, index) => {
+          //   if (index === 0) return;
+
+          //   const currentElementDate = dayjs(event_date).date();
+          //   const previousElementDate = dayjs(groupedData[index - 1].event_date).date();
+
+          //   if (currentElementDate !== previousElementDate) {
+          //     return 'tr-separate';
+          //   }
+          // }}
           onRow={(record) => {
             return {
               className: record.isDateHeader ? 'date-header-row' : ''
@@ -641,9 +689,11 @@ const Dispatch = () => {
                 if (className && className.includes('date-header-row')) {
                   const dateValue = props['data-row-key'].replace('header-', '');
                   return (
-                    <tr {...restProps} className="date-header-row bg-[#fafafa] font-bold" >
-                      <td colSpan={columns.length} className="px-4 py-2 text-md text-[#285198]">
-                        {dateValue !== 'No Date' ? `Date: ${dayjs(dateValue).format('MM-DD-YYYY')}` : 'Date: Empty'}
+                    <tr {...restProps} className="date-header-row bg-[#fafafa] font-bold">
+                      <td colSpan={columns.length} className="text-md px-4 py-2 text-[#285198]">
+                        {dateValue !== 'No Date'
+                          ? `Date: ${dayjs(dateValue).format('MM-DD-YYYY')}`
+                          : 'Date: Empty'}
                       </td>
                     </tr>
                   );
@@ -695,4 +745,4 @@ const Dispatch = () => {
   );
 };
 
-export default Dispatch;
+export default Scheduling;

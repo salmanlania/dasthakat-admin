@@ -224,6 +224,24 @@ const GoodsReceivedNote = () => {
       ellipsis: true
     },
     {
+      title: 'Vessel Name',
+      dataIndex: 'vessel_name',
+      key: 'vessel_name',
+      width: 140
+    },
+    {
+      title: 'Charge Order No',
+      dataIndex: 'charge_order_no',
+      key: 'charge_order_no',
+      width: 140
+    },
+    {
+      title: 'Event Code',
+      dataIndex: 'event_code',
+      key: 'event_code',
+      width: 140
+    },
+    {
       title: 'Created At',
       dataIndex: 'created_at',
       key: 'created_at',

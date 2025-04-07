@@ -768,7 +768,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
             <AsyncSelect
               endpoint="/purchase-order"
               valueKey="purchase_order_id"
-              labelKey="document_identity"
+              labelKey="purchase_order_no"
               labelInValue
               params={{
                 available_po: 1

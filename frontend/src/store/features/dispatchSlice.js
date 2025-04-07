@@ -8,7 +8,8 @@ export const getDispatchList = createAsyncThunk(
       const res = await api.get('/event-dispatch', {
         params: {
           ...params,
-          all: 1
+          all: 1,
+          // limit: 1000
         }
       });
       return res.data;
@@ -62,7 +63,7 @@ const initialState = {
     limit: 50,
     search: '',
     sort_column: null,
-    sort_direction: null,
+    sort_direction: 'ascend',
     name: null,
     description: null,
     catering_type: null,

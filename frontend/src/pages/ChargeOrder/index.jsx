@@ -4,7 +4,7 @@ import { useEffect, useState , useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { GoTrash } from 'react-icons/go';
 import { IoCheckmarkDoneCircleSharp } from 'react-icons/io5';
-import { LuClipboardList } from 'react-icons/lu';
+import { LuClipboardList , LuEye} from 'react-icons/lu';
 import { MdOutlineEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
@@ -314,6 +314,14 @@ const ChargeOrder = () => {
               </Popconfirm>
             </Tooltip>
           ) : null}
+
+          <Tooltip title="Show Item Details">
+            <Button
+              size="small"
+              type="primary"
+              icon={<LuEye  size={14} />}
+            />
+          </Tooltip>
         </div>
       ),
       width: 105,
