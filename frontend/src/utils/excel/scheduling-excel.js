@@ -79,19 +79,19 @@ const generateSchedulingExcel = async (datas) => {
 
     currentRow = worksheet.lastRow._number + 1;
 
-    worksheet.getCell(`A${currentRow}`).value = 'Date';
+    worksheet.getCell(`B${currentRow}`).value = 'Date';
 
-    worksheet.getCell(`B${currentRow}`).value = 'Time';
+    worksheet.getCell(`C${currentRow}`).value = 'Time';
 
-    worksheet.getCell(`C${currentRow}`).value = 'Event Number';
+    worksheet.getCell(`D${currentRow}`).value = 'Event Number';
 
-    worksheet.getCell(`D${currentRow}`).value = 'Vessel Name';
+    worksheet.getCell(`E${currentRow}`).value = 'Vessel Name';
 
-    worksheet.getCell(`E${currentRow}`).value = 'Technician'
+    worksheet.getCell(`F${currentRow}`).value = 'Technician'
 
-    worksheet.getCell(`F${currentRow}`).value = 'Agent';
+    worksheet.getCell(`G${currentRow}`).value = 'Agent';
 
-    worksheet.getCell(`G${currentRow}`).value = 'Status';
+    worksheet.getCell(`H${currentRow}`).value = 'Status';
 
     worksheet.getRow(currentRow).eachCell((cell) => {
       if (cell.value) {
@@ -128,8 +128,8 @@ const generateSchedulingExcel = async (datas) => {
 
       Object.entries(grouped).forEach(([groupTitle, groupItems]) => {
         currentRow = worksheet.lastRow._number + 1;
-        worksheet.mergeCells(`A${currentRow}:G${currentRow}`);
-        const subheadingCell = worksheet.getCell(`A${currentRow}`);
+        worksheet.mergeCells(`B${currentRow}:H${currentRow}`);
+        const subheadingCell = worksheet.getCell(`B${currentRow}`);
         const formattedDate = groupTitle && dayjs(groupTitle).isValid() && dayjs(groupTitle).format('MM-DD-YYYY') !== '11-30-1899'
           ? dayjs(groupTitle).format('MM-DD-YYYY')
           : 'Empty';
@@ -161,25 +161,25 @@ const generateSchedulingExcel = async (datas) => {
             ? dayjs(detail.event_date).format('MM-DD-YYYY')
             : '';
 
-          worksheet.getCell(`A${currentRow}`).value = formattedDate;
+          worksheet.getCell(`B${currentRow}`).value = formattedDate;
 
-          const cells = worksheet.getCell(`B${currentRow}`);
+          const cells = worksheet.getCell(`C${currentRow}`);
           cells.value = detail?.event_time || '   ';
           cells.alignment = { horizontal: 'center', vertical: 'middle' };
 
-          worksheet.getCell(`C${currentRow}`).value = detail?.event_code || null;
+          worksheet.getCell(`D${currentRow}`).value = detail?.event_code || null;
 
-          worksheet.getCell(`D${currentRow}`).value = detail?.vessel_name || '   '
+          worksheet.getCell(`E${currentRow}`).value = detail?.vessel_name || '   '
 
-          worksheet.getCell(`E${currentRow}`).value = Array.isArray(detail?.technicians)
+          worksheet.getCell(`F${currentRow}`).value = Array.isArray(detail?.technicians)
             ? detail.technicians.map(t => t.user_name).join(', ')
             : '   ';
 
-          const cell = worksheet.getCell(`F${currentRow}`);
+          const cell = worksheet.getCell(`G${currentRow}`);
           cell.value = detail?.agent_name || '   '
           cell.alignment = { horizontal: 'center' };
 
-          worksheet.getCell(`G${currentRow}`).value = detail?.status || '   '
+          worksheet.getCell(`H${currentRow}`).value = detail?.status || '   '
 
           worksheet.getRow(currentRow).eachCell((cell, index) => {
             if (cell.value) {
@@ -228,17 +228,17 @@ const generateSchedulingExcel = async (datas) => {
 
           currentRow = worksheet.lastRow._number + 1;
 
-          worksheet.getCell(`A${currentRow}`).value = 'Technician Notes:';
-          worksheet.getCell(`A${currentRow}`).font = { bold: true };
-          worksheet.getCell(`A${currentRow}`).alignment = { vertical: 'top', horizontal: 'left' };
-          worksheet.getCell(`A${currentRow}`).border = {
+          worksheet.getCell(`B${currentRow}`).value = 'Technician Notes:';
+          worksheet.getCell(`B${currentRow}`).font = { bold: true };
+          worksheet.getCell(`B${currentRow}`).alignment = { vertical: 'top', horizontal: 'left' };
+          worksheet.getCell(`B${currentRow}`).border = {
             top: { style: 'thin' },
             left: { style: 'thin' },
             bottom: { style: 'thin' },
             right: { style: 'thin' }
           };
 
-          worksheet.mergeCells(`B${currentRow}:G${currentRow}`);
+          worksheet.mergeCells(`C${currentRow}:H${currentRow}`);
 
           // const allTechNotes = groupItems
           //   .map(item => item?.technician_notes)
@@ -246,9 +246,9 @@ const generateSchedulingExcel = async (datas) => {
           //   .join(' | ');
           const allTechNotes = detail?.technician_notes || 'N/A';
 
-          worksheet.getCell(`B${currentRow}`).value = allTechNotes || 'N/A';
-          worksheet.getCell(`B${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
-          worksheet.getCell(`B${currentRow}`).border = {
+          worksheet.getCell(`C${currentRow}`).value = allTechNotes || 'N/A';
+          worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
+          worksheet.getCell(`C${currentRow}`).border = {
             top: { style: 'thin' },
             left: { style: 'thin' },
             bottom: { style: 'thin' },
@@ -257,17 +257,17 @@ const generateSchedulingExcel = async (datas) => {
 
           currentRow = worksheet.lastRow._number + 1;
 
-          worksheet.getCell(`A${currentRow}`).value = 'Agent Notes:';
-          worksheet.getCell(`A${currentRow}`).font = { bold: true };
-          worksheet.getCell(`A${currentRow}`).alignment = { vertical: 'top', horizontal: 'left' };
-          worksheet.getCell(`A${currentRow}`).border = {
+          worksheet.getCell(`B${currentRow}`).value = 'Agent Notes:';
+          worksheet.getCell(`B${currentRow}`).font = { bold: true };
+          worksheet.getCell(`B${currentRow}`).alignment = { vertical: 'top', horizontal: 'left' };
+          worksheet.getCell(`B${currentRow}`).border = {
             top: { style: 'thin' },
             left: { style: 'thin' },
             bottom: { style: 'thin' },
             right: { style: 'thin' }
           };
 
-          worksheet.mergeCells(`B${currentRow}:G${currentRow}`);
+          worksheet.mergeCells(`C${currentRow}:H${currentRow}`);
 
           // const allAgentNotes = groupItems
           //   .map(item => item?.agent_notes)
@@ -276,9 +276,9 @@ const generateSchedulingExcel = async (datas) => {
 
           const allAgentNotes = detail?.agent_notes || 'N/A';
 
-          worksheet.getCell(`B${currentRow}`).value = allAgentNotes || 'N/A';
-          worksheet.getCell(`B${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
-          worksheet.getCell(`B${currentRow}`).border = {
+          worksheet.getCell(`C${currentRow}`).value = allAgentNotes || 'N/A';
+          worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
+          worksheet.getCell(`C${currentRow}`).border = {
             top: { style: 'thin' },
             left: { style: 'thin' },
             bottom: { style: 'thin' },
