@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Audit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Flag;
@@ -40,10 +41,14 @@ class FlagController extends Controller
 		return response()->json($data);
 	}
 
-	public function show($id, Request $request)
+	public function show($id, $jsonResponse = true)
 	{
-		$data = Flag::where('flag_id', $id)->first();
-		return $this->jsonResponse($data, 200, "Flag Data");
+		$data = Flag::with('company', 'company_branch', 'created_user', 'updated_user')->where('flag_id', $id)->first();
+		if ($jsonResponse) {
+			return $this->jsonResponse($data, 200, "Show Data");
+		} else {
+			return $data;
+		}
 	}
 
 	public function validateRequest($request, $id = null)
@@ -87,11 +92,19 @@ class FlagController extends Controller
 			'created_at' => date('Y-m-d H:i:s'),
 			'created_by' => $request->login_user_id,
 		];
-		$user = Flag::create($insertArr);
+		Flag::create($insertArr);
 
-
-		$this->auditAction($request->all(), "Insert", "flag", "flag", $uuid, $request->name, $insertArr);
-
+		Audit::onInsert(
+			[
+				"request" => $request,
+				"table" => "flag",
+				"id" => $uuid,
+				"document_name" => $request->name,
+				"document_type" => "flag",
+				"json_data" => json_encode($this->show($uuid, false))
+			]
+		);
+		
 		return $this->jsonResponse(['flag_id' => $uuid], 200, "Add Flag Successfully!");
 	}
 
@@ -116,7 +129,17 @@ class FlagController extends Controller
 
 
 		$data->update();
-		$this->auditAction($request->all(), "Update", "flag", "flag", $id, $request->name, $data);
+
+		Audit::onEdit(
+			[
+				"request" => $request,
+				"table" => "flag",
+				"id" => $id,
+				"document_name" => $request->name,
+				"document_type" => "flag",
+				"json_data" => json_encode($this->show($id, false))
+			]
+		);
 
 		return $this->jsonResponse(['flag_id' => $id], 200, "Update Flag Successfully!");
 	}
@@ -141,7 +164,17 @@ class FlagController extends Controller
 		if ($res['error']) {
 			return $this->jsonResponse($res['msg'], $res['error_code'], "Deletion Failed!");
 		}
-		$this->auditAction($request->all(), "Delete", "flag", "flag", $id, $data->name, $data);
+
+		Audit::onDelete(
+			[
+				"request" => $request,
+				"table" => "flag",
+				"id" => $id,
+				"document_name" => $request->name,
+				"document_type" => "flag",
+				"json_data" => json_encode($this->show($id, false))
+			]
+		);
 		$data->delete();
 
 		return $this->jsonResponse(['flag_id' => $id], 200, "Delete Flag Successfully!");
@@ -169,7 +202,17 @@ class FlagController extends Controller
 					if ($res['error']) {
 						return $this->jsonResponse($res['msg'], $res['error_code'], "Deletion Failed!");
 					}
-					$this->auditAction($request->all(), "Delete", "flag", "flag", $flag_id, $user->name, $user);
+
+					Audit::onDelete(
+						[
+							"request" => $request,
+							"table" => "flag",
+							"id" => $flag_id,
+							"document_name" => $user->name,
+							"document_type" => "flag",
+							"json_data" => json_encode($this->show($flag_id, false))
+						]
+					);
 					$user->delete();
 				}
 			}

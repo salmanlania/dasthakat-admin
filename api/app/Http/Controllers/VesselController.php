@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Audit;
 use App\Models\CustomerVessel;
 use App\Models\Event;
 use App\Models\Log;
@@ -68,16 +69,20 @@ class VesselController extends Controller
 		return response()->json($data);
 	}
 
-	public function show($id, Request $request)
+	public function show($id, $jsonResponse = true)
 	{
 
-		$data =  Vessel::LeftJoin('flag as f', 'vessel.flag_id', 'f.flag_id')
+		$data =  Vessel::with("company", "company_branch", "created_user", "updated_user")->LeftJoin('flag as f', 'vessel.flag_id', 'f.flag_id')
 			->LeftJoin('customer as c', 'c.customer_id', 'vessel.customer_id')
 			->LeftJoin('class as c1', 'vessel.class1_id', 'c1.class_id')
 			->LeftJoin('class as c2', 'vessel.class2_id', 'c2.class_id')
 			->select("vessel.*", "c.name as customer_name", "f.name as flag_name", "c1.name as class1_name", "c2.name as class2_name")
 			->where('vessel_id', $id)->first();
-		return $this->jsonResponse($data, 200, "Flag Data");
+		if ($jsonResponse) {
+			return $this->jsonResponse($data, 200, "Show Data");
+		} else {
+			return $data;
+		}
 	}
 
 	public function validateRequest($request, $id = null)
@@ -141,6 +146,17 @@ class VesselController extends Controller
 		];
 		CustomerVessel::insert($insert);
 
+		Audit::onInsert(
+			[
+				"request" => $request,
+				"table" => "vessel",
+				"id" => $uuid,
+				"document_name" => $insertArr['name'],
+				"document_type" => "vessel",
+				"json_data" => json_encode($this->show($uuid, false))
+			]
+		);
+
 
 		return $this->jsonResponse(['vessel_id' => $uuid], 200, "Add Vessel Successfully!");
 	}
@@ -181,6 +197,17 @@ class VesselController extends Controller
 		];
 		CustomerVessel::insert($insert);
 
+		Audit::onEdit(
+			[
+				"request" => $request,
+				"table" => "vessel",
+				"id" => $id,
+				"document_name" => $data->name,
+				"document_type" => "vessel",
+				"json_data" => json_encode($this->show($id, false))
+			]
+		);
+
 		return $this->jsonResponse(['vessel_id' => $id], 200, "Update Vessel Successfully!");
 	}
 	public function delete($id, Request $request)
@@ -205,6 +232,18 @@ class VesselController extends Controller
 			return $this->jsonResponse($res['msg'], $res['error_code'], "Deletion Failed!");
 		}
 
+
+		Audit::onDelete(
+			[
+				"request" => $request,
+				"table" => "vessel",
+				"id" => $id,
+				"document_name" => $data->name,
+				"document_type" => "vessel",
+				"json_data" => json_encode($this->show($id, false))
+			]
+		);
+
 		CustomerVessel::where(['vessel_id' => $id, 'customer_id' => $data->customer_id])->delete();
 
 		$data->delete();
@@ -219,7 +258,7 @@ class VesselController extends Controller
 		try {
 			if (isset($request->vessel_ids) && !empty($request->vessel_ids) && is_array($request->vessel_ids)) {
 				foreach ($request->vessel_ids as $vessel_id) {
-					$user = Vessel::where(['vessel_id' => $vessel_id])->first();
+					$data = Vessel::where(['vessel_id' => $vessel_id])->first();
 					$req = [
 						'main' => [
 							'check' => new Vessel,
@@ -234,9 +273,20 @@ class VesselController extends Controller
 					if ($res['error']) {
 						return $this->jsonResponse($res['msg'], $res['error_code'], "Deletion Failed!");
 					}
-					CustomerVessel::where(['vessel_id' => $vessel_id, 'customer_id' => $user->customer_id])->delete();
 
-					$user->delete();
+					Audit::onDelete(
+						[
+							"request" => $request,
+							"table" => "vessel",
+							"id" => $vessel_id,
+							"document_name" => $data->name,
+							"document_type" => "vessel",
+							"json_data" => json_encode($this->show($vessel_id, false))
+						]
+					);
+					CustomerVessel::where(['vessel_id' => $vessel_id, 'customer_id' => $data->customer_id])->delete();
+
+					$data->delete();
 				}
 			}
 

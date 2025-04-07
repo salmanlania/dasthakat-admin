@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Payment;
+use App\Models\PurchaseOrder;
 use Illuminate\Validation\Rule;
 
 class PaymentController extends Controller
@@ -127,6 +128,20 @@ class PaymentController extends Controller
 
 		if (!$data) return $this->jsonResponse(['payment_id' => $id], 404, "Payment Not Found!");
 
+		$validate = [
+			'main' => [
+				'check' => new Payment,
+				'id' => $id,
+			],
+			'with' => [
+				['model' => new PurchaseOrder],
+			]
+		];
+
+		$response = $this->checkAndDelete($validate);
+		if ($response['error']) {
+			return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+		}
 		$data->delete();
 
 		return $this->jsonResponse(['payment_id' => $id], 200, "Delete Payment Successfully!");
@@ -140,6 +155,21 @@ class PaymentController extends Controller
 			if (isset($request->payment_ids) && !empty($request->payment_ids) && is_array($request->payment_ids)) {
 				foreach ($request->payment_ids as $payment_id) {
 					$user = Payment::where(['payment_id' => $payment_id])->first();
+
+					$validate = [
+						'main' => [
+							'check' => new Payment,
+							'id' => $payment_id,
+						],
+						'with' => [
+							['model' => new PurchaseOrder],
+						]
+					];
+
+					$response = $this->checkAndDelete($validate);
+					if ($response['error']) {
+						return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+					}
 					$user->delete();
 				}
 			}

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Audit;
 use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
 use Illuminate\Http\Request;
@@ -12,6 +13,7 @@ use App\Models\GRNDetail;
 use App\Models\JobOrder;
 use App\Models\Picklist;
 use App\Models\PicklistReceived;
+use App\Models\Quotation;
 use App\Models\ServicelistReceived;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -251,9 +253,9 @@ class EventController extends Controller
 	}
 
 
-	public function show($id, Request $request)
+	public function show($id, $jsonResponse = true)
 	{
-		$data =  Event::LeftJoin('customer as c', 'event.customer_id', 'c.customer_id')
+		$data =  Event::with("company","company_branch","created_user","updated_user")->LeftJoin('customer as c', 'event.customer_id', 'c.customer_id')
 			->LeftJoin('vessel as v', 'event.vessel_id', 'v.vessel_id')
 			->LeftJoin('flag as f', 'f.flag_id', 'v.flag_id')
 			->LeftJoin('class as c1', 'c1.class_id', 'event.class1_id')
@@ -277,7 +279,12 @@ class EventController extends Controller
 				"s.name as salesman_name"
 			)
 			->where('event_id', $id)->first();
-		return $this->jsonResponse($data, 200, "Event Data");
+
+		if ($jsonResponse) {
+			return $this->jsonResponse($data, 200, "Show Data");
+		} else {
+			return $data;
+		}
 	}
 
 	public function validateRequest($request, $id = null)
@@ -340,6 +347,18 @@ class EventController extends Controller
 			'event_id' => $uuid,
 		]);
 
+		Audit::onInsert(
+			[
+				"request" => $request,
+				"table" => "event",
+				"id" => $uuid,
+				"document_name" => $insertArr['event_code'],
+				"document_type" => "event",
+				"json_data" => json_encode($this->show($uuid, false))
+			]
+		);
+
+
 		return $this->jsonResponse(['event_id' => $uuid], 200, "Add Event Successfully!");
 	}
 
@@ -367,6 +386,19 @@ class EventController extends Controller
 		$data->updated_by = $request->login_user_id;
 		$data->update();
 
+
+		Audit::onEdit(
+			[
+				"request" => $request,
+				"table" => "event",
+				"id" => $id,
+				"document_name" => $data->event_code,
+				"document_type" => "event",
+				"json_data" => json_encode($this->show($id, false))
+			]
+		);
+
+
 		return $this->jsonResponse(['event_id' => $id], 200, "Update Event Successfully!");
 	}
 	public function delete($id, Request $request)
@@ -375,8 +407,32 @@ class EventController extends Controller
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
 		$data  = Event::where('event_id', $id)->first();
-
 		if (!$data) return $this->jsonResponse(['event_id' => $id], 404, "Event Not Found!");
+		$validate = [
+			'main' => [
+				'check' => new Event,
+				'id' => $id,
+			],
+			'with' => [
+				['model' => new Quotation],
+			]
+		];
+
+		$response = $this->checkAndDelete($validate);
+		if ($response['error']) {
+			return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+		}
+
+		Audit::onDelete(
+			[
+				"request" => $request,
+				"table" => "event",
+				"id" => $id,
+				"document_name" => $data->event_code,
+				"document_type" => "event",
+				"json_data" => json_encode($this->show($id, false))
+			]
+		);
 
 		$data->delete();
 		EventDispatch::where(['event_id' => $id])->delete();
@@ -390,8 +446,35 @@ class EventController extends Controller
 		try {
 			if (isset($request->event_ids) && !empty($request->event_ids) && is_array($request->event_ids)) {
 				foreach ($request->event_ids as $event_id) {
-					$user = Event::where(['event_id' => $event_id])->first();
-					$user->delete();
+					$data = Event::where(['event_id' => $event_id])->first();
+
+					$validate = [
+						'main' => [
+							'check' => new Event,
+							'id' => $event_id,
+						],
+						'with' => [
+							['model' => new Quotation],
+						]
+					];
+
+					$response = $this->checkAndDelete($validate);
+					if ($response['error']) {
+						return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+					}
+
+					Audit::onDelete(
+						[
+							"request" => $request,
+							"table" => "event",
+							"id" => $event_id,
+							"document_name" => $data->event_code,
+							"document_type" => "event",
+							"json_data" => json_encode($this->show($event_id, false))
+						]
+					);
+
+					$data->delete();
 					EventDispatch::where(['event_id' => $event_id])->delete();
 				}
 			}

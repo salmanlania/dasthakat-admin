@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChargeOrderDetail;
+use App\Models\GRNDetail;
 use App\Models\Product;
+use App\Models\PurchaseOrderDetail;
+use App\Models\QuotationDetail;
 use App\Models\StockLedger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -242,6 +246,23 @@ class ProductController extends Controller
 		if (!$product) {
 			return $this->jsonResponse(['product_id' => $id], 404, "Product Not Found!");
 		}
+		$validate = [
+			'main' => [
+				'check' => new Product,
+				'id' => $id,
+			],
+			'with' => [
+				['model' => new PurchaseOrderDetail],
+				['model' => new QuotationDetail],
+				['model' => new ChargeOrderDetail],
+				['model' => new GRNDetail],
+			]
+		];
+
+		$response = $this->checkAndDelete($validate);
+		if ($response['error']) {
+			return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+		}
 		deleteFile($product->image);
 		$product->delete();
 
@@ -257,6 +278,24 @@ class ProductController extends Controller
 			if (isset($request->product_ids) && !empty($request->product_ids) && is_array($request->product_ids)) {
 				foreach ($request->product_ids as $product_id) {
 					$product = Product::where('product_id', $product_id)->first();
+
+					$validate = [
+						'main' => [
+							'check' => new Product,
+							'id' => $product_id,
+						],
+						'with' => [
+							['model' => new PurchaseOrderDetail],
+							['model' => new QuotationDetail],
+							['model' => new ChargeOrderDetail],
+							['model' => new GRNDetail],
+						]
+					];
+
+					$response = $this->checkAndDelete($validate);
+					if ($response['error']) {
+						return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+					}
 					deleteFile($product->image);
 					$product->delete();
 				}

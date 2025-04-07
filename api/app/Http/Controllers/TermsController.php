@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Quotation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Terms;
@@ -125,7 +126,20 @@ class TermsController extends Controller
 		$data  = Terms::where('term_id', $id)->first();
 
 		if (!$data) return $this->jsonResponse(['term_id' => $id], 404, "Terms Not Found!");
+		$validate = [
+			'main' => [
+				'check' => new Terms,
+				'id' => $id,
+			],
+			'with' => [
+				['model' => new Quotation],
+			]
+		];
 
+		$response = $this->checkAndDelete($validate);
+		if ($response['error']) {
+			return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+		}
 		$data->delete();
 
 		return $this->jsonResponse(['term_id' => $id], 200, "Delete Terms Successfully!");
@@ -139,6 +153,20 @@ class TermsController extends Controller
 			if (isset($request->term_ids) && !empty($request->term_ids) && is_array($request->term_ids)) {
 				foreach ($request->term_ids as $term_id) {
 					$user = Terms::where(['term_id' => $term_id])->first();
+					$validate = [
+						'main' => [
+							'check' => new Terms,
+							'id' => $term_id,
+						],
+						'with' => [
+							['model' => new Quotation],
+						]
+					];
+
+					$response = $this->checkAndDelete($validate);
+					if ($response['error']) {
+						return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+					}
 					$user->delete();
 				}
 			}

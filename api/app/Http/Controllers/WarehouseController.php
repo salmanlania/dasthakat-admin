@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\StockLedger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Warehouse;
@@ -126,6 +127,21 @@ class WarehouseController extends Controller
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
 		$data  = Warehouse::where('warehouse_id', $id)->first();
+		$validate = [
+			'main' => [
+				'check' => new Warehouse,
+				'id' => $id,
+			],
+			'with' => [
+				['model' => new StockLedger],
+			]
+		];
+
+		$response = $this->checkAndDelete($validate);
+		if ($response['error']) {
+			return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+		}
+
 		$data->delete();
 
 		return $this->jsonResponse(['warehouse_id' => $id], 200, "Delete Warehouse Successfully!");
@@ -139,6 +155,20 @@ class WarehouseController extends Controller
 			if (isset($request->warehouse_ids) && !empty($request->warehouse_ids) && is_array($request->warehouse_ids)) {
 				foreach ($request->warehouse_ids as $warehouse_id) {
 					$user = Warehouse::where(['warehouse_id' => $warehouse_id])->first();
+					$validate = [
+						'main' => [
+							'check' => new Warehouse,
+							'id' => $warehouse_id,
+						],
+						'with' => [
+							['model' => new StockLedger],
+						]
+					];
+
+					$response = $this->checkAndDelete($validate);
+					if ($response['error']) {
+						return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+					}
 					$user->delete();
 				}
 			}
