@@ -15,6 +15,8 @@ return new class extends Migration
     {
         Schema::table('servicelist_received_detail', function (Blueprint $table) {
             $table->dropColumn('warehouse_id');
+        });
+        Schema::table('servicelist_received_detail', function (Blueprint $table) {
             $table->char('warehouse_id', 36)->nullable()->after('product_id');
         });
     }
@@ -27,7 +29,9 @@ return new class extends Migration
     public function down()
     {
         Schema::table('servicelist_received_detail', function (Blueprint $table) {
-            $table->dropColumn('warehouse_id');
+            $table->drop('warehouse_id');
+        });
+        Schema::table('servicelist_received_detail', function (Blueprint $table) {
             $table->char('warehouse_id', 36)->after('product_id');
         });
     }
