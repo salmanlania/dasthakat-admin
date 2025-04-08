@@ -121,10 +121,8 @@ const NewReceivesTab = ({ details }) => {
           rules={[
             { required: true, message: 'Remaining Quantity required' },
             {
-              validator: (_, value) => {
-                if (+value < 1) {
-                  return Promise.reject('Remaining Quantity must be greater than 0');
-                } else if (value > dataSource[index].remaining_quantity) {
+              validator: (_, value) => { 
+                if (value > dataSource[index].remaining_quantity) {
                   return Promise.reject(
                     `Remaining Quantity cannot be greater than ${dataSource[index].remaining_quantity}`
                   );
