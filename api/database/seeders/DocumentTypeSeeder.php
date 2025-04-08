@@ -22,6 +22,11 @@ class DocumentTypeSeeder extends Seeder
             ['document_type_id' => 43, 'document_name' => 'Picklist', 'document_prefix' => '{BC}/PL-', 'table_name' => 'picklist', 'primary_key' => 'picklist_id'],
             ['document_type_id' => 44, 'document_name' => 'Picklist Received', 'document_prefix' => '{BC}/PLR-', 'table_name' => 'picklist_received', 'primary_key' => 'picklist_received_id'],
             ['document_type_id' => 45, 'document_name' => 'Internal Job Order', 'document_prefix' => '{BC}/IJO-', 'table_name' => 'job_order', 'primary_key' => 'job_order_id'],
+            ['document_type_id' => 46, 'document_name' => 'Service List', 'document_prefix' => '{BC}/SL-', 'table_name' => 'servicelist', 'primary_key' => 'servicelist_id'],
+            ['document_type_id' => 47, 'document_name' => 'Service List Received', 'document_prefix' => '{BC}/SLR-', 'table_name' => 'servicelist_received', 'primary_key' => 'servicelist_received_id'],
+            ['document_type_id' => 48, 'document_name' => 'Delivery Order', 'document_prefix' => '{BC}/DO-', 'zero_padding' => 4, 'reset_on_fiscal_year' => 'Yes', 'table_name' => 'shipment', 'primary_key' => 'shipment_id'],
+            ['document_type_id' => 49, 'document_name' => 'Service Order', 'document_prefix' => '{BC}/SO-', 'zero_padding' => 4, 'reset_on_fiscal_year' => 'Yes', 'table_name' => 'shipment', 'primary_key' => 'shipment_id'],
+            ['document_type_id' => 50, 'document_name' => 'SO Document Number', 'document_prefix' => '{BC}/DN-', 'zero_padding' => 4, 'reset_on_fiscal_year' => 'Yes', 'table_name' => 'service_order', 'primary_key' => 'service_order_id'],
         ];
         DocumentType::insert($data);
     }

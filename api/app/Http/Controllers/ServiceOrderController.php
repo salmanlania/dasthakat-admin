@@ -2,29 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChargeOrder;
 use App\Models\DocumentType;
 use Illuminate\Http\Request;
-use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
 use App\Models\GRNDetail;
-use App\Models\PicklistReceived;
 use App\Models\PicklistReceivedDetail;
-use App\Models\PurchaseOrder;
-use App\Models\PurchaseOrderDetail;
-use App\Models\Quotation;
 use App\Models\ServicelistReceivedDetail;
+use App\Models\ServiceOrder;
+use App\Models\ServiceOrderDetail;
 use App\Models\Shipment;
 use App\Models\ShipmentDetail;
-use App\Models\StockLedger;
-use App\Models\Supplier;
-use App\Models\Technician;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 
-class ShipmentController extends Controller
+class ServiceOrderController extends Controller
 {
-	protected $DO_document_type_id = 48;
-	protected $SO_document_type_id = 49;
+	protected $document_type_id = 50;
 	protected $db;
 
 	public function index(Request $request)
@@ -41,20 +34,20 @@ class ShipmentController extends Controller
 		$search = $request->input('search', '');
 		$page =  $request->input('page', 1);
 		$perPage =  $request->input('limit', 10);
-		$sort_column = $request->input('sort_column', 'shipment.created_at');
+		$sort_column = $request->input('sort_column', 'service_order.created_at');
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
-		$data = Shipment::LeftJoin('event as e', 'e.event_id', '=', 'shipment.event_id')
+		$data = ServiceOrder::LeftJoin('event as e', 'e.event_id', '=', 'service_order.event_id')
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'e.vessel_id')
 			->LeftJoin('flag as f', 'f.flag_id', '=', 'v.flag_id')
 			->LeftJoin('customer as c', 'c.customer_id', '=', 'v.customer_id')
 			->LeftJoin('class as c1', 'c1.class_id', '=', 'v.class1_id')
 			->LeftJoin('class as c2', 'c2.class_id', '=', 'v.class2_id')
 			->LeftJoin('salesman as s', 's.salesman_id', '=', 'c.salesman_id');
-		$data = $data->where('shipment.company_id', '=', $request->company_id);
-		$data = $data->where('shipment.company_branch_id', '=', $request->company_branch_id);
-		if (!empty($document_identity)) $data = $data->where('shipment.document_identity', 'like', '%' . $document_identity . '%');
-		if (!empty($event_id)) $data = $data->where('shipment.event_id', '=',  $event_id);
+		$data = $data->where('service_order.company_id', '=', $request->company_id);
+		$data = $data->where('service_order.company_branch_id', '=', $request->company_branch_id);
+		if (!empty($document_identity)) $data = $data->where('service_order.document_identity', 'like', '%' . $document_identity . '%');
+		if (!empty($event_id)) $data = $data->where('service_order.event_id', '=',  $event_id);
 		if (!empty($flag_id)) $data = $data->where('v.flag_id', '=',  $flag_id);
 		if (!empty($vessel_id)) $data = $data->where('v.vessel_id', '=',  $vessel_id);
 		if (!empty($salesman_id)) $data = $data->where('s.salesman_id', '=',  $salesman_id);
@@ -62,13 +55,13 @@ class ShipmentController extends Controller
 		if (!empty($imo)) $data = $data->where('v.imo', 'like',  "%" . $imo . "%");
 		if (!empty($class1_id)) $data = $data->where('v.class1_id', '=',  $class1_id);
 		if (!empty($class2_id)) $data = $data->where('v.class2_id', '=',  $class2_id);
-		if (!empty($document_date)) $data = $data->where('shipment.document_date', '=',  $document_date);
+		if (!empty($document_date)) $data = $data->where('service_order.document_date', '=',  $document_date);
 
 		if (!empty($search)) {
 			$search = strtolower($search);
 			$data = $data->where(function ($query) use ($search) {
 				$query
-					->OrWhere('shipment.document_identity', 'like', '%' . $search . '%')
+					->OrWhere('service_order.document_identity', 'like', '%' . $search . '%')
 					->OrWhere('v.imo', 'like', '%' . $search . '%')
 					->OrWhere('f.name', 'like', '%' . $search . '%')
 					->OrWhere('c1.name', 'like', '%' . $search . '%')
@@ -80,7 +73,7 @@ class ShipmentController extends Controller
 			});
 		}
 
-		$data = $data->select("shipment.*", "c.name as customer_name", "e.event_code", "v.name as vessel_name", "v.imo", "s.name as salesman_name", "f.name as flag_name", "c1.name as class1_name", "c2.name as class2_name");
+		$data = $data->select("service_order.*", "c.name as customer_name", "e.event_code", "v.name as vessel_name", "v.imo", "s.name as salesman_name", "f.name as flag_name", "c1.name as class1_name", "c2.name as class2_name");
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 
@@ -94,14 +87,14 @@ class ShipmentController extends Controller
 	public function show($id, Request $request)
 	{
 
-		$data = Shipment::with(
-			"shipment_detail",
-			"shipment_detail.charge_order",
-			"shipment_detail.charge_order_detail",
-			"shipment_detail.product",
-			"shipment_detail.product_type",
-			"shipment_detail.unit",
-			"shipment_detail.supplier",
+		$data = ServiceOrder::with(
+			"service_order_detail",
+			"service_order_detail.charge_order",
+			"service_order_detail.charge_order_detail",
+			"service_order_detail.product",
+			"service_order_detail.product_type",
+			"service_order_detail.unit",
+			"service_order_detail.supplier",
 			"event",
 			"charge_order",
 			"event.vessel",
@@ -111,26 +104,25 @@ class ShipmentController extends Controller
 			"event.customer.salesman",
 			"event.vessel.flag"
 		)
-			->where('shipment_id', $id)->first();
+			->where('servie_order_id', $id)->first();
 
-		return $this->jsonResponse($data, 200, "Shipment Data");
+		return $this->jsonResponse($data, 200, "Show Data");
 	}
 
 	public function Validator($request, $id = null)
 	{
 		$rules = [
-			'event_id' => ['required'],
-			'type' => ['required'],
+			'charge_order_id' => ['required'],
 		];
 
 		$msg = validateRequest($request, $rules);
 		if (!empty($msg)) return $msg;
 	}
 
-	public function viewBeforeShipment(Request $request)
+	public function viewBeforeServiceOrder(Request $request)
 	{
 		// Early permission check
-		if (!isPermission('add', 'shipment', $request->permission_list)) {
+		if (!isPermission('add', 'service_order', $request->permission_list)) {
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		}
 
@@ -150,20 +142,18 @@ class ShipmentController extends Controller
 					'unit' => fn($q) => $q->select('unit_id', 'name'),
 					'supplier' => fn($q) => $q->select('supplier_id', 'name')
 				])
-				->whereNull('shipment_detail_id')
-				->whereHas('charge_order', fn($q) => $q->where('event_id', $request->event_id))
+				->whereNull('service_order_detail_id')
 				->when($request->charge_order_id, fn($q) => $q->where('charge_order_id', $request->charge_order_id))
-				->where('product_type_id', $request->type === "DO" ? '!=' : '=', 1)
 				->orderBy('sort_order');
 
 			$chargeOrderDetails = $query->get();
 
 			if ($chargeOrderDetails->isEmpty()) {
-				return $this->jsonResponse('No Items Found For Shipment', 404, "No Data Found!");
+				return $this->jsonResponse('No Items Found For Service Order', 404, "No Data Found!");
 			}
 
 			// Use collection methods for transformation
-			$shipmentDetails = $chargeOrderDetails
+			$details = $chargeOrderDetails
 				->filter(fn($item) => $this->getShipmentQuantity($item) > 0)
 				->groupBy('charge_order_id')
 				->map(function ($group, $key) {
@@ -190,11 +180,11 @@ class ShipmentController extends Controller
 					];
 				})->values()->all();
 
-			if (empty($shipmentDetails)) {
-				return $this->jsonResponse('No Items Found For Shipment', 404, "No Data Found!");
+			if (empty($details)) {
+				return $this->jsonResponse('No Items Found For Service Order', 404, "No Data Found!");
 			}
 
-			return $this->jsonResponse($shipmentDetails, 200, "View Shipment Order");
+			return $this->jsonResponse($details, 200, "View Service Order");
 		} catch (\Exception $e) {
 			// Add proper error handling
 			return $this->jsonResponse('An error occurred while processing the request', 500, $e->getMessage());
@@ -203,7 +193,7 @@ class ShipmentController extends Controller
 
 	public function store(Request $request)
 	{
-		if (!isPermission('add', 'shipment', $request->permission_list)) {
+		if (!isPermission('add', 'service_order', $request->permission_list)) {
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		}
 
@@ -214,52 +204,48 @@ class ShipmentController extends Controller
 		}
 
 		$uuid = $this->get_uuid();
-		$document = DocumentType::getNextDocument(
-			$request->type == "DO" ? $this->DO_document_type_id : $this->SO_document_type_id,
-			$request
-		);
+		$document = DocumentType::getNextDocument($this->document_type_id, $request);
+		$chargeOrder = ChargeOrder::find($request->charge_order_id);
 
 		// Shipment Insert Array
-		$shipmentInsert = [
-			'company_id'        => $request->company_id ?? "",
-			'company_branch_id' => $request->company_branch_id ?? "",
-			'shipment_id'       => $uuid,
-			'document_type_id'  => $document['document_type_id'] ?? "",
-			'document_no'       => $document['document_no'] ?? "",
-			'document_identity' => $document['document_identity'] ?? "",
-			'document_prefix'   => $document['document_prefix'] ?? "",
-			'document_date'     => Carbon::now(),
-			'event_id'          => $request->event_id ?? "",
-			'charge_order_id'   => $request->charge_order_id ?? "",
+		$insert = [
+			'company_id'        => $request->company_id ?? null,
+			'company_branch_id' => $request->company_branch_id ?? null,
+			'service_order_id'       => $uuid,
+			'document_type_id'  => $document['document_type_id'] ?? null,
+			'document_no'       => $document['document_no'] ?? null,
+			'document_identity' => $document['document_identity'] ?? null,
+			'documnt_prefix'   => $document['document_prefix'] ?? null,
+			'documeent_date'     => Carbon::now(),
+			'event_id'          => $chargeOrder->event_id ?? null,
+			'charge_order_id'   => $request->charge_order_id ?? null,
 			'created_at'        => Carbon::now(),
 			'created_by'        => $request->login_user_id,
 		];
 
 		// Extract charge order details from the request
-		$chargeOrderIds = collect($request->shipment)->pluck('charge_order_id')->unique()->toArray();
-		$chargeOrderDetailIds = collect($request->shipment)->pluck('details')->flatten(1)->pluck('charge_order_detail_id')->unique()->values()->toArray();
-		
+		$chargeOrderIds = collect($request->service_order)->pluck('charge_order_id')->unique()->toArray();
+		$chargeOrderDetailIds = collect($request->service_order)->pluck('details')->flatten(1)->pluck('charge_order_detail_id')->unique()->values()->toArray();
+
 		// Fetch valid charge order details from DB
 		$chargeOrderDetails = ChargeOrderDetail::whereHas('charge_order', function ($query) use ($request, $chargeOrderIds) {
-			$query->where('event_id', $request->event_id)
-				->whereIn('charge_order_id', $chargeOrderIds);
+			$query->whereIn('charge_order_id', $chargeOrderIds);
 		})
-			->whereNull('shipment_detail_id') // Ensure it's not already shipped
+			->whereNull('service_order_detail_id') // Ensure it's not already documented generated
 			->whereIn('charge_order_detail_id', $chargeOrderDetailIds)
-			->when($request->type == "DO", fn($query) => $query->where('product_type_id', '!=', 1), fn($query) => $query->where('product_type_id', 1))
 			->orderBy('sort_order')
 			->get();
 
 		if ($chargeOrderDetails->isEmpty()) {
-			return $this->jsonResponse('No Items Found For Shipment', 404, "No Data Found!");
+			return $this->jsonResponse('No Items Found For Service Order', 404, "No Data Found!");
 		}
 
 		// Process Shipment Details
-		$shipmentDetails = [];
+		$details = [];
 		foreach ($chargeOrderDetails as $index => $detail) {
-			$shipmentDetails[] = [
-				'shipment_id'           => $uuid,
-				'shipment_detail_id'    => $this->get_uuid(),
+			$details[] = [
+				'service_order_id'           => $uuid,
+				'service_order_detail_id'    => $this->get_uuid(),
 				'sort_order'            => $index + 1,
 				'charge_order_id'       => $detail->charge_order_id,
 				'charge_order_detail_id' => $detail->charge_order_detail_id,
@@ -277,64 +263,62 @@ class ShipmentController extends Controller
 			];
 		}
 
-		if (empty($shipmentDetails)) {
-			return $this->jsonResponse('No Valid Shipment Details Found', 404, "No Data Found!");
+		if (empty($details)) {
+			return $this->jsonResponse('No Valid Service Order Details Found', 404, "No Data Found!");
 		}
 
 		// Insert Shipment & Details (Batch Insert for Performance)
-		Shipment::create($shipmentInsert);
-		ShipmentDetail::insert($shipmentDetails);
+		ServiceOrder::create($insert);
+		ServiceOrderDetail::insert($details);
 
 		// Update `ChargeOrderDetail` with Shipment Info
 		ChargeOrderDetail::whereIn('charge_order_detail_id', $chargeOrderDetailIds)
 			->update([
-				'shipment_id' => $uuid,
-				'shipment_detail_id' => $this->get_uuid()
+				'service_order_id' => $uuid,
+				'service_order_detail_id' => $this->get_uuid()
 			]);
 
-		return $this->jsonResponse(['shipment_id' => $uuid], 200, "Create Shipment Order Successfully!");
+		return $this->jsonResponse(['service_order_id' => $uuid], 200, "Create Service Order Successfully!");
 	}
-
-
 
 	public function delete($id, Request $request)
 	{
-		if (!isPermission('delete', 'shipment', $request->permission_list))
+		if (!isPermission('delete', 'service_order', $request->permission_list))
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
-		$data  = Shipment::where('shipment_id', $id)->first();
-		if (!$data) return $this->jsonResponse(['shipment_id' => $id], 404, "Shipment Order Not Found!");
+		$data  = ServiceOrder::where('service_order_id', $id)->first();
+		if (!$data) return $this->jsonResponse(['service_order_id' => $id], 404, "Service Order Order Not Found!");
 
-		ChargeOrderDetail::where('shipment_id', $id)
+		ChargeOrderDetail::where('service_order_id', $id)
 			->update([
-				'shipment_id' => null,
-				'shipment_detail_id' => null,
+				'service_order_id' => null,
+				'service_order_detail_id' => null,
 			]);
 
 		$data->delete();
-		ShipmentDetail::where('shipment_id', $id)->delete();
+		ServiceOrderDetail::where('service_order_id', $id)->delete();
 
-		return $this->jsonResponse(['shipment_id' => $id], 200, "Delete Shipment Order Successfully!");
+		return $this->jsonResponse(['service_order_id' => $id], 200, "Delete Service Order Order Successfully!");
 	}
 	public function bulkDelete(Request $request)
 	{
-		if (!isPermission('delete', 'shipment', $request->permission_list))
+		if (!isPermission('delete', 'service_order', $request->permission_list))
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
 		try {
-			if (isset($request->shipment_ids) && !empty($request->shipment_ids) && is_array($request->shipment_ids)) {
-				foreach ($request->shipment_ids as $shipment_id) {
-					$data = Shipment::where(['shipment_id' => $shipment_id])->first();
-					ChargeOrderDetail::where('shipment_id', $shipment_id)
+			if (isset($request->service_order_ids) && !empty($request->service_order_ids) && is_array($request->service_order_ids)) {
+				foreach ($request->service_order_ids as $id) {
+					$data = ServiceOrder::where(['service_order_id' => $id])->first();
+					ChargeOrderDetail::where('service_order_id', $id)
 						->update([
-							'shipment_id' => null,
-							'shipment_detail_id' => null,
+							'service_order_id' => null,
+							'service_order_detail_id' => null,
 						]);
 					$data->delete();
-					ShipmentDetail::where('shipment_id', $shipment_id)->delete();
+					ServiceOrderDetail::where('service_order_id', $id)->delete();
 				}
 			}
 
-			return $this->jsonResponse('Deleted', 200, "Delete Shipment Order successfully!");
+			return $this->jsonResponse('Deleted', 200, "Delete Service Order successfully!");
 		} catch (\Exception $e) {
 			return $this->jsonResponse('some error occured', 500, $e->getMessage());
 		}
