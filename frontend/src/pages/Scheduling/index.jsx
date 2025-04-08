@@ -681,7 +681,7 @@ const Scheduling = () => {
         <div className="flex flex-wrap items-center justify-between">
           <div className="my-2 flex items-center gap-2">
             <Input
-              placeholder="Search..."
+              placeholder="Search..." allowClear
               className="w-full sm:w-64"
               value={params.search}
               allowClear

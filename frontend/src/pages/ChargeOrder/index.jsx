@@ -1,12 +1,13 @@
 import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
-import { useEffect, useState , useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { GoTrash } from 'react-icons/go';
 import { IoCheckmarkDoneCircleSharp } from 'react-icons/io5';
 import { LuClipboardList } from 'react-icons/lu';
 import { HiRefresh } from 'react-icons/hi';
 import { MdOutlineEdit } from 'react-icons/md';
+import { FaEye } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect';
@@ -48,7 +49,7 @@ const ChargeOrder = () => {
   };
 
   const groupedData = useMemo(() => {
-    if (!list || !list.length) return []; 
+    if (!list || !list.length) return [];
 
     const result = [];
     const groupedByEvent = {};
@@ -65,20 +66,19 @@ const ChargeOrder = () => {
     });
 
     // Convert to array with header rows
-    Object.keys(groupedByEvent)
-      .forEach((eventCode) => {
-        // Add header row
-        result.push({
-          isEventHeader: true,
-          event_code: eventCode,
-          charge_order_id: `header-${eventCode}`
-        });
-
-        // Add data rows
-        groupedByEvent[eventCode].forEach((item) => {
-          result.push(item);
-        });
+    Object.keys(groupedByEvent).forEach((eventCode) => {
+      // Add header row
+      result.push({
+        isEventHeader: true,
+        event_code: eventCode,
+        charge_order_id: `header-${eventCode}`
       });
+
+      // Add data rows
+      groupedByEvent[eventCode].forEach((item) => {
+        result.push(item);
+      });
+    });
 
     return result;
   }, [list]);
@@ -280,7 +280,7 @@ const ChargeOrder = () => {
       title: 'Action',
       key: 'action',
       render: (_, { charge_order_id }) => (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Tooltip title="Create PO">
             <Button
               size="small"
@@ -318,15 +318,19 @@ const ChargeOrder = () => {
           ) : null}
 
           <Tooltip title="Charge Order">
-            <Button
-              size="small"
-              type="primary"
-              icon={<HiRefresh  size={14} />}
-            />
+            <Link>
+              <Button size="small" type="primary" icon={<HiRefresh size={14} />} />
+            </Link>
+          </Tooltip>
+
+          <Tooltip title="View">
+            <Link>
+              <Button size="small" type="primary" icon={<FaEye size={14} />} />
+            </Link>
           </Tooltip>
         </div>
       ),
-      width: 105,
+      width: 115,
       fixed: 'right'
     }
   ];
@@ -362,6 +366,7 @@ const ChargeOrder = () => {
         <div className="flex items-center justify-between gap-2">
           <Input
             placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setChargeOrderListParams({ search: e.target.value }))}
@@ -395,8 +400,8 @@ const ChargeOrder = () => {
                   onChange: (selectedRowKeys) => dispatch(setChargeOrderDeleteIDs(selectedRowKeys)),
                   getCheckboxProps: (record) => ({
                     disabled: record.isEventHeader,
-                    name: record.charge_order_id,
-                  }),
+                    name: record.charge_order_id
+                  })
                 }
               : null
           }
@@ -444,7 +449,9 @@ const ChargeOrder = () => {
                   const eventCode = props['data-row-key'].replace('header-', '');
                   return (
                     <tr {...restProps} className="event-header-row bg-[#fafafa] font-bold">
-                      <td colSpan={columns.length + (permissions.delete ? 1 : 0)} className="text-md px-4 py-2 text-[#285198]">
+                      <td
+                        colSpan={columns.length + (permissions.delete ? 1 : 0)}
+                        className="text-md px-4 py-2 text-[#285198]">
                         {eventCode !== 'No Event' ? `Event: ${eventCode}` : 'No Event Assigned'}
                       </td>
                     </tr>

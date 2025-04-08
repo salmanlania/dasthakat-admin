@@ -300,7 +300,7 @@ const PickList = () => {
 
       <div className="mt-4 rounded-md bg-white p-2">
         <Input
-          placeholder="Search..."
+          placeholder="Search..." allowClear
           className="w-full sm:w-64"
           value={params.search}
           onChange={(e) => dispatch(setPickListListParams({ search: e.target.value }))}

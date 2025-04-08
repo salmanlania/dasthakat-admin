@@ -346,6 +346,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
 
   let lastDocumentId = null;
   let lastSO_DO = null;
+  let lastPO = null;
 
   if (data?.job_order_detail && data.job_order_detail.length) {
     data.job_order_detail.forEach((detail) => {
@@ -356,6 +357,11 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       const currentSO_DO = detail?.shipment?.document_identity || '';
       const showSO_DO = currentSO_DO !== lastSO_DO ? currentSO_DO : '';
       lastSO_DO = currentSO_DO;
+
+      const currentPO = detail?.charge_order?.customer_po_no || '';
+      const showPO = currentPO !== lastPO ? currentPO : '';
+      lastPO = currentPO;
+
       table3Row.push([
         {
           content: showDocumentId,
@@ -364,7 +370,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
           }
         },
         {
-          content: detail?.charge_order?.customer_po_no || '',
+          content: showPO,
           styles: {
             textColor: '#d51902' // Red Color
           }

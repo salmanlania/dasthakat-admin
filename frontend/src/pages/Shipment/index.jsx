@@ -113,7 +113,7 @@ const Shipment = () => {
     }
   };
 
-  const onShipmentCreate = async (type) => {
+  const onShipmentCreate = async () => {
     // const isValidForm = await form.validateFields();
     // if (!isValidForm) return;
 
@@ -530,7 +530,7 @@ const Shipment = () => {
 
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..."
+            placeholder="Search..." allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setShipmentListParams({ search: e.target.value }))}
