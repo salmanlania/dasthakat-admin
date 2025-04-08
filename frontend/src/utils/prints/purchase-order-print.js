@@ -72,7 +72,7 @@ const addHeader = (doc, data, sideMargin) => {
     },
     { label: 'Terms', value: data.payment ? data.payment.name : '' },
     { label: 'Charge No.', value: data?.charge_order?.document_identity || '' },
-    { label: 'Quotation No.', value: data.quotation || '' },
+    { label: 'Quotation No.', value: data?.quotation?.document_identity || ''  },
     { label: 'Page', value: `Page ${currentPage} of ${totalPages}` }
   ];
 
