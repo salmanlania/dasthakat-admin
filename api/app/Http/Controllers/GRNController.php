@@ -178,7 +178,8 @@ class GRNController extends Controller
 					'created_at' => date('Y-m-d H:i:s'),
 					'created_by' => $request->login_user_id,
 				];
-				if ($value['product_type_id'] == 2) {
+				if ($value['product_type_id'] == 2 && !empty($value['warehouse_id'])) {
+
 					$value['unit_id'] = $product->unit_id ?? null;
 					$value['unit_name'] = $product->unit->name ?? null;
 					$value['remarks'] = sprintf(
@@ -264,7 +265,7 @@ class GRNController extends Controller
 					'created_at' => date('Y-m-d H:i:s'),
 					'created_by' => $request->login_user_id,
 				];
-				if ($value['product_type_id'] == 2) {
+				if ($value['product_type_id'] == 2 && !empty($value['warehouse_id'])) {
 					StockLedger::handleStockMovement([
 						'master_model' => new GRN,
 						'document_id' => $id,

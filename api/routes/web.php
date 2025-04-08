@@ -57,6 +57,11 @@ $router->group(['prefix' => 'auth'], function ($router) {
    $router->post('/reset-password', 'AuthController@forgotPassword');
 });
 
+$router->group(['prefix' => 'audit'], function ($router) {
+   $router->get('/', 'AuditController@index');
+   $router->get('/{id}', 'AuditController@show');
+});
+
 
 $router->group(['prefix' => 'user'], function ($router) {
    $router->get('/', 'UserController@index');

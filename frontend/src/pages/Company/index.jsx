@@ -167,7 +167,7 @@ const Company = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..."
+            placeholder="Search..." allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setCompanyListParams({ search: e.target.value }))}

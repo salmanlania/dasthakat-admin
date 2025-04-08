@@ -154,7 +154,7 @@ const generateSchedulingExcel = async (datas) => {
 
         groupItems.forEach((detail) => {
           currentRow = worksheet.lastRow._number + 1;
-          worksheet.getRow(currentRow).height = 44;
+          worksheet.getRow(currentRow).height = undefined;
           worksheet.getRow(currentRow).alignment = { vertical: 'middle' };
 
           const formattedDate = detail?.event_date && dayjs(detail.event_date).isValid() && dayjs(detail.event_date).format('MM-DD-YYYY') !== '11-30-1899'
@@ -181,11 +181,11 @@ const generateSchedulingExcel = async (datas) => {
 
           worksheet.getCell(`H${currentRow}`).value = detail?.status || '   '
 
-          worksheet.getRow(currentRow).eachCell((cell, index) => {
-            if (cell.value) {
+          worksheet.getRow(currentRow).eachCell({ includeEmpty: true }, (cell, index) => {
+            if (index >= 2) {
               cell.alignment = {
                 horizontal: 'center',
-                vertical: 'middle',
+                vertical: 'top',
                 wrapText: true
               };
 
@@ -244,9 +244,9 @@ const generateSchedulingExcel = async (datas) => {
           //   .map(item => item?.technician_notes)
           //   .filter(Boolean)
           //   .join(' | ');
-          const allTechNotes = detail?.technician_notes || 'N/A';
+          const allTechNotes = detail?.technician_notes || '';
 
-          worksheet.getCell(`C${currentRow}`).value = allTechNotes || 'N/A';
+          worksheet.getCell(`C${currentRow}`).value = allTechNotes || '';
           worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
           worksheet.getCell(`C${currentRow}`).border = {
             top: { style: 'thin' },
@@ -274,9 +274,9 @@ const generateSchedulingExcel = async (datas) => {
           //   .filter(Boolean)
           //   .join(' | ');
 
-          const allAgentNotes = detail?.agent_notes || 'N/A';
+          const allAgentNotes = detail?.agent_notes || '';
 
-          worksheet.getCell(`C${currentRow}`).value = allAgentNotes || 'N/A';
+          worksheet.getCell(`C${currentRow}`).value = allAgentNotes || '';
           worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
           worksheet.getCell(`C${currentRow}`).border = {
             top: { style: 'thin' },

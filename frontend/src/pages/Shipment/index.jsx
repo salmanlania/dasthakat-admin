@@ -113,24 +113,44 @@ const Shipment = () => {
     }
   };
 
-  const onShipmentCreate = async (type) => {
+  const onShipmentCreate = async () => {
+    // const isValidForm = await form.validateFields();
+    // if (!isValidForm) return;
+
+    // try {
+    //   const values = form.getFieldsValue();
+    //   await dispatch(
+    //     createShipment({
+    //       event_id: values.event_id.value,
+    //       charge_order_id: values?.charge_order_id?.value || null,
+    //       type
+    //     })
+    //   ).unwrap();
+    //   toast.success('Shipment created successfully');
+    //   form.resetFields();
+    //   dispatch(getShipmentList(params)).unwrap();
+    // } catch (error) {
+    //   handleError(error);
+    // }
     const isValidForm = await form.validateFields();
     if (!isValidForm) return;
 
     try {
+      setChargeDataGetting(true);
+      setCreateModalIsOpen(true);
       const values = form.getFieldsValue();
-      await dispatch(
-        createShipment({
+      const res = await dispatch(
+        viewBeforeCreate({
           event_id: values.event_id.value,
           charge_order_id: values?.charge_order_id?.value || null,
-          type
+          type: 'SO'
         })
       ).unwrap();
-      toast.success('Shipment created successfully');
-      form.resetFields();
-      dispatch(getShipmentList(params)).unwrap();
+      setChargeData(res);
     } catch (error) {
       handleError(error);
+    } finally {
+      setChargeDataGetting(false);
     }
   };
 
@@ -181,8 +201,7 @@ const Shipment = () => {
     }
   };
 
-  const onProductCheck = (chargeId, chargeDetailId) => {
-    console.log(chargeId, chargeDetailId);
+  const onProductCheck = (chargeId, chargeDetailId) => {  
 
     const updatedChargeData = chargeData.map((charge) => {
       if (charge.charge_order_id === chargeId) {
@@ -511,7 +530,7 @@ const Shipment = () => {
 
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..."
+            placeholder="Search..." allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setShipmentListParams({ search: e.target.value }))}
