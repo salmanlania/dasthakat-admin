@@ -213,7 +213,6 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
           : null
       });
 
-      console.log(res);
       const chargeDetails = res.charge_order_detail
         ? res.charge_order_detail.map((detail) => ({
             id: detail.charge_order_detail_id,

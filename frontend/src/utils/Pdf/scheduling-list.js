@@ -38,9 +38,7 @@ const pdfContent = (doc, data, pageWidth) => {
     'Event Number',
     'Vessel Name',
     'Technician',
-    // 'Technician Notes',
     'Agent',
-    // 'Agent Notes',
     'Status'
   ];
 
@@ -58,10 +56,6 @@ const pdfContent = (doc, data, pageWidth) => {
   const table2Rows = [];
 
   Object.keys(groupedRows).forEach(eventDate => {
-    // const formattedDate = eventDate ? `Date: ${eventDate}` : 'Date: Empty';
-    // const formattedDate = (eventDate === '00-00-0000' || eventDate === '11-30-1899' || !dayjs(eventDate).isValid())
-    // ? 'Date: Empty'
-    // : `Date: ${dayjs(eventDate).format('MM-DD-YYYY')}`;
     let formattedDate = eventDate
     if (eventDate === "0000-00-00" || eventDate === "11-30-1899") {
       formattedDate = "Date : Empty"
@@ -87,9 +81,7 @@ const pdfContent = (doc, data, pageWidth) => {
         Array.isArray(item?.technicians)
           ? item.technicians.map(t => t.user_name).join(', ')
           : '   ',
-        // item?.technician_notes || '   ',
         item?.agent_name || '   ',
-        // item?.agent_notes || '   ',
         item?.status || '   '
       ]);
 
@@ -161,13 +153,15 @@ const pdfContent = (doc, data, pageWidth) => {
       2: { cellWidth: 27 },
       3: { cellWidth: 27 },
       4: { cellWidth: 35 },
-      // 5: { cellWidth: 27 },
       6: { cellWidth: 27 },
-      // 7: { cellWidth: 27 },
-      8: { cellWidth: 27 }
+      7: { cellWidth: 27 }
     },
     didParseCell: function (data) {
-      data.cell.styles.minCellHeight = 8;
+      const content = data.cell.text;
+      const minHeight = 8;
+      const additionalHeight = content.length > 50 ? 4 : 0;
+      data.cell.styles.minCellHeight = minHeight + additionalHeight;
+      // data.cell.styles.minCellHeight = 8;
     }
   });
 };

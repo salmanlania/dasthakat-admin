@@ -121,7 +121,7 @@ const NewReceivesTab = ({ details }) => {
           rules={[
             { required: true, message: 'Remaining Quantity required' },
             {
-              validator: (_, value) => { 
+              validator: (_, value) => {
                 if (value > dataSource[index].remaining_quantity) {
                   return Promise.reject(
                     `Remaining Quantity cannot be greater than ${dataSource[index].remaining_quantity}`
@@ -144,7 +144,13 @@ const NewReceivesTab = ({ details }) => {
       render: (_, __, index) => (
         <Form.Item
           name={[index, 'warehouse_id']}
-          className="m-0">
+          className="m-0"
+          rules={[
+            {
+              required: true,
+              message: 'Warehouse is required'
+            }
+          ]}>
           <AsyncSelect
             endpoint="/warehouse"
             valueKey="warehouse_id"
@@ -164,9 +170,7 @@ const NewReceivesTab = ({ details }) => {
       key: 'remarks',
       width: 200,
       render: (_, __, index) => (
-        <Form.Item
-          name={[index, 'remarks']}
-          className="m-0">
+        <Form.Item name={[index, 'remarks']} className="m-0">
           <Input />
         </Form.Item>
       )

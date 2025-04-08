@@ -4,7 +4,8 @@ import { useEffect, useState , useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { GoTrash } from 'react-icons/go';
 import { IoCheckmarkDoneCircleSharp } from 'react-icons/io5';
-import { LuClipboardList , LuEye} from 'react-icons/lu';
+import { LuClipboardList } from 'react-icons/lu';
+import { HiRefresh } from 'react-icons/hi';
 import { MdOutlineEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
@@ -13,6 +14,7 @@ import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import PurchaseOrderModal from '../../components/Modals/PurchaseOrderModal';
 import useDebounce from '../../hooks/useDebounce';
+import ChargeOrderModal from '../../components/Modals/ChargeOrderModal';
 import useError from '../../hooks/useError';
 import {
   bulkDeleteChargeOrder,
@@ -315,11 +317,11 @@ const ChargeOrder = () => {
             </Tooltip>
           ) : null}
 
-          <Tooltip title="Show Item Details">
+          <Tooltip title="Charge Order">
             <Button
               size="small"
               type="primary"
-              icon={<LuEye  size={14} />}
+              icon={<HiRefresh  size={14} />}
             />
           </Tooltip>
         </div>
@@ -466,6 +468,8 @@ const ChargeOrder = () => {
         title="Are you sure you want to delete these charge orders?"
         description="After deleting, you will not be able to recover."
       />
+
+      <ChargeOrderModal />
     </>
   );
 };

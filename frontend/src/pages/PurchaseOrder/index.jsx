@@ -101,7 +101,6 @@ const PurchaseOrder = () => {
       toast.dismiss(loadingToast);
       createPurchaseOrderPrint(data);
     } catch (error) {
-      console.log(error);
       handleError(error);
     }
   };
@@ -114,7 +113,6 @@ const PurchaseOrder = () => {
       toast.dismiss(loadingToast);
       createPurchaseOrderWithoutRatePrint(data);
     } catch (error) {
-      console.log(error);
       handleError(error);
     }
   };

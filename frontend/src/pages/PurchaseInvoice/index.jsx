@@ -75,7 +75,6 @@ const PurchaseInvoice = () => {
       toast.dismiss(loadingToast);
       createPurchaseInvoicePrint(data);
     } catch (error) {
-      console.log(error);
       handleError(error);
     }
   };

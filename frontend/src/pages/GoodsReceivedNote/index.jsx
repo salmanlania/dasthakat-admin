@@ -89,9 +89,7 @@ const GoodsReceivedNote = () => {
       const { purchase_order_detail, supplier } = await dispatch(
         getPurchaseOrder(selectedPO)
       ).unwrap();
-
-      console.log(purchase_order_detail);
-
+      
       const details = purchase_order_detail
         .map((detail, index) => ({
           id: detail.purchase_order_detail_id,
@@ -99,6 +97,7 @@ const GoodsReceivedNote = () => {
           product_type_id: detail.product_type ? detail.product_type.product_type_id : null,
           product_code: detail.product ? detail.product.product_code : null,
           product_id: detail.product ? detail.product.product_id : null,
+          warehouse_id : null,
           product_name: detail.product_name,
           product_description: detail.product_description,
           description: detail.description,
@@ -115,7 +114,7 @@ const GoodsReceivedNote = () => {
         purchase_order_id: selectedPO,
         supplier_id: supplier?.supplier_id,
         good_received_note_detail: details,
-        total_quantity: totalQuantity
+        total_quantity: totalQuantity,
       };
 
       await dispatch(createGoodsReceivedNote(payload)).unwrap();
