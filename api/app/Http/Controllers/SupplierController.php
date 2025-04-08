@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use App\Mail\GenerateMail;
 use App\Models\Customer;
+use App\Models\PurchaseOrder;
 use App\Models\Supplier;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
@@ -179,7 +180,20 @@ class SupplierController extends Controller
 		$supplier  = Supplier::where('supplier_id', $id)->first();
 
 		if (!$supplier) return $this->jsonResponse(['supplier_id' => $id], 404, "Supplier Not Found!");
+		$validate = [
+			'main' => [
+				'check' => new Supplier,
+				'id' => $id,
+			],
+			'with' => [
+				['model' => new PurchaseOrder],
+			]
+		];
 
+		$response = $this->checkAndDelete($validate);
+		if ($response['error']) {
+			return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+		}
 		$supplier->delete();
 
 		return $this->jsonResponse(['supplier_id' => $id], 200, "Delete Supplier Successfully!");
@@ -193,6 +207,20 @@ class SupplierController extends Controller
 			if (isset($request->supplier_ids) && !empty($request->supplier_ids) && is_array($request->supplier_ids)) {
 				foreach ($request->supplier_ids as $supplier_id) {
 					$supplier = Supplier::where(['supplier_id' => $supplier_id])->first();
+					$validate = [
+						'main' => [
+							'check' => new Supplier,
+							'id' => $supplier_id,
+						],
+						'with' => [
+							['model' => new PurchaseOrder],
+						]
+					];
+
+					$response = $this->checkAndDelete($validate);
+					if ($response['error']) {
+						return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+					}
 					$supplier->delete();
 				}
 			}

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use App\Mail\GenerateMail;
 use App\Models\Customer;
 use App\Models\CustomerVessel;
+use App\Models\Quotation;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
@@ -223,7 +224,20 @@ class CustomerController extends Controller
 		$customer  = Customer::where('customer_id', $id)->first();
 
 		if (!$customer) return $this->jsonResponse(['customer_id' => $id], 404, "Customer Not Found!");
+		$validate = [
+			'main' => [
+				'check' => new Customer,
+				'id' => $id,
+			],
+			'with' => [
+				['model' => new Quotation],
+			]
+		];
 
+		$response = $this->checkAndDelete($validate);
+		if ($response['error']) {
+			return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+		}
 		$customer->delete();
 		CustomerVessel::where('customer_id', $id)->delete();
 
@@ -238,6 +252,21 @@ class CustomerController extends Controller
 			if (isset($request->customer_ids) && !empty($request->customer_ids) && is_array($request->customer_ids)) {
 				foreach ($request->customer_ids as $customer_id) {
 					$customer = Customer::where(['customer_id' => $customer_id])->first();
+					$validate = [
+						'main' => [
+							'check' => new Customer,
+							'id' => $customer_id,
+						],
+						'with' => [
+							['model' => new Quotation],
+						]
+					];
+
+					$response = $this->checkAndDelete($validate);
+					if ($response['error']) {
+						return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+					}
+
 					$customer->delete();
 					CustomerVessel::where('customer_id', $customer_id)->delete();
 				}

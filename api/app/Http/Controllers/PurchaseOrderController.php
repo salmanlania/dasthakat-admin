@@ -94,13 +94,15 @@ class PurchaseOrderController extends Controller
 		// $data = $data->select("purchase_order.*", 'c.name as customer_name', "s.name as supplier_name", "q.document_identity as quotation_no", "co.document_identity as charge_no")
 		$data = $data->select(
 			"purchase_order.*",
+			DB::raw("CONCAT(purchase_order.document_identity , ' - ', e.event_code, ' (', v.name, ')') as purchase_order_no"),
 			'c.name as customer_name',
 			'e.event_code',
 			'v.name as vessel_name',
 			"s.name as supplier_name",
 			"q.document_identity as quotation_no",
 			"co.document_identity as charge_no",
-			DB::raw("
+			DB::raw(
+				"
 				CASE
 					WHEN NOT EXISTS (
 						SELECT 1
@@ -448,6 +450,21 @@ class PurchaseOrderController extends Controller
 		$data  = PurchaseOrder::where('purchase_order_id', $id)->first();
 		if (!$data) return $this->jsonResponse(['purchase_order_id' => $id], 404, "Purchase Order Not Found!");
 
+		$validate = [
+			'main' => [
+				'check' => new PurchaseOrder,
+				'id' => $id,
+			],
+			'with' => [
+				['model' => new GRN],
+			]
+		];
+
+		$response = $this->checkAndDelete($validate);
+		if ($response['error']) {
+			return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+		}
+
 		$purchaseOrderDetailIds = PurchaseOrderDetail::where('purchase_order_id', $id)->pluck('purchase_order_detail_id');
 
 		// Update ChargeOrderDetail to set editable to true for the associated items
@@ -470,6 +487,21 @@ class PurchaseOrderController extends Controller
 			if (isset($request->purchase_order_ids) && !empty($request->purchase_order_ids) && is_array($request->purchase_order_ids)) {
 				foreach ($request->purchase_order_ids as $purchase_order_id) {
 					$user = PurchaseOrder::where(['purchase_order_id' => $purchase_order_id])->first();
+
+					$validate = [
+						'main' => [
+							'check' => new PurchaseOrder,
+							'id' => $purchase_order_id,
+						],
+						'with' => [
+							['model' => new GRN],
+						]
+					];
+
+					$response = $this->checkAndDelete($validate);
+					if ($response['error']) {
+						return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+					}
 
 					$purchaseOrderDetailIds = PurchaseOrderDetail::where('purchase_order_id', $purchase_order_id)->pluck('purchase_order_detail_id');
 

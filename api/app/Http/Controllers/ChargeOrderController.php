@@ -6,9 +6,13 @@ use App\Models\DocumentType;
 use Illuminate\Http\Request;
 use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
+use App\Models\JobOrder;
+use App\Models\Picklist;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
 use App\Models\Quotation;
+use App\Models\Servicelist;
+use App\Models\Shipment;
 use App\Models\StockLedger;
 use App\Models\Supplier;
 use App\Models\Technician;
@@ -415,6 +419,26 @@ class ChargeOrderController extends Controller
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		$data  = ChargeOrder::where('charge_order_id', $id)->first();
 		if (!$data) return $this->jsonResponse(['charge_order_id' => $id], 404, "Charge Order Not Found!");
+
+		$validate = [
+			'main' => [
+				'check' => new ChargeOrder,
+				'id' => $id,
+			],
+			'with' => [
+				['model' => new PurchaseOrder],
+				['model' => new Picklist],
+				['model' => new Servicelist],
+				['model' => new Shipment],
+			]
+		];
+
+		$response = $this->checkAndDelete($validate);
+		if ($response['error']) {
+			return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+		}
+
+
 		$data->delete();
 		ChargeOrderDetail::where('charge_order_id', $id)->delete();
 		return $this->jsonResponse(['charge_order_id' => $id], 200, "Delete Charge Order Successfully!");
@@ -428,6 +452,25 @@ class ChargeOrderController extends Controller
 			if (isset($request->charge_order_ids) && !empty($request->charge_order_ids) && is_array($request->charge_order_ids)) {
 				foreach ($request->charge_order_ids as $charge_order_id) {
 					$user = ChargeOrder::where(['charge_order_id' => $charge_order_id])->first();
+
+					$validate = [
+						'main' => [
+							'check' => new ChargeOrder,
+							'id' => $charge_order_id,
+						],
+						'with' => [
+							['model' => new PurchaseOrder],
+							['model' => new Picklist],
+							['model' => new Servicelist],
+							['model' => new Shipment],
+						]
+					];
+
+					$response = $this->checkAndDelete($validate);
+					if ($response['error']) {
+						return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+					}
+
 					$user->delete();
 					ChargeOrderDetail::where('charge_order_id', $charge_order_id)->delete();
 				}

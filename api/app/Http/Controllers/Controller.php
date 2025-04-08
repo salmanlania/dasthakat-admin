@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\GenerateMail;
 use App\Models\Audit;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 
@@ -264,32 +265,6 @@ class Controller extends BaseController
     }
 
 
-    protected function auditAction($request, $action, $action_on, $document_type, $document_id, $document_name, $data)
-    {
-        $audit = [
-            'action' => $action,
-            'action_on' => $action_on,
-            'request' => $request,
-            'document_type' => $document_type,
-            'document_id' => $document_id,
-            'document_name' => $document_name,
-            'json_data' => json_encode($data),
-        ];
-
-        Audit::create([
-            'company_id' => $audit['request']['company_id'],
-            'company_branch_id' => $audit['request']['company_branch_id'],
-            'action' => $audit['action'],
-            'action_on' => $audit['action_on'],
-            'action_by' => $audit['request']['login_user_id'],
-            'action_at' => date('Y-m-d H:i:s'),
-            'document_type' => $audit['document_type'],
-            'document_id' => $audit['document_id'],
-            'document_name' => $audit['document_name'],
-            'json_data' => $audit['json_data'],
-        ]);
-        // Audit Action
-    }
 
 
     /**

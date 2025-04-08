@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Agent;
+use App\Models\ChargeOrder;
 use Illuminate\Validation\Rule;
 
 class AgentController extends Controller
@@ -166,7 +167,20 @@ class AgentController extends Controller
 		$data  = Agent::where('agent_id', $id)->first();
 
 		if (!$data) return $this->jsonResponse(['agent_id' => $id], 404, "Agent Not Found!");
+		$validate = [
+			'main' => [
+				'check' => new Agent,
+				'id' => $id,
+			],
+			'with' => [
+				['model' => new ChargeOrder],
+			]
+		];
 
+		$response = $this->checkAndDelete($validate);
+		if ($response['error']) {
+			return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+		}
 		$data->delete();
 
 		return $this->jsonResponse(['agent_id' => $id], 200, "Delete Agent Successfully!");
@@ -180,6 +194,23 @@ class AgentController extends Controller
 			if (isset($request->agent_ids) && !empty($request->agent_ids) && is_array($request->agent_ids)) {
 				foreach ($request->agent_ids as $agent_id) {
 					$user = Agent::where(['agent_id' => $agent_id])->first();
+
+					$validate = [
+						'main' => [
+							'check' => new Agent,
+							'id' => $agent_id,
+						],
+						'with' => [
+							['model' => new ChargeOrder],
+						]
+					];
+
+					$response = $this->checkAndDelete($validate);
+					if ($response['error']) {
+						return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+					}
+
+
 					$user->delete();
 				}
 			}

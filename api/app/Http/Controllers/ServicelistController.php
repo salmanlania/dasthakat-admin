@@ -137,7 +137,6 @@ class ServicelistController extends Controller
 		// Fetch received servicelist history
 		$receivedData = ServicelistReceived::with([
 			"servicelist_received_detail",
-			"servicelist_received_detail.pulled_by",
 			"servicelist_received_detail.product",
 			"servicelist_received_detail.warehouse"
 		])->where('servicelist_id', $id)->get();

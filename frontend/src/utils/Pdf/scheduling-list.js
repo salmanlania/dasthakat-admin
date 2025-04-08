@@ -18,6 +18,11 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
     align: 'center'
   });
 
+  const date = dayjs().isValid() ? `Print Date: ${dayjs().format('MM-DD-YYYY HH:mm:ss')}` : 'Date: Empty';
+  doc.setFontSize(10);
+  doc.setFont('times', 'bold');
+  doc.text(date, pageWidth - 54, 34);
+
   doc.setDrawColor(0, 0, 0);
   doc.setLineWidth(0.3);
   doc.setFontSize(15);
@@ -33,9 +38,9 @@ const pdfContent = (doc, data, pageWidth) => {
     'Event Number',
     'Vessel Name',
     'Technician',
-    'Technician Notes',
+    // 'Technician Notes',
     'Agent',
-    'Agent Notes',
+    // 'Agent Notes',
     'Status'
   ];
 
@@ -82,11 +87,41 @@ const pdfContent = (doc, data, pageWidth) => {
         Array.isArray(item?.technicians)
           ? item.technicians.map(t => t.user_name).join(', ')
           : '   ',
-        item?.technician_notes || '   ',
+        // item?.technician_notes || '   ',
         item?.agent_name || '   ',
-        item?.agent_notes || '   ',
+        // item?.agent_notes || '   ',
         item?.status || '   '
       ]);
+
+      if (item?.technician_notes) {
+        table2Rows.push([
+          {
+            content: 'Technician Notes:',
+            colSpan: 1,
+            styles: { fontStyle: 'bold', halign: 'left' }
+          },
+          {
+            content: item.technician_notes,
+            colSpan: 6,
+            styles: { fontStyle: 'normal', halign: 'left' }
+          }
+        ]);
+      }
+
+      if (item?.agent_notes) {
+        table2Rows.push([
+          {
+            content: 'Agent Notes:',
+            colSpan: 1,
+            styles: { fontStyle: 'bold', halign: 'left' }
+          },
+          {
+            content: item.agent_notes,
+            colSpan: 6,
+            styles: { fontStyle: 'normal', halign: 'left' }
+          }
+        ]);
+      }
     });
   });
 
@@ -109,7 +144,7 @@ const pdfContent = (doc, data, pageWidth) => {
       font: 'times',
       lineWidth: 0.1,
       lineColor: [0, 0, 0],
-      cellPadding: 1
+      cellPadding: 1,
     },
     bodyStyles: {
       fontSize: 7,
@@ -121,29 +156,23 @@ const pdfContent = (doc, data, pageWidth) => {
     },
     rowPageBreak: 'avoid',
     columnStyles: {
-      0: { cellWidth: 20 },
-      1: { cellWidth: 20 },
-      2: { cellWidth: 20 },
-      3: { cellWidth: 20 },
-      4: { cellWidth: 26 },
-      5: { cellWidth: 27 },
-      6: { cellWidth: 20 },
-      7: { cellWidth: 27 },
-      8: { cellWidth: 20 }
+      0: { cellWidth: 27 },
+      1: { cellWidth: 27 },
+      2: { cellWidth: 27 },
+      3: { cellWidth: 27 },
+      4: { cellWidth: 35 },
+      // 5: { cellWidth: 27 },
+      6: { cellWidth: 27 },
+      // 7: { cellWidth: 27 },
+      8: { cellWidth: 27 }
     },
     didParseCell: function (data) {
-      data.cell.styles.minCellHeight = 11;
+      data.cell.styles.minCellHeight = 8;
     }
   });
-
-  doc.setFontSize(10);
-  doc.setFont('times', 'bold');
-  // const date = `Print Date:  ${dayjs().format('MM-DD-YYYY')}`;
-  const date = dayjs().isValid() ? `Print Date: ${dayjs().format('MM-DD-YYYY')}` : 'Date: Empty';
-  doc.text(date, pageWidth - 41, doc.previousAutoTable.finalY + 12);
 };
 
-const createDispatchListPrint = (data, multiple = false) => {
+const createSchedulingListPrint = (data, multiple = false) => {
   const doc = new jsPDF();
   const sideMargin = 4;
   const pageSize = doc.internal.pageSize;
@@ -185,4 +214,4 @@ const createDispatchListPrint = (data, multiple = false) => {
   URL.revokeObjectURL(pdfUrl);
 };
 
-export default createDispatchListPrint;
+export default createSchedulingListPrint;

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Quotation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Validity;
@@ -126,7 +127,20 @@ class ValidityController extends Controller
 		$data  = Validity::where('validity_id', $id)->first();
 
 		if (!$data) return $this->jsonResponse(['validity_id' => $id], 404, "Validity Not Found!");
+		$validate = [
+			'main' => [
+				'check' => new Validity,
+				'id' => $id,
+			],
+			'with' => [
+				['model' => new Quotation],
+			]
+		];
 
+		$response = $this->checkAndDelete($validate);
+		if ($response['error']) {
+			return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+		}
 		$data->delete();
 
 		return $this->jsonResponse(['validity_id' => $id], 200, "Delete Validity Successfully!");
@@ -140,6 +154,20 @@ class ValidityController extends Controller
 			if (isset($request->validity_ids) && !empty($request->validity_ids) && is_array($request->validity_ids)) {
 				foreach ($request->validity_ids as $validity_id) {
 					$user = Validity::where(['validity_id' => $validity_id])->first();
+					$validate = [
+						'main' => [
+							'check' => new Validity,
+							'id' => $validity_id,
+						],
+						'with' => [
+							['model' => new Quotation],
+						]
+					];
+
+					$response = $this->checkAndDelete($validate);
+					if ($response['error']) {
+						return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+					}
 					$user->delete();
 				}
 			}

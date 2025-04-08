@@ -259,7 +259,7 @@ export const goodsReceivedNoteSlice = createSlice({
         quotation_id: data.quotation_id,
         charge_order_id: data.charge_order_id,
         type: data?.purchase_order?.type || null,
-        charge_no: data?.purchase_order?.charge_order?.document_identity,
+        charge_no: data?.purchase_order?.charge_order?.purchase_order_no,
         purchase_order_no: data?.purchase_order?.charge_order?.customer_po_no,
         event_id: data?.purchase_order?.charge_order?.event
           ? {
@@ -285,12 +285,18 @@ export const goodsReceivedNoteSlice = createSlice({
               label: data.supplier.name
             }
           : null,
+          vessel_id: data.vessel
+          ? {
+              value: data.vessel.vessel_id,
+              label: data.vessel.name
+            }
+          : null,
         purchase_order_id: data.purchase_order
           ? {
               value: data.purchase_order.purchase_order_id,
-              label: data.purchase_order.document_identity
+              label: data.purchase_order.purchase_order_no || data.purchase_order.document_identity
             }
-          : null
+          : null,
       };
 
       if (!data.grn_detail) return;
