@@ -351,6 +351,16 @@ $router->group(['prefix' => 'servicelist'], function ($router) {
    $router->post('/', 'ServicelistController@store');
 });
 
+// service order routes
+$router->group(['prefix' => 'service_order'], function ($router) {
+   $router->get('/', 'ServiceOrderController@index');
+   $router->get('/view-before-create', 'ServiceOrderController@viewBeforeServiceOrder');
+   $router->get('/{id}', 'ServiceOrderController@show');
+   $router->post('/', 'ServiceOrderController@store');
+   $router->delete('/{id}', 'ServiceOrderController@delete');
+   $router->post('/bulk-delete', 'ServiceOrderController@bulkDelete');
+});
+
 $router->group(['prefix' => 'servicelist-received'], function ($router) {
    $router->get('/{id}', 'ServicelistReceivedController@show');
    $router->put('/{id}', 'ServicelistReceivedController@update');
