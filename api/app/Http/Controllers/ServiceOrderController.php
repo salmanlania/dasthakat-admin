@@ -136,14 +136,15 @@ class ServiceOrderController extends Controller
 			// Build query with optimized relationships and conditions
 			$query = ChargeOrderDetail::query()
 				->with([
-					'charge_order' => fn($q) => $q->select('charge_order_id', 'document_identity', 'event_id'),
-					'product' => fn($q) => $q->select('product_id', 'name'),
-					'product_type' => fn($q) => $q->select('product_type_id', 'name'),
-					'unit' => fn($q) => $q->select('unit_id', 'name'),
-					'supplier' => fn($q) => $q->select('supplier_id', 'name')
+					'charge_order',
+					'product',
+					'product_type',
+					'unit',
+					'supplier',
 				])
 				->whereNull('service_order_detail_id')
-				->when($request->charge_order_id, fn($q) => $q->where('charge_order_id', $request->charge_order_id))
+				->where('charge_order_id', $request->charge_order_id)
+				// ->when($request->charge_order_id, fn($q) => $q->where('charge_order_id', $request->charge_order_id))
 				->orderBy('sort_order');
 
 			$chargeOrderDetails = $query->get();
@@ -152,39 +153,7 @@ class ServiceOrderController extends Controller
 				return $this->jsonResponse('No Items Found For Service Order', 404, "No Data Found!");
 			}
 
-			// Use collection methods for transformation
-			$details = $chargeOrderDetails
-				->filter(fn($item) => $this->getShipmentQuantity($item) > 0)
-				->groupBy('charge_order_id')
-				->map(function ($group, $key) {
-					$firstItem = $group->first();
-					return [
-						'charge_order_id' => $key,
-						'document_identity' => $firstItem->charge_order?->document_identity,
-						'details' => $group->map(fn($item) => [
-							'charge_order_detail_id' => $item->charge_order_detail_id,
-							'product_id' => $item->product_id,
-							'product_name' => $item->product?->name ?? $item->product_name,
-							'product_type_id' => $item->product_type_id,
-							'product_type_name' => $item->product_type?->name,
-							'product_description' => $item->product_description,
-							'description' => $item->description,
-							'internal_notes' => $item->internal_notes,
-							'available_quantity' => $this->getShipmentQuantity($item),
-							'quantity' => $item->quantity,
-							'unit_id' => $item->unit_id,
-							'unit_name' => $item->unit?->name,
-							'supplier_id' => $item->supplier_id,
-							'supplier_name' => $item->supplier?->name,
-						])->values()->all()
-					];
-				})->values()->all();
-
-			if (empty($details)) {
-				return $this->jsonResponse('No Items Found For Service Order', 404, "No Data Found!");
-			}
-
-			return $this->jsonResponse($details, 200, "View Service Order");
+			return $this->jsonResponse($chargeOrderDetails, 200, "View Service Order");
 		} catch (\Exception $e) {
 			// Add proper error handling
 			return $this->jsonResponse('An error occurred while processing the request', 500, $e->getMessage());

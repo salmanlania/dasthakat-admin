@@ -28,6 +28,8 @@ class ChargeOrderDetail extends Model
         "supplier_id",
         "purchase_order_id",
         "purchase_order_detail_id",
+        "service_order_id",
+        "service_order_detail_id",
         "shipment_id",
         "shipment_detail_id",
         "purchase_order_detail_id",

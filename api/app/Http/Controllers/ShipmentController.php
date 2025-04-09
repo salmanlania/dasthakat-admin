@@ -144,15 +144,16 @@ class ShipmentController extends Controller
 			// Build query with optimized relationships and conditions
 			$query = ChargeOrderDetail::query()
 				->with([
-					'charge_order' => fn($q) => $q->select('charge_order_id', 'document_identity', 'event_id'),
-					'product' => fn($q) => $q->select('product_id', 'name'),
-					'product_type' => fn($q) => $q->select('product_type_id', 'name'),
-					'unit' => fn($q) => $q->select('unit_id', 'name'),
-					'supplier' => fn($q) => $q->select('supplier_id', 'name')
+					'charge_order',
+					'product',
+					'product_type',
+					'unit',
+					'supplier',
 				])
 				->whereNull('shipment_detail_id')
 				->whereHas('charge_order', fn($q) => $q->where('event_id', $request->event_id))
-				->when($request->charge_order_id, fn($q) => $q->where('charge_order_id', $request->charge_order_id))
+				->where('charge_order_id', $request->charge_order_id)
+				// ->when($request->charge_order_id, fn($q) => $q->where('charge_order_id', $request->charge_order_id))
 				->where('product_type_id', $request->type === "DO" ? '!=' : '=', 1)
 				->orderBy('sort_order');
 
@@ -161,10 +162,11 @@ class ShipmentController extends Controller
 			if ($chargeOrderDetails->isEmpty()) {
 				return $this->jsonResponse('No Items Found For Shipment', 404, "No Data Found!");
 			}
+			// exit;
 
 			// Use collection methods for transformation
 			$shipmentDetails = $chargeOrderDetails
-				->filter(fn($item) => $this->getShipmentQuantity($item) > 0)
+				// ->filter(fn($item) => $this->getShipmentQuantity($item) > 0)
 				->groupBy('charge_order_id')
 				->map(function ($group, $key) {
 					$firstItem = $group->first();
@@ -238,7 +240,7 @@ class ShipmentController extends Controller
 		// Extract charge order details from the request
 		$chargeOrderIds = collect($request->shipment)->pluck('charge_order_id')->unique()->toArray();
 		$chargeOrderDetailIds = collect($request->shipment)->pluck('details')->flatten(1)->pluck('charge_order_detail_id')->unique()->values()->toArray();
-		
+
 		// Fetch valid charge order details from DB
 		$chargeOrderDetails = ChargeOrderDetail::whereHas('charge_order', function ($query) use ($request, $chargeOrderIds) {
 			$query->where('event_id', $request->event_id)
@@ -249,11 +251,9 @@ class ShipmentController extends Controller
 			->when($request->type == "DO", fn($query) => $query->where('product_type_id', '!=', 1), fn($query) => $query->where('product_type_id', 1))
 			->orderBy('sort_order')
 			->get();
-
 		if ($chargeOrderDetails->isEmpty()) {
 			return $this->jsonResponse('No Items Found For Shipment', 404, "No Data Found!");
 		}
-
 		// Process Shipment Details
 		$shipmentDetails = [];
 		foreach ($chargeOrderDetails as $index => $detail) {
