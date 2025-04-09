@@ -111,9 +111,7 @@ class ServiceOrderController extends Controller
 
 	public function Validator($request, $id = null)
 	{
-		$rules = [
-			'charge_order_id' => ['required'],
-		];
+		$rules = [	];
 
 		$msg = validateRequest($request, $rules);
 		if (!empty($msg)) return $msg;
@@ -174,7 +172,7 @@ class ServiceOrderController extends Controller
 
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument($this->document_type_id, $request);
-		$chargeOrder = ChargeOrder::find($request->charge_order_id);
+		$chargeOrder = ChargeOrder::find($request->service_order[0]['charge_order_id']);
 
 		// service order Insert Array
 		$insert = [
@@ -185,9 +183,9 @@ class ServiceOrderController extends Controller
 			'document_no'       => $document['document_no'] ?? null,
 			'document_identity' => $document['document_identity'] ?? null,
 			'documnt_prefix'   => $document['document_prefix'] ?? null,
-			'documeent_date'     => Carbon::now(),
+			'document_date'     => Carbon::now(),
 			'event_id'          => $chargeOrder->event_id ?? null,
-			'charge_order_id'   => $request->charge_order_id ?? null,
+			'charge_order_id'   => $request->service_order[0]['charge_order_id'] ?? null,
 			'created_at'        => Carbon::now(),
 			'created_by'        => $request->login_user_id,
 		];
