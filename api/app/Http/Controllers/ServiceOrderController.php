@@ -176,7 +176,7 @@ class ServiceOrderController extends Controller
 		$document = DocumentType::getNextDocument($this->document_type_id, $request);
 		$chargeOrder = ChargeOrder::find($request->charge_order_id);
 
-		// Shipment Insert Array
+		// service order Insert Array
 		$insert = [
 			'company_id'        => $request->company_id ?? null,
 			'company_branch_id' => $request->company_branch_id ?? null,
@@ -224,7 +224,7 @@ class ServiceOrderController extends Controller
 				'product_description'   => $detail->product_description,
 				'description'           => $detail->description,
 				'internal_notes'        => $detail->internal_notes,
-				'quantity'              => $this->getShipmentQuantity($detail),
+				'quantity'              => $detail->quantity,
 				'unit_id'               => $detail->unit_id,
 				'supplier_id'           => $detail->supplier_id,
 				'created_at'            => Carbon::now(),
