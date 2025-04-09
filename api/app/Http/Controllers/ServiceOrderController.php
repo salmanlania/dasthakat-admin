@@ -182,7 +182,7 @@ class ServiceOrderController extends Controller
 			'document_type_id'  => $document['document_type_id'] ?? null,
 			'document_no'       => $document['document_no'] ?? null,
 			'document_identity' => $document['document_identity'] ?? null,
-			'documnt_prefix'   => $document['document_prefix'] ?? null,
+			'document_prefix'   => $document['document_prefix'] ?? null,
 			'document_date'     => Carbon::now(),
 			'event_id'          => $chargeOrder->event_id ?? null,
 			'charge_order_id'   => $request->service_order[0]['charge_order_id'] ?? null,
