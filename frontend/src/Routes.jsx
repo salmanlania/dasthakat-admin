@@ -103,6 +103,8 @@ const Shipment = lazy(() => import('./pages/Shipment'));
 const CreateShipment = lazy(() => import('./pages/Shipment/CreateShipment'));
 const EditShipment = lazy(() => import('./pages/Shipment/EditShipment'));
 
+const ServiceOrder = lazy(() => import('./pages/ServiceOrder'));
+
 const Scheduling = lazy(() => import('./pages/Scheduling/'));
 
 function Routes() {
@@ -671,6 +673,14 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditShipment />
+              </Suspense>
+            )
+          },
+          {
+            path: '/service-order',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <ServiceOrder />
               </Suspense>
             )
           },

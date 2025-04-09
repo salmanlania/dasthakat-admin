@@ -98,6 +98,7 @@ const Sidebar = () => {
     !permissions?.picklist?.list &&
     !permissions?.shipment?.list &&
     !permissions?.servicelist?.list;
+    !permissions?.service_order?.list;
 
   const accountingPermission = !permissions?.purchase_invoice?.list;
 
@@ -311,6 +312,11 @@ const Sidebar = () => {
           key: 'shipment',
           label: <Link to="/shipment">Shipment</Link>,
           disabled: !permissions?.shipment?.list
+        },
+        {
+          key: 'service_order',
+          label: <Link to="/service-order">Service Order</Link>,
+          disabled: !permissions?.service_order?.list
         },
       ]
     },

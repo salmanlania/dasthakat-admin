@@ -39,6 +39,17 @@ export const createChargeOrder = createAsyncThunk(
   }
 );
 
+export const temporaryServiceOrder = createAsyncThunk(
+  'temporary/service_order',
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      return await api.post('/service_order', data);
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const getChargeOrder = createAsyncThunk(
   'chargeOrder/get',
   async (id, { rejectWithValue }) => {
@@ -120,11 +131,29 @@ export const bulkDeleteChargeOrder = createAsyncThunk(
   }
 );
 
+export const viewBeforeCreate = createAsyncThunk(
+  'tempList/view-before-create',
+  async (params, { rejectWithValue }) => {
+    try {
+      const res = await api.get('/service_order/view-before-create', {
+        params
+      });
+      return res.data.data;
+    } catch (err) {
+      console.log('err' , err)
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 const initialState = {
   isListLoading: false,
   isFormSubmitting: false,
   isBulkDeleting: false,
   initialFormValues: null,
+  tempChargeOrderID: null,
+  tempChargeDetails: [],
+  isTempDataLoading: false,
   isItemLoading: false,
   list: [],
   deleteIDs: [],
@@ -149,6 +178,10 @@ export const chargeOrderSlice = createSlice({
   reducers: {
     setChargeQuotationID: (state, action) => {
       state.chargeQuotationID = action.payload;
+    },
+
+    setTempChargeOrderID: (state, action) => {
+      state.tempChargeOrderID = action.payload;
     },
 
     setChargeOrderListParams: (state, action) => {
@@ -361,6 +394,17 @@ export const chargeOrderSlice = createSlice({
       state.isFormSubmitting = false;
     });
 
+    addCase(temporaryServiceOrder.pending, (state, action) => {
+      const additionalRequest = action.meta.arg?.additionalRequest || false;
+      state.isFormSubmitting = additionalRequest || true;
+    });
+    addCase(temporaryServiceOrder.fulfilled, (state) => {
+      state.isFormSubmitting = false;
+    });
+    addCase(temporaryServiceOrder.rejected, (state) => {
+      state.isFormSubmitting = false;
+    });
+
     addCase(getChargeOrder.pending, (state) => {
       state.isItemLoading = true;
     });
@@ -536,6 +580,18 @@ export const chargeOrderSlice = createSlice({
     addCase(bulkDeleteChargeOrder.rejected, (state) => {
       state.isBulkDeleting = false;
     });
+
+    addCase(viewBeforeCreate.pending, (state) => {
+      state.isTempDataLoading = true;
+      state.tempChargeDetails = [];
+    });
+    addCase(viewBeforeCreate.fulfilled, (state, action) => {
+      state.isTempDataLoading = false;
+      state.tempChargeDetails = action.payload || [];
+    });
+    addCase(viewBeforeCreate.rejected, (state) => {
+      state.isTempDataLoading = false;
+    });
   }
 });
 
@@ -549,6 +605,7 @@ export const {
   changeChargeOrderDetailOrder,
   changeChargeOrderDetailValue,
   setChargeQuotationID,
+  setTempChargeOrderID,
   splitChargeOrderQuantity
 } = chargeOrderSlice.actions;
 export default chargeOrderSlice.reducer;
