@@ -58,6 +58,9 @@ const Shipment = () => {
   const [chargeData, setChargeData] = useState(null);
   const [chargeDataGetting, setChargeDataGetting] = useState(false);
 
+  const [popupTitle , setPopupTitle] = useState('')
+  const [shipmentType, setShipmentType] = useState(null);
+
   const closeCreateModal = () => {
     setCreateModalIsOpen(null);
     setChargeData(null);
@@ -93,8 +96,10 @@ const Shipment = () => {
   const openCreateModal = async () => {
     const isValidForm = await form.validateFields();
     if (!isValidForm) return;
+    setPopupTitle('Create DO')
 
     try {
+      setShipmentType('DO');
       setChargeDataGetting(true);
       setCreateModalIsOpen(true);
       const values = form.getFieldsValue();
@@ -114,36 +119,20 @@ const Shipment = () => {
   };
 
   const onShipmentCreate = async () => {
-    // const isValidForm = await form.validateFields();
-    // if (!isValidForm) return;
-
-    // try {
-    //   const values = form.getFieldsValue();
-    //   await dispatch(
-    //     createShipment({
-    //       event_id: values.event_id.value,
-    //       charge_order_id: values?.charge_order_id?.value || null,
-    //       type
-    //     })
-    //   ).unwrap();
-    //   toast.success('Shipment created successfully');
-    //   form.resetFields();
-    //   dispatch(getShipmentList(params)).unwrap();
-    // } catch (error) {
-    //   handleError(error);
-    // }
     const isValidForm = await form.validateFields();
     if (!isValidForm) return;
+    setPopupTitle('Create SO')
 
     try {
       setChargeDataGetting(true);
       setCreateModalIsOpen(true);
+      setShipmentType('SO');
       const values = form.getFieldsValue();
       const res = await dispatch(
         viewBeforeCreate({
           event_id: values.event_id.value,
           charge_order_id: values?.charge_order_id?.value || null,
-          type: 'SO'
+          type: 'SO',
         })
       ).unwrap();
       setChargeData(res);
@@ -168,7 +157,7 @@ const Shipment = () => {
         createShipment({
           event_id: values.event_id.value,
           charge_order_id: values?.charge_order_id?.value || null,
-          type: 'DO',
+          type: shipmentType,
           shipment: filteredChargeData
         })
       ).unwrap();
@@ -515,7 +504,8 @@ const Shipment = () => {
             className="mb-[1px] w-28"
             disabled={!eventId}
             loading={isFormSubmitting === 'SO'}
-            onClick={() => onShipmentCreate('SO')}>
+            // onClick={onShipmentCreate}>
+            onClick={onShipmentCreate}>
             Create SO
           </Button>
           <Button
@@ -594,7 +584,7 @@ const Shipment = () => {
         />
       </div>
 
-      <Modal open={createModalIsOpen} onCancel={closeCreateModal} footer={null} title="Create DO">
+      <Modal open={createModalIsOpen} onCancel={closeCreateModal} footer={null} title={popupTitle}>
         {chargeDataGetting && (
           <div className="flex justify-center py-24">
             <Spin />
