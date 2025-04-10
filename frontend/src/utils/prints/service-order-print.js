@@ -4,7 +4,6 @@ import GMSLogo from '../../assets/logo.jpg';
 import dayjs from 'dayjs';
 
 const fillEmptyRows = (rows, rowsPerPage) => {
-  // Calculate how many rows are required to fill the current page
   const rowsOnLastPage = rows.length % rowsPerPage;
   const emptyRowsNeeded = rowsOnLastPage ? rowsPerPage - rowsOnLastPage : 0;
 
@@ -25,7 +24,6 @@ const fillEmptyRows = (rows, rowsPerPage) => {
 const pdfContent = (doc, data, sideMargin, pageWidth) => {
   doc.setTextColor(32, 50, 114); 
 
-  // Header
   doc.setFontSize(20);
   doc.setFont('times', 'bold');
   doc.text('GLOBAL MARINE SAFETY', pageWidth / 2, 15, {
@@ -50,38 +48,23 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     align: 'center'
   });
 
-  // LOGO
-  doc.addImage(GMSLogo, 'PNG', 8, 4, 25, 18); // x, y, width, height
-
-  // Service Order Title
-  // doc.setFontSize(12);
-  // doc.setFont('times', 'bold');
-  // doc.setTextColor(0, 0, 0);
-  // doc.text('Service Order - Original', pageWidth / 2, 42, {
-  //   align: 'center'
-  // });
-
+  doc.addImage(GMSLogo, 'PNG', 8, 4, 25, 18);
   doc.setFontSize(15);
   doc.setFont('times', 'bold');
-  doc.setTextColor(0, 0, 0);  // Set custom color (Red in RGB format)
+  doc.setTextColor(0, 0, 0);
   const text = 'Service Order - Original';
   const x = pageWidth / 2;
   const y = 42;
 
-  // Add text to the PDF
   doc.text(text, x, y, { align: 'center' });
 
-  // Get the width of the text to align the underline
   const textWidth = doc.getTextWidth(text);
 
-  // Draw an underline below the text
-  const underlineY = y + 2; // Adjust the Y-coordinate for the underline, slightly below the text
-  doc.setDrawColor(0, 0, 0);  // Set the color for the underline (same as text color)
-  doc.setLineWidth(0.5); // Set the thickness of the underline line
-  doc.line(x - textWidth / 2, underlineY, x + textWidth / 2, underlineY); // Draw the line
+  const underlineY = y + 2;
+  doc.setDrawColor(0, 0, 0);  
+  doc.setLineWidth(0.5); 
+  doc.line(x - textWidth / 2, underlineY, x + textWidth / 2, underlineY);
 
-
-  // Top information table (Date, Event, Charge, etc.)
   const topInfoTable = [
     [
       {
@@ -212,14 +195,14 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         }
       },
       {
-        content: '-',
+        content: '',
         styles: {
           fontStyle: 'bold',
           halign: 'left',
         }
       },
       {
-        content: '-',
+        content: '',
         styles: {
           halign: 'left',
         }
@@ -252,7 +235,6 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     },
   });
 
-  // Main items table
   const tableHeaders = [
     [
       {
@@ -312,10 +294,8 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     ]
   ];
 
-  // Add items data rows
   if (data?.service_order_detail && data.service_order_detail.length) {
 
-    // Process the sorted details
     data.service_order_detail.forEach((detail, index) => {
       const rowBackgroundColor = index % 2 === 0 ? [255, 255, 255] : [255, 255, 255];
       tableHeaders.push([
@@ -348,8 +328,8 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     });
   }
 
-  // Fill empty rows to keep consistent spacing
   const filledRows = fillEmptyRows(tableHeaders, 15);
+  tableHeaders.splice(1, tableHeaders.length - 1, ...filledRows);
 
   doc.autoTable({
     startY: doc.previousAutoTable.finalY + 5,
@@ -378,7 +358,6 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
 
   });
 
-  // Footer section with signatures
   const footerY = doc.previousAutoTable.finalY + 10;
 
   doc.setFont('times', 'bold');
