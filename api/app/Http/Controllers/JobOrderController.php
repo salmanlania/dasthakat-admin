@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
 use App\Models\DocumentType;
 use Illuminate\Http\Request;
@@ -10,6 +11,7 @@ use App\Models\JobOrderDetail;
 use App\Models\JobOrderDetailCertificate;
 use App\Models\Product;
 use App\Models\Shipment;
+use App\Models\ShipmentDetail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -109,19 +111,32 @@ class JobOrderController extends Controller
 			"agent",
 			"certificates",
 		)
-			->leftJoin('job_order_detail', 'job_order.job_order_id', '=', 'job_order_detail.job_order_id')
-			->leftJoin('shipment_detail', function ($join) {
-				$join->on('job_order_detail.product_id', '=', 'shipment_detail.product_id')
-					->on('job_order_detail.charge_order_id', '=', 'shipment_detail.charge_order_id');
-			})
-			->leftJoin('shipment', 'shipment_detail.shipment_id', '=', 'shipment.shipment_id')
-			->select('job_order.*', 'shipment_detail.shipment_id') // Select relevant shipment fields
-			->where('job_order.job_order_id', $id)
+			// ->leftJoin('job_order_detail', 'job_order.job_order_id', '=', 'job_order_detail.job_order_id')
+			// ->leftJoin('shipment_detail', function ($join) {
+			// 	$join->on('job_order_detail.product_id', '=', 'shipment_detail.product_id')
+			// 		->on('job_order_detail.charge_order_id', '=', 'shipment_detail.charge_order_id');
+			// })
+			// ->leftJoin('shipment', 'shipment_detail.shipment_id', '=', 'shipment.shipment_id')
+			// ->select('job_order.*', 'shipment_detail.shipment_id') // Select relevant shipment fields
+			->where('job_order_id', $id)
 			->first();
+
+
+
 		if ($data) {
-			foreach ($data->job_order_detail as $detail) {
-				$shipment = Shipment::where('shipment_id', optional($detail->shipment_detail)->shipment_id)->first();
-				$detail->shipment = $shipment ?: null; // Attach shipment if found, else null
+			foreach ($data->job_order_detail as &$detail) {
+
+				$shippedRow = ShipmentDetail::with("shipment");
+
+				if ($detail->product_type_id == 4) {
+
+					$shippedRow->where('product_name', $detail->product_name);
+				} else {
+					$shippedRow->where('product_id', $detail->product_id);
+				}
+				$shippedRow = $shippedRow->where('charge_order_id', $detail->charge_order_id)
+					->first();
+				$detail->shipment = $shippedRow?->shipment ?: null; // Attach shipment if found, else null
 			}
 		}
 

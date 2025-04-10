@@ -15,7 +15,7 @@ import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import PurchaseOrderModal from '../../components/Modals/PurchaseOrderModal';
 import useDebounce from '../../hooks/useDebounce';
-import ChargeOrderModal from '../../components/Modals/ChargeOrderModal';
+import TempModalChargeOrder from '../../components/Modals/TempModalChargeOrder';
 import useError from '../../hooks/useError';
 import {
   bulkDeleteChargeOrder,
@@ -23,7 +23,9 @@ import {
   deleteChargeOrder,
   getChargeOrderList,
   setChargeOrderDeleteIDs,
-  setChargeOrderListParams
+  setChargeOrderListParams,
+  setTempChargeOrderID,
+  setChargeQuotationID
 } from '../../store/features/chargeOrderSlice';
 import { setChargePoID } from '../../store/features/purchaseOrderSlice';
 
@@ -65,16 +67,13 @@ const ChargeOrder = () => {
       groupedByEvent[eventCode].push(item);
     });
 
-    // Convert to array with header rows
     Object.keys(groupedByEvent).forEach((eventCode) => {
-      // Add header row
       result.push({
         isEventHeader: true,
         event_code: eventCode,
         charge_order_id: `header-${eventCode}`
       });
 
-      // Add data rows
       groupedByEvent[eventCode].forEach((item) => {
         result.push(item);
       });
@@ -319,7 +318,18 @@ const ChargeOrder = () => {
 
           <Tooltip title="Charge Order">
             <Link>
-              <Button size="small" type="primary" icon={<HiRefresh size={14} />} />
+              <Button
+                size="small"
+                type="primary"
+                icon={
+                  <HiRefresh
+                    size={14}
+                    onClick={() => {
+                      dispatch(setTempChargeOrderID(charge_order_id))
+                    }}
+                  />
+                }
+              />
             </Link>
           </Tooltip>
 
@@ -476,7 +486,7 @@ const ChargeOrder = () => {
         description="After deleting, you will not be able to recover."
       />
 
-      <ChargeOrderModal />
+      <TempModalChargeOrder />
     </>
   );
 };

@@ -13,6 +13,8 @@ use App\Models\Audit;
 use App\Models\GRNDetail;
 use App\Models\PicklistReceivedDetail;
 use App\Models\ServicelistReceivedDetail;
+use App\Models\Shipment;
+use App\Models\ShipmentDetail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
@@ -268,67 +270,51 @@ class Controller extends BaseController
     }
 
 
-    static public function getShipmentQuantity($chargeOrderDetail)
+
+    static public function getPickedQuantity($row)
     {
-        if ($chargeOrderDetail->product_type_id == 1) {
+        if ($row->product_type_id == 1) {
             $quantity = ServicelistReceivedDetail::join('servicelist_received', 'servicelist_received_detail.servicelist_received_id', '=', 'servicelist_received.servicelist_received_id')
                 ->join('servicelist', 'servicelist_received.servicelist_id', '=', 'servicelist.servicelist_id')
-                ->where('servicelist.charge_order_id', $chargeOrderDetail->charge_order_id)
-                ->where('servicelist_received_detail.product_id', $chargeOrderDetail->product_id)
+                ->where('servicelist.charge_order_id', $row->charge_order_id)
+                ->where('servicelist_received_detail.product_id', $row->product_id)
                 ->sum('servicelist_received_detail.quantity');
         } else
-		if ($chargeOrderDetail->product_type_id == 2) {
+		if ($row->product_type_id == 2) {
             $quantity = PicklistReceivedDetail::join('picklist_received', 'picklist_received_detail.picklist_received_id', '=', 'picklist_received.picklist_received_id')
                 ->join('picklist', 'picklist_received.picklist_id', '=', 'picklist.picklist_id')
-                ->where('picklist.charge_order_id', $chargeOrderDetail->charge_order_id)
-                ->where('picklist_received_detail.product_id', $chargeOrderDetail->product_id)
+                ->where('picklist.charge_order_id', $row->charge_order_id)
+                ->where('picklist_received_detail.product_id', $row->product_id)
                 ->sum('picklist_received_detail.quantity');
         } else
-		if ($chargeOrderDetail->product_type_id == 3 || $chargeOrderDetail->product_type_id == 4) {
+		if ($row->product_type_id == 3 || $row->product_type_id == 4) {
             $quantity = GRNDetail::join('purchase_order_detail as pod', 'good_received_note_detail.purchase_order_detail_id', '=', 'pod.purchase_order_detail_id')
                 ->join('purchase_order as po', 'pod.purchase_order_id', '=', 'po.purchase_order_id')
-                ->where('po.charge_order_id', $chargeOrderDetail->charge_order_id);
+                ->where('po.charge_order_id', $row->charge_order_id);
 
-            if ($chargeOrderDetail->product_type_id == 4) {
-                $quantity->where('good_received_note_detail.product_name', $chargeOrderDetail->product_name);
+            if ($row->product_type_id == 4) {
+                $quantity->where('good_received_note_detail.product_name', $row->product_name);
             } else {
-                $quantity->where('good_received_note_detail.product_id', $chargeOrderDetail->product_id);
+                $quantity->where('good_received_note_detail.product_id', $row->product_id);
             }
 
             $quantity = $quantity->sum('good_received_note_detail.quantity');
         }
         return $quantity;
     }
-    static public function getPickedQuantity($chargeOrderDetail)
+    static public function getShipmentQuantity($row)
     {
-        if ($chargeOrderDetail->product_type_id == 1) {
-            $quantity = ServicelistReceivedDetail::join('servicelist_received', 'servicelist_received_detail.servicelist_received_id', '=', 'servicelist_received.servicelist_received_id')
-                ->join('servicelist', 'servicelist_received.servicelist_id', '=', 'servicelist.servicelist_id')
-                ->where('servicelist.charge_order_id', $chargeOrderDetail->charge_order_id)
-                ->where('servicelist_received_detail.product_id', $chargeOrderDetail->product_id)
-                ->sum('servicelist_received_detail.quantity');
-        } else
-		if ($chargeOrderDetail->product_type_id == 2) {
-            $quantity = PicklistReceivedDetail::join('picklist_received', 'picklist_received_detail.picklist_received_id', '=', 'picklist_received.picklist_received_id')
-                ->join('picklist', 'picklist_received.picklist_id', '=', 'picklist.picklist_id')
-                ->where('picklist.charge_order_id', $chargeOrderDetail->charge_order_id)
-                ->where('picklist_received_detail.product_id', $chargeOrderDetail->product_id)
-                ->sum('picklist_received_detail.quantity');
-        } else
-		if ($chargeOrderDetail->product_type_id == 3 || $chargeOrderDetail->product_type_id == 4) {
-            $quantity = GRNDetail::join('purchase_order_detail as pod', 'good_received_note_detail.purchase_order_detail_id', '=', 'pod.purchase_order_detail_id')
-                ->join('purchase_order as po', 'pod.purchase_order_id', '=', 'po.purchase_order_id')
-                ->where('po.charge_order_id', $chargeOrderDetail->charge_order_id);
+        $quantity = ShipmentDetail::join('shipment as s', 's.shipment_id', '=', 'shipment_detail.shipment_id')
+            ->where('s.charge_order_id', $row->charge_order_id)
+            ->where('shipment_detail.product_id', $row->product_id)
+            ->sum('shipment_detail.quantity');
 
-            if ($chargeOrderDetail->product_type_id == 4) {
-                $quantity->where('good_received_note_detail.product_name', $chargeOrderDetail->product_name);
-            } else {
-                $quantity->where('good_received_note_detail.product_id', $chargeOrderDetail->product_id);
-            }
-
-            $quantity = $quantity->sum('good_received_note_detail.quantity');
-        }
         return $quantity;
+    }
+    static public function getInvoicedQuantity($row)
+    {
+
+        return 0;
     }
 
 

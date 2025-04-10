@@ -52,7 +52,6 @@ const Scheduling = () => {
     const result = [];
     const groupedByDate = {};
 
-    // Group data by formatted date
     list.forEach((item) => {
       const eventDate =
         item.event_date && item.event_date !== '0000-00-00'
@@ -66,16 +65,13 @@ const Scheduling = () => {
       groupedByDate[eventDate].push(item);
     });
 
-    // Convert to array with header rows
     Object.keys(groupedByDate).forEach((date) => {
-      // Add header row
       result.push({
         isDateHeader: true,
         event_date: date,
         event_id: `header-${date}`
       });
 
-      // Add data rows
       groupedByDate[date].forEach((item) => {
         result.push(item);
       });
@@ -118,7 +114,7 @@ const Scheduling = () => {
 
     try {
       const data = await dispatch(getEventJobOrders(id)).unwrap();
-      createIJOPrint(data, true); // pass true argument to print multiple IJO's
+      createIJOPrint(data, true);
     } catch (error) {
       handleError(error);
     } finally {
@@ -129,11 +125,9 @@ const Scheduling = () => {
   const exportExcel = async () => {
     const loadingToast = toast.loading('Downloading Excel File...');
 
-    // Save current state
     const originalParams = { ...params };
 
     try {
-      // Create unfiltered params
       const exportParams = {
         ...params,
         start_date: null,
@@ -148,17 +142,13 @@ const Scheduling = () => {
         event_id: null
       };
 
-      // Get all data
       const data = await dispatch(getDispatchList(exportParams)).unwrap();
 
-      // Restore original params
       dispatch(setDispatchListParams(originalParams));
       dispatch(getDispatchList(originalParams));
 
-      // Generate the Excel file
       generateSchedulingExcel(data, true);
     } catch (error) {
-      // Make sure to restore params even on error
       dispatch(setDispatchListParams(originalParams));
       dispatch(getDispatchList(originalParams));
       handleError(error);
@@ -166,44 +156,13 @@ const Scheduling = () => {
       toast.dismiss(loadingToast);
     }
   };
-
-  // const exportExcel = async () => {
-  //   const loadingToast = toast.loading('Downloading Excel File...');
-
-  //   try {
-  //     const exportParams = {
-  //       ...params,
-  //       start_date: null,
-  //       end_date: null,
-  //       event_date: null,
-  //       search: null
-  //     };
-
-  //     // dispatch(
-  //     //   setDispatchListParams({
-  //     //     search: '',
-  //     //     start_date: null,
-  //     //     end_date: null
-  //     //   })
-  //     // );
-
-  //     const data = await dispatch(getExportDispatchList(exportParams)).unwrap();
-  //     generateSchedulingExcel(data, true);
-  //   } catch (error) {
-  //     handleError(error);
-  //   } finally {
-  //     toast.dismiss(loadingToast);
-  //   }
-  // };
 
   const exportPdf = async () => {
     const loadingToast = toast.loading('Loading Print View...');
 
-    // Save current state
     const originalParams = { ...params };
 
     try {
-      // Create unfiltered params
       const exportParams = {
         ...params,
         start_date: null,
@@ -218,17 +177,13 @@ const Scheduling = () => {
         event_id: null
       };
 
-      // Get all data
       const data = await dispatch(getDispatchList(exportParams)).unwrap();
 
-      // Restore original params
       dispatch(setDispatchListParams(originalParams));
       dispatch(getDispatchList(originalParams));
 
-      // Generate the PDF file
       createSchedulingListPrint(Array.isArray(data) ? data : [data], true);
     } catch (error) {
-      // Make sure to restore params even on error
       dispatch(setDispatchListParams(originalParams));
       dispatch(getDispatchList(originalParams));
       handleError(error);
@@ -236,42 +191,13 @@ const Scheduling = () => {
       toast.dismiss(loadingToast);
     }
   };
-
-  // const exportPdf = async () => {
-  //   const loadingToast = toast.loading('loading Print View...');
-
-  //   try {
-  //     const exportParams = {
-  //       ...params,
-  //       start_date: null,
-  //       end_date: null,
-  //       event_date: null,
-  //       search: null
-  //     };
-
-  //     // dispatch(
-  //     //   setDispatchListParams({
-  //     //     search: '',
-  //     //     start_date: null,
-  //     //     end_date: null
-  //     //   })
-  //     // );
-
-  //     const data = await dispatch(getExportDispatchList(exportParams)).unwrap();
-  //     createSchedulingListPrint(Array.isArray(data) ? data : [data], true);
-  //   } catch (error) {
-  //     handleError(error);
-  //   } finally {
-  //     toast.dismiss(loadingToast);
-  //   }
-  // };
 
   const printPickLists = async (id) => {
     const loadingToast = toast.loading('Loading Pick Lists print...');
 
     try {
       const data = await dispatch(getEventPickLists(id)).unwrap();
-      createPickListPrint(data, true); // pass true argument to print multiple IJO's
+      createPickListPrint(data, true);
     } catch (error) {
       handleError(error);
     } finally {
@@ -681,7 +607,7 @@ const Scheduling = () => {
         <div className="flex flex-wrap items-center justify-between">
           <div className="my-2 flex items-center gap-2">
             <Input
-              placeholder="Search..." allowClear
+              placeholder="Search..."
               className="w-full sm:w-64"
               value={params.search}
               allowClear
@@ -728,11 +654,6 @@ const Scheduling = () => {
           size="small"
           loading={isListLoading}
           className="mt-2"
-          // rowKey={(record) =>
-          //   record.isDateHeader
-          //     ? `header-${record.event_id}`
-          //     : `${record.event_id}-${record.job_order_id}`
-          // }
           rowKey={(record) =>
             record.isDateHeader
               ? `header-${record.event_id}`
@@ -751,16 +672,6 @@ const Scheduling = () => {
           sticky={{
             offsetHeader: 56
           }}
-          // rowClassName={({ event_date }, index) => {
-          //   if (index === 0) return;
-
-          //   const currentElementDate = dayjs(event_date).date();
-          //   const previousElementDate = dayjs(groupedData[index - 1].event_date).date();
-
-          //   if (currentElementDate !== previousElementDate) {
-          //     return 'tr-separate';
-          //   }
-          // }}
           onRow={(record) => {
             return {
               className: record.isDateHeader ? 'date-header-row' : ''

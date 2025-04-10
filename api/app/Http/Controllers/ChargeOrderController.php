@@ -11,6 +11,7 @@ use App\Models\Picklist;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
 use App\Models\Quotation;
+use App\Models\Salesman;
 use App\Models\Servicelist;
 use App\Models\Shipment;
 use App\Models\StockLedger;
@@ -118,6 +119,33 @@ class ChargeOrderController extends Controller
 	}
 
 
+	public function getDetailedAnalysis($id)
+	{
+		$record = ChargeOrder::with([
+			"salesman",
+			"event",
+			"vessel",
+			"customer",
+			"flag",
+			"class1",
+			"class2",
+			"agent",
+			'charge_order_detail',
+			'charge_order_detail.product',
+			'charge_order_detail.product_type',
+			'charge_order_detail.unit',
+			'charge_order_detail.supplier',
+		])
+			->where('charge_order_id', $id)
+			->firstOrFail();
+
+		foreach ($record->charge_order_detail as &$detail) {
+			$detail->picked_quantity = $this->getPickedQuantity($detail);
+			$detail->shipped_quantity = $this->getShipmentQuantity($detail);
+			$detail->invoiced_quantity = $this->getInvoicedQuantity($detail);
+		}
+		return $this->jsonResponse($record, 200, "Charge Order Detailed Analysis.");
+	}
 	public function getVendorWiseDetails($id)
 	{
 		$record = ChargeOrder::with(['charge_order_detail', 'charge_order_detail.product'])
@@ -381,6 +409,8 @@ class ChargeOrderController extends Controller
 						'picklist_detail_id' => $value['picklist_detail_id'] ?? "",
 						'job_order_id' => $value['job_order_id'] ?? "",
 						'job_order_detail_id' => $value['job_order_detail_id'] ?? "",
+						'service_order_id' => $value['service_order_id'] ?? "",
+						'service_order_detail_id' => $value['service_order_detail_id'] ?? "",
 						'servicelist_id' => $value['servicelist_id'] ?? "",
 						'quotation_detail_id' => $value['quotation_detail_id'] ?? "",
 						'servicelist_detail_id' => $value['servicelist_detail_id'] ?? "",

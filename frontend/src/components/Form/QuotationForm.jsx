@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Select, Table } from 'antd';
 import dayjs from 'dayjs';
-import { useState } from 'react';
+import { useState , useEffect} from 'react';
 import toast from 'react-hot-toast';
 import { BiPlus } from 'react-icons/bi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
@@ -74,6 +74,16 @@ const QuotationForm = ({ mode, onSubmit }) => {
     salesmanPercentage
   } = useSelector((state) => state.quotation);
   const [prevEvent, setPrevEvent] = useState(initialFormValues?.event_id);
+
+  useEffect(() => {
+    quotationDetails.forEach((item, index) => {
+      form.setFieldsValue({
+        [`product_description-${index}`]: item.product_description,
+        [`product_id-${index}`]: item.product_id,
+        [`product_name-${index}`]: item.product_name
+      });
+    });
+  }, [quotationDetails]);  
 
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
@@ -499,7 +509,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           <Form.Item
             className="m-0"
             name={`product_name-${index}`}
-            initialValue={product_name}
+            // initialValue={product_name}
             rules={[
               {
                 required: true,
@@ -536,7 +546,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           <Form.Item
             className="m-0"
             name={`product_id-${index}`}
-            initialValue={product_id}
+            // initialValue={product_id}
             rules={[
               {
                 required: true,
@@ -566,8 +576,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
         return (
           <Form.Item
             className="m-0"
-            name={`product_description-${index}`}
-            initialValue={product_description}
+            // name={`product_description-${index}`}
+            // initialValue={product_description}
             rules={[
               {
                 required: true,

@@ -316,6 +316,7 @@ $router->group(['prefix' => 'quotation'], function ($router) {
 $router->group(['prefix' => 'charge-order'], function ($router) {
    $router->get('/', 'ChargeOrderController@index');
    $router->get('/{id}', 'ChargeOrderController@show');
+   $router->get('/{id}/analysis', 'ChargeOrderController@getDetailedAnalysis');
    $router->get('/{id}/vendor-wise-details', 'ChargeOrderController@getVendorWiseDetails');
    $router->post('/{id}/purchase-orders', 'ChargeOrderController@createPurchaseOrders');
    $router->post('/', 'ChargeOrderController@store');
@@ -350,6 +351,16 @@ $router->group(['prefix' => 'servicelist'], function ($router) {
    $router->get('/', 'ServicelistController@index');
    $router->get('/{id}', 'ServicelistController@show');
    $router->post('/', 'ServicelistController@store');
+});
+
+// service order routes
+$router->group(['prefix' => 'service_order'], function ($router) {
+   $router->get('/', 'ServiceOrderController@index');
+   $router->get('/view-before-create', 'ServiceOrderController@viewBeforeServiceOrder');
+   $router->get('/{id}', 'ServiceOrderController@show');
+   $router->post('/', 'ServiceOrderController@store');
+   $router->delete('/{id}', 'ServiceOrderController@delete');
+   $router->post('/bulk-delete', 'ServiceOrderController@bulkDelete');
 });
 
 $router->group(['prefix' => 'servicelist-received'], function ($router) {
