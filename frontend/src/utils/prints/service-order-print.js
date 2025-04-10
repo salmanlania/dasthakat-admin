@@ -328,8 +328,8 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     });
   }
 
-  const filledRows = fillEmptyRows(tableHeaders, 15);
-  tableHeaders.splice(1, tableHeaders.length - 1, ...filledRows);
+  const filledRows = fillEmptyRows(tableHeaders, 24);
+  // tableHeaders.splice(1, tableHeaders.length - 1, ...filledRows);
 
   doc.autoTable({
     startY: doc.previousAutoTable.finalY + 5,
