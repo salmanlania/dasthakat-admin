@@ -16,6 +16,7 @@ import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import PurchaseOrderModal from '../../components/Modals/PurchaseOrderModal';
 import useDebounce from '../../hooks/useDebounce';
 import TempModalChargeOrder from '../../components/Modals/TempModalChargeOrder';
+import AnalysisModalChargeOrder from '../../components/Modals/AnalysisModalChargeOrder';
 import useError from '../../hooks/useError';
 import {
   bulkDeleteChargeOrder,
@@ -25,7 +26,7 @@ import {
   setChargeOrderDeleteIDs,
   setChargeOrderListParams,
   setTempChargeOrderID,
-  setChargeQuotationID
+  setAnalysisChargeOrderID
 } from '../../store/features/chargeOrderSlice';
 import { setChargePoID } from '../../store/features/purchaseOrderSlice';
 
@@ -316,7 +317,7 @@ const ChargeOrder = () => {
             </Tooltip>
           ) : null}
 
-          <Tooltip title="Charge Order">
+          <Tooltip title="Service Order">
             <Link>
               <Button
                 size="small"
@@ -325,7 +326,7 @@ const ChargeOrder = () => {
                   <HiRefresh
                     size={14}
                     onClick={() => {
-                      dispatch(setTempChargeOrderID(charge_order_id))
+                      dispatch(setTempChargeOrderID(charge_order_id));
                     }}
                   />
                 }
@@ -333,9 +334,16 @@ const ChargeOrder = () => {
             </Link>
           </Tooltip>
 
-          <Tooltip title="View">
+          <Tooltip title="Product Status">
             <Link>
-              <Button size="small" type="primary" icon={<FaEye size={14} />} />
+              <Button
+                size="small"
+                type="primary"
+                icon={<FaEye size={14} />}
+                onClick={() => {
+                  dispatch(setAnalysisChargeOrderID(charge_order_id));
+                }}
+              />
             </Link>
           </Tooltip>
         </div>
@@ -487,6 +495,7 @@ const ChargeOrder = () => {
       />
 
       <TempModalChargeOrder />
+      <AnalysisModalChargeOrder />
     </>
   );
 };

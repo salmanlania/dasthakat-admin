@@ -140,7 +140,19 @@ export const viewBeforeCreate = createAsyncThunk(
       });
       return res.data.data;
     } catch (err) {
-      console.log('err' , err)
+      throw rejectWithValue(err);
+    }
+  }
+);
+
+export const chargeOrderAnalysis= createAsyncThunk(
+  'charger-order/analysis',
+  async (id, { rejectWithValue }) => {
+    const newId = id.charge_order_id
+    try {
+      const res = await api.get(`/charge-order/${newId}/analysis`);
+      return res.data.data;
+    } catch (err) {
       throw rejectWithValue(err);
     }
   }
@@ -154,6 +166,11 @@ const initialState = {
   tempChargeOrderID: null,
   tempChargeDetails: [],
   isTempDataLoading: false,
+  //  isAnalysisLoading
+  isAnalysisLoading: false,
+  analysisChargeOrderID: null,
+  analysisChargeDetails: [],
+  //  isAnalysisLoading
   isItemLoading: false,
   list: [],
   deleteIDs: [],
@@ -181,6 +198,14 @@ export const chargeOrderSlice = createSlice({
     },
 
     setTempChargeOrderID: (state, action) => {
+      state.tempChargeOrderID = action.payload;
+    },
+
+    setAnalysisChargeOrderID: (state, action) => {
+      state.analysisChargeOrderID = action.payload;
+    },
+
+    setViewChargeOrderID: (state, action) => {
       state.tempChargeOrderID = action.payload;
     },
 
@@ -592,6 +617,18 @@ export const chargeOrderSlice = createSlice({
     addCase(viewBeforeCreate.rejected, (state) => {
       state.isTempDataLoading = false;
     });
+    
+    addCase(chargeOrderAnalysis.pending, (state) => {
+      state.isAnalysisLoading = true;
+      state.analysisChargeDetails = [];
+    });
+    addCase(chargeOrderAnalysis.fulfilled, (state, action) => {
+      state.isAnalysisLoading = false;
+      state.analysisChargeDetails = action.payload || [];
+    });
+    addCase(chargeOrderAnalysis.rejected, (state) => {
+      state.isAnalysisLoading = false;
+    });
   }
 });
 
@@ -606,6 +643,8 @@ export const {
   changeChargeOrderDetailValue,
   setChargeQuotationID,
   setTempChargeOrderID,
+  setAnalysisChargeOrderID,
+  setViewChargeOrderID,
   splitChargeOrderQuantity
 } = chargeOrderSlice.actions;
 export default chargeOrderSlice.reducer;
