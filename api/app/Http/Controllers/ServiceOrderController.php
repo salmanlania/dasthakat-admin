@@ -23,10 +23,12 @@ class ServiceOrderController extends Controller
 	public function index(Request $request)
 	{
 		$document_identity = $request->input('document_identity', '');
+		$quotation_no = $request->input('quotation_no', '');
 		$event_id = $request->input('event_id', '');
 		$vessel_id = $request->input('vessel_id', '');
 		$customer_id = $request->input('customer_id', '');
 		$flag_id = $request->input('flag_id', '');
+		$agent_id = $request->input('agent_id', '');
 		$salesman_id = $request->input('salesman_id', '');
 		$class1_id = $request->input('class1_id', '');
 		$class2_id = $request->input('class2_id', '');
@@ -38,7 +40,10 @@ class ServiceOrderController extends Controller
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
 		$data = ServiceOrder::LeftJoin('event as e', 'e.event_id', '=', 'service_order.event_id')
+			->LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'service_order.charge_order_id')
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'e.vessel_id')
+			->LeftJoin('quotation as q', 'q.document_identity', '=', 'co.ref_document_identity')
+			->LeftJoin('agent as a', 'a.agent_id', '=', 'co.agent_id')
 			->LeftJoin('flag as f', 'f.flag_id', '=', 'v.flag_id')
 			->LeftJoin('customer as c', 'c.customer_id', '=', 'v.customer_id')
 			->LeftJoin('class as c1', 'c1.class_id', '=', 'v.class1_id')
@@ -49,10 +54,12 @@ class ServiceOrderController extends Controller
 		if (!empty($document_identity)) $data = $data->where('service_order.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($event_id)) $data = $data->where('service_order.event_id', '=',  $event_id);
 		if (!empty($flag_id)) $data = $data->where('v.flag_id', '=',  $flag_id);
+		if (!empty($agent_id)) $data = $data->where('co.agent_id', '=',  $agent_id);
 		if (!empty($vessel_id)) $data = $data->where('v.vessel_id', '=',  $vessel_id);
 		if (!empty($salesman_id)) $data = $data->where('s.salesman_id', '=',  $salesman_id);
 		if (!empty($customer_id)) $data = $data->where('c.customer_id', '=',  $customer_id);
 		if (!empty($imo)) $data = $data->where('v.imo', 'like',  "%" . $imo . "%");
+		if (!empty($quotation_no)) $data = $data->where('q.document_identity', 'like',  "%" . $quotation_no . "%");
 		if (!empty($class1_id)) $data = $data->where('v.class1_id', '=',  $class1_id);
 		if (!empty($class2_id)) $data = $data->where('v.class2_id', '=',  $class2_id);
 		if (!empty($document_date)) $data = $data->where('service_order.document_date', '=',  $document_date);
@@ -65,15 +72,17 @@ class ServiceOrderController extends Controller
 					->OrWhere('v.imo', 'like', '%' . $search . '%')
 					->OrWhere('f.name', 'like', '%' . $search . '%')
 					->OrWhere('c1.name', 'like', '%' . $search . '%')
+					->OrWhere('q.document_identity', 'like', '%' . $search . '%')
 					->OrWhere('c2.name', 'like', '%' . $search . '%')
 					->OrWhere('c.name', 'like', '%' . $search . '%')
+					->OrWhere('a.name', 'like', '%' . $search . '%')
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
 					->OrWhere('s.name', 'like', '%' . $search . '%')
 					->OrWhere('v.name', 'like', '%' . $search . '%');
 			});
 		}
 
-		$data = $data->select("service_order.*", "c.name as customer_name", "e.event_code", "v.name as vessel_name", "v.imo", "s.name as salesman_name", "f.name as flag_name", "c1.name as class1_name", "c2.name as class2_name");
+		$data = $data->select("service_order.*", "c.name as customer_name", "e.event_code", "v.name as vessel_name", "v.imo", "s.name as salesman_name", "f.name as flag_name", "c1.name as class1_name", "c2.name as class2_name", "a.name as agent_name", "a.agent_id", "q.document_identity as quotation_no", "co.document_identity as charge_order_no");
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 
@@ -97,6 +106,9 @@ class ServiceOrderController extends Controller
 			"service_order_detail.supplier",
 			"event",
 			"charge_order",
+			"charge_order.quotation",
+			"charge_order.quotation.port",
+			"charge_order.agent",
 			"event.vessel",
 			"event.customer",
 			"event.class1",
@@ -104,14 +116,14 @@ class ServiceOrderController extends Controller
 			"event.customer.salesman",
 			"event.vessel.flag"
 		)
-			->where('servie_order_id', $id)->first();
+			->where('service_order_id', $id)->first();
 
 		return $this->jsonResponse($data, 200, "Show Data");
 	}
 
 	public function Validator($request, $id = null)
 	{
-		$rules = [	];
+		$rules = [];
 
 		$msg = validateRequest($request, $rules);
 		if (!empty($msg)) return $msg;
