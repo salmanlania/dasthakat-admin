@@ -29,6 +29,18 @@ export const deleteServiceOrder = createAsyncThunk(
   }
 );
 
+export const getServiceOrderForPrint = createAsyncThunk(
+  'service-order/getForPrint',
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/service_order/${id}`);
+      return res.data.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const createShipment = createAsyncThunk(
   'shipment/create',
   async (data, { rejectWithValue }) => {

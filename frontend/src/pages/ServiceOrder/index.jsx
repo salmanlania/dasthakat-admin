@@ -29,9 +29,11 @@ import {
   getServiceOrderList,
   setServiceOrderDeleteIDs,
   setServiceOrderListParams,
+  getServiceOrderForPrint,
   viewBeforeCreate
 } from '../../store/features/ServiceOrder.js';
 import { getChargeOrder } from '../../store/features/chargeOrderSlice.js';
+import { createServiceOrderPrint } from '../../utils/prints/service-order-print.js';
 
 const ServiceOrder = () => {
   const [form] = Form.useForm();
@@ -69,6 +71,9 @@ const ServiceOrder = () => {
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedCode = useDebounce(params.document_identity, 500);
   const debouncedIMO = useDebounce(params.imo, 500);
+  const debouncedQUOTATION = useDebounce(params.quotation_no, 500);
+  const debouncedCHARGEORDERNO = useDebounce(params.charge_order_no, 500);
+  const debouncedAGENT = useDebounce(params.agent_id, 500);
 
   const eventId = Form.useWatch('event_id', form);
 
@@ -140,6 +145,18 @@ const ServiceOrder = () => {
     return charge ? charge.details.every((detail) => detail.checked) : false;
   };
 
+  const printServiceOrder = async (id) => {
+    const loadingToast = toast.loading('Loading print...');
+
+    try {
+      const data = await dispatch(getServiceOrderForPrint(id)).unwrap();
+      toast.dismiss(loadingToast);
+      createServiceOrderPrint(data);
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
   const columns = [
     {
       title: (
@@ -186,27 +203,6 @@ const ServiceOrder = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
-          <p>Sales Person</p>
-          <AsyncSelect
-            endpoint="/salesman"
-            valueKey="salesman_id"
-            labelKey="name"
-            size="small"
-            className="w-full font-normal"
-            value={params.salesman_id}
-            onChange={(value) => dispatch(setServiceOrderListParams({ salesman_id: value }))}
-          />
-        </div>
-      ),
-      dataIndex: 'salesman_name',
-      key: 'salesman_name',
-      sorter: true,
-      width: 200,
-      ellipsis: true
-    },
-    {
-      title: (
-        <div onClick={(e) => e.stopPropagation()}>
           <p>Customer Name</p>
           <AsyncSelect
             endpoint="/customer"
@@ -224,6 +220,26 @@ const ServiceOrder = () => {
       sorter: true,
       width: 200,
       ellipsis: true
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Agent Name</p>
+          <AsyncSelect
+            endpoint="/agent"
+            valueKey="agent_id"
+            labelKey="name"
+            size="small"
+            className="w-full font-normal"
+            value={params.agent_id}
+            onChange={(value) => dispatch(setServiceOrderListParams({ agent_id: value }))}
+          />
+        </div>
+      ),
+      sorter: true,
+      dataIndex: 'agent_name',
+      key: 'agent_name',
+      width: 220
     },
     {
       title: (
@@ -248,81 +264,40 @@ const ServiceOrder = () => {
     {
       title: (
         <div>
-          <p>IMO</p>
+          <p>Charge Order No</p>
           <Input
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.imo}
-            onChange={(e) => dispatch(setServiceOrderListParams({ imo: e.target.value }))}
+            value={params.charge_order_no}
+            onChange={(e) => dispatch(setServiceOrderListParams({ charge_order_no: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: 'imo',
-      key: 'imo',
+      dataIndex: 'charge_order_no',
+      key: 'charge_order_no',
       sorter: true,
-      width: 150,
+      width: 180,
       ellipsis: true
     },
     {
       title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Flag</p>
-          <AsyncSelect
-            endpoint="/flag"
-            valueKey="flag_id"
-            labelKey="name"
+        <div>
+          <p>Quotation No</p>
+          <Input
+            className="font-normal"
             size="small"
-            className="w-full font-normal"
-            value={params.flag_id}
-            onChange={(value) => dispatch(setServiceOrderListParams({ flag_id: value }))}
+            onClick={(e) => e.stopPropagation()}
+            value={params.quotation_no}
+            onChange={(e) => dispatch(setServiceOrderListParams({ quotation_no: e.target.value }))}
           />
         </div>
       ),
+      dataIndex: 'quotation_no',
+      key: 'quotation_no',
       sorter: true,
-      dataIndex: 'flag_name',
-      key: 'flag_name',
-      width: 120
-    },
-    {
-      title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Class 1</p>
-          <AsyncSelect
-            endpoint="/class"
-            valueKey="class_id"
-            labelKey="name"
-            size="small"
-            className="w-full font-normal"
-            value={params.class1_id}
-            onChange={(value) => dispatch(setServiceOrderListParams({ class1_id: value }))}
-          />
-        </div>
-      ),
-      sorter: true,
-      dataIndex: 'class1_name',
-      key: 'class1_name',
-      width: 120
-    },
-    {
-      title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Class 2</p>
-          <AsyncSelect
-            endpoint="/class"
-            valueKey="class_id"
-            labelKey="name"
-            size="small"
-            className="w-full font-normal"
-            value={params.class2_id}
-            onChange={(value) => dispatch(setServiceOrderListParams({ class2_id: value }))}
-          />
-        </div>
-      ),
-      sorter: true,
-      dataIndex: 'class2_name',
-      key: 'class2_name',
-      width: 120
+      width: 150,
+      ellipsis: true
     },
     {
       title: 'Created At',
@@ -337,13 +312,14 @@ const ServiceOrder = () => {
       key: 'action',
       render: (_, { service_order_id }) => (
         <div className="flex items-center justify-center gap-2">
-          <Tooltip title="Edit">
+          <Tooltip title="Print">
             <Link>
               <Button
                 size="small"
                 type="primary"
                 className="bg-gray-500 hover:!bg-gray-400"
                 icon={<FaRegFilePdf size={14} />}
+                onClick={() => printServiceOrder(service_order_id)}
               />
             </Link>
           </Tooltip>
@@ -385,9 +361,13 @@ const ServiceOrder = () => {
     params.flag_id,
     params.class1_id,
     params.class2_id,
+    params.agent_id,
     debouncedSearch,
     debouncedCode,
-    debouncedIMO
+    debouncedIMO,
+    debouncedQUOTATION,
+    debouncedCHARGEORDERNO,
+    debouncedAGENT
   ]);
 
   return (

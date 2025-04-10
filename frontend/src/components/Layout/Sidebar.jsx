@@ -92,13 +92,13 @@ const Sidebar = () => {
     !permissions?.charge_order?.list &&
     !permissions?.purchase_order?.list &&
     !permissions?.job_order?.list;
+    !permissions?.service_order?.list;
 
   const warehousingPermission =
     !permissions?.good_received_note?.list &&
     !permissions?.picklist?.list &&
     !permissions?.shipment?.list &&
     !permissions?.servicelist?.list;
-    !permissions?.service_order?.list;
 
   const accountingPermission = !permissions?.purchase_invoice?.list;
 
@@ -284,7 +284,12 @@ const Sidebar = () => {
           key: 'ijo',
           disabled: !permissions?.job_order?.list,
           label: <Link to="/ijo">IJO</Link>
-        }
+        },
+        {
+          key: 'service_order',
+          label: <Link to="/service-order">Service Order</Link>,
+          disabled: !permissions?.service_order?.list
+        },
       ]
     },
     {
@@ -312,11 +317,6 @@ const Sidebar = () => {
           key: 'shipment',
           label: <Link to="/shipment">Shipment</Link>,
           disabled: !permissions?.shipment?.list
-        },
-        {
-          key: 'service_order',
-          label: <Link to="/service-order">Service Order</Link>,
-          disabled: !permissions?.service_order?.list
         },
       ]
     },
