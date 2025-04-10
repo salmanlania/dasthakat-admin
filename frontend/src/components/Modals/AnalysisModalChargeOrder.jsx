@@ -45,8 +45,8 @@ const AnalysisModalChargeOrder = () => {
       title: 'Product Code',
       dataIndex: 'product_code',
       key: 'product_code',
-      width: 120,
-      render: (_, { product_code }) => product_code || '-'
+      width: 100,
+      render: (_, { product_code }) => product_code || ''
     },
     {
       title: 'Product Description',
@@ -54,33 +54,30 @@ const AnalysisModalChargeOrder = () => {
       key: 'product_description',
       width: 240,
       ellipsis: true,
-      render: (_, { product_type, product_description, description }) => {
-        return product_type?.name === 'Others' ? description : product_description;
-      }
     },
     {
       title: 'Actual Quantity',
       dataIndex: 'quantity',
       key: 'quantity',
-      width: 150
+      width: 100
     },
     {
       title: 'Picked Quantity',
       dataIndex: 'picked_quantity',
       key: 'picked_quantity',
-      width: 150
+      width: 100
     },
     {
       title: 'Shipped Quantity',
       dataIndex: 'shipped_quantity',
       key: 'shipped_quantity',
-      width: 150
+      width: 100
     },
     {
       title: 'Invoiced Quantity',
       dataIndex: 'invoiced_quantity',
       key: 'invoiced_quantity',
-      width: 150
+      width: 100
     },
   ];
 
@@ -107,7 +104,7 @@ const AnalysisModalChargeOrder = () => {
           pagination={false}
           size="small"
           loading={isAnalysisLoading}
-          scroll={{ x: 'calc(100% - 200px)', y: 300 }}
+          scroll={{ x: 'calc(100% - 200px)', y: 600 }}
         />
 
         
