@@ -289,24 +289,23 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     },
     didParseCell: function (data) {
       const cellIndex = data.column.index;
-      if (cellIndex === 0) data.cell.styles.cellWidth = 24; // First column width
-      if (cellIndex === 1) data.cell.styles.cellWidth = 60; // Second column width
-      if (cellIndex === 2) data.cell.styles.cellWidth = 52; // Third column width
-      if (cellIndex === 3) data.cell.styles.cellWidth = 72; // Fourth column width
-      if (cellIndex === 4) data.cell.styles.cellWidth = 72; // Fourth column width
+      if (cellIndex === 0) data.cell.styles.cellWidth = 24;
+      if (cellIndex === 1) data.cell.styles.cellWidth = 60;
+      if (cellIndex === 2) data.cell.styles.cellWidth = 52;
+      if (cellIndex === 3) data.cell.styles.cellWidth = 72;
+      if (cellIndex === 4) data.cell.styles.cellWidth = 72;
     }
   });
 
-  // Table 3
   const table3Row = [
     [
       {
         content: 'Job Scope',
         colSpan: 5,
         styles: {
-          textColor: '#ffffff', // white color
+          textColor: '#ffffff',
           fontSize: 8,
-          fillColor: '#244062' // Blue Color
+          fillColor: '#244062'
         }
       }
     ],
@@ -344,59 +343,70 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     ]
   ];
 
-  let lastDocumentId = null;
-  let lastSO_DO = null;
-  let lastPO = null;
-
   if (data?.job_order_detail && data.job_order_detail.length) {
-    data.job_order_detail.forEach((detail) => {
+    let lastDocumentId = '';
+    let lastSO_DO = '';
+    let lastPO = '';
+  
+    // Sort function to sort by showDocumentId, showSO_DO, and showPO in order
+    const sortedDetails = [...data.job_order_detail].sort((a, b) => {
+      const docIdA = a?.charge_order?.document_identity || '';
+      const docIdB = b?.charge_order?.document_identity || '';
+      
+      const soDoA = a?.shipment?.document_identity || '';
+      const soDoB = b?.shipment?.document_identity || '';
+      
+      const poA = a?.charge_order?.customer_po_no || '';
+      const poB = b?.charge_order?.customer_po_no || '';
+      
+      // Sorting logic (you can adjust the order of sorting or make it ascending/descending)
+      if (docIdA !== docIdB) return docIdA.localeCompare(docIdB);
+      if (soDoA !== soDoB) return soDoA.localeCompare(soDoB);
+      return poA.localeCompare(poB);
+    });
+  
+    // Process the sorted details
+    sortedDetails.forEach((detail) => {
       const currentDocId = detail?.charge_order?.document_identity || '';
       const showDocumentId = currentDocId !== lastDocumentId ? currentDocId : '';
-      lastDocumentId = currentDocId
-
+      lastDocumentId = currentDocId;
+  
       const currentSO_DO = detail?.shipment?.document_identity || '';
       const showSO_DO = currentSO_DO !== lastSO_DO ? currentSO_DO : '';
       lastSO_DO = currentSO_DO;
-
+  
       const currentPO = detail?.charge_order?.customer_po_no || '';
       const showPO = currentPO !== lastPO ? currentPO : '';
       lastPO = currentPO;
-
-      table3Row.push([
-        {
-          content: showDocumentId,
-          styles: {
-            textColor: '#d51902' // Red Color
+  
+      // Only add rows if there is non-empty content
+      if (showDocumentId || showPO || showSO_DO || detail?.product_description || detail?.quantity) {
+        table3Row.push([
+          {
+            content: showDocumentId || '',
+            styles: { textColor: '#d51902' }
+          },
+          {
+            content: showPO || '',
+            styles: { textColor: '#d51902' }
+          },
+          {
+            content: showSO_DO || '',
+            styles: { textColor: '#d51902' }
+          },
+          {
+            content: detail?.product_description || '',
+            styles: { halign: 'left' }
+          },
+          {
+            content: detail.quantity ? parseFloat(detail.quantity) : '',
+            styles: { textColor: '#d51902' }
           }
-        },
-        {
-          content: showPO,
-          styles: {
-            textColor: '#d51902' // Red Color
-          }
-        },
-        {
-          // content: detail?.shipment?.document_identity || '',
-          content: showSO_DO,
-          styles: {
-            textColor: '#d51902' // Red Color
-          }
-        },
-        {
-          content: detail?.product_description || '',
-          styles: {
-            halign: 'left'
-          }
-        },
-        {
-          content: detail.quantity ? parseFloat(detail.quantity) : '',
-          styles: {
-            textColor: '#d51902' // Red Color
-          }
-        }
-      ]);
+        ]);
+      }
     });
   }
+  
 
   const filledRows = fillEmptyRows(table3Row, 15);
   doc.autoTable({
