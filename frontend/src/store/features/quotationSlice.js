@@ -129,6 +129,7 @@ export const quotationSlice = createSlice({
         id: Date.now(),
         product_code: null,
         product_id: null,
+        product_name: null,
         description: null,
         stock_quantity: null,
         quantity: null,
