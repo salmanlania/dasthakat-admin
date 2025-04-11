@@ -286,7 +286,7 @@ const Sidebar = () => {
           label: <Link to="/ijo">IJO</Link>
         },
         {
-          key: 'service_order',
+          key: 'service-order',
           label: <Link to="/service-order">Service Order</Link>,
           disabled: !permissions?.service_order?.list
         },
