@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ChargeOrder;
 use App\Models\EventDispatch;
-use App\Models\Technician;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -16,6 +15,9 @@ class EventDispatchController extends Controller
 		$query = EventDispatch::leftJoin('event as e', 'event_dispatch.event_id', '=', 'e.event_id')
 			->leftJoin('vessel as v', 'e.vessel_id', '=', 'v.vessel_id')
 			->leftJoin('job_order as jo', 'jo.event_id', '=', 'e.event_id')
+			->leftJoin('charge_order as co', 'co.charge_order_id', '=', 'jo.charge_order_id')
+			->leftJoin('quotation as q', 'q.quotation_id', '=', 'jo.quotation_id')
+			->leftJoin('port as p', 'p.port_id', '=', 'q.port_id')
 			->leftJoin('technician as t', 't.technician_id', '=', 'event_dispatch.technician_id')
 			->leftJoin('agent as a', 'a.agent_id', '=', 'event_dispatch.agent_id')
 
@@ -37,6 +39,9 @@ class EventDispatchController extends Controller
 		}
 		if ($event_time = $request->input('event_time')) {
 			$query->whereTime('event_dispatch.event_time', $event_time);
+		}
+		if ($port_id = $request->input('port_id')) {
+			$query->whereTime('p.port_id', $port_id);
 		}
 		if ($event_id = $request->input('event_id')) {
 			$query->where('event_dispatch.event_id', $event_id);
@@ -69,6 +74,7 @@ class EventDispatchController extends Controller
 				$q->where('v.name', 'like', "%$search%")
 					->orWhere('e.event_code', 'like', "%$search%")
 					->orWhere('t.name', 'like', "%$search%")
+					->orWhere('p.name', 'like', "%$search%")
 					->orWhere('a.name', 'like', "%$search%")
 				;
 			});
@@ -79,7 +85,7 @@ class EventDispatchController extends Controller
 
 
 		$data = $query
-			->select('event_dispatch.*', 'v.name as vessel_name', 'v.vessel_id', 'e.event_code', 'event_dispatch.technician_id', 't.name as technician_name', 'a.agent_id', 'a.name as agent_name','a.agent_code','a.address as agent_address','a.city as agent_city','a.state as agent_state','a.zip_code as agent_zip_code','a.phone as agent_phone','a.office_no as agent_office_no','a.fax as agent_fax','a.email as agent_email', 'jo.job_order_id')
+			->select('event_dispatch.*', 'v.name as vessel_name', 'v.vessel_id', 'e.event_code', 'event_dispatch.technician_id','p.port_id','p.name as port_name', 't.name as technician_name', 'a.agent_id', 'a.name as agent_name','a.agent_code','a.address as agent_address','a.city as agent_city','a.state as agent_state','a.zip_code as agent_zip_code','a.phone as agent_phone','a.office_no as agent_office_no','a.fax as agent_fax','a.email as agent_email', 'jo.job_order_id')
 			->orderBy($sortColumn, $sortDirection)
 			->paginate($request->input('limit', 10));
 		foreach ($data as $key => $value) {
