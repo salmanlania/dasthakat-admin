@@ -21,6 +21,7 @@ class ProductController extends Controller
 		$product_type_id = $request->input('product_type_id', '');
 		$unit_id = $request->input('unit_id', '');
 		$product_code = $request->input('product_code', '');
+		$short_code = $request->input('short_code', '');
 		$category_id = $request->input('category_id', '');
 		$brand_id = $request->input('brand_id', '');
 		$sub_category_id = $request->input('sub_category_id', '');
@@ -57,6 +58,7 @@ class ProductController extends Controller
 		if ($all != 1) $query->where('product.status', '=', 1);
 		if ($status !== "") $query->where('product.status', '=', $status);
 		if (!empty($product_code)) $query->where('product.product_code', '=',  $product_code)->orWhere('product.impa_code', '=', $product_code);
+		if (!empty($short_code)) $query->where('product.short_code', '=',  $short_code);
 
 		if (!empty($search)) {
 			$query->where(function ($query) use ($search) {
@@ -68,6 +70,7 @@ class ProductController extends Controller
 					->orWhere('b.name', 'like', '%' . $search . '%')
 					->orWhere('product.product_type_id', 'like', '%' . $search . '%')
 					->orWhere('product.product_code', 'like', '%' . $search . '%')
+					->orWhere('product.short_code', 'like', '%' . $search . '%')
 					->orWhere('product.impa_code', 'like', '%' . $search . '%');
 			});
 		}
@@ -171,6 +174,7 @@ class ProductController extends Controller
 			'product_no' => $maxCode + 1,
 			'name' => $request->name,
 			'impa_code' => $request->impa_code ?? "",
+			'short_code' => $request->short_code ?? "",
 			'category_id' => $request->category_id ?? "",
 			'sub_category_id' => $request->sub_category_id ?? "",
 			'brand_id' => $request->brand_id ?? "",
@@ -210,6 +214,7 @@ class ProductController extends Controller
 		$product->company_branch_id  = $request->company_branch_id;
 		$product->product_type_id  = $request->product_type_id ?? "";
 		$product->product_code  = $request->product_code ?? "";
+		$product->short_code  = $request->short_code ?? "";
 		$product->product_no  = $request->product_no ?? "";
 		$product->name  = $request->name ?? "";
 		$product->impa_code  = $request->impa_code ?? "";

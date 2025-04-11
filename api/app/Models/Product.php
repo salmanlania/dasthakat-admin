@@ -26,6 +26,7 @@ class Product extends Model
         'product_type_id',
         'product_id',
         'product_no',
+        'short_code',
         'product_code',
         'image',
         'name',

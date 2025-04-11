@@ -66,3 +66,6 @@ CREATE TABLE `service_order_detail` (
 
 ALTER TABLE servicelist_received_detail
 MODIFY COLUMN warehouse_id CHAR(36) NULL;
+
+ALTER TABLE product
+ADD COLUMN short_code CHAR(36) AFTER product_code NULL;
