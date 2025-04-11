@@ -1,4 +1,14 @@
-import { Breadcrumb, Button, DatePicker, Input, Select, Table, TimePicker, Tooltip } from 'antd';
+import {
+  Breadcrumb,
+  Button,
+  DatePicker,
+  Input,
+  Select,
+  Table,
+  TimePicker,
+  Tooltip,
+  message
+} from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
@@ -17,11 +27,12 @@ import {
   getEventJobOrders,
   getEventPickLists,
   setDispatchListParams,
-  updateDispatch,
+  updateDispatch
 } from '../../store/features/dispatchSlice.js';
 import { createIJOPrint } from '../../utils/prints/ijo-print.js';
 import { createPickListPrint } from '../../utils/prints/pick-list-print.js';
 import { FaRegFileExcel } from 'react-icons/fa6';
+import { CopyOutlined } from '@ant-design/icons';
 
 const Scheduling = () => {
   const { RangePicker } = DatePicker;
@@ -31,6 +42,7 @@ const Scheduling = () => {
     (state) => state.dispatch
   );
   const [tableKey, setTableKey] = useState(0);
+  const [agentDetails, setAgentDetails] = useState(null);
 
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.dispatch;
@@ -45,6 +57,7 @@ const Scheduling = () => {
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedTechnicianNotes = useDebounce(params.technician_notes, 500);
   const debouncedAgentNotes = useDebounce(params.agent_notes, 500);
+  const debouncedPorts = useDebounce(params.ports, 500);
 
   const groupedData = useMemo(() => {
     if (!list || !list.length) return [];
@@ -205,6 +218,17 @@ const Scheduling = () => {
     }
   };
 
+  const handleCopy = (data) => {
+    navigator.clipboard
+      .writeText(data)
+      .then(() => {
+        message.success('copied!');
+      })
+      .catch((err) => {
+        message.error('Failed to copy');
+      });
+  };
+
   const columns = [
     {
       title: (
@@ -352,6 +376,56 @@ const Scheduling = () => {
     },
     {
       title: (
+        <div>
+          <p>Ports</p>
+          <Input
+            className="font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            value={params.ports}
+            onChange={(e) => dispatch(setDispatchListParams({ ports: e.target.value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'ports',
+      key: 'ports',
+      sorter: false,
+      width: 200,
+      ellipsis: true,
+      render: (_, { ports }) => {
+        if (!ports || !Array.isArray(ports)) return '';
+    
+        const portNames = ports.map((port) => port.name || port).join(', ');
+        return <span>{portNames}</span>;
+      }
+    },    
+    {
+      title: (
+        <div>
+          <p>Short Codes</p>
+          <Input
+            className="font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            value={params.short_codes}
+            onChange={(e) => dispatch(setDispatchListParams({ short_codes: e.target.value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'short_codes',
+      key: 'short_codes',
+      sorter: false,
+      width: 200,
+      ellipsis: true,
+      render: (_, { short_codes }) => {
+        if (!short_codes || !Array.isArray(short_codes)) return '';
+    
+        const short_codesNames = short_codes.map((short_codes) => short_codes.name || short_codes).join(', ');
+        return <span>{short_codesNames}</span>;
+      }
+    },    
+    {
+      title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Technician</p>
           <AsyncSelect
@@ -452,7 +526,13 @@ const Scheduling = () => {
             valueKey="agent_id"
             labelKey="name"
             value={params.agent_id}
-            onChange={(selected) => dispatch(setDispatchListParams({ agent_id: selected }))}
+            onChange={(selected) => {
+              dispatch(
+                setDispatchListParams({
+                  agent_id: selected
+                })
+              );
+            }}
           />
         </div>
       ),
@@ -461,29 +541,55 @@ const Scheduling = () => {
       sorter: true,
       width: 200,
       ellipsis: true,
-      render: (_, { event_id, agent_id, agent_name }) => (
-        <AsyncSelect
-          endpoint="/agent"
-          multiple
-          valueKey="agent_id"
-          labelKey="name"
-          labelInValue
-          disabled={!permissions.update}
-          defaultValue={
-            agent_id
-              ? {
-                  value: agent_id,
-                  label: agent_name
+      render: (_, { event_id, agent_id, agent_name, agent_email, agent_phone, agent_fax }) => {
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <AsyncSelect
+              endpoint="/agent"
+              multiple
+              valueKey="agent_id"
+              labelKey="name"
+              labelInValue
+              disabled={!permissions.update}
+              defaultValue={
+                agent_id
+                  ? {
+                      value: agent_id,
+                      label: agent_name
+                    }
+                  : null
+              }
+              onChange={(selected) =>
+                updateValue(event_id, 'agent_id', selected ? selected.value : null)
+              }
+              size="small"
+              className="w-full"
+            />
+            <Tooltip
+              title={
+                <div>
+                  <div>Name: {agent_name}</div>
+                  <div>Email: {agent_email}</div>
+                  <div>Phone: {agent_phone}</div>
+                  <div>Fax: {agent_fax}</div>
+                </div>
+              }
+              trigger="hover">
+              <Button
+                icon={<CopyOutlined />}
+                size="small"
+                // onClick={() => handleCopy(agent_id)}
+                onClick={() =>
+                  handleCopy(
+                    `Name: ${agent_name}\nEmail: ${agent_email}\nPhone: ${agent_phone}\nFax: ${agent_fax}`
+                  )
                 }
-              : null
-          }
-          onChange={(selected) =>
-            updateValue(event_id, 'agent_id', selected ? selected.value : null)
-          }
-          size="small"
-          className="w-full"
-        />
-      )
+                style={{ marginLeft: '8px' }}
+              />
+            </Tooltip>
+          </div>
+        );
+      }
     },
     {
       title: (
@@ -593,7 +699,8 @@ const Scheduling = () => {
     params.event_time,
     debouncedSearch,
     debouncedTechnicianNotes,
-    debouncedAgentNotes
+    debouncedAgentNotes,
+    debouncedPorts
   ]);
 
   return (
