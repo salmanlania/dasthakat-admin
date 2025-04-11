@@ -116,7 +116,7 @@ export const bulkDeleteServiceOrder = createAsyncThunk(
   async (ids, { rejectWithValue }) => {
     try {
       await api.post('/service_order/bulk-delete', {
-        service_orders_ids: ids
+        service_order_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);
