@@ -13,7 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        //
+        Schema::table('product', function (Blueprint $table) {
+            $table->char('short_code', 36)->nullable()->after('product_code');
+        });
     }
 
     /**
@@ -23,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('product', function (Blueprint $table) {
+            $table->drop('short_code');
+        });
     }
 };
