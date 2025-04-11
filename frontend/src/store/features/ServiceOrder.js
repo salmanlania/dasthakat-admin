@@ -34,6 +34,7 @@ export const getServiceOrderForPrint = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const res = await api.get(`/service_order/${id}`);
+      console.log('es.data.' , res.data)
       return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);

@@ -17,6 +17,7 @@ import { GoTrash } from 'react-icons/go';
 import { MdOutlineEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { FaRegFilePdf } from 'react-icons/fa';
 import AsyncSelect from '../../components/AsyncSelect/index.jsx';
 import PageHeading from '../../components/Heading/PageHeading.jsx';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal.jsx';
@@ -31,7 +32,11 @@ import {
   setShipmentListParams,
   viewBeforeCreate
 } from '../../store/features/shipmentSlice.js';
+import {
+  getServiceOrderForPrint,
+} from '../../store/features/ServiceOrder.js';
 import { getChargeOrder } from '../../store/features/chargeOrderSlice.js';
+import { createServiceOrderPrint } from '../../utils/prints/service-order-print.js';
 
 const Shipment = () => {
   const [form] = Form.useForm();
@@ -58,7 +63,7 @@ const Shipment = () => {
   const [chargeData, setChargeData] = useState(null);
   const [chargeDataGetting, setChargeDataGetting] = useState(false);
 
-  const [popupTitle , setPopupTitle] = useState('')
+  const [popupTitle, setPopupTitle] = useState('');
   const [shipmentType, setShipmentType] = useState(null);
 
   const closeCreateModal = () => {
@@ -96,7 +101,7 @@ const Shipment = () => {
   const openCreateModal = async () => {
     const isValidForm = await form.validateFields();
     if (!isValidForm) return;
-    setPopupTitle('Create DO')
+    setPopupTitle('Create DO');
 
     try {
       setShipmentType('DO');
@@ -121,7 +126,7 @@ const Shipment = () => {
   const onShipmentCreate = async () => {
     const isValidForm = await form.validateFields();
     if (!isValidForm) return;
-    setPopupTitle('Create SO')
+    setPopupTitle('Create SO');
 
     try {
       setChargeDataGetting(true);
@@ -132,7 +137,7 @@ const Shipment = () => {
         viewBeforeCreate({
           event_id: values.event_id.value,
           charge_order_id: values?.charge_order_id?.value || null,
-          type: 'SO',
+          type: 'SO'
         })
       ).unwrap();
       setChargeData(res);
@@ -190,8 +195,7 @@ const Shipment = () => {
     }
   };
 
-  const onProductCheck = (chargeId, chargeDetailId) => {  
-
+  const onProductCheck = (chargeId, chargeDetailId) => {
     const updatedChargeData = chargeData.map((charge) => {
       if (charge.charge_order_id === chargeId) {
         return {
@@ -237,6 +241,18 @@ const Shipment = () => {
     const charge = chargeData.find((charge) => charge.charge_order_id === chargeId);
     return charge ? charge.details.every((detail) => detail.checked) : false;
   };
+
+    const printSODO = async (id) => {
+      const loadingToast = toast.loading('Loading print...');
+  
+      try {
+        const data = await dispatch(getServiceOrderForPrint(id)).unwrap();
+        toast.dismiss(loadingToast);
+        createServiceOrderPrint(data);
+      } catch (error) {
+        handleError(error);
+      }
+    };
 
   const columns = [
     {
@@ -437,9 +453,20 @@ const Shipment = () => {
               </Popconfirm>
             </Tooltip>
           ) : null}
+          <Tooltip title="Print">
+            <Link>
+              <Button
+                size="small"
+                type="primary"
+                className="bg-green-500 hover:!bg-green-400"
+                icon={<FaRegFilePdf size={14} />}
+                onClick={() => printSODO(shipment_id)}
+              />
+            </Link>
+          </Tooltip>
         </div>
       ),
-      width: 80,
+      width: 100,
       fixed: 'right'
     }
   ];
@@ -520,7 +547,8 @@ const Shipment = () => {
 
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setShipmentListParams({ search: e.target.value }))}

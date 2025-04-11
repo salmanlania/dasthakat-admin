@@ -37,6 +37,7 @@ const Product = () => {
   const debouncedCode = useDebounce(params.product_code, 500);
   const debouncedName = useDebounce(params.name, 500);
   const debouncedIMPA = useDebounce(params.impa_code, 500);
+  const debouncedSHORTCODE = useDebounce(params.short_code, 500);
   const debouncedCost = useDebounce(params.cost_price, 500);
   const debouncedSale = useDebounce(params.sale_price, 500);
 
@@ -75,6 +76,7 @@ const Product = () => {
           <Input
             className="font-normal"
             size="small"
+            allowClear
             onClick={(e) => e.stopPropagation()}
             value={params.product_code}
             onChange={(e) => dispatch(setProductListParams({ product_code: e.target.value }))}
@@ -101,12 +103,12 @@ const Product = () => {
             }}
             size="small"
             labelInValue
+            allowClear
             onClick={(e) => e.stopPropagation()}
             value={params.product_type_id}
             onChange={(selected) =>
               dispatch(setProductListParams({ product_type_id: selected ? selected.value : null }))
             }
-            allowClear
           />
         </div>
       ),
@@ -122,6 +124,7 @@ const Product = () => {
           <Input
             className="font-normal"
             size="small"
+            allowClear
             onClick={(e) => e.stopPropagation()}
             value={params.name}
             onChange={(e) => dispatch(setProductListParams({ name: e.target.value }))}
@@ -137,10 +140,31 @@ const Product = () => {
     {
       title: (
         <div>
+          <p>Short Code</p>
+          <Input
+            className="font-normal"
+            size="small"
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.short_code}
+            onChange={(e) => dispatch(setProductListParams({ short_code: e.target.value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'short_code',
+      key: 'short_code',
+      sorter: true,
+      width: 140,
+      ellipsis: true
+    },
+    {
+      title: (
+        <div>
           <p>IMPA Code</p>
           <Input
             className="font-normal"
             size="small"
+            allowClear
             onClick={(e) => e.stopPropagation()}
             value={params.impa_code}
             onChange={(e) => dispatch(setProductListParams({ impa_code: e.target.value }))}
@@ -158,6 +182,7 @@ const Product = () => {
         <div onClick={(e) => e.stopPropagation()}>
           <p>Category</p>
           <AsyncSelect
+            allowClear
             endpoint="/category"
             valueKey="category_id"
             labelKey="name"
@@ -179,6 +204,7 @@ const Product = () => {
         <div onClick={(e) => e.stopPropagation()}>
           <p>Sub Category</p>
           <AsyncSelect
+            allowClear
             endpoint="/sub-category"
             valueKey="sub_category_id"
             labelKey="name"
@@ -200,6 +226,7 @@ const Product = () => {
         <div onClick={(e) => e.stopPropagation()}>
           <p>Brand</p>
           <AsyncSelect
+            allowClear
             endpoint="/brand"
             valueKey="brand_id"
             labelKey="name"
@@ -221,6 +248,7 @@ const Product = () => {
         <div onClick={(e) => e.stopPropagation()}>
           <p>Unit</p>
           <AsyncSelect
+            allowClear
             endpoint="/unit"
             valueKey="unit_id"
             labelKey="name"
@@ -244,6 +272,7 @@ const Product = () => {
           <Input
             className="font-normal"
             size="small"
+            allowClear
             onClick={(e) => e.stopPropagation()}
             value={params.cost_price}
             onChange={(e) => dispatch(setProductListParams({ cost_price: e.target.value }))}
@@ -264,6 +293,7 @@ const Product = () => {
           <Input
             className="font-normal"
             size="small"
+            allowClear
             onClick={(e) => e.stopPropagation()}
             value={params.sale_price}
             onChange={(e) => dispatch(setProductListParams({ sale_price: e.target.value }))}
@@ -337,6 +367,7 @@ const Product = () => {
     debouncedCode,
     debouncedName,
     debouncedIMPA,
+    debouncedSHORTCODE,
     debouncedCost,
     debouncedSale,
     params.product_type_id,
@@ -356,7 +387,8 @@ const Product = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setProductListParams({ search: e.target.value }))}

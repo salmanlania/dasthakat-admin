@@ -185,6 +185,21 @@ const ProductForm = ({ mode, onSubmit }) => {
                 />
               </Form.Item>
             </Col>
+            <Col span={24} sm={12} md={8} lg={8}>
+              <Form.Item
+                name="short_code"
+                label="Short Code"
+                // rules={[
+                //   {
+                //     required: true,
+                //     whitespace: true,
+                //     message: 'Name is required'
+                //   }
+                // ]}
+                >
+                <Input />
+              </Form.Item>
+            </Col>
           </Row>
         </div>
 

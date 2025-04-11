@@ -13,6 +13,7 @@ const AsyncSelect = ({
   labelInValue = false,
   params = {},
   dependencies = [],
+  getOptionLabel,
   valueKey,
   labelKey,
   addNewLink,
@@ -47,7 +48,7 @@ const AsyncSelect = ({
       if (valueKey && labelKey) {
         optionsData = response.data.data.map((item) => ({
           value: item[valueKey],
-          label: item[labelKey]
+          label: getOptionLabel ? getOptionLabel(item) : item[labelKey]
         }));
       } else {
         optionsData = response.data.data;
