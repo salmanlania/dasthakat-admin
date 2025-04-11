@@ -4,7 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ChargeOrder;
+use App\Models\ChargeOrderDetail;
 use App\Models\EventDispatch;
+use App\Models\Port;
+use App\Models\Product;
+use App\Models\Quotation;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -86,10 +90,22 @@ class EventDispatchController extends Controller
 
 		$data = $query
 			// ->select('event_dispatch.*', 'v.name as vessel_name', 'v.vessel_id', 'e.event_code', 'event_dispatch.technician_id','p.port_id','p.name as port_name', 't.name as technician_name', 'a.agent_id', 'a.name as agent_name','a.agent_code','a.address as agent_address','a.city as agent_city','a.state as agent_state','a.zip_code as agent_zip_code','a.phone as agent_phone','a.office_no as agent_office_no','a.fax as agent_fax','a.email as agent_email', 'jo.job_order_id')
-			->select('event_dispatch.*', 'v.name as vessel_name', 'v.vessel_id', 'e.event_code', 'event_dispatch.technician_id', 't.name as technician_name', 'a.agent_id', 'a.name as agent_name','a.agent_code','a.address as agent_address','a.city as agent_city','a.state as agent_state','a.zip_code as agent_zip_code','a.phone as agent_phone','a.office_no as agent_office_no','a.fax as agent_fax','a.email as agent_email', 'jo.job_order_id')
+			->select('event_dispatch.*', 'v.name as vessel_name', 'v.vessel_id', 'e.event_code', 'event_dispatch.technician_id', 't.name as technician_name', 'a.agent_id', 'a.name as agent_name', 'a.agent_code', 'a.address as agent_address', 'a.city as agent_city', 'a.state as agent_state', 'a.zip_code as agent_zip_code', 'a.phone as agent_phone', 'a.office_no as agent_office_no', 'a.fax as agent_fax', 'a.email as agent_email', 'jo.job_order_id')
 			->orderBy($sortColumn, $sortDirection)
 			->paginate($request->input('limit', 10));
 		foreach ($data as $key => $value) {
+
+			$detail = ChargeOrderDetail::whereHas('charge_order', function ($q) use ($value) {
+				$q->where('event_id', $value->event_id);
+			});
+			$short_codes = Product::whereIn('product_id', $detail->pluck('product_id'))->pluck('short_code')->toArray();
+			$value->short_codes = $short_codes;
+
+			$detail = ChargeOrder::where('event_id', $value->event_id)->get();
+			$ports = Quotation::whereIn('document_identity', $detail->pluck('ref_document_identity'))->pluck('port_id');
+
+			$value->ports = Port::whereIn('port_id', $ports)->pluck('name')->toArray();
+
 
 			$technicianIds = $value->technician_id;
 			if (!is_array($technicianIds) || empty($technicianIds)) {
