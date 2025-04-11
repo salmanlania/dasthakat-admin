@@ -58,6 +58,7 @@ const Scheduling = () => {
   const debouncedTechnicianNotes = useDebounce(params.technician_notes, 500);
   const debouncedAgentNotes = useDebounce(params.agent_notes, 500);
   const debouncedPorts = useDebounce(params.ports, 500);
+  const debouncedShort = useDebounce(params.short_codes, 500);
 
   const groupedData = useMemo(() => {
     if (!list || !list.length) return [];
@@ -394,11 +395,15 @@ const Scheduling = () => {
       ellipsis: true,
       render: (_, { ports }) => {
         if (!ports || !Array.isArray(ports)) return '';
-    
+
         const portNames = ports.map((port) => port.name || port).join(', ');
-        return <span>{portNames}</span>;
+        return (
+            <span className="line-clamp-1 block overflow-hidden text-ellipsis whitespace-nowrap">
+              {portNames}
+            </span>
+        );
       }
-    },    
+    },
     {
       title: (
         <div>
@@ -414,16 +419,20 @@ const Scheduling = () => {
       ),
       dataIndex: 'short_codes',
       key: 'short_codes',
-      sorter: false,
+      // sorter: false,
       width: 200,
       ellipsis: true,
       render: (_, { short_codes }) => {
         if (!short_codes || !Array.isArray(short_codes)) return '';
-    
-        const short_codesNames = short_codes.map((short_codes) => short_codes.name || short_codes).join(', ');
-        return <span>{short_codesNames}</span>;
+
+        const short_codesNames = short_codes
+          .map((short_codes) => short_codes.name || short_codes)
+          .join(', ');
+        return (
+            <span className="line-clamp-1 block overflow-hidden text-ellipsis whitespace-nowrap">{short_codesNames}</span>
+        );
       }
-    },    
+    },
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
@@ -700,7 +709,8 @@ const Scheduling = () => {
     debouncedSearch,
     debouncedTechnicianNotes,
     debouncedAgentNotes,
-    debouncedPorts
+    debouncedPorts,
+    debouncedShort
   ]);
 
   return (
