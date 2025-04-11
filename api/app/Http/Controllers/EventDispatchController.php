@@ -99,12 +99,15 @@ class EventDispatchController extends Controller
 				$q->where('event_id', $value->event_id);
 			});
 			$short_codes = Product::whereIn('product_id', $detail->pluck('product_id'))->pluck('short_code')->toArray();
-			$value->short_codes = $short_codes;
+			// $value->short_codes = array_filter($short_codes);
+			$value->short_codes = array_filter($short_codes, function ($value) {
+				return !is_null($value) && $value !== '';
+			});
 
 			$detail = ChargeOrder::where('event_id', $value->event_id)->get();
-			$ports = Quotation::whereIn('document_identity', $detail->pluck('ref_document_identity'))->pluck('port_id');
+			$portsData = Quotation::whereIn('document_identity', $detail->pluck('ref_document_identity'))->pluck('port_id')->toArray();	
 
-			$value->ports = Port::whereIn('port_id', $ports)->pluck('name')->toArray();
+			$value->ports = Port::whereIn('port_id', $portsData)->pluck('name')->toArray();
 
 
 			$technicianIds = $value->technician_id;
