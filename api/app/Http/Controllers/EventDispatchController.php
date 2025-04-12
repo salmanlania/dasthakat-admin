@@ -71,6 +71,27 @@ class EventDispatchController extends Controller
 				});
 			}
 		}
+		if ($request->has('port_id') && is_array($request->port_id)) {
+			$query->whereExists(function ($q) use ($request) {
+				$q->select(DB::raw(1))
+					->from('quotation as q')
+					->join('charge_order as co', 'co.document_identity', '=', 'q.ref_document_identity')
+					->whereColumn('co.event_id', 'e.event_id')
+					->whereIn('q.port_id', $request->port_id);
+			});
+		}
+
+		if ($request->has('short_code') && is_array($request->short_code)) {
+			$query->whereExists(function ($q) use ($request) {
+				$q->select(DB::raw(1))
+					->from('charge_order_detail as cod')
+					->join('product as p', 'p.product_id', '=', 'cod.product_id')
+					->join('charge_order as co', 'co.charge_order_id', '=', 'cod.charge_order_id')
+					->whereColumn('co.event_id', 'e.event_id')
+					->whereIn('p.short_code', $request->short_code);
+			});
+		}
+
 
 		if ($search = $request->input('search')) {
 			$search = strtolower($search);
@@ -105,7 +126,7 @@ class EventDispatchController extends Controller
 			});
 
 			$detail = ChargeOrder::where('event_id', $value->event_id)->get();
-			$portsData = Quotation::whereIn('document_identity', $detail->pluck('ref_document_identity'))->pluck('port_id')->toArray();	
+			$portsData = Quotation::whereIn('document_identity', $detail->pluck('ref_document_identity'))->pluck('port_id')->toArray();
 
 			$value->ports = Port::whereIn('port_id', $portsData)->pluck('name')->toArray();
 
