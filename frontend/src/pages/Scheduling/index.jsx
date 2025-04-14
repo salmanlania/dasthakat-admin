@@ -377,14 +377,17 @@ const Scheduling = () => {
     },
     {
       title: (
-        <div>
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Ports</p>
-          <Input
-            className="font-normal"
+          <AsyncSelect
+            endpoint="/port"
             size="small"
-            onClick={(e) => e.stopPropagation()}
-            value={params.ports}
-            onChange={(e) => dispatch(setDispatchListParams({ ports: e.target.value }))}
+            labelKey="name"
+            valueKey="port_id"
+            className="w-full font-normal"
+            mode="multiple"
+            value={params.port_id}
+            onChange={(selected) => dispatch(setDispatchListParams({ port_id: selected }))}
           />
         </div>
       ),
@@ -405,15 +408,29 @@ const Scheduling = () => {
       }
     },
     {
+      // title: (
+      //   <div>
+      //     <p>Short Codes</p>
+      //     <Input
+      //       className="font-normal"
+      //       size="small"
+      //       onClick={(e) => e.stopPropagation()}
+      //       value={params.short_codes}
+      //       onChange={(e) => dispatch(setDispatchListParams({ short_codes: e.target.value }))}
+      //     />
+      //   </div>
+      // ),
       title: (
-        <div>
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Short Codes</p>
-          <Input
-            className="font-normal"
+          <AsyncSelect
+            endpoint="/product"
             size="small"
-            onClick={(e) => e.stopPropagation()}
+            labelKey="short_code"
+            valueKey="short_codes"
+            className="w-full font-normal"
             value={params.short_codes}
-            onChange={(e) => dispatch(setDispatchListParams({ short_codes: e.target.value }))}
+            onChange={(selected) => dispatch(setDispatchListParams({ short_codes: selected }))}
           />
         </div>
       ),
@@ -699,8 +716,10 @@ const Scheduling = () => {
     params.sort_direction,
     params.agent_id,
     params.technician_id,
+    params.short_codes,
     params.user_id,
     params.vessel_id,
+    params.port_id,
     params.event_id,
     params.event_date,
     params.start_date,
@@ -709,8 +728,8 @@ const Scheduling = () => {
     debouncedSearch,
     debouncedTechnicianNotes,
     debouncedAgentNotes,
-    debouncedPorts,
-    debouncedShort
+    // debouncedPorts,
+    // debouncedShort
   ]);
 
   return (
