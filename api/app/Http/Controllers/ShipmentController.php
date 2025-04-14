@@ -104,6 +104,7 @@ class ShipmentController extends Controller
 			"shipment_detail.supplier",
 			"event",
 			"charge_order",
+			"charge_order.agent",
 			"event.vessel",
 			"event.customer",
 			"event.class1",

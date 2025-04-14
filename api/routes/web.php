@@ -61,6 +61,10 @@ $router->group(['prefix' => 'audit'], function ($router) {
    $router->get('/{id}', 'AuditController@show');
 });
 
+$router->group(['prefix' => 'setting'], function ($router) {
+   $router->put('/{id}', 'SettingController@update');
+   $router->get('/{id}', 'SettingController@show');
+});
 
 $router->group(['prefix' => 'user'], function ($router) {
    $router->get('/', 'UserController@index');

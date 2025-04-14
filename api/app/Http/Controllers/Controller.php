@@ -47,7 +47,7 @@ class Controller extends BaseController
         if (empty($data['name'])) return false;
 
         //if Debug on email will be sent to administrator only
-        $config = Setting::where('module', 'general')->pluck('value', 'field');
+        $config = Setting::where('module', 'mail')->pluck('value', 'field');
         if (@$config['debug'] == 1) {
             $data["email"] = $config['debug_email'];
         }
@@ -60,7 +60,8 @@ class Controller extends BaseController
             $insdata = [
                 'name' => $data['name'],
                 'subject' => $data['subject'],
-                'message' => $data['message']
+                'message' => $data['message'],
+                'data' => $data['data']
             ];
 
             Mail::to($data["email"])->send(new GenerateMail($insdata));
@@ -80,11 +81,11 @@ class Controller extends BaseController
     public function getSettings($is_email = false)
     {
 
-        $config = Setting::where('module', 'general')->pluck('value', 'field');
+        $config = Setting::where('module', 'mail')->pluck('value', 'field');
         $setting = [
-            'host' => @$config['smtm_host'] ? @$config['smtm_host'] : env('MAIL_HOST'),
-            'port' => @$config['smtm_port'] ? @$config['smtm_port'] : env('MAIL_PORT'),
-            'encryption' =>   env('MAIL_ENCRYPTION'),
+            'host' => @$config['smtp_host'] ? @$config['smtp_host'] : env('MAIL_HOST'),
+            'port' => @$config['smtp_port'] ? @$config['smtp_port'] : env('MAIL_PORT'),
+            'encryption' => @$config['smtp_encryption'] ? @$config['smtp_encryption'] :  env('MAIL_ENCRYPTION'),
             'username' => @$config['smtp_user'] ? @$config['smtp_user'] :  env('MAIL_USERNAME'),
             'password' => @$config['smtp_password'] ? @$config['smtp_password'] :  env('MAIL_PASSWORD')
         ];

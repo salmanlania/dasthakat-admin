@@ -15,6 +15,20 @@ class Audit extends Model
     protected $casts = [
         'json_data' => 'array',
     ];
+    public function action_by_user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'action_by');
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class, 'company_id', 'company_id');
+    }
+
+    public function company_branch()
+    {
+        return $this->belongsTo(CompanyBranch::class, 'company_branch_id', 'company_branch_id');
+    }
 
     static protected function onEdit($arg = [])
     {

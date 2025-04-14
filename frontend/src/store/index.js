@@ -37,12 +37,14 @@ import validityReducer from './features/validitySlice';
 import vendorReducer from './features/vendorSlice';
 import vesselReducer from './features/vesselSlice';
 import warehouseReducer from './features/warehouseSlice';
+import auditReducer from './features/auditSlice';
 
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
   auth: authReducer,
   user: userReducer,
   userPermission: userPermissionReducer,
+  audit: auditReducer,
   currency: currencyReducer,
   company: companyReducer,
   pickList: pickListReducer,

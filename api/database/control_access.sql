@@ -172,4 +172,9 @@
   ('Accounting', 'Purchase Invoice', 'purchase_invoice', 'list', 'List', 1.101),
   ('Accounting', 'Purchase Invoice', 'purchase_invoice', 'add', 'Add', 1.102),
   ('Accounting', 'Purchase Invoice', 'purchase_invoice', 'edit', 'Edit', 1.103),
-  ('Accounting', 'Purchase Invoice', 'purchase_invoice', 'delete', 'Delete', 1.104);
+  ('Accounting', 'Purchase Invoice', 'purchase_invoice', 'delete', 'Delete', 1.104),
+
+  ('System', 'Settings', 'setting', 'update', 'Update', 1.101),
+
+  ('System', 'Audit', 'audit', 'list', 'List', 1.101),
+  ('System', 'Audit', 'audit', 'view', 'View', 1.103); 
