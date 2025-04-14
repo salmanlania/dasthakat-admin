@@ -4,7 +4,7 @@ import { BiChevronLeft } from 'react-icons/bi';
 import { FaRegUser } from 'react-icons/fa';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import { IoSearchSharp } from 'react-icons/io5';
-import { LuCalculator, LuClipboardList, LuWarehouse , LuPackage } from 'react-icons/lu';
+import { LuCalculator, LuClipboardList, LuWarehouse , LuPackage, LuServer } from 'react-icons/lu';
 import { MdOutlineAdminPanelSettings, MdOutlineDashboard } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -103,6 +103,7 @@ const Sidebar = () => {
   const accountingPermission = !permissions?.purchase_invoice?.list;
 
   const LogisticsPermission = !permissions?.dispatch?.list;
+  const systemPermission = !permissions?.audit?.list;
 
   const items = [
     {
@@ -340,9 +341,22 @@ const Sidebar = () => {
       disabled: LogisticsPermission,
       children: [
         {
-          key: 'Scheduling',
+          key: 'scheduling',
           label: <Link to="/scheduling">Scheduling</Link>,
           disabled: !permissions?.dispatch?.list
+        }
+      ]
+    },
+    {
+      key: 'system',
+      label: 'System',
+      icon: <LuServer  size={18} />,
+      disabled: systemPermission,
+      children: [
+        {
+          key: 'audit',
+          label: <Link to="/audit">Audit</Link>,
+          disabled: !permissions?.audit?.list
         }
       ]
     },

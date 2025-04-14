@@ -99,6 +99,8 @@ const EditIJO = lazy(() => import('./pages/IJO/EditIJO'));
 const PickList = lazy(() => import('./pages/PickList'));
 const ServiceList = lazy(() => import('./pages/ServiceList'));
 
+const Audit = lazy(() => import('./pages/Audit'));
+
 const Shipment = lazy(() => import('./pages/Shipment'));
 const CreateShipment = lazy(() => import('./pages/Shipment/CreateShipment'));
 const EditShipment = lazy(() => import('./pages/Shipment/EditShipment'));
@@ -689,6 +691,14 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Scheduling />
+              </Suspense>
+            )
+          },
+          {
+            path: '/audit',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Audit />
               </Suspense>
             )
           }

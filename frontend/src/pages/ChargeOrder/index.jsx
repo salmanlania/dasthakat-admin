@@ -57,7 +57,6 @@ const ChargeOrder = () => {
     const result = [];
     const groupedByEvent = {};
 
-    // Group data by event
     list.forEach((item) => {
       const eventCode = item.event_code || 'No Event';
 

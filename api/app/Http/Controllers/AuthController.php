@@ -84,10 +84,28 @@ class AuthController extends Controller
         $user = UserToken::userPermission($request->all());
 
         if (isset($user->user_id)) {
-            if (isset($user['image']))
-                $user['image_url']  = !empty($user['image']) ?  url('public/uploads/' . $user['image']) : '';
 
-            return $this->jsonResponse($user, 200, 'Login Successfully');
+            $otp = mt_rand(100000, 999999);
+            $user = User::where('user_id', $user->user_id)->first();
+            $user->update(['otp' => $otp]);
+            $data = [
+                'data' => ['otp' => $otp],
+                'email' => $user->email,
+                'name' => $user->name,
+                'subject' => 'OTP Verification',
+                'message' => 'Your OTP is ' . $otp,
+            ];
+
+            $this->sentMail($data);
+            // $this->sentMail([
+            //     'otp' => $otp,
+            //     'user' => $user
+            // ]);
+
+            // if (isset($user['image']))
+            // $user['image_url']  = !empty($user['image']) ?  url('public/uploads/' . $user['image']) : '';
+
+            // return $this->jsonResponse($user, 200, 'Login Successfully');
         } else {
             return $this->jsonResponse($user, 400, 'Session Failed');
         }

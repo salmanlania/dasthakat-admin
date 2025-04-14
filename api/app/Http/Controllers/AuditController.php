@@ -11,7 +11,7 @@ class AuditController extends Controller
 
 	public function index(Request $request)
 	{
-		$query = Audit::query();
+		$query = Audit::with("action_by_user", "company", "company_branch");
 
 		if ($request->has('company_id')) {
 			$query->where('company_id', $request->company_id);

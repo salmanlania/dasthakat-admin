@@ -1,6 +1,6 @@
 import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Select, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useEffect, useState , useMemo} from 'react';
 import toast from 'react-hot-toast';
 import { FaRegFilePdf } from 'react-icons/fa';
 import { FaRegFileExcel } from 'react-icons/fa6';
@@ -333,6 +333,37 @@ const Quotation = () => {
     debouncedQuotationNo
   ]);
 
+  const groupedQuotationData = useMemo(() => {
+    if (!list || !list.length) return [];
+  
+    const result = [];
+    const groupedByEvent = {};
+  
+    list.forEach((item) => {
+      const eventCode = item.event_code || 'No Event';
+  
+      if (!groupedByEvent[eventCode]) {
+        groupedByEvent[eventCode] = [];
+      }
+  
+      groupedByEvent[eventCode].push(item);
+    });
+  
+    Object.keys(groupedByEvent).forEach((eventCode) => {
+      result.push({
+        isEventHeader: true,
+        event_code: eventCode,
+        quotation_id: `header-${eventCode}`
+      });
+  
+      groupedByEvent[eventCode].forEach((item) => {
+        result.push(item);
+      });
+    });
+  
+    return result;
+  }, [list]);  
+
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
@@ -380,7 +411,8 @@ const Quotation = () => {
           }
           loading={isListLoading}
           className="mt-2"
-          rowKey="quotation_id"
+          // rowKey="quotation_id"
+          rowKey={(record) => record.quotation_id}
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
@@ -398,11 +430,39 @@ const Quotation = () => {
               })
             );
           }}
-          dataSource={list}
+          // dataSource={list}
+          dataSource={groupedQuotationData}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
             offsetHeader: 56
+          }}
+          onRow={(record) => {
+            return {
+              className: record.isEventHeader ? 'event-header-row' : ''
+            };
+          }}
+          components={{
+            body: {
+              row: (props) => {
+                const { children, className, ...restProps } = props;
+          
+                if (className && className.includes('event-header-row')) {
+                  const eventCode = props['data-row-key'].replace('header-', '');
+                  return (
+                    <tr {...restProps} className="event-header-row bg-[#fafafa] font-bold">
+                      <td
+                        colSpan={columns.length + (permissions.delete ? 1 : 0)}
+                        className="text-md px-4 py-2 text-[#285198]">
+                        {eventCode !== 'No Event' ? `Event: ${eventCode}` : 'No Event Assigned'}
+                      </td>
+                    </tr>
+                  );
+                }
+          
+                return <tr {...props} />;
+              }
+            }
           }}
         />
       </div>

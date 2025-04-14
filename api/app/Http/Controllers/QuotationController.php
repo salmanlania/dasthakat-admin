@@ -36,20 +36,21 @@ class QuotationController extends Controller
 		$latestStatusSubquery = DB::table('quotation_status as qs1')
 			->select('qs1.quotation_id', 'qs1.status', 'qs1.created_by')
 			->whereRaw('qs1.id = (
-            SELECT MAX(qs2.id) 
-            FROM quotation_status as qs2 
-            WHERE qs2.quotation_id = qs1.quotation_id
-        )');
+        SELECT qs2.id
+        FROM quotation_status as qs2
+        WHERE qs2.quotation_id = qs1.quotation_id order by qs2.created_at desc  limit 1
+    )');
+
 
 		$data = Quotation::LeftJoin('customer as c', 'c.customer_id', '=', 'quotation.customer_id')
 			->LeftJoin('event as e', 'e.event_id', '=', 'quotation.event_id')
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'quotation.vessel_id')
-			->leftJoinSub($latestStatusSubquery, 'latest_qs', 'latest_qs.quotation_id', '=', 'quotation.quotation_id')
-			->leftJoin('user as u', 'u.user_id', '=', 'latest_qs.created_by');
+			->leftJoinSub($latestStatusSubquery, 'qs', 'qs.quotation_id', '=', 'quotation.quotation_id')
+			->leftJoin('user as u', 'u.user_id', '=', 'qs.created_by');
 		$data = $data->where('quotation.company_id', '=', $request->company_id);
 		$data = $data->where('quotation.company_branch_id', '=', $request->company_branch_id);
 
-		if (!empty($status_updated_by)) $data = $data->where('u.user_id', '=',  $status_updated_by);
+		if (!empty($status_updated_by)) $data = $data->where('qs.created_by', '=',  $status_updated_by);
 		if (!empty($status)) $data = $data->where('quotation.status', '=',  $status);
 		if (!empty($customer_id)) $data = $data->where('quotation.customer_id', '=',  $customer_id);
 		if (!empty($vessel_id)) $data = $data->where('quotation.vessel_id', '=',  $vessel_id);
