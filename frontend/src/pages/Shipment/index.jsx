@@ -30,13 +30,11 @@ import {
   getShipmentList,
   setShipmentDeleteIDs,
   setShipmentListParams,
-  viewBeforeCreate
+  viewBeforeCreate,
+  getShipmentForPrint
 } from '../../store/features/shipmentSlice.js';
-import {
-  getServiceOrderForPrint,
-} from '../../store/features/ServiceOrder.js';
 import { getChargeOrder } from '../../store/features/chargeOrderSlice.js';
-import { createServiceOrderPrint } from '../../utils/prints/service-order-print.js';
+import { createShipmentPrint } from '../../utils/prints/shipment-print.js';
 
 const Shipment = () => {
   const [form] = Form.useForm();
@@ -246,9 +244,9 @@ const Shipment = () => {
       const loadingToast = toast.loading('Loading print...');
   
       try {
-        const data = await dispatch(getServiceOrderForPrint(id)).unwrap();
+        const data = await dispatch(getShipmentForPrint(id)).unwrap();
         toast.dismiss(loadingToast);
-        createServiceOrderPrint(data);
+        createShipmentPrint(data);
       } catch (error) {
         handleError(error);
       }
