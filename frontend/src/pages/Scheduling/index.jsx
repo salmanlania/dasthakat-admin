@@ -57,8 +57,6 @@ const Scheduling = () => {
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedTechnicianNotes = useDebounce(params.technician_notes, 500);
   const debouncedAgentNotes = useDebounce(params.agent_notes, 500);
-  const debouncedPorts = useDebounce(params.ports, 500);
-  const debouncedShort = useDebounce(params.short_codes, 500);
 
   const groupedData = useMemo(() => {
     if (!list || !list.length) return [];
@@ -408,18 +406,6 @@ const Scheduling = () => {
       }
     },
     {
-      // title: (
-      //   <div>
-      //     <p>Short Codes</p>
-      //     <Input
-      //       className="font-normal"
-      //       size="small"
-      //       onClick={(e) => e.stopPropagation()}
-      //       value={params.short_codes}
-      //       onChange={(e) => dispatch(setDispatchListParams({ short_codes: e.target.value }))}
-      //     />
-      //   </div>
-      // ),
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Short Codes</p>
@@ -427,16 +413,16 @@ const Scheduling = () => {
             endpoint="/product"
             size="small"
             labelKey="short_code"
-            valueKey="short_codes"
+            valueKey="short_code"
+            mode="multiple"
             className="w-full font-normal"
-            value={params.short_codes}
-            onChange={(selected) => dispatch(setDispatchListParams({ short_codes: selected }))}
+            value={params.short_code}
+            onChange={(selected) => dispatch(setDispatchListParams({ short_code: selected }))}
           />
         </div>
       ),
       dataIndex: 'short_codes',
       key: 'short_codes',
-      // sorter: false,
       width: 200,
       ellipsis: true,
       render: (_, { short_codes }) => {
@@ -716,7 +702,7 @@ const Scheduling = () => {
     params.sort_direction,
     params.agent_id,
     params.technician_id,
-    params.short_codes,
+    params.short_code,
     params.user_id,
     params.vessel_id,
     params.port_id,
