@@ -75,7 +75,7 @@ class EventDispatchController extends Controller
 			$query->whereExists(function ($q) use ($request) {
 				$q->select(DB::raw(1))
 					->from('quotation as q')
-					->join('charge_order as co', 'co.document_identity', '=', 'q.ref_document_identity')
+					->join('charge_order as co', 'co.ref_document_identity', '=', 'q.document_identity')
 					->whereColumn('co.event_id', 'e.event_id')
 					->whereIn('q.port_id', $request->port_id);
 			});
