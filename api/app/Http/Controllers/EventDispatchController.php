@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ChargeOrder;
+use App\Models\ChargeOrderDetail;
 use App\Models\EventDispatch;
-use App\Models\Technician;
+use App\Models\Port;
+use App\Models\Product;
+use App\Models\Quotation;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -16,6 +19,9 @@ class EventDispatchController extends Controller
 		$query = EventDispatch::leftJoin('event as e', 'event_dispatch.event_id', '=', 'e.event_id')
 			->leftJoin('vessel as v', 'e.vessel_id', '=', 'v.vessel_id')
 			->leftJoin('job_order as jo', 'jo.event_id', '=', 'e.event_id')
+			// ->leftJoin('charge_order as co', 'co.charge_order_id', '=', 'jo.charge_order_id')
+			// ->leftJoin('quotation as q', 'q.quotation_id', '=', 'jo.quotation_id')
+			// ->leftJoin('port as p', 'p.port_id', '=', 'q.port_id')
 			->leftJoin('technician as t', 't.technician_id', '=', 'event_dispatch.technician_id')
 			->leftJoin('agent as a', 'a.agent_id', '=', 'event_dispatch.agent_id')
 
@@ -38,6 +44,9 @@ class EventDispatchController extends Controller
 		if ($event_time = $request->input('event_time')) {
 			$query->whereTime('event_dispatch.event_time', $event_time);
 		}
+		// if ($port_id = $request->input('port_id')) {
+		// 	$query->whereTime('p.port_id', $port_id);
+		// }
 		if ($event_id = $request->input('event_id')) {
 			$query->where('event_dispatch.event_id', $event_id);
 		}
@@ -62,6 +71,27 @@ class EventDispatchController extends Controller
 				});
 			}
 		}
+		if ($request->has('port_id') && is_array($request->port_id)) {
+			$query->whereExists(function ($q) use ($request) {
+				$q->select(DB::raw(1))
+					->from('quotation as q')
+					->join('charge_order as co', 'co.document_identity', '=', 'q.ref_document_identity')
+					->whereColumn('co.event_id', 'e.event_id')
+					->whereIn('q.port_id', $request->port_id);
+			});
+		}
+
+		if ($request->has('short_code') && is_array($request->short_code)) {
+			$query->whereExists(function ($q) use ($request) {
+				$q->select(DB::raw(1))
+					->from('charge_order_detail as cod')
+					->join('product as p', 'p.product_id', '=', 'cod.product_id')
+					->join('charge_order as co', 'co.charge_order_id', '=', 'cod.charge_order_id')
+					->whereColumn('co.event_id', 'e.event_id')
+					->whereIn('p.short_code', $request->short_code);
+			});
+		}
+
 
 		if ($search = $request->input('search')) {
 			$search = strtolower($search);
@@ -69,6 +99,7 @@ class EventDispatchController extends Controller
 				$q->where('v.name', 'like', "%$search%")
 					->orWhere('e.event_code', 'like', "%$search%")
 					->orWhere('t.name', 'like', "%$search%")
+					// ->orWhere('p.name', 'like', "%$search%")
 					->orWhere('a.name', 'like', "%$search%")
 				;
 			});
@@ -79,10 +110,26 @@ class EventDispatchController extends Controller
 
 
 		$data = $query
-			->select('event_dispatch.*', 'v.name as vessel_name', 'v.vessel_id', 'e.event_code', 'event_dispatch.technician_id', 't.name as technician_name', 'a.agent_id', 'a.name as agent_name', 'jo.job_order_id')
+			// ->select('event_dispatch.*', 'v.name as vessel_name', 'v.vessel_id', 'e.event_code', 'event_dispatch.technician_id','p.port_id','p.name as port_name', 't.name as technician_name', 'a.agent_id', 'a.name as agent_name','a.agent_code','a.address as agent_address','a.city as agent_city','a.state as agent_state','a.zip_code as agent_zip_code','a.phone as agent_phone','a.office_no as agent_office_no','a.fax as agent_fax','a.email as agent_email', 'jo.job_order_id')
+			->select('event_dispatch.*', 'v.name as vessel_name', 'v.vessel_id', 'e.event_code', 'event_dispatch.technician_id', 't.name as technician_name', 'a.agent_id', 'a.name as agent_name', 'a.agent_code', 'a.address as agent_address', 'a.city as agent_city', 'a.state as agent_state', 'a.zip_code as agent_zip_code', 'a.phone as agent_phone', 'a.office_no as agent_office_no', 'a.fax as agent_fax', 'a.email as agent_email', 'jo.job_order_id')
 			->orderBy($sortColumn, $sortDirection)
 			->paginate($request->input('limit', 10));
 		foreach ($data as $key => $value) {
+
+			$detail = ChargeOrderDetail::whereHas('charge_order', function ($q) use ($value) {
+				$q->where('event_id', $value->event_id);
+			});
+			$short_codes = Product::whereIn('product_id', $detail->pluck('product_id'))->pluck('short_code')->toArray();
+			// $value->short_codes = array_filter($short_codes);
+			$value->short_codes = array_filter($short_codes, function ($value) {
+				return !is_null($value) && $value !== '';
+			});
+
+			$detail = ChargeOrder::where('event_id', $value->event_id)->get();
+			$portsData = Quotation::whereIn('document_identity', $detail->pluck('ref_document_identity'))->pluck('port_id')->toArray();
+
+			$value->ports = Port::whereIn('port_id', $portsData)->pluck('name')->toArray();
+
 
 			$technicianIds = $value->technician_id;
 			if (!is_array($technicianIds) || empty($technicianIds)) {

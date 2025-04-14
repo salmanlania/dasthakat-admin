@@ -34,6 +34,7 @@ export const getServiceOrderForPrint = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const res = await api.get(`/service_order/${id}`);
+      console.log('es.data.' , res.data)
       return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);
@@ -115,7 +116,7 @@ export const bulkDeleteServiceOrder = createAsyncThunk(
   async (ids, { rejectWithValue }) => {
     try {
       await api.post('/service_order/bulk-delete', {
-        service_orders_ids: ids
+        service_order_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);

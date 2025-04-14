@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import GMSLogo from '../../assets/logo.jpg';
+import GMSLogo from '../../assets/logo-with-title.png';
 import dayjs from 'dayjs';
 
 const fillEmptyRows = (rows, rowsPerPage) => {
@@ -22,36 +22,33 @@ const fillEmptyRows = (rows, rowsPerPage) => {
 };
 
 const pdfContent = (doc, data, sideMargin, pageWidth) => {
-  doc.setTextColor(32, 50, 114); 
-
+  doc.setTextColor(32, 50, 114);
   doc.setFontSize(20);
   doc.setFont('times', 'bold');
-  doc.text('GLOBAL MARINE SAFETY', pageWidth / 2, 15, {
+  doc.text('Global Marine Safety - America', pageWidth / 2, 12, {
     align: 'center'
   });
-
+  doc.setFont('times', 'normal');
   doc.setFontSize(10);
-  doc.setFont('times');
-  doc.text('9145 Wallisville Rd Houston TX 77029', pageWidth / 2, 22, {
+  doc.text('9145 Wallisville Rd, Houston TX 77029, USA', pageWidth / 2, 18, {
     align: 'center'
   });
+  doc.text(
+    'Tel: 1 713-518-1715, Fax: 1 713-518-1760, Email: sales@gms-america.com',
+    pageWidth / 2,
+    22,
+    {
+      align: 'center'
+    }
+  );
 
-  doc.setFontSize(10);
-  doc.setFont('times');
-  doc.text('Tel: 1 713 518 1715 Fax. : 1 713 518 1760', pageWidth / 2, 28, {
-    align: 'center'
-  });
+  // Header LOGO
+  doc.addImage(GMSLogo, 'PNG', 8, 1, 35, 26);
 
-  doc.setFontSize(10);
-  doc.setFont('times');
-  doc.text('Email : info@gms-america.com', pageWidth / 2, 34, {
-    align: 'center'
-  });
-
-  doc.addImage(GMSLogo, 'PNG', 8, 4, 25, 18);
+  // Bill To and Ship To
   doc.setFontSize(15);
   doc.setFont('times', 'bold');
-  doc.setTextColor(0, 0, 0);
+  doc.setTextColor(32, 50, 114);
   const text = 'Service Order - Original';
   const x = pageWidth / 2;
   const y = 42;
@@ -61,8 +58,8 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
   const textWidth = doc.getTextWidth(text);
 
   const underlineY = y + 2;
-  doc.setDrawColor(0, 0, 0);  
-  doc.setLineWidth(0.5); 
+  doc.setDrawColor(32, 50, 114);
+  doc.setLineWidth(0.5);
   doc.line(x - textWidth / 2, underlineY, x + textWidth / 2, underlineY);
 
   const topInfoTable = [
@@ -91,6 +88,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         content: dayjs(data?.created_at).format('MM-DD-YYYY') || '-',
         styles: {
           halign: 'left',
+          width: '40%'
         }
       },
     ],
@@ -189,15 +187,9 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         }
       },
       {
-        content: data?.charge_order?.agent?.fax || '-',
+        content: data?.charge_order?.agent?.fax || '' + ' ' + '' + '',
+        colSpan: 3,
         styles: {
-          halign: 'left',
-        }
-      },
-      {
-        content: '',
-        styles: {
-          fontStyle: 'bold',
           halign: 'left',
         }
       },
@@ -210,9 +202,6 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     ]
   ];
 
-  const tableStartY = doc.previousAutoTable.finalY + 10;
-  let outerBorderDrawn = false;
-
   doc.autoTable({
     startY: 46,
     body: topInfoTable,
@@ -221,17 +210,17 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     styles: {
       font: 'times',
       lineWidth: 0.1,
-      lineColor: [196, 189, 151]
+      lineColor: [116, 116, 116],
     },
     bodyStyles: {
       fontSize: 10,
-      textColor: [0, 0, 0]
+      textColor: [32, 50, 114],
     },
     columnStyles: {
-      0: { cellWidth: 30 },
-      1: { cellWidth: 60 },
-      2: { cellWidth: 40 },
-      3: { cellWidth: 60 }
+      0: { cellWidth: 40 },
+      1: { cellWidth: 104 },
+      2: { cellWidth: 24 },
+      3: { cellWidth: 30 }
     },
   });
 
@@ -250,7 +239,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         content: 'Type',
         styles: {
           fontStyle: 'bold',
-          halign: 'center',
+          halign: 'left',
           valign: 'middle',
           fillColor: [255, 255, 255]
         }
@@ -259,7 +248,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         content: 'Description',
         styles: {
           fontStyle: 'bold',
-          halign: 'center',
+          halign: 'left',
           valign: 'middle',
           fillColor: [255, 255, 255]
         }
@@ -268,7 +257,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         content: 'Order Qty',
         styles: {
           fontStyle: 'bold',
-          halign: 'center',
+          halign: 'right',
           valign: 'middle',
           fillColor: [255, 255, 255]
         }
@@ -304,26 +293,45 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
           styles: { halign: 'center', fillColor: rowBackgroundColor }
         },
         {
-          content: detail?.product_type.name || '',
-          styles: { halign: 'center', fillColor: [255, 255, 255] }
+          content: detail?.product_type.name
+            ? detail.product_type.name.charAt(0).toUpperCase() + detail.product_type.name.charAt(1).toUpperCase()
+            : '',
+          styles: { halign: 'left', fillColor: [255, 255, 255] }
         },
         {
           content: detail?.product_description || '',
-          styles: { halign: 'center', fillColor: rowBackgroundColor }
+          styles: { halign: 'left', fillColor: rowBackgroundColor }
         },
+        // {
+        //   content: detail?.quantity || '',
+        //   styles: { halign: 'right', fillColor: rowBackgroundColor }
+        // },
         {
-          content: detail?.quantity || '',
-          styles: { halign: 'center', fillColor: rowBackgroundColor }
-        },
+          content: (() => {
+            const quantity = parseFloat(detail?.quantity);
+            if (!isNaN(quantity)) {
+              const finalValue = quantity % 1 === 0 
+                ? Math.floor(quantity)
+                : quantity;
+        
+              return String(finalValue); // 👈 Force to string here
+            }
+            return '';
+          })(),
+          styles: {
+            halign: 'right',
+            fillColor: rowBackgroundColor
+          }
+        },       
         {
           content: detail?.unit?.name || '',
-          styles: { halign: 'center', fillColor: rowBackgroundColor }
+          styles: { halign: 'left', fillColor: rowBackgroundColor }
         },
         {
           content: '',
-          styles: { halign: 'center', fillColor: rowBackgroundColor }
+          styles: { halign: 'right', fillColor: rowBackgroundColor }
         },
-        
+
       ]);
     });
   }
@@ -340,17 +348,17 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       halign: 'center',
       valign: 'middle',
       lineWidth: 0.1,
-      lineColor: [0, 0, 0]
+      lineColor: [116, 116, 116]
     },
     bodyStyles: {
       fontSize: 9,
-      textColor: [0, 0, 0],
+      textColor: [32, 50, 114],
       fillColor: [255, 255, 255]
     },
     columnStyles: {
-      0: { cellWidth: 16 },
-      1: { cellWidth: 25 },
-      2: { cellWidth: 95 },
+      0: { cellWidth: 13 },
+      1: { cellWidth: 13 },
+      2: { cellWidth: 118 },
       3: { cellWidth: 18 },
       4: { cellWidth: 18 },
       5: { cellWidth: 18 },
@@ -392,7 +400,7 @@ export const createServiceOrderPrint = (data, multiple = false) => {
   }
 
   doc.setProperties({
-    title: `Service Order - ${multiple ? data[0]?.event.event_code : data.document_identity}`
+    // title: `Service Order - ${multiple ? data[0]?.event.event_code : data.document_identity}`
   });
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob, {});

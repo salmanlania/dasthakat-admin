@@ -154,6 +154,7 @@ export const productSlice = createSlice({
             }
           : null,
         impa_code: data.impa_code,
+        short_code: data.short_code,
         category_id: data.category_id
           ? {
               value: data.category_id,

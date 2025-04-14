@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Select, Table } from 'antd';
 import dayjs from 'dayjs';
-import { useState , useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { BiPlus } from 'react-icons/bi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
@@ -48,8 +48,8 @@ export const quotationStatusOptions = [
     label: 'In Progress'
   },
   {
-    value: 'Complete',
-    label: 'Complete'
+    value: 'Ready to Review',
+    label: 'Ready to Review'
   },
   {
     value: 'Approved',
@@ -83,7 +83,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
         [`product_name-${index}`]: item.product_name
       });
     });
-  }, [quotationDetails]);  
+  }, [quotationDetails]);
 
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
@@ -396,6 +396,49 @@ const QuotationForm = ({ mode, onSubmit }) => {
       handleError(error);
     } finally {
       toast.dismiss(loadingToast);
+    }
+  };
+
+  const [globalMarkup, setGlobalMarkup] = useState('');
+  const [globalDiscount, setGlobalDiscount] = useState('');
+
+  const applyGlobalDiscount = (inputValue) => {
+    const trimmed = inputValue.trim();
+    if (trimmed === '') {
+      return
+    }
+    const value = Number(trimmed);
+    if (!isNaN(value)) {
+      quotationDetails.forEach((row, index) => {
+        dispatch(
+          changeQuotationDetailValue({
+            index,
+            key: 'discount_percent',
+            value: value
+          })
+        );
+      });
+    }
+  };
+
+  const applyGlobalMarkup = (inputValue) => {
+    const trimmed = inputValue.trim();
+    if (trimmed === ''  && trimmed !== '0') {
+      return;
+    }
+    const value = Number(trimmed);
+    if (!isNaN(value)) {
+      quotationDetails.forEach((row, index) => {
+        if (row.product_type_id?.value !== 1) {
+          dispatch(
+            changeQuotationDetailValue({
+              index,
+              key: 'markup',
+              value: value
+            })
+          );
+        }
+      });
     }
   };
 
@@ -787,7 +830,28 @@ const QuotationForm = ({ mode, onSubmit }) => {
       width: 120
     },
     {
-      title: 'Markup %',
+      // title: "Markup %",
+      title: (
+        <div className="flex flex-wrap items-center gap-1">
+          <span>Markup %</span>
+          <input
+            value={globalMarkup}
+            onChange={(e) => {
+              const value = e.target.value;
+              setGlobalMarkup(value);
+              applyGlobalMarkup(value);
+            }}
+            placeholder="Markup %"
+            style={{
+              width: '80px',
+              fontSize: '12px',
+              padding: '2px 4px',
+              border: '1px solid #d9d9d9',
+              borderRadius: '4px'
+            }}
+          />
+        </div>
+      ),
       dataIndex: 'markup',
       key: 'markup',
       render: (_, { markup, product_type_id }, index) => {
@@ -845,7 +909,27 @@ const QuotationForm = ({ mode, onSubmit }) => {
       width: 120
     },
     {
-      title: 'Discount %',
+      title: (
+        <div className="flex flex-wrap">
+          <span>Discount %</span>
+          <input
+            value={globalDiscount}
+            onChange={(e) => {
+              const value = e.target.value
+              setGlobalDiscount(value);
+              applyGlobalDiscount(value)
+            }}
+            placeholder="Discount %"
+            style={{
+              width: '80px',
+              fontSize: '12px',
+              padding: '2px 4px',
+              border: '1px solid #d9d9d9',
+              borderRadius: '4px'
+            }}
+          />
+        </div>
+      ),
       dataIndex: 'discount_percent',
       key: 'discount_percent',
       render: (_, { discount_percent }, index) => {

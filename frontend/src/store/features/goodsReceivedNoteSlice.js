@@ -294,7 +294,8 @@ export const goodsReceivedNoteSlice = createSlice({
         purchase_order_id: data.purchase_order
           ? {
               value: data.purchase_order.purchase_order_id,
-              label: data.purchase_order.purchase_order_no || data.purchase_order.document_identity
+              label: data.purchase_order.purchase_order_no ? data.purchase_order.purchase_order_no : data.purchase_order.document_identity
+              // label: data.purchase_order.document_identity
             }
           : null,
       };
