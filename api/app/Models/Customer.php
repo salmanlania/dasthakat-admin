@@ -53,7 +53,7 @@ class Customer extends Model implements AuthenticatableContract, AuthorizableCon
      * @var string[]
      */
 
-    public function vessel()
+    public function pivot_vessel()
     {
         return $this->belongsToMany(Vessel::class, 'customer_vessel', 'customer_id', 'vessel_id')
             ->select('vessel.vessel_id', 'vessel.name');

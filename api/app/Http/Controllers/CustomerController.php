@@ -12,6 +12,7 @@ use App\Mail\GenerateMail;
 use App\Models\Customer;
 use App\Models\CustomerVessel;
 use App\Models\Quotation;
+use App\Models\Vessel;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
@@ -43,7 +44,7 @@ class CustomerController extends Controller
 		$sort_column = $request->input('sort_column', 'customer.created_at');
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
-		$data =  Customer::with("vessel")
+		$data =  Customer::with("pivot_vessel")
 			->LeftJoin('salesman as s', 's.salesman_id', '=', 'customer.salesman_id')
 			->LeftJoin('payment as p', 'p.payment_id', '=', 'customer.payment_id');
 		$data = $data->where('customer.company_id', '=', $request->company_id);
@@ -62,8 +63,8 @@ class CustomerController extends Controller
 		if ($all != 1) $data = $data->where('customer.status', '=', 1);
 		if (!empty($status) || $status == '0') $data = $data->where('customer.status', '=', $status);
 		if (!empty($vessel_id) && is_array($vessel_id)) {
-			$data = $data->whereHas('vessel', function ($query) use ($vessel_id) {
-				$query->whereIn('vessel.vessel_id', $vessel_id); // Fully qualify the column name
+			$data = $data->whereHas('pivot_vessel', function ($query) use ($vessel_id) {
+				$query->whereIn('vessel.vessel_id', $vessel_id);
 			});
 		}
 		if (!empty($search)) {
@@ -88,13 +89,27 @@ class CustomerController extends Controller
 		$data = $data->select("customer.*", "p.name as payment_name", "s.name as salesman_name");
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
+		foreach ($data as $key => &$value) {
+
+			$vessels = CustomerVessel::where('customer_id', $value->customer_id)->pluck('vessel_id')->toArray();
+			$vessel = Vessel::whereIn('vessel_id', $vessels)->get();
+			$value->vessel = $vessel;
+		}
+		// $data->load('vessel');
 		return response()->json($data);
 	}
 
 	public function show($id, Request $request)
 	{
-		$data = Customer::with("vessel", "payment")
-			->LeftJoin('salesman as s', 's.salesman_id', '=', 'customer.salesman_id')->where('customer_id', $id)->select("customer.*", "s.name as salesman_name")->first();
+
+		$data = Customer::with("payment")
+			->LeftJoin('salesman as s', 's.salesman_id', '=', 'customer.salesman_id')
+			->where('customer_id', $id)
+			->select("customer.*", "s.name as salesman_name")->first();
+		$vessels = CustomerVessel::where('customer_id', $id)->pluck('vessel_id')->toArray();
+		$vessel = Vessel::whereIn('vessel_id', $vessels)->get();
+		$data->vessel = $vessel;
+
 		return $this->jsonResponse($data, 200, "Customer Data");
 	}
 
