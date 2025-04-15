@@ -399,9 +399,9 @@ const Scheduling = () => {
 
         const portNames = ports.map((port) => port.name || port).join(', ');
         return (
-            <span className="line-clamp-1 block overflow-hidden text-ellipsis whitespace-nowrap">
-              {portNames}
-            </span>
+          <span className="line-clamp-1 block overflow-hidden text-ellipsis whitespace-nowrap">
+            {portNames}
+          </span>
         );
       }
     },
@@ -432,7 +432,9 @@ const Scheduling = () => {
           .map((short_codes) => short_codes.name || short_codes)
           .join(', ');
         return (
-            <span className="line-clamp-1 block overflow-hidden text-ellipsis whitespace-nowrap">{short_codesNames}</span>
+          <span className="line-clamp-1 block overflow-hidden text-ellipsis whitespace-nowrap">
+            {short_codesNames}
+          </span>
         );
       }
     },
@@ -534,7 +536,7 @@ const Scheduling = () => {
           <AsyncSelect
             endpoint="/agent"
             size="small"
-            className="w-full font-normal"
+            className="font-normal"
             valueKey="agent_id"
             labelKey="name"
             value={params.agent_id}
@@ -555,28 +557,42 @@ const Scheduling = () => {
       ellipsis: true,
       render: (_, { event_id, agent_id, agent_name, agent_email, agent_phone, agent_fax }) => {
         return (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <AsyncSelect
-              endpoint="/agent"
-              multiple
-              valueKey="agent_id"
-              labelKey="name"
-              labelInValue
-              disabled={!permissions.update}
-              defaultValue={
-                agent_id
-                  ? {
-                      value: agent_id,
-                      label: agent_name
-                    }
-                  : null
-              }
-              onChange={(selected) =>
-                updateValue(event_id, 'agent_id', selected ? selected.value : null)
-              }
-              size="small"
-              className="w-full"
-            />
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              width: '100%'
+            }}>
+            <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+              <AsyncSelect
+                endpoint="/agent"
+                multiple
+                valueKey="agent_id"
+                labelKey="name"
+                labelInValue
+                disabled={!permissions.update}
+                defaultValue={
+                  agent_id
+                    ? {
+                        value: agent_id,
+                        label: agent_name
+                      }
+                    : null
+                }
+                onChange={(selected) =>
+                  updateValue(event_id, 'agent_id', selected ? selected.value : null)
+                }
+                className="w-[90%]"
+                size="small"
+                style={{
+                  width: '90%', // Make sure the AsyncSelect takes up the full width
+                  whiteSpace: 'nowrap', // Prevents the text from wrapping
+                  overflow: 'hidden', // Ensures overflow content is hidden
+                  textOverflow: 'ellipsis' // Adds the ellipsis effect when text is too long
+                }}
+              />
+            </div>
             <Tooltip
               title={
                 <div>
@@ -713,7 +729,7 @@ const Scheduling = () => {
     params.event_time,
     debouncedSearch,
     debouncedTechnicianNotes,
-    debouncedAgentNotes,
+    debouncedAgentNotes
     // debouncedPorts,
     // debouncedShort
   ]);
