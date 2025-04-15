@@ -119,6 +119,7 @@ class UserController extends Controller
 			'status' => $request->status ?? 0,
 			'from_time' => $request->from_time,
 			'to_time' => $request->to_time,
+			'is_exempted' => $request->is_exempted ?? 0,
 			'created_at' => date('Y-m-d H:i:s'),
 			'created_by' => $request->login_user_id,
 		];
@@ -167,6 +168,7 @@ class UserController extends Controller
 		$user->status = $request->status ?? 0;
 		$user->from_time = $request->from_time;
 		$user->to_time = $request->to_time;
+		$user->is_exempted = $request->is_exempted ?? 0;
 		$user->updated_at = date('Y-m-d H:i:s');
 		$user->updated_by = $request->login_user_id;
 

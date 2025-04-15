@@ -15,6 +15,7 @@ use App\Models\PicklistReceivedDetail;
 use App\Models\ServicelistReceivedDetail;
 use App\Models\Shipment;
 use App\Models\ShipmentDetail;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
@@ -43,28 +44,29 @@ class Controller extends BaseController
 
     public function sentMail($data)
     {
-
+        
         if (empty($data['name'])) return false;
-
+        
         //if Debug on email will be sent to administrator only
         $config = Setting::where('module', 'mail')->pluck('value', 'field');
         if (@$config['debug'] == 1) {
             $data["email"] = $config['debug_email'];
         }
-
+        
         $_return = "";
         // Email Generate update Settings
         $this->getSettings(true);
-
+        
         try {
             $insdata = [
                 'name' => $data['name'],
                 'subject' => $data['subject'],
                 'message' => $data['message'],
-                'data' => $data['data']
+                'data' => $data['data'] ?? [],
             ];
-
+            // dd($data["email"]);
             Mail::to($data["email"])->send(new GenerateMail($insdata));
+            // dd(1);
         } catch (\Exception $e) {
             Log::error('Email sending failed: ' . $e->getMessage());
             $_return = "Email Not Sent.Please Check Your Email or Contact to your Administrator!";
@@ -87,16 +89,46 @@ class Controller extends BaseController
             'port' => @$config['smtp_port'] ? @$config['smtp_port'] : env('MAIL_PORT'),
             'encryption' => @$config['smtp_encryption'] ? @$config['smtp_encryption'] :  env('MAIL_ENCRYPTION'),
             'username' => @$config['smtp_user'] ? @$config['smtp_user'] :  env('MAIL_USERNAME'),
-            'password' => @$config['smtp_password'] ? @$config['smtp_password'] :  env('MAIL_PASSWORD')
+            'password' => @$config['smtp_password'] ? @$config['smtp_password'] :  env('MAIL_PASSWORD'),
+            'from_name' => @$config['display_name'] ? @$config['display_name'] : env('MAIL_FROM_NAME'), 
+       
         ];
         if ($is_email == true)
             updateMailConfig($setting);
+
+
     }
 
 
+  
     public function testApi()
     {
-        return response()->json(['success' => true, 'msg' => 'Backend Working']);
+        // $users = $this->dbset()->get();
+	
+        $users = User::get();
+	// exit;
+	
+	// test setting
+	$this->getSettings(true);
+	
+        $data = [
+	    'email' => 'test',
+            'name' => 'Dear Test',
+            'subject' => 'Your Dynamic Subject Here',
+            'message' => ' Thank you for Registering to our platform.<br>
+                    Your Username is example@gmail.com & Password is Elon123@<br>
+                    Please remember to login. <br>
+		    <br> You can access your Account to management your Quote Request and change your password here. <br> servermail@gmail.com'
+        ];
+	
+	
+	// Sent Email
+	$this->sentMail($data );
+        return response()->json(['message' => 'Email sent successfully']);
+
+
+
+        return response()->json($users);
     }
     /**
      * --------------------------------------------------------------------------------
