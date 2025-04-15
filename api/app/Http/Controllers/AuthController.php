@@ -9,6 +9,7 @@ use App\Models\UserToken;
 use Illuminate\Http\Request;
 use Illuminate\Database\DatabaseManager;
 use App\Models\UserBranchAccess;
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {
@@ -93,7 +94,10 @@ class AuthController extends Controller
             }
             $otp = mt_rand(100000, 999999);
             $updateUser = User::where('user_id', $user->user_id)->first();
-            $updateUser->update(['otp' => $otp]);
+            $updateUser->update([
+                'otp' => $otp,
+                'otp_created_at' => Carbon::now(), // store current timestamp
+            ]);
             $data = [
                 'data' => ['otp' => $otp],
                 'email' => $updateUser->email,
@@ -130,7 +134,12 @@ class AuthController extends Controller
                 if (isset($user['image']))
                     $user['image_url']  = !empty($user['image']) ?  url('public/uploads/' . $user['image']) : '';
 
-                User::where('user_id', $user->user_id)->update(['otp' => null]);
+
+                if ($user->otp_created_at && Carbon::now()->diffInMinutes($user->otp_created_at) > 5) {
+                    return $this->jsonResponse("The OTP you entered is no longer valid. Please request a new code.", 400, 'OTP has expired');
+                }
+
+                User::where('user_id', $user->user_id)->update(['otp' => null, 'otp_created_at' => null]);
 
                 return $this->jsonResponse($user, 200, 'Login Successfully');
             } else {
