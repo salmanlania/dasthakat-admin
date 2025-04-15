@@ -99,6 +99,7 @@ class CompanyController extends Controller
 			'company_id' => $uuid,
 			'name' => $request->name ?? "",
 			'base_currency_id' => $request->currency_id ?? "",
+			'is_exempted' => $request->is_exempted ?? 0,
 			'address' => $request->address ?? "",
 			'created_at' => date('Y-m-d H:i:s'),
 			'created_by' => $request->login_user_id,
@@ -134,6 +135,7 @@ class CompanyController extends Controller
 
 		$data->name  = $request->name ?? "";
 		$data->base_currency_id  = $request->currency_id ?? "";
+		$data->is_exempted = $request->is_exempted ?? 0;
 		$data->address = $request->address ?? "";
 		$data->updated_at = date('Y-m-d H:i:s');
 		$data->updated_by = $request->login_user_id;

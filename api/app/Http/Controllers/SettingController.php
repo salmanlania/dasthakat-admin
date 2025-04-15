@@ -8,12 +8,11 @@ use Illuminate\Http\Request;
 class SettingController extends Controller
 {
 	protected $db;
-	public function update(Request $request, $id)
+	public function update(Request $request)
 	{
-		$post = $request->all();
+		$post = $request->only(['mail', 'sms']);
 		foreach ($post as $module_name => $data) {
 			Setting::where('module', $module_name)->delete();
-
 			if (is_array($data) || is_object($data))
 				foreach ($data as $field => $value) {
 
@@ -22,7 +21,7 @@ class SettingController extends Controller
 						'id' =>  $uuid,
 						'module' => $module_name,
 						"field" => $field,
-						"value" => $value,
+						"value" =>  is_array($value) || is_object($value) ? json_encode($value) : $value,
 					];
 					Setting::create($iData);
 				}
@@ -31,9 +30,9 @@ class SettingController extends Controller
 	}
 
 
-	public function show($id, Request $request)
+	public function show(Request $request)
 	{
-		$setting = Setting::pluck('module','value', 'field');
+		$setting = Setting::get();
 		$result = null;
 		if (!empty($setting)) {
 			$result = $setting;
