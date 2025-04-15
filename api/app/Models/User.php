@@ -38,6 +38,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'status',
         'from_time',
         'to_time',
+        'is_exempted',
+        'otp',
         'last_login',
         'created_by',
         'updated_by',

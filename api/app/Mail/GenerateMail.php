@@ -23,7 +23,7 @@ class GenerateMail extends Mailable
 
     public function build()
     {
-        return $this->view('emails.email-template')
+        return $this->view('emails.email_template')
                     ->with('data', $this->data);
     }
     

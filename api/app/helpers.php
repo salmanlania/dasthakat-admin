@@ -70,6 +70,11 @@ if (!function_exists('updateMailConfig')) {
 		Config::set('mail.mailers.smtp.encryption', $setting['encryption']);
 		Config::set('mail.mailers.smtp.username', $setting['username']);
 		Config::set('mail.mailers.smtp.password', $setting['password']);
+		// Set the 'from' name and address (sender's email and display name)
+		Config::set('mail.from', [
+			'address' => $setting['username'],  // Using the SMTP username as the sender address
+			'name' => $setting['from_name']     // Using the SMTP from name as the sender display name
+		]);
 	}
 }
 

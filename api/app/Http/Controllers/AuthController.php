@@ -82,30 +82,60 @@ class AuthController extends Controller
         ]);
 
         $user = UserToken::userPermission($request->all());
-
+        $company = Company::where('company_id', $request->company_id)->first();
         if (isset($user->user_id)) {
 
-            // $otp = mt_rand(100000, 999999);
-            // $user = User::where('user_id', $user->user_id)->first();
-            // $user->update(['otp' => $otp]);
-            // $data = [
-            //     'data' => ['otp' => $otp],
-            //     'email' => $user->email,
-            //     'name' => $user->user_name,
-            //     'subject' => 'OTP Verification',
-            //     'message' => 'Your OTP is ' . $otp,
-            // ];
+            if ($user->is_exempted == 1 || $company->is_exempted == 1) {
+                if (isset($user['image']))
+                    $user['image_url']  = !empty($user['image']) ?  url('public/uploads/' . $user['image']) : '';
 
-            // $this->sentMail($data);
-            // $this->sentMail([
-            //     'otp' => $otp,
-            //     'user' => $user
-            // ]);
+                return $this->jsonResponse($user, 200, 'Login Successfully');
+            }
+            $otp = mt_rand(100000, 999999);
+            $updateUser = User::where('user_id', $user->user_id)->first();
+            $updateUser->update(['otp' => $otp]);
+            $data = [
+                'data' => ['otp' => $otp],
+                'email' => $updateUser->email,
+                'name' => $updateUser->user_name,
+                'subject' => 'OTP Verification',
+                'message' => 'Your OTP is ' . $otp,
+            ];
 
+            $this->sentMail($data);
             if (isset($user['image']))
-            $user['image_url']  = !empty($user['image']) ?  url('public/uploads/' . $user['image']) : '';
+                $user['image_url']  = !empty($user['image']) ?  url('public/uploads/' . $user['image']) : '';
 
             return $this->jsonResponse($user, 200, 'Login Successfully');
+        } else {
+            return $this->jsonResponse($user, 400, 'Session Failed');
+        }
+    }
+    public function verify(Request $request)
+    {
+
+        $this->validate($request, [
+            'company_id' => 'required',
+            'company_branch_id' => 'required',
+            'email' => 'required',
+            'password' => 'required',
+            'code' => 'required',
+        ]);
+
+        $user = UserToken::userPermission($request->all());
+        $company = Company::where('company_id', $request->company_id)->first();
+        if (isset($user->user_id)) {
+
+            if ($user->opt == $request->otp) {
+                if (isset($user['image']))
+                    $user['image_url']  = !empty($user['image']) ?  url('public/uploads/' . $user['image']) : '';
+
+                User::where('user_id', $user->user_id)->update(['otp' => null]);
+
+                return $this->jsonResponse($user, 200, 'Login Successfully');
+            } else {
+                return $this->jsonResponse("Oops! That OTP doesn't match. Double-check and try again.", 400, 'Session Failed');
+            }
         } else {
             return $this->jsonResponse($user, 400, 'Session Failed');
         }

@@ -68,4 +68,11 @@ ALTER TABLE servicelist_received_detail
 MODIFY COLUMN warehouse_id CHAR(36) NULL;
 
 ALTER TABLE product
-ADD COLUMN short_code CHAR(36) AFTER product_code NULL;
+ADD COLUMN short_code CHAR(36) NULL AFTER product_code ;
+
+ALTER TABLE `user`
+ADD `is_exempted` TINYINT(1) NOT NULL DEFAULT 0 AFTER `to_time`,
+ADD `otp` VARCHAR(255) NULL DEFAULT NULL AFTER `is_exempted`;
+
+ALTER TABLE `company`
+ADD `is_exempted` TINYINT(1) NOT NULL DEFAULT 0 AFTER `base_currency_id`;

@@ -52,6 +52,7 @@ $router->get('test', 'Controller@testApi');
 $router->group(['prefix' => 'auth'], function ($router) {
    $router->post('/login', 'AuthController@login');
    $router->post('/session', 'AuthController@session');
+   $router->post('/verify', 'AuthController@verify');
    $router->post('/logout', 'AuthController@logout');
    $router->post('/reset-password', 'AuthController@forgotPassword');
 });
@@ -62,8 +63,9 @@ $router->group(['prefix' => 'audit'], function ($router) {
 });
 
 $router->group(['prefix' => 'setting'], function ($router) {
-   $router->put('/{id}', 'SettingController@update');
-   $router->get('/{id}', 'SettingController@show');
+   $router->put('/', 'SettingController@update');
+   $router->get('/', 'SettingController@show');
+   $router->get('/test-mail', 'SettingController@EmailDubugging');
 });
 
 $router->group(['prefix' => 'user'], function ($router) {
