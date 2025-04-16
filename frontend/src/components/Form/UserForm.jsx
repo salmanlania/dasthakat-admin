@@ -1,4 +1,4 @@
-import { Button, Col, Form, Image, Input, Row, Select, TimePicker } from 'antd';
+import { Button, Col, Form, Image, Input, Row, Select, TimePicker, Switch } from 'antd';
 import dayjs from 'dayjs';
 import { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -36,7 +36,8 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
       image: initialFormValues?.image_url === imageSrc ? null : imageSrc,
       from_time: formValues.from_time ? dayjs(formValues.from_time).format('HH:mm:ss') : null,
       to_time: formValues.to_time ? dayjs(formValues.to_time).format('HH:mm:ss') : null,
-      company_access: selectedTemplates
+      company_access: selectedTemplates,
+      is_exempted: formValues.is_exempted ? 1 : 0
     };
 
     if (
@@ -129,7 +130,7 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
               />
             </Form.Item>
           </Col>
-          <Col span={24} sm={12} md={12} lg={12}>
+          <Col xs={6} sm={6} md={6} lg={6}>
             <Form.Item name="status" label="Status">
               <Select
                 options={[
@@ -143,6 +144,15 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
                   }
                 ]}
               />
+            </Form.Item>
+          </Col>
+          <Col xs={6} sm={6} md={6} lg={6}>
+            <Form.Item
+              label="Is Exempted"
+              name="is_exempted"
+              valuePropName="checked"
+            >
+              <Switch />
             </Form.Item>
           </Col>
           <Col xs={12} sm={6} md={6} lg={6}>

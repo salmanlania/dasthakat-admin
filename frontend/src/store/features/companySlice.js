@@ -151,7 +151,8 @@ export const companySlice = createSlice({
             }
           : null,
         image: data.image,
-        image_url: data.image_url
+        image_url: data.image_url,
+        is_exempted: data.is_exempted
       };
     });
     addCase(getCompany.rejected, (state) => {

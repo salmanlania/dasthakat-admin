@@ -1,4 +1,4 @@
-import { Button, Col, Form, Image, Input, Row } from 'antd';
+import { Button, Col, Form, Image, Input, Row , Switch} from 'antd';
 import { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -28,7 +28,8 @@ const CompanyForm = ({ mode, onSubmit }) => {
     const data = {
       ...formValues,
       currency_id: formValues.currency_id ? formValues.currency_id.value : null,
-      image: initialFormValues?.image_url === imageSrc ? null : imageSrc
+      image: initialFormValues?.image_url === imageSrc ? null : imageSrc,
+      is_exempted: formValues.is_exempted ? 1 : 0
     };
 
     if (
@@ -79,6 +80,11 @@ const CompanyForm = ({ mode, onSubmit }) => {
           <Col span={24}>
             <Form.Item name="address" label="Address">
               <Input.TextArea />
+            </Form.Item>
+          </Col>
+          <Col xs={6} sm={6} md={6} lg={6}>
+            <Form.Item label="Is Exempted" name="is_exempted" valuePropName="checked">
+              <Switch />
             </Form.Item>
           </Col>
         </Row>
