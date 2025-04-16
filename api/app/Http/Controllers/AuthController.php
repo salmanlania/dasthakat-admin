@@ -108,10 +108,9 @@ class AuthController extends Controller
             ];
 
             $this->sentMail($data);
-            if (isset($user['image']))
-                $user['image_url']  = !empty($user['image']) ?  url('public/uploads/' . $user['image']) : '';
 
-            return $this->jsonResponse($user, 200, 'Login Successfully');
+            return $this->jsonResponse("OTP sent! Please check your email to proceed with verification.",200,"Email Send");
+
         } else {
             return $this->jsonResponse($user, 400, 'Session Failed');
         }

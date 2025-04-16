@@ -76,3 +76,6 @@ ADD `otp` VARCHAR(255) NULL DEFAULT NULL AFTER `is_exempted`;
 
 ALTER TABLE `company`
 ADD `is_exempted` TINYINT(1) NOT NULL DEFAULT 0 AFTER `base_currency_id`;
+
+ALTER TABLE `user`
+ADD `otp_created_at` DATETIME NOT NULL;
