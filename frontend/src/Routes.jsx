@@ -22,6 +22,7 @@ const CreateCurrency = lazy(() => import('./pages/Currency/CreateCurrency'));
 const EditCurrency = lazy(() => import('./pages/Currency/EditCurrency'));
 
 const Company = lazy(() => import('./pages/Company'));
+const CompanySetting = lazy(() => import('./pages/CompanySetting'));
 const CreateCompany = lazy(() => import('./pages/Company/CreateCompany'));
 const EditCompany = lazy(() => import('./pages/Company/EditCompany'));
 
@@ -202,6 +203,14 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Company />
+              </Suspense>
+            )
+          },
+          {
+            path: '/company-setting',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CompanySetting />
               </Suspense>
             )
           },

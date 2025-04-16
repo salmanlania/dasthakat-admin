@@ -38,6 +38,7 @@ import vendorReducer from './features/vendorSlice';
 import vesselReducer from './features/vesselSlice';
 import warehouseReducer from './features/warehouseSlice';
 import auditReducer from './features/auditSlice';
+import CompanySettingReducer from './features/companySetting';
 
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
@@ -78,6 +79,7 @@ const rootReducer = combineReducers({
   ijo: ijoReducer,
   shipment: shipmentReducer,
   serviceOrder: serviceOrderReducer,
+  CompanySetting : CompanySettingReducer
 });
 
 export const store = configureStore({
