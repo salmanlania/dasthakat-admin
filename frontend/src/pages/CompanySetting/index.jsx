@@ -56,7 +56,7 @@ const CompanySetting = () => {
     if (initialFormValues && Array.isArray(initialFormValues)) {
       const formValues = initialFormValues.reduce((acc, item) => {
         const formKey = fieldKeyMap[item.field];
-        if (formKey) {
+        if (formKey) { 
           acc[formKey] = item.field === 'debug' ? item.value === '1' : item.value;
         }
         return acc;
