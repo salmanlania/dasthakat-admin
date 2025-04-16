@@ -43,6 +43,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'last_login',
         'created_by',
         'updated_by',
+        'otp_created_at',
     ];
 
     /**
