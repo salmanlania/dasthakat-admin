@@ -536,7 +536,7 @@ const Scheduling = () => {
           <AsyncSelect
             endpoint="/agent"
             size="small"
-            className="font-normal"
+            className="font-normal w-full"
             valueKey="agent_id"
             labelKey="name"
             value={params.agent_id}
@@ -586,10 +586,10 @@ const Scheduling = () => {
                 className="w-[90%]"
                 size="small"
                 style={{
-                  width: '90%', // Make sure the AsyncSelect takes up the full width
-                  whiteSpace: 'nowrap', // Prevents the text from wrapping
-                  overflow: 'hidden', // Ensures overflow content is hidden
-                  textOverflow: 'ellipsis' // Adds the ellipsis effect when text is too long
+                  width: '90%',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
                 }}
               />
             </div>
