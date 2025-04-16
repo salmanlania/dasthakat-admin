@@ -57,20 +57,21 @@ class Controller extends BaseController
         // Email Generate update Settings
         $this->getSettings(true);
         
-        try {
+        // try {
             $insdata = [
+                'template' => $data['template'],
                 'name' => $data['name'],
                 'subject' => $data['subject'],
                 'message' => $data['message'],
                 'data' => $data['data'] ?? [],
             ];
-            // dd($data["email"]);
+            // dd($insdata);
             Mail::to($data["email"])->send(new GenerateMail($insdata));
             // dd(1);
-        } catch (\Exception $e) {
-            Log::error('Email sending failed: ' . $e->getMessage());
-            $_return = "Email Not Sent.Please Check Your Email or Contact to your Administrator!";
-        }
+        // } catch (\Exception $e) {
+        //     Log::error('Email sending failed: ' . $e->getMessage());
+        //     $_return = "Email Not Sent.Please Check Your Email or Contact to your Administrator!";
+        // }
 
         return $_return;
     }
@@ -93,6 +94,7 @@ class Controller extends BaseController
             'from_name' => @$config['display_name'] ? @$config['display_name'] : env('MAIL_FROM_NAME'), 
        
         ];
+        // dd($setting);
         if ($is_email == true)
             updateMailConfig($setting);
 

@@ -99,6 +99,7 @@ class AuthController extends Controller
                 'otp_created_at' => Carbon::now(), // store current timestamp
             ]);
             $data = [
+                'template' => 'otp-verify-template',
                 'data' => ['otp' => $otp],
                 'email' => $updateUser->email,
                 'name' => $updateUser->user_name,

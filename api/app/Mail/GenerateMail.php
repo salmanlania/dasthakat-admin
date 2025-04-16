@@ -24,9 +24,9 @@ class GenerateMail extends Mailable
     public function build()
     {
         return $this->view('emails.email_template')
-                    ->with('data', $this->data);
+            ->with('data', $this->data);
     }
-    
+
     public function envelope()
     {
         return new Envelope(
@@ -41,9 +41,13 @@ class GenerateMail extends Mailable
      */
     public function content()
     {
-        return new Content(
-           view: 'emails.email-template',
-            with: ['name' => $this->data['name']],
-        );
+        if ($this->data['template'] === "otp-verify-template")
+            return new Content(
+                view: 'emails.otp-verify-template',
+            );
+        if ($this->data['template'] === "test-template")
+            return new Content(
+                view: 'emails.test-template',
+            );
     }
 }
