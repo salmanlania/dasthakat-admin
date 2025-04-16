@@ -19,6 +19,15 @@ export const postSession = createAsyncThunk('session/post', async (data, { rejec
   }
 });
 
+export const verifyOtpHandler = createAsyncThunk('verifyOtp/post', async (data, { rejectWithValue }) => {
+  try {
+    const res = await api.post('/auth/verify', data);
+    return res.data.data;
+  } catch (err) {
+    throw rejectWithValue(err);
+  }
+});
+
 export const resetPassword = createAsyncThunk(
   'auth/resetPassword',
   async (data, { rejectWithValue }) => {
@@ -37,7 +46,10 @@ const initialState = {
   isSessionPosting: false,
   sessionData: null,
   user,
-  isPasswordResetting: false
+  isPasswordResetting: false,
+  isVerifyingOtp: false,
+  userSession: null,
+  otpPayload: null,
 };
 
 export const authSlice = createSlice({
@@ -64,13 +76,34 @@ export const authSlice = createSlice({
     });
     addCase(postSession.fulfilled, (state, action) => {
       state.isSessionPosting = false;
+      state.otpPayload = action.meta.arg;
+
+      if (!action.payload || Object.keys(action.payload).length === 0) {
+        return;
+      } else {
+        const { api_token, ...user } = action.payload;
+        localStorage.setItem('token', api_token);
+        localStorage.setItem('user', JSON.stringify(user));
+        state.user = user;
+      }
+
+    });
+    addCase(postSession.rejected, (state) => {
+      state.isSessionPosting = false;
+    });
+
+    addCase(verifyOtpHandler.pending, (state) => {
+      state.isVerifyingOtp = true;
+    });
+    addCase(verifyOtpHandler.fulfilled, (state, action) => {
+      state.isVerifyingOtp = false;
       const { api_token, ...user } = action.payload;
       localStorage.setItem('token', api_token);
       localStorage.setItem('user', JSON.stringify(user));
       state.user = user;
     });
-    addCase(postSession.rejected, (state) => {
-      state.isSessionPosting = false;
+    addCase(verifyOtpHandler.rejected, (state) => {
+      state.isVerifyingOtp = false;
     });
 
     addCase(resetPassword.pending, (state) => {
