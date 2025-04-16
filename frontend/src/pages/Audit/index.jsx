@@ -24,7 +24,7 @@ import {
     updateBrand,
     updateBrandListValue
 } from '../../store/features/auditSlice';
-import TabPane from 'antd/es/tabs/TabPane';
+import { formatLabel } from '../../utils/string';
 
 const Brand = () => {
     const dispatch = useDispatch();
@@ -100,13 +100,71 @@ const Brand = () => {
     };
 
     const columns = [
+     
+        {
+            title: 'Company',
+            dataIndex: 'company_name',
+            key: 'company_name',
+            sorter: true,
+            className: 'text-xs',
+            
+            render: (_, { company }) =>
+                company?.name || null
+
+        },
+        {
+            title: 'Company Branch',
+            dataIndex: 'company_branch_name',
+            key: 'company_branch_name',
+            sorter: true,
+            
+            className: 'text-xs',
+            render: (_, { company_branch }) =>
+                company_branch?.name || null
+
+        },
+
+        {
+            title: 'Module',
+            dataIndex: 'action_on',
+            key: 'action_on',
+            sorter: true,
+            className: 'text-xs',
+            
+            render: (_, { action_on }) =>
+                formatLabel(
+                    action_on
+                )
+        },
+        {
+            title: 'Document No.',
+            dataIndex: 'document_name',
+            key: 'document_name',
+            sorter: true,
+            className: 'text-xs',
+         
+            render: (_, { document_name }) =>
+                    document_name
+        },
+        {
+            title: 'User',
+            dataIndex: 'user_name',
+            key: 'user_name',
+            sorter: true,
+            className: 'text-xs',
+         
+            render: (_, { action_by_user }) =>
+                <Tooltip title={action_by_user?.email}>
+                    {action_by_user?.user_name}
+                </Tooltip>
+        },
         {
             title: 'Action',
             dataIndex: 'action',
             key: 'action',
             sorter: true,
-            width: 20,
-            ellipsis: true,
+            width: 100,
+            className: ' text-xs',
             render: (_, { action, editable, id }) =>
                 editable ? (
                     <Input
@@ -117,116 +175,24 @@ const Brand = () => {
                 ) : (
 
                     action == "Delete" ?
-                        <span className='block w-20 text-center py-1 rounded text-xs text-white bg-rose-600'>{action}</span> :
+                        <span className='block w-13 mx-2 text-center py-[2px] rounded text-xs text-white bg-rose-600'>{action}</span> :
                         action == "Update" ?
-                            <span className='block w-20 text-center py-1 rounded text-xs text-white bg-sky-700'>{action}</span> :
-                            <span className='block w-20 text-center py-1 rounded text-xs text-white bg-emerald-700'>{action}</span>
+                            <span className='block w-13 mx-2 text-center py-[2px] rounded text-xs text-white bg-sky-700'>{action}</span> :
+                            <span className='block w-13 mx-2 text-center py-[2px] rounded text-xs text-white bg-emerald-700'>{action}</span>
                 )
         },
         {
-            title: 'Action By',
-            dataIndex: 'action_by',
-            key: 'action_by',
-            sorter: true,
-            width: 40,
-            render: (_, { action_by }) =>
-                action_by
-
-        },
-        {
-            title: 'Company',
-            dataIndex: 'company',
-            key: 'company',
-            sorter: true,
-            width: 40,
-            render: (_, { company }) =>
-                company?.name || null
-
-        },
-        {
-            title: 'Company Branch',
-            dataIndex: 'company_branch',
-            key: 'company_branch',
-            sorter: true,
-            width: 40,
-            render: (_, { company_branch }) =>
-                company_branch?.name || null
-
-        },
-        {
-            title: 'Action Date',
+            title: 'Time',
             dataIndex: 'action_at',
             key: 'action_at',
             sorter: true,
-            width: 40,
+            className: 'text-xs',
+            width: 150,
             render: (_, { action_at }) =>
-                dayjs(action_at).format('MM-DD-YYYY hh:mm A')
+                dayjs(action_at).format('DD-MMM-YYYY hh:mm')
 
         },
-        // {
-        //     title: 'Action',
-        //     key: 'action',
-        //     render: (_, record) => {
-        //         const { brand_id, editable } = record;
-
-        // if (editable) {
-        //     return (
-        //         <div className="flex items-center gap-2">
-        //             <Tooltip title="Cancel" onClick={() => onCancel(brand_id)}>
-        //                 <Button danger icon={<FcCancel size={20} />} size="small" />
-        //             </Tooltip>
-        //             <Tooltip title="Save">
-        //                 <Button
-        //                     type="primary"
-        //                     size="small"
-        //                     icon={<FaRegSave size={16} />}
-        //                     loading={isSubmitting === brand_id}
-        //                     onClick={() => (brand_id === 'new' ? onCreate(record) : onUpdate(record))}
-        //                 />
-        //             </Tooltip>
-        //         </div>
-        //     );
-        // }
-
-        // return (
-        //     <div className="flex items-center gap-2">
-        //         {permissions.edit ? (
-        //             <Tooltip title="Edit">
-        //                 <Button
-        //                     size="small"
-        //                     type="primary"
-        //                     className="bg-gray-500 hover:!bg-gray-400"
-        //                     icon={<MdOutlineEdit size={14} />}
-        //                     onClick={() =>
-        //                         dispatch(
-        //                             setBrandEditable({
-        //                                 id: brand_id,
-        //                                 editable: true
-        //                             })
-        //                         )
-        //                     }
-        //                 />
-        //             </Tooltip>
-        //         ) : null}
-        //         {permissions.delete ? (
-        //             <Tooltip title="Delete">
-        //                 <Popconfirm
-        //                     title="Are you sure you want to delete?"
-        //                     description="After deleting, You will not be able to recover it."
-        //                     okButtonProps={{ danger: true }}
-        //                     okText="Yes"
-        //                     cancelText="No"
-        //                     onConfirm={() => onBrandDelete(brand_id)}>
-        //                     <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
-        //                 </Popconfirm>
-        //             </Tooltip>
-        //         ) : null}
-        //     </div>
-        // );
-        //     },
-        //     width: 70,
-        //     fixed: 'right'
-        // }
+     
     ];
 
     if (!permissions.edit && !permissions.delete && !permissions.add) {

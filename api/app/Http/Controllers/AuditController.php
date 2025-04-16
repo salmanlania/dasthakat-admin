@@ -11,14 +11,17 @@ class AuditController extends Controller
 
 	public function index(Request $request)
 	{
-		$query = Audit::with("action_by_user", "company", "company_branch");
+		$query = Audit::with("action_by_user", "company", "company_branch")
+			->leftJoin('user', 'user.user_id', '=', 'audit.action_by')
+			->leftJoin('company as c', 'c.company_id', '=', 'audit.company_id')
+			->leftJoin('company_branch as cb', 'cb.company_branch_id', '=', 'audit.company_branch_id');
 
 		if ($request->has('company_id')) {
-			$query->where('company_id', $request->company_id);
+			$query->where('audit.company_id', $request->company_id);
 		}
 
 		if ($request->has('company_branch_id')) {
-			$query->where('company_branch_id', $request->company_branch_id);
+			$query->where('audit.company_branch_id', $request->company_branch_id);
 		}
 
 		if ($request->has('action')) {
@@ -30,7 +33,7 @@ class AuditController extends Controller
 		}
 
 		if ($request->has('action_by')) {
-			$query->where('action_by', 'like', '%' . $request->action_by . '%');
+			$query->where('action_by', $request->action_by );
 		}
 
 		if ($request->has('action_at_from') && $request->has('action_at_to')) {
@@ -59,7 +62,7 @@ class AuditController extends Controller
 					->orWhere('document_type', 'like', "%$search%");
 			});
 		}
-		$query->select('company_id', 'company_branch_id', 'audit_id', 'action', 'action_on', 'action_by', 'action_at', 'document_type', 'document_id', 'document_name');
+		$query->select('audit.company_id', 'audit.company_branch_id', 'audit_id', 'action', 'action_on', 'action_by', 'action_at', 'document_type', 'document_id', 'document_name', 'user.user_name', 'c.name as company_name', 'cb.name as company_branch_name');
 		$sortBy = $request->get('sort_column', 'audit_id');
 		$sortOrder = ($request->get('sort_direction') == 'ascend') ? 'asc' : 'desc';
 		$query->orderBy($sortBy, $sortOrder);
