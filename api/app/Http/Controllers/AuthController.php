@@ -109,7 +109,7 @@ class AuthController extends Controller
 
             $this->sentMail($data);
 
-            return $this->jsonResponse("OTP sent! Please check your email to proceed with verification.",200,"Email Send");
+            return $this->jsonResponse(null,200,"OTP sent! Please check your email to proceed with verification.");
 
         } else {
             return $this->jsonResponse($user, 400, 'Session Failed');
