@@ -57,7 +57,6 @@ const CompanySetting = () => {
       const formValues = initialFormValues.reduce((acc, item) => {
         const formKey = fieldKeyMap[item.field];
         if (formKey) {
-          // acc[formKey] = item.value;
           acc[formKey] = item.field === 'debug' ? item.value === '1' : item.value;
         }
         return acc;
@@ -234,54 +233,11 @@ const CompanySetting = () => {
                       )}
                     </Col>
                   </Row>
-
-                  {/* Attendance Email Message Box */}
-                  {/* <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Attendance Email Message Box
-                  </label>
-                  <Input.TextArea rows={4} />
-                </div> */}
-
-                  {/* Attendance Email Message Tags */}
-                  {/* <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Attendance Email Message Tags
-                  </label>
-                  <div className="pl-4">
-                    <div className="flex items-center">
-                      <span className="inline-block w-2 h-2 rounded-full bg-black mr-2"></span>
-                      <span>&lt;AT&gt; (Attendance)</span>
-                    </div>
-                  </div>
-                </div> */}
-
-                  {/* Payroll Email Message Box */}
-                  {/* <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Payroll Email Message Box
-                  </label>
-                  <Input.TextArea rows={4} />
-                </div> */}
-
-                  {/* Payroll Email Message Tags */}
-                  {/* <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Payroll Email Message Tags
-                  </label>
-                  <div className="pl-4">
-                    <div className="flex items-center">
-                      <span className="inline-block w-2 h-2 rounded-full bg-black mr-2"></span>
-                      <span>&lt;PR&gt; (Payroll)</span>
-                    </div>
-                  </div>
-                </div> */}
                 </div>
               </TabPane>
               <TabPane tab="SMS Setting" key="2">
                 <div className="rounded border border-gray-200 bg-white p-6">
                   <div className="py-12 text-center text-gray-500">
-                    {/* SMS Settings Content */}
                   </div>
                 </div>
               </TabPane>
