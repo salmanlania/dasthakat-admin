@@ -130,7 +130,7 @@ class AuthController extends Controller
         $company = Company::where('company_id', $request->company_id)->first();
         if (isset($user->user_id)) {
 
-            if ($user->opt == $request->code) {
+            if ($user->otp == $request->code) {
                 if (isset($user['image']))
                     $user['image_url']  = !empty($user['image']) ?  url('public/uploads/' . $user['image']) : '';
 
