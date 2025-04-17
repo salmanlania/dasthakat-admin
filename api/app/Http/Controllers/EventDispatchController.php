@@ -130,7 +130,7 @@ class EventDispatchController extends Controller
 			foreach ($productData as $product) {
 				if ($product->product_type_id == 1) {
 					if (!empty($product->short_code)) {
-						$item = ['label' => $product->short_code, 'color' => null];
+						$item = ['label' => $product->short_code, 'color' => "black"];
 
 						if (isset($product->category)) {
 							switch ($product->category->name) {
