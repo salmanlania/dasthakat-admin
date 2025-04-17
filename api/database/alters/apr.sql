@@ -79,3 +79,8 @@ ADD `is_exempted` TINYINT(1) NOT NULL DEFAULT 0 AFTER `base_currency_id`;
 
 ALTER TABLE `user`
 ADD `otp_created_at` DATETIME NOT NULL;
+
+ALTER TABLE `charge_order_detail`
+ADD COLUMN `vendor_part_no` VARCHAR(255) DEFAULT NULL AFTER `supplier_id`,
+ADD COLUMN `markup` DECIMAL(10,2) DEFAULT 0 AFTER `cost_price`;
+
