@@ -48,6 +48,10 @@ class Product extends Model
     //     return $this->hasMany(ProductImage::class, 'product_id')->orderBy('sort_order');
     // }
 
+    public function category()
+    {
+        return $this->hasOne(Category::class, 'category_id', 'category_id');
+    }
     public function sub_category()
     {
         return $this->hasOne(SubCategory::class, 'sub_category_id', 'sub_category_id');
