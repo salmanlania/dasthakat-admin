@@ -409,7 +409,7 @@ const Scheduling = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
-          <p>Short Codes</p>
+          <p>Job Scope</p>
           <AsyncSelect
             endpoint="/product"
             size="small"

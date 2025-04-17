@@ -29,6 +29,8 @@ const PickList = () => {
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo } = useSelector((state) => state.pickList);
   const { user } = useSelector((state) => state.auth);
+
+  // console.log('list' , list[0].created_at)
   const permissions = user.permission.picklist;
 
   const debouncedSearch = useDebounce(params.search, 500);
@@ -225,14 +227,15 @@ const PickList = () => {
       },
       width: 140
     },
-
     {
       title: 'Created At',
       dataIndex: 'created_at',
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => {
+        return dayjs(created_at).format('MM-DD-YYYY hh:mm A');
+      }
     },
     {
       title: 'Action',
@@ -288,6 +291,7 @@ const PickList = () => {
     event_code: item.event_code,
     vessel_name: item?.vessel_name,
     picklist_status: item.picklist_status,
+    created_at: item.created_at,
     id: item.picklist_id,
     key: item.picklist_id
   }));

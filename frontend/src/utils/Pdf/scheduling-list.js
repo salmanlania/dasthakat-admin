@@ -21,8 +21,10 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   const date = dayjs().isValid() ? `Print Date: ${dayjs().format('MM-DD-YYYY HH:mm:ss')}` : 'Date: Empty';
   doc.setFontSize(10);
   doc.setFont('times', 'bold');
+  // doc.setTextColor(40, 81, 152);
+  doc.setTextColor('#285198');
   doc.text(date, pageWidth - 54, 34);
-
+  doc.setTextColor(0, 0, 0);
   doc.setDrawColor(0, 0, 0);
   doc.setLineWidth(0.3);
   doc.setFontSize(15);
@@ -111,6 +113,63 @@ const pdfContent = (doc, data, pageWidth) => {
             content: item.agent_notes,
             colSpan: 6,
             styles: { fontStyle: 'normal', halign: 'left' }
+          }
+        ]);
+      }
+      if (item?.agent_name || item?.agent_email || item?.agent_phone || item?.agent_fax) {
+        const agentInfo = `Name: ${item.agent_name || '   '} | Email: ${item.agent_email || '   '} | Phone: ${item.agent_phone || '   '} | Fax: ${item.agent_fax || '   '}`;
+        table2Rows.push([
+          {
+            content: 'Agent Info:',
+            colSpan: 1,
+            styles: { fontStyle: 'bold', halign: 'left' }
+          },
+          {
+            content: agentInfo,
+            colSpan: 6,
+            styles: { fontStyle: 'normal', halign: 'left' }
+          }
+        ]);
+      }
+      // if (item?.short_codes) {
+      //   table2Rows.push([
+      //     {
+      //       content: 'Job Scope:',
+      //       colSpan: 1,
+      //       styles: { fontStyle: 'bold', halign: 'left' }
+      //     },
+      //     // {
+      //     //   content: item.short_codes.map(sc => {
+      //     //     console.log('sc' , sc.la)
+      //     //     return {
+      //     //       content: sc.label,
+      //     //       styles: { textColor: sc.color }
+      //     //     };
+      //     //   }),
+      //     //   colSpan: 6,
+      //     //   styles: { fontStyle: 'normal', halign: 'left' }
+      //     // }
+
+      //       ...item.short_codes.map((sc) => ({
+      //         content: sc.label,
+      //         styles: { textColor: sc.color || 'black', halign: 'left' }
+      //       })),
+      //       colSpan: 6,
+      //       // styles: { fontStyle: 'normal', halign: 'left' }
+
+      //   ]);
+      // }
+      if (item?.short_codes?.length) {
+        table2Rows.push([
+          {
+            content: 'Job Scope:',
+            colSpan: 1,
+            styles: { fontStyle: 'bold', halign: 'left' }
+          },
+          {
+            content: item.short_codes.map(sc => sc.label).join(', '),
+            colSpan: 6,
+            styles: { fontStyle: 'normal', halign: 'left', color :item.short_codes.map(sc => sc.color).join(', ')  }
           }
         ]);
       }

@@ -108,7 +108,7 @@ const EventForm = ({ mode, onSubmit }) => {
             />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
+        {/* <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="vessel_id" label="Vessel">
             <Select
               options={vessels}
@@ -131,6 +131,18 @@ const EventForm = ({ mode, onSubmit }) => {
                   />
                 ) : null
               }
+            />
+          </Form.Item>
+        </Col> */}
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="vessel_id" label="Vessel">
+            <AsyncSelect
+              endpoint={`/vessel?customer_id=${form.getFieldValue('customer_id')?.value || ''}`}
+              valueKey="vessel_id"
+              labelKey="name"
+              labelInValue
+              addNewLink={permissions.vessel.add ? '/vessel/create' : null}
+              onChange={onVesselSelect}
             />
           </Form.Item>
         </Col>

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button, Col, DatePicker, Dropdown, Form, Input, Popover, Row, Select, Table } from 'antd';
 import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
@@ -94,6 +95,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
         product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
         unit_id: detail.unit_id ? detail.unit_id.value : null,
+        markup: detail.product_type_id?.value === 1 ? 0 : detail.markup,
         sort_order: index
       })),
       total_quantity: totalQuantity
@@ -317,6 +319,57 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       );
     } catch (error) {
       handleError(error);
+    }
+  };
+
+  const [globalMarkup, setGlobalMarkup] = useState('');
+  const [globalDiscount, setGlobalDiscount] = useState('');
+
+  const applyGlobalDiscount = (inputValue) => {
+    const trimmed = inputValue.trim();
+    if (trimmed === '') {
+      return;
+    }
+    const value = Number(trimmed);
+    if (!isNaN(value)) {
+      chargeOrderDetails.forEach((row, index) => {
+        dispatch(
+          changeChargeOrderDetailValue({
+            index,
+            key: 'discount_percent',
+            value: value
+          })
+        );
+      });
+    }
+  };
+
+  const applyGlobalMarkup = (inputValue) => {
+    const trimmed = inputValue.trim();
+    if (trimmed === '' && trimmed !== '0') {
+      return;
+    }
+    const value = Number(trimmed);
+    if (!isNaN(value)) {
+      chargeOrderDetails.forEach((row, index) => {
+        if (row.product_type_id?.value === 1) {
+          dispatch(
+            changeChargeOrderDetailValue({
+              index,
+              key: 'markup',
+              value: 0
+            })
+          );
+        } else if (row.product_type_id?.value !== 1) {
+          dispatch(
+            changeChargeOrderDetailValue({
+              index,
+              key: 'markup',
+              value: value
+            })
+          );
+        }
+      });
     }
   };
 
@@ -707,6 +760,98 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       width: 240
     },
     {
+      title: 'Vendor Part #',
+      dataIndex: 'vendor_part_no',
+      key: 'vendor_part_no',
+      render: (_, { vendor_part_no }, index) => {
+        return (
+          <DebounceInput
+            value={vendor_part_no}
+            onChange={(value) =>
+              dispatch(
+                changeChargeOrderDetailValue({
+                  index,
+                  key: 'vendor_part_no',
+                  value: value
+                })
+              )
+            }
+          />
+        );
+      },
+      width: 120
+    },
+    {
+      title: 'Cost Price',
+      dataIndex: 'cost_price',
+      key: 'cost_price',
+      render: (_, { cost_price, product_type_id }, index) => {
+        return (
+          <DebouncedCommaSeparatedInput
+            value={cost_price}
+            disabled={product_type_id?.value == 1}
+            onChange={(value) =>
+              dispatch(
+                changeChargeOrderDetailValue({
+                  index,
+                  key: 'cost_price',
+                  value: value
+                })
+              )
+            }
+          />
+        );
+      },
+      width: 120
+    },
+    {
+      title: (
+        <div className="flex flex-wrap items-center gap-1">
+          <span>Markup %</span>
+          <input
+            value={globalMarkup}
+            onChange={(e) => {
+              const value = e.target.value;
+              setGlobalMarkup(value);
+              applyGlobalMarkup(value);
+            }}
+            placeholder="Markup %"
+            style={{
+              width: '80px',
+              fontSize: '12px',
+              padding: '2px 4px',
+              border: '1px solid #d9d9d9',
+              borderRadius: '4px'
+            }}
+          />
+        </div>
+      ),
+      dataIndex: 'markup',
+      key: 'markup',
+      render: (_, { markup, product_type_id, product_type }, index) => {
+        return (
+          <DebouncedNumberInput
+            // value={markup}
+            value={product_type_id?.value == 1 ? 0 : markup}
+            type="decimal"
+            // disabled={product_type_id?.value == 1}
+            disabled={product_type_id?.value == 1 || product_type === 'Service'}
+            onChange={(value) => {
+              dispatch(
+                changeChargeOrderDetailValue({
+                  index,
+                  key: 'markup',
+                  // value: value
+                  value: product_type === 'Service' ? 0 : value
+                })
+              );
+            }}
+          />
+        );
+      },
+      width: 90
+    },
+    {
       title: 'Selling Price',
       dataIndex: 'rate',
       key: 'rate',
@@ -750,11 +895,73 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       ),
       width: 120
     },
+    // {
+    //   title: 'Discount %',
+    //   dataIndex: 'discount_percent',
+    //   key: 'discount_percent',
+    //   render: (_, { discount_percent, editable }, index) => {
+    //     form.setFieldsValue({
+    //       [`discount_percent-${index}`]: discount_percent
+    //     });
+    //     return (
+    //       <Form.Item
+    //         className="m-0"
+    //         initialValue={discount_percent}
+    //         name={`discount_percent-${index}`}
+    //         rules={[
+    //           {
+    //             validator: (_, value) => {
+    //               if (value > 100) {
+    //                 return Promise.reject(new Error('Invalid discount percent.'));
+    //               }
+    //               return Promise.resolve();
+    //             }
+    //           }
+    //         ]}>
+    //         <DebouncedNumberInput
+    //           value={discount_percent}
+    //           type="decimal"
+    //           disabled={editable === false}
+    //           onChange={(value) =>
+    //             dispatch(
+    //               changeChargeOrderDetailValue({
+    //                 index,
+    //                 key: 'discount_percent',
+    //                 value: value
+    //               })
+    //             )
+    //           }
+    //         />
+    //       </Form.Item>
+    //     );
+    //   },
+    //   width: 100
+    // },
     {
-      title: 'Discount %',
+      title: (
+        <div className="flex flex-wrap">
+          <span>Discount %</span>
+          <input
+            value={globalDiscount}
+            onChange={(e) => {
+              const value = e.target.value;
+              setGlobalDiscount(value);
+              applyGlobalDiscount(value);
+            }}
+            placeholder="Discount %"
+            style={{
+              width: '80px',
+              fontSize: '12px',
+              padding: '2px 4px',
+              border: '1px solid #d9d9d9',
+              borderRadius: '4px'
+            }}
+          />
+        </div>
+      ),
       dataIndex: 'discount_percent',
       key: 'discount_percent',
-      render: (_, { discount_percent, editable }, index) => {
+      render: (_, { discount_percent }, index) => {
         form.setFieldsValue({
           [`discount_percent-${index}`]: discount_percent
         });
@@ -776,7 +983,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             <DebouncedNumberInput
               value={discount_percent}
               type="decimal"
-              disabled={editable === false}
               onChange={(value) =>
                 dispatch(
                   changeChargeOrderDetailValue({
