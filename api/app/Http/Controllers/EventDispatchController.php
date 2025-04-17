@@ -153,7 +153,7 @@ class EventDispatchController extends Controller
 			}
 
 			if ($nonServiceCount > 0) {
-				$shortCodes[] = ['label' => "{$nonServiceCount}+ New Supply", 'color' => 'purple'];
+				$shortCodes[] = ['label' => "New Supply", 'color' => 'purple'];
 			}
 
 			$value->short_codes = $shortCodes;
