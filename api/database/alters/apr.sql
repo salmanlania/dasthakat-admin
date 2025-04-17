@@ -84,3 +84,6 @@ ALTER TABLE `charge_order_detail`
 ADD COLUMN `vendor_part_no` VARCHAR(255) DEFAULT NULL AFTER `supplier_id`,
 ADD COLUMN `markup` DECIMAL(10,2) DEFAULT 0 AFTER `cost_price`;
 
+ALTER TABLE `quotation`
+ADD COLUMN `total_cost` DECIMAL(10,2) DEFAULT 0 AFTER `term_desc`;
+
