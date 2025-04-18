@@ -93,10 +93,15 @@ const QuotationForm = ({ mode, onSubmit }) => {
   let totalAmount = 0;
   let discountAmount = 0;
   let totalNet = 0;
+  let typeId = 0
 
   quotationDetails.forEach((detail) => {
+    typeId = detail?.product_type_id?.value
     totalQuantity += +detail.quantity || 0;
-    totalCost += +detail.cost_price || 0;
+    // totalCost += +detail.cost_price || 0;
+    if (typeId !== 1) {
+      totalCost += +detail.cost_price || 0;
+    }
     totalAmount += +detail.amount || 0;
     discountAmount += +detail.discount_amount || 0;
     totalNet += +detail.gross_amount || 0;
@@ -824,7 +829,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       render: (_, { cost_price, product_type_id }, index) => {
         return (
           <DebouncedCommaSeparatedInput
-            value={cost_price}
+            value={product_type_id?.value === 1 ? '0' : cost_price}
             disabled={product_type_id?.value == 1}
             onChange={(value) =>
               dispatch(
