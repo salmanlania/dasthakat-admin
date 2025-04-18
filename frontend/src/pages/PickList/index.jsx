@@ -30,7 +30,6 @@ const PickList = () => {
   const { list, isListLoading, params, paginationInfo } = useSelector((state) => state.pickList);
   const { user } = useSelector((state) => state.auth);
 
-  // console.log('list' , list[0].created_at)
   const permissions = user.permission.picklist;
 
   const debouncedSearch = useDebounce(params.search, 500);

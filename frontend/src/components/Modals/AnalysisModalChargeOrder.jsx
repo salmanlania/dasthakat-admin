@@ -32,7 +32,6 @@ const AnalysisModalChargeOrder = () => {
   } = useSelector((state) => state.chargeOrder);
   const { user } = useSelector((state) => state.auth);
   const newAnalysisChargeDetails = analysisChargeDetails.charge_order_detail 
-  console.log('analysisChargeDetails', newAnalysisChargeDetails);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
   const closeModal = () => {
