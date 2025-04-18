@@ -17,7 +17,7 @@ class Audit extends Model
     ];
     public function action_by_user()
     {
-        return $this->belongsTo(User::class, 'user_id', 'action_by');
+        return $this->hasOne(User::class, 'user_id', 'action_by');
     }
 
     public function company()

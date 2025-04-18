@@ -89,12 +89,19 @@ const QuotationForm = ({ mode, onSubmit }) => {
   const permissions = user.permission;
 
   let totalQuantity = 0;
+  let totalCost = 0;
   let totalAmount = 0;
   let discountAmount = 0;
   let totalNet = 0;
+  let typeId = 0
 
   quotationDetails.forEach((detail) => {
+    typeId = detail?.product_type_id?.value
     totalQuantity += +detail.quantity || 0;
+    // totalCost += +detail.cost_price || 0;
+    if (typeId !== 1) {
+      totalCost += +detail.cost_price || 0;
+    }
     totalAmount += +detail.amount || 0;
     discountAmount += +detail.discount_amount || 0;
     totalNet += +detail.gross_amount || 0;
@@ -147,9 +154,12 @@ const QuotationForm = ({ mode, onSubmit }) => {
         supplier_id: detail.supplier_id ? detail?.supplier_id?.value : null,
         product_type_id: detail?.product_type_id ? detail?.product_type_id?.value : null,
         unit_id: detail?.unit_id ? detail?.unit_id?.value : null,
+        markup: detail.product_type_id?.value === 1 ? 0 : detail.markup,
+        cost_price: detail.product_type_id?.value === 1 ? 0 : detail.cost_price,
         sort_order: index
       })),
       total_quantity: totalQuantity,
+      total_Cost: totalCost,
       total_discount: discountAmount,
       total_amount: totalAmount,
       net_amount: totalNet,
@@ -405,7 +415,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
   const applyGlobalDiscount = (inputValue) => {
     const trimmed = inputValue.trim();
     if (trimmed === '') {
-      return
+      return;
     }
     const value = Number(trimmed);
     if (!isNaN(value)) {
@@ -423,13 +433,21 @@ const QuotationForm = ({ mode, onSubmit }) => {
 
   const applyGlobalMarkup = (inputValue) => {
     const trimmed = inputValue.trim();
-    if (trimmed === ''  && trimmed !== '0') {
+    if (trimmed === '' && trimmed !== '0') {
       return;
     }
     const value = Number(trimmed);
     if (!isNaN(value)) {
       quotationDetails.forEach((row, index) => {
-        if (row.product_type_id?.value !== 1) {
+        if (row.product_type_id?.value === 1) {
+          dispatch(
+            changeQuotationDetailValue({
+              index,
+              key: 'markup',
+              value: 0
+            })
+          );
+        } else if (row.product_type_id?.value !== 1) {
           dispatch(
             changeQuotationDetailValue({
               index,
@@ -805,7 +823,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
       },
       width: 120
     },
-
     {
       title: 'Cost Price',
       dataIndex: 'cost_price',
@@ -813,7 +830,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       render: (_, { cost_price, product_type_id }, index) => {
         return (
           <DebouncedCommaSeparatedInput
-            value={cost_price}
+            value={product_type_id?.value === 1 ? '0' : cost_price}
             disabled={product_type_id?.value == 1}
             onChange={(value) =>
               dispatch(
@@ -830,7 +847,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
       width: 120
     },
     {
-      // title: "Markup %",
       title: (
         <div className="flex flex-wrap items-center gap-1">
           <span>Markup %</span>
@@ -854,21 +870,24 @@ const QuotationForm = ({ mode, onSubmit }) => {
       ),
       dataIndex: 'markup',
       key: 'markup',
-      render: (_, { markup, product_type_id }, index) => {
+      render: (_, { markup, product_type_id, product_type }, index) => {
         return (
           <DebouncedNumberInput
-            value={markup}
+            // value={markup}
+            value={product_type_id?.value == 1 ? 0 : markup}
             type="decimal"
-            disabled={product_type_id?.value == 1}
-            onChange={(value) =>
+            // disabled={product_type_id?.value == 1}
+            disabled={product_type_id?.value == 1 || product_type === 'Service'}
+            onChange={(value) => {
               dispatch(
                 changeQuotationDetailValue({
                   index,
                   key: 'markup',
-                  value: value
+                  // value: value
+                  value: product_type === 'Service' ? 0 : value
                 })
-              )
-            }
+              );
+            }}
           />
         );
       },
@@ -915,9 +934,9 @@ const QuotationForm = ({ mode, onSubmit }) => {
           <input
             value={globalDiscount}
             onChange={(e) => {
-              const value = e.target.value
+              const value = e.target.value;
               setGlobalDiscount(value);
-              applyGlobalDiscount(value)
+              applyGlobalDiscount(value);
             }}
             placeholder="Discount %"
             style={{
@@ -1357,6 +1376,12 @@ const QuotationForm = ({ mode, onSubmit }) => {
             <DetailSummaryInfo
               title="Total Quantity:"
               value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
+            />
+          </Col>
+          <Col span={24} sm={12} md={6} lg={6}>
+            <DetailSummaryInfo
+              title="Total Cost:"
+              value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
             />
           </Col>
 

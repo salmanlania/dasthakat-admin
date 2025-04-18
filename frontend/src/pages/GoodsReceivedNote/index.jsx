@@ -349,7 +349,7 @@ const GoodsReceivedNote = () => {
                   onChange={(selected) => setSelectedPO(selected)}
                   addNewLink={otherPermissions.purchase_order.add ? '/purchase-order/create' : null}
                 /> */}
-                <AsyncSelect
+                {/* <AsyncSelect
                   endpoint="/purchase-order"
                   valueKey="purchase_order_id"
                   labelKey="document_identity"
@@ -364,14 +364,14 @@ const GoodsReceivedNote = () => {
                   value={selectedPO}
                   onChange={(selected) => setSelectedPO(selected)}
                   addNewLink={otherPermissions.purchase_order.add ? '/purchase-order/create' : null}
-                />
-                <Button
+                /> */}
+                {/* <Button
                   type="primary"
                   onClick={onGRNCreate}
                   disabled={!selectedPO}
                   loading={isGRNCreating}>
                   Create GRN
-                </Button>
+                </Button> */}
               </>
             ) : null}
             {permissions.delete ? (

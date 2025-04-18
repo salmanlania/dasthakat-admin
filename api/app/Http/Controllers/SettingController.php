@@ -50,6 +50,7 @@ class SettingController extends Controller
 		if (empty($setting)) return $this->jsonResponse("Email Settings not Found.", 400, "Configuration Missing!");
 
 		$data = [
+			'template' => 'test-template',
 			'name' => 'Welcome ' . @$setting['display_name'],
 			'subject' => 'Testing Email',
 			'message' => 'Testing Email is Working!'

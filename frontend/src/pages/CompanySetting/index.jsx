@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Select, Tabs, Form, Row, Col, Typography, Spin, Checkbox } from 'antd';
+import {
+  Button,
+  Input,
+  Select,
+  Tabs,
+  Form,
+  Row,
+  Col,
+  Typography,
+  Spin,
+  Checkbox,
+  Radio
+} from 'antd';
 import { FiSend } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -31,20 +43,20 @@ const CompanySetting = () => {
       smtp_host: 'smtpHostname',
       smtp_user: 'smtpUsername',
       smtp_password: 'smtpPassword',
+      email: 'smtpEmail',
       display_name: 'smtpDisplayName',
       debug_email: 'debugEmailAddress',
       smtp_port: 'smtpPort',
       smtp_timeout: 'smtpTimeout',
       mail_type: 'mailEngine',
-      smtp_parameters: 'mailParameters',
+      smtp_encryption: 'smtpEncryption',
       debug: 'debug'
     };
 
     if (initialFormValues && Array.isArray(initialFormValues)) {
       const formValues = initialFormValues.reduce((acc, item) => {
         const formKey = fieldKeyMap[item.field];
-        if (formKey) {
-          // acc[formKey] = item.value;
+        if (formKey) { 
           acc[formKey] = item.field === 'debug' ? item.value === '1' : item.value;
         }
         return acc;
@@ -65,10 +77,11 @@ const CompanySetting = () => {
         smtp_user: values.smtpUsername,
         smtp_password: values.smtpPassword,
         display_name: values.smtpDisplayName,
+        email: values.smtpEmail,
         smtp_port: values.smtpPort,
         smtp_timeout: values.smtpTimeout,
         mail_type: values.mailEngine,
-        smtp_parameters: values.mailParameters,
+        smtp_encryption: values.smtpEncryption,
         debug: values.debug ? '1' : '0'
       };
 
@@ -136,49 +149,62 @@ const CompanySetting = () => {
                   </Form.Item>
 
                   <Row gutter={24}>
-                    <Col span={8}>
-                      <Form.Item label="SMTP Hostname" name="smtpHostname">
-                        <Input placeholder="mail.karachipublicschool.edu.pk" />
+                    <Col span={12}>
+                      <Form.Item label="SMTP Email Address" name="smtpEmail">
+                        <Input placeholder="Email Address" />
                       </Form.Item>
                     </Col>
-                    <Col span={8}>
-                      <Form.Item label="SMTP Username" name="smtpUsername">
-                        <Input placeholder="hr@karachipublicschool.edu.pk" />
-                      </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                      <Form.Item label="SMTP Password" name="smtpPassword">
-                        <Input.Password placeholder="karachi@1234" />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-
-                  <Row gutter={24}>
-                    <Col span={8}>
-                      <Form.Item label="Mail Parameters" name="mailParameters">
-                        <Input placeholder="SMTP" />
-                      </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                      <Form.Item label="SMTP Port" name="smtpPort">
-                        <Input placeholder="587" />
-                      </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                      <Form.Item label="SMTP Timeout" name="smtpTimeout">
-                        <Input placeholder="3000" />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-
-                  <Row gutter={24}>
-                    <Col span={8}>
+                    <Col span={12}>
                       <Form.Item label="SMTP Display Name" name="smtpDisplayName">
                         <Input placeholder="Display Name" />
                       </Form.Item>
                     </Col>
+                  </Row>
+
+                  <Row gutter={24}>
+                    <Col span={12}>
+                      <Form.Item label="SMTP Hostname" name="smtpHostname">
+                        <Input placeholder="Hostname" />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item label="SMTP Username" name="smtpUsername">
+                        <Input placeholder="Username" />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Row gutter={24}>
+                    <Col span={12}>
+                      <Form.Item label="SMTP Password" name="smtpPassword">
+                        <Input.Password placeholder="Password" />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item label="SMTP Port" name="smtpPort">
+                        <Input placeholder="Port" />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+
+                  <Row gutter={24}>
+                    <Col span={12}>
+                      <Form.Item label="SMTP Encryption" name="smtpEncryption">
+                        <Radio.Group>
+                          <Radio value="tls">TLS</Radio>
+                          <Radio value="ssl">SSL</Radio>
+                        </Radio.Group>
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item label="SMTP Timeout" name="smtpTimeout">
+                        <Input placeholder="Timeout" />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+
+                  <Row gutter={24}>
                     <Col
-                      span={8}
+                      span={12}
                       style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                       <Form.Item
                         name="debug"
@@ -188,7 +214,7 @@ const CompanySetting = () => {
                         <Checkbox>Enable Debug Email</Checkbox>
                       </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col span={12}>
                       {debugChecked && (
                         <Form.Item label="Debug Email Address" name="debugEmailAddress">
                           <Input
@@ -207,54 +233,11 @@ const CompanySetting = () => {
                       )}
                     </Col>
                   </Row>
-
-                  {/* Attendance Email Message Box */}
-                  {/* <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Attendance Email Message Box
-                  </label>
-                  <Input.TextArea rows={4} />
-                </div> */}
-
-                  {/* Attendance Email Message Tags */}
-                  {/* <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Attendance Email Message Tags
-                  </label>
-                  <div className="pl-4">
-                    <div className="flex items-center">
-                      <span className="inline-block w-2 h-2 rounded-full bg-black mr-2"></span>
-                      <span>&lt;AT&gt; (Attendance)</span>
-                    </div>
-                  </div>
-                </div> */}
-
-                  {/* Payroll Email Message Box */}
-                  {/* <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Payroll Email Message Box
-                  </label>
-                  <Input.TextArea rows={4} />
-                </div> */}
-
-                  {/* Payroll Email Message Tags */}
-                  {/* <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Payroll Email Message Tags
-                  </label>
-                  <div className="pl-4">
-                    <div className="flex items-center">
-                      <span className="inline-block w-2 h-2 rounded-full bg-black mr-2"></span>
-                      <span>&lt;PR&gt; (Payroll)</span>
-                    </div>
-                  </div>
-                </div> */}
                 </div>
               </TabPane>
               <TabPane tab="SMS Setting" key="2">
                 <div className="rounded border border-gray-200 bg-white p-6">
                   <div className="py-12 text-center text-gray-500">
-                    {/* SMS Settings Content */}
                   </div>
                 </div>
               </TabPane>

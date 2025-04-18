@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import ChargeOrderForm from '../../components/Form/ChargeOrderForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
-import { createChargeOrder } from '../../store/features/chargeOrderSlice';
+import { createChargeOrder , getChargeOrder} from '../../store/features/chargeOrderSlice';
 import { setChargePoID } from '../../store/features/purchaseOrderSlice';
 
 const CreateChargeOrder = () => {
@@ -17,7 +17,8 @@ const CreateChargeOrder = () => {
     try {
       await dispatch(createChargeOrder({ data, additionalRequest })).unwrap();
       toast.success('Charge Order created successfully');
-      navigate('/charge-order');
+      // navigate('/charge-order');
+      await dispatch(getChargeOrder(id)).unwrap().catch(handleError);
     } catch (error) {
       handleError(error);
     }

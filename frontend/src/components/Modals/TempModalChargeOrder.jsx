@@ -58,7 +58,6 @@ const TempModalChargeOrder = () => {
       dataIndex: 'product_description',
       key: 'product_description',
       width: 240,
-      ellipsis: true,
       render: (_, { product_type, product_description, description }) => {
         return product_type?.name === 'Others' ? description : product_description;
       }

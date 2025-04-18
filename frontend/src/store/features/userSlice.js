@@ -204,7 +204,8 @@ export const userSlice = createSlice({
         from_time: data.from_time ? dayjs(data.from_time, 'HH:mm:ss') : null,
         to_time: data.to_time ? dayjs(data.to_time, 'HH:mm:ss') : null,
         image: data.image,
-        image_url: data.image_url
+        image_url: data.image_url,
+        is_exempted: data.is_exempted
       };
 
       state.selectedTemplates = data.company_access;

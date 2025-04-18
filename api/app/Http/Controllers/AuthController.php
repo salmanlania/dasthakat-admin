@@ -85,8 +85,8 @@ class AuthController extends Controller
         $user = UserToken::userPermission($request->all());
         $company = Company::where('company_id', $request->company_id)->first();
         if (isset($user->user_id)) {
-
-            if ($user->is_exempted == 1 || $company->is_exempted == 1) {
+            if ($user->is_exempted == 1 || $company->is_exempted == 1 || env('DISABLE_LOGIN_VERIFICATION') == true) {
+                $user['is_exempted']  = 1;
                 if (isset($user['image']))
                     $user['image_url']  = !empty($user['image']) ?  url('public/uploads/' . $user['image']) : '';
 
@@ -99,6 +99,7 @@ class AuthController extends Controller
                 'otp_created_at' => Carbon::now(), // store current timestamp
             ]);
             $data = [
+                'template' => 'otp-verify-template',
                 'data' => ['otp' => $otp],
                 'email' => $updateUser->email,
                 'name' => $updateUser->user_name,
@@ -107,10 +108,9 @@ class AuthController extends Controller
             ];
 
             $this->sentMail($data);
-            if (isset($user['image']))
-                $user['image_url']  = !empty($user['image']) ?  url('public/uploads/' . $user['image']) : '';
 
-            return $this->jsonResponse($user, 200, 'Login Successfully');
+            return $this->jsonResponse(null,200,"OTP sent! Please check your email to proceed with verification.");
+
         } else {
             return $this->jsonResponse($user, 400, 'Session Failed');
         }
@@ -130,7 +130,7 @@ class AuthController extends Controller
         $company = Company::where('company_id', $request->company_id)->first();
         if (isset($user->user_id)) {
 
-            if ($user->opt == $request->otp) {
+            if ($user->otp == $request->code) {
                 if (isset($user['image']))
                     $user['image_url']  = !empty($user['image']) ?  url('public/uploads/' . $user['image']) : '';
 

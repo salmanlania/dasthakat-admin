@@ -21,8 +21,10 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   const date = dayjs().isValid() ? `Print Date: ${dayjs().format('MM-DD-YYYY HH:mm:ss')}` : 'Date: Empty';
   doc.setFontSize(10);
   doc.setFont('times', 'bold');
+  // doc.setTextColor(40, 81, 152);
+  doc.setTextColor('#285198');
   doc.text(date, pageWidth - 54, 34);
-
+  doc.setTextColor(0, 0, 0);
   doc.setDrawColor(0, 0, 0);
   doc.setLineWidth(0.3);
   doc.setFontSize(15);
@@ -114,6 +116,39 @@ const pdfContent = (doc, data, pageWidth) => {
           }
         ]);
       }
+      if (item?.agent_name || item?.agent_email || item?.agent_phone || item?.agent_fax) {
+        const agentInfo = `Name: ${item.agent_name || '   '} | Email: ${item.agent_email || '   '} | Phone: ${item.agent_phone || '   '} | Fax: ${item.agent_fax || '   '}`;
+        table2Rows.push([
+          {
+            content: 'Agent Info:',
+            colSpan: 1,
+            styles: { fontStyle: 'bold', halign: 'left' }
+          },
+          {
+            content: agentInfo,
+            colSpan: 6,
+            styles: { fontStyle: 'normal', halign: 'left' }
+          }
+        ]);
+      }
+      if (item?.short_codes?.length) {
+        const consoling = item.short_codes.map(sc => sc.color)
+        console.log('consoling' , consoling)
+        table2Rows.push([
+          {
+            content: 'Job Scope:',
+            colSpan: 1,
+            styles: { fontStyle: 'bold', halign: 'left' }
+          },
+          {
+            content: item.short_codes.map(sc => sc.label).join(', '),
+            colSpan: 6,
+            // styles: { fontStyle: 'normal', halign: 'left', textColor : item.short_codes.map(sc => sc.color || 'blue' )  }
+            styles: { fontStyle: 'normal', halign: 'left', textColor: [0, 0, 0]},
+            raw: { short_codes: item.short_codes } 
+          }
+        ]);
+      }
     });
   });
 
@@ -122,6 +157,24 @@ const pdfContent = (doc, data, pageWidth) => {
     head: [table2Column],
     body: table2Rows,
     margin: { right: 5, left: 5, top: 5, bottom: 5 },
+    didDrawCell: function (data) {
+      const cellRaw = data.cell.raw;
+      const isJobScope = data.row.cells[0]?.raw === 'Job Scope:';
+    
+      if (data.column.index === 1 && isJobScope && cellRaw?.short_codes) {
+        const shortCodes = cellRaw.short_codes;
+        const { doc } = data;
+        let x = data.cell.x + 2;
+        let y = data.cell.y + 10;
+    
+        shortCodes.forEach((sc, index) => {
+          const rgbColor = getColorRGB([255 , 0, 0]);
+          doc.setTextColor(...rgbColor);
+          doc.text(sc.label + (index < shortCodes.length - 1 ? ', ' : ''), x, y);
+          x += doc.getTextWidth(sc.label + ', ');
+        });
+      }
+    },       
     headStyles: {
       halign: 'center',
       valign: 'middle',

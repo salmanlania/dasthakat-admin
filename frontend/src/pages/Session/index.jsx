@@ -6,6 +6,53 @@ import { useDispatch, useSelector } from 'react-redux';
 import useError from '../../hooks/useError';
 import { postSession } from '../../store/features/authSlice';
 
+
+export const sessionSubmit = async (values, dispatch, sessionData, handleError, navigate) => {
+  const companyId = values.company_id || '';
+  const companyBranchId = values.company_branch_id || '';
+
+  try {
+    const response = await dispatch(
+      postSession({
+        company_id: companyId,
+        company_branch_id: companyBranchId,
+        email: sessionData.email,
+        password: sessionData.password
+      })
+    ).unwrap();
+
+    if (response && typeof response === 'object' && !Array.isArray(response)) {
+      if (response?.is_exempted === 1) {
+        localStorage.setItem('company_id', response.company_id);
+        localStorage.setItem('company_branch_id', response.company_branch_id);
+        toast.success('Login successful');
+        if (navigate) {
+          navigate('/' , {
+            state: {
+              prevUrl: location.state?.prevUrl
+            }
+          });
+        }
+      }
+    }
+    if (!response) {
+      if (navigate) {
+        navigate('/otp-verification' , {
+          state: {
+            prevUrl: location.state?.prevUrl
+          }
+        });
+      }
+      toast.success('OTP has been sent to your email address');
+    }
+
+    return response;
+  } catch (error) {
+    handleError(error);
+    throw error;
+  }
+};
+
 const Session = () => {
   const handleError = useError();
   const dispatch = useDispatch();
@@ -22,21 +69,8 @@ const Session = () => {
 
   const onSubmit = async (values) => {
     try {
-      await dispatch(
-        postSession({
-          ...values,
-          email: sessionData.email,
-          password: sessionData.password,
-          user_id: sessionData.user_id
-        })
-      ).unwrap();
-
-      localStorage.setItem('company_id', values.company_id);
-      localStorage.setItem('company_branch_id', values.company_branch_id);
-      toast.success('Login successful');
-      navigate(location.state?.prevUrl || '/');
+      await sessionSubmit(values, dispatch, sessionData, handleError, navigate);
     } catch (error) {
-      handleError(error);
     }
   };
 
@@ -60,13 +94,11 @@ const Session = () => {
           autoComplete="off"
           form={form}
           layout="vertical"
-          initialValues={initialFormValues}
-        >
+          initialValues={initialFormValues}>
           <Form.Item
             label="Company"
             name="company_id"
-            rules={[{ required: true, message: 'Please select a company' }]}
-          >
+            rules={[{ required: true, message: 'Please select a company' }]}>
             <Select
               size="large"
               options={companies}
@@ -78,8 +110,7 @@ const Session = () => {
           <Form.Item
             label="Company Branch"
             name="company_branch_id"
-            rules={[{ required: true, message: 'Please select a company branch' }]}
-          >
+            rules={[{ required: true, message: 'Please select a company branch' }]}>
             <Select
               size="large"
               disabled={!companyId}

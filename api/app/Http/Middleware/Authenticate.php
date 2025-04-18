@@ -25,6 +25,7 @@ class Authenticate
        '/',
         'auth/login',
         'auth/session',
+        'auth/verify',
         'auth/refresh',
         'auth/logout',
         'auth/verify-email',

@@ -7,6 +7,7 @@ import NotFound from './pages/feedback/NotFound';
 
 const Login = lazy(() => import('./pages/Login'));
 const Session = lazy(() => import('./pages/Session'));
+const OtpVerification  = lazy(() => import('./pages/OtpVerification'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 
 const User = lazy(() => import('./pages/User'));
@@ -726,6 +727,14 @@ function Routes() {
         element: (
           <Suspense fallback={<PageLoader />}>
             <Session />
+          </Suspense>
+        )
+      },
+      {
+        path: '/otp-verification',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <OtpVerification />
           </Suspense>
         )
       },

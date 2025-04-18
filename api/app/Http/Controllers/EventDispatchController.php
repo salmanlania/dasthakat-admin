@@ -119,11 +119,44 @@ class EventDispatchController extends Controller
 			$detail = ChargeOrderDetail::whereHas('charge_order', function ($q) use ($value) {
 				$q->where('event_id', $value->event_id);
 			});
-			$short_codes = Product::whereIn('product_id', $detail->pluck('product_id'))->pluck('short_code')->toArray();
-			// $value->short_codes = array_filter($short_codes);
-			$value->short_codes = array_filter($short_codes, function ($value) {
-				return !is_null($value) && $value !== '';
-			});
+
+			// Get product data: short_code and type
+			$productData = Product::with('category')->whereIn('product_id', $detail->pluck('product_id'))
+				->get();
+
+			$shortCodes = [];
+			$nonServiceCount = 0;
+
+			foreach ($productData as $product) {
+				if ($product->product_type_id == 1) {
+					if (!empty($product->short_code)) {
+						$item = ['label' => $product->short_code, 'color' => ["name" => "black", "hex" => "#000000", "rgb" => "rgb(0,0,0)"]];
+
+						if (isset($product->category)) {
+							switch ($product->category->name) {
+								case 'LSA/FFE':
+									$item['color'] = ["name" => "green", "hex" => "#008000", "rgb" => "rgb(0,0,0)"];
+									break;
+								case 'Calibration':
+									$item['color'] = ["name" => "blue", "hex" => "#0000FF", "rgb" => "rgb(0,0,255)"];
+									break;
+								case 'Lifeboat':
+									$item['color'] = ["name" => "orange", "hex" => "#FFA500", "rgb" => "rgb(255, 165, 0)"];
+									break;
+							}
+						}
+						$shortCodes[] = $item;
+					}
+				} else {
+					$nonServiceCount++;
+				}
+			}
+
+			if ($nonServiceCount > 0) {
+				$shortCodes[] = ['label' => "New Supply", 'color' => ["name" => "purple", "hex" => "#A020F0", "rgb" => "rgb(160,32,240)"]];
+			}
+
+			$value->short_codes = $shortCodes;
 
 			$detail = ChargeOrder::where('event_id', $value->event_id)->get();
 			$portsData = Quotation::whereIn('document_identity', $detail->pluck('ref_document_identity'))->pluck('port_id')->toArray();

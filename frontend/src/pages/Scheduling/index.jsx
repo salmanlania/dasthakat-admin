@@ -5,6 +5,7 @@ import {
   Input,
   Select,
   Table,
+  Tag,
   TimePicker,
   Tooltip,
   message
@@ -408,7 +409,7 @@ const Scheduling = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
-          <p>Short Codes</p>
+          <p>Job Scope</p>
           <AsyncSelect
             endpoint="/product"
             size="small"
@@ -426,17 +427,23 @@ const Scheduling = () => {
       width: 200,
       ellipsis: true,
       render: (_, { short_codes }) => {
-        if (!short_codes || !Array.isArray(short_codes)) return '';
+        if (!Array.isArray(short_codes) || short_codes.length === 0) return '';
 
-        const short_codesNames = short_codes
-          .map((short_codes) => short_codes.name || short_codes)
-          .join(', ');
         return (
-          <span className="line-clamp-1 block overflow-hidden text-ellipsis whitespace-nowrap">
-            {short_codesNames}
-          </span>
+          <div className="flex flex-wrap gap-1">
+            {short_codes.map((item, index) => (
+              <div
+                key={index}
+                style={{ color: item.color || '#eee'}}
+                className={`m-0 px-2 py-[2px] text-xs rounded bg-gray-50 border border-gray-200  text-white `}
+              >
+                {item.label || item}
+              </div>
+            ))}
+          </div>
         );
       }
+
     },
     {
       title: (
@@ -462,9 +469,9 @@ const Scheduling = () => {
       render: (_, { event_id, users, technicians }) => {
         const selectedValues = technicians
           ? technicians.map((tech) => ({
-              value: tech.user_id,
-              label: tech.user_name
-            }))
+            value: tech.user_id,
+            label: tech.user_name
+          }))
           : [];
         return (
           <AsyncSelect
@@ -575,9 +582,9 @@ const Scheduling = () => {
                 defaultValue={
                   agent_id
                     ? {
-                        value: agent_id,
-                        label: agent_name
-                      }
+                      value: agent_id,
+                      label: agent_name
+                    }
                     : null
                 }
                 onChange={(selected) =>

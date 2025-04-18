@@ -41,6 +41,7 @@ class Quotation extends Model
         "port_id",
         "term_id",
         "term_desc",
+        "total_cost",
         "total_quantity",
         "total_amount",
         "total_discount",
@@ -68,6 +69,8 @@ class Quotation extends Model
     {
         return $this->hasOne(Vessel::class, 'vessel_id', 'vessel_id')->select('*');
     }
+/*************  ✨ Windsurf Command ⭐  *************/
+/*******  1dbc0d31-42ef-4cd6-957c-b1690e25eb5f  *******/
     public function event()
     {
         return $this->hasOne(Event::class, 'event_id', 'event_id')

@@ -74,6 +74,7 @@ const Sidebar = () => {
     !permissions?.port?.list &&
     !permissions?.vessel?.list &&
     !permissions?.event?.list;
+    !permissions?.setting?.update;
 
   const userManagementPermission = !permissions?.user?.list && !permissions?.user_permission?.list;
 
@@ -140,7 +141,7 @@ const Sidebar = () => {
             {
               key: 'company-setting',
               label: <Link to="/company-setting">Company Setting</Link>,
-              // disabled: !permissions?.company_branch?.list
+              disabled: !permissions?.setting?.update
             },
             {
               key: 'salesman',

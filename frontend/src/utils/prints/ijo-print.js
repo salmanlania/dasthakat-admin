@@ -301,7 +301,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     [
       {
         content: 'Job Scope',
-        colSpan: 5,
+        colSpan: 7,
         styles: {
           textColor: '#ffffff',
           fontSize: 8,
@@ -330,6 +330,18 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       },
       {
         content: 'Memo',
+        styles: {
+          fillColor: 'ebf1de' // gray color
+        }
+      },
+      {
+        content: 'Internal Notes',
+        styles: {
+          fillColor: 'ebf1de' // gray color
+        }
+      },
+      {
+        content: 'Customer Notes',
         styles: {
           fillColor: 'ebf1de' // gray color
         }
@@ -399,6 +411,14 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
             styles: { halign: 'left' }
           },
           {
+            content: detail?.internal_notes || '',
+            styles: { halign: 'left' }
+          },
+          {
+            content: detail?.description || '',
+            styles: { halign: 'left' }
+          },
+          {
             content: detail.quantity ? parseFloat(detail.quantity) : '',
             styles: { textColor: '#d51902' }
           }
@@ -432,11 +452,13 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     },
     didParseCell: function (data) {
       const cellIndex = data.column.index;
-      if (cellIndex === 0) data.cell.styles.cellWidth = 24; // First column width
-      if (cellIndex === 1) data.cell.styles.cellWidth = 30; // Second column width
-      if (cellIndex === 2) data.cell.styles.cellWidth = 28; // Second column width
-      if (cellIndex === 3) data.cell.styles.cellWidth = 110; // Third column width
-      if (cellIndex === 4) data.cell.styles.cellWidth = 16; // Fourth column width
+      if (cellIndex === 0) data.cell.styles.cellWidth = 22; // First column width
+      if (cellIndex === 1) data.cell.styles.cellWidth = 20; // Second column width
+      if (cellIndex === 2) data.cell.styles.cellWidth = 26; // Second column width
+      if (cellIndex === 3) data.cell.styles.cellWidth = 62; // Third column width
+      if (cellIndex === 4) data.cell.styles.cellWidth = 31; // Third column width
+      if (cellIndex === 5) data.cell.styles.cellWidth = 31; // Third column width
+      if (cellIndex === 6) data.cell.styles.cellWidth = 16; // Fourth column width
     }
   });
 

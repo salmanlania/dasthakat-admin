@@ -186,6 +186,7 @@ class QuotationController extends Controller
 			'port_id' => $request->port_id ?? "",
 			'term_id' => json_encode($request->term_id) ?? "",
 			'term_desc' => $request->term_desc ?? "",
+			'total_cost' => $request->total_cost ?? "",
 			'total_quantity' => $request->total_quantity ?? "",
 			'total_amount' => $request->total_amount ?? "",
 			'total_discount' => $request->total_discount ?? "",
@@ -279,6 +280,7 @@ class QuotationController extends Controller
 		$data->port_id = $request->port_id;
 		$data->term_id = json_encode($request->term_id);
 		$data->term_desc = $request->term_desc;
+		$data->total_cost = $request->total_cost;
 		$data->total_quantity = $request->total_quantity;
 		$data->total_amount = $request->total_amount;
 		$data->total_discount = $request->total_discount;
