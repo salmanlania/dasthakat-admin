@@ -32,7 +32,7 @@ export const resetPassword = createAsyncThunk(
   'auth/resetPassword',
   async (data, { rejectWithValue }) => {
     try {
-      const res = await api.post('/reset-password', data);
+      const res = await api.post('/auth/reset-password', data);
       return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);
