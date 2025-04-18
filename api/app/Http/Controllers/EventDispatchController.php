@@ -130,18 +130,18 @@ class EventDispatchController extends Controller
 			foreach ($productData as $product) {
 				if ($product->product_type_id == 1) {
 					if (!empty($product->short_code)) {
-						$item = ['label' => $product->short_code, 'color' => "black"];
+						$item = ['label' => $product->short_code, 'color' => ["name" => "black", "hex" => "#000000", "rgb" => "rgb(0,0,0)"]];
 
 						if (isset($product->category)) {
 							switch ($product->category->name) {
 								case 'LSA/FFE':
-									$item['color'] = "green";
+									$item['color'] = ["name" => "green", "hex" => "#008000", "rgb" => "rgb(0,0,0)"];
 									break;
 								case 'Calibration':
-									$item['color'] = "blue";
+									$item['color'] = ["name" => "blue", "hex" => "#0000FF", "rgb" => "rgb(0,0,255)"];
 									break;
 								case 'Lifeboat':
-									$item['color'] = "orange";
+									$item['color'] = ["name" => "orange", "hex" => "#FFA500", "rgb" => "rgb(255, 165, 0)"];
 									break;
 							}
 						}
@@ -153,7 +153,7 @@ class EventDispatchController extends Controller
 			}
 
 			if ($nonServiceCount > 0) {
-				$shortCodes[] = ['label' => "New Supply", 'color' => 'purple'];
+				$shortCodes[] = ['label' => "New Supply", 'color' => ["name" => "purple", "hex" => "#A020F0", "rgb" => "rgb(160,32,240)"]];
 			}
 
 			$value->short_codes = $shortCodes;
