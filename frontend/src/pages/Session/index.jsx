@@ -27,21 +27,13 @@ export const sessionSubmit = async (values, dispatch, sessionData, handleError, 
         localStorage.setItem('company_branch_id', response.company_branch_id);
         toast.success('Login successful');
         if (navigate) {
-          navigate('/' , {
-            state: {
-              prevUrl: location.state?.prevUrl
-            }
-          });
+          navigate('/');
         }
       }
     }
     if (!response) {
       if (navigate) {
-        navigate('/otp-verification' , {
-          state: {
-            prevUrl: location.state?.prevUrl
-          }
-        });
+        navigate('/otp-verification');
       }
       toast.success('OTP has been sent to your email address');
     }

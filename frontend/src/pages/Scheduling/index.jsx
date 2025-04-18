@@ -434,7 +434,7 @@ const Scheduling = () => {
             {short_codes.map((item, index) => (
               <div
                 key={index}
-                style={{ color: item.color || '#eee'}}
+                style={{ color: item?.color?.name || '#eee'}}
                 className={`m-0 px-2 py-[2px] text-xs rounded bg-gray-50 border border-gray-200  text-white `}
               >
                 {item.label || item}
