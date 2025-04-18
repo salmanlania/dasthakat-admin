@@ -20,7 +20,7 @@ const OtpVerification = () => {
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef([]);
-  const [timeLeft, setTimeLeft] = useState(300);
+  const [timeLeft, setTimeLeft] = useState(180);
   const [isResending, setIsResending] = useState(false);
 
   useEffect(() => {
@@ -122,11 +122,7 @@ const OtpVerification = () => {
         localStorage.setItem('company_id', otpPayload.company_id);
         localStorage.setItem('company_branch_id', otpPayload.company_branch_id);
         toast.success('Login successful');
-        navigate('/' , {
-          state: {
-            prevUrl: location.state?.prevUrl
-          }
-        });
+        navigate('/');
       } catch (error) {
         handleError(error);
       }
@@ -143,7 +139,7 @@ const OtpVerification = () => {
 
       await sessionSubmit(values, dispatch, sessionData, handleError);
 
-      setTimeLeft(300);
+      setTimeLeft(180);
       toast.success('OTP resent successfully');
 
       setOtp(['', '', '', '', '', '']);
