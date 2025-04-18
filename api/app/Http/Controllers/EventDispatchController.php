@@ -135,7 +135,7 @@ class EventDispatchController extends Controller
 						if (isset($product->category)) {
 							switch ($product->category->name) {
 								case 'LSA/FFE':
-									$item['color'] = ["name" => "green", "hex" => "#008000", "rgb" => "rgb(0,0,0)"];
+									$item['color'] = ["name" => "green", "hex" => "#008000", "rgb" => "rgb(0, 128, 0)"];
 									break;
 								case 'Calibration':
 									$item['color'] = ["name" => "blue", "hex" => "#0000FF", "rgb" => "rgb(0,0,255)"];
