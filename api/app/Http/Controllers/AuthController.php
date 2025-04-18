@@ -85,8 +85,8 @@ class AuthController extends Controller
         $user = UserToken::userPermission($request->all());
         $company = Company::where('company_id', $request->company_id)->first();
         if (isset($user->user_id)) {
-
-            if ($user->is_exempted == 1 || $company->is_exempted == 1) {
+            if ($user->is_exempted == 1 || $company->is_exempted == 1 || env('DISABLE_LOGIN_VERIFICATION') == true) {
+                $user['is_exempted']  = 1;
                 if (isset($user['image']))
                     $user['image_url']  = !empty($user['image']) ?  url('public/uploads/' . $user['image']) : '';
 
