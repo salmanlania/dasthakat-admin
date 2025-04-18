@@ -290,10 +290,9 @@ const generateSchedulingExcel = async (datas) => {
 
           worksheet.mergeCells(`C${currentRow}:H${currentRow}`);
 
-          // const allShortCodes = detail?.short_codes || '';
           const allShortCodes = Array.isArray(detail?.short_codes)
-            ? detail.short_codes.join(', ')
-            : detail?.short_codes || '';
+            ? detail.short_codes.map(item => item.label).join(', ')
+            : '';
 
           worksheet.getCell(`C${currentRow}`).value = allShortCodes || '';
           worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
@@ -303,7 +302,6 @@ const generateSchedulingExcel = async (datas) => {
             bottom: { style: 'thin' },
             right: { style: 'thin' }
           };
-
 
           if (
             detail?.agent_name ||
