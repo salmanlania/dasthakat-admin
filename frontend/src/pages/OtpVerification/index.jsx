@@ -122,7 +122,11 @@ const OtpVerification = () => {
         localStorage.setItem('company_id', otpPayload.company_id);
         localStorage.setItem('company_branch_id', otpPayload.company_branch_id);
         toast.success('Login successful');
-        navigate('/');
+        navigate('/' , {
+          state: {
+            prevUrl: location.state?.prevUrl
+          }
+        });
       } catch (error) {
         handleError(error);
       }
