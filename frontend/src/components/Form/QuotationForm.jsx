@@ -155,6 +155,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
         product_type_id: detail?.product_type_id ? detail?.product_type_id?.value : null,
         unit_id: detail?.unit_id ? detail?.unit_id?.value : null,
         markup: detail.product_type_id?.value === 1 ? 0 : detail.markup,
+        cost_price: detail.product_type_id?.value === 1 ? 0 : detail.cost_price,
         sort_order: index
       })),
       total_quantity: totalQuantity,

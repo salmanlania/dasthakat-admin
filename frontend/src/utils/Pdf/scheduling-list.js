@@ -131,35 +131,9 @@ const pdfContent = (doc, data, pageWidth) => {
           }
         ]);
       }
-      // if (item?.short_codes) {
-      //   table2Rows.push([
-      //     {
-      //       content: 'Job Scope:',
-      //       colSpan: 1,
-      //       styles: { fontStyle: 'bold', halign: 'left' }
-      //     },
-      //     // {
-      //     //   content: item.short_codes.map(sc => {
-      //     //     console.log('sc' , sc.la)
-      //     //     return {
-      //     //       content: sc.label,
-      //     //       styles: { textColor: sc.color }
-      //     //     };
-      //     //   }),
-      //     //   colSpan: 6,
-      //     //   styles: { fontStyle: 'normal', halign: 'left' }
-      //     // }
-
-      //       ...item.short_codes.map((sc) => ({
-      //         content: sc.label,
-      //         styles: { textColor: sc.color || 'black', halign: 'left' }
-      //       })),
-      //       colSpan: 6,
-      //       // styles: { fontStyle: 'normal', halign: 'left' }
-
-      //   ]);
-      // }
       if (item?.short_codes?.length) {
+        const consoling = item.short_codes.map(sc => sc.color)
+        console.log('consoling' , consoling)
         table2Rows.push([
           {
             content: 'Job Scope:',
@@ -169,7 +143,9 @@ const pdfContent = (doc, data, pageWidth) => {
           {
             content: item.short_codes.map(sc => sc.label).join(', '),
             colSpan: 6,
-            styles: { fontStyle: 'normal', halign: 'left', color :item.short_codes.map(sc => sc.color).join(', ')  }
+            // styles: { fontStyle: 'normal', halign: 'left', textColor : item.short_codes.map(sc => sc.color || 'blue' )  }
+            styles: { fontStyle: 'normal', halign: 'left', textColor: [0, 0, 0]},
+            raw: { short_codes: item.short_codes } 
           }
         ]);
       }
@@ -181,6 +157,24 @@ const pdfContent = (doc, data, pageWidth) => {
     head: [table2Column],
     body: table2Rows,
     margin: { right: 5, left: 5, top: 5, bottom: 5 },
+    didDrawCell: function (data) {
+      const cellRaw = data.cell.raw;
+      const isJobScope = data.row.cells[0]?.raw === 'Job Scope:';
+    
+      if (data.column.index === 1 && isJobScope && cellRaw?.short_codes) {
+        const shortCodes = cellRaw.short_codes;
+        const { doc } = data;
+        let x = data.cell.x + 2;
+        let y = data.cell.y + 10;
+    
+        shortCodes.forEach((sc, index) => {
+          const rgbColor = getColorRGB([255 , 0, 0]);
+          doc.setTextColor(...rgbColor);
+          doc.text(sc.label + (index < shortCodes.length - 1 ? ', ' : ''), x, y);
+          x += doc.getTextWidth(sc.label + ', ');
+        });
+      }
+    },       
     headStyles: {
       halign: 'center',
       valign: 'middle',

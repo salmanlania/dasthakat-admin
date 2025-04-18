@@ -96,6 +96,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
         unit_id: detail.unit_id ? detail.unit_id.value : null,
         markup: detail.product_type_id?.value === 1 ? 0 : detail.markup,
+        cost_price: detail.product_type_id?.value === 1 ? 0 : detail.cost_price,
         sort_order: index
       })),
       total_quantity: totalQuantity
@@ -786,9 +787,10 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       dataIndex: 'cost_price',
       key: 'cost_price',
       render: (_, { cost_price, product_type_id }, index) => {
+        const finalCost = product_type_id?.value ===  1 ? '0' : cost_price
         return (
           <DebouncedCommaSeparatedInput
-            value={cost_price}
+            value={finalCost}
             disabled={product_type_id?.value == 1}
             onChange={(value) =>
               dispatch(
