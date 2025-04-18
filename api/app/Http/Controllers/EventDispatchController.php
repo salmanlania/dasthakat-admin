@@ -140,7 +140,7 @@ class EventDispatchController extends Controller
 								case 'Calibration':
 									$item['color'] = ["name" => "blue", "hex" => "#0000FF", "rgb" => "rgb(0,0,255)"];
 									break;
-								case 'Lifeboat':
+								case 'LB':
 									$item['color'] = ["name" => "orange", "hex" => "#FFA500", "rgb" => "rgb(255, 165, 0)"];
 									break;
 							}
