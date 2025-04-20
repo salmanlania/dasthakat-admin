@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class RenameCertifiateIdToCertificateId extends Migration
+return new class extends Migration
 {
     public function up()
     {
@@ -19,4 +19,4 @@ class RenameCertifiateIdToCertificateId extends Migration
             $table->renameColumn('certificate_id', 'certifiate_id');
         });
     }
-}
+};
