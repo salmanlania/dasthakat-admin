@@ -452,11 +452,11 @@ class PurchaseOrderController extends Controller
 		$purchaseOrderDetailIds = PurchaseOrderDetail::where('purchase_order_id', $id)->pluck('purchase_order_detail_id');
 
 		// Update ChargeOrderDetail to set editable to true for the associated items
-		ChargeOrderDetail::whereIn('purchase_order_detail_id', $purchaseOrderDetailIds)
-			->update([
-				'purchase_order_id' => null,
-				'purchase_order_detail_id' => null,
-			]);
+		// ChargeOrderDetail::whereIn('purchase_order_detail_id', $purchaseOrderDetailIds)
+		// 	->update([
+		// 		'purchase_order_id' => null,
+		// 		'purchase_order_detail_id' => null,
+		// 	]);
 
 		$data->delete();
 		PurchaseOrderDetail::where('purchase_order_id', $id)->delete();

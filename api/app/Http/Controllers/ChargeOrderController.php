@@ -102,7 +102,8 @@ class ChargeOrderController extends Controller
 				if ($detail->product) {
 					$detail->product->stock = StockLedger::Check($detail->product, $request->all());
 				}
-				if (!empty($detail->purchase_order_detail_id)) $detail->editable = false;
+				$ref = PurchaseOrderDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->first();
+				if (!empty($ref)) $detail->editable = false;
 			}
 		}
 		return $this->jsonResponse($data, 200, "Charge Order Data");
