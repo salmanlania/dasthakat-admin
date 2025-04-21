@@ -11,6 +11,7 @@ use App\Models\PurchaseInvoice;
 use App\Models\PurchaseOrder;
 use App\Models\StockLedger;
 use App\Models\Warehouse;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -144,7 +145,7 @@ class GRNController extends Controller
 			'remarks' => $request->remarks ?? "",
 			'total_quantity' => $request->total_quantity ?? "",
 			'total_amount' => $request->total_amount ?? "",
-			'created_at' => date('Y-m-d H:i:s'),
+			'created_at' => Carbon::now(),
 			'created_by' => $request->login_user_id,
 		];
 		GRN::create($insertArr);
@@ -175,7 +176,7 @@ class GRNController extends Controller
 					'rate' => $value['rate'] ?? 0,
 					'amount' => $value['amount'] ?? 0,
 					'vendor_notes' => $value['vendor_notes'] ?? "",
-					'created_at' => date('Y-m-d H:i:s'),
+					'created_at' => Carbon::now(),
 					'created_by' => $request->login_user_id,
 				];
 				if ($value['product_type_id'] == 2 && !empty($value['warehouse_id'])) {
@@ -232,48 +233,90 @@ class GRNController extends Controller
 		$data->remarks = $request->remarks;
 		$data->total_quantity = $request->total_quantity;
 		$data->total_amount = $request->total_amount;
-		$data->updated_at = date('Y-m-d H:i:s');
+		$data->updated_at = Carbon::now();
 		$data->updated_by = $request->login_user_id;
 		$data->update();
-		GRNDetail::where('good_received_note_id', $id)->delete();
-		StockLedger::where('document_id', $id)->delete();
+
 		if ($request->good_received_note_detail) {
 
-			foreach ($request->good_received_note_detail as $key => $value) {
-				$detail_uuid = $this->get_uuid();
+			foreach ($request->good_received_note_detail as $value) {
+				if ($value['row_status'] == 'I') {
 
-				$insertArr = [
-					'good_received_note_id' => $id,
-					'good_received_note_detail_id' => $detail_uuid,
-					'sort_order' => $value['sort_order'] ?? "",
-					'purchase_order_detail_id' => $value['purchase_order_detail_id'] ?? "",
-					'product_type_id' => $value['product_type_id'] ?? "",
-					'product_id' => $value['product_id'] ?? "",
-					'product_name' => $value['product_name'] ?? "",
-					'product_description' => $value['product_description'] ?? "",
-					'description' => $value['description'] ?? "",
-					'warehouse_id' => $value['warehouse_id'] ?? "",
-					'unit_id' => $value['unit_id'] ?? "",
-					"document_currency_id" => $value['document_currency_id'] ?? "",
-					"base_currency_id" => $base_currency_id ?? "",
-					"unit_conversion" => $value['unit_conversion'] ?? 1,
-					"currency_conversion" => $value['currency_conversion'] ?? 1,
-					'quantity' => $value['quantity'] ?? "",
-					'rate' => $value['rate'] ?? "",
-					'amount' => $value['amount'] ?? "",
-					'vendor_notes' => $value['vendor_notes'] ?? "",
-					'created_at' => date('Y-m-d H:i:s'),
-					'created_by' => $request->login_user_id,
-				];
-				if ($value['product_type_id'] == 2 && !empty($value['warehouse_id'])) {
-					StockLedger::handleStockMovement([
-						'master_model' => new GRN,
-						'document_id' => $id,
-						'document_detail_id' => $detail_uuid,
-						'row' => $value,
-					], 'I');
+					$detail_uuid = $this->get_uuid();
+
+					$insert = [
+						'good_received_note_id' => $id,
+						'good_received_note_detail_id' => $detail_uuid,
+						'sort_order' => $value['sort_order'] ?? 0,
+						'purchase_order_detail_id' => $value['purchase_order_detail_id'] ?? null,
+						'product_type_id' => $value['product_type_id'] ?? null,
+						'product_id' => $value['product_id'] ?? null,
+						'product_name' => $value['product_name'] ?? null,
+						'product_description' => $value['product_description'] ?? null,
+						'description' => $value['description'] ?? null,
+						'warehouse_id' => $value['warehouse_id'] ?? null,
+						'unit_id' => $value['unit_id'] ?? null,
+						"document_currency_id" => $value['document_currency_id'] ?? null,
+						"base_currency_id" => $base_currency_id ?? null,
+						"unit_conversion" => $value['unit_conversion'] ?? 1,
+						"currency_conversion" => $value['currency_conversion'] ?? 1,
+						'quantity' => $value['quantity'] ?? null,
+						'rate' => $value['rate'] ?? null,
+						'amount' => $value['amount'] ?? null,
+						'vendor_notes' => $value['vendor_notes'] ?? null,
+						'created_at' => Carbon::now(),
+						'created_by' => $request->login_user_id,
+					];
+					if ($value['product_type_id'] == 2 && !empty($value['warehouse_id'])) {
+						StockLedger::handleStockMovement([
+							'master_model' => new GRN,
+							'document_id' => $id,
+							'document_detail_id' => $detail_uuid,
+							'row' => $value,
+						], 'I');
+					}
+					GRNDetail::create($insert);
 				}
-				GRNDetail::create($insertArr);
+				if ($value['row_status'] == 'U') {
+
+					$update = [
+						'good_received_note_id' => $id,
+						'good_received_note_detail_id' => $detail_uuid,
+						'sort_order' => $value['sort_order'] ?? 0,
+						'purchase_order_detail_id' => $value['purchase_order_detail_id'] ?? null,
+						'product_type_id' => $value['product_type_id'] ?? null,
+						'product_id' => $value['product_id'] ?? null,
+						'product_name' => $value['product_name'] ?? null,
+						'product_description' => $value['product_description'] ?? null,
+						'description' => $value['description'] ?? null,
+						'warehouse_id' => $value['warehouse_id'] ?? null,
+						'unit_id' => $value['unit_id'] ?? null,
+						"document_currency_id" => $value['document_currency_id'] ?? null,
+						"base_currency_id" => $base_currency_id ?? null,
+						"unit_conversion" => $value['unit_conversion'] ?? 1,
+						"currency_conversion" => $value['currency_conversion'] ?? 1,
+						'quantity' => $value['quantity'] ?? null,
+						'rate' => $value['rate'] ?? null,
+						'amount' => $value['amount'] ?? null,
+						'vendor_notes' => $value['vendor_notes'] ?? null,
+						'created_at' => Carbon::now(),
+						'created_by' => $request->login_user_id,
+					];
+					if ($value['product_type_id'] == 2 && !empty($value['warehouse_id'])) {
+						StockLedger::where('document_detail_id', $value['good_received_note_detail_id'])->delete();
+						StockLedger::handleStockMovement([
+							'master_model' => new GRN,
+							'document_id' => $id,
+							'document_detail_id' => $detail_uuid,
+							'row' => $value,
+						], 'I');
+					}
+					GRNDetail::where('good_received_note_detail_id', $value['good_received_note_detail_id'])->update($update);
+				}
+				if ($value['row_status'] == 'D') {
+					GRNDetail::where('good_received_note_detail_id', $value['good_received_note_detail_id'])->delete();
+					StockLedger::where('document_detail_id', $value['good_received_note_detail_id'])->delete();
+				}
 			}
 		}
 
