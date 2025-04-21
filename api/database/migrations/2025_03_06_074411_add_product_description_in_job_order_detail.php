@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('job_order_detail', function (Blueprint $table) {
-            $table->text('product_description')->nullable()->after('product_name');
+            $table->text('product_description')->nullable()->after('product_id');
         });
     }
 
