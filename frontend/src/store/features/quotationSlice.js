@@ -159,7 +159,7 @@ export const quotationSlice = createSlice({
       const newDetail = {
         ...detail,
         id: Date.now(),
-        row_status: 'I'
+        row_status: 'U'
       };
 
       state.quotationDetails.splice(index + 1, 0, newDetail);
@@ -194,19 +194,6 @@ export const quotationSlice = createSlice({
     changeQuotationDetailValue: (state, action) => {
       const { index, key, value } = action.payload;
       const detail = state.quotationDetails[index];
-      console.log('detail.row_status', detail.row_status)
-
-      // if (detail.row_status !== 'I' && detail.row_status !== 'D') {
-      //   detail.row_status = 'N';
-      // }
-
-      // if (detail.row_status === 'N') {
-      //   detail.row_status = 'U';
-      // }
-
-      // if (detail.row_status === 'N') {
-      //   detail.row_status = 'U';
-      // }
 
       if (
         detail.row_status === 'N' &&
@@ -214,7 +201,6 @@ export const quotationSlice = createSlice({
       ) {
         detail.row_status = 'U';
       }
-      
 
       detail[key] = value;
 
@@ -276,8 +262,6 @@ export const quotationSlice = createSlice({
         gross_amount: null,
         row_status: state.quotationDetails[index].row_status === 'N' ? 'U' : state.quotationDetails[index].row_status
       };
-
-      console.log('quotationDetails', state.quotationDetails)
     },
 
     setRebatePercentage: (state, action) => {

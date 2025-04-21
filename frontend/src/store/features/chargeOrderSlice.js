@@ -145,7 +145,7 @@ export const viewBeforeCreate = createAsyncThunk(
   }
 );
 
-export const chargeOrderAnalysis= createAsyncThunk(
+export const chargeOrderAnalysis = createAsyncThunk(
   'charger-order/analysis',
   async (id, { rejectWithValue }) => {
     const newId = id.charge_order_id
@@ -167,6 +167,7 @@ const initialState = {
   tempChargeDetails: [],
   isTempDataLoading: false,
   //  isAnalysisLoading
+  chargeOrderDetailId: null,
   isAnalysisLoading: false,
   analysisChargeOrderID: null,
   analysisChargeDetails: [],
@@ -231,7 +232,8 @@ export const chargeOrderSlice = createSlice({
         stock_quantity: null,
         quantity: null,
         unit_id: null,
-        supplier_id: null
+        supplier_id: null,
+        row_status: 'I'
       };
 
       // If index is provided, insert the new detail after that index, otherwise push it to the end
@@ -247,6 +249,9 @@ export const chargeOrderSlice = createSlice({
 
       const { editable, purchase_order_id, purchase_order_detail_id, ...detail } =
         state.chargeOrderDetails[index];
+
+      console.log('[Copy] Original Detail:', detail);
+
       const newDetail = {
         ...detail,
         purchase_order_id: null,
@@ -260,16 +265,33 @@ export const chargeOrderSlice = createSlice({
         job_order_detail_id: null,
         shipment_id: null,
         shipment_detail_id: null,
-        id: Date.now()
+        id: Date.now(),
+        row_status: 'I'
       };
+
+      console.log('newDetail', newDetail);
 
       state.chargeOrderDetails.splice(index + 1, 0, newDetail);
     },
 
+    // removeChargeOrderDetail: (state, action) => {
+    //   state.chargeOrderDetails = state.chargeOrderDetails.filter(
+    //     (item) => item.id !== action.payload
+    //   );
+    // },
+
     removeChargeOrderDetail: (state, action) => {
-      state.chargeOrderDetails = state.chargeOrderDetails.filter(
-        (item) => item.id !== action.payload
-      );
+      // Find the item by ID
+      const itemIndex = state.chargeOrderDetails.findIndex(item => item.id === action.payload);
+
+      if (itemIndex !== -1) {
+        if (state.chargeOrderDetails[itemIndex].row_status === 'I') {
+          state.chargeOrderDetails = state.chargeOrderDetails.filter((item) => item.id !== action.payload);
+        } else {
+          state.chargeOrderDetails[itemIndex].row_status = 'D';
+          state.chargeOrderDetails[itemIndex].isDeleted = true;
+        }
+      }
     },
 
     resetChargeOrderDetail: (state, action) => {
@@ -288,7 +310,8 @@ export const chargeOrderSlice = createSlice({
         markup: '0',
         amount: null,
         discount_percent: '0',
-        gross_amount: null
+        gross_amount: null,
+        row_status: state.chargeOrderDetails[index].row_status === 'N' ? 'U' : state.chargeOrderDetails[index].row_status
       };
     },
 
@@ -303,6 +326,14 @@ export const chargeOrderSlice = createSlice({
     changeChargeOrderDetailValue: (state, action) => {
       const { index, key, value } = action.payload;
       const detail = state.chargeOrderDetails[index];
+
+      if (
+        detail.row_status === 'N' &&
+        detail[key] !== value
+      ) {
+        detail.row_status = 'U';
+      }
+
       detail[key] = value;
 
       const productType = detail.product_type_id;
@@ -412,7 +443,8 @@ export const chargeOrderSlice = createSlice({
       const additionalRequest = action.meta.arg?.additionalRequest || false;
       state.isFormSubmitting = additionalRequest || true;
     });
-    addCase(createChargeOrder.fulfilled, (state) => {
+    addCase(createChargeOrder.fulfilled, (state, action) => {
+      state.chargeOrderDetailId = action?.payload?.data?.data?.charge_order_id
       state.isFormSubmitting = false;
     });
     addCase(createChargeOrder.rejected, (state) => {
@@ -444,63 +476,64 @@ export const chargeOrderSlice = createSlice({
         technician_id:
           data.technicians && data.technicians.length
             ? data.technicians.map((technician) => ({
-                value: technician.technician_id,
-                label: technician.name
-              }))
+              value: technician.technician_id,
+              label: technician.name
+            }))
             : null,
         agent_notes: data.agent_notes,
         technician_notes: data.technician_notes,
         agent_id: data.agent
           ? {
-              value: data.agent.agent_id,
-              label: data.agent.name
-            }
+            value: data.agent.agent_id,
+            label: data.agent.name
+          }
           : null,
         salesman_id: data.salesman
           ? {
-              value: data.salesman.salesman_id,
-              label: data.salesman.name
-            }
+            value: data.salesman.salesman_id,
+            label: data.salesman.name
+          }
           : null,
         event_id: data.event
           ? {
-              value: data.event.event_id,
-              label: data.event.event_name
-            }
+            value: data.event.event_id,
+            label: data.event.event_name
+          }
           : null,
         vessel_id: data.vessel
           ? {
-              value: data.vessel.vessel_id,
-              label: data.vessel.name
-            }
+            value: data.vessel.vessel_id,
+            label: data.vessel.name
+          }
           : null,
         customer_id: data.customer
           ? {
-              value: data.customer.customer_id,
-              label: data.customer.name
-            }
+            value: data.customer.customer_id,
+            label: data.customer.name
+          }
           : null,
         class1_id: data.class1
           ? {
-              value: data.class1.class1_id,
-              label: data.class1.name
-            }
+            value: data.class1.class1_id,
+            label: data.class1.name
+          }
           : null,
         class2_id: data.class2
           ? {
-              value: data.class2.class2_id,
-              label: data.class2.name
-            }
+            value: data.class2.class2_id,
+            label: data.class2.name
+          }
           : null,
         flag_id: data.flag
           ? {
-              value: data.flag.flag_id,
-              label: data.flag.name
-            }
+            value: data.flag.flag_id,
+            label: data.flag.name
+          }
           : null
       };
 
       if (!data.charge_order_detail) return;
+      state.chargeOrderDetails = data.charge_order_detail.map(detail => console.log('detail', detail))
       state.chargeOrderDetails = data.charge_order_detail.map((detail) => ({
         id: detail.charge_order_detail_id,
         purchase_order_id: detail.purchase_order_id,
@@ -511,9 +544,9 @@ export const chargeOrderSlice = createSlice({
           : null,
         product_type_id: detail.product_type
           ? {
-              value: detail.product_type.product_type_id,
-              label: detail.product_type.name
-            }
+            value: detail.product_type.product_type_id,
+            label: detail.product_type.name
+          }
           : null,
         product_name: detail.product_name,
         product_description: detail.product_description,
@@ -539,12 +572,14 @@ export const chargeOrderSlice = createSlice({
         vendor_part_no: detail.vendor_part_no,
         markup: detail.markup,
         cost_price: detail.cost_price,
-        rate: detail.rate,
+        rate: detail?.rate,
         amount: detail.amount,
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_amount,
         gross_amount: detail.gross_amount,
-        editable: detail.editable
+        editable: detail.editable,
+        row_status: 'N',
+        isDeleted: false
       }));
     });
     addCase(getChargeOrder.rejected, (state) => {
@@ -558,6 +593,13 @@ export const chargeOrderSlice = createSlice({
     });
     addCase(updateChargeOrder.fulfilled, (state) => {
       state.isFormSubmitting = false;
+      state.chargeOrderDetails = state.chargeOrderDetails
+        .filter(item => item.row_status !== 'D')
+        .map(item => ({
+          ...item,
+          row_status: 'N',
+          isDeleted: false
+        }));
     });
     addCase(updateChargeOrder.rejected, (state) => {
       state.isFormSubmitting = false;
@@ -617,7 +659,7 @@ export const chargeOrderSlice = createSlice({
     addCase(viewBeforeCreate.rejected, (state) => {
       state.isTempDataLoading = false;
     });
-    
+
     addCase(chargeOrderAnalysis.pending, (state) => {
       state.isAnalysisLoading = true;
       state.analysisChargeDetails = [];

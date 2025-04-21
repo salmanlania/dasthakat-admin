@@ -1,24 +1,26 @@
 import { Breadcrumb } from 'antd';
 import toast from 'react-hot-toast';
-import { useDispatch } from 'react-redux';
+import { useDispatch , useSelector} from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import ChargeOrderForm from '../../components/Form/ChargeOrderForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
 import { createChargeOrder , getChargeOrder} from '../../store/features/chargeOrderSlice';
 import { setChargePoID } from '../../store/features/purchaseOrderSlice';
+const { chargeOrderDetailId } = useSelector((state) => state.chargeOrder);
 
 const CreateChargeOrder = () => {
   const navigate = useNavigate();
   const handleError = useError();
   const dispatch = useDispatch();
 
-  const onChargeOrderCreate = async (data, additionalRequest = null) => {
+  const onChargeOrderCreate = async (data, additionalRequest = null , chargeOrderDetailId) => {
     try {
+      // console.log('data' , data)
       await dispatch(createChargeOrder({ data, additionalRequest })).unwrap();
       toast.success('Charge Order created successfully');
       // navigate('/charge-order');
-      await dispatch(getChargeOrder(id)).unwrap().catch(handleError);
+      await dispatch(getChargeOrder(chargeOrderDetailId)).unwrap().catch(handleError);
     } catch (error) {
       handleError(error);
     }

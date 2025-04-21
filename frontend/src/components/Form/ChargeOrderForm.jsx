@@ -68,6 +68,10 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
     // Get form values
     const values = form.getFieldsValue();
 
+    const filteredDetails = chargeOrderDetails.filter(
+      (detail) => !(detail.isDeleted && detail.row_status === 'I')
+    );
+
     const data = {
       chargeOrder_id,
       remarks: values.remarks,
@@ -82,23 +86,29 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       agent_id: values.agent_id ? values.agent_id.value : null,
       technician_notes: values.technician_notes,
       agent_notes: values.agent_notes,
-      document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
+      document_date: dayjs(values.document_date).format('YYYY-MM-DD')
+        ? dayjs(values.document_date).format('YYYY-MM-DD')
+        : null,
       user_id: values.user_id ? values.user_id.map((v) => v.value) : null,
-      charge_order_detail: chargeOrderDetails.map(({ id, product_type, ...detail }, index) => ({
-        ...detail,
-        picklist_id: detail?.picklist_id || '',
-        picklist_detail_id: detail?.picklist_id || '',
-        purchase_order_id: detail?.purchase_order_id || '',
-        purchase_order_detail_id: detail?.purchase_order_detail_id || '',
-        product_id: detail.product_type_id?.value == 4 ? null : detail?.product_id?.value,
-        product_name: detail.product_type_id?.value == 4 ? detail?.product_name : null,
-        supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
-        product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
-        unit_id: detail.unit_id ? detail.unit_id.value : null,
-        markup: detail.product_type_id?.value === 1 ? 0 : detail.markup,
-        cost_price: detail.product_type_id?.value === 1 ? 0 : detail.cost_price,
-        sort_order: index
-      })),
+      charge_order_detail: chargeOrderDetails.map(({ id, product_type, ...detail }, index) => {
+        return {
+          ...detail,
+          picklist_id: detail?.picklist_id || '',
+          picklist_detail_id: detail?.picklist_id || '',
+          purchase_order_id: detail?.purchase_order_id || '',
+          purchase_order_detail_id: detail?.purchase_order_detail_id || '',
+          product_id: detail.product_type_id?.value == 4 ? null : detail?.product_id?.value,
+          product_name: detail.product_type_id?.value == 4 ? detail?.product_name : null,
+          supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
+          product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
+          unit_id: detail.unit_id ? detail.unit_id.value : null,
+          markup: detail.product_type_id?.value === 1 ? 0 : detail.markup,
+          cost_price: detail.product_type_id?.value === 1 ? 0 : detail.cost_price,
+          sort_order: index,
+          row_status: detail.row_status,
+          charge_order_detail_id: id ? id : null
+        };
+      }),
       total_quantity: totalQuantity
     };
 
@@ -483,6 +493,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       render: (_, { product_id, product_name, product_type_id }, index) => {
         return product_type_id?.value == 4 ? (
           <Form.Item
+            key={index}
             className="m-0"
             name={`product_name-${index}`}
             initialValue={product_name}
@@ -787,7 +798,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       dataIndex: 'cost_price',
       key: 'cost_price',
       render: (_, { cost_price, product_type_id }, index) => {
-        const finalCost = product_type_id?.value ===  1 ? '0' : cost_price
+        const finalCost = product_type_id?.value === 1 ? '0' : cost_price;
         return (
           <DebouncedCommaSeparatedInput
             value={finalCost}
@@ -1036,36 +1047,41 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         />
       ),
       key: 'action',
-      render: (_, { id, editable }, index) => (
-        <Dropdown
-          trigger={['click']}
-          arrow
-          menu={{
-            items: [
-              {
-                key: '1',
-                label: 'Add',
-                onClick: () => dispatch(addChargeOrderDetail(index))
-              },
-              {
-                key: '2',
-                label: 'Copy',
-                onClick: () => dispatch(copyChargeOrderDetail(index))
-              },
-              {
-                key: '3',
-                label: 'Delete',
-                danger: true,
-                onClick: () => dispatch(removeChargeOrderDetail(id)),
-                disabled: editable === false
-              }
-            ]
-          }}>
-          <Button size="small">
-            <BsThreeDotsVertical />
-          </Button>
-        </Dropdown>
-      ),
+      render: (record, { id, editable }, index) => {
+        if (record.isDeleted) {
+          return null;
+        }
+        return (
+          <Dropdown
+            trigger={['click']}
+            arrow
+            menu={{
+              items: [
+                {
+                  key: '1',
+                  label: 'Add',
+                  onClick: () => dispatch(addChargeOrderDetail(index))
+                },
+                {
+                  key: '2',
+                  label: 'Copy',
+                  onClick: () => dispatch(copyChargeOrderDetail(index))
+                },
+                {
+                  key: '3',
+                  label: 'Delete',
+                  danger: true,
+                  onClick: () => dispatch(removeChargeOrderDetail(id)),
+                  disabled: editable === false
+                }
+              ]
+            }}>
+            <Button size="small">
+              <BsThreeDotsVertical />
+            </Button>
+          </Dropdown>
+        );
+      },
       width: 50,
       fixed: 'right'
     }
@@ -1243,7 +1259,8 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
 
       <Table
         columns={columns}
-        dataSource={chargeOrderDetails}
+        // dataSource={chargeOrderDetails}
+        dataSource={chargeOrderDetails.filter((item) => !item.isDeleted)}
         rowKey="id"
         size="small"
         scroll={{ x: 'calc(100% - 200px)' }}
@@ -1327,7 +1344,8 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         <Button
           type="primary"
           className="w-28"
-          loading={isFormSubmitting === true}
+          // loading={isFormSubmitting === true}
+          loading={isFormSubmitting}
           onClick={() => (isFormSubmitting ? null : onFinish())}>
           Save
         </Button>

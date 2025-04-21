@@ -151,7 +151,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
       due_date: values.due_date ? dayjs(values.due_date).format('YYYY-MM-DD') : null,
       term_id: values.term_id && values.term_id.length ? values.term_id.map((v) => v.value) : null,
       status: values.status,
-      quotation_detail: quotationDetails.map(({ id, product_type, ...detail }, index) => ({
+      quotation_detail: quotationDetails.map(({ id, product_type, ...detail }, index) => {
+        return {
         ...detail,
         product_id: detail.product_type_id?.value == 4 ? null : detail?.product_id?.value,
         product_name: detail.product_type_id?.value == 4 ? detail?.product_name : null,
@@ -161,9 +162,10 @@ const QuotationForm = ({ mode, onSubmit }) => {
         markup: detail.product_type_id?.value === 1 ? 0 : detail.markup,
         cost_price: detail.product_type_id?.value === 1 ? 0 : detail.cost_price,
         sort_order: index,
-        // quotation_detail_id: typeof id === 'number' ? id : null,
-        row_status: detail.row_status
-      })),
+        quotation_detail_id: typeof id === 'number' ? id : null,
+        row_status: detail.row_status,
+        quotation_detail_id: id ? id : null
+      }}),
       total_quantity: totalQuantity,
       total_Cost: totalCost,
       total_discount: discountAmount,

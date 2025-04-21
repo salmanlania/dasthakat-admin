@@ -137,7 +137,8 @@ export const goodsReceivedNoteSlice = createSlice({
         unit_id: null,
         warehouse_id: null,
         rate: null,
-        amount: null
+        amount: null,
+        row_status: 'I'
       };
 
       // If index is provided, insert the new detail after that index, otherwise push it to the end
@@ -155,16 +156,31 @@ export const goodsReceivedNoteSlice = createSlice({
       const newDetail = {
         ...detail,
         purchase_order_detail_id: null,
-        id: Date.now()
+        id: Date.now(),
+        row_status: 'U'
       };
 
       state.goodsReceivedNoteDetails.splice(index + 1, 0, newDetail);
     },
 
+    // removeGoodsReceivedNoteDetail: (state, action) => {
+    //   state.goodsReceivedNoteDetails = state.goodsReceivedNoteDetails.filter(
+    //     (item) => item.id !== action.payload
+    //   );
+    // },
+
     removeGoodsReceivedNoteDetail: (state, action) => {
-      state.goodsReceivedNoteDetails = state.goodsReceivedNoteDetails.filter(
-        (item) => item.id !== action.payload
-      );
+      // Find the item by ID
+      const itemIndex = state.goodsReceivedNoteDetails.findIndex(item => item.id === action.payload);
+
+      if (itemIndex !== -1) {
+        if (state.goodsReceivedNoteDetails[itemIndex].row_status === 'I') {
+          state.goodsReceivedNoteDetails = state.goodsReceivedNoteDetails.filter((item) => item.id !== action.payload);
+        } else {
+          state.goodsReceivedNoteDetails[itemIndex].row_status = 'D';
+          state.goodsReceivedNoteDetails[itemIndex].isDeleted = true;
+        }
+      }
     },
 
     // Change the order of quotation details, from is the index of the item to be moved, to is the index of the item to be moved to
@@ -178,6 +194,14 @@ export const goodsReceivedNoteSlice = createSlice({
     changeGoodsReceivedNoteDetailValue: (state, action) => {
       const { index, key, value } = action.payload;
       const detail = state.goodsReceivedNoteDetails[index];
+
+      if (
+        detail.row_status === 'N' &&
+        detail[key] !== value
+      ) {
+        detail.row_status = 'U';
+      }
+
       detail[key] = value;
 
       if (detail.quantity && detail.rate) {
@@ -199,7 +223,8 @@ export const goodsReceivedNoteSlice = createSlice({
         unit_id: null,
         warehouse_id: null,
         rate: null,
-        amount: null
+        amount: null,
+        row_status: state.goodsReceivedNoteDetails[index].row_status === 'N' ? 'U' : state.goodsReceivedNoteDetails[index].row_status
       };
     },
 
@@ -263,40 +288,40 @@ export const goodsReceivedNoteSlice = createSlice({
         purchase_order_no: data?.purchase_order?.charge_order?.customer_po_no,
         event_id: data?.purchase_order?.charge_order?.event
           ? {
-              value: data?.purchase_order?.charge_order?.event.event_id,
-              label: data?.purchase_order?.charge_order?.event.event_name
-            }
+            value: data?.purchase_order?.charge_order?.event.event_id,
+            label: data?.purchase_order?.charge_order?.event.event_name
+          }
           : null,
         customer_id: data?.purchase_order?.charge_order?.customer
           ? {
-              value: data?.purchase_order?.charge_order?.customer.customer_id,
-              label: data?.purchase_order?.charge_order?.customer.name
-            }
+            value: data?.purchase_order?.charge_order?.customer.customer_id,
+            label: data?.purchase_order?.charge_order?.customer.name
+          }
           : null,
         payment_id: data.payment
           ? {
-              value: data.payment.payment_id,
-              label: data.payment.name
-            }
+            value: data.payment.payment_id,
+            label: data.payment.name
+          }
           : null,
         supplier_id: data.supplier
           ? {
-              value: data.supplier.supplier_id,
-              label: data.supplier.name
-            }
+            value: data.supplier.supplier_id,
+            label: data.supplier.name
+          }
           : null,
-          vessel_id: data.vessel
+        vessel_id: data.vessel
           ? {
-              value: data.vessel.vessel_id,
-              label: data.vessel.name
-            }
+            value: data.vessel.vessel_id,
+            label: data.vessel.name
+          }
           : null,
         purchase_order_id: data.purchase_order
           ? {
-              value: data.purchase_order.purchase_order_id,
-              label: data.purchase_order.purchase_order_no ? data.purchase_order.purchase_order_no : data.purchase_order.document_identity
-              // label: data.purchase_order.document_identity
-            }
+            value: data.purchase_order.purchase_order_id,
+            label: data.purchase_order.purchase_order_no ? data.purchase_order.purchase_order_no : data.purchase_order.document_identity
+            // label: data.purchase_order.document_identity
+          }
           : null,
       };
 
@@ -310,9 +335,9 @@ export const goodsReceivedNoteSlice = createSlice({
           : null,
         product_type_id: detail.product_type
           ? {
-              value: detail.product_type.product_type_id,
-              label: detail.product_type.name
-            }
+            value: detail.product_type.product_type_id,
+            label: detail.product_type.name
+          }
           : null,
         product_name: detail.product_name,
         product_description: detail.product_description,
@@ -324,7 +349,9 @@ export const goodsReceivedNoteSlice = createSlice({
           : null,
         rate: detail.rate,
         vendor_notes: detail.vendor_notes,
-        amount: detail.amount
+        amount: detail.amount,
+        row_status: 'N',
+        isDeleted: false
       }));
     });
     addCase(getGoodsReceivedNote.rejected, (state) => {
@@ -339,6 +366,13 @@ export const goodsReceivedNoteSlice = createSlice({
     });
     addCase(updateGoodsReceivedNote.fulfilled, (state) => {
       state.isFormSubmitting = false;
+      state.goodsReceivedNoteDetails = state.goodsReceivedNoteDetails
+        .filter(item => item.row_status !== 'D')
+        .map(item => ({
+          ...item,
+          row_status: 'N',
+          isDeleted: false
+        }));
       state.initialFormValues = null;
       state.rebatePercentage = null;
       state.salesmanPercentage = null;

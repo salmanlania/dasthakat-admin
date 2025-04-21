@@ -49,6 +49,10 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
   });
 
   const onFinish = (values) => {
+    const filteredDetails = goodsReceivedNoteDetails.filter(
+      (detail) => !(detail.isDeleted && detail.row_status === 'I')
+    );
+
     const data = {
       default_currency_id: currency ? currency.currency_id : null,
       type: values.type,
@@ -59,15 +63,19 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       purchase_order_id: values.purchase_order_id ? values.purchase_order_id.value : null,
       payment_id: values.payment_id ? values.payment_id.value : null,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
-      good_received_note_detail: goodsReceivedNoteDetails.map(({ id, ...detail }, index) => ({
+      good_received_note_detail: goodsReceivedNoteDetails.map(({ id, ...detail }, index) => {
+        console.log('detail' , detail)
+        return {
         ...detail,
         product_id: detail.product_type_id?.value == 4 ? null : detail.product_id.value,
         product_name: detail.product_type_id?.value == 4 ? detail.product_name : null,
         product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
         warehouse_id: detail.warehouse_id ? detail.warehouse_id.value : null,
         unit_id: detail.unit_id ? detail.unit_id.value : null,
-        sort_order: index
-      })),
+        sort_order: index,
+        // row_status: detail.row_status,
+        good_received_note_detail_id: id ? id : null
+      }}),
       total_quantity: totalQuantity
     };
 
@@ -672,35 +680,40 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
         />
       ),
       key: 'action',
-      render: (_, { id }, index) => (
-        <Dropdown
-          trigger={['click']}
-          arrow
-          menu={{
-            items: [
-              {
-                key: '1',
-                label: 'Add',
-                onClick: () => dispatch(addGoodsReceivedNoteDetail(index))
-              },
-              {
-                key: '2',
-                label: 'Copy',
-                onClick: () => dispatch(copyGoodsReceivedNoteDetail(index))
-              },
-              {
-                key: '3',
-                label: 'Delete',
-                danger: true,
-                onClick: () => dispatch(removeGoodsReceivedNoteDetail(id))
-              }
-            ]
-          }}>
-          <Button size="small">
-            <BsThreeDotsVertical />
-          </Button>
-        </Dropdown>
-      ),
+      render: (record, { id }, index) => {
+        if (record.isDeleted) {
+          return null;
+        }
+        return (
+          <Dropdown
+            trigger={['click']}
+            arrow
+            menu={{
+              items: [
+                {
+                  key: '1',
+                  label: 'Add',
+                  onClick: () => dispatch(addGoodsReceivedNoteDetail(index))
+                },
+                {
+                  key: '2',
+                  label: 'Copy',
+                  onClick: () => dispatch(copyGoodsReceivedNoteDetail(index))
+                },
+                {
+                  key: '3',
+                  label: 'Delete',
+                  danger: true,
+                  onClick: () => dispatch(removeGoodsReceivedNoteDetail(id))
+                }
+              ]
+            }}>
+            <Button size="small">
+              <BsThreeDotsVertical />
+            </Button>
+          </Dropdown>
+        );
+      },
       width: 50,
       fixed: 'right'
     }
@@ -833,7 +846,8 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
 
       <Table
         columns={columns}
-        dataSource={goodsReceivedNoteDetails}
+        // dataSource={goodsReceivedNoteDetails}
+        dataSource={goodsReceivedNoteDetails.filter((item) => !item.isDeleted)}
         rowKey={'id'}
         size="small"
         scroll={{ x: 'calc(100% - 200px)' }}

@@ -54,6 +54,10 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
   const onFinish = (values) => {
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
 
+    const filteredDetails = purchaseOrderDetails.filter(
+      (detail) => !(detail.isDeleted && detail.row_status === 'I')
+    );
+
     const data = {
       type: values.type,
       remarks: values.remarks,
@@ -75,11 +79,15 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
         product_name: detail.product_type_id?.value == 4 ? detail.product_name : null,
         unit_id: detail.unit_id ? detail.unit_id.value : null,
         product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
-        sort_order: index
+        sort_order: index,
+        row_status: detail.row_status,
+        purchase_order_detail_id: id ? id : null
       })),
       total_amount: totalAmount,
       total_quantity: totalQuantity
     };
+
+    return console.log('data' , data)
 
     onSubmit(data);
   };
@@ -657,35 +665,40 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
         />
       ),
       key: 'action',
-      render: (_, { id }, index) => (
-        <Dropdown
-          trigger={['click']}
-          arrow
-          menu={{
-            items: [
-              {
-                key: '1',
-                label: 'Add',
-                onClick: () => dispatch(addPurchaseOrderDetail(index))
-              },
-              {
-                key: '2',
-                label: 'Copy',
-                onClick: () => dispatch(copyPurchaseOrderDetail(index))
-              },
-              {
-                key: '3',
-                label: 'Delete',
-                danger: true,
-                onClick: () => dispatch(removePurchaseOrderDetail(id))
-              }
-            ]
-          }}>
-          <Button size="small">
-            <BsThreeDotsVertical />
-          </Button>
-        </Dropdown>
-      ),
+      render: (record, { id }, index) => {
+        if (record.isDeleted) {
+          return null;
+        }
+        return (
+          <Dropdown
+            trigger={['click']}
+            arrow
+            menu={{
+              items: [
+                {
+                  key: '1',
+                  label: 'Add',
+                  onClick: () => dispatch(addPurchaseOrderDetail(index))
+                },
+                {
+                  key: '2',
+                  label: 'Copy',
+                  onClick: () => dispatch(copyPurchaseOrderDetail(index))
+                },
+                {
+                  key: '3',
+                  label: 'Delete',
+                  danger: true,
+                  onClick: () => dispatch(removePurchaseOrderDetail(id))
+                }
+              ]
+            }}>
+            <Button size="small">
+              <BsThreeDotsVertical />
+            </Button>
+          </Dropdown>
+        );
+      },
       width: 50,
       fixed: 'right'
     }
@@ -866,7 +879,8 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
 
       <Table
         columns={columns}
-        dataSource={purchaseOrderDetails}
+        // dataSource={purchaseOrderDetails}
+        dataSource={purchaseOrderDetails.filter(item => !item.isDeleted)}
         rowKey={'id'}
         size="small"
         scroll={{ x: 'calc(100% - 200px)' }}

@@ -141,7 +141,8 @@ export const purchaseOrderSlice = createSlice({
         quantity: null,
         unit_id: null,
         rate: null,
-        amount: null
+        amount: null,
+        row_status: 'I'
       };
 
       // If index is provided, insert the new detail after that index, otherwise push it to the end
@@ -158,16 +159,31 @@ export const purchaseOrderSlice = createSlice({
       const detail = state.purchaseOrderDetails[index];
       const newDetail = {
         ...detail,
-        id: Date.now()
+        id: Date.now(),
+        row_status: 'I'
       };
 
       state.purchaseOrderDetails.splice(index + 1, 0, newDetail);
     },
 
+    // removePurchaseOrderDetail: (state, action) => {
+    //   state.purchaseOrderDetails = state.purchaseOrderDetails.filter(
+    //     (item) => item.id !== action.payload
+    //   );
+    // },
+
     removePurchaseOrderDetail: (state, action) => {
-      state.purchaseOrderDetails = state.purchaseOrderDetails.filter(
-        (item) => item.id !== action.payload
-      );
+      // Find the item by ID
+      const itemIndex = state.purchaseOrderDetails.findIndex(item => item.id === action.payload);
+
+      if (itemIndex !== -1) {
+        if (state.purchaseOrderDetails[itemIndex].row_status === 'I') {
+          state.purchaseOrderDetails = state.purchaseOrderDetails.filter((item) => item.id !== action.payload);
+        } else {
+          state.purchaseOrderDetails[itemIndex].row_status = 'D';
+          state.purchaseOrderDetails[itemIndex].isDeleted = true;
+        }
+      }
     },
 
     // Change the order of quotation details, from is the index of the item to be moved, to is the index of the item to be moved to
@@ -181,6 +197,14 @@ export const purchaseOrderSlice = createSlice({
     changePurchaseOrderDetailValue: (state, action) => {
       const { index, key, value } = action.payload;
       const detail = state.purchaseOrderDetails[index];
+
+      if (
+        detail.row_status === 'N' &&
+        detail[key] !== value
+      ) {
+        detail.row_status = 'U';
+      }
+
       detail[key] = value;
 
       if (detail.quantity && detail.rate) {
@@ -204,7 +228,8 @@ export const purchaseOrderSlice = createSlice({
         amount: null,
         purchase_order_detail_id: null,
         vpart: null,
-        vendor_notes: null
+        vendor_notes: null,
+        row_status: state.purchaseOrderDetails[index].row_status === 'N' ? 'U' : state.purchaseOrderDetails[index].row_status
       };
     }
   },
@@ -261,33 +286,33 @@ export const purchaseOrderSlice = createSlice({
         charge_order_id: data.charge_order_id,
         event_id: data?.charge_order?.event
           ? {
-              value: data?.charge_order?.event.event_id,
-              label: data?.charge_order?.event.event_name
-            }
+            value: data?.charge_order?.event.event_id,
+            label: data?.charge_order?.event.event_name
+          }
           : null,
         customer_id: data?.charge_order?.customer
           ? {
-              value: data?.charge_order?.customer.customer_id,
-              label: data?.charge_order?.customer.name
-            }
+            value: data?.charge_order?.customer.customer_id,
+            label: data?.charge_order?.customer.name
+          }
           : null,
         buyer_id: data.user
           ? {
-              value: data.user.user_id,
-              label: data.user.user_name
-            }
+            value: data.user.user_id,
+            label: data.user.user_name
+          }
           : null,
         payment_id: data.payment
           ? {
-              value: data.payment.payment_id,
-              label: data.payment.name
-            }
+            value: data.payment.payment_id,
+            label: data.payment.name
+          }
           : null,
         supplier_id: data.supplier
           ? {
-              value: data.supplier.supplier_id,
-              label: data.supplier.name
-            }
+            value: data.supplier.supplier_id,
+            label: data.supplier.name
+          }
           : null
       };
 
@@ -300,9 +325,9 @@ export const purchaseOrderSlice = createSlice({
           : null,
         product_type_id: detail.product_type
           ? {
-              value: detail.product_type.product_type_id,
-              label: detail.product_type.name
-            }
+            value: detail.product_type.product_type_id,
+            label: detail.product_type.name
+          }
           : null,
         product_name: detail.product_name,
         product_description: detail.product_description,
@@ -315,7 +340,9 @@ export const purchaseOrderSlice = createSlice({
         rate: detail.rate,
         vendor_notes: detail.vendor_notes,
         amount: detail.amount,
-        editable: detail.editable
+        editable: detail.editable,
+        row_status: 'N',
+        isDeleted: false
       }));
     });
     addCase(getPurchaseOrder.rejected, (state) => {
@@ -330,6 +357,15 @@ export const purchaseOrderSlice = createSlice({
     });
     addCase(updatePurchaseOrder.fulfilled, (state) => {
       state.isFormSubmitting = false;
+
+      state.purchaseOrderDetails = state.purchaseOrderDetails
+        .filter(item => item.row_status !== 'D')
+        .map(item => ({
+          ...item,
+          row_status: 'N',
+          isDeleted: false
+        }));
+
       state.initialFormValues = null;
       state.rebatePercentage = null;
       state.salesmanPercentage = null;
