@@ -32,6 +32,10 @@ class PurchaseOrderDetail extends Model
         "created_by",
         "updated_by"
     ];
+    public function purchase_order()
+    {
+        return $this->hasOne(PurchaseOrder::class, 'purchase_order_id', 'purchase_order_id');
+    }
     public function product()
     {
         return $this->hasOne(Product::class, 'product_id', 'product_id')->select('*',DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
