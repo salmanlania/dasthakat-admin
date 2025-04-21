@@ -203,6 +203,21 @@ class Controller extends BaseController
         }
     }
 
+    public function convertImageToBase64($path)
+    {
+      
+    
+        if (!file_exists($path)) {
+            return response()->json(['error' => 'Image not found'], 404);
+        }
+    
+        $imageData = base64_encode(file_get_contents($path));
+        $mimeType = mime_content_type($path); // e.g., image/png
+    
+        $base64Image = "data:$mimeType;base64,$imageData";
+    
+        return $base64Image;
+    }
 
     public function compressAndSaveImage($sourcePath, $destinationPath, $quality = 75)
     {

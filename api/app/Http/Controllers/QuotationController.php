@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChargeOrder;
 use App\Models\DocumentType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -318,37 +319,68 @@ class QuotationController extends Controller
 			}
 		}
 
-		QuotationDetail::where('quotation_id', $id)->delete();
 		if ($request->quotation_detail) {
-
-			foreach ($request->quotation_detail as $key => $value) {
-				$detail_uuid = $this->get_uuid();
-
-				$insertArr = [
-					'quotation_id' => $id,
-					'quotation_detail_id' => $detail_uuid,
-					'sort_order' => $value['sort_order'] ?? "",
-					'product_id' => $value['product_id'] ?? "",
-					'product_type_id' => $value['product_type_id'] ?? "",
-					'product_name' => $value['product_name'] ?? "",
-					'product_description' => $value['product_description'] ?? "",
-					'description' => $value['description'] ?? "",
-					'unit_id' => $value['unit_id'] ?? "",
-					'supplier_id' => $value['supplier_id'] ?? "",
-					'vendor_part_no' => $value['vendor_part_no'] ?? "",
-					'internal_notes' => $value['internal_notes'] ?? "",
-					'quantity' => $value['quantity'] ?? "",
-					'cost_price' => $value['cost_price'] ?? "",
-					'markup' => $value['markup'] ?? "",
-					'rate' => $value['rate'] ?? "",
-					'amount' => $value['amount'] ?? "",
-					'discount_amount' => $value['discount_amount'] ?? "",
-					'discount_percent' => $value['discount_percent'] ?? "",
-					'gross_amount' => $value['gross_amount'] ?? "",
-					'created_at' => date('Y-m-d H:i:s'),
-					'created_by' => $request->login_user_id,
-				];
-				QuotationDetail::create($insertArr);
+			foreach ($request->quotation_detail as $value) {
+				try {
+					if ($value['row_status'] == 'I') {
+						$detail_uuid = $this->get_uuid();
+						$insertArr = [
+							'quotation_id' => $id,
+							'quotation_detail_id' => $detail_uuid,
+							'sort_order' => $value['sort_order'] ?? null,
+							'product_id' => $value['product_id'] ?? null,
+							'product_type_id' => $value['product_type_id'] ?? null,
+							'product_name' => $value['product_name'] ?? null,
+							'product_description' => $value['product_description'] ?? null,
+							'description' => $value['description'] ?? null,
+							'unit_id' => $value['unit_id'] ?? null,
+							'supplier_id' => $value['supplier_id'] ?? null,
+							'vendor_part_no' => $value['vendor_part_no'] ?? null,
+							'internal_notes' => $value['internal_notes'] ?? null,
+							'quantity' => $value['quantity'] ?? null,
+							'cost_price' => $value['cost_price'] ?? null,
+							'markup' => $value['markup'] ?? null,
+							'rate' => $value['rate'] ?? null,
+							'amount' => $value['amount'] ?? null,
+							'discount_amount' => $value['discount_amount'] ?? null,
+							'discount_percent' => $value['discount_percent'] ?? null,
+							'gross_amount' => $value['gross_amount'] ?? null,
+							'created_at' => Carbon::now(),
+							'created_by' => $request->login_user_id,
+						];
+						QuotationDetail::create($insertArr);
+					}
+					if ($value['row_status'] == 'U') {
+						$update = [
+							'sort_order' => $value['sort_order'] ?? null,
+							'product_id' => $value['product_id'] ?? null,
+							'product_type_id' => $value['product_type_id'] ?? null,
+							'product_name' => $value['product_name'] ?? null,
+							'product_description' => $value['product_description'] ?? null,
+							'description' => $value['description'] ?? null,
+							'unit_id' => $value['unit_id'] ?? null,
+							'supplier_id' => $value['supplier_id'] ?? null,
+							'vendor_part_no' => $value['vendor_part_no'] ?? null,
+							'internal_notes' => $value['internal_notes'] ?? null,
+							'quantity' => $value['quantity'] ?? null,
+							'cost_price' => $value['cost_price'] ?? null,
+							'markup' => $value['markup'] ?? null,
+							'rate' => $value['rate'] ?? null,
+							'amount' => $value['amount'] ?? null,
+							'discount_amount' => $value['discount_amount'] ?? null,
+							'discount_percent' => $value['discount_percent'] ?? null,
+							'gross_amount' => $value['gross_amount'] ?? null,
+							'updated_at' => Carbon::now(),
+							'updated_by' => $request->login_user_id,
+						];
+						QuotationDetail::where('quotation_detail_id', $value['quotation_detail_id'])->update($update);
+					}
+					if ($value['row_status'] == 'D') {
+						QuotationDetail::where('quotation_detail_id', $value['quotation_detail_id'])->delete();
+					}
+				} catch (\Exception $e) {
+					return $this->jsonResponse($e->getMessage(), 500, 'Error');
+				}
 			}
 		}
 
@@ -361,6 +393,25 @@ class QuotationController extends Controller
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		$data  = Quotation::where('quotation_id', $id)->first();
 		if (!$data) return $this->jsonResponse(['quotation_id' => $id], 404, "Quotation Not Found!");
+
+
+		$validate = [
+			'main' => [
+				'check' => new Quotation,
+				'id' => $id,
+				'key' => 'document_identity',
+			],
+			'with' => [
+				['model' => new ChargeOrder, 'key' => 'ref_document_identity'],
+			]
+		];
+
+		$response = $this->checkAndDelete($validate);
+		if ($response['error']) {
+			return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+		}
+
+
 		$data->delete();
 		QuotationDetail::where('quotation_id', $id)->delete();
 		QuotationStatus::where('quotation_id', $id)->delete();
@@ -373,11 +424,29 @@ class QuotationController extends Controller
 
 		try {
 			if (isset($request->quotation_ids) && !empty($request->quotation_ids) && is_array($request->quotation_ids)) {
-				foreach ($request->quotation_ids as $quotation_id) {
-					$user = Quotation::where(['quotation_id' => $quotation_id])->first();
-					$user->delete();
-					QuotationDetail::where('quotation_id', $quotation_id)->delete();
-					QuotationStatus::where('quotation_id', $quotation_id)->delete();
+				foreach ($request->quotation_ids as $id) {
+					$data = Quotation::where(['quotation_id' => $id])->first();
+
+
+					$validate = [
+						'main' => [
+							'check' => new Quotation,
+							'id' => $id,
+							'key' => 'document_identity',
+						],
+						'with' => [
+							['model' => new ChargeOrder, 'key' => 'ref_document_identity'],
+						]
+					];
+
+					$response = $this->checkAndDelete($validate);
+					if ($response['error']) {
+						return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+					}
+
+					$data->delete();
+					QuotationDetail::where('quotation_id', $id)->delete();
+					QuotationStatus::where('quotation_id', $id)->delete();
 				}
 			}
 

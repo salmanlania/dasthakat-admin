@@ -50,7 +50,12 @@ class WarehouseController extends Controller
 	public function validateRequest($request, $id = null)
 	{
 		$rules = [
-			'name' => ['required', Rule::unique('warehouse')->ignore($id, 'warehouse_id')->where('company_id', $request['company_id'])->where('company_branch_id', $request['company_branch_id'])],
+			'name' => ['required', Rule::unique('warehouse')->ignore($id, 'warehouse_id')
+			->where(function ($query) use ($request) {
+                return $query->where('company_id', $request['company_id'])
+                             ->where('company_branch_id', $request['company_branch_id']);
+            })
+			,],
 		];
 
 
@@ -91,8 +96,7 @@ class WarehouseController extends Controller
 		$user = Warehouse::create($insertArr);
 
 
-		$this->auditAction($request->all(), "Insert", "warehouse", "warehouse", $uuid, $request->name, $insertArr);
-
+	
 		return $this->jsonResponse(['warehouse_id' => $uuid], 200, "Add Warehouse Successfully!");
 	}
 
@@ -117,8 +121,7 @@ class WarehouseController extends Controller
 
 
 		$data->update();
-		$this->auditAction($request->all(), "Update", "warehouse", "warehouse", $id, $request->name, $data);
-
+	
 		return $this->jsonResponse(['warehouse_id' => $id], 200, "Update Warehouse Successfully!");
 	}
 	public function delete($id, Request $request)

@@ -33,7 +33,9 @@ class CompanyBranchController extends Controller
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
 		$data = CompanyBranch::LeftJoin('company', 'company_branch.company_id', 'company.company_id');
-		$data = $data->where('company_branch.company_id', '=', $request->company_id);
+		if($request->user->super_admin != 1){
+			$data = $data->where('company_branch.company_id', '=', $request->company_id);
+		}
 		if (!empty($company)) $data = $data->where('company.company_id', '=', $company);
 		if (!empty($name)) $data = $data->where('company_branch.name', 'like', '%' . $name . '%');
 		if (!empty($branch_code)) $data = $data->where('branch_code', 'like', '%' . $branch_code . '%');
@@ -42,10 +44,10 @@ class CompanyBranchController extends Controller
 			$search = strtolower($search);
 			$data = $data->where(function ($query) use ($search) {
 				$query
-					->where('name', 'like', '%' . $search . '%')
+					->where('company_branch.name', 'like', '%' . $search . '%')
 					->orWhere('company.name', 'like', '%' . $search . '%')
-					->orWhere('branch_code', 'like', '%' . $search . '%')
-					->orWhere('created_at', 'like', '%' . $search . '%');
+					->orWhere('company_branch.branch_code', 'like', '%' . $search . '%')
+					->orWhere('company_branch.created_at', 'like', '%' . $search . '%');
 			});
 		}
 
@@ -70,7 +72,7 @@ class CompanyBranchController extends Controller
 
 		$rules = [
 			'company' => 'required',
-			'name' => ['required', Rule::unique('company_branch')->ignore($id, 'company_branch_id')->where('company_id', $request['company_id'])],
+			'name' => ['required'],
 		];
 
 

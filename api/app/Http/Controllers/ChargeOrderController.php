@@ -160,18 +160,6 @@ class ChargeOrderController extends Controller
 			return [
 				"supplier_id" => $supplierId,
 				"supplier_name" => optional($items->first()->supplier)->name ?? "Unknown Supplier",
-				// "total_quantity" => $items->sum('quantity'),
-				// "total_amount" => $items->sum(fn($item) => $item->quantity * $item->cost_price),
-				// "items" => $items->map(function ($item) {
-				// 	return [
-				// 		"charge_order_detail_id" => $item->charge_order_detail_id,
-				// 		"product_id" => $item->product_id,
-				// 		"product_name" => $item->product_type_id == 3 ? $item->product->name : $item->product_name ?? null,
-				// 		"quantity" => $item->quantity,
-				// 		"cost_price" => $item->cost_price,
-				// 		"amount" => $item->quantity * $item->cost_price,
-				// 	];
-				// })->values(),
 			];
 		})->values();
 
@@ -191,7 +179,6 @@ class ChargeOrderController extends Controller
 			$shipVia = $vendor['ship_via'] ?? null;
 			$shipTo = $vendor['ship_to'] ?? null;
 
-			// Fetch charge order details using charge_order_id and supplier_id
 			$chargeOrderDetails = ChargeOrderDetail::whereHas('charge_order', function ($query) use ($chargeOrderId, $supplierId) {
 				$query->where('charge_order_id', $chargeOrderId)
 					->where('supplier_id', $supplierId);
@@ -207,7 +194,7 @@ class ChargeOrderController extends Controller
 			$totalQuantity = $chargeOrderDetails->sum('quantity');
 			$totalAmount = $chargeOrderDetails->sum(fn($item) => $item->quantity * $item->cost_price);
 			$vendorDetails = Supplier::where('supplier_id', $supplierId)->firstOrFail();
-			// Create Purchase Order
+
 			$purchaseOrder = [
 				'company_id'        => $request->company_id,
 				'company_branch_id' => $request->company_branch_id,
@@ -258,7 +245,6 @@ class ChargeOrderController extends Controller
 
 				PurchaseOrderDetail::insert($purchaseOrderDetail);
 
-				// Update Charge Order Details with Purchase Order ID
 				ChargeOrderDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)
 					->update([
 						'purchase_order_id'        => $uuid,
@@ -313,7 +299,7 @@ class ChargeOrderController extends Controller
 			'total_amount' => $request->total_amount ?? 0,
 			'discount_amount' => $request->discount_amount ?? 0,
 			'net_amount' => $request->net_amount ?? 0,
-			'created_at' => date('Y-m-d H:i:s'),
+			'created_at' => Carbon::now(),
 			'created_by' => $request->login_user_id,
 		];
 		ChargeOrder::create($insertArr);
@@ -338,7 +324,7 @@ class ChargeOrderController extends Controller
 					'supplier_id' => $value['supplier_id'] ?? "",
 					'vendor_part_no' => $value['vendor_part_no'] ?? "",
 					'cost_price' => $value['cost_price'] ?? "",
-					'markup' => $value['markup'] ?? "",					
+					'markup' => $value['markup'] ?? "",
 					'quantity' => $value['quantity'] ?? "",
 					'rate' => $value['rate'] ?? "",
 					'amount' => $value['amount'] ?? "",
@@ -389,55 +375,100 @@ class ChargeOrderController extends Controller
 		$data->total_amount = $request->total_amount;
 		$data->discount_amount = $request->discount_amount;
 		$data->net_amount = $request->net_amount;
-		$data->updated_at = date('Y-m-d H:i:s');
+		$data->updated_at = Carbon::now();
 		$data->updated_by = $request->login_user_id;
 		$data->update();
-		ChargeOrderDetail::where('charge_order_id', $id)->delete();
+
+
 		if ($request->charge_order_detail) {
 			foreach ($request->charge_order_detail as $key => $value) {
-				$detail_uuid = $this->get_uuid();
 				try {
-
-					$insertArr = [
-						'charge_order_id' => $id,
-						'charge_order_detail_id' => $detail_uuid,
-						'sort_order' => $value['sort_order'] ?? "",
-						'product_code' => $value['product_code'] ?? "",
-						'purchase_order_id' => $value['purchase_order_id'] ?? "",
-						'purchase_order_detail_id' => $value['purchase_order_detail_id'] ?? "",
-						'shipment_id' => $value['shipment_id'] ?? null,
-						'shipment_detail_id' => $value['shipment_detail_id'] ?? null,
-						'picklist_id' => $value['picklist_id'] ?? "",
-						'picklist_detail_id' => $value['picklist_detail_id'] ?? "",
-						'job_order_id' => $value['job_order_id'] ?? "",
-						'job_order_detail_id' => $value['job_order_detail_id'] ?? "",
-						'service_order_id' => $value['service_order_id'] ?? "",
-						'service_order_detail_id' => $value['service_order_detail_id'] ?? "",
-						'servicelist_id' => $value['servicelist_id'] ?? "",
-						'quotation_detail_id' => $value['quotation_detail_id'] ?? "",
-						'servicelist_detail_id' => $value['servicelist_detail_id'] ?? "",
-						'product_id' => $value['product_id'] ?? "",
-						'product_name' => $value['product_name'] ?? "",
-						'internal_notes' => $value['internal_notes'] ?? "",
-						'product_description' => $value['product_description'] ?? "",
-						'product_type_id' => $value['product_type_id'] ?? "",
-						'description' => $value['description'] ?? "",
-						'warehouse_id' => $value['warehouse_id'] ?? "",
-						'unit_id' => $value['unit_id'] ?? "",
-						'supplier_id' => $value['supplier_id'] ?? "",
-						'quantity' => $value['quantity'] ?? "",
-						'vendor_part_no' => $value['vendor_part_no'] ?? "",
-						'cost_price' => $value['cost_price'] ?? "",
-						'markup' => $value['markup'] ?? "",
-						'rate' => $value['rate'] ?? "",
-						'amount' => $value['amount'] ?? "",
-						'discount_amount' => $value['discount_amount'] ?? "",
-						'discount_percent' => $value['discount_percent'] ?? "",
-						'gross_amount' => $value['gross_amount'] ?? "",
-						'created_at' => date('Y-m-d H:i:s'),
-						'created_by' => $request->login_user_id,
-					];
-					ChargeOrderDetail::create($insertArr);
+					if ($value['row_status'] == 'I') {
+						$detail_uuid = $this->get_uuid();
+						$insertArr = [
+							'charge_order_id' => $id,
+							'charge_order_detail_id' => $detail_uuid,
+							'sort_order' => $value['sort_order'] ?? 0,
+							'product_code' => $value['product_code'] ?? null,
+							'purchase_order_id' => $value['purchase_order_id'] ?? null,
+							'purchase_order_detail_id' => $value['purchase_order_detail_id'] ?? null,
+							'shipment_id' => $value['shipment_id'] ?? null,
+							'shipment_detail_id' => $value['shipment_detail_id'] ?? null,
+							'picklist_id' => $value['picklist_id'] ?? null,
+							'picklist_detail_id' => $value['picklist_detail_id'] ?? null,
+							'job_order_id' => $value['job_order_id'] ?? null,
+							'job_order_detail_id' => $value['job_order_detail_id'] ?? null,
+							'service_order_id' => $value['service_order_id'] ?? null,
+							'service_order_detail_id' => $value['service_order_detail_id'] ?? null,
+							'servicelist_id' => $value['servicelist_id'] ?? null,
+							'servicelist_detail_id' => $value['servicelist_detail_id'] ?? null,
+							'quotation_detail_id' => $value['quotation_detail_id'] ?? null,
+							'product_id' => $value['product_id'] ?? null,
+							'product_name' => $value['product_name'] ?? null,
+							'internal_notes' => $value['internal_notes'] ?? null,
+							'product_description' => $value['product_description'] ?? null,
+							'product_type_id' => $value['product_type_id'] ?? null,
+							'description' => $value['description'] ?? null,
+							'warehouse_id' => $value['warehouse_id'] ?? null,
+							'unit_id' => $value['unit_id'] ?? null,
+							'supplier_id' => $value['supplier_id'] ?? null,
+							'quantity' => $value['quantity'] ?? null,
+							'vendor_part_no' => $value['vendor_part_no'] ?? null,
+							'cost_price' => $value['cost_price'] ?? null,
+							'markup' => $value['markup'] ?? null,
+							'rate' => $value['rate'] ?? null,
+							'amount' => $value['amount'] ?? null,
+							'discount_amount' => $value['discount_amount'] ?? null,
+							'discount_percent' => $value['discount_percent'] ?? null,
+							'gross_amount' => $value['gross_amount'] ?? null,
+							'created_at' => Carbon::now(),
+							'created_by' => $request->login_user_id,
+						];
+						ChargeOrderDetail::create($insertArr);
+					}
+					if ($value['row_status'] == 'U') {
+						$update = [
+							'sort_order' => $value['sort_order'] ?? 0,
+							'product_code' => $value['product_code'] ?? null,
+							'purchase_order_id' => $value['purchase_order_id'] ?? null,
+							'purchase_order_detail_id' => $value['purchase_order_detail_id'] ?? null,
+							'shipment_id' => $value['shipment_id'] ?? null,
+							'shipment_detail_id' => $value['shipment_detail_id'] ?? null,
+							'picklist_id' => $value['picklist_id'] ?? null,
+							'picklist_detail_id' => $value['picklist_detail_id'] ?? null,
+							'job_order_id' => $value['job_order_id'] ?? null,
+							'job_order_detail_id' => $value['job_order_detail_id'] ?? null,
+							'service_order_id' => $value['service_order_id'] ?? null,
+							'service_order_detail_id' => $value['service_order_detail_id'] ?? null,
+							'servicelist_id' => $value['servicelist_id'] ?? null,
+							'servicelist_detail_id' => $value['servicelist_detail_id'] ?? null,
+							'quotation_detail_id' => $value['quotation_detail_id'] ?? null,
+							'product_id' => $value['product_id'] ?? null,
+							'product_name' => $value['product_name'] ?? null,
+							'internal_notes' => $value['internal_notes'] ?? null,
+							'product_description' => $value['product_description'] ?? null,
+							'product_type_id' => $value['product_type_id'] ?? null,
+							'description' => $value['description'] ?? null,
+							'warehouse_id' => $value['warehouse_id'] ?? null,
+							'unit_id' => $value['unit_id'] ?? null,
+							'supplier_id' => $value['supplier_id'] ?? null,
+							'quantity' => $value['quantity'] ?? null,
+							'vendor_part_no' => $value['vendor_part_no'] ?? null,
+							'cost_price' => $value['cost_price'] ?? null,
+							'markup' => $value['markup'] ?? null,
+							'rate' => $value['rate'] ?? null,
+							'amount' => $value['amount'] ?? null,
+							'discount_amount' => $value['discount_amount'] ?? null,
+							'discount_percent' => $value['discount_percent'] ?? null,
+							'gross_amount' => $value['gross_amount'] ?? null,
+							'updated_at' => Carbon::now(),
+							'updated_by' => $request->login_user_id,
+						];
+						ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id'])->update($update);
+					}
+					if ($value['row_status'] == 'D') {
+						ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id'])->delete();
+					}
 				} catch (\Exception $e) {
 					return $this->jsonResponse($e->getMessage(), 500, 'Error');
 				}
@@ -484,19 +515,18 @@ class ChargeOrderController extends Controller
 
 		try {
 			if (isset($request->charge_order_ids) && !empty($request->charge_order_ids) && is_array($request->charge_order_ids)) {
-				foreach ($request->charge_order_ids as $charge_order_id) {
-					$user = ChargeOrder::where(['charge_order_id' => $charge_order_id])->first();
+				foreach ($request->charge_order_ids as $id) {
+					$data = ChargeOrder::where(['charge_order_id' => $id])->first();
 
 					$validate = [
 						'main' => [
 							'check' => new ChargeOrder,
-							'id' => $charge_order_id,
+							'id' => $id,
 						],
 						'with' => [
 							['model' => new PurchaseOrder],
 							['model' => new Picklist],
 							['model' => new Servicelist],
-							['model' => new Shipment],
 						]
 					];
 
@@ -505,8 +535,8 @@ class ChargeOrderController extends Controller
 						return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
 					}
 
-					$user->delete();
-					ChargeOrderDetail::where('charge_order_id', $charge_order_id)->delete();
+					$data->delete();
+					ChargeOrderDetail::where('charge_order_id', $id)->delete();
 				}
 			}
 
