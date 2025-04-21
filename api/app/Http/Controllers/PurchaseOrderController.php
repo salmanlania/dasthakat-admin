@@ -393,10 +393,10 @@ class PurchaseOrderController extends Controller
 					if (!empty($value['charge_order_detail_id'])) {
 						$chargeOrderDetail = ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id']);
 						$data = $chargeOrderDetail->first();
-						$quantity = $value['quantity'];
-						$rate = $data->rate;
+						$quantity = $value['quantity'] ?? 0;
+						$rate = $data->rate ?? 0;
 						$amount = $quantity * $rate;
-						$discount_percent = $data->discount_percent;
+						$discount_percent = $data->discount_percent ?? 0;
 						$discount_amount = ($amount * $discount_percent) / 100;
 						$gross_amount = $amount - $discount_amount;
 
@@ -413,7 +413,6 @@ class PurchaseOrderController extends Controller
 				if ($value['row_status'] == 'D') {
 					PurchaseOrderDetail::where('purchase_order_detail_id', $value['purchase_order_detail_id'])->delete();
 				}
-
 
 			}
 			if (!empty($request->charge_order_id)) {
@@ -488,14 +487,14 @@ class PurchaseOrderController extends Controller
 						return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
 					}
 
-					$purchaseOrderDetailIds = PurchaseOrderDetail::where('purchase_order_id', $purchase_order_id)->pluck('purchase_order_detail_id');
+					// $purchaseOrderDetailIds = PurchaseOrderDetail::where('purchase_order_id', $purchase_order_id)->pluck('purchase_order_detail_id');
 
 					// Update ChargeOrderDetail to set editable to true for the associated items
-					ChargeOrderDetail::whereIn('purchase_order_detail_id', $purchaseOrderDetailIds)
-						->update([
-							'purchase_order_id' => null,
-							'purchase_order_detail_id' => null,
-						]);
+					// ChargeOrderDetail::whereIn('purchase_order_detail_id', $purchaseOrderDetailIds)
+					// 	->update([
+					// 		'purchase_order_id' => null,
+					// 		'purchase_order_detail_id' => null,
+					// 	]);
 					$user->delete();
 					PurchaseOrderDetail::where('purchase_order_id', $purchase_order_id)->delete();
 				}

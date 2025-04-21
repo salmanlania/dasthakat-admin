@@ -199,8 +199,8 @@ class ChargeOrderController extends Controller
 				'company_id'        => $request->company_id,
 				'company_branch_id' => $request->company_branch_id,
 				'purchase_order_id' => $uuid,
-				'charge_order_id'   => $chargeOrderId ?? "", // Linking Charge Order ID
-				'quotation_id'   => $Quotation->quotation_id ?? "", // Linking Charge Order ID
+				'charge_order_id'   => $chargeOrderId ?? null, // Linking Charge Order ID
+				'quotation_id'   => $Quotation->quotation_id ?? null, // Linking Charge Order ID
 				'document_type_id'  => $document['document_type_id'] ?? null,
 				'document_no'       => $document['document_no'] ?? null,
 				'document_prefix'   => $document['document_prefix'] ?? null,
@@ -245,11 +245,11 @@ class ChargeOrderController extends Controller
 
 				PurchaseOrderDetail::insert($purchaseOrderDetail);
 
-				ChargeOrderDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)
-					->update([
-						'purchase_order_id'        => $uuid,
-						'purchase_order_detail_id' => $purchase_order_detail_id,
-					]);
+				// ChargeOrderDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)
+				// 	->update([
+				// 		'purchase_order_id'        => $uuid,
+				// 		'purchase_order_detail_id' => $purchase_order_detail_id,
+				// 	]);
 			}
 		}
 
