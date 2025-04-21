@@ -113,7 +113,7 @@ class GRNController extends Controller
 
 	public function store(Request $request)
 	{
-
+		// return $request->all();
 		if (!isPermission('add', 'good_received_note', $request->permission_list))
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
@@ -157,6 +157,7 @@ class GRNController extends Controller
 				$insert = [
 					'good_received_note_id' => $insertArr['good_received_note_id'],
 					'good_received_note_detail_id' => $detail_uuid,
+					'charge_order_detail_id' => $value['charge_order_detail_id'] ?? "",
 					'sort_order' => $value['sort_order'] ?? "",
 					'purchase_order_detail_id' => $value['purchase_order_detail_id'] ?? "",
 					'product_type_id' => $value['product_type_id'] ?? "",
@@ -209,6 +210,7 @@ class GRNController extends Controller
 
 	public function update(Request $request, $id)
 	{
+		// return $request->all();
 		if (!isPermission('edit', 'good_received_note', $request->permission_list))
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
@@ -245,6 +247,7 @@ class GRNController extends Controller
 				$insertArr = [
 					'good_received_note_id' => $id,
 					'good_received_note_detail_id' => $detail_uuid,
+					'charge_order_detail_id' => $value['charge_order_detail_id'] ?? "",
 					'sort_order' => $value['sort_order'] ?? "",
 					'purchase_order_detail_id' => $value['purchase_order_detail_id'] ?? "",
 					'product_type_id' => $value['product_type_id'] ?? "",

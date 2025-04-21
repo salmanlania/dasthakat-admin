@@ -82,6 +82,7 @@ const NewReceivesTab = ({ details }) => {
     key: detail.picklist_detail_id,
     product_name: detail?.product_name || '',
     product_id: detail.product_id,
+    charge_order_detail_id: detail.charge_order_detail_id,
     remaining_quantity: detail.remaining_quantity ? parseFloat(detail.remaining_quantity) : 0,
     original_quantity: detail.original_quantity ? parseFloat(detail.original_quantity) : 0,
     remarks: detail.remarks
@@ -180,6 +181,7 @@ const NewReceivesTab = ({ details }) => {
   const onSubmit = async (values) => {
     const details = values.details.map((detail, index) => ({
       picklist_detail_id: dataSource[index].id,
+      charge_order_detail_id: dataSource[index].charge_order_detail_id,
       product_id: dataSource[index].product_id,
       quantity: detail.remaining_quantity,
       remarks: detail.remarks,

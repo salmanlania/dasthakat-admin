@@ -145,6 +145,7 @@ class PurchaseInvoiceController extends Controller
 				$insert = [
 					'purchase_invoice_id' => $insertArr['purchase_invoice_id'],
 					'purchase_invoice_detail_id' => $detail_uuid,
+					'charge_order_detail_id' => $value->charge_order_detail_id ?? "",
 					'sort_order' => $value['sort_order'] ?? "",
 					'product_id' => $value['product_id'] ?? "",
 					'product_name' => $value['product_name'] ?? "",
@@ -210,6 +211,7 @@ class PurchaseInvoiceController extends Controller
 				$insertArr = [
 					'purchase_invoice_id' => $id,
 					'purchase_invoice_detail_id' => $detail_uuid,
+					'charge_order_detail_id' => $value->charge_order_detail_id ?? "",
 					'sort_order' => $value['sort_order'] ?? "",
 					'product_id' => $value['product_id'] ?? "",
 					'product_name' => $value['product_name'] ?? "",

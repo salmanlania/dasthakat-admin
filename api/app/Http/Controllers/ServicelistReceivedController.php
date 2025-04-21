@@ -57,6 +57,7 @@ class ServicelistReceivedController extends Controller
 						"original_quantity" => $originalQty,
 						"received_quantity" => $receivedQty,
 						"remaining_quantity" => $remainingQty,
+						"charge_order_detail_id" => $detail->charge_order_detail_id,
 					];
 				}
 			}
@@ -106,6 +107,8 @@ class ServicelistReceivedController extends Controller
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument($this->documentTypeId, $request);
 
+		$servicelist = Servicelist::where('servicelist_id', $id)->first();
+
 		ServicelistReceived::create([
 			'company_id' => $request->company_id,
 			'company_branch_id' => $request->company_branch_id,
@@ -116,6 +119,7 @@ class ServicelistReceivedController extends Controller
 			'document_identity' => $document['document_identity'],
 			'document_prefix' => $document['document_prefix'],
 			'servicelist_id' => $id,
+			'charge_order_id' => $servicelist->charge_order_id,
 			'total_quantity' => $request->total_quantity,
 			'created_at' => Carbon::now(),
 			'created_by' => $request->login_user_id,
@@ -128,6 +132,7 @@ class ServicelistReceivedController extends Controller
 				'servicelist_received_detail_id' => $this->get_uuid(),
 				'sort_order' => $key,
 				'servicelist_detail_id' => $item['servicelist_detail_id'],
+				'charge_order_detail_id' => $item['charge_order_detail_id'],
 				'warehouse_id' => $item['warehouse_id'],
 				'product_id' => $item['product_id'],
 				'remarks' => $item['remarks'] ?? null,

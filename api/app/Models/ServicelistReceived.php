@@ -22,6 +22,7 @@ class ServicelistReceived extends Model
         "document_date",
         "servicelist_id",
         "total_quantity",
+        "charge_order_id",
         "created_by",
         "updated_by"
     ];
@@ -29,6 +30,10 @@ class ServicelistReceived extends Model
     public function servicelist_received_detail()
     {
         return $this->hasMany(ServicelistReceivedDetail::class, 'servicelist_received_id', 'servicelist_received_id')->orderBy('sort_order');
+    }
+    public function charge_order()
+    {
+        return $this->hasOne(ChargeOrder::class, 'charge_order_id', 'charge_order_id');
     }
 
     public function servicelist()

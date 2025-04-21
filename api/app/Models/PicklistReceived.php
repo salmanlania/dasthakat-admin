@@ -21,6 +21,7 @@ class PicklistReceived extends Model
         "document_identity",
         "document_date",
         "picklist_id",
+        "charge_order_id",
         "total_quantity",
         "created_by",
         "updated_by"
@@ -29,6 +30,10 @@ class PicklistReceived extends Model
     public function picklist_received_detail()
     {
         return $this->hasMany(PicklistReceivedDetail::class, 'picklist_received_id', 'picklist_received_id')->orderBy('sort_order');
+    }
+    public function charge_order()
+    {
+        return $this->hasOne(ChargeOrder::class, 'charge_order_id', 'charge_order_id');
     }
 
     public function picklist()

@@ -53,6 +53,7 @@ class PicklistReceivedController extends Controller
 				if ($remainingQty > 0) {
 					$picklist_remainings[] = [
 						"picklist_detail_id" => $detail->picklist_detail_id,
+						"charge_order_detail_id" => $detail->charge_order_detail_id ?? null,
 						"product_id" => $productId,
 						"product_name" => $detail->product->name ?? "",
 						"product" => $detail->product ?? "",
@@ -70,6 +71,7 @@ class PicklistReceivedController extends Controller
 				// Find the original quantity from the picklist details
 				$originalQty = optional($picklist->picklist_detail->firstWhere('product_id', $detail->product_id))->quantity ?? 0;
 				$detail->original_quantity = $originalQty;
+				
 				return $detail;
 			});
 			return $received;
@@ -120,6 +122,7 @@ class PicklistReceivedController extends Controller
 			'document_identity' => $document['document_identity'],
 			'document_prefix' => $document['document_prefix'],
 			'picklist_id' => $id,
+			'charge_order_id' => $picklist->charge_order_id,
 			'total_quantity' => $request->total_quantity,
 			'created_at' => Carbon::now(),
 			'created_by' => $request->login_user_id,
@@ -136,6 +139,7 @@ class PicklistReceivedController extends Controller
 				'picklist_detail_id' => $item['picklist_detail_id'],
 				'warehouse_id' => $item['warehouse_id'],
 				'product_id' => $item['product_id'],
+				'charge_order_detail_id' => $item['charge_order_detail_id'],
 				'remarks' => $item['remarks'] ?? null,
 				'quantity' => $item['quantity'] ?? 0,
 				'created_at' => Carbon::now(),

@@ -319,6 +319,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
           product_name: detail.product_name,
           product_description: detail.product_description,
           description: detail.description,
+          charge_order_detail_id: detail.charge_order_detail_id,
           quantity: detail?.available_quantity ? parseFloat(detail?.available_quantity) : null,
           unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null
         }))
