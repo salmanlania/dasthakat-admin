@@ -93,10 +93,10 @@ const QuotationForm = ({ mode, onSubmit }) => {
   let totalAmount = 0;
   let discountAmount = 0;
   let totalNet = 0;
-  let typeId = 0
+  let typeId = 0;
 
   quotationDetails.forEach((detail) => {
-    typeId = detail?.product_type_id?.value
+    typeId = detail?.product_type_id?.value;
     totalQuantity += +detail.quantity || 0;
     // totalCost += +detail.cost_price || 0;
     if (typeId !== 1) {
@@ -123,6 +123,10 @@ const QuotationForm = ({ mode, onSubmit }) => {
     if (rebatePercentage > 100) return toast.error('Rebate Percentage cannot be greater than 100');
     if (salesmanPercentage > 100)
       return toast.error('Salesman Percentage cannot be greater than 100');
+
+    const filteredDetails = quotationDetails.filter(detail => 
+      !(detail.isDeleted && detail.row_status === 'I')
+    );
 
     const data = {
       attn: values.attn,
@@ -156,7 +160,9 @@ const QuotationForm = ({ mode, onSubmit }) => {
         unit_id: detail?.unit_id ? detail?.unit_id?.value : null,
         markup: detail.product_type_id?.value === 1 ? 0 : detail.markup,
         cost_price: detail.product_type_id?.value === 1 ? 0 : detail.cost_price,
-        sort_order: index
+        sort_order: index,
+        // quotation_detail_id: typeof id === 'number' ? id : null,
+        row_status: detail.row_status
       })),
       total_quantity: totalQuantity,
       total_Cost: totalCost,
@@ -1024,35 +1030,40 @@ const QuotationForm = ({ mode, onSubmit }) => {
         />
       ),
       key: 'action',
-      render: (_, { id }, index) => (
-        <Dropdown
-          trigger={['click']}
-          arrow
-          menu={{
-            items: [
-              {
-                key: '1',
-                label: 'Add',
-                onClick: () => dispatch(addQuotationDetail(index))
-              },
-              {
-                key: '2',
-                label: 'Copy',
-                onClick: () => dispatch(copyQuotationDetail(index))
-              },
-              {
-                key: '3',
-                label: 'Delete',
-                danger: true,
-                onClick: () => dispatch(removeQuotationDetail(id))
-              }
-            ]
-          }}>
-          <Button size="small">
-            <BsThreeDotsVertical />
-          </Button>
-        </Dropdown>
-      ),
+      render: (record, { id }, index) => {
+        if (record.isDeleted) {
+          return null;
+        }
+        return (
+          <Dropdown
+            trigger={['click']}
+            arrow
+            menu={{
+              items: [
+                {
+                  key: '1',
+                  label: 'Add',
+                  onClick: () => dispatch(addQuotationDetail(index))
+                },
+                {
+                  key: '2',
+                  label: 'Copy',
+                  onClick: () => dispatch(copyQuotationDetail(index))
+                },
+                {
+                  key: '3',
+                  label: 'Delete',
+                  danger: true,
+                  onClick: () => dispatch(removeQuotationDetail(id))
+                }
+              ]
+            }}>
+            <Button size="small">
+              <BsThreeDotsVertical />
+            </Button>
+          </Dropdown>
+        );
+      },
       width: 50,
       fixed: 'right'
     }
@@ -1360,7 +1371,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
 
       <Table
         columns={columns}
-        dataSource={quotationDetails}
+        // dataSource={quotationDetails}
+        dataSource={quotationDetails.filter(item => !item.isDeleted)}
         rowKey={'id'}
         size="small"
         scroll={{ x: 'calc(100% - 200px)' }}

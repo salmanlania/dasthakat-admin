@@ -140,7 +140,8 @@ export const quotationSlice = createSlice({
         rate: null,
         amount: null,
         discount_percent: '0',
-        gross_amount: null
+        gross_amount: null,
+        row_status: 'I'
       };
 
       // If index is provided, insert the new detail after that index, otherwise push it to the end
@@ -157,14 +158,29 @@ export const quotationSlice = createSlice({
       const detail = state.quotationDetails[index];
       const newDetail = {
         ...detail,
-        id: Date.now()
+        id: Date.now(),
+        row_status: 'I'
       };
 
       state.quotationDetails.splice(index + 1, 0, newDetail);
     },
 
+    // removeQuotationDetail: (state, action) => {
+    //   state.quotationDetails = state.quotationDetails.filter((item) => item.id !== action.payload);
+    // },
+
     removeQuotationDetail: (state, action) => {
-      state.quotationDetails = state.quotationDetails.filter((item) => item.id !== action.payload);
+      // Find the item by ID
+      const itemIndex = state.quotationDetails.findIndex(item => item.id === action.payload);
+
+      if (itemIndex !== -1) {
+        if (state.quotationDetails[itemIndex].row_status === 'I') {
+          state.quotationDetails = state.quotationDetails.filter((item) => item.id !== action.payload);
+        } else {
+          state.quotationDetails[itemIndex].row_status = 'D';
+          state.quotationDetails[itemIndex].isDeleted = true;
+        }
+      }
     },
 
     // Change the order of quotation details, from is the index of the item to be moved, to is the index of the item to be moved to
@@ -178,6 +194,28 @@ export const quotationSlice = createSlice({
     changeQuotationDetailValue: (state, action) => {
       const { index, key, value } = action.payload;
       const detail = state.quotationDetails[index];
+      console.log('detail.row_status', detail.row_status)
+
+      // if (detail.row_status !== 'I' && detail.row_status !== 'D') {
+      //   detail.row_status = 'N';
+      // }
+
+      // if (detail.row_status === 'N') {
+      //   detail.row_status = 'U';
+      // }
+
+      // if (detail.row_status === 'N') {
+      //   detail.row_status = 'U';
+      // }
+
+      if (
+        detail.row_status === 'N' &&
+        detail[key] !== value
+      ) {
+        detail.row_status = 'U';
+      }
+      
+
       detail[key] = value;
 
       const productType = detail.product_type_id;
@@ -235,8 +273,11 @@ export const quotationSlice = createSlice({
         rate: null,
         amount: null,
         discount_percent: '0',
-        gross_amount: null
+        gross_amount: null,
+        row_status: state.quotationDetails[index].row_status === 'N' ? 'U' : state.quotationDetails[index].row_status
       };
+
+      console.log('quotationDetails', state.quotationDetails)
     },
 
     setRebatePercentage: (state, action) => {
@@ -293,63 +334,63 @@ export const quotationSlice = createSlice({
         internal_notes: data.internal_notes,
         salesman_id: data.salesman
           ? {
-              value: data.salesman.salesman_id,
-              label: data.salesman.name
-            }
+            value: data.salesman.salesman_id,
+            label: data.salesman.name
+          }
           : null,
         event_id: data.event
           ? {
-              value: data.event.event_id,
-              label: data.event.event_name
-            }
+            value: data.event.event_id,
+            label: data.event.event_name
+          }
           : null,
         vessel_id: data.vessel
           ? {
-              value: data.vessel.vessel_id,
-              label: data.vessel.name
-            }
+            value: data.vessel.vessel_id,
+            label: data.vessel.name
+          }
           : null,
         customer_id: data.customer
           ? {
-              value: data.customer.customer_id,
-              label: data.customer.name
-            }
+            value: data.customer.customer_id,
+            label: data.customer.name
+          }
           : null,
         class1_id: data.class1
           ? {
-              value: data.class1.class_id,
-              label: data.class1.name
-            }
+            value: data.class1.class_id,
+            label: data.class1.name
+          }
           : null,
         class2_id: data.class2
           ? {
-              value: data.class2.class_id,
-              label: data.class2.name
-            }
+            value: data.class2.class_id,
+            label: data.class2.name
+          }
           : null,
         flag_id: data.flag
           ? {
-              value: data.flag.flag_id,
-              label: data.flag.name
-            }
+            value: data.flag.flag_id,
+            label: data.flag.name
+          }
           : null,
         person_incharge_id: data.person_incharge
           ? {
-              value: data.person_incharge.user_id,
-              label: data.person_incharge.user_name
-            }
+            value: data.person_incharge.user_id,
+            label: data.person_incharge.user_name
+          }
           : null,
         validity_id: data.validity
           ? {
-              value: data.validity.validity_id,
-              label: data.validity.name
-            }
+            value: data.validity.validity_id,
+            label: data.validity.name
+          }
           : null,
         payment_id: data.payment
           ? {
-              value: data.payment.payment_id,
-              label: data.payment.name
-            }
+            value: data.payment.payment_id,
+            label: data.payment.name
+          }
           : null,
         customer_ref: data.customer_ref,
         due_date: data.due_date ? dayjs(data.due_date) : null,
@@ -358,9 +399,9 @@ export const quotationSlice = createSlice({
         inclosure: data.inclosure,
         port_id: data.port
           ? {
-              value: data.port.port_id,
-              label: data.port.name
-            }
+            value: data.port.port_id,
+            label: data.port.name
+          }
           : null,
         term_id: data.term_id || null,
         term_desc: data.term_desc,
@@ -376,9 +417,9 @@ export const quotationSlice = createSlice({
           : null,
         product_type_id: detail.product_type
           ? {
-              value: detail.product_type.product_type_id,
-              label: detail.product_type.name
-            }
+            value: detail.product_type.product_type_id,
+            label: detail.product_type.name
+          }
           : null,
         product_name: detail.product_name,
         product_description: detail.product_description,
@@ -399,7 +440,9 @@ export const quotationSlice = createSlice({
         amount: detail.amount,
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_amount,
-        gross_amount: detail.gross_amount
+        gross_amount: detail.gross_amount,
+        row_status: 'N',
+        isDeleted: false
       }));
 
       state.rebatePercentage = data.rebate_percent;
@@ -417,6 +460,13 @@ export const quotationSlice = createSlice({
     });
     addCase(updateQuotation.fulfilled, (state) => {
       state.isFormSubmitting = false;
+      state.quotationDetails = state.quotationDetails
+        .filter(item => item.row_status !== 'D')
+        .map(item => ({
+          ...item,
+          row_status: 'N',
+          isDeleted: false
+        }));
       state.initialFormValues = null;
       state.rebatePercentage = null;
       state.salesmanPercentage = null;
