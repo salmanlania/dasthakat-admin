@@ -280,8 +280,7 @@ class GRNController extends Controller
 				if ($value['row_status'] == 'U') {
 
 					$update = [
-						'good_received_note_id' => $id,
-						'good_received_note_detail_id' => $detail_uuid,
+		
 						'sort_order' => $value['sort_order'] ?? 0,
 						'purchase_order_detail_id' => $value['purchase_order_detail_id'] ?? "",
 						'product_type_id' => $value['product_type_id'] ?? "",
