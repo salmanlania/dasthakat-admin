@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class PurchaseOrderController extends Controller
@@ -276,7 +277,7 @@ class PurchaseOrderController extends Controller
 			'remarks' => $request->remarks ?? "",
 			'total_quantity' => $request->total_quantity ?? "",
 			'total_amount' => $request->total_amount ?? "",
-			'created_at' => date('Y-m-d H:i:s'),
+			'created_at' => Carbon::now(),
 			'created_by' => $request->login_user_id,
 		];
 		PurchaseOrder::create($insertArr);
@@ -300,7 +301,7 @@ class PurchaseOrderController extends Controller
 					'rate' => $value['rate'] ?? "",
 					'amount' => $value['amount'] ?? "",
 					'vendor_notes' => $value['vendor_notes'] ?? "",
-					'created_at' => date('Y-m-d H:i:s'),
+					'created_at' => Carbon::now(),
 					'created_by' => $request->login_user_id,
 				];
 
@@ -340,107 +341,91 @@ class PurchaseOrderController extends Controller
 		$data->remarks = $request->remarks;
 		$data->total_quantity = $request->total_quantity;
 		$data->total_amount = $request->total_amount;
-		$data->updated_at = date('Y-m-d H:i:s');
+		$data->updated_at = Carbon::now();
 		$data->updated_by = $request->login_user_id;
-		// $data->update();
-
-
-		// Fetch existing purchase order details
-		$existingPurchaseOrderDetails = PurchaseOrderDetail::where('purchase_order_id', $id)
-			->pluck('purchase_order_detail_id')
-			->toArray();
-
-		// Get new purchase order details from the request
-		$newPurchaseOrderDetails = collect($request->purchase_order_detail)
-			->pluck('purchase_order_detail_id')
-			->toArray();
-
-		// Identify deleted purchase order details
-		$deletedPurchaseOrderDetails = array_diff($existingPurchaseOrderDetails, $newPurchaseOrderDetails);
-
-
-		if (!empty($deletedPurchaseOrderDetails)) {
-			ChargeOrderDetail::whereIn('purchase_order_detail_id', $deletedPurchaseOrderDetails)
-				->update([
-					'purchase_order_id' => null,
-					'purchase_order_detail_id' => null,
-				]);
-		}
-
-		PurchaseOrderDetail::where('purchase_order_id', $id)->delete();
-		$newDetailMappings = [];
-
+	
 		if ($request->purchase_order_detail) {
-			foreach ($request->purchase_order_detail as $key => $value) {
-				$detail_uuid = $this->get_uuid();
+			foreach ($request->purchase_order_detail as $value) {
+				if ($value['row_status'] == 'I') {
+					$detail_uuid = $this->get_uuid();
+					$insert = [
+						'purchase_order_id' => $id,
+						'purchase_order_detail_id' => $detail_uuid,
+						'sort_order' => $value['sort_order'] ?? 0,
+						'product_id' => $value['product_id'] ?? null,
+						'product_type_id' => $value['product_type_id'] ?? null,
+						'charge_order_detail_id' => $value['charge_order_detail_id'] ?? null,
+						'product_name' => $value['product_name'] ?? null,
+						'product_description' => $value['product_description'] ?? null,
+						'description' => $value['description'] ?? null,
+						'vpart' => $value['vpart'] ?? null,
+						'unit_id' => $value['unit_id'] ?? null,
+						'quantity' => $value['quantity'] ?? null,
+						'rate' => $value['rate'] ?? null,
+						'amount' => $value['amount'] ?? null,
+						'vendor_notes' => $value['vendor_notes'] ?? null,
+						'created_at' => Carbon::now(),
+						'created_by' => $request->login_user_id,
+					];
+					PurchaseOrderDetail::create($insert);
+				}
+				if ($value['row_status'] == 'U') {
+					$update = [
+						'sort_order' => $value['sort_order'] ?? 0,
+						'product_id' => $value['product_id'] ?? null,
+						'product_type_id' => $value['product_type_id'] ?? null,
+						'charge_order_detail_id' => $value['charge_order_detail_id'] ?? null,
+						'product_name' => $value['product_name'] ?? null,
+						'product_description' => $value['product_description'] ?? null,
+						'description' => $value['description'] ?? null,
+						'vpart' => $value['vpart'] ?? null,
+						'unit_id' => $value['unit_id'] ?? null,
+						'quantity' => $value['quantity'] ?? null,
+						'rate' => $value['rate'] ?? null,
+						'amount' => $value['amount'] ?? null,
+						'vendor_notes' => $value['vendor_notes'] ?? null,
+						'updated_at' => Carbon::now(),
+						'updated_by' => $request->login_user_id,
+					];
+					PurchaseOrderDetail::where('purchase_order_detail_id', $value['purchase_order_detail_id'])->update($update);
 
-				$insertArr = [
-					'purchase_order_id' => $id,
-					'purchase_order_detail_id' => $detail_uuid,
-					'sort_order' => $value['sort_order'] ?? "",
-					'product_id' => $value['product_id'] ?? "",
-					'product_type_id' => $value['product_type_id'] ?? "",
-					'charge_order_detail_id' => $value['charge_order_detail_id'] ?? "",
-					'product_name' => $value['product_name'] ?? "",
-					'product_description' => $value['product_description'] ?? "",
-					'description' => $value['description'] ?? "",
-					'vpart' => $value['vpart'] ?? "",
-					'unit_id' => $value['unit_id'] ?? "",
-					'quantity' => $value['quantity'] ?? "",
-					'rate' => $value['rate'] ?? "",
-					'amount' => $value['amount'] ?? "",
-					'vendor_notes' => $value['vendor_notes'] ?? "",
-					'created_at' => date('Y-m-d H:i:s'),
-					'created_by' => $request->login_user_id,
-				];
-				PurchaseOrderDetail::create($insertArr);
-				if (isset($value['charge_order_detail_id'])) {
-					$newDetailMappings[$value['charge_order_detail_id']] = $detail_uuid;
+					// Update Charge Order Detail if linked
+					if (!empty($value['charge_order_detail_id'])) {
+						$chargeOrderDetail = ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id']);
+						$data = $chargeOrderDetail->first();
+						$quantity = $value['quantity'];
+						$rate = $data->rate;
+						$amount = $quantity * $rate;
+						$discount_percent = $data->discount_percent;
+						$discount_amount = ($amount * $discount_percent) / 100;
+						$gross_amount = $amount - $discount_amount;
+
+						$chargeOrderDetail->update([
+							'quantity' => $quantity,
+							'rate' => $rate,
+							'amount' => $amount,
+							'discount_percent' => $discount_percent,
+							'discount_amount' => $discount_amount,
+							'gross_amount' => $gross_amount
+						]);
+					}
+				}
+				if ($value['row_status'] == 'D') {
+					PurchaseOrderDetail::where('purchase_order_detail_id', $value['purchase_order_detail_id'])->delete();
 				}
 
-				// Update Charge Order Detail if linked
-				if (!empty($value['charge_order_detail_id'])) {
-					$chargeOrderDetail = ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id']);
-					$data = $chargeOrderDetail->first();
-					$quantity = $value['quantity'];
-					$rate = $data->rate;
-					$amount = $quantity * $rate;
-					$discount_percent = $data->discount_percent;
-					$discount_amount = ($amount * $discount_percent) / 100;
-					$gross_amount = $amount - $discount_amount;
 
-					$chargeOrderDetail->update([
-						'quantity' => $quantity,
-						'rate' => $rate,
-						'amount' => $amount,
-						'discount_percent' => $discount_percent,
-						'discount_amount' => $discount_amount,
-						'gross_amount' => $gross_amount
-					]);
-				}
+			}
+			if (!empty($request->charge_order_id)) {
+				$data = ChargeOrder::where('charge_order_id', $request->charge_order_id)->first();
+				$detail = ChargeOrderDetail::where('charge_order_id', $request->charge_order_id);
+				$data->total_quantity = $detail->sum('quantity');
+				$data->total_amount = $detail->sum('amount');
+				$data->discount_amount = $detail->sum('discount_amount');
+				$data->net_amount = $detail->sum('gross_amount');
+				$data->update();
 			}
 		}
-		// return $this->jsonResponse($newDetailMappings, 400, "Delete Purchase Order successfully!");
-
-		// Update ChargeOrderDetail with new PO detail IDs
-		foreach ($newDetailMappings as $chargeOrderDetailId => $newPoDetailId) {
-			if (!empty($chargeOrderDetailId)) {
-				ChargeOrderDetail::where('charge_order_detail_id', $chargeOrderDetailId)
-					->update(['purchase_order_detail_id' => $newPoDetailId]);
-			}
-		}
-
-		if (!empty($request->charge_order_id)) {
-			$data = ChargeOrder::where('charge_order_id', $request->charge_order_id)->first();
-			$detail = ChargeOrderDetail::where('charge_order_id', $request->charge_order_id);
-			$data->total_quantity = $detail->sum('quantity');
-			$data->total_amount = $detail->sum('amount');
-			$data->discount_amount = $detail->sum('discount_amount');
-			$data->net_amount = $detail->sum('gross_amount');
-			$data->update();
-		}
-
-
 		return $this->jsonResponse(['purchase_order_id' => $id], 200, "Update Purchase Order Successfully!");
 	}
 	public function delete($id, Request $request)
