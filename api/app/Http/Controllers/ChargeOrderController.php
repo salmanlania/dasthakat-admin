@@ -14,6 +14,7 @@ use App\Models\PurchaseOrderDetail;
 use App\Models\Quotation;
 use App\Models\Salesman;
 use App\Models\Servicelist;
+use App\Models\ServicelistDetail;
 use App\Models\Shipment;
 use App\Models\StockLedger;
 use App\Models\Supplier;
@@ -354,6 +355,92 @@ class ChargeOrderController extends Controller
 			PicklistDetail::insert($picklistDetailInsert);
 		}
 	}
+	public function updateServicelist($request, $chargeOrder)
+	{
+		$inventoryDetails = $chargeOrder->charge_order_detail
+			->where('product_type_id', 1)
+			->where('servicelist_detail_id', null);
+
+		if ($inventoryDetails->isEmpty()) {
+			return;
+		}
+
+		$totalQuantity = $inventoryDetails->sum('quantity');
+		$uuid = $this->get_uuid();
+		$document = DocumentType::getNextDocument(46, $request);
+
+		$servicelist = Servicelist::firstOrCreate(
+			['charge_order_id' => $chargeOrder->charge_order_id],
+			[
+				'company_id'         => $request->company_id,
+				'company_branch_id'  => $request->company_branch_id,
+				'servicelist_id'        => $uuid,
+				'document_type_id'   => $document['document_type_id'],
+				'document_date'      =>  Carbon::now(),
+				'document_no'        => $document['document_no'],
+				'document_identity'  => $document['document_identity'],
+				'document_prefix'    => $document['document_prefix'],
+				'total_quantity'     => $totalQuantity,
+				'created_at'         =>  Carbon::now(),
+				'created_by'         => $request->login_user_id,
+			]
+		);
+
+		// If picklist already existed, update its total quantity
+		if (!$servicelist->wasRecentlyCreated) {
+			$servicelist->update([
+				'total_quantity' => $totalQuantity,
+				'updated_at'     =>  Carbon::now(),
+				'updated_by'     => $request->login_user_id,
+			]);
+		}
+
+		$existingDetails = ServicelistDetail::where('servicelist_id', $servicelist->servicelist_id)
+			->get()
+			->keyBy('charge_order_detail_id');
+
+		$existingChargeOrderDetailIds = $existingDetails->keys();
+
+		$newChargeOrderDetailIds = $inventoryDetails->pluck('charge_order_detail_id');
+
+		// Delete details that no longer exist
+		$detailsToDelete = $existingChargeOrderDetailIds->diff($newChargeOrderDetailIds);
+		if ($detailsToDelete->isNotEmpty()) {
+			ServicelistDetail::where('servicelist_id', $servicelist->servicelist_id)
+				->whereIn('charge_order_detail_id', $detailsToDelete)
+				->delete();
+		}
+
+		$servicelistDetailInsert = [];
+		$index = 0;
+
+		foreach ($inventoryDetails as $item) {
+			if (isset($existingDetails[$item->charge_order_detail_id])) {
+				// Update existing detail
+				$existingDetails[$item->charge_order_detail_id]->update([
+					'quantity'   => $item->quantity ?? 0,
+					'updated_at' =>  Carbon::now(),
+					'updated_by' => $request->login_user_id,
+				]);
+			} else {
+				// Insert new detail
+				$servicelistDetailInsert[] = [
+					'servicelist_id'            => $servicelist->servicelist_id,
+					'servicelist_detail_id'     => $this->get_uuid(),
+					'sort_order'             => $index++,
+					'charge_order_detail_id' => $item->charge_order_detail_id,
+					'product_id'             => $item->product_id,
+					'quantity'               => $item->quantity ?? 0,
+					'created_at'             =>  Carbon::now(),
+					'created_by'             => $request->login_user_id,
+				];
+			}
+		}
+
+		if (!empty($servicelistDetailInsert)) {
+			ServicelistDetail::insert($servicelistDetailInsert);
+		}
+	}
 
 
 
@@ -440,6 +527,7 @@ class ChargeOrderController extends Controller
 		}
 
 		$this->updatePicklist($request, $chargeOrder);
+		$this->updateServicelist($request, $chargeOrder);
 
 		return $this->jsonResponse(['charge_order_id' => $uuid], 200, "Add Charge Order Successfully!");
 	}
@@ -577,6 +665,7 @@ class ChargeOrderController extends Controller
 		}
 
 		$this->updatePicklist($request, $data);
+		$this->updateServicelist($request, $data);
 
 		return $this->jsonResponse(['charge_order_id' => $id], 200, "Update Charge Order Successfully!");
 	}
