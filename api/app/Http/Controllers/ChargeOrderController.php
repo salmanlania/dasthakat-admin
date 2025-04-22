@@ -100,8 +100,7 @@ class ChargeOrderController extends Controller
 			$data->technicians = User::whereIn('user_id', $technicianIds)->get(); // user_id used in technician_id
 		}
 		if ($data) {
-			foreach ($data->charge_order_detail as &$detail) {
-				$detail->picked_quantity = 	$this->getPickedQuantity($detail);
+			foreach ($data->charge_order_detail as $detail) {
 				if ($detail->product) {
 					$detail->product->stock = StockLedger::Check($detail->product, $request->all());
 				}
@@ -257,6 +256,12 @@ class ChargeOrderController extends Controller
 				];
 
 				PurchaseOrderDetail::insert($purchaseOrderDetail);
+
+				// ChargeOrderDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)
+				// 	->update([
+				// 		'purchase_order_id'        => $uuid,
+				// 		'purchase_order_detail_id' => $purchase_order_detail_id,
+				// 	]);
 			}
 		}
 
