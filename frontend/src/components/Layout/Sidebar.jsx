@@ -42,20 +42,16 @@ const Sidebar = () => {
 
   const onOpenChange = (openKeys) => {
     const currentOpenKey = openKeys.find((key) => stateOpenKeys.indexOf(key) === -1);
-    // open
     if (currentOpenKey !== undefined) {
       const repeatIndex = openKeys
         .filter((key) => key !== currentOpenKey)
         .findIndex((key) => levelKeys[key] === levelKeys[currentOpenKey]);
       setStateOpenKeys(
         openKeys
-          // remove repeat key
           .filter((_, index) => index !== repeatIndex)
-          // remove current level all child
           .filter((key) => levelKeys[key] <= levelKeys[currentOpenKey])
       );
     } else {
-      // close
       setStateOpenKeys(openKeys);
     }
   };
@@ -376,10 +372,10 @@ const Sidebar = () => {
       items.forEach((item) => {
         if (!item.disabled) {
           if (item.children && item.children.length > 0) {
-            // Traverse deeper into children
+
             traverse(item.children);
           } else {
-            // Add leaf nodes (last children)
+
             const label = typeof item.label === 'string' ? item.label : item.label?.props?.children;
             if (label && item.key) {
               result.push({ label, value: item.key });
@@ -424,26 +420,19 @@ const Sidebar = () => {
       if (e.ctrlKey && e.key === 'k') {
         e.preventDefault();
         if (isCollapsed) dispatch(toggleSidebar(false));
-        searchRef.current?.focus(); // Focus on the search box
+        searchRef.current?.focus(); 
       }
     };
 
-    // Attach event listeners
     window.addEventListener('resize', handleResize);
     window.addEventListener('keydown', handleShortcut);
 
-    // Cleanup event listeners on component unmount
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('keydown', handleShortcut);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
-
-  // useEffect(() => {
-  //   const currentParentKeys = getParentKeys(activeKey, items);
-  //   setStateOpenKeys(currentParentKeys);
-  // }, [pathname]);
 
   return (
     <Layout.Sider
@@ -482,8 +471,8 @@ const Sidebar = () => {
           onChange={(selectedKey) => {
             if (selectedKey) {
               const parentKeys = getParentKeys(selectedKey, items);
-              setStateOpenKeys(parentKeys); // Open the relevant menu sections
-              navigate(selectedKey); // Navigate to the selected page
+              setStateOpenKeys(parentKeys);
+              navigate(selectedKey);
               if (isSmallScreen) dispatch(toggleSidebar(true));
             }
           }}

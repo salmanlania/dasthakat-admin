@@ -12,20 +12,16 @@ import { Input } from 'antd';
  * @returns {JSX.Element} - NumberInput component
  */
 const NumberInput = ({ value = '', onChange = () => {}, type = 'integer', ...restProps }) => {
-  // Handle input change
   const handleInputChange = (e) => {
     let rawValue = e.target.value;
 
     if (type === 'integer') {
-      // Remove all non-numeric characters
       rawValue = rawValue.replace(/[^0-9]/g, '');
     } else if (type === 'decimal') {
-      // Allow only numbers and one decimal point
-      rawValue = rawValue.replace(/[^0-9.]/g, ''); // Remove invalid characters
-      rawValue = rawValue.replace(/^(\d*\.\d*)\./, '$1'); // Prevent multiple decimal points
+      rawValue = rawValue.replace(/[^0-9.]/g, '');
+      rawValue = rawValue.replace(/^(\d*\.\d*)\./, '$1'); 
     }
 
-    // Call the onChange prop with the cleaned value
     if (onChange) {
       onChange(rawValue);
     }
@@ -34,8 +30,8 @@ const NumberInput = ({ value = '', onChange = () => {}, type = 'integer', ...res
   return (
     <Input
       {...restProps}
-      value={value} // Value remains a plain number
-      onChange={handleInputChange} // Clean input based on type
+      value={value}
+      onChange={handleInputChange}
     />
   );
 };

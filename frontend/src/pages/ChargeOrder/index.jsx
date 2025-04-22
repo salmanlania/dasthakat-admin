@@ -424,7 +424,7 @@ const ChargeOrder = () => {
           }
           loading={isListLoading}
           className="event-grouped-table mt-2"
-          // rowKey="charge_order_id"
+
           rowKey={(record) =>
             record.isEventHeader ? record.charge_order_id : record.charge_order_id
           }
@@ -445,7 +445,6 @@ const ChargeOrder = () => {
               })
             );
           }}
-          // dataSource={list}
           dataSource={groupedData}
           showSorterTooltip={false}
           columns={columns}

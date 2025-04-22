@@ -30,17 +30,14 @@ const DebouncedCommaSeparatedInput = ({
   const [inputValue, setInputValue] = useState(value || value === 0 ? value.toString() : '');
   const debouncedValue = useDebounce(inputValue, delay);
 
-  // Handle input change
   const handleInputChange = (e) => {
-    let rawValue = e.target.value.replace(/[^0-9.]/g, ''); // Allow only numbers and dots
+    let rawValue = e.target.value.replace(/[^0-9.]/g, '');
 
-    // Restrict to only one dot
     const parts = rawValue.split('.');
     if (parts.length > 2) {
       rawValue = parts[0] + '.' + parts.slice(1).join('');
     }
 
-    // Restrict to the specified number of decimal places
     if (rawValue.includes('.')) {
       const [integerPart, decimalPart] = rawValue.split('.');
       rawValue = `${integerPart}.${decimalPart.slice(0, decimalPlaces)}`;
@@ -48,9 +45,8 @@ const DebouncedCommaSeparatedInput = ({
 
     const formattedValue = formatThreeDigitCommas(rawValue);
 
-    // Call the onChange prop with the raw value (without commas)
     if (onChange) {
-      setInputValue(removeCommas(formattedValue)); // Pass the raw value without commas to the form
+      setInputValue(removeCommas(formattedValue));
     }
   };
 
@@ -70,8 +66,8 @@ const DebouncedCommaSeparatedInput = ({
   return (
     <Input
       {...restProps}
-      value={formatThreeDigitCommas(inputValue)} // Display the formatted value with commas
-      onChange={handleInputChange} // Handle input change and format the value
+      value={formatThreeDigitCommas(inputValue)}
+      onChange={handleInputChange}
     />
   );
 };

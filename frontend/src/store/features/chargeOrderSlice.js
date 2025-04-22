@@ -247,8 +247,6 @@ export const chargeOrderSlice = createSlice({
 
       const { editable, purchase_order_id, purchase_order_detail_id, ...detail } =
         state.chargeOrderDetails[index];
-
-        console.log(detail)
       const newDetail = {
         ...detail,
         purchase_order_id: null,
@@ -265,8 +263,6 @@ export const chargeOrderSlice = createSlice({
         id: Date.now(),
         row_status: 'U'
       };
-
-      console.log('newDetail' , newDetail)
 
       state.chargeOrderDetails.splice(index + 1, 0, newDetail);
     },

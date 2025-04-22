@@ -23,7 +23,6 @@ const MainLayout = () => {
     return <Navigate to="/login" state={{ prevUrl: `${location.pathname}${location.search}` }} />;
   }
 
-  // Show not found page if user has no permission to access the page
   if (href === '/user' && !permissions.user.list) return <NotFound />;
   if (href === '/user/create' && !permissions.user.add) return <NotFound />;
   if (href.startsWith('/user/edit') && !permissions.user.edit) return <NotFound />;

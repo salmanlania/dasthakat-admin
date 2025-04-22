@@ -64,7 +64,6 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       payment_id: values.payment_id ? values.payment_id.value : null,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
       good_received_note_detail: goodsReceivedNoteDetails.map(({ id, ...detail }, index) => {
-        console.log('detail' , detail)
         return {
         ...detail,
         product_id: detail.product_type_id?.value == 4 ? null : detail.product_id.value,
@@ -73,7 +72,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
         warehouse_id: detail.warehouse_id ? detail.warehouse_id.value : null,
         unit_id: detail.unit_id ? detail.unit_id.value : null,
         sort_order: index,
-        // row_status: detail.row_status,
+        row_status: detail.row_status,
         good_received_note_detail_id: id ? id : null
       }}),
       total_quantity: totalQuantity
@@ -847,7 +846,6 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
 
       <Table
         columns={columns}
-        // dataSource={goodsReceivedNoteDetails}
         dataSource={goodsReceivedNoteDetails.filter((item) => !item.isDeleted)}
         rowKey={'id'}
         size="small"
@@ -870,7 +868,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
           <Button
             type="primary"
             className="w-28 bg-rose-600 hover:!bg-rose-500"
-            // onClick={printGoodsReceivedNote}
+            onClick={printGoodsReceivedNote}
           >
             Print
           </Button>

@@ -83,9 +83,9 @@ const AsyncSelect = ({
   const handleScroll = () => {
     const { scrollTop, scrollHeight, clientHeight } = dropdownRef.current;
     if (scrollTop + clientHeight === scrollHeight && hasMore && !loading) {
-      const nextPage = page + 1; // Calculate the next page
-      setPage(nextPage); // Update the page state
-      fetchData(searchValue, nextPage, true); // Fetch data for the next page
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchData(searchValue, nextPage, true);
     }
   };
 

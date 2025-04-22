@@ -261,7 +261,7 @@ const GoodsReceivedNote = () => {
                   type="primary"
                   className="bg-rose-600 hover:!bg-rose-500"
                   icon={<FaRegFilePdf size={14} />}
-                  // onClick={() => printGoodsReceivedNote(purchase_order_id)}
+                  onClick={() => printGoodsReceivedNote(purchase_order_id)}
                 />
               </Tooltip>
               <Tooltip title="Edit">

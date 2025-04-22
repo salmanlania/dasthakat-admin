@@ -189,13 +189,6 @@ const ProductForm = ({ mode, onSubmit }) => {
               <Form.Item
                 name="short_code"
                 label="Short Code"
-                // rules={[
-                //   {
-                //     required: true,
-                //     whitespace: true,
-                //     message: 'Name is required'
-                //   }
-                // ]}
                 >
                 <Input />
               </Form.Item>

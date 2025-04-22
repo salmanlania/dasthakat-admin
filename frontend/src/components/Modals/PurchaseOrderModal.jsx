@@ -95,7 +95,6 @@ const PurchaseOrderModal = () => {
       return detail;
     });
 
-    // Update the form field rules
     form.setFields([
       {
         name: `required_date_${supplierId}`,
@@ -167,8 +166,8 @@ const PurchaseOrderModal = () => {
                   label="Required Date"
                   rules={[
                     {
-                      required: detail?.checked ? true : false, // Make it required only if detail.checked is true
-                      message: 'Required Date is required' // Error message if the field is empty
+                      required: detail?.checked ? true : false,
+                      message: 'Required Date is required'
                     }
                   ]}>
                   <DatePicker

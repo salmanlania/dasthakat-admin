@@ -23,17 +23,14 @@ const CommaSeparatedInput = ({
   decimalPlaces = 2,
   ...restProps
 }) => {
-  // Handle input change
   const handleInputChange = (e) => {
-    let rawValue = e.target.value.replace(/[^0-9.]/g, ''); // Allow only numbers and dots
+    let rawValue = e.target.value.replace(/[^0-9.]/g, '');
 
-    // Restrict to only one dot
     const parts = rawValue.split('.');
     if (parts.length > 2) {
       rawValue = parts[0] + '.' + parts.slice(1).join('');
     }
 
-    // Restrict to the specified number of decimal places
     if (rawValue.includes('.')) {
       const [integerPart, decimalPart] = rawValue.split('.');
       rawValue = `${integerPart}.${decimalPart.slice(0, decimalPlaces)}`;
@@ -41,17 +38,16 @@ const CommaSeparatedInput = ({
 
     const formattedValue = formatThreeDigitCommas(rawValue);
 
-    // Call the onChange prop with the raw value (without commas)
     if (onChange) {
-      onChange(removeCommas(formattedValue)); // Pass the raw value without commas to the form
+      onChange(removeCommas(formattedValue));
     }
   };
 
   return (
     <Input
       {...restProps}
-      value={formatThreeDigitCommas(value)} // Display the formatted value with commas
-      onChange={handleInputChange} // Handle input change and format the value
+      value={formatThreeDigitCommas(value)}
+      onChange={handleInputChange}
     />
   );
 };
