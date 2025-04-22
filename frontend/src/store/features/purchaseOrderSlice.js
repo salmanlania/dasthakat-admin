@@ -157,11 +157,12 @@ export const purchaseOrderSlice = createSlice({
       const index = action.payload;
 
       const detail = state.purchaseOrderDetails[index];
+
       const newDetail = {
         ...detail,
         id: Date.now(),
         row_status: 'U'
-      };
+      }
 
       state.purchaseOrderDetails.splice(index + 1, 0, newDetail);
     },

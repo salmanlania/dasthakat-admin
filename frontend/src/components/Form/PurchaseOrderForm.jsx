@@ -375,6 +375,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       dataIndex: 'product_name',
       key: 'product_name',
       render: (_, { product_id, product_name, product_type_id }, index) => {
+        form.setFieldsValue({ [`product_name-${index}`]: product_name });
         return product_type_id?.value == 4 ? (
           <Form.Item
             className="m-0"
@@ -443,6 +444,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       dataIndex: 'product_description',
       key: 'product_description',
       render: (_, { product_description, product_type_id }, index) => {
+        form.setFieldsValue({ [`product_description-${index}`]: product_description });
         return (
           <Form.Item
             className="m-0"
