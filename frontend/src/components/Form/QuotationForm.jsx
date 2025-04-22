@@ -93,13 +93,14 @@ const QuotationForm = ({ mode, onSubmit }) => {
   let totalAmount = 0;
   let discountAmount = 0;
   let totalNet = 0;
+  let totalProfit = 0;
   let typeId = 0;
 
   quotationDetails.forEach((detail) => {
     typeId = detail?.product_type_id?.value;
     totalQuantity += +detail.quantity || 0;
     if (typeId !== 1) {
-      totalCost += +detail.cost_price || 0;
+      totalCost += (+detail.quantity || 0) * (+detail.cost_price || 0);
     }
     totalAmount += +detail.amount || 0;
     discountAmount += +detail.discount_amount || 0;
@@ -116,15 +117,17 @@ const QuotationForm = ({ mode, onSubmit }) => {
       ? formatThreeDigitCommas(roundUpto(totalNet * (salesmanPercentage / 100)))
       : 0;
 
-  const finalAmount = roundUpto((totalNet || 0) - (rebateAmount || 0) - (salesmanAmount || 0)) || 0;
+  const finalAmount = roundUpto(parseInt(totalNet || 0) - parseInt(rebateAmount || 0) - parseInt(salesmanAmount || 0)) || 0;
+
+  totalProfit = roundUpto(finalAmount - totalCost);
 
   const onFinish = (values) => {
     if (rebatePercentage > 100) return toast.error('Rebate Percentage cannot be greater than 100');
     if (salesmanPercentage > 100)
       return toast.error('Salesman Percentage cannot be greater than 100');
 
-    const filteredDetails = quotationDetails.filter(detail => 
-      !(detail.isDeleted && detail.row_status === 'I')
+    const filteredDetails = quotationDetails.filter(
+      (detail) => !(detail.isDeleted && detail.row_status === 'I')
     );
 
     const data = {
@@ -152,19 +155,20 @@ const QuotationForm = ({ mode, onSubmit }) => {
       status: values.status,
       quotation_detail: quotationDetails.map(({ id, product_type, ...detail }, index) => {
         return {
-        ...detail,
-        product_id: detail.product_type_id?.value == 4 ? null : detail?.product_id?.value,
-        product_name: detail.product_type_id?.value == 4 ? detail?.product_name : null,
-        supplier_id: detail.supplier_id ? detail?.supplier_id?.value : null,
-        product_type_id: detail?.product_type_id ? detail?.product_type_id?.value : null,
-        unit_id: detail?.unit_id ? detail?.unit_id?.value : null,
-        markup: detail.product_type_id?.value === 1 ? 0 : detail.markup,
-        cost_price: detail.product_type_id?.value === 1 ? 0 : detail.cost_price,
-        sort_order: index,
-        quotation_detail_id: typeof id === 'number' ? id : null,
-        row_status: detail.row_status,
-        quotation_detail_id: id ? id : null
-      }}),
+          ...detail,
+          product_id: detail.product_type_id?.value == 4 ? null : detail?.product_id?.value,
+          product_name: detail.product_type_id?.value == 4 ? detail?.product_name : null,
+          supplier_id: detail.supplier_id ? detail?.supplier_id?.value : null,
+          product_type_id: detail?.product_type_id ? detail?.product_type_id?.value : null,
+          unit_id: detail?.unit_id ? detail?.unit_id?.value : null,
+          markup: detail.product_type_id?.value === 1 ? 0 : detail.markup,
+          cost_price: detail.product_type_id?.value === 1 ? 0 : detail.cost_price,
+          sort_order: index,
+          quotation_detail_id: typeof id === 'number' ? id : null,
+          row_status: detail.row_status,
+          quotation_detail_id: id ? id : null
+        };
+      }),
       total_quantity: totalQuantity,
       total_Cost: totalCost,
       total_discount: discountAmount,
@@ -504,7 +508,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </div>
         );
       },
-      width: 50
+      width: 50,
+      fixed: 'left'
     },
     {
       title: 'Sr.',
@@ -513,7 +518,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
       render: (_, record, index) => {
         return <>{index + 1}.</>;
       },
-      width: 50
+      width: 50,
+      fixed: 'left'
     },
     {
       title: 'Product Type',
@@ -541,7 +547,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 150
+      width: 120,
+      fixed: 'left'
     },
     {
       title: 'Product Code',
@@ -566,7 +573,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 120
+      width: 120,
+      fixed: 'left'
     },
     {
       title: 'Product Name',
@@ -634,7 +642,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         );
       },
-      width: 560
+      width: 330,
+      fixed: 'left'
     },
     {
       title: 'Description',
@@ -669,7 +678,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         );
       },
-      width: 300
+      width: 300,
+      fixed: 'left'
     },
     {
       title: 'Customer Notes',
@@ -1369,7 +1379,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
 
       <Table
         columns={columns}
-        dataSource={quotationDetails.filter(item => !item.isDeleted)}
+        dataSource={quotationDetails.filter((item) => !item.isDeleted)}
         rowKey={'id'}
         size="small"
         scroll={{ x: 'calc(100% - 200px)' }}
@@ -1391,6 +1401,12 @@ const QuotationForm = ({ mode, onSubmit }) => {
             <DetailSummaryInfo
               title="Total Cost:"
               value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
+            />
+          </Col>
+          <Col span={24} sm={12} md={6} lg={6}>
+            <DetailSummaryInfo
+              title="Total Profit:"
+              value={formatThreeDigitCommas(roundUpto(totalProfit)) || 0}
             />
           </Col>
 

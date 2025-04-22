@@ -66,6 +66,7 @@ const IJO = () => {
 
     try {
       const data = await dispatch(getIJOForPrint(id)).unwrap();
+      console.log('data' , data)
       toast.dismiss(loadingToast);
       createIJOPrint(data);
     } catch (error) {

@@ -257,7 +257,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         content: 'Order Qty',
         styles: {
           fontStyle: 'bold',
-          halign: 'right',
+          halign: 'center',
           valign: 'middle',
           fillColor: [255, 255, 255]
         }
@@ -319,17 +319,17 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
             return '';
           })(),
           styles: {
-            halign: 'right',
+            halign: 'center',
             fillColor: rowBackgroundColor
           }
         },       
         {
           content: detail?.unit?.name || '',
-          styles: { halign: 'left', fillColor: rowBackgroundColor }
+          styles: { halign: 'center', fillColor: rowBackgroundColor }
         },
         {
           content: '',
-          styles: { halign: 'right', fillColor: rowBackgroundColor }
+          styles: { halign: 'center', fillColor: rowBackgroundColor }
         },
 
       ]);

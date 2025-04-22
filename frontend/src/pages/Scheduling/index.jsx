@@ -152,7 +152,8 @@ const Scheduling = () => {
         technician_id: null,
         vessel_id: null,
         agent_id: null,
-        event_id: null
+        event_id: null,
+        sort_direction: 'ascend'
       };
 
       const data = await dispatch(getDispatchList(exportParams)).unwrap();
@@ -187,7 +188,8 @@ const Scheduling = () => {
         technician_id: null,
         vessel_id: null,
         agent_id: null,
-        event_id: null
+        event_id: null,
+        sort_direction: 'ascend'
       };
 
       const data = await dispatch(getDispatchList(exportParams)).unwrap();
