@@ -129,9 +129,9 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       form.setFieldsValue({
         [`product_id-${index}`]: product?.product_id
           ? {
-              value: product.product_id,
-              label: product.product_name
-            }
+            value: product.product_id,
+            label: product.product_name
+          }
           : null,
         [`product_description-${index}`]: product?.product_name || ''
       });
@@ -161,9 +161,9 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           key: 'product_type_id',
           value: product.product_type_id
             ? {
-                value: product.product_type_id,
-                label: product.product_type_name
-              }
+              value: product.product_type_id,
+              label: product.product_type_name
+            }
             : null
         })
       );
@@ -287,9 +287,9 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           key: 'product_type_id',
           value: product.product_type_id
             ? {
-                value: product.product_type_id,
-                label: product.product_type_name
-              }
+              value: product.product_type_id,
+              label: product.product_type_name
+            }
             : null
         })
       );
@@ -665,6 +665,17 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
                 {
                   required: true,
                   message: 'Quantity is required',
+                },
+                {
+                  validator: (_, value, callback, source) => {
+                    const parsed = parseFloat(value?.toString().replace(/,/g, ''));
+                    const receivedQty = chargeOrderDetails[index]?.picked_quantity || 0; // example source
+                    console.log(receivedQty)
+                    if (parsed < receivedQty) {
+                      return Promise.reject(`Less Than Received Quantity (${receivedQty})`);
+                    }
+                    return Promise.resolve();
+                  }
                 }
               ]}>
               <DebouncedCommaSeparatedInput
@@ -1076,16 +1087,15 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         mode === 'edit' || chargeOrder_id
           ? initialFormValues
           : {
-              document_date: dayjs()
-            }
+            document_date: dayjs()
+          }
       }>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
         <span className="text-gray-500">Charge order No:</span>
         <span
-          className={`ml-4 text-amber-600 ${
-            mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : 'select-none'
-          } rounded px-1`}
+          className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : 'select-none'
+            } rounded px-1`}
           onClick={() => {
             if (mode !== 'edit') return;
             navigator.clipboard.writeText(initialFormValues.document_identity);
@@ -1222,7 +1232,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         sticky={{
           offsetHeader: 56
         }}
-        // rowClassName={getRowClassName}
+      // rowClassName={getRowClassName}
       />
 
       <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">

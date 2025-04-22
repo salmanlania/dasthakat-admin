@@ -44,30 +44,30 @@ class Controller extends BaseController
 
     public function sentMail($data)
     {
-        
+
         if (empty($data['name'])) return false;
-        
+
         //if Debug on email will be sent to administrator only
         $config = Setting::where('module', 'mail')->pluck('value', 'field');
         if (@$config['debug'] == 1) {
             $data["email"] = $config['debug_email'];
         }
-        
+
         $_return = "";
         // Email Generate update Settings
         $this->getSettings(true);
-        
+
         // try {
-            $insdata = [
-                'template' => $data['template'],
-                'name' => $data['name'],
-                'subject' => $data['subject'],
-                'message' => $data['message'],
-                'data' => $data['data'] ?? [],
-            ];
-            // dd($insdata);
-            Mail::to($data["email"])->send(new GenerateMail($insdata));
-            // dd(1);
+        $insdata = [
+            'template' => $data['template'],
+            'name' => $data['name'],
+            'subject' => $data['subject'],
+            'message' => $data['message'],
+            'data' => $data['data'] ?? [],
+        ];
+        // dd($insdata);
+        Mail::to($data["email"])->send(new GenerateMail($insdata));
+        // dd(1);
         // } catch (\Exception $e) {
         //     Log::error('Email sending failed: ' . $e->getMessage());
         //     $_return = "Email Not Sent.Please Check Your Email or Contact to your Administrator!";
@@ -91,30 +91,28 @@ class Controller extends BaseController
             'encryption' => @$config['smtp_encryption'] ? @$config['smtp_encryption'] :  env('MAIL_ENCRYPTION'),
             'username' => @$config['smtp_user'] ? @$config['smtp_user'] :  env('MAIL_USERNAME'),
             'password' => @$config['smtp_password'] ? @$config['smtp_password'] :  env('MAIL_PASSWORD'),
-            'from_name' => @$config['display_name'] ? @$config['display_name'] : env('MAIL_FROM_NAME'), 
-       
+            'from_name' => @$config['display_name'] ? @$config['display_name'] : env('MAIL_FROM_NAME'),
+
         ];
         // dd($setting);
         if ($is_email == true)
             updateMailConfig($setting);
-
-
     }
 
 
-  
+
     public function testApi()
     {
         // $users = $this->dbset()->get();
-	
+
         $users = User::get();
-	// exit;
-	
-	// test setting
-	$this->getSettings(true);
-	
+        // exit;
+
+        // test setting
+        $this->getSettings(true);
+
         $data = [
-	    'email' => 'test',
+            'email' => 'test',
             'name' => 'Dear Test',
             'subject' => 'Your Dynamic Subject Here',
             'message' => ' Thank you for Registering to our platform.<br>
@@ -122,10 +120,10 @@ class Controller extends BaseController
                     Please remember to login. <br>
 		    <br> You can access your Account to management your Quote Request and change your password here. <br> servermail@gmail.com'
         ];
-	
-	
-	// Sent Email
-	$this->sentMail($data );
+
+
+        // Sent Email
+        $this->sentMail($data);
         return response()->json(['message' => 'Email sent successfully']);
 
 
@@ -205,17 +203,17 @@ class Controller extends BaseController
 
     public function convertImageToBase64($path)
     {
-      
-    
+
+
         if (!file_exists($path)) {
             return response()->json(['error' => 'Image not found'], 404);
         }
-    
+
         $imageData = base64_encode(file_get_contents($path));
         $mimeType = mime_content_type($path); // e.g., image/png
-    
+
         $base64Image = "data:$mimeType;base64,$imageData";
-    
+
         return $base64Image;
     }
 
@@ -324,40 +322,29 @@ class Controller extends BaseController
     static public function getPickedQuantity($row)
     {
         if ($row->product_type_id == 1) {
-            $quantity = ServicelistReceivedDetail::join('servicelist_received', 'servicelist_received_detail.servicelist_received_id', '=', 'servicelist_received.servicelist_received_id')
-                ->join('servicelist', 'servicelist_received.servicelist_id', '=', 'servicelist.servicelist_id')
-                ->where('servicelist.charge_order_id', $row->charge_order_id)
-                ->where('servicelist_received_detail.product_id', $row->product_id)
-                ->sum('servicelist_received_detail.quantity');
+            $quantity = ServicelistReceivedDetail::query()
+                ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                ->sum('quantity');
         } else
 		if ($row->product_type_id == 2) {
-            $quantity = PicklistReceivedDetail::join('picklist_received', 'picklist_received_detail.picklist_received_id', '=', 'picklist_received.picklist_received_id')
-                ->join('picklist', 'picklist_received.picklist_id', '=', 'picklist.picklist_id')
-                ->where('picklist.charge_order_id', $row->charge_order_id)
-                ->where('picklist_received_detail.product_id', $row->product_id)
-                ->sum('picklist_received_detail.quantity');
+            $quantity = PicklistReceivedDetail::query()
+                ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                ->sum('quantity');
         } else
 		if ($row->product_type_id == 3 || $row->product_type_id == 4) {
-            $quantity = GRNDetail::join('purchase_order_detail as pod', 'good_received_note_detail.purchase_order_detail_id', '=', 'pod.purchase_order_detail_id')
-                ->join('purchase_order as po', 'pod.purchase_order_id', '=', 'po.purchase_order_id')
-                ->where('po.charge_order_id', $row->charge_order_id);
-
-            if ($row->product_type_id == 4) {
-                $quantity->where('good_received_note_detail.product_name', $row->product_name);
-            } else {
-                $quantity->where('good_received_note_detail.product_id', $row->product_id);
-            }
-
-            $quantity = $quantity->sum('good_received_note_detail.quantity');
+            $quantity = GRNDetail::query()
+                ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                ->sum('quantity');
+        } else {
+            $quantity = 0;
         }
         return $quantity;
     }
     static public function getShipmentQuantity($row)
     {
-        $quantity = ShipmentDetail::join('shipment as s', 's.shipment_id', '=', 'shipment_detail.shipment_id')
-            ->where('s.charge_order_id', $row->charge_order_id)
-            ->where('shipment_detail.product_id', $row->product_id)
-            ->sum('shipment_detail.quantity');
+        $quantity = ShipmentDetail::query()
+            ->where('charge_order_detail_id', $row->charge_order_detail_id)
+            ->sum('quantity');
 
         return $quantity;
     }
