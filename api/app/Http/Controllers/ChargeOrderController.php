@@ -267,6 +267,95 @@ class ChargeOrderController extends Controller
 		return $this->jsonResponse(null, 200, "Purchase Orders Created Successfully.");
 	}
 
+	public function updatePicklist($request, $chargeOrder)
+	{
+		$inventoryDetails = $chargeOrder->charge_order_detail
+			->where('product_type_id', 2)
+			->where('picklist_detail_id', null);
+
+		if ($inventoryDetails->isEmpty()) {
+			return;
+		}
+
+		$totalQuantity = $inventoryDetails->sum('quantity');
+		$uuid = $this->get_uuid();
+		$document = DocumentType::getNextDocument(43, $request);
+
+		$picklist = Picklist::firstOrCreate(
+			['charge_order_id' => $chargeOrder->charge_order_id],
+			[
+				'company_id'         => $request->company_id,
+				'company_branch_id'  => $request->company_branch_id,
+				'picklist_id'        => $uuid,
+				'document_type_id'   => $document['document_type_id'],
+				'document_date'      =>  Carbon::now(),
+				'document_no'        => $document['document_no'],
+				'document_identity'  => $document['document_identity'],
+				'document_prefix'    => $document['document_prefix'],
+				'total_quantity'     => $totalQuantity,
+				'created_at'         =>  Carbon::now(),
+				'created_by'         => $request->login_user_id,
+			]
+		);
+
+		// If picklist already existed, update its total quantity
+		if (!$picklist->wasRecentlyCreated) {
+			$picklist->update([
+				'total_quantity' => $totalQuantity,
+				'updated_at'     =>  Carbon::now(),
+				'updated_by'     => $request->login_user_id,
+			]);
+		}
+
+		$existingDetails = PicklistDetail::where('picklist_id', $picklist->picklist_id)
+			->get()
+			->keyBy('charge_order_detail_id');
+
+		$existingChargeOrderDetailIds = $existingDetails->keys();
+
+		$newChargeOrderDetailIds = $inventoryDetails->pluck('charge_order_detail_id');
+
+		// Delete details that no longer exist
+		$detailsToDelete = $existingChargeOrderDetailIds->diff($newChargeOrderDetailIds);
+		if ($detailsToDelete->isNotEmpty()) {
+			PicklistDetail::where('picklist_id', $picklist->picklist_id)
+				->whereIn('charge_order_detail_id', $detailsToDelete)
+				->delete();
+		}
+
+		$picklistDetailInsert = [];
+		$index = 0;
+
+		foreach ($inventoryDetails as $item) {
+			if (isset($existingDetails[$item->charge_order_detail_id])) {
+				// Update existing detail
+				$existingDetails[$item->charge_order_detail_id]->update([
+					'quantity'   => $item->quantity ?? 0,
+					'updated_at' =>  Carbon::now(),
+					'updated_by' => $request->login_user_id,
+				]);
+			} else {
+				// Insert new detail
+				$picklistDetailInsert[] = [
+					'picklist_id'            => $picklist->picklist_id,
+					'picklist_detail_id'     => $this->get_uuid(),
+					'sort_order'             => $index++,
+					'charge_order_detail_id' => $item->charge_order_detail_id,
+					'product_id'             => $item->product_id,
+					'product_description'    => $item->product_description,
+					'quantity'               => $item->quantity ?? 0,
+					'created_at'             =>  Carbon::now(),
+					'created_by'             => $request->login_user_id,
+				];
+			}
+		}
+
+		if (!empty($picklistDetailInsert)) {
+			PicklistDetail::insert($picklistDetailInsert);
+		}
+	}
+
+
 
 	public function store(Request $request)
 	{
@@ -313,7 +402,7 @@ class ChargeOrderController extends Controller
 			'created_at' => Carbon::now(),
 			'created_by' => $request->login_user_id,
 		];
-		ChargeOrder::create($insertArr);
+		$chargeOrder = ChargeOrder::create($insertArr);
 
 		if ($request->charge_order_detail) {
 			foreach ($request->charge_order_detail as $key => $value) {
@@ -350,6 +439,7 @@ class ChargeOrderController extends Controller
 			}
 		}
 
+		$this->updatePicklist($request, $chargeOrder);
 
 		return $this->jsonResponse(['charge_order_id' => $uuid], 200, "Add Charge Order Successfully!");
 	}
@@ -486,10 +576,12 @@ class ChargeOrderController extends Controller
 			}
 		}
 
+		$this->updatePicklist($request, $data);
+
 		return $this->jsonResponse(['charge_order_id' => $id], 200, "Update Charge Order Successfully!");
 	}
 
-	
+
 
 
 	public function delete($id, Request $request)
