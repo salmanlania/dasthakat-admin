@@ -17,6 +17,7 @@ class ServicelistReceivedDetail extends Model
         "servicelist_received_detail_id",
         "sort_order",
         "servicelist_detail_id",
+        "charge_order_detail_id",
         "remarks",
         "product_id",
         "quantity",
@@ -26,6 +27,10 @@ class ServicelistReceivedDetail extends Model
     public function servicelist_detail()
     {
         return $this->hasOne(ServicelistDetail::class, 'servicelist_detail_id', 'servicelist_detail_id');
+    }
+    public function charge_order_detail()
+    {
+        return $this->hasOne(ChargeOrderDetail::class, 'charge_order_detail_id', 'charge_order_detail_id');
     }
     public function product()
     {

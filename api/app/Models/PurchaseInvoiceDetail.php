@@ -17,6 +17,7 @@ class PurchaseInvoiceDetail extends Model
         "purchase_invoice_id",
         "purchase_invoice_detail_id",
         "sort_order",
+        "charge_order_detail_id",
         "product_id",
         "product_name",
         "product_description",
@@ -33,6 +34,10 @@ class PurchaseInvoiceDetail extends Model
     public function product()
     {
         return $this->hasOne(Product::class, 'product_id', 'product_id')->select('*',DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
+    }
+    public function charge_order_detail()
+    {
+        return $this->hasOne(ChargeOrderDetail::class, 'charge_order_detail_id', 'charge_order_detail_id');
     }
     public function unit()
     {

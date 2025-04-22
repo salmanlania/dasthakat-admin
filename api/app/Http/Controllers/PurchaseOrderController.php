@@ -243,6 +243,7 @@ class PurchaseOrderController extends Controller
 
 	public function store(Request $request)
 	{
+		return $request->all();
 
 		if (!isPermission('add', 'purchase_order', $request->permission_list))
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");

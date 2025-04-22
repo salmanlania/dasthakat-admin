@@ -17,6 +17,7 @@ class GRNDetail extends Model
         "good_received_note_id",
         "good_received_note_detail_id",
         "purchase_order_detail_id",
+        "charge_order_detail_id",
         "sort_order",
         "product_type_id",
         "product_id",
@@ -39,6 +40,10 @@ class GRNDetail extends Model
     public function grn()
     {
         return $this->belongsTo(GRN::class, 'good_received_note_id');
+    }
+    public function charge_order_detail()
+    {
+        return $this->hasOne(ChargeOrderDetail::class, 'charge_order_detail_id', 'charge_order_detail_id');
     }
     public function purchase_order_detail()
     {

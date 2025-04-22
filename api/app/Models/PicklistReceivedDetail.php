@@ -16,6 +16,7 @@ class PicklistReceivedDetail extends Model
         "picklist_received_detail_id",
         "sort_order",
         "picklist_detail_id",
+        "charge_order_detail_id",
         "remarks",
         "product_id",
         "quantity",
@@ -25,6 +26,10 @@ class PicklistReceivedDetail extends Model
     public function picklist_detail()
     {
         return $this->hasOne(PicklistDetail::class, 'picklist_detail_id', 'picklist_detail_id');
+    }
+    public function charge_order_detail()
+    {
+        return $this->hasOne(ChargeOrderDetail::class, 'charge_order_detail_id', 'charge_order_detail_id');
     }
     public function product()
     {

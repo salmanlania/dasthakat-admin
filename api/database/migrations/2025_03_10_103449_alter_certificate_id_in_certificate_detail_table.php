@@ -12,7 +12,11 @@ return new class extends Migration
             $table->renameColumn('certifiate_id', 'certificate_id');
         });
     }
-
+  /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('job_order_detail_certificate', function (Blueprint $table) {
