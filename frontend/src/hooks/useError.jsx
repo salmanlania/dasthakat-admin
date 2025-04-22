@@ -23,7 +23,7 @@ const useError = () => {
           icon: <CiWifiOff size={22} strokeWidth={0.4} color="red" />
         });
     } else {
-      showMessage && toast.error(error?.response?.data?.error || 'Something went wrong');
+      showMessage && toast.error(error?.response?.data?.error || `We're unable to proceed at the moment. Please get in touch with your administrator for support.`);
     }
   };
 

@@ -5,7 +5,7 @@ const ErrorPage = () => {
   return (
     <Result
       status="warning"
-      title="Oops! Something went wrong."
+      title="We're unable to proceed at the moment. Please get in touch with your administrator for support."
       extra={
         <Link to="..">
           <Button type="primary">Try to go back</Button>
