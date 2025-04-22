@@ -485,73 +485,11 @@ class ChargeOrderController extends Controller
 				}
 			}
 		}
-		$this->updatePicklist($id, $request);
 
 		return $this->jsonResponse(['charge_order_id' => $id], 200, "Update Charge Order Successfully!");
 	}
 
-	public function updatePicklist($id, $request)
-	{
-		$chargeOrder = ChargeOrder::with('charge_order_detail')
-			->findOrFail($id);
-
-		$inventoryDetails = $chargeOrder->charge_order_detail->leftJoin('picklist_detail as pd', 'pd.charge_order_detail_id', '=', 'charge_order_detail.charge_order_detail_id')
-			->where('charge_order_detail.product_type_id', 2);
-		if ($inventoryDetails->isNotEmpty()) {
-			$ref = Picklist::with('picklist_detail')->where('charge_order_id', $id)->get();
-			if ($ref->isNotEmpty()) {
-				foreach ($inventoryDetails as  $value) {
-					if ($ref->picklist_detail->where('charge_order_detail_id', $value->charge_order_detail_id)->isNotEmpty()) {
-						
-					}
-				}
-			}
-
-
-			$totalQuantity = $inventoryDetails->sum('quantity');
-
-			$uuid = $this->get_uuid();
-			$document = DocumentType::getNextDocument(43, $request);
-
-			Picklist::create([
-				'company_id' => $request->company_id,
-				'company_branch_id' => $request->company_branch_id,
-				'picklist_id' => $uuid,
-				'document_type_id' => $document['document_type_id'],
-				'document_date' => Carbon::now(),
-				'document_no' => $document['document_no'],
-				'document_identity' => $document['document_identity'],
-				'document_prefix' => $document['document_prefix'],
-				'charge_order_id' => $id,
-				'total_quantity' => $totalQuantity,
-				'created_at' => Carbon::now(),
-				'created_by' => $request->login_user_id,
-			]);
-
-			$picklistDetails = [];
-			$index = 0;
-			foreach ($inventoryDetails as $item) {
-				$detail_uuid = $this->get_uuid();
-				$picklistDetails[] = [
-					'picklist_id' => $uuid,
-					'picklist_detail_id' => $this->get_uuid(),
-					'sort_order' => $index++,
-					'charge_order_detail_id' => $item['charge_order_detail_id'],
-					'product_id' => $item['product_id'],
-					'product_description' => $item['product_description'],
-					'quantity' => $item['quantity'] ?? 0,
-					'created_at' => Carbon::now(),
-					'created_by' => $request->login_user_id,
-				];
-				ChargeOrderDetail::where('charge_order_detail_id', $item->charge_order_detail_id)
-					->update([
-						'picklist_id'        => $uuid,
-						'picklist_detail_id' => $detail_uuid,
-					]);
-			}
-			PicklistDetail::insert($picklistDetails);
-		}
-	}
+	
 
 
 	public function delete($id, Request $request)
