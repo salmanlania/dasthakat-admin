@@ -160,20 +160,13 @@ export const purchaseOrderSlice = createSlice({
       const newDetail = {
         ...detail,
         id: Date.now(),
-        row_status: 'I'
+        row_status: 'U'
       };
 
       state.purchaseOrderDetails.splice(index + 1, 0, newDetail);
     },
 
-    // removePurchaseOrderDetail: (state, action) => {
-    //   state.purchaseOrderDetails = state.purchaseOrderDetails.filter(
-    //     (item) => item.id !== action.payload
-    //   );
-    // },
-
     removePurchaseOrderDetail: (state, action) => {
-      // Find the item by ID
       const itemIndex = state.purchaseOrderDetails.findIndex(item => item.id === action.payload);
 
       if (itemIndex !== -1) {

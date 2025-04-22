@@ -98,7 +98,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
   quotationDetails.forEach((detail) => {
     typeId = detail?.product_type_id?.value;
     totalQuantity += +detail.quantity || 0;
-    // totalCost += +detail.cost_price || 0;
     if (typeId !== 1) {
       totalCost += +detail.cost_price || 0;
     }
@@ -578,7 +577,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           <Form.Item
             className="m-0"
             name={`product_name-${index}`}
-            // initialValue={product_name}
+            initialValue={product_name}
             rules={[
               {
                 required: true,
@@ -615,7 +614,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           <Form.Item
             className="m-0"
             name={`product_id-${index}`}
-            // initialValue={product_id}
+            initialValue={product_id}
             rules={[
               {
                 required: true,
@@ -645,8 +644,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
         return (
           <Form.Item
             className="m-0"
-            // name={`product_description-${index}`}
-            // initialValue={product_description}
+            name={`product_description-${index}`}
+            initialValue={product_description}
             rules={[
               {
                 required: true,
@@ -881,17 +880,14 @@ const QuotationForm = ({ mode, onSubmit }) => {
       render: (_, { markup, product_type_id, product_type }, index) => {
         return (
           <DebouncedNumberInput
-            // value={markup}
             value={product_type_id?.value == 1 ? 0 : markup}
             type="decimal"
-            // disabled={product_type_id?.value == 1}
             disabled={product_type_id?.value == 1 || product_type === 'Service'}
             onChange={(value) => {
               dispatch(
                 changeQuotationDetailValue({
                   index,
                   key: 'markup',
-                  // value: value
                   value: product_type === 'Service' ? 0 : value
                 })
               );
@@ -1373,7 +1369,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
 
       <Table
         columns={columns}
-        // dataSource={quotationDetails}
         dataSource={quotationDetails.filter(item => !item.isDeleted)}
         rowKey={'id'}
         size="small"

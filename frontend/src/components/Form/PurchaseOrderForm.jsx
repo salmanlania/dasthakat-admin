@@ -87,8 +87,6 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       total_quantity: totalQuantity
     };
 
-    return console.log('data' , data)
-
     onSubmit(data);
   };
 
@@ -879,7 +877,6 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
 
       <Table
         columns={columns}
-        // dataSource={purchaseOrderDetails}
         dataSource={purchaseOrderDetails.filter(item => !item.isDeleted)}
         rowKey={'id'}
         size="small"

@@ -61,11 +61,8 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
   });
 
   const onFinish = async (additionalRequest = null) => {
-    // validate the form
     const isValidFields = await form.validateFields();
-    if (!isValidFields) return;
-
-    // Get form values
+    if (!isValidFields) return
     const values = form.getFieldsValue();
 
     const filteredDetails = chargeOrderDetails.filter(
@@ -491,6 +488,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       dataIndex: 'product_name',
       key: 'product_name',
       render: (_, { product_id, product_name, product_type_id }, index) => {
+        form.setFieldsValue({ [`product_name-${index}`]: product_name });
         return product_type_id?.value == 4 ? (
           <Form.Item
             key={index}
@@ -560,6 +558,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       dataIndex: 'product_description',
       key: 'product_description',
       render: (_, { product_description, product_type_id }, index) => {
+        form.setFieldsValue({ [`product_description-${index}`]: product_description });
         return (
           <Form.Item
             className="m-0"
@@ -569,7 +568,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
               {
                 required: true,
                 whitespace: true,
-                message: 'Description is required'
+                message: 'Description is required',
               }
             ]}>
             <DebounceInput
@@ -665,7 +664,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
               rules={[
                 {
                   required: true,
-                  message: 'Quantity is required'
+                  message: 'Quantity is required',
                 }
               ]}>
               <DebouncedCommaSeparatedInput
@@ -844,17 +843,14 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       render: (_, { markup, product_type_id, product_type }, index) => {
         return (
           <DebouncedNumberInput
-            // value={markup}
             value={product_type_id?.value == 1 ? 0 : markup}
             type="decimal"
-            // disabled={product_type_id?.value == 1}
             disabled={product_type_id?.value == 1 || product_type === 'Service'}
             onChange={(value) => {
               dispatch(
                 changeChargeOrderDetailValue({
                   index,
                   key: 'markup',
-                  // value: value
                   value: product_type === 'Service' ? 0 : value
                 })
               );
@@ -908,48 +904,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       ),
       width: 120
     },
-    // {
-    //   title: 'Discount %',
-    //   dataIndex: 'discount_percent',
-    //   key: 'discount_percent',
-    //   render: (_, { discount_percent, editable }, index) => {
-    //     form.setFieldsValue({
-    //       [`discount_percent-${index}`]: discount_percent
-    //     });
-    //     return (
-    //       <Form.Item
-    //         className="m-0"
-    //         initialValue={discount_percent}
-    //         name={`discount_percent-${index}`}
-    //         rules={[
-    //           {
-    //             validator: (_, value) => {
-    //               if (value > 100) {
-    //                 return Promise.reject(new Error('Invalid discount percent.'));
-    //               }
-    //               return Promise.resolve();
-    //             }
-    //           }
-    //         ]}>
-    //         <DebouncedNumberInput
-    //           value={discount_percent}
-    //           type="decimal"
-    //           disabled={editable === false}
-    //           onChange={(value) =>
-    //             dispatch(
-    //               changeChargeOrderDetailValue({
-    //                 index,
-    //                 key: 'discount_percent',
-    //                 value: value
-    //               })
-    //             )
-    //           }
-    //         />
-    //       </Form.Item>
-    //     );
-    //   },
-    //   width: 100
-    // },
     {
       title: (
         <div className="flex flex-wrap">
@@ -1048,6 +1002,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       ),
       key: 'action',
       render: (record, { id, editable }, index) => {
+
         if (record.isDeleted) {
           return null;
         }
@@ -1259,7 +1214,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
 
       <Table
         columns={columns}
-        // dataSource={chargeOrderDetails}
         dataSource={chargeOrderDetails.filter((item) => !item.isDeleted)}
         rowKey="id"
         size="small"
@@ -1344,7 +1298,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         <Button
           type="primary"
           className="w-28"
-          // loading={isFormSubmitting === true}
           loading={isFormSubmitting}
           onClick={() => (isFormSubmitting ? null : onFinish())}>
           Save

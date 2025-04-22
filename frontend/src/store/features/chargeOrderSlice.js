@@ -166,12 +166,10 @@ const initialState = {
   tempChargeOrderID: null,
   tempChargeDetails: [],
   isTempDataLoading: false,
-  //  isAnalysisLoading
   chargeOrderDetailId: null,
   isAnalysisLoading: false,
   analysisChargeOrderID: null,
   analysisChargeDetails: [],
-  //  isAnalysisLoading
   isItemLoading: false,
   list: [],
   deleteIDs: [],
@@ -182,7 +180,7 @@ const initialState = {
     limit: 50,
     search: '',
     sort_column: null,
-    sort_direction: null
+    sort_direction: 'null'
   },
   paginationInfo: {
     total_records: 0,
@@ -250,8 +248,7 @@ export const chargeOrderSlice = createSlice({
       const { editable, purchase_order_id, purchase_order_detail_id, ...detail } =
         state.chargeOrderDetails[index];
 
-      console.log('[Copy] Original Detail:', detail);
-
+        console.log(detail)
       const newDetail = {
         ...detail,
         purchase_order_id: null,
@@ -266,22 +263,15 @@ export const chargeOrderSlice = createSlice({
         shipment_id: null,
         shipment_detail_id: null,
         id: Date.now(),
-        row_status: 'I'
+        row_status: 'U'
       };
 
-      console.log('newDetail', newDetail);
+      console.log('newDetail' , newDetail)
 
       state.chargeOrderDetails.splice(index + 1, 0, newDetail);
     },
 
-    // removeChargeOrderDetail: (state, action) => {
-    //   state.chargeOrderDetails = state.chargeOrderDetails.filter(
-    //     (item) => item.id !== action.payload
-    //   );
-    // },
-
     removeChargeOrderDetail: (state, action) => {
-      // Find the item by ID
       const itemIndex = state.chargeOrderDetails.findIndex(item => item.id === action.payload);
 
       if (itemIndex !== -1) {
@@ -533,7 +523,6 @@ export const chargeOrderSlice = createSlice({
       };
 
       if (!data.charge_order_detail) return;
-      state.chargeOrderDetails = data.charge_order_detail.map(detail => console.log('detail', detail))
       state.chargeOrderDetails = data.charge_order_detail.map((detail) => ({
         id: detail.charge_order_detail_id,
         purchase_order_id: detail.purchase_order_id,
