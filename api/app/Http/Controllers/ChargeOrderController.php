@@ -100,12 +100,11 @@ class ChargeOrderController extends Controller
 			$data->technicians = User::whereIn('user_id', $technicianIds)->get(); // user_id used in technician_id
 		}
 		if ($data) {
-			foreach ($data->charge_order_detail as $detail) {
+			foreach ($data->charge_order_detail as &$detail) {
+				$detail->picked_quantity = 	$this->getPickedQuantity($detail);
 				if ($detail->product) {
 					$detail->product->stock = StockLedger::Check($detail->product, $request->all());
 				}
-				$ref = PurchaseOrderDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->first();
-				if (!empty($ref)) $detail->editable = false;
 			}
 		}
 		return $this->jsonResponse($data, 200, "Charge Order Data");
@@ -441,6 +440,7 @@ class ChargeOrderController extends Controller
 			ServicelistDetail::insert($servicelistDetailInsert);
 		}
 	}
+	public function updatePurchaseOrders($request, $chargeOrder) {}
 
 
 
@@ -529,6 +529,7 @@ class ChargeOrderController extends Controller
 		$this->updatePicklist($request, $chargeOrder);
 		$this->updateServicelist($request, $chargeOrder);
 
+
 		return $this->jsonResponse(['charge_order_id' => $uuid], 200, "Add Charge Order Successfully!");
 	}
 
@@ -543,30 +544,31 @@ class ChargeOrderController extends Controller
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
 
-		$data  = ChargeOrder::where('charge_order_id', $id)->first();
-		$data->company_id = $request->company_id;
-		$data->company_branch_id = $request->company_branch_id;
-		$data->document_date = $request->document_date;
-		$data->salesman_id = $request->salesman_id;
-		$data->customer_po_no = $request->customer_po_no;
-		$data->customer_id = $request->customer_id;
-		$data->event_id = $request->event_id;
-		$data->vessel_id = $request->vessel_id;
-		$data->flag_id = $request->flag_id;
-		$data->class1_id = $request->class1_id;
-		$data->class2_id = $request->class2_id;
-		$data->agent_id = $request->agent_id;
-		$data->technician_id = $request->technician_id;
-		$data->agent_notes = $request->agent_notes;
-		$data->technician_notes = $request->technician_notes;
-		$data->remarks = $request->remarks;
-		$data->total_quantity = $request->total_quantity;
-		$data->total_amount = $request->total_amount;
-		$data->discount_amount = $request->discount_amount;
-		$data->net_amount = $request->net_amount;
-		$data->updated_at = Carbon::now();
-		$data->updated_by = $request->login_user_id;
-		$data->update();
+		$chargeOrder = ChargeOrder::findOrFail($id);
+
+		$chargeOrder->fill([
+			'company_id' => $request->company_id,
+			'company_branch_id' => $request->company_branch_id,
+			'document_date' => $request->document_date,
+			'salesman_id' => $request->salesman_id,
+			'customer_po_no' => $request->customer_po_no,
+			'customer_id' => $request->customer_id,
+			'event_id' => $request->event_id,
+			'vessel_id' => $request->vessel_id,
+			'flag_id' => $request->flag_id,
+			'class1_id' => $request->class1_id,
+			'class2_id' => $request->class2_id,
+			'agent_id' => $request->agent_id,
+			'technician_id' => $request->technician_id,
+			'agent_notes' => $request->agent_notes,
+			'technician_notes' => $request->technician_notes,
+			'remarks' => $request->remarks,
+			'total_quantity' => $request->total_quantity,
+			'total_amount' => $request->total_amount,
+			'discount_amount' => $request->discount_amount,
+			'net_amount' => $request->net_amount,
+			'updated_by' => $request->login_user_id,
+		])->save();
 
 
 		if ($request->charge_order_detail) {
@@ -654,6 +656,32 @@ class ChargeOrderController extends Controller
 							'updated_by' => $request->login_user_id,
 						];
 						ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id'])->update($update);
+
+						// Update purchase order detail
+						if (in_array($value['product_type_id'], [3, 4])) {
+							$pod = PurchaseOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id']);
+							$podRow = $pod->first();
+
+							$amount = ($podRow->rate ?? 0) * ($value['amount'] ?? 0);
+
+							$pod->update([
+								'quantity' => $value['quantity'],
+								'amount' => $amount,
+								'updated_by' => $request->login_user_id,
+								'updated_at' => Carbon::now(),
+							]);
+
+							$total = PurchaseOrderDetail::where('purchase_order_id', $podRow->purchase_order_id)
+								->selectRaw('SUM(quantity) as total_quantity, SUM(amount) as total_amount')
+								->first();
+
+							PurchaseOrder::where('purchase_order_id', $value['purchase_order_id'])->update([
+								'total_quantity' => $total->total_quantity ?? 0,
+								'total_amount' => $total->total_amount ?? 0,
+								'updated_by' => $request->login_user_id,
+								'updated_at' => Carbon::now(),
+							]);
+						}
 					}
 					if ($value['row_status'] == 'D') {
 						ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id'])->delete();
@@ -664,8 +692,9 @@ class ChargeOrderController extends Controller
 			}
 		}
 
-		$this->updatePicklist($request, $data);
-		$this->updateServicelist($request, $data);
+		$this->updatePicklist($request, $chargeOrder);
+		$this->updateServicelist($request, $chargeOrder);
+
 
 		return $this->jsonResponse(['charge_order_id' => $id], 200, "Update Charge Order Successfully!");
 	}

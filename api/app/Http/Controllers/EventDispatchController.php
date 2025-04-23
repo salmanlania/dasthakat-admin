@@ -21,13 +21,12 @@ class EventDispatchController extends Controller
 			->leftJoin('job_order as jo', 'jo.event_id', '=', 'e.event_id')
 			->leftJoin('technician as t', 't.technician_id', '=', 'event_dispatch.technician_id')
 			->leftJoin('agent as a', 'a.agent_id', '=', 'event_dispatch.agent_id')
-
 			->where('e.company_id', $request->company_id)
 			->where('e.company_branch_id', $request->company_branch_id)
 			->whereExists(function ($query) {
 				$query->select(DB::raw(1))
-					->from('charge_order')
-					->whereRaw('charge_order.event_id = e.event_id');
+				->from('charge_order')
+				->whereRaw('charge_order.event_id = e.event_id');
 			});
 		if ($event_date = $request->input('event_date')) {
 			$query->whereDate('event_dispatch.event_date', $event_date);
@@ -105,6 +104,7 @@ class EventDispatchController extends Controller
 				;
 			});
 		}
+		$query->groupBy('event_dispatch.event_dispatch_id');
 
 		$sortColumn = $request->input('sort_column', 'event_dispatch.event_date');
 		$sortDirection = $request->input('sort_direction') === 'ascend' ? 'asc' : 'desc';

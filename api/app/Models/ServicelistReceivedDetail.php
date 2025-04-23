@@ -9,7 +9,7 @@ class ServicelistReceivedDetail extends Model
 {
 
     protected $table = 'servicelist_received_detail';
-    protected $primaryKey = 'servicelist_received_detail_id';
+protected $primaryKey = 'servicelist_received_detail_id';
     public $incrementing = false;
 
     protected $fillable = [

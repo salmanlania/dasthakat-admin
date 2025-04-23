@@ -665,6 +665,17 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
                 {
                   required: true,
                   message: 'Quantity is required',
+                },
+                {
+                  validator: (_, value, callback, source) => {
+                    const parsed = parseFloat(value?.toString().replace(/,/g, ''));
+                    const receivedQty = chargeOrderDetails[index]?.picked_quantity || 0; // example source
+                    console.log(receivedQty)
+                    if (parsed < receivedQty) {
+                      return Promise.reject(`Less Than Received Quantity (${receivedQty})`);
+                    }
+                    return Promise.resolve();
+                  }
                 }
               ]}>
               <DebouncedCommaSeparatedInput
@@ -1264,7 +1275,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
 
         {mode === 'edit' ? (
           <>
-            {permissions.picklist.add ? (
+            {/* {permissions.picklist.add ? (
               <Button
                 type="primary"
                 loading={isFormSubmitting === 'CREATE_PICK_LIST'}
@@ -1272,9 +1283,9 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
                 onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PICK_LIST'))}>
                 Pick List
               </Button>
-            ) : null}
+            ) : null} */}
 
-            {permissions.servicelist.add ? (
+            {/* {permissions.servicelist.add ? (
               <Button
                 type="primary"
                 loading={isFormSubmitting === 'CREATE_SERVICE_LIST'}
@@ -1282,7 +1293,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
                 onClick={() => (isFormSubmitting ? null : onFinish('CREATE_SERVICE_LIST'))}>
                 Service List
               </Button>
-            ) : null}
+            ) : null} */}
 
             {permissions.purchase_order.add ? (
               <Button

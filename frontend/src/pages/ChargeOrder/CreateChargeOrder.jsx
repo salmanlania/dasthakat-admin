@@ -9,6 +9,7 @@ import { createChargeOrder , getChargeOrder} from '../../store/features/chargeOr
 import { setChargePoID } from '../../store/features/purchaseOrderSlice';
 
 const CreateChargeOrder = () => {
+  const { chargeOrderDetailId } = useSelector((state) => state.chargeOrder);
   const navigate = useNavigate();
   const handleError = useError();
   const dispatch = useDispatch();
@@ -18,7 +19,7 @@ const CreateChargeOrder = () => {
     try {
       await dispatch(createChargeOrder({ data, additionalRequest })).unwrap();
       toast.success('Charge Order created successfully');
-      await dispatch(getChargeOrder(chargeOrderDetailId)).unwrap().catch(handleError);
+      await dispatch(getChargeOrder(chargeOrderDetailId)).unwrap();
     } catch (error) {
       handleError(error);
     }
