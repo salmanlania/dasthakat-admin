@@ -231,6 +231,14 @@ const Scheduling = () => {
       });
   };
 
+  const statusOptions = [
+    { label: 'In Progress', value: 'In Progress' },
+    { label: 'Partial', value: 'Partial' },
+    { label: 'PPW Pending', value: 'PPW Pending' },
+    { label: 'Samples pending', value: 'Samples pending' },
+    { label: 'Completed', value: 'Completed' }
+  ];
+
   const columns = [
     {
       title: (
@@ -436,16 +444,14 @@ const Scheduling = () => {
             {short_codes.map((item, index) => (
               <div
                 key={index}
-                style={{ color: item?.color?.name || '#eee'}}
-                className={`m-0 px-2 py-[2px] text-xs rounded bg-gray-50 border border-gray-200  text-white `}
-              >
+                style={{ color: item?.color?.name || '#eee' }}
+                className={`m-0 rounded border border-gray-200 bg-gray-50 px-2 py-[2px] text-xs text-white`}>
                 {item.label || item}
               </div>
             ))}
           </div>
         );
       }
-
     },
     {
       title: (
@@ -471,9 +477,9 @@ const Scheduling = () => {
       render: (_, { event_id, users, technicians }) => {
         const selectedValues = technicians
           ? technicians.map((tech) => ({
-            value: tech.user_id,
-            label: tech.user_name
-          }))
+              value: tech.user_id,
+              label: tech.user_name
+            }))
           : [];
         return (
           <AsyncSelect
@@ -545,7 +551,7 @@ const Scheduling = () => {
           <AsyncSelect
             endpoint="/agent"
             size="small"
-            className="font-normal w-full"
+            className="w-full font-normal"
             valueKey="agent_id"
             labelKey="name"
             value={params.agent_id}
@@ -584,9 +590,9 @@ const Scheduling = () => {
                 defaultValue={
                   agent_id
                     ? {
-                      value: agent_id,
-                      label: agent_name
-                    }
+                        value: agent_id,
+                        label: agent_name
+                      }
                     : null
                 }
                 onChange={(selected) =>
@@ -673,7 +679,21 @@ const Scheduling = () => {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Status</p>
-          <Select size="small" className="w-full font-normal" allowClear />
+          <AsyncSelect
+            endpoint="/status"
+            size="small"
+            className="w-full font-normal"
+            valueKey="status_id"
+            labelKey="name"
+            value={params.status_id}
+            onChange={(selected) => {
+              dispatch(
+                setDispatchListParams({
+                  status_id: selected
+                })
+              );
+            }}
+          />
         </div>
       ),
       dataIndex: 'status',
@@ -681,9 +701,19 @@ const Scheduling = () => {
       sorter: true,
       width: 180,
       ellipsis: true,
-      render: (_, { status }) => (
-        <Select size="small" className="w-full" allowClear disabled={!permissions.update} />
-      )
+      render: (_, { event_id, status }) => {
+        return (
+          <Select
+            size="small"
+            className="w-full"
+            allowClear
+            disabled={!permissions.update}
+            options={statusOptions}
+            value={status || undefined}
+            onChange={(selectedValue) => updateValue(event_id, 'status', selectedValue || null)}
+          />
+        );
+      }
     },
     {
       title: 'Print',
@@ -726,6 +756,7 @@ const Scheduling = () => {
     params.sort_column,
     params.sort_direction,
     params.agent_id,
+    params.status_id,
     params.technician_id,
     params.short_code,
     params.user_id,
