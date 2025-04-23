@@ -709,7 +709,7 @@ const Scheduling = () => {
             allowClear
             disabled={!permissions.update}
             options={statusOptions}
-            value={status || undefined}
+            value={status || null}
             onChange={(selectedValue) => updateValue(event_id, 'status', selectedValue || null)}
           />
         );
