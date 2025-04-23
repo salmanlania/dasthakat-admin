@@ -667,7 +667,7 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
           <Button
             type="primary"
             className="w-28 bg-rose-600 hover:!bg-rose-500"
-            onClick={printPurchaseInvoice}
+            // onClick={printPurchaseInvoice}
           >
             Print
           </Button>
