@@ -7,12 +7,12 @@ import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
 import { createChargeOrder , getChargeOrder} from '../../store/features/chargeOrderSlice';
 import { setChargePoID } from '../../store/features/purchaseOrderSlice';
-const { chargeOrderDetailId } = useSelector((state) => state.chargeOrder);
 
 const CreateChargeOrder = () => {
   const navigate = useNavigate();
   const handleError = useError();
   const dispatch = useDispatch();
+  const { chargeOrderDetailId } = useSelector((state) => state.chargeOrder);
 
   const onChargeOrderCreate = async (data, additionalRequest = null , chargeOrderDetailId) => {
     try {
