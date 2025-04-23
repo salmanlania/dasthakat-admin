@@ -675,7 +675,7 @@ class ChargeOrderController extends Controller
 								->selectRaw('SUM(quantity) as total_quantity, SUM(amount) as total_amount')
 								->first();
 
-							PurchaseOrder::where('purchase_order_id', $value['purchase_order_id'])->update([
+							PurchaseOrder::where('purchase_order_id', $podRow->purchase_order_id)->update([
 								'total_quantity' => $total->total_quantity ?? 0,
 								'total_amount' => $total->total_amount ?? 0,
 								'updated_by' => $request->login_user_id,
