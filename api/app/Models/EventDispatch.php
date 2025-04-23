@@ -25,6 +25,7 @@ class EventDispatch extends Model
         'technician_notes',
         'agent_id',
         'agent_notes',
+        'status',
         'created_by',
         'updated_by'
     ];

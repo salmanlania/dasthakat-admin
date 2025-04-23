@@ -19,9 +19,6 @@ class EventDispatchController extends Controller
 		$query = EventDispatch::leftJoin('event as e', 'event_dispatch.event_id', '=', 'e.event_id')
 			->leftJoin('vessel as v', 'e.vessel_id', '=', 'v.vessel_id')
 			->leftJoin('job_order as jo', 'jo.event_id', '=', 'e.event_id')
-			// ->leftJoin('charge_order as co', 'co.charge_order_id', '=', 'jo.charge_order_id')
-			// ->leftJoin('quotation as q', 'q.quotation_id', '=', 'jo.quotation_id')
-			// ->leftJoin('port as p', 'p.port_id', '=', 'q.port_id')
 			->leftJoin('technician as t', 't.technician_id', '=', 'event_dispatch.technician_id')
 			->leftJoin('agent as a', 'a.agent_id', '=', 'event_dispatch.agent_id')
 
@@ -49,6 +46,9 @@ class EventDispatchController extends Controller
 		// }
 		if ($event_id = $request->input('event_id')) {
 			$query->where('event_dispatch.event_id', $event_id);
+		}
+		if ($status = $request->input('status')) {
+			$query->where('event_dispatch.status', $status);
 		}
 		if ($vessel_id = $request->input('vessel_id')) {
 			$query->where('e.vessel_id', $vessel_id);
@@ -99,6 +99,7 @@ class EventDispatchController extends Controller
 				$q->where('v.name', 'like', "%$search%")
 					->orWhere('e.event_code', 'like', "%$search%")
 					->orWhere('t.name', 'like', "%$search%")
+					->orWhere('event_dispatch.status', 'like', "%$search%")
 					// ->orWhere('p.name', 'like', "%$search%")
 					->orWhere('a.name', 'like', "%$search%")
 				;
@@ -224,6 +225,9 @@ class EventDispatchController extends Controller
 		}
 		if ($request->has('agent_notes')) {
 			$dispatch->agent_notes = $request->agent_notes;
+		}
+		if ($request->has('status')) {
+			$dispatch->status = $request->status;
 		}
 		$dispatch->save();
 

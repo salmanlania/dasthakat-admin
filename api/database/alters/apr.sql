@@ -87,3 +87,6 @@ ADD COLUMN `markup` DECIMAL(10,2) DEFAULT 0 AFTER `cost_price`;
 ALTER TABLE `quotation`
 ADD COLUMN `total_cost` DECIMAL(10,2) DEFAULT 0 AFTER `term_desc`;
 
+ALTER TABLE `event_dispatch`
+ADD COLUMN `status` varchar(255) DEFAULT NULL AFTER `event_time`;
+
