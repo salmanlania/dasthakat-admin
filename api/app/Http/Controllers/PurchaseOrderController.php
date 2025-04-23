@@ -345,6 +345,7 @@ class PurchaseOrderController extends Controller
 		$data->updated_by = $request->login_user_id;
 	
 		if ($request->purchase_order_detail) {
+			$data->save();
 			foreach ($request->purchase_order_detail as $value) {
 				if ($value['row_status'] == 'I') {
 					$detail_uuid = $this->get_uuid();
