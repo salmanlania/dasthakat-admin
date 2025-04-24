@@ -852,12 +852,12 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
 
       <Table
         columns={columns}
-        // dataSource={goodsReceivedNoteDetails.filter((item) => !item.isDeleted)}
-        dataSource={
-          mode === 'edit'
-            ? goodsReceivedNoteDetails.filter((item) => !item.isDeleted)
-            : goodsReceivedNoteDetails
-        }
+        dataSource={goodsReceivedNoteDetails.filter((item) => !item.isDeleted)}
+        // dataSource={
+        //   mode === 'edit'
+        //     ? goodsReceivedNoteDetails.filter((item) => !item.isDeleted)
+        //     : goodsReceivedNoteDetails
+        // }
         rowKey={'id'}
         size="small"
         scroll={{ x: 'calc(100% - 200px)' }}
