@@ -9,7 +9,6 @@ import { createChargeOrder , getChargeOrder} from '../../store/features/chargeOr
 import { setChargePoID } from '../../store/features/purchaseOrderSlice';
 
 const CreateChargeOrder = () => {
-  const { chargeOrderDetailId } = useSelector((state) => state.chargeOrder);
   const navigate = useNavigate();
   const handleError = useError();
   const dispatch = useDispatch();
