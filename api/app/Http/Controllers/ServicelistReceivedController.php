@@ -97,7 +97,7 @@ class ServicelistReceivedController extends Controller
 	public function update(Request $request, $id)
 	{
 		if (!isPermission('receive', 'servicelist', $request->permission_list)) {
-		    return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		}
 
 		$isError = $this->Validator($request->all());
@@ -124,18 +124,18 @@ class ServicelistReceivedController extends Controller
 			'created_at' => Carbon::now(),
 			'created_by' => $request->login_user_id,
 		]);
-
+		$index = 0;
 		$servicelistReceivedDetails = [];
 		foreach ($request->servicelist_detail as $key => $item) {
 			$servicelistReceivedDetails[] = [
 				'servicelist_received_id' => $uuid,
 				'servicelist_received_detail_id' => $this->get_uuid(),
-				'sort_order' => $key,
-				'servicelist_detail_id' => $item['servicelist_detail_id'],
-				'charge_order_detail_id' => $item['charge_order_detail_id'],
-				'warehouse_id' => $item['warehouse_id'],
-				'product_id' => $item['product_id'],
-				'remarks' => $item['remarks'] ?? null,
+				'sort_order' => $index++,
+				'servicelist_detail_id' => $item['servicelist_detail_id'] ?? "",
+				'charge_order_detail_id' => $item['charge_order_detail_id'] ?? "",
+				'warehouse_id' => $item['warehouse_id'] ?? "",
+				'product_id' => $item['product_id'] ?? "",
+				'remarks' => $item['remarks'] ?? "",
 				'quantity' => $item['quantity'] ?? 0,
 				'created_at' => Carbon::now(),
 				'created_by' => $request->login_user_id,

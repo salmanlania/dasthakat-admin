@@ -129,24 +129,25 @@ class PicklistReceivedController extends Controller
 		]);
 
 		$picklistReceivedDetails = [];
+		$index = 0;
 		foreach ($request->picklist_detail as $key => $item) {
 			$product = Product::with('unit')->where('product_id', $item['product_id'])->first();
 			$detail_uuid = $this->get_uuid();
 			$picklistReceivedDetails[] = [
 				'picklist_received_id' => $uuid,
 				'picklist_received_detail_id' => $detail_uuid,
-				'sort_order' => $key,
-				'picklist_detail_id' => $item['picklist_detail_id'],
-				'warehouse_id' => $item['warehouse_id'],
-				'product_id' => $item['product_id'],
-				'charge_order_detail_id' => $item['charge_order_detail_id'],
+				'sort_order' => $index++,
+				'picklist_detail_id' => $item['picklist_detail_id'] ?? "",
+				'warehouse_id' => $item['warehouse_id'] ?? "",
+				'product_id' => $item['product_id'] ?? "",
+				'charge_order_detail_id' => $item['charge_order_detail_id'] ?? "",
 				'remarks' => $item['remarks'] ?? null,
 				'quantity' => $item['quantity'] ?? 0,
 				'created_at' => Carbon::now(),
 				'created_by' => $request->login_user_id,
 			];
 
-			if ($product->product_type_id == 2) {
+			if ($product->product_type_id == 2 && !empty($item['warehouse_id']) && ($item['quantity'] > 0)) {
 				$item['unit_id'] = $product->unit_id ?? null;
 				$item['unit_name'] = $product->unit->name ?? null;
 				$value['remarks'] = sprintf(

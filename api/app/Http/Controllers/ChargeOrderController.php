@@ -240,7 +240,7 @@ class ChargeOrderController extends Controller
 					'purchase_order_id'        => $uuid,
 					'purchase_order_detail_id' => $purchase_order_detail_id,
 					'charge_order_detail_id'   => $detail->charge_order_detail_id,
-					'sort_order'               => $index,
+					'sort_order'               => $detail->sort_order,
 					'product_id'               => $detail->product_id ?? "",
 					'product_type_id'          => $detail->product_type_id ?? "",
 					'product_name'             => $detail->product_name ?? "",
