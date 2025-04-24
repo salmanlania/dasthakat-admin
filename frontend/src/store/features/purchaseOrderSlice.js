@@ -155,8 +155,6 @@ export const purchaseOrderSlice = createSlice({
 
     copyPurchaseOrderDetail: (state, action) => {
       const index = action.payload;
-      console.log('index' , index)
-
       const detail = state.purchaseOrderDetails[index];
 
       const newDetail = {
@@ -166,10 +164,7 @@ export const purchaseOrderSlice = createSlice({
         isDeleted: false
       }
 
-      
-
       state.purchaseOrderDetails.splice(index + 1, 0, newDetail);
-      console.log('new' , newDetail)
     },
 
     removePurchaseOrderDetail: (state, action) => {

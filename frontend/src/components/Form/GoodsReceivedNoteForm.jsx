@@ -53,6 +53,8 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       (detail) => !(detail.isDeleted && detail.row_status === 'I')
     );
 
+    const edit = mode;
+
     const data = {
       default_currency_id: currency ? currency.currency_id : null,
       type: values.type,
@@ -63,7 +65,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       purchase_order_id: values.purchase_order_id ? values.purchase_order_id.value : null,
       payment_id: values.payment_id ? values.payment_id.value : null,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
-      good_received_note_detail: goodsReceivedNoteDetails.map(({ id, ...detail }, index) => {
+      good_received_note_detail: goodsReceivedNoteDetails.map(({ id, row_status ,...detail }, index) => {
         return {
         ...detail,
         product_id: detail.product_type_id?.value == 4 ? null : detail.product_id.value,
@@ -72,8 +74,9 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
         warehouse_id: detail.warehouse_id ? detail.warehouse_id.value : null,
         unit_id: detail.unit_id ? detail.unit_id.value : null,
         sort_order: index,
-        row_status: detail.row_status,
-        good_received_note_detail_id: id ? id : null
+        good_received_note_detail_id: id ? id : null,
+        // row_status: detail.row_status,
+        ...(edit === 'edit' ? { row_status } : {})
       }}),
       total_quantity: totalQuantity
     };
@@ -455,6 +458,8 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       dataIndex: 'product_name',
       key: 'product_name',
       render: (_, { product_id, product_name, product_type_id }, index) => {
+        form.setFieldsValue({ [`product_name-${index}`]: product_name });
+        form.setFieldsValue({ [`product_id-${index}`]: product_id });
         return product_type_id?.value == 4 ? (
           <Form.Item
             className="m-0"
@@ -523,6 +528,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       dataIndex: 'product_description',
       key: 'product_description',
       render: (_, { product_description, product_type_id }, index) => {
+        form.setFieldsValue({ [`product_description-${index}`]: product_description });
         return (
           <Form.Item
             className="m-0"
@@ -846,7 +852,12 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
 
       <Table
         columns={columns}
-        dataSource={goodsReceivedNoteDetails.filter((item) => !item.isDeleted)}
+        // dataSource={goodsReceivedNoteDetails.filter((item) => !item.isDeleted)}
+        dataSource={
+          mode === 'edit'
+            ? goodsReceivedNoteDetails.filter((item) => !item.isDeleted)
+            : goodsReceivedNoteDetails
+        }
         rowKey={'id'}
         size="small"
         scroll={{ x: 'calc(100% - 200px)' }}

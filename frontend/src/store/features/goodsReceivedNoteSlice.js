@@ -157,7 +157,8 @@ export const goodsReceivedNoteSlice = createSlice({
         ...detail,
         purchase_order_detail_id: null,
         id: Date.now(),
-        row_status: 'U'
+        row_status: 'I',
+        isDeleted: false
       };
 
       state.goodsReceivedNoteDetails.splice(index + 1, 0, newDetail);
@@ -196,7 +197,7 @@ export const goodsReceivedNoteSlice = createSlice({
       const detail = state.goodsReceivedNoteDetails[index];
 
       if (
-        detail.row_status === 'N' &&
+        detail.row_status === 'U' &&
         detail[key] !== value
       ) {
         detail.row_status = 'U';
@@ -224,7 +225,7 @@ export const goodsReceivedNoteSlice = createSlice({
         warehouse_id: null,
         rate: null,
         amount: null,
-        row_status: state.goodsReceivedNoteDetails[index].row_status === 'N' ? 'U' : state.goodsReceivedNoteDetails[index].row_status
+        row_status: state.goodsReceivedNoteDetails[index].row_status === 'U' ? 'U' : state.goodsReceivedNoteDetails[index].row_status
       };
     },
 
@@ -350,7 +351,7 @@ export const goodsReceivedNoteSlice = createSlice({
         rate: detail.rate,
         vendor_notes: detail.vendor_notes,
         amount: detail.amount,
-        row_status: 'N',
+        row_status: 'U',
         isDeleted: false
       }));
     });
@@ -370,7 +371,7 @@ export const goodsReceivedNoteSlice = createSlice({
         .filter(item => item.row_status !== 'D')
         .map(item => ({
           ...item,
-          row_status: 'N',
+          row_status: 'U',
           isDeleted: false
         }));
       state.initialFormValues = null;

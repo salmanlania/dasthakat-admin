@@ -39,8 +39,6 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
     (state) => state.purchaseOrder
   );
 
-  console.log('purchaseOrderDetails' , purchaseOrderDetails)
-
   const POType = Form.useWatch('type', form);
   const isBuyout = POType === 'Buyout';
 
@@ -62,7 +60,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       (detail) => !(detail.isDeleted && detail.row_status === 'I')
     );
 
-    const edit = mode
+    const edit = mode;
 
     const data = {
       type: values.type,
@@ -79,7 +77,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       charge_order_id: initialFormValues?.charge_order_id,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
       required_date: values.required_date ? dayjs(values.required_date).format('YYYY-MM-DD') : null,
-      purchase_order_detail: purchaseOrderDetails.map(({ id,row_status, ...detail }, index) => ({
+      purchase_order_detail: purchaseOrderDetails.map(({ id, row_status, ...detail }, index) => ({
         ...detail,
         product_id: detail.product_type_id?.value == 4 ? null : detail.product_id.value,
         product_name: detail.product_type_id?.value == 4 ? detail.product_name : null,
@@ -88,13 +86,12 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
         sort_order: index,
         purchase_order_detail_id: id ? id : null,
         // row_status: detail.row_status,
-        // row_status : edit === "edit" ? detail.row_status :   
-        ...(edit === "edit" ? { row_status } : {})
+        // row_status : edit === "edit" ? detail.row_status :
+        ...(edit === 'edit' ? { row_status } : {})
       })),
       total_amount: totalAmount,
       total_quantity: totalQuantity
     };
-    
 
     onSubmit(data);
   };
@@ -715,8 +712,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
                   key: '2',
                   label: 'Copy',
                   onClick: () => {
-                    dispatch(copyPurchaseOrderDetail(index))
-                    console.log(index)
+                    dispatch(copyPurchaseOrderDetail(index));
                   }
                 },
                 {
@@ -724,8 +720,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
                   label: 'Delete',
                   danger: true,
                   onClick: () => {
-                    dispatch(removePurchaseOrderDetail(id))
-                    console.log('id' , id , index)
+                    dispatch(removePurchaseOrderDetail(id));
                   }
                 }
               ]
@@ -917,7 +912,11 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       <Table
         columns={columns}
         // dataSource={purchaseOrderDetails.filter(item => !item.isDeleted)}
-        dataSource={mode === "edit" ? purchaseOrderDetails.filter(item => !item.isDeleted) : purchaseOrderDetails}
+        dataSource={
+          mode === 'edit'
+            ? purchaseOrderDetails.filter((item) => !item.isDeleted)
+            : purchaseOrderDetails
+        }
         rowKey={'id'}
         size="small"
         scroll={{ x: 'calc(100% - 200px)' }}
