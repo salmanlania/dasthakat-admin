@@ -49,11 +49,20 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
   });
 
   const onFinish = (values) => {
+
+    const edit = mode;
+    console.log('edit' , edit)
+    const deletedDetails = goodsReceivedNoteDetails.filter(
+      (detail) => detail.isDeleted !== true
+    );
+
+    console.log('deletedDetails' , deletedDetails)
+
     const filteredDetails = goodsReceivedNoteDetails.filter(
       (detail) => !(detail.isDeleted && detail.row_status === 'I')
     );
 
-    const edit = mode;
+    const mappingSource = edit === 'edit' ? goodsReceivedNoteDetails : deletedDetails;
 
     const data = {
       default_currency_id: currency ? currency.currency_id : null,
@@ -65,22 +74,27 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       purchase_order_id: values.purchase_order_id ? values.purchase_order_id.value : null,
       payment_id: values.payment_id ? values.payment_id.value : null,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
-      good_received_note_detail: goodsReceivedNoteDetails.map(({ id, row_status ,...detail }, index) => {
-        return {
-        ...detail,
-        product_id: detail.product_type_id?.value == 4 ? null : detail.product_id.value,
-        product_name: detail.product_type_id?.value == 4 ? detail.product_name : null,
-        product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
-        warehouse_id: detail.warehouse_id ? detail.warehouse_id.value : null,
-        unit_id: detail.unit_id ? detail.unit_id.value : null,
-        sort_order: index,
-        good_received_note_detail_id: id ? id : null,
-        // row_status: detail.row_status,
-        ...(edit === 'edit' ? { row_status } : {})
-      }}),
+      good_received_note_detail: mappingSource.map(
+        ({ id, row_status, isDeleted, ...detail }, index) => {
+          return {
+            ...detail,
+            product_id: detail.product_type_id?.value == 4 ? null : detail.product_id.value,
+            product_name: detail.product_type_id?.value == 4 ? detail.product_name : null,
+            product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
+            warehouse_id: detail.warehouse_id ? detail.warehouse_id.value : null,
+            unit_id: detail.unit_id ? detail.unit_id.value : null,
+            sort_order: index,
+            good_received_note_detail_id: id ? id : null,
+            // row_status: detail.row_status,
+            ...(edit === 'edit' ? { row_status } : {})
+          };
+        }
+      ),
       total_quantity: totalQuantity
     };
 
+    console.log('data', data);
+    // return;
     onSubmit(data);
   };
 
@@ -856,6 +870,11 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
         // dataSource={
         //   mode === 'edit'
         //     ? goodsReceivedNoteDetails.filter((item) => !item.isDeleted)
+        //     : purchaseOrderDetails
+        // }
+        // dataSource={
+        //   mode === 'edit'
+        //     ? goodsReceivedNoteDetails.filter((item) => !item.isDeleted)
         //     : goodsReceivedNoteDetails
         // }
         rowKey={'id'}
@@ -879,8 +898,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
           <Button
             type="primary"
             className="w-28 bg-rose-600 hover:!bg-rose-500"
-            onClick={printGoodsReceivedNote}
-          >
+            onClick={printGoodsReceivedNote}>
             Print
           </Button>
         ) : null}
