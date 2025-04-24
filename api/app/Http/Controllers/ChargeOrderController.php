@@ -246,6 +246,7 @@ class ChargeOrderController extends Controller
 					'product_name'             => $detail->product_name ?? "",
 					'product_description'      => $detail->product_description ?? "",
 					'description'              => $detail->description ?? "",
+					'vpart'                    => $detail->vendor_part_no ?? "",
 					'unit_id'                  => $detail->unit_id ?? "",
 					'quantity'                 => $detail->quantity ?? "",
 					'rate'                     => $detail->cost_price ?? "",
