@@ -32,6 +32,7 @@ class ChargeOrderController extends Controller
 	{
 		$customer_id = $request->input('customer_id', '');
 		$document_identity = $request->input('document_identity', '');
+		$quotation_id = $request->input('quotation_id', '');
 		$document_date = $request->input('document_date', '');
 		$vessel_id = $request->input('vessel_id', '');
 		$event_id = $request->input('event_id', '');
@@ -42,6 +43,7 @@ class ChargeOrderController extends Controller
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
 		$data = ChargeOrder::LeftJoin('customer as c', 'c.customer_id', '=', 'charge_order.customer_id')
+			->LeftJoin('quotation as q', 'q.document_identity', '=', 'charge_order.ref_document_identity')
 			->LeftJoin('event as e', 'e.event_id', '=', 'charge_order.event_id')
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'charge_order.vessel_id');
 		$data = $data->where('charge_order.company_id', '=', $request->company_id);
@@ -52,6 +54,7 @@ class ChargeOrderController extends Controller
 		if (!empty($event_id)) $data = $data->where('charge_order.event_id', '=',  $event_id);
 		if (!empty($document_identity)) $data = $data->where('charge_order.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($document_date)) $data = $data->where('charge_order.document_date', '=',  $document_date);
+		if (!empty($quotation_id)) $data = $data->where('quotation.quotation_id', '=',  $quotation_id);
 
 		if (!empty($search)) {
 			$search = strtolower($search);
@@ -59,12 +62,13 @@ class ChargeOrderController extends Controller
 				$query
 					->where('c.name', 'like', '%' . $search . '%')
 					->OrWhere('v.name', 'like', '%' . $search . '%')
+					->OrWhere('q.document_identity', 'like', '%' . $search . '%')
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
 					->OrWhere('charge_order.document_identity', 'like', '%' . $search . '%');
 			});
 		}
 
-		$data = $data->select("charge_order.*", DB::raw("CONCAT(e.event_code, ' (', CASE 
+		$data = $data->select("charge_order.*",'q.quotation_id', DB::raw("CONCAT(e.event_code, ' (', CASE 
 		WHEN e.status = 1 THEN 'Active' 
 		ELSE 'Inactive' 
 	END, ')') AS event_code"), "c.name as customer_name", "v.name as vessel_name");
