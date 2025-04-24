@@ -214,7 +214,7 @@ class PurchaseOrderController extends Controller
 			$remainingQty = max($detail->quantity - $receivedQty, 0);
 
 			$detail->available_quantity = $remainingQty;
-			$detail->editable = ($receivedQty > 0) ? false : true;
+			$detail->received_quantity = $receivedQty;
 		}
 
 		return $this->jsonResponse($data, 200, "Purchase Order Data");

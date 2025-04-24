@@ -536,6 +536,16 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
               {
                 required: true,
                 message: 'Quantity is required'
+              },
+              {
+                validator: (_, value, callback, source) => {
+                  const parsed = parseFloat(value?.toString().replace(/,/g, ''));
+                  const receivedQty = purchaseOrderDetails[index]?.received_quantity || 0; // example source
+                  if (parsed < receivedQty) {
+                    return Promise.reject(`Less Than Received Quantity (${receivedQty})`);
+                  }
+                  return Promise.resolve();
+                }
               }
             ]}>
             <DebouncedCommaSeparatedInput

@@ -335,6 +335,7 @@ export const purchaseOrderSlice = createSlice({
         vendor_notes: detail.vendor_notes,
         amount: detail.amount,
         editable: detail.editable,
+        received_quantity: detail.received_quantity ? parseFloat(detail.received_quantity) : null,
         row_status: 'N',
         isDeleted: false
       }));

@@ -670,7 +670,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
                   validator: (_, value, callback, source) => {
                     const parsed = parseFloat(value?.toString().replace(/,/g, ''));
                     const receivedQty = chargeOrderDetails[index]?.picked_quantity || 0; // example source
-                    console.log(receivedQty)
                     if (parsed < receivedQty) {
                       return Promise.reject(`Less Than Received Quantity (${receivedQty})`);
                     }
