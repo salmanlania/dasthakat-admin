@@ -18,7 +18,7 @@ const CreateChargeOrder = () => {
     try {
       await dispatch(createChargeOrder({ data, additionalRequest })).unwrap();
       toast.success('Charge Order created successfully');
-      await dispatch(getChargeOrder(chargeOrderDetailId)).unwrap();
+      navigate('/charge-order')
     } catch (error) {
       handleError(error);
     }

@@ -202,6 +202,27 @@ const ChargeOrder = () => {
     },
     {
       title: (
+        <div>
+          <p>Quote No</p>
+          <Input
+            className="font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            value={params.ref_document_identity}
+            onChange={(e) =>
+              dispatch(setChargeOrderListParams({ ref_document_identity: e.target.value }))
+            }
+          />
+        </div>
+      ),
+      dataIndex: 'ref_document_identity',
+      key: 'ref_document_identity',
+      sorter: true,
+      width: 180,
+      ellipsis: true
+    },
+    {
+      title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Customer</p>
           <AsyncSelect

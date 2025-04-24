@@ -73,6 +73,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       chargeOrder_id,
       remarks: values.remarks,
       customer_po_no: values.customer_po_no,
+      ref_document_identity: values.ref_document_identity,
       salesman_id: values.salesman_id ? values.salesman_id.value : null,
       class1_id: values.class1_id ? values.class1_id.value : null,
       class2_id: values.class2_id ? values.class2_id.value : null,
@@ -1114,12 +1115,17 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={24} sm={12} md={5} lg={5}>
           <Form.Item name="customer_po_no" label="Customer PO No">
             <Input />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={24} sm={12} md={5} lg={5}>
+          <Form.Item name="ref_document_identity" label="Quote No">
+            <Input />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={5} lg={5}>
           <Form.Item
             name="salesman_id"
             label="Salesman"

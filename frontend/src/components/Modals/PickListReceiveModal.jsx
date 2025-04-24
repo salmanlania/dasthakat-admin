@@ -1,6 +1,6 @@
 import { Button, DatePicker, Form, Input, Modal, Table, Tabs } from 'antd';
 import dayjs from 'dayjs';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import useError from '../../hooks/useError';
@@ -69,6 +69,7 @@ const HistoryTab = ({ details }) => {
 
 const NewReceivesTab = ({ details }) => {
   const handleError = useError();
+  const [newRules, setNewRules] = useState([]);
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const { user } = useSelector((state) => state.auth);
@@ -111,7 +112,7 @@ const NewReceivesTab = ({ details }) => {
       render: (_, __, index) => <p>{parseFloat(dataSource[index]?.original_quantity || 0)}</p>
     },
     {
-      title: 'Remaining Quantity',
+      title: 'Receiving Quantity',
       dataIndex: 'remaining_quantity',
       key: 'remaining_quantity',
       width: 80,
@@ -120,12 +121,12 @@ const NewReceivesTab = ({ details }) => {
           name={[index, 'remaining_quantity']}
           validateFirst
           rules={[
-            { required: true, message: 'Remaining Quantity required' },
+            { required: true, message: 'Receiving Quantity required' },
             {
               validator: (_, value) => {
                 if (value > dataSource[index].remaining_quantity) {
                   return Promise.reject(
-                    `Remaining Quantity cannot be greater than ${dataSource[index].remaining_quantity}`
+                    `Receiving Quantity cannot be greater than ${dataSource[index].remaining_quantity}`
                   );
                 }
                 return Promise.resolve();
@@ -133,7 +134,11 @@ const NewReceivesTab = ({ details }) => {
             }
           ]}
           className="m-0">
-          <NumberInput />
+          <NumberInput
+            onChange={(value) => {
+              setNewRules(prev => ({ ...prev, [index]: value }));
+            }}
+          />
         </Form.Item>
       )
     },
@@ -142,28 +147,37 @@ const NewReceivesTab = ({ details }) => {
       dataIndex: 'warehouse_id',
       key: 'warehouse_id',
       width: 200,
-      render: (_, __, index) => (
-        <Form.Item
-          name={[index, 'warehouse_id']}
-          className="m-0"
-          rules={[
-            {
-              required: true,
-              message: 'Warehouse is required'
-            }
-          ]}>
-          <AsyncSelect
-            endpoint="/warehouse"
-            valueKey="warehouse_id"
-            labelKey="name"
-            labelInValue
-            className="w-full"
-            addNewLink={
-              permissions.warehouse.list && permissions.warehouse.add ? '/warehouse' : null
-            }
-          />
-        </Form.Item>
-      )
+      render: (_, __, index) => {
+
+        const quantityValue = newRules[index] || dataSource[index]?.remaining_quantity;
+
+        const rules = quantityValue  > 0
+      ? [
+          {
+            required: true,
+            message: 'Warehouse is required',
+          }
+        ]
+      : [];
+
+        return (
+          <Form.Item
+            name={[index, 'warehouse_id']}
+            className="m-0"
+            rules={rules}>
+            <AsyncSelect
+              endpoint="/warehouse"
+              valueKey="warehouse_id"
+              labelKey="name"
+              labelInValue
+              className="w-full"
+              addNewLink={
+                permissions.warehouse.list && permissions.warehouse.add ? '/warehouse' : null
+              }
+            />
+          </Form.Item>
+        );
+      }
     },
     {
       title: 'Remarks',

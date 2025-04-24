@@ -458,6 +458,7 @@ export const chargeOrderSlice = createSlice({
         document_identity: data.document_identity,
         document_date: data.document_date ? dayjs(data.document_date) : null,
         customer_po_no: data.customer_po_no,
+        ref_document_identity: data.ref_document_identity,
         remarks: data.remarks,
         technician_id:
           data.technicians && data.technicians.length

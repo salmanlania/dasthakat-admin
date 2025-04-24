@@ -155,16 +155,21 @@ export const purchaseOrderSlice = createSlice({
 
     copyPurchaseOrderDetail: (state, action) => {
       const index = action.payload;
+      console.log('index' , index)
 
       const detail = state.purchaseOrderDetails[index];
 
       const newDetail = {
         ...detail,
         id: Date.now(),
-        row_status: 'U'
+        row_status: 'I',
+        isDeleted: false
       }
 
+      
+
       state.purchaseOrderDetails.splice(index + 1, 0, newDetail);
+      console.log('new' , newDetail)
     },
 
     removePurchaseOrderDetail: (state, action) => {
@@ -193,7 +198,7 @@ export const purchaseOrderSlice = createSlice({
       const detail = state.purchaseOrderDetails[index];
 
       if (
-        detail.row_status === 'N' &&
+        detail.row_status === 'U' &&
         detail[key] !== value
       ) {
         detail.row_status = 'U';
@@ -223,7 +228,7 @@ export const purchaseOrderSlice = createSlice({
         purchase_order_detail_id: null,
         vpart: null,
         vendor_notes: null,
-        row_status: state.purchaseOrderDetails[index].row_status === 'N' ? 'U' : state.purchaseOrderDetails[index].row_status
+        row_status: state.purchaseOrderDetails[index].row_status === 'U' ? 'U' : state.purchaseOrderDetails[index].row_status
       };
     }
   },
@@ -336,7 +341,7 @@ export const purchaseOrderSlice = createSlice({
         amount: detail.amount,
         editable: detail.editable,
         received_quantity: detail.received_quantity ? parseFloat(detail.received_quantity) : null,
-        row_status: 'N',
+        row_status: 'U',
         isDeleted: false
       }));
     });
@@ -357,7 +362,7 @@ export const purchaseOrderSlice = createSlice({
         .filter(item => item.row_status !== 'D')
         .map(item => ({
           ...item,
-          row_status: 'N',
+          row_status: 'U',
           isDeleted: false
         }));
 

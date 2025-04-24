@@ -2,6 +2,7 @@
 import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Select, Table } from 'antd';
 import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
+import { useEffect } from 'react';
 import { BiPlus } from 'react-icons/bi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
@@ -18,6 +19,7 @@ import {
   copyPurchaseOrderDetail,
   getPurchaseOrderForPrint,
   removePurchaseOrderDetail,
+  updatePurchaseOrder,
   resetPurchaseOrderDetail
 } from '../../store/features/purchaseOrderSlice';
 import { getVendor } from '../../store/features/vendorSlice';
@@ -36,6 +38,8 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues, purchaseOrderDetails } = useSelector(
     (state) => state.purchaseOrder
   );
+
+  console.log('purchaseOrderDetails' , purchaseOrderDetails)
 
   const POType = Form.useWatch('type', form);
   const isBuyout = POType === 'Buyout';
@@ -58,6 +62,8 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       (detail) => !(detail.isDeleted && detail.row_status === 'I')
     );
 
+    const edit = mode
+
     const data = {
       type: values.type,
       remarks: values.remarks,
@@ -73,19 +79,22 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       charge_order_id: initialFormValues?.charge_order_id,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
       required_date: values.required_date ? dayjs(values.required_date).format('YYYY-MM-DD') : null,
-      purchase_order_detail: purchaseOrderDetails.map(({ id, ...detail }, index) => ({
+      purchase_order_detail: purchaseOrderDetails.map(({ id,row_status, ...detail }, index) => ({
         ...detail,
         product_id: detail.product_type_id?.value == 4 ? null : detail.product_id.value,
         product_name: detail.product_type_id?.value == 4 ? detail.product_name : null,
         unit_id: detail.unit_id ? detail.unit_id.value : null,
         product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
         sort_order: index,
-        row_status: detail.row_status,
-        purchase_order_detail_id: id ? id : null
+        purchase_order_detail_id: id ? id : null,
+        // row_status: detail.row_status,
+        // row_status : edit === "edit" ? detail.row_status :   
+        ...(edit === "edit" ? { row_status } : {})
       })),
       total_amount: totalAmount,
       total_quantity: totalQuantity
     };
+    
 
     onSubmit(data);
   };
@@ -268,6 +277,17 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
     }
   };
 
+  // useEffect(() => {
+  //   purchaseOrderDetails.forEach((item, index) => {
+  //     form.setFieldsValue({
+  //       [`product_name-${index}`]: item.product_name,
+  //       [`product_description-${index}`]: item.product_description,
+  //       [`quantity-${index}`]: item.quantity,
+  //       [`rate-${index}`]: item.rate
+  //     });
+  //   });
+  // }, [purchaseOrderDetails, form]);
+
   const columns = [
     {
       title: (
@@ -376,6 +396,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       key: 'product_name',
       render: (_, { product_id, product_name, product_type_id }, index) => {
         form.setFieldsValue({ [`product_name-${index}`]: product_name });
+        form.setFieldsValue({ [`product_id-${index}`]: product_id });
         return product_type_id?.value == 4 ? (
           <Form.Item
             className="m-0"
@@ -676,9 +697,9 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       ),
       key: 'action',
       render: (record, { id }, index) => {
-        if (record.isDeleted) {
-          return null;
-        }
+        // if (mode === "edit" && record.isDeleted) {
+        //   return null;
+        // }
         return (
           <Dropdown
             trigger={['click']}
@@ -693,13 +714,19 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
                 {
                   key: '2',
                   label: 'Copy',
-                  onClick: () => dispatch(copyPurchaseOrderDetail(index))
+                  onClick: () => {
+                    dispatch(copyPurchaseOrderDetail(index))
+                    console.log(index)
+                  }
                 },
                 {
                   key: '3',
                   label: 'Delete',
                   danger: true,
-                  onClick: () => dispatch(removePurchaseOrderDetail(id))
+                  onClick: () => {
+                    dispatch(removePurchaseOrderDetail(id))
+                    console.log('id' , id , index)
+                  }
                 }
               ]
             }}>
@@ -889,7 +916,8 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
 
       <Table
         columns={columns}
-        dataSource={purchaseOrderDetails.filter(item => !item.isDeleted)}
+        // dataSource={purchaseOrderDetails.filter(item => !item.isDeleted)}
+        dataSource={mode === "edit" ? purchaseOrderDetails.filter(item => !item.isDeleted) : purchaseOrderDetails}
         rowKey={'id'}
         size="small"
         scroll={{ x: 'calc(100% - 200px)' }}
