@@ -108,3 +108,6 @@ ADD COLUMN `charge_order_detail_id` CHAR(36) NULL DEFAULT NULL AFTER `good_recei
 
 ALTER TABLE `purchase_invoice_detail`
 ADD COLUMN `charge_order_detail_id` CHAR(36) NULL DEFAULT NULL AFTER `purchase_invoice_detail_id`;
+
+ALTER TABLE `event_dispatch`
+MODIFY COLUMN `technician_id` BLOB DEFAULT NULL AFTER `event_id`;

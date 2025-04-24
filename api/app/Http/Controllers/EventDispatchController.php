@@ -111,7 +111,7 @@ class EventDispatchController extends Controller
 
 
 		$data = $query
-			->select('event_dispatch.*', 'v.name as vessel_name', 'v.vessel_id', 'e.event_code', 'event_dispatch.technician_id', 'a.agent_id', 'a.name as agent_name', 'a.agent_code', 'a.address as agent_address', 'a.city as agent_city', 'a.state as agent_state', 'a.zip_code as agent_zip_code', 'a.phone as agent_phone', 'a.office_no as agent_office_no', 'a.fax as agent_fax', 'a.email as agent_email', 'jo.job_order_id')
+			->select('event_dispatch.*', 'v.name as vessel_name', 'v.vessel_id', 'e.event_code', 'a.name as agent_name', 'a.agent_code', 'a.address as agent_address', 'a.city as agent_city', 'a.state as agent_state', 'a.zip_code as agent_zip_code', 'a.phone as agent_phone', 'a.office_no as agent_office_no', 'a.fax as agent_fax', 'a.email as agent_email', 'jo.job_order_id')
 			->orderBy($sortColumn, $sortDirection)
 			->paginate($request->input('limit', 10));
 		foreach ($data as $key => $value) {
