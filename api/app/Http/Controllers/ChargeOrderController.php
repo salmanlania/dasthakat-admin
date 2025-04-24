@@ -661,26 +661,28 @@ class ChargeOrderController extends Controller
 						if (in_array($value['product_type_id'], [3, 4])) {
 							$pod = PurchaseOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id']);
 							$podRow = $pod->first();
+							if (!empty($podRow)) {
 
-							$amount = ($podRow->rate ?? 0) * ($value['amount'] ?? 0);
+								$amount = ($podRow->rate ?? 0) * ($value['amount'] ?? 0);
 
-							$pod->update([
-								'quantity' => $value['quantity'],
-								'amount' => $amount,
-								'updated_by' => $request->login_user_id,
-								'updated_at' => Carbon::now(),
-							]);
+								$pod->update([
+									'quantity' => $value['quantity'],
+									'amount' => $amount,
+									'updated_by' => $request->login_user_id,
+									'updated_at' => Carbon::now(),
+								]);
 
-							$total = PurchaseOrderDetail::where('purchase_order_id', $podRow->purchase_order_id)
-								->selectRaw('SUM(quantity) as total_quantity, SUM(amount) as total_amount')
-								->first();
+								$total = PurchaseOrderDetail::where('purchase_order_id', $podRow->purchase_order_id)
+									->selectRaw('SUM(quantity) as total_quantity, SUM(amount) as total_amount')
+									->first();
 
-							PurchaseOrder::where('purchase_order_id', $podRow->purchase_order_id)->update([
-								'total_quantity' => $total->total_quantity ?? 0,
-								'total_amount' => $total->total_amount ?? 0,
-								'updated_by' => $request->login_user_id,
-								'updated_at' => Carbon::now(),
-							]);
+								PurchaseOrder::where('purchase_order_id', $podRow->purchase_order_id)->update([
+									'total_quantity' => $total->total_quantity ?? 0,
+									'total_amount' => $total->total_amount ?? 0,
+									'updated_by' => $request->login_user_id,
+									'updated_at' => Carbon::now(),
+								]);
+							}
 						}
 					}
 					if ($value['row_status'] == 'D') {
