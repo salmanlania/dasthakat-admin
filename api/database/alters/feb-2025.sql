@@ -165,20 +165,3 @@ CREATE TABLE job_order_detail (
     updated_at DATETIME
 );
 
-ALTER TABLE `picklist_received`
-ADD COLUMN `charge_order_id` CHAR(36) NULL DEFAULT NULL AFTER `picklist_id`;
-
-ALTER TABLE `picklist_received_detail`
-ADD COLUMN `charge_order_detail_id` CHAR(36) NULL DEFAULT NULL AFTER `picklist_received_detail_id`;
-
-ALTER TABLE `servicelist_received`
-ADD COLUMN `charge_order_id` CHAR(36) NULL DEFAULT NULL AFTER `servicelist_id`;
-
-ALTER TABLE `servicelist_received_detail`
-ADD COLUMN `charge_order_detail_id` CHAR(36) NULL DEFAULT NULL AFTER `servicelist_received_detail_id`;
-
-ALTER TABLE `good_received_note_detail`
-ADD COLUMN `charge_order_detail_id` CHAR(36) NULL DEFAULT NULL AFTER `good_received_note_detail_id`;
-
-ALTER TABLE `purchase_invoice_detail`
-ADD COLUMN `charge_order_detail_id` CHAR(36) NULL DEFAULT NULL AFTER `purchase_invoice_detail_id`;

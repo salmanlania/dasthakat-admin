@@ -90,3 +90,21 @@ ADD COLUMN `total_cost` DECIMAL(10,2) DEFAULT 0 AFTER `term_desc`;
 ALTER TABLE `event_dispatch`
 ADD COLUMN `status` varchar(255) DEFAULT NULL AFTER `event_time`;
 
+
+ALTER TABLE `picklist_received`
+ADD COLUMN `charge_order_id` CHAR(36) NULL DEFAULT NULL AFTER `picklist_id`;
+
+ALTER TABLE `picklist_received_detail`
+ADD COLUMN `charge_order_detail_id` CHAR(36) NULL DEFAULT NULL AFTER `picklist_received_detail_id`;
+
+ALTER TABLE `servicelist_received`
+ADD COLUMN `charge_order_id` CHAR(36) NULL DEFAULT NULL AFTER `servicelist_id`;
+
+ALTER TABLE `servicelist_received_detail`
+ADD COLUMN `charge_order_detail_id` CHAR(36) NULL DEFAULT NULL AFTER `servicelist_received_detail_id`;
+
+ALTER TABLE `good_received_note_detail`
+ADD COLUMN `charge_order_detail_id` CHAR(36) NULL DEFAULT NULL AFTER `good_received_note_detail_id`;
+
+ALTER TABLE `purchase_invoice_detail`
+ADD COLUMN `charge_order_detail_id` CHAR(36) NULL DEFAULT NULL AFTER `purchase_invoice_detail_id`;
