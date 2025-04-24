@@ -61,7 +61,7 @@ class ChargeOrderController extends Controller
 				$query
 					->where('c.name', 'like', '%' . $search . '%')
 					->OrWhere('v.name', 'like', '%' . $search . '%')
-					->OrWhere('q.document_identity', 'like', '%' . $search . '%')
+					->OrWhere('ref_document_identity', 'like', '%' . $search . '%')
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
 					->OrWhere('charge_order.document_identity', 'like', '%' . $search . '%');
 			});
