@@ -435,6 +435,7 @@ class ChargeOrderController extends Controller
 					'charge_order_detail_id' => $item->charge_order_detail_id,
 					'product_id'             => $item->product_id,
 					'quantity'               => $item->quantity ?? 0,
+					'sort_order'             => $item->sort_order,
 					'created_at'             =>  Carbon::now(),
 					'created_by'             => $request->login_user_id,
 				];

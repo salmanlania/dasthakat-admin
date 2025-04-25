@@ -40,7 +40,7 @@ class ServicelistReceivedController extends Controller
 				// Sum received quantities for this product
 				foreach ($receivedData as $received) {
 					foreach ($received->servicelist_received_detail as $receivedDetail) {
-						if ($receivedDetail->product_id == $productId) {
+						if ($receivedDetail->charge_order_detail_id == $detail->charge_order_detail_id) {
 							$receivedQty += $receivedDetail->quantity;
 						}
 					}
@@ -54,21 +54,28 @@ class ServicelistReceivedController extends Controller
 						"product_id" => $productId,
 						"product_name" => $detail->product->name ?? "",
 						"product" => $detail->product ?? "",
+						"product_description" => $detail->charge_order_detail->product_description ?? "",
 						"original_quantity" => $originalQty,
 						"received_quantity" => $receivedQty,
 						"remaining_quantity" => $remainingQty,
+						"sort_order" => $detail->sort_order ?? 0,
 						"charge_order_detail_id" => $detail->charge_order_detail_id,
 					];
 				}
 			}
 		}
+		usort($servicelist_remainings, function($a, $b) {
+			return $a['sort_order'] - $b['sort_order'];
+		});
 
 		// Add original quantity for history items
 		$historyWithOriginalQty = $receivedData->map(function ($received) use ($servicelist) {
 			$received->servicelist_received_detail->transform(function ($detail) use ($servicelist) {
 				// Find the original quantity from the servicelist details
-				$originalQty = optional($servicelist->servicelist_detail->firstWhere('product_id', $detail->product_id))->quantity ?? 0;
+				$thisServicelist = $servicelist->servicelist_detail->firstWhere('charge_order_detail_id', $detail->charge_order_detail_id);
+				$originalQty = optional($thisServicelist)->quantity ?? 0;
 				$detail->original_quantity = $originalQty;
+				$detail->product_description = optional($thisServicelist)->charge_order_detail->product_description ?? "";
 				return $detail;
 			});
 			return $received;
