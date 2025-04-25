@@ -41,8 +41,8 @@ class PicklistReceivedController extends Controller
 
 				// Sum received quantities for this product
 				foreach ($receivedData as $received) {
-					foreach ($received->picklist_received_detail as $receivedDetail) {
-						if ($receivedDetail->product_id == $productId) {
+					foreach ($received->picklist_received_detail as $receivedDetail) {						
+						if ($receivedDetail->charge_order_detail_id == $detail->charge_order_detail_id) {
 							$receivedQty += $receivedDetail->quantity;
 						}
 					}
@@ -69,7 +69,7 @@ class PicklistReceivedController extends Controller
 		$historyWithOriginalQty = $receivedData->map(function ($received) use ($picklist) {
 			$received->picklist_received_detail->transform(function ($detail) use ($picklist) {
 				// Find the original quantity from the picklist details
-				$originalQty = optional($picklist->picklist_detail->firstWhere('product_id', $detail->product_id))->quantity ?? 0;
+				$originalQty = optional($picklist->picklist_detail->firstWhere('charge_order_detail_id', $detail->charge_order_detail_id))->quantity ?? 0;
 				$detail->original_quantity = $originalQty;
 				
 				return $detail;
