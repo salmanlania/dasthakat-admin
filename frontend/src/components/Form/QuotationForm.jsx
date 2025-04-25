@@ -75,15 +75,15 @@ const QuotationForm = ({ mode, onSubmit }) => {
   } = useSelector((state) => state.quotation);
   const [prevEvent, setPrevEvent] = useState(initialFormValues?.event_id);
 
-  useEffect(() => {
-    quotationDetails.forEach((item, index) => {
-      form.setFieldsValue({
-        [`product_description-${index}`]: item.product_description,
-        [`product_id-${index}`]: item.product_id,
-        [`product_name-${index}`]: item.product_name
-      });
-    });
-  }, [quotationDetails]);
+  // useEffect(() => {
+  //   quotationDetails.forEach((item, index) => {
+  //     form.setFieldsValue({
+  //       [`product_description-${index}`]: item.product_description,
+  //       [`product_id-${index}`]: item.product_id,
+  //       [`product_name-${index}`]: item.product_name
+  //     });
+  //   });
+  // }, [quotationDetails]);
 
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;

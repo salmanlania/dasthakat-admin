@@ -443,6 +443,8 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       dataIndex: 'product_type',
       key: 'product_type',
       render: (_, { product_code, product_type_id, editable }, index) => {
+        // form.setFieldsValue({ [`product_code-${index}`]: product_code });
+        // form.setFieldsValue({ [`product_type_id-${index}`]: product_type_id });
         return (
           <AsyncSelectNoPaginate
             endpoint="/lookups/product-types"
