@@ -145,7 +145,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
     headStyles: {
       halign: 'center',
       valign: 'middle',
-      fontSize: 10,
+      fontSize: 8,
       fontStyle: 'bold',
       textColor: [32, 50, 114],
       fillColor: [221, 217, 196]
@@ -158,7 +158,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       lineColor: [116, 116, 116]
     },
     bodyStyles: {
-      fontSize: 10,
+      fontSize: 7,
       textColor: [32, 50, 114],
       fillColor: [255, 255, 255]
     },
@@ -281,7 +281,7 @@ export const createQuotationPrint = async (data) => {
     body: filledRows,
     margin: { left: sideMargin, right: sideMargin, bottom: 32, top: 84 },
     headStyles: {
-      fontSize: 10,
+      fontSize: 8,
       fontStyle: 'bold',
       halign: 'center',
       valign: 'middle',
@@ -292,7 +292,7 @@ export const createQuotationPrint = async (data) => {
       halign: 'center',
       valign: 'middle',
       font: 'times',
-      fontSize: 10,
+      fontSize: 8,
       lineWidth: 0.1,
       lineColor: [116, 116, 116]
     },
@@ -333,7 +333,7 @@ export const createQuotationPrint = async (data) => {
         content: 'Total:',
         styles: {
           fontStyle: 'bold',
-          fontSize: 10
+          fontSize: 9
         }
       },
       {
@@ -346,7 +346,7 @@ export const createQuotationPrint = async (data) => {
         styles: {
           fontStyle: 'bold',
           halign: 'right',
-          fontSize: 10
+          fontSize: 9
         }
       },
       {
@@ -355,7 +355,7 @@ export const createQuotationPrint = async (data) => {
         styles: {
           fontStyle: 'bold',
           halign: 'right',
-          fontSize: 10
+          fontSize: 9
         }
       },
       {
@@ -363,7 +363,7 @@ export const createQuotationPrint = async (data) => {
         styles: {
           fontStyle: 'bold',
           halign: 'right',
-          fontSize: 10
+          fontSize: 9
         }
       }
     ]
@@ -378,7 +378,7 @@ export const createQuotationPrint = async (data) => {
               content: 'Notes:',
               rowSpan: rowSpan,
               styles: {
-                fontSize: 10,
+                fontSize: 9,
                 fontStyle: 'bold'
               }
             },
@@ -418,7 +418,7 @@ export const createQuotationPrint = async (data) => {
       font: 'times'
     },
     bodyStyles: {
-      fontSize: 10,
+      fontSize: 8,
       textColor: [32, 50, 114],
       fillColor: [255, 255, 255],
       valign: 'middle',
