@@ -129,7 +129,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
     if (salesmanPercentage > 100)
       return toast.error('Salesman Percentage cannot be greater than 100');
     const edit = mode;
-    console.log('edit' , edit)
     const deletedDetails = quotationDetails.filter((detail) => detail.isDeleted !== true);
 
     const filteredDetails = quotationDetails.filter(
@@ -1164,7 +1163,16 @@ const QuotationForm = ({ mode, onSubmit }) => {
       onFinish={onFinish}
       initialValues={
         mode === 'edit'
-          ? initialFormValues
+          ? {
+              ...initialFormValues,
+              document_date: initialFormValues.document_date
+                ? dayjs(initialFormValues.document_date)
+                : null,
+              service_date: initialFormValues.service_date
+                ? dayjs(initialFormValues.service_date)
+                : null,
+              due_date: initialFormValues.due_date ? dayjs(initialFormValues.due_date) : null
+            }
           : {
               document_date: dayjs(),
               status: 'In Progress'

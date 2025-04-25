@@ -11,6 +11,7 @@ import Logo6 from '../../assets/quotation/logo6.png';
 import Logo7 from '../../assets/quotation/logo7.png';
 import QuotationTerms from '../../assets/quotation/quotationTerms.jpg';
 import { formatThreeDigitCommas, roundUpto } from '../number';
+import useError from '../../hooks/useError';
 
 const getImageBuffer = async (image) => {
   const img = await fetch(image);
@@ -21,6 +22,7 @@ const getImageBuffer = async (image) => {
 };
 
 const generateSchedulingExcel = async (datas) => {
+  const handleError = useError();
 
   try {
     const data = datas?.data
@@ -354,7 +356,7 @@ const generateSchedulingExcel = async (datas) => {
     saveAs(new Blob([buffer]), `Scheduling-${datas?.data[0]?.company_id ? datas?.data[0]?.company_id : datas?.data[0]?.created_at}.xlsx`);
 
   } catch (error) {
-    console.log('error', error)
+    handleError(error)
   }
 
 };

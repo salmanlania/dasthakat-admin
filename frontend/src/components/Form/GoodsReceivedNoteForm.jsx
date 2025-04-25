@@ -51,12 +51,9 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
   const onFinish = (values) => {
 
     const edit = mode;
-    console.log('edit' , edit)
     const deletedDetails = goodsReceivedNoteDetails.filter(
       (detail) => detail.isDeleted !== true
     );
-
-    console.log('deletedDetails' , deletedDetails)
 
     const filteredDetails = goodsReceivedNoteDetails.filter(
       (detail) => !(detail.isDeleted && detail.row_status === 'I')
@@ -92,9 +89,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       ),
       total_quantity: totalQuantity
     };
-
-    console.log('data', data);
-    // return;
+    
     onSubmit(data);
   };
 

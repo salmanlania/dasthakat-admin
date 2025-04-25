@@ -98,7 +98,6 @@ const NewReceivesTab = ({ details }) => {
     remarks: detail.remarks
   }));
   
-  console.log('dataSource' , dataSource)
   const detailColumns = [
     {
       title: 'Sr #',
