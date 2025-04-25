@@ -28,6 +28,12 @@ const HistoryTab = ({ details }) => {
       width: 200
     },
     {
+      title: 'Product Description',
+      dataIndex: 'product_description',
+      key: 'product',
+      width: 200
+    },
+    {
       title: 'Quantity',
       dataIndex: 'original_quantity',
       key: 'original_quantity',
@@ -57,6 +63,7 @@ const HistoryTab = ({ details }) => {
     id: detail.picklist_received_detail_id,
     key: detail.picklist_received_detail_id,
     product: detail?.product?.name || '',
+    product_description: detail?.product_description || '',
     original_quantity: parseFloat(detail.original_quantity || 0),
     quantity: parseFloat(detail?.quantity || 0),
     remarks: detail.remarks,

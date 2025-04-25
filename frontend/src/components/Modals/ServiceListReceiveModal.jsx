@@ -28,6 +28,12 @@ const HistoryTab = ({ details }) => {
       width: 200
     },
     {
+      title: 'Product Description',
+      dataIndex: 'product_description',
+      key: 'product_description',
+      width: 200
+    },
+    {
       title: 'Quantity',
       dataIndex: 'original_quantity',
       key: 'original_quantity',
@@ -57,6 +63,7 @@ const HistoryTab = ({ details }) => {
     id: detail.servicelist_received_detail_id,
     key: detail.servicelist_received_detail_id,
     product: detail?.product?.name || '',
+    product_description: detail?.product_description || '',
     original_quantity: parseFloat(detail.original_quantity || 0),
     quantity: parseFloat(detail?.quantity || 0),
     remarks: detail.remarks,
@@ -81,6 +88,7 @@ const NewReceivesTab = ({ details }) => {
     id: detail.servicelist_detail_id,
     key: detail.servicelist_detail_id,
     product_name: detail?.product_name || '',
+    product_description: detail?.product_description || '',
     product_id: detail.product_id,
     charge_order_detail_id: detail.charge_order_detail_id,
     remaining_quantity: detail.remaining_quantity ? parseFloat(detail.remaining_quantity) : 0,
@@ -102,6 +110,13 @@ const NewReceivesTab = ({ details }) => {
       key: 'product_name',
       width: 200,
       render: (_, __, index) => <p>{dataSource[index].product_name}</p>
+    },
+    {
+      title: 'Product Description',
+      dataIndex: 'product_description',
+      key: 'product_description',
+      width: 200,
+      render: (_, __, index) => <p>{dataSource[index].product_description}</p>
     },
     {
       title: 'Quantity',
