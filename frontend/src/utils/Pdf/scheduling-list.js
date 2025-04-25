@@ -4,19 +4,59 @@ import 'jspdf-autotable';
 import GMSLogo from '../../assets/logo-with-title.png';
 
 const addHeader = (doc, data, pageWidth, sideMargin) => {
-  const detail = data?.data || []
+  // const detail = data?.data || []
 
-  doc.addImage(GMSLogo, 'PNG', 8, 3, 32, 26);
+  // doc.addImage(GMSLogo, 'PNG', 8, 3, 32, 26);
 
-  doc.setFontSize(18);
+  // doc.setFontSize(18);
+  // doc.setFont('times', 'bold');
+  // doc.text('Global Marine Safety - America', 61, 16);
+
+  // doc.setFontSize(16);
+  // doc.setFont('times', 'bold');
+  // doc.text('Scheduling', pageWidth / 2, 34, {
+  //   align: 'center'
+  // });
+
+  doc.setTextColor(32, 50, 114);
+  doc.setFontSize(20);
   doc.setFont('times', 'bold');
-  doc.text('Global Marine Safety - America', 61, 16);
-
-  doc.setFontSize(16);
-  doc.setFont('times', 'bold');
-  doc.text('Scheduling', pageWidth / 2, 34, {
+  doc.text('Global Marine Safety - America', pageWidth / 2, 12, {
     align: 'center'
   });
+  doc.setFont('times', 'normal');
+  doc.setFontSize(10);
+  doc.text('9145 Wallisville Rd, Houston TX 77029, USA', pageWidth / 2, 18, {
+    align: 'center'
+  });
+  doc.text(
+    'Tel: 1 713-518-1715, Fax: 1 713-518-1760, Email: sales@gms-america.com',
+    pageWidth / 2,
+    22,
+    {
+      align: 'center'
+    }
+  );
+
+  // Header LOGO
+  doc.addImage(GMSLogo, 'PNG', 8, 1, 35, 26);
+
+  // Bill To and Ship To
+  doc.setFontSize(15);
+  doc.setFont('times', 'bold');
+  doc.setTextColor(32, 50, 114);
+  const text = 'Scheduling';
+  const x = pageWidth / 2;
+  const y = 30;
+
+  doc.text(text, x, y, { align: 'center' });
+
+  const textWidth = doc.getTextWidth(text);
+
+  const underlineY = y + 2;
+  doc.setDrawColor(32, 50, 114);
+  doc.setLineWidth(0.5);
+  doc.line(x - textWidth / 2, underlineY, x + textWidth / 2, underlineY);
 
   const date = dayjs().isValid() ? `Print Date: ${dayjs().format('MM-DD-YYYY HH:mm:ss')}` : 'Date: Empty';
   doc.setFontSize(10);
@@ -132,8 +172,6 @@ const pdfContent = (doc, data, pageWidth) => {
         ]);
       }
       if (item?.short_codes?.length) {
-        const consoling = item.short_codes.map(sc => sc.color)
-        console.log('consoling' , consoling)
         table2Rows.push([
           {
             content: 'Job Scope:',
@@ -143,9 +181,7 @@ const pdfContent = (doc, data, pageWidth) => {
           {
             content: item.short_codes.map(sc => sc.label).join(', '),
             colSpan: 6,
-            // styles: { fontStyle: 'normal', halign: 'left', textColor : item.short_codes.map(sc => sc.color || 'blue' )  }
-            styles: { fontStyle: 'normal', halign: 'left', textColor: [0, 0, 0]},
-            raw: { short_codes: item.short_codes } 
+            styles: { fontStyle: 'normal', halign: 'left' }
           }
         ]);
       }
@@ -153,28 +189,10 @@ const pdfContent = (doc, data, pageWidth) => {
   });
 
   doc.autoTable({
-    startY: 50,
+    startY: 35,
     head: [table2Column],
     body: table2Rows,
     margin: { right: 5, left: 5, top: 5, bottom: 5 },
-    didDrawCell: function (data) {
-      const cellRaw = data.cell.raw;
-      const isJobScope = data.row.cells[0]?.raw === 'Job Scope:';
-    
-      if (data.column.index === 1 && isJobScope && cellRaw?.short_codes) {
-        const shortCodes = cellRaw.short_codes;
-        const { doc } = data;
-        let x = data.cell.x + 2;
-        let y = data.cell.y + 10;
-    
-        shortCodes.forEach((sc, index) => {
-          const rgbColor = getColorRGB([255 , 0, 0]);
-          doc.setTextColor(...rgbColor);
-          doc.text(sc.label + (index < shortCodes.length - 1 ? ', ' : ''), x, y);
-          x += doc.getTextWidth(sc.label + ', ');
-        });
-      }
-    },       
     headStyles: {
       halign: 'center',
       valign: 'middle',

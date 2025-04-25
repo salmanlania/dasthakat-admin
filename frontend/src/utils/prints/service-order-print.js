@@ -239,7 +239,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         content: 'Type',
         styles: {
           fontStyle: 'bold',
-          halign: 'left',
+          halign: 'center',
           valign: 'middle',
           fillColor: [255, 255, 255]
         }
