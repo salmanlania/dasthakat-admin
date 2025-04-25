@@ -83,7 +83,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
   // Bill To and Ship To
   doc.setFontSize(15);
   doc.setFont('times', 'bold');
-  doc.setTextColor(79, 101, 51);
+  doc.setTextColor(32, 50, 114);
   const text = 'INTERNAL JOB ORDER';
   const x = pageWidth / 2;
   const y = 30;
