@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
 use App\Models\JobOrder;
+use App\Models\JobOrderDetail;
 use App\Models\Picklist;
 use App\Models\PicklistDetail;
 use App\Models\PurchaseOrder;
@@ -446,7 +447,19 @@ class ChargeOrderController extends Controller
 			ServicelistDetail::insert($servicelistDetailInsert);
 		}
 	}
-	public function updatePurchaseOrders($request, $chargeOrder) {}
+	public function updateJobOrder($request, $chargeOrder)
+	{
+		foreach ($chargeOrder->charge_order_detail as $row) {
+			$detail = JobOrderDetail::where('charge_order_detail_id', $row->charge_order_detail_id)->first();
+
+			if ($detail) {
+				$detail->update([
+					'quantity' => $row->quantity,
+				]);
+			}
+		}
+	
+	}
 
 
 
@@ -702,6 +715,7 @@ class ChargeOrderController extends Controller
 
 		$this->updatePicklist($request, $chargeOrder);
 		$this->updateServicelist($request, $chargeOrder);
+		$this->updateJobOrder($request, $chargeOrder);
 
 
 		return $this->jsonResponse(['charge_order_id' => $id], 200, "Update Charge Order Successfully!");
