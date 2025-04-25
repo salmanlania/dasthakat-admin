@@ -111,9 +111,10 @@ const ChargeOrderModal = () => {
     const data = {
       ref_document_identity: initialFormValues.document_identity,
       ref_document_type_id: initialFormValues.document_type_id,
-      document_date: initialFormValues.document_date
-        ? dayjs(initialFormValues.document_date).format('YYYY-MM-DD')
-        : null,
+      // document_date: initialFormValues.document_date
+      //   ? dayjs(initialFormValues.document_date).format('YYYY-MM-DD')
+      //   : null,
+      document_date: dayjs().format('YYYY-MM-DD'),
       salesman_id: initialFormValues.salesman_id ? initialFormValues.salesman_id.value : null,
       event_id: initialFormValues.event_id ? initialFormValues.event_id.value : null,
       vessel_id: initialFormValues.vessel_id ? initialFormValues.vessel_id.value : null,
