@@ -78,17 +78,20 @@ const NewReceivesTab = ({ details }) => {
     (state) => state.pickList
   );
 
+  
   const dataSource = details.map((detail) => ({
     id: detail.picklist_detail_id,
     key: detail.picklist_detail_id,
     product_name: detail?.product_name || '',
+    product_description: detail?.product_description || '',
     product_id: detail.product_id,
     charge_order_detail_id: detail.charge_order_detail_id,
     remaining_quantity: detail.remaining_quantity ? parseFloat(detail.remaining_quantity) : 0,
     original_quantity: detail.original_quantity ? parseFloat(detail.original_quantity) : 0,
     remarks: detail.remarks
   }));
-
+  
+  console.log('dataSource' , dataSource)
   const detailColumns = [
     {
       title: 'Sr #',
@@ -103,6 +106,13 @@ const NewReceivesTab = ({ details }) => {
       key: 'product_name',
       width: 200,
       render: (_, __, index) => <p>{dataSource[index].product_name}</p>
+    },
+    {
+      title: 'Product Description',
+      dataIndex: 'product_description',
+      key: 'product_description',
+      width: 250,
+      render: (_, __, index) => <p>{dataSource[index].product_description}</p>
     },
     {
       title: 'Quantity',
@@ -146,7 +156,7 @@ const NewReceivesTab = ({ details }) => {
       title: 'Warehouse',
       dataIndex: 'warehouse_id',
       key: 'warehouse_id',
-      width: 200,
+      width: 170,
       render: (_, __, index) => {
 
         const quantityValue = newRules[index] || dataSource[index]?.remaining_quantity;
@@ -295,7 +305,7 @@ const PickListReceiveModal = () => {
       onCancel={closeModal}
       loading={isPickListReceivesLoading}
       footer={null}
-      width={840}>
+      width={1000}>
       {pickListReceives ? (
         <Tabs
           defaultActiveKey={
