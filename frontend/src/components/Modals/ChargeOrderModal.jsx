@@ -9,6 +9,7 @@ import useError from '../../hooks/useError';
 import { createChargeOrder, setChargeQuotationID } from '../../store/features/chargeOrderSlice';
 import { changeQuotationDetailValue, getQuotation } from '../../store/features/quotationSlice';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
+import dayjs from 'dayjs';
 
 const ChargeOrderModal = () => {
   const [form] = Form.useForm();
@@ -56,7 +57,7 @@ const ChargeOrderModal = () => {
       title: 'Description',
       dataIndex: 'product_description',
       key: 'product_description',
-      width: 240,
+      width: 240
     },
     {
       title: 'Customer Notes',
@@ -110,7 +111,9 @@ const ChargeOrderModal = () => {
     const data = {
       ref_document_identity: initialFormValues.document_identity,
       ref_document_type_id: initialFormValues.document_type_id,
-      document_date: initialFormValues.document_date,
+      document_date: initialFormValues.document_date
+        ? dayjs(initialFormValues.document_date).format('YYYY-MM-DD')
+        : null,
       salesman_id: initialFormValues.salesman_id ? initialFormValues.salesman_id.value : null,
       event_id: initialFormValues.event_id ? initialFormValues.event_id.value : null,
       vessel_id: initialFormValues.vessel_id ? initialFormValues.vessel_id.value : null,

@@ -156,8 +156,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
       validity_id: values.validity_id ? values.validity_id.value : null,
       vessel_id: values.vessel_id ? values.vessel_id.value : null,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
-      service_date: values.service_date ? dayjs(values.service_date).format('YYYY-MM-DD') : null,
-      due_date: values.due_date ? dayjs(values.due_date).format('YYYY-MM-DD') : null,
+      service_date: values.service_date ? dayjs(values.service_date).format('YYYY-MM-DD') : "",
+      due_date: values.due_date ? dayjs(values.due_date).format('YYYY-MM-DD') : "",
       term_id: values.term_id && values.term_id.length ? values.term_id.map((v) => v.value) : null,
       status: values.status,
       quotation_detail: mappingSource.map(
@@ -1168,10 +1168,10 @@ const QuotationForm = ({ mode, onSubmit }) => {
               document_date: initialFormValues.document_date
                 ? dayjs(initialFormValues.document_date)
                 : null,
-              service_date: initialFormValues.service_date
+              service_date: initialFormValues.service_date === "0000-00-00"
                 ? dayjs(initialFormValues.service_date)
                 : null,
-              due_date: initialFormValues.due_date ? dayjs(initialFormValues.due_date) : null
+              due_date: initialFormValues.due_date === "0000-00-00" ? dayjs(initialFormValues.due_date) : null
             }
           : {
               document_date: dayjs(),
