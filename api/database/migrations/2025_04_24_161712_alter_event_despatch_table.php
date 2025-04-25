@@ -12,7 +12,7 @@ return new class extends Migration
             $table->dropColumn('technician_id');
         });
         Schema::table('event_dispatch', function (Blueprint $table) {
-            $table->blob('technician_id')->default(null)->after('event_id');
+            $table->json('technician_id')->default(null)->after('event_id');
         });
     }
 

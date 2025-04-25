@@ -14,6 +14,7 @@ class JobOrderDetailCertificate extends Model
         'job_order_id',
         'job_order_detail_id',
         'sort_order',
+        'type',
         'certificate_number',
         'certificate_date',
         'created_at',

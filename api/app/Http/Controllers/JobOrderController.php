@@ -128,12 +128,12 @@ class JobOrderController extends Controller
 
 				$shippedRow = ShipmentDetail::with("shipment");
 
-				if ($detail->product_type_id == 4) {
+				// if ($detail->product_type_id == 4) {
 
-					$shippedRow->where('product_name', $detail->product_name);
-				} else {
-					$shippedRow->where('product_id', $detail->product_id);
-				}
+				// 	$shippedRow->where('product_name', $detail->product_name);
+				// } else {
+					$shippedRow->where('charge_order_detail_id', $detail->charge_order_detail_id);
+				// }
 				$shippedRow = $shippedRow->where('charge_order_id', $detail->charge_order_id)
 					->first();
 				$detail->shipment = $shippedRow?->shipment ?: null; // Attach shipment if found, else null
@@ -395,13 +395,13 @@ class JobOrderController extends Controller
 	 */
 	private function createCertificate(string $jobOrderId, string $detailId, $detail, string $userId): void
 	{
-		$Product = Product::with('sub_category')->where('product_id', $detail['product_id'])->first();
-		$subCategory = $Product->sub_category->name ?? '';
+		$Product = Product::with('category')->where('product_id', $detail['product_id'])->first();
+		$Category = $Product->category->name ?? '';
 		$certificateData = [
 			'certificate_id' => $this->get_uuid(),
 			'job_order_id' => $jobOrderId,
 			'job_order_detail_id' => $detailId,
-			'type' => $subCategory,
+			'type' => $Category,
 			'certificate_date' => Carbon::now(),
 			'created_at' => Carbon::now(),
 			'created_by' => $userId,
@@ -413,8 +413,8 @@ class JobOrderController extends Controller
 			'Life Boat' => ['prefix' => 'GMSHL', 'type' => 'Life Boat'],
 		];
 
-		if (isset($certificateConfig[$subCategory])) {
-			$config = $certificateConfig[$subCategory];
+		if (isset($certificateConfig[$Category])) {
+			$config = $certificateConfig[$Category];
 			$lastCertificate = JobOrderDetailCertificate::where('type', $config['type'])
 				->orderBy('sort_order', 'desc')
 				->first();
