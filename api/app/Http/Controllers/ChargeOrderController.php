@@ -346,6 +346,7 @@ class ChargeOrderController extends Controller
 					'sort_order'             => $index++,
 					'charge_order_detail_id' => $item->charge_order_detail_id,
 					'product_id'             => $item->product_id,
+					'sort_order'             => $item->sort_order,
 					'product_description'    => $item->product_description,
 					'quantity'               => $item->quantity ?? 0,
 					'created_at'             =>  Carbon::now(),

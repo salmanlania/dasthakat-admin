@@ -56,10 +56,12 @@ class PicklistReceivedController extends Controller
 						"charge_order_detail_id" => $detail->charge_order_detail_id ?? null,
 						"product_id" => $productId,
 						"product_name" => $detail->product->name ?? "",
+						"product_description" => $detail->product_description ?? "",
 						"product" => $detail->product ?? "",
 						"original_quantity" => $originalQty,
 						"received_quantity" => $receivedQty,
 						"remaining_quantity" => $remainingQty,
+						"sort_order" => $detail->sort_order ?? 0,
 					];
 				}
 			}
@@ -69,12 +71,18 @@ class PicklistReceivedController extends Controller
 		$historyWithOriginalQty = $receivedData->map(function ($received) use ($picklist) {
 			$received->picklist_received_detail->transform(function ($detail) use ($picklist) {
 				// Find the original quantity from the picklist details
-				$originalQty = optional($picklist->picklist_detail->firstWhere('charge_order_detail_id', $detail->charge_order_detail_id))->quantity ?? 0;
+				$thisPicklist = $picklist->picklist_detail->firstWhere('charge_order_detail_id', $detail->charge_order_detail_id);
+				$originalQty = optional($thisPicklist)->quantity ?? 0;
 				$detail->original_quantity = $originalQty;
+				$detail->product_description = optional($thisPicklist)->product_description ?? "";
 				
 				return $detail;
 			});
 			return $received;
+		});
+
+		usort($picklist_remainings, function($a, $b) {
+			return $a['sort_order'] - $b['sort_order'];
 		});
 
 		$response = [
