@@ -30,7 +30,7 @@ const HistoryTab = ({ details }) => {
     {
       title: 'Product Description',
       dataIndex: 'product_description',
-      key: 'product',
+      key: 'product_description',
       width: 200
     },
     {
