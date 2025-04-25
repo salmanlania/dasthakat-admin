@@ -22,7 +22,8 @@ const EditGoodsReceivedNote = () => {
     try {
       await dispatch(updateGoodsReceivedNote({ id, data })).unwrap();
       toast.success('Goods Received Note updated successfully');
-      navigate('/goods-received-note');
+      // navigate('/goods-received-note');
+      dispatch(getGoodsReceivedNote(id)).unwrap().catch(handleError);
     } catch (error) {
       handleError(error);
     }

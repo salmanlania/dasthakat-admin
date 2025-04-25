@@ -62,12 +62,17 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
 
   const onFinish = async (additionalRequest = null) => {
     const isValidFields = await form.validateFields();
-    if (!isValidFields) return
+    if (!isValidFields) return;
     const values = form.getFieldsValue();
+
+    const edit = mode;
+    const deletedDetails = chargeOrderDetails.filter((detail) => detail.isDeleted !== true);
 
     const filteredDetails = chargeOrderDetails.filter(
       (detail) => !(detail.isDeleted && detail.row_status === 'I')
     );
+
+    const mappingSource = edit === 'edit' ? chargeOrderDetails : deletedDetails;
 
     const data = {
       chargeOrder_id,
@@ -88,25 +93,28 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         ? dayjs(values.document_date).format('YYYY-MM-DD')
         : null,
       user_id: values.user_id ? values.user_id.map((v) => v.value) : null,
-      charge_order_detail: chargeOrderDetails.map(({ id, product_type, ...detail }, index) => {
-        return {
-          ...detail,
-          picklist_id: detail?.picklist_id || '',
-          picklist_detail_id: detail?.picklist_id || '',
-          purchase_order_id: detail?.purchase_order_id || '',
-          purchase_order_detail_id: detail?.purchase_order_detail_id || '',
-          product_id: detail.product_type_id?.value == 4 ? null : detail?.product_id?.value,
-          product_name: detail.product_type_id?.value == 4 ? detail?.product_name : null,
-          supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
-          product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
-          unit_id: detail.unit_id ? detail.unit_id.value : null,
-          markup: detail.product_type_id?.value === 1 ? 0 : detail.markup,
-          cost_price: detail.product_type_id?.value === 1 ? 0 : detail.cost_price,
-          sort_order: index,
-          row_status: detail.row_status,
-          charge_order_detail_id: id ? id : null
-        };
-      }),
+      charge_order_detail: mappingSource.map(
+        ({ id, isDeleted,row_status, product_type, ...detail }, index) => {
+          return {
+            ...detail,
+            picklist_id: detail?.picklist_id || '',
+            picklist_detail_id: detail?.picklist_id || '',
+            purchase_order_id: detail?.purchase_order_id || '',
+            purchase_order_detail_id: detail?.purchase_order_detail_id || '',
+            product_id: detail.product_type_id?.value == 4 ? null : detail?.product_id?.value,
+            product_name: detail.product_type_id?.value == 4 ? detail?.product_name : null,
+            supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
+            product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
+            unit_id: detail.unit_id ? detail.unit_id.value : null,
+            markup: detail.product_type_id?.value === 1 ? 0 : detail.markup,
+            cost_price: detail.product_type_id?.value === 1 ? 0 : detail.cost_price,
+            sort_order: index,
+            charge_order_detail_id: id ? id : null,
+            // row_status: detail.row_status,
+            ...(edit === 'edit' ? { row_status } : {})
+          };
+        }
+      ),
       total_quantity: totalQuantity
     };
 
@@ -490,6 +498,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       key: 'product_name',
       render: (_, { product_id, product_name, product_type_id }, index) => {
         form.setFieldsValue({ [`product_name-${index}`]: product_name });
+        form.setFieldsValue({ [`product_id-${index}`]: product_id });
         return product_type_id?.value == 4 ? (
           <Form.Item
             key={index}
@@ -569,7 +578,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
               {
                 required: true,
                 whitespace: true,
-                message: 'Description is required',
+                message: 'Description is required'
               }
             ]}>
             <DebounceInput
@@ -665,7 +674,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
               rules={[
                 {
                   required: true,
-                  message: 'Quantity is required',
+                  message: 'Quantity is required'
                 },
                 {
                   validator: (_, value, callback, source) => {
@@ -1013,7 +1022,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       ),
       key: 'action',
       render: (record, { id, editable }, index) => {
-
         if (record.isDeleted) {
           return null;
         }
@@ -1122,7 +1130,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         </Col>
         <Col span={24} sm={12} md={5} lg={5}>
           <Form.Item name="ref_document_identity" label="Quote No">
-            <Input />
+            <Input disabled />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={5} lg={5}>

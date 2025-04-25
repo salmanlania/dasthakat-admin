@@ -129,18 +129,18 @@ export const quotationSlice = createSlice({
         id: Date.now(),
         product_code: null,
         product_id: null,
-        product_name: null,
+        // product_name: null,
         description: null,
-        stock_quantity: null,
+        // stock_quantity: null,
         quantity: null,
         unit_id: null,
-        supplier_id: null,
-        cost_price: null,
-        markup: '0',
+        // supplier_id: null,
+        // cost_price: null,
+        // markup: '0',
         rate: null,
         amount: null,
-        discount_percent: '0',
-        gross_amount: null,
+        // discount_percent: '0',
+        // gross_amount: null,
         row_status: 'I'
       };
 
@@ -159,7 +159,8 @@ export const quotationSlice = createSlice({
       const newDetail = {
         ...detail,
         id: Date.now(),
-        row_status: 'U'
+        row_status: 'I',
+        isDeleted: false
       };
 
       state.quotationDetails.splice(index + 1, 0, newDetail);
@@ -196,7 +197,7 @@ export const quotationSlice = createSlice({
       const detail = state.quotationDetails[index];
 
       if (
-        detail.row_status === 'N' &&
+        detail.row_status === 'U' &&
         detail[key] !== value
       ) {
         detail.row_status = 'U';
@@ -260,7 +261,7 @@ export const quotationSlice = createSlice({
         amount: null,
         discount_percent: '0',
         gross_amount: null,
-        row_status: state.quotationDetails[index].row_status === 'N' ? 'U' : state.quotationDetails[index].row_status
+        row_status: state.quotationDetails[index].row_status === 'U' ? 'U' : state.quotationDetails[index].row_status
       };
     },
 
@@ -425,7 +426,7 @@ export const quotationSlice = createSlice({
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_amount,
         gross_amount: detail.gross_amount,
-        row_status: 'N',
+        row_status: 'U',
         isDeleted: false
       }));
 
@@ -448,7 +449,7 @@ export const quotationSlice = createSlice({
         .filter(item => item.row_status !== 'D')
         .map(item => ({
           ...item,
-          row_status: 'N',
+          row_status: 'U',
           isDeleted: false
         }));
       state.initialFormValues = null;

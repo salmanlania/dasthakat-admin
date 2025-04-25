@@ -19,7 +19,8 @@ const EditPurchaseOrder = () => {
     try {
       await dispatch(updatePurchaseOrder({ id, data })).unwrap();
       toast.success('Purchase order updated successfully');
-      navigate('/purchase-order');
+      // navigate('/purchase-order');
+      await dispatch(getPurchaseOrder(id)).unwrap().catch(handleError);
     } catch (error) {
       handleError(error);
     }

@@ -261,7 +261,8 @@ export const chargeOrderSlice = createSlice({
         shipment_id: null,
         shipment_detail_id: null,
         id: Date.now(),
-        row_status: 'U'
+        row_status: 'I',
+        isDeleted: false
       };
 
       state.chargeOrderDetails.splice(index + 1, 0, newDetail);
@@ -297,7 +298,7 @@ export const chargeOrderSlice = createSlice({
         amount: null,
         discount_percent: '0',
         gross_amount: null,
-        row_status: state.chargeOrderDetails[index].row_status === 'N' ? 'U' : state.chargeOrderDetails[index].row_status
+        row_status: state.chargeOrderDetails[index].row_status === 'U' ? 'U' : state.chargeOrderDetails[index].row_status
       };
     },
 
@@ -314,7 +315,7 @@ export const chargeOrderSlice = createSlice({
       const detail = state.chargeOrderDetails[index];
 
       if (
-        detail.row_status === 'N' &&
+        detail.row_status === 'U' &&
         detail[key] !== value
       ) {
         detail.row_status = 'U';
@@ -565,7 +566,7 @@ export const chargeOrderSlice = createSlice({
         discount_amount: detail.discount_amount,
         gross_amount: detail.gross_amount,
         editable: detail.editable,
-        row_status: 'N',
+        row_status: 'U',
         isDeleted: false
       }));
     });
@@ -584,7 +585,7 @@ export const chargeOrderSlice = createSlice({
         .filter(item => item.row_status !== 'D')
         .map(item => ({
           ...item,
-          row_status: 'N',
+          row_status: 'U',
           isDeleted: false
         }));
     });

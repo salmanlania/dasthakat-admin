@@ -20,9 +20,9 @@ const CreateQuotation = () => {
       const createdId = res.data.data.quotation_id;
       toast.success('Quotation created successfully');
 
-      if (permissions.edit) {
-        navigate(`/quotation/edit/${createdId}`);
-      }
+      // if (permissions.edit) {
+        navigate('/quotation');
+      // }
     } catch (error) {
       handleError(error);
     }

@@ -117,7 +117,10 @@ const QuotationForm = ({ mode, onSubmit }) => {
       ? formatThreeDigitCommas(roundUpto(totalNet * (salesmanPercentage / 100)))
       : 0;
 
-  const finalAmount = roundUpto(parseInt(totalNet || 0) - parseInt(rebateAmount || 0) - parseInt(salesmanAmount || 0)) || 0;
+  const finalAmount =
+    roundUpto(
+      parseInt(totalNet || 0) - parseInt(rebateAmount || 0) - parseInt(salesmanAmount || 0)
+    ) || 0;
 
   totalProfit = roundUpto(finalAmount - totalCost);
 
@@ -125,10 +128,15 @@ const QuotationForm = ({ mode, onSubmit }) => {
     if (rebatePercentage > 100) return toast.error('Rebate Percentage cannot be greater than 100');
     if (salesmanPercentage > 100)
       return toast.error('Salesman Percentage cannot be greater than 100');
+    const edit = mode;
+    console.log('edit' , edit)
+    const deletedDetails = quotationDetails.filter((detail) => detail.isDeleted !== true);
 
     const filteredDetails = quotationDetails.filter(
       (detail) => !(detail.isDeleted && detail.row_status === 'I')
     );
+
+    const mappingSource = edit === 'edit' ? quotationDetails : deletedDetails;
 
     const data = {
       attn: values.attn,
@@ -153,22 +161,25 @@ const QuotationForm = ({ mode, onSubmit }) => {
       due_date: values.due_date ? dayjs(values.due_date).format('YYYY-MM-DD') : null,
       term_id: values.term_id && values.term_id.length ? values.term_id.map((v) => v.value) : null,
       status: values.status,
-      quotation_detail: quotationDetails.map(({ id, product_type, ...detail }, index) => {
-        return {
-          ...detail,
-          product_id: detail.product_type_id?.value == 4 ? null : detail?.product_id?.value,
-          product_name: detail.product_type_id?.value == 4 ? detail?.product_name : null,
-          supplier_id: detail.supplier_id ? detail?.supplier_id?.value : null,
-          product_type_id: detail?.product_type_id ? detail?.product_type_id?.value : null,
-          unit_id: detail?.unit_id ? detail?.unit_id?.value : null,
-          markup: detail.product_type_id?.value === 1 ? 0 : detail.markup,
-          cost_price: detail.product_type_id?.value === 1 ? 0 : detail.cost_price,
-          sort_order: index,
-          quotation_detail_id: typeof id === 'number' ? id : null,
-          row_status: detail.row_status,
-          quotation_detail_id: id ? id : null
-        };
-      }),
+      quotation_detail: mappingSource.map(
+        ({ id, row_status, isDeleted, product_type, ...detail }, index) => {
+          return {
+            ...detail,
+            product_id: detail.product_type_id?.value == 4 ? null : detail?.product_id?.value,
+            product_name: detail.product_type_id?.value == 4 ? detail?.product_name : null,
+            supplier_id: detail.supplier_id ? detail?.supplier_id?.value : null,
+            product_type_id: detail?.product_type_id ? detail?.product_type_id?.value : null,
+            unit_id: detail?.unit_id ? detail?.unit_id?.value : null,
+            markup: detail.product_type_id?.value === 1 ? 0 : detail.markup,
+            cost_price: detail.product_type_id?.value === 1 ? 0 : detail.cost_price,
+            sort_order: index,
+            quotation_detail_id: typeof id === 'number' ? id : null,
+            quotation_detail_id: id ? id : null,
+            // row_status: detail.row_status,
+            ...(edit === 'edit' ? { row_status } : {})
+          };
+        }
+      ),
       total_quantity: totalQuantity,
       total_Cost: totalCost,
       total_discount: discountAmount,
@@ -581,6 +592,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
       dataIndex: 'product_name',
       key: 'product_name',
       render: (_, { product_id, product_name, product_type_id }, index) => {
+        form.setFieldsValue({ [`product_name-${index}`]: product_name });
+        form.setFieldsValue({ [`product_id-${index}`]: product_id });
         return product_type_id?.value == 4 ? (
           <Form.Item
             className="m-0"
@@ -650,6 +663,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       dataIndex: 'product_description',
       key: 'product_description',
       render: (_, { product_description, product_type_id }, index) => {
+        form.setFieldsValue({ [`product_description-${index}`]: product_description });
         return (
           <Form.Item
             className="m-0"
@@ -1403,12 +1417,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
               value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
             />
           </Col>
-          <Col span={24} sm={12} md={6} lg={6}>
-            <DetailSummaryInfo
-              title="Total Profit:"
-              value={formatThreeDigitCommas(roundUpto(totalProfit)) || 0}
-            />
-          </Col>
 
           <Col span={24} sm={12} md={6} lg={6}>
             <DetailSummaryInfo
@@ -1469,8 +1477,17 @@ const QuotationForm = ({ mode, onSubmit }) => {
             </div>
           </Col>
         </Row>
-
-        <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
+        <Row gutter={[12, 12]}>
+          <Col span={24} sm={12} md={6} lg={6}>
+            <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
+          </Col>
+          <Col span={24} sm={12} md={6} lg={6}>
+            <DetailSummaryInfo
+              title="Total Profit:"
+              value={formatThreeDigitCommas(roundUpto(totalProfit)) || 0}
+            />
+          </Col>
+        </Row>
       </div>
 
       <div className="mt-4 flex items-center justify-end gap-2">

@@ -56,11 +56,14 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
   const onFinish = (values) => {
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
 
+    const edit = mode;
+    const deletedDetails = purchaseOrderDetails.filter((detail) => detail.isDeleted !== true);
+
     const filteredDetails = purchaseOrderDetails.filter(
       (detail) => !(detail.isDeleted && detail.row_status === 'I')
     );
 
-    const edit = mode;
+    const mappingSource = edit === 'edit' ? purchaseOrderDetails : deletedDetails;
 
     const data = {
       type: values.type,
@@ -77,18 +80,20 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       charge_order_id: initialFormValues?.charge_order_id,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
       required_date: values.required_date ? dayjs(values.required_date).format('YYYY-MM-DD') : null,
-      purchase_order_detail: purchaseOrderDetails.map(({ id, row_status, ...detail }, index) => ({
-        ...detail,
-        product_id: detail.product_type_id?.value == 4 ? null : detail.product_id.value,
-        product_name: detail.product_type_id?.value == 4 ? detail.product_name : null,
-        unit_id: detail.unit_id ? detail.unit_id.value : null,
-        product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
-        sort_order: index,
-        purchase_order_detail_id: id ? id : null,
-        // row_status: detail.row_status,
-        // row_status : edit === "edit" ? detail.row_status :
-        ...(edit === 'edit' ? { row_status } : {})
-      })),
+      purchase_order_detail: mappingSource.map(
+        ({ id, isDeleted, row_status, ...detail }, index) => ({
+          ...detail,
+          product_id: detail.product_type_id?.value == 4 ? null : detail.product_id.value,
+          product_name: detail.product_type_id?.value == 4 ? detail.product_name : null,
+          unit_id: detail.unit_id ? detail.unit_id.value : null,
+          product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
+          sort_order: index,
+          purchase_order_detail_id: id ? id : null,
+          // row_status: detail.row_status,
+          // row_status : edit === "edit" ? detail.row_status :
+          ...(edit === 'edit' ? { row_status } : {})
+        })
+      ),
       total_amount: totalAmount,
       total_quantity: totalQuantity
     };
