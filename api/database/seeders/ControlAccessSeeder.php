@@ -15,7 +15,7 @@ class ControlAccessSeeder extends Seeder
     public function run()
     {
         $data = [
-          
+
             ['module_name' => 'General Group', 'form_name' => 'Company', 'route' => 'company', 'permission_id' => 'list', 'permission_name' => 'List', 'sort_order' => 1.101],
             ['module_name' => 'General Group', 'form_name' => 'Company', 'route' => 'company', 'permission_id' => 'add', 'permission_name' => 'Add', 'sort_order' => 1.102],
             ['module_name' => 'General Group', 'form_name' => 'Company', 'route' => 'company', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
@@ -26,6 +26,8 @@ class ControlAccessSeeder extends Seeder
             ['module_name' => 'General Group', 'form_name' => 'Company Branch', 'route' => 'company_branch', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
             ['module_name' => 'General Group', 'form_name' => 'Company Branch', 'route' => 'company_branch', 'permission_id' => 'delete', 'permission_name' => 'Delete', 'sort_order' => 1.104],
 
+            ['module_name' => 'General Group', 'form_name' => 'Company Settings', 'route' => 'setting', 'permission_id' => 'update', 'permission_name' => 'Update', 'sort_order' => 1.101],
+ 
             ['module_name' => 'General Group', 'form_name' => 'Currency', 'route' => 'currency', 'permission_id' => 'list', 'permission_name' => 'List', 'sort_order' => 1.101],
             ['module_name' => 'General Group', 'form_name' => 'Currency', 'route' => 'currency', 'permission_id' => 'add', 'permission_name' => 'Add', 'sort_order' => 1.102],
             ['module_name' => 'General Group', 'form_name' => 'Currency', 'route' => 'currency', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
@@ -151,6 +153,16 @@ class ControlAccessSeeder extends Seeder
             ['module_name' => 'Sale Management', 'form_name' => 'Purchase Order', 'route' => 'purchase_order', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
             ['module_name' => 'Sale Management', 'form_name' => 'Purchase Order', 'route' => 'purchase_order', 'permission_id' => 'delete', 'permission_name' => 'Delete', 'sort_order' => 1.104],
 
+            ['module_name' => 'Sale Management', 'form_name' => 'Service Order', 'route' => 'service_order', 'permission_id' => 'list', 'permission_name' => 'List', 'sort_order' => 1.101],
+            ['module_name' => 'Sale Management', 'form_name' => 'Service Order', 'route' => 'service_order', 'permission_id' => 'add', 'permission_name' => 'Add', 'sort_order' => 1.102],
+            ['module_name' => 'Sale Management', 'form_name' => 'Service Order', 'route' => 'service_order', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
+            ['module_name' => 'Sale Management', 'form_name' => 'Service Order', 'route' => 'service_order', 'permission_id' => 'delete', 'permission_name' => 'Delete', 'sort_order' => 1.104],
+
+            ['module_name' => 'Sale Management', 'form_name' => 'Shipment', 'route' => 'shipment', 'permission_id' => 'list', 'permission_name' => 'List', 'sort_order' => 1.101],
+            ['module_name' => 'Sale Management', 'form_name' => 'Shipment', 'route' => 'shipment', 'permission_id' => 'add', 'permission_name' => 'Add', 'sort_order' => 1.102],
+            ['module_name' => 'Sale Management', 'form_name' => 'Shipment', 'route' => 'shipment', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
+            ['module_name' => 'Sale Management', 'form_name' => 'Shipment', 'route' => 'shipment', 'permission_id' => 'delete', 'permission_name' => 'Delete', 'sort_order' => 1.104],
+
             ['module_name' => 'Warehousing', 'form_name' => 'Picklist', 'route' => 'picklist', 'permission_id' => 'list', 'permission_name' => 'List', 'sort_order' => 1.101],
             ['module_name' => 'Warehousing', 'form_name' => 'Picklist', 'route' => 'picklist', 'permission_id' => 'add', 'permission_name' => 'Add', 'sort_order' => 1.102],
             ['module_name' => 'Warehousing', 'form_name' => 'Picklist', 'route' => 'picklist', 'permission_id' => 'receive', 'permission_name' => 'Receive', 'sort_order' => 1.103],
@@ -168,6 +180,9 @@ class ControlAccessSeeder extends Seeder
             ['module_name' => 'Accounting', 'form_name' => 'Purchase Invoice', 'route' => 'purchase_invoice', 'permission_id' => 'add', 'permission_name' => 'Add', 'sort_order' => 1.102],
             ['module_name' => 'Accounting', 'form_name' => 'Purchase Invoice', 'route' => 'purchase_invoice', 'permission_id' => 'edit', 'permission_name' => 'Edit', 'sort_order' => 1.103],
             ['module_name' => 'Accounting', 'form_name' => 'Purchase Invoice', 'route' => 'purchase_invoice', 'permission_id' => 'delete', 'permission_name' => 'Delete', 'sort_order' => 1.104],
+
+            ['module_name' => 'System', 'form_name' => 'Audit', 'route' => 'audit', 'permission_id' => 'list', 'permission_name' => 'List', 'sort_order' => 1.101],
+            ['module_name' => 'System', 'form_name' => 'Audit', 'route' => 'audit', 'permission_id' => 'view', 'permission_name' => 'View', 'sort_order' => 1.102],
 
         ];
         ControlAccess::insert($data);
