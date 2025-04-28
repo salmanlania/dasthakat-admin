@@ -673,9 +673,9 @@ const QuotationForm = ({ mode, onSubmit }) => {
               value={product_id}
               onChange={(selected) => onProductChange(index, selected)}
               addNewLink={permissions.product.add ? '/product/create' : null}
-              dropdownStyle={{ backgroundColor: '#6579db' }}
+              dropdownStyle={{ backgroundColor: '#a2e1eb' }}
               optionLabelProp="children"
-              optionProps={{ style: { backgroundColor: '#6579db', whiteSpace: 'nowrap' } }}
+              optionProps={{ style: { backgroundColor: '#a2e1eb', whiteSpace: 'nowrap' } }}
             />
           </Form.Item>
         );
