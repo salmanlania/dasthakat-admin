@@ -183,4 +183,4 @@ jobs:
 
     - name: 🔄 Run Migrations
       run: |
-        curl -X GET "${{ secrets.DEV_BASE_PATH }}/api/migrations" -H "X-DEPLOY-TOKEN: ${{ secrets.DEPLOY_TOKEN }}"
+        curl -L -X GET "https://${{ secrets.DEV_BASE_PATH }}/api/migrations" -H "X-DEPLOY-TOKEN: ${{ secrets.DEPLOY_TOKEN }}"
