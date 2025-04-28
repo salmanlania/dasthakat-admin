@@ -7,6 +7,7 @@ import {
   Table,
   Tag,
   TimePicker,
+  Checkbox,
   Tooltip,
   message
 } from 'antd';
@@ -43,6 +44,7 @@ const Scheduling = () => {
     (state) => state.dispatch
   );
   const [tableKey, setTableKey] = useState(0);
+  const [isOldChecked, setIsOldChecked] = useState(false);
   const [agentDetails, setAgentDetails] = useState(null);
 
   const { user } = useSelector((state) => state.auth);
@@ -140,10 +142,12 @@ const Scheduling = () => {
 
     const originalParams = { ...params };
 
+    const newDate = !isOldChecked ? dayjs().format('YYYY-MM-DD') : null;
+
     try {
       const exportParams = {
         ...params,
-        start_date: null,
+        start_date: newDate,
         end_date: null,
         event_date: null,
         search: null,
@@ -176,10 +180,12 @@ const Scheduling = () => {
 
     const originalParams = { ...params };
 
+    const newDate = !isOldChecked ? dayjs().format('YYYY-MM-DD') : null;
+
     try {
       const exportParams = {
         ...params,
-        start_date: null,
+        start_date: newDate,
         end_date: null,
         event_date: null,
         search: null,
@@ -188,8 +194,8 @@ const Scheduling = () => {
         technician_id: null,
         vessel_id: null,
         agent_id: null,
-        event_id: null,
-        sort_direction: 'ascend'
+        event_id: null
+        // sort_direction: 'ascend'
       };
 
       const data = await dispatch(getDispatchList(exportParams)).unwrap();
@@ -808,6 +814,13 @@ const Scheduling = () => {
               }}
               format="MM-DD-YYYY"
             />
+          </div>
+          <div>
+            <div className="my-2 flex items-center gap-2">
+              <Checkbox checked={isOldChecked} onChange={(e) => setIsOldChecked(e.target.checked)}>
+                Old Records
+              </Checkbox>
+            </div>
           </div>
           <div className="flex items-center justify-around gap-3">
             <Button
