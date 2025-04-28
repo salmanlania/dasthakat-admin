@@ -19,21 +19,21 @@ class EventDispatchController extends Controller
 		$query = EventDispatch::leftJoin('event as e', 'event_dispatch.event_id', '=', 'e.event_id')
 			->leftJoin('vessel as v', 'e.vessel_id', '=', 'v.vessel_id')
 			->leftJoin('job_order as jo', 'jo.event_id', '=', 'e.event_id')
-		
+
 			->leftJoin('agent as a', 'a.agent_id', '=', 'event_dispatch.agent_id')
 			->where('e.company_id', $request->company_id)
 			->where('e.company_branch_id', $request->company_branch_id)
 			->whereExists(function ($query) {
 				$query->select(DB::raw(1))
-				->from('charge_order')
-				->whereRaw('charge_order.event_id = e.event_id');
+					->from('charge_order')
+					->whereRaw('charge_order.event_id = e.event_id');
 			});
 		if ($event_date = $request->input('event_date')) {
 			$query->whereDate('event_dispatch.event_date', $event_date);
 		}
 		$start_date = $request->input('start_date');
 		$end_date = $request->input('end_date');
-		
+
 		if ($start_date && $end_date) {
 			$query->whereBetween('event_dispatch.event_date', [$start_date, $end_date]);
 		} elseif ($start_date) {
@@ -101,7 +101,7 @@ class EventDispatchController extends Controller
 			$query->where(function ($q) use ($search) {
 				$q->where('v.name', 'like', "%$search%")
 					->orWhere('e.event_code', 'like', "%$search%")
-				
+
 					->orWhere('event_dispatch.status', 'like', "%$search%")
 					// ->orWhere('p.name', 'like', "%$search%")
 					->orWhere('a.name', 'like', "%$search%")
@@ -155,8 +155,8 @@ class EventDispatchController extends Controller
 					$nonServiceCount++;
 				}
 			}
-
-			if ($nonServiceCount > 0) {
+			$is_other = $detail->where('product_type_id', '=', 4)->count();
+			if (($nonServiceCount > 0) || ( $is_other > 0)) {
 				$shortCodes[] = ['label' => "New Supply", 'color' => ["name" => "purple", "hex" => "#A020F0", "rgb" => "rgb(160,32,240)"]];
 			}
 
