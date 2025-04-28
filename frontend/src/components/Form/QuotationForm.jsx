@@ -75,6 +75,19 @@ const QuotationForm = ({ mode, onSubmit }) => {
   } = useSelector((state) => state.quotation);
   const [prevEvent, setPrevEvent] = useState(initialFormValues?.event_id);
 
+  if (quotationDetails.length) {
+    quotationDetails.forEach((item, index) => {
+      form.setFieldsValue({
+        [`product_description-${index}`]: item.product_description,
+        [`product_id-${index}`]: item.product_id,
+        [`product_name-${index}`]: item.product_name,
+        [`quantity-${index}`]: item.quantity,
+        [`rate-${index}`]: item.rate,
+        [`discount_percent-${index}`]: item.discount_percent
+      });
+    });
+  }
+
   // useEffect(() => {
   //   quotationDetails.forEach((item, index) => {
   //     form.setFieldsValue({
@@ -156,8 +169,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
       validity_id: values.validity_id ? values.validity_id.value : null,
       vessel_id: values.vessel_id ? values.vessel_id.value : null,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
-      service_date: values.service_date ? dayjs(values.service_date).format('YYYY-MM-DD') : "",
-      due_date: values.due_date ? dayjs(values.due_date).format('YYYY-MM-DD') : "",
+      service_date: values.service_date ? dayjs(values.service_date).format('YYYY-MM-DD') : '',
+      due_date: values.due_date ? dayjs(values.due_date).format('YYYY-MM-DD') : '',
       term_id: values.term_id && values.term_id.length ? values.term_id.map((v) => v.value) : null,
       status: values.status,
       quotation_detail: mappingSource.map(
@@ -532,7 +545,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       fixed: 'left'
     },
     {
-      title: 'Product Type',
+      title: 'P.Type',
       dataIndex: 'product_type',
       key: 'product_type',
       render: (_, { product_code, product_type_id }, index) => {
@@ -543,7 +556,16 @@ const QuotationForm = ({ mode, onSubmit }) => {
             labelKey="name"
             labelInValue
             className="w-full"
-            value={product_type_id}
+            // value={product_type_id}
+            value={
+              product_type_id?.value
+                ? {
+                    value: product_type_id.value,
+                    label: product_type_id.label?.slice(0, 2) || ''
+                  }
+                : product_type_id
+            }
+            getOptionLabel={(item) => item.name?.slice(0, 2)}
             onChange={(selected) => {
               dispatch(resetQuotationDetail(index));
               dispatch(
@@ -557,39 +579,40 @@ const QuotationForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 120,
+      width: 70,
       fixed: 'left'
     },
-    {
-      title: 'Product Code',
-      dataIndex: 'product_code',
-      key: 'product_code',
-      render: (_, { product_code, product_type_id }, index) => {
-        return (
-          <DebounceInput
-            value={product_code}
-            onChange={(value) =>
-              dispatch(
-                changeQuotationDetailValue({
-                  index,
-                  key: 'product_code',
-                  value: value
-                })
-              )
-            }
-            disabled={product_type_id?.value == 4}
-            onBlur={(e) => onProductCodeChange(index, e.target.value)}
-            onPressEnter={(e) => onProductCodeChange(index, e.target.value)}
-          />
-        );
-      },
-      width: 120,
-      fixed: 'left'
-    },
+    // {
+    //   title: 'Product Code',
+    //   dataIndex: 'product_code',
+    //   key: 'product_code',
+    //   render: (_, { product_code, product_type_id }, index) => {
+    //     return (
+    //       <DebounceInput
+    //         value={product_code}
+    //         onChange={(value) =>
+    //           dispatch(
+    //             changeQuotationDetailValue({
+    //               index,
+    //               key: 'product_code',
+    //               value: value
+    //             })
+    //           )
+    //         }
+    //         disabled={product_type_id?.value == 4}
+    //         onBlur={(e) => onProductCodeChange(index, e.target.value)}
+    //         onPressEnter={(e) => onProductCodeChange(index, e.target.value)}
+    //       />
+    //     );
+    //   },
+    //   width: 120,
+    //   fixed: 'left'
+    // },
     {
       title: 'Product Name',
       dataIndex: 'product_name',
       key: 'product_name',
+      ellipsis: true,
       render: (_, { product_id, product_name, product_type_id }, index) => {
         form.setFieldsValue({ [`product_name-${index}`]: product_name });
         form.setFieldsValue({ [`product_id-${index}`]: product_id });
@@ -607,6 +630,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             ]}>
             <DebounceInput
               value={product_name}
+              disabled={product_type_id?.value === 4}
               onChange={(value) => {
                 dispatch(
                   changeQuotationDetailValue({
@@ -650,11 +674,14 @@ const QuotationForm = ({ mode, onSubmit }) => {
               value={product_id}
               onChange={(selected) => onProductChange(index, selected)}
               addNewLink={permissions.product.add ? '/product/create' : null}
+              dropdownStyle={{ backgroundColor: '#6579db' }}
+              optionLabelProp="children"
+              optionProps={{ style: { backgroundColor: '#6579db', whiteSpace: 'nowrap' } }}
             />
           </Form.Item>
         );
       },
-      width: 330,
+      width: 200,
       fixed: 'left'
     },
     {
@@ -677,21 +704,36 @@ const QuotationForm = ({ mode, onSubmit }) => {
             ]}>
             <DebounceInput
               value={product_description}
-              disabled={product_type_id?.value == 4}
-              onChange={(value) =>
+              // disabled={product_type_id?.value !== 4}
+              onChange={(value) => {
                 dispatch(
                   changeQuotationDetailValue({
                     index,
                     key: 'product_description',
                     value: value
                   })
-                )
-              }
+                );
+
+                // Add this condition to update product_name when product_type_id is 4
+                if (product_type_id?.value === 4) {
+                  dispatch(
+                    changeQuotationDetailValue({
+                      index,
+                      key: 'product_name',
+                      value: value
+                    })
+                  );
+
+                  form.setFieldsValue({
+                    [`product_name-${index}`]: value
+                  });
+                }
+              }}
             />
           </Form.Item>
         );
       },
-      width: 300,
+      width: 200,
       fixed: 'left'
     },
     {
@@ -1168,10 +1210,14 @@ const QuotationForm = ({ mode, onSubmit }) => {
               document_date: initialFormValues.document_date
                 ? dayjs(initialFormValues.document_date)
                 : null,
-              service_date: initialFormValues.service_date === "0000-00-00"
-                ? dayjs(initialFormValues.service_date)
-                : null,
-              due_date: initialFormValues.due_date === "0000-00-00" ? dayjs(initialFormValues.due_date) : null
+              service_date:
+                initialFormValues.service_date === '0000-00-00'
+                  ? dayjs(initialFormValues.service_date)
+                  : null,
+              due_date:
+                initialFormValues.due_date === '0000-00-00'
+                  ? dayjs(initialFormValues.due_date)
+                  : null
             }
           : {
               document_date: dayjs(),
@@ -1181,7 +1227,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       scrollToFirstError>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
-        <span className="text-gray-500">Quotation No:</span>
+        <span className="text-sm text-gray-500">Quotation No:</span>
         <span
           className={`ml-4 text-amber-600 ${
             mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
