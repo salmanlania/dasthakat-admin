@@ -293,7 +293,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
           styles: { halign: 'center', fillColor: rowBackgroundColor }
         },
         {
-          content: detail?.product_type.name
+          content: detail?.product_type?.name
             ? detail.product_type.name.charAt(0).toUpperCase() + detail.product_type.name.charAt(1).toUpperCase()
             : '',
           styles: { halign: 'center', fillColor: [255, 255, 255] }

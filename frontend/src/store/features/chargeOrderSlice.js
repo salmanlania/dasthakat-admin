@@ -502,13 +502,13 @@ export const chargeOrderSlice = createSlice({
           : null,
         class1_id: data.class1
           ? {
-            value: data.class1.class1_id,
+            value: data.class1.class_id,
             label: data.class1.name
           }
           : null,
         class2_id: data.class2
           ? {
-            value: data.class2.class2_id,
+            value: data.class2.class_id,
             label: data.class2.name
           }
           : null,

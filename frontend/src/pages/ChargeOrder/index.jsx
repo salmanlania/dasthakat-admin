@@ -337,7 +337,7 @@ const ChargeOrder = () => {
             </Tooltip>
           ) : null}
 
-          <Tooltip title="Service Order">
+          {/* <Tooltip title="Service Order">
             <Link>
               <Button
                 size="small"
@@ -352,7 +352,7 @@ const ChargeOrder = () => {
                 }
               />
             </Link>
-          </Tooltip>
+          </Tooltip> */}
 
           <Tooltip title="Product Status">
             <Link>

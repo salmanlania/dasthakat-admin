@@ -31,7 +31,7 @@ class ServiceOrder extends Model
     }
     public function service_order_detail()
     {
-        return $this->hasMany(ServiceOrderDetail::class, 'service_order_id', 'service_order_id')->select('*');
+        return $this->hasMany(ServiceOrderDetail::class, 'service_order_id', 'service_order_id')->orderBy('sort_order')->select('*');
     }
     public function event()
     {

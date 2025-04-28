@@ -8,14 +8,18 @@ use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
 use App\Models\JobOrder;
 use App\Models\JobOrderDetail;
+use App\Models\JobOrderDetailCertificate;
 use App\Models\Picklist;
 use App\Models\PicklistDetail;
+use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
 use App\Models\Quotation;
 use App\Models\Salesman;
 use App\Models\Servicelist;
 use App\Models\ServicelistDetail;
+use App\Models\ServiceOrder;
+use App\Models\ServiceOrderDetail;
 use App\Models\Shipment;
 use App\Models\StockLedger;
 use App\Models\Supplier;
@@ -182,6 +186,9 @@ class ChargeOrderController extends Controller
 	}
 	public function createPurchaseOrders(Request $request)
 	{
+		if (!isPermission('add', 'purchase_order', $request->permission_list)) {
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+		}
 		$data = $request->all();
 		$chargeOrderId = $data['charge_order_id'];
 
@@ -274,6 +281,9 @@ class ChargeOrderController extends Controller
 
 	public function updatePicklist($request, $chargeOrder)
 	{
+		if (!isPermission('add', 'picklist', $request->permission_list)) {
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+		}
 		$inventoryDetails = $chargeOrder->charge_order_detail
 			->where('product_type_id', 2)
 			->where('picklist_detail_id', null);
@@ -284,7 +294,7 @@ class ChargeOrderController extends Controller
 
 		$totalQuantity = $inventoryDetails->sum('quantity');
 		$uuid = $this->get_uuid();
-		$document = DocumentType::getNextDocument(43, $request);
+		$document = DocumentType::getNextDocument(43, $request);   // picklist document id
 
 		$picklist = Picklist::firstOrCreate(
 			['charge_order_id' => $chargeOrder->charge_order_id],
@@ -329,7 +339,7 @@ class ChargeOrderController extends Controller
 		}
 
 		$picklistDetailInsert = [];
-		$index = 0;
+		$index = PicklistDetail::where('picklist_id', $picklist->picklist_id)->max('sort_order') ?? 0;
 
 		foreach ($inventoryDetails as $item) {
 			if (isset($existingDetails[$item->charge_order_detail_id])) {
@@ -362,6 +372,9 @@ class ChargeOrderController extends Controller
 	}
 	public function updateServicelist($request, $chargeOrder)
 	{
+		if (!isPermission('add', 'servicelist', $request->permission_list)) {
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+		}
 		$inventoryDetails = $chargeOrder->charge_order_detail
 			->where('product_type_id', 1)
 			->where('servicelist_detail_id', null);
@@ -372,7 +385,7 @@ class ChargeOrderController extends Controller
 
 		$totalQuantity = $inventoryDetails->sum('quantity');
 		$uuid = $this->get_uuid();
-		$document = DocumentType::getNextDocument(46, $request);
+		$document = DocumentType::getNextDocument(46, $request);  // servicelist document id
 
 		$servicelist = Servicelist::firstOrCreate(
 			['charge_order_id' => $chargeOrder->charge_order_id],
@@ -417,7 +430,8 @@ class ChargeOrderController extends Controller
 		}
 
 		$servicelistDetailInsert = [];
-		$index = 0;
+
+		$index = ServicelistDetail::where('servicelist_id', $servicelist->servicelist_id)->max('sort_order') ?? 0;
 
 		foreach ($inventoryDetails as $item) {
 			if (isset($existingDetails[$item->charge_order_detail_id])) {
@@ -447,20 +461,259 @@ class ChargeOrderController extends Controller
 			ServicelistDetail::insert($servicelistDetailInsert);
 		}
 	}
-	public function updateJobOrder($request, $chargeOrder)
+	public function updateServiceOrder($request, $chargeOrder)
 	{
-		foreach ($chargeOrder->charge_order_detail as $row) {
-			$detail = JobOrderDetail::where('charge_order_detail_id', $row->charge_order_detail_id)->first();
 
-			if ($detail) {
-				$detail->update([
-					'quantity' => $row->quantity,
+		if (!isPermission('add', 'service_order', $request->permission_list)) {
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+		}
+		$COD = $chargeOrder->charge_order_detail;
+
+		if ($COD->isEmpty()) {
+			return;
+		}
+
+		$uuid = $this->get_uuid();
+		$document = DocumentType::getNextDocument(50, $request); // service order document id
+
+		$SO = ServiceOrder::firstOrCreate(
+			['charge_order_id' => $chargeOrder->charge_order_id],
+			[
+				'company_id'         => $request->company_id,
+				'company_branch_id'  => $request->company_branch_id,
+				'service_order_id'   => $uuid,
+				'document_type_id'   => $document['document_type_id'],
+				'document_date'      =>  Carbon::now(),
+				'document_no'        => $document['document_no'],
+				'document_identity'  => $document['document_identity'],
+				'document_prefix'    => $document['document_prefix'],
+				'event_id'           => $chargeOrder->event_id,
+				'created_at'         =>  Carbon::now(),
+				'created_by'         => $request->login_user_id,
+			]
+		);
+
+		// If service order already existed, update its meta info
+		if (!$SO->wasRecentlyCreated) {
+			$SO->update([
+				'updated_at'     =>  Carbon::now(),
+				'updated_by'     => $request->login_user_id,
+			]);
+		}
+
+		$existingDetails = ServiceOrderDetail::where('service_order_id', $SO->service_order_id)
+			->get()
+			->keyBy('charge_order_detail_id');
+
+		$existingChargeOrderDetailIds = $existingDetails->keys();
+
+		$newChargeOrderDetailIds = $COD->pluck('charge_order_detail_id');
+
+		// Delete details that no longer exist
+		$detailsToDelete = $existingChargeOrderDetailIds->diff($newChargeOrderDetailIds);
+		if ($detailsToDelete->isNotEmpty()) {
+			ServiceOrderDetail::where('service_order_id', $SO->service_order_id)
+				->whereIn('charge_order_detail_id', $detailsToDelete)
+				->delete();
+		}
+
+		$SODetailInsert = [];
+
+		$index = ServiceOrderDetail::where('service_order_id', $SO->service_order_id)->max('sort_order') ?? 0;
+
+		foreach ($COD as $item) {
+			if (isset($existingDetails[$item->charge_order_detail_id])) {
+				// Update existing detail
+				$existingDetails[$item->charge_order_detail_id]->update([
+					'quantity'   => $item->quantity ?? 0,
+					'updated_at' =>  Carbon::now(),
+					'updated_by' => $request->login_user_id,
 				]);
+			} else {
+				// Insert new detail
+				$SODetailInsert[] = [
+					'service_order_id'       => $SO->service_order_id,
+					'service_order_detail_id' => $this->get_uuid(),
+					'sort_order'             => $index++,
+					'charge_order_id' 		 => $chargeOrder->charge_order_id,
+					'charge_order_detail_id' => $item->charge_order_detail_id,
+					'product_id'             => $item->product_id ?? "",
+					'product_type_id'        => $item->product_type_id ?? "",
+					'product_name'           => $item->product_name ?? "",
+					'product_description'    => $item->product_description ?? "",
+					'description'            => $item->description ?? "",
+					'internal_notes'         => $item->internal_notes ?? "",
+					'quantity'               => $item->quantity ?? 0,
+					'unit_id'                => $item->unit_id ?? "",
+					'supplier_id'            => $item->supplier_id ?? "",
+					'created_at'             =>  Carbon::now(),
+					'created_by'             => $request->login_user_id,
+				];
 			}
 		}
-	
+
+		if (!empty($SODetailInsert)) {
+			ServiceOrderDetail::insert($SODetailInsert);
+		}
+	}
+	public function updateJobOrder($request, $chargeOrder)
+	{
+		if (!isPermission('add', 'job_order', $request->permission_list)) {
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+		}
+		$COD = $chargeOrder->charge_order_detail;
+
+		if ($COD->isEmpty()) {
+			return;
+		}
+
+		$uuid = $this->get_uuid();
+		$document = DocumentType::getNextDocument(45, $request); // job order document id
+
+		$JO = JobOrder::firstOrCreate(
+			['event_id' => $chargeOrder->event_id],
+			[
+				'company_id' => $request->company_id ?? '',
+				'company_branch_id' => $request->company_branch_id ?? '',
+				'job_order_id' => $uuid,
+				'document_type_id' => $document['document_type_id'] ?? '',
+				'document_no' => $document['document_no'] ?? '',
+				'document_identity' => $document['document_identity'] ?? '',
+				'document_prefix' => $document['document_prefix'] ?? '',
+				'document_date' => $chargeOrder->document_date ?? '',
+				'salesman_id' => $chargeOrder->salesman_id ?? '',
+				'customer_id' => $chargeOrder->customer_id ?? '',
+				'event_id' => $chargeOrder->event_id ?? '',
+				'vessel_id' => $chargeOrder->vessel_id ?? '',
+				'flag_id' => $chargeOrder->flag_id ?? '',
+				'class1_id' => $chargeOrder->class1_id ?? '',
+				'class2_id' => $chargeOrder->class2_id ?? '',
+				'agent_id' => $chargeOrder->agent_id ?? '',
+				'created_at' => Carbon::now(),
+				'created_by' => $request->login_user_id,
+			]
+		);
+
+		if (!$JO->wasRecentlyCreated) {
+			$JO->update([
+				'salesman_id' => $chargeOrder->salesman_id ?? '',
+				'customer_id' => $chargeOrder->customer_id ?? '',
+				'event_id' => $chargeOrder->event_id ?? '',
+				'vessel_id' => $chargeOrder->vessel_id ?? '',
+				'flag_id' => $chargeOrder->flag_id ?? '',
+				'class1_id' => $chargeOrder->class1_id ?? '',
+				'class2_id' => $chargeOrder->class2_id ?? '',
+				'agent_id' => $chargeOrder->agent_id ?? '',
+				'updated_at'     =>  Carbon::now(),
+				'updated_by'     => $request->login_user_id,
+			]);
+		}
+
+		$existingDetails = JobOrderDetail::where('job_order_id', $JO->job_order_id)
+			->where('charge_order_id', $chargeOrder->charge_order_id)
+			->get()
+			->keyBy('charge_order_detail_id');
+
+		$existingChargeOrderDetailIds = $existingDetails->keys();
+
+		$newChargeOrderDetailIds = $COD->pluck('charge_order_detail_id');
+
+		// Delete details that no longer exist
+		$detailsToDelete = $existingChargeOrderDetailIds->diff($newChargeOrderDetailIds);
+		if ($detailsToDelete->isNotEmpty()) {
+			JobOrderDetail::where('job_order_id', $JO->job_order_id)
+				->whereIn('charge_order_detail_id', $detailsToDelete)
+				->delete();
+		}
+		$JODetailInsert = [];
+		$index = JobOrderDetail::where('job_order_id', $JO->job_order_id)->max('sort_order') ?? 0;
+		foreach ($COD as $item) {
+			if (isset($existingDetails[$item->charge_order_detail_id])) {
+				// Update existing detail
+				$existingDetails[$item->charge_order_detail_id]->update([
+					"description" => $item->description ?? "",
+					"product_name" => $item->product_name ?? "",
+					"product_description" => $item->product_description ?? "",
+					"product_type_id" => $item->product_type_id ?? "",
+					"internal_notes" => $item->internal_notes ?? "",
+					"unit_id" => $item->unit_id ?? "",
+					"supplier_id" => $item->supplier_id ?? "",
+					'quantity'   => $item->quantity ?? 0,
+					'updated_at' =>  Carbon::now(),
+					'updated_by' => $request->login_user_id,
+				]);
+			} else {
+				// Insert new detail
+				$detail_id =  $this->get_uuid();
+				$JODetailInsert[] = [
+					'company_id' => $request->company_id,
+					'company_branch_id' => $request->company_branch_id,
+					'job_order_id' => $JO->job_order_id,
+					'job_order_detail_id' =>  $detail_id,
+					'sort_order' => $index++,
+					'charge_order_id' => $chargeOrder->charge_order_id ?? "",
+					'charge_order_detail_id' => $item['charge_order_detail_id'] ?? "",
+					'product_id' => $item['product_id'] ?? "",
+					'product_name' => $item['product_name'] ?? "",
+					'product_description' => $item['product_description'] ?? "",
+					'internal_notes' => $item['internal_notes'] ?? "",
+					'description' => $item['description'] ?? "",
+					'status' => $item['status'] ?? "",
+					'product_type_id' => $item['product_type_id'] ?? "",
+					'unit_id' => $item['unit_id'] ?? "",
+					'supplier_id' => $item['supplier_id'] ?? "",
+					'quantity' => $item['quantity'] ?? 0,
+					'created_at' => Carbon::now(),
+					'created_by' => $request->login_user_id
+				];
+				if ($item['product_type_id'] == 1) {
+					$this->createCertificate($JO->job_order_id, $detail_id, $item, $request->login_user_id);
+				}
+			}
+		}
+
+		if (!empty($JODetailInsert)) {
+			JobOrderDetail::insert($JODetailInsert);
+		}
 	}
 
+	private function createCertificate(string $jobOrderId, string $detailId, $detail, string $userId): void
+	{
+		$Product = Product::with('category')->where('product_id', $detail['product_id'])->first();
+		$Category = $Product->category->name ?? '';
+		$certificateData = [
+			'certificate_id' => $this->get_uuid(),
+			'job_order_id' => $jobOrderId,
+			'job_order_detail_id' => $detailId,
+			'type' => $Category,
+			'certificate_date' => Carbon::now(),
+			'created_at' => Carbon::now(),
+			'created_by' => $userId,
+		];
+
+		$certificateConfig = [
+			'FRS' => ['prefix' => 'GMSH', 'type' => 'FRS'],
+			'Calibration' => ['prefix' => 'GMSHC', 'type' => 'Calibration'],
+			'Life Boat' => ['prefix' => 'GMSHL', 'type' => 'Life Boat'],
+		];
+
+		if (isset($certificateConfig[$Category])) {
+			$config = $certificateConfig[$Category];
+			$lastCertificate = JobOrderDetailCertificate::where('type', $config['type'])
+				->orderBy('sort_order', 'desc')
+				->first();
+
+			$certificateData['sort_order'] = ($lastCertificate->sort_order ?? 0) + 1;
+			$certificateData['certificate_number'] = sprintf(
+				'%s/%d/%s',
+				$config['prefix'],
+				$certificateData['sort_order'],
+				Carbon::now()->format('m/Y')
+			);
+
+			JobOrderDetailCertificate::create($certificateData);
+		}
+	}
 
 
 	public function store(Request $request)
@@ -547,6 +800,8 @@ class ChargeOrderController extends Controller
 
 		$this->updatePicklist($request, $chargeOrder);
 		$this->updateServicelist($request, $chargeOrder);
+		$this->updateJobOrder($request, $chargeOrder);
+		$this->updateServiceOrder($request, $chargeOrder);
 
 
 		return $this->jsonResponse(['charge_order_id' => $uuid], 200, "Add Charge Order Successfully!");
@@ -716,6 +971,7 @@ class ChargeOrderController extends Controller
 		$this->updatePicklist($request, $chargeOrder);
 		$this->updateServicelist($request, $chargeOrder);
 		$this->updateJobOrder($request, $chargeOrder);
+		$this->updateServiceOrder($request, $chargeOrder);
 
 
 		return $this->jsonResponse(['charge_order_id' => $id], 200, "Update Charge Order Successfully!");
