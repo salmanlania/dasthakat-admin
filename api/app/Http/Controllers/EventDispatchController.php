@@ -32,10 +32,14 @@ class EventDispatchController extends Controller
 			$query->whereDate('event_dispatch.event_date', $event_date);
 		}
 		$start_date = $request->input('start_date');
-		$end_date =  $request->input('end_date');
+		$end_date = $request->input('end_date');
+		
 		if ($start_date && $end_date) {
-			$date_range = [$start_date, $end_date];
-			$query->whereBetween('event_dispatch.event_date', $date_range);
+			$query->whereBetween('event_dispatch.event_date', [$start_date, $end_date]);
+		} elseif ($start_date) {
+			$query->where('event_dispatch.event_date', '>=', $start_date);
+		} elseif ($end_date) {
+			$query->where('event_dispatch.event_date', '<=', $end_date);
 		}
 		if ($event_time = $request->input('event_time')) {
 			$query->whereTime('event_dispatch.event_time', $event_time);
