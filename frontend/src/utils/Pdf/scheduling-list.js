@@ -103,7 +103,10 @@ const pdfContent = (doc, data, pageWidth) => {
 
     groupedRows[eventDate].forEach(item => {
       table2Rows.push([
-        item?.event_date ? dayjs(item.event_date).format('MM-DD-YYYY') : '   ',
+        {
+          content: item?.event_date ? dayjs(item.event_date).format('MM-DD-YYYY') : '   ',
+          styles: { textColor: [32, 50, 114] , fontStyle: 'bold', }
+        },
         {
           content: item?.event_time || '   ',
           styles: { textColor: [32, 50, 114] , fontStyle: 'bold', }
