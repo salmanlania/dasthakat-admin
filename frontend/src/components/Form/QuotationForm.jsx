@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Select, Table } from 'antd';
+import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Select, Table , Tooltip} from 'antd';
 import dayjs from 'dayjs';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
@@ -612,7 +612,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: 'Product Name',
       dataIndex: 'product_name',
       key: 'product_name',
-      ellipsis: true,
       render: (_, { product_id, product_name, product_type_id }, index) => {
         form.setFieldsValue({ [`product_name-${index}`]: product_name });
         form.setFieldsValue({ [`product_id-${index}`]: product_id });
@@ -691,46 +690,48 @@ const QuotationForm = ({ mode, onSubmit }) => {
       render: (_, { product_description, product_type_id }, index) => {
         form.setFieldsValue({ [`product_description-${index}`]: product_description });
         return (
-          <Form.Item
-            className="m-0"
-            name={`product_description-${index}`}
-            initialValue={product_description}
-            rules={[
-              {
-                required: true,
-                whitespace: true,
-                message: 'Description is required'
-              }
-            ]}>
-            <DebounceInput
-              value={product_description}
-              // disabled={product_type_id?.value !== 4}
-              onChange={(value) => {
-                dispatch(
-                  changeQuotationDetailValue({
-                    index,
-                    key: 'product_description',
-                    value: value
-                  })
-                );
-
-                // Add this condition to update product_name when product_type_id is 4
-                if (product_type_id?.value === 4) {
+          <Tooltip title={product_description || ''}>
+            <Form.Item
+              className="m-0"
+              name={`product_description-${index}`}
+              initialValue={product_description}
+              rules={[
+                {
+                  required: true,
+                  whitespace: true,
+                  message: 'Description is required'
+                }
+              ]}>
+              <DebounceInput
+                value={product_description}
+                // disabled={product_type_id?.value !== 4}
+                onChange={(value) => {
                   dispatch(
                     changeQuotationDetailValue({
                       index,
-                      key: 'product_name',
+                      key: 'product_description',
                       value: value
                     })
                   );
 
-                  form.setFieldsValue({
-                    [`product_name-${index}`]: value
-                  });
-                }
-              }}
-            />
-          </Form.Item>
+                  // Add this condition to update product_name when product_type_id is 4
+                  if (product_type_id?.value === 4) {
+                    dispatch(
+                      changeQuotationDetailValue({
+                        index,
+                        key: 'product_name',
+                        value: value
+                      })
+                    );
+
+                    form.setFieldsValue({
+                      [`product_name-${index}`]: value
+                    });
+                  }
+                }}
+              />
+            </Form.Item>
+          </Tooltip>
         );
       },
       width: 200,

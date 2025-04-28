@@ -67,3 +67,8 @@
 .tr-separate td {
   border-top: 2px solid #064f9871 !important;
 }
+
+.ant-select-item-option-content {
+  white-space: normal !important;
+  word-break: break-word !important;
+}
