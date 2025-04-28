@@ -22,7 +22,6 @@ const getImageBuffer = async (image) => {
 };
 
 const generateSchedulingExcel = async (datas) => {
-  const handleError = useError();
 
   try {
     const data = datas?.data
@@ -39,6 +38,7 @@ const generateSchedulingExcel = async (datas) => {
     worksheet.mergeCells('C2:I2');
     worksheet.mergeCells('C3:I3');
     worksheet.mergeCells('C4:I4');
+    worksheet.mergeCells('C6:I6');
 
     worksheet.getCell('C2').value = 'Global Marine Safety - America';
     worksheet.getCell('C2').font = {
@@ -53,6 +53,13 @@ const generateSchedulingExcel = async (datas) => {
     worksheet.getCell('C4').value =
       'Tel: 1 713-518-1715, Fax: 1 713-518-1760, Email: sales@gms-america.com';
     worksheet.getCell('C4').alignment = { horizontal: 'center' };
+
+    worksheet.getCell('C6').value = 'Scheduling';
+    worksheet.getCell('C6').font = {
+      bold: true,
+      size: 22
+    };
+    worksheet.getCell('C6').alignment = { horizontal: 'center' };
 
     let currentRow = worksheet.lastRow._number + 2;
     for (let i = 0; i < 2; i++) {
@@ -104,7 +111,8 @@ const generateSchedulingExcel = async (datas) => {
         };
 
         cell.font = {
-          size: 12
+          size: 12,
+          color: { argb: 'FF000000' }
         };
 
         cell.alignment = { horizontal: 'center' };
@@ -141,7 +149,7 @@ const generateSchedulingExcel = async (datas) => {
           pattern: 'solid',
           fgColor: { argb: 'FFFFFF' },
         };
-        subheadingCell.font = { bold: true, size: 12 };
+        subheadingCell.font = { bold: true, size: 12, color: { argb: 'FF0000' } };
         subheadingCell.alignment = { horizontal: 'left' };
 
         worksheet.getCell(`E${currentRow}`).border = {
@@ -190,7 +198,11 @@ const generateSchedulingExcel = async (datas) => {
                 vertical: 'top',
                 wrapText: true
               };
-
+              cell.font = {
+                bold: true,
+                color: { argb: '0000FF' },
+                size: 8
+              }
               cell.border = {
                 top: { style: 'thin' },
                 left: { style: 'thin' },
@@ -226,62 +238,125 @@ const generateSchedulingExcel = async (datas) => {
             horizontal: 'right',
             vertical: 'middle'
           };
-          ;
 
-          currentRow = worksheet.lastRow._number + 1;
+          // currentRow = worksheet.lastRow._number + 1;
 
-          worksheet.getCell(`B${currentRow}`).value = 'Technician Notes:';
-          worksheet.getCell(`B${currentRow}`).font = { bold: true };
-          worksheet.getCell(`B${currentRow}`).alignment = { vertical: 'top', horizontal: 'left' };
-          worksheet.getCell(`B${currentRow}`).border = {
-            top: { style: 'thin' },
-            left: { style: 'thin' },
-            bottom: { style: 'thin' },
-            right: { style: 'thin' }
-          };
+          // worksheet.getCell(`B${currentRow}`).value = 'Technician Notes:';
+          // worksheet.getCell(`B${currentRow}`).font = { bold: true };
+          // worksheet.getCell(`B${currentRow}`).alignment = { vertical: 'top', horizontal: 'left' };
+          // worksheet.getCell(`B${currentRow}`).border = {
+          //   top: { style: 'thin' },
+          //   left: { style: 'thin' },
+          //   bottom: { style: 'thin' },
+          //   right: { style: 'thin' }
+          // };
 
-          worksheet.mergeCells(`C${currentRow}:H${currentRow}`);
+          // worksheet.mergeCells(`C${currentRow}:H${currentRow}`);
 
-          const allTechNotes = detail?.technician_notes || '';
+          // const allTechNotes = detail?.technician_notes || '';
 
-          worksheet.getCell(`C${currentRow}`).value = allTechNotes || '';
-          worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
-          worksheet.getCell(`C${currentRow}`).border = {
-            top: { style: 'thin' },
-            left: { style: 'thin' },
-            bottom: { style: 'thin' },
-            right: { style: 'thin' }
-          };
+          // worksheet.getCell(`C${currentRow}`).value = allTechNotes || '';
+          // worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
+          // worksheet.getCell(`C${currentRow}`).border = {
+          //   top: { style: 'thin' },
+          //   left: { style: 'thin' },
+          //   bottom: { style: 'thin' },
+          //   right: { style: 'thin' }
+          // };
 
-          currentRow = worksheet.lastRow._number + 1;
+          // currentRow = worksheet.lastRow._number + 1;
 
-          worksheet.getCell(`B${currentRow}`).value = 'Agent Notes:';
-          worksheet.getCell(`B${currentRow}`).font = { bold: true };
-          worksheet.getCell(`B${currentRow}`).alignment = { vertical: 'top', horizontal: 'left' };
-          worksheet.getCell(`B${currentRow}`).border = {
-            top: { style: 'thin' },
-            left: { style: 'thin' },
-            bottom: { style: 'thin' },
-            right: { style: 'thin' }
-          };
+          // worksheet.getCell(`B${currentRow}`).value = 'Agent Notes:';
+          // worksheet.getCell(`B${currentRow}`).font = { bold: true };
+          // worksheet.getCell(`B${currentRow}`).alignment = { vertical: 'top', horizontal: 'left' };
+          // worksheet.getCell(`B${currentRow}`).border = {
+          //   top: { style: 'thin' },
+          //   left: { style: 'thin' },
+          //   bottom: { style: 'thin' },
+          //   right: { style: 'thin' }
+          // };
 
-          worksheet.mergeCells(`C${currentRow}:H${currentRow}`);
+          // worksheet.mergeCells(`C${currentRow}:H${currentRow}`);
 
-          const allAgentNotes = detail?.agent_notes || '';
+          // const allAgentNotes = detail?.agent_notes || '';
 
-          worksheet.getCell(`C${currentRow}`).value = allAgentNotes || '';
-          worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
-          worksheet.getCell(`C${currentRow}`).border = {
-            top: { style: 'thin' },
-            left: { style: 'thin' },
-            bottom: { style: 'thin' },
-            right: { style: 'thin' }
-          };
+          // worksheet.getCell(`C${currentRow}`).value = allAgentNotes || '';
+          // worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
+          // worksheet.getCell(`C${currentRow}`).border = {
+          //   top: { style: 'thin' },
+          //   left: { style: 'thin' },
+          //   bottom: { style: 'thin' },
+          //   right: { style: 'thin' }
+          // };
 
+          // currentRow = worksheet.lastRow._number + 1;
+
+          // worksheet.getCell(`B${currentRow}`).value = 'Jobe Scope:';
+          // worksheet.getCell(`B${currentRow}`).font = { bold: true };
+          // worksheet.getCell(`B${currentRow}`).alignment = { vertical: 'top', horizontal: 'left' };
+          // worksheet.getCell(`B${currentRow}`).border = {
+          //   top: { style: 'thin' },
+          //   left: { style: 'thin' },
+          //   bottom: { style: 'thin' },
+          //   right: { style: 'thin' }
+          // };
+
+          // worksheet.mergeCells(`C${currentRow}:H${currentRow}`);
+
+          // const allShortCodes = Array.isArray(detail?.short_codes)
+          //   ? detail.short_codes.map(item => item.label).join(', ')
+          //   : '';
+
+          // worksheet.getCell(`C${currentRow}`).value = allShortCodes || '';
+          // worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
+          // worksheet.getCell(`C${currentRow}`).border = {
+          //   top: { style: 'thin' },
+          //   left: { style: 'thin' },
+          //   bottom: { style: 'thin' },
+          //   right: { style: 'thin' }
+          // };
+
+          // if (
+          //   detail?.agent_name ||
+          //   detail?.agent_email ||
+          //   detail?.agent_phone ||
+          //   detail?.agent_fax
+          // ) {
+          //   currentRow += 1;
+
+          //   worksheet.getCell(`B${currentRow}`).value = 'Agent Info:';
+          //   worksheet.getCell(`B${currentRow}`).font = { bold: true };
+          //   worksheet.getCell(`B${currentRow}`).alignment = { vertical: 'top', horizontal: 'left' };
+          //   worksheet.getCell(`B${currentRow}`).border = {
+          //     top: { style: 'thin' },
+          //     left: { style: 'thin' },
+          //     bottom: { style: 'thin' },
+          //     right: { style: 'thin' }
+          //   };
+
+          //   worksheet.mergeCells(`C${currentRow}:H${currentRow}`);
+
+          //   const agentInfo =
+          //     (detail?.agent_name ? `Name: ${detail.agent_name}` : '') +
+          //     (detail?.agent_email ? ` | Email: ${detail.agent_email}` : '') +
+          //     (detail?.agent_phone ? ` | Phone: ${detail.agent_phone}` : '') +
+          //     (detail?.agent_fax ? ` | Fax: ${detail.agent_fax}` : '');
+
+          //   worksheet.getCell(`C${currentRow}`).value = agentInfo;
+          //   worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
+          //   worksheet.getCell(`C${currentRow}`).border = {
+          //     top: { style: 'thin' },
+          //     left: { style: 'thin' },
+          //     bottom: { style: 'thin' },
+          //     right: { style: 'thin' }
+          //   };
+          // }
+
+          // 1. Scope
           currentRow = worksheet.lastRow._number + 1;
 
           worksheet.getCell(`B${currentRow}`).value = 'Jobe Scope:';
-          worksheet.getCell(`B${currentRow}`).font = { bold: true };
+          worksheet.getCell(`B${currentRow}`).font = { bold: true, color: { argb: 'FF000000' } };
           worksheet.getCell(`B${currentRow}`).alignment = { vertical: 'top', horizontal: 'left' };
           worksheet.getCell(`B${currentRow}`).border = {
             top: { style: 'thin' },
@@ -297,6 +372,7 @@ const generateSchedulingExcel = async (datas) => {
             : '';
 
           worksheet.getCell(`C${currentRow}`).value = allShortCodes || '';
+          worksheet.getCell(`C${currentRow}`).font = { color: { argb: 'FF000000' } };
           worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
           worksheet.getCell(`C${currentRow}`).border = {
             top: { style: 'thin' },
@@ -305,6 +381,7 @@ const generateSchedulingExcel = async (datas) => {
             right: { style: 'thin' }
           };
 
+          // 2. Agent Info
           if (
             detail?.agent_name ||
             detail?.agent_email ||
@@ -314,7 +391,7 @@ const generateSchedulingExcel = async (datas) => {
             currentRow += 1;
 
             worksheet.getCell(`B${currentRow}`).value = 'Agent Info:';
-            worksheet.getCell(`B${currentRow}`).font = { bold: true };
+            worksheet.getCell(`B${currentRow}`).font = { bold: true, color: { argb: 'FF000000' } };
             worksheet.getCell(`B${currentRow}`).alignment = { vertical: 'top', horizontal: 'left' };
             worksheet.getCell(`B${currentRow}`).border = {
               top: { style: 'thin' },
@@ -332,6 +409,7 @@ const generateSchedulingExcel = async (datas) => {
               (detail?.agent_fax ? ` | Fax: ${detail.agent_fax}` : '');
 
             worksheet.getCell(`C${currentRow}`).value = agentInfo;
+            worksheet.getCell(`C${currentRow}`).font = { color: { argb: 'FF000000' } };
             worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
             worksheet.getCell(`C${currentRow}`).border = {
               top: { style: 'thin' },
@@ -340,6 +418,60 @@ const generateSchedulingExcel = async (datas) => {
               right: { style: 'thin' }
             };
           }
+
+          // 3. Tech Notes
+          currentRow = worksheet.lastRow._number + 1;
+
+          worksheet.getCell(`B${currentRow}`).value = 'Technician Notes:';
+          worksheet.getCell(`B${currentRow}`).font = { bold: true, color: { argb: 'FF000000' } };
+          worksheet.getCell(`B${currentRow}`).alignment = { vertical: 'top', horizontal: 'left' };
+          worksheet.getCell(`B${currentRow}`).border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+          };
+
+          worksheet.mergeCells(`C${currentRow}:H${currentRow}`);
+
+          const allTechNotes = detail?.technician_notes || '';
+
+          worksheet.getCell(`C${currentRow}`).value = allTechNotes || '';
+          worksheet.getCell(`C${currentRow}`).font = { color: { argb: 'FF000000' } };
+          worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
+          worksheet.getCell(`C${currentRow}`).border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+          };
+
+          // 4. Agent Notes
+          currentRow = worksheet.lastRow._number + 1;
+
+          worksheet.getCell(`B${currentRow}`).value = 'Agent Notes:';
+          worksheet.getCell(`B${currentRow}`).font = { bold: true, color: { argb: 'FF000000' } };
+          worksheet.getCell(`B${currentRow}`).alignment = { vertical: 'top', horizontal: 'left' };
+          worksheet.getCell(`B${currentRow}`).border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+          };
+
+          worksheet.mergeCells(`C${currentRow}:H${currentRow}`);
+
+          const allAgentNotes = detail?.agent_notes || '';
+
+          worksheet.getCell(`C${currentRow}`).value = allAgentNotes || '';
+          worksheet.getCell(`C${currentRow}`).font = { color: { argb: 'FF000000' } };
+          worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
+          worksheet.getCell(`C${currentRow}`).border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+          };
         })
 
       })
@@ -356,7 +488,7 @@ const generateSchedulingExcel = async (datas) => {
     saveAs(new Blob([buffer]), `Scheduling-${datas?.data[0]?.company_id ? datas?.data[0]?.company_id : datas?.data[0]?.created_at}.xlsx`);
 
   } catch (error) {
-    handleError(error)
+    console.log('error', error)
   }
 
 };

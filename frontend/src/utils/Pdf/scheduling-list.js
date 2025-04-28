@@ -4,19 +4,6 @@ import 'jspdf-autotable';
 import GMSLogo from '../../assets/logo-with-title.png';
 
 const addHeader = (doc, data, pageWidth, sideMargin) => {
-  // const detail = data?.data || []
-
-  // doc.addImage(GMSLogo, 'PNG', 8, 3, 32, 26);
-
-  // doc.setFontSize(18);
-  // doc.setFont('times', 'bold');
-  // doc.text('Global Marine Safety - America', 61, 16);
-
-  // doc.setFontSize(16);
-  // doc.setFont('times', 'bold');
-  // doc.text('Scheduling', pageWidth / 2, 34, {
-  //   align: 'center'
-  // });
 
   doc.setTextColor(32, 50, 114);
   doc.setFontSize(20);
@@ -88,7 +75,7 @@ const pdfContent = (doc, data, pageWidth) => {
   const groupedRows = {};
 
   detail?.forEach(item => {
-    const eventDate = item?.event_date || 'Unknown Date';
+    const eventDate = item?.event_date || 'Empty';
     if (!groupedRows[eventDate]) {
       groupedRows[eventDate] = [];
     }
@@ -104,53 +91,56 @@ const pdfContent = (doc, data, pageWidth) => {
     } else {
       let dayjsDate = dayjs(eventDate);
       if (dayjsDate.isValid()) {
-        formattedDate = `Date : ${dayjsDate.format('MM-DD-YYYY')}`;
+        formattedDate = `Date : ${dayjsDate.format('MM-DD-YYYY dddd')}`;
       } else {
         formattedDate = "Date : Empty";
       }
     }
 
     table2Rows.push([
-      { content: formattedDate, colSpan: 9, styles: { halign: 'center', fontStyle: 'bold', fontSize: 10, halign: 'left', fillColor: [255, 255, 255], lineWidth: 0.1, lineColor: [0, 0, 0], }, minCellHeight: 2, cellPadding: 1 }
+      { content: formattedDate, colSpan: 9, styles: { halign: 'center', fontStyle: 'bold', fontSize: 10, halign: 'left', fillColor: [255, 255, 255], textColor: [255, 0, 0], lineWidth: 0.1, lineColor: [0, 0, 0], }, minCellHeight: 2, cellPadding: 1 }
     ]);
 
     groupedRows[eventDate].forEach(item => {
       table2Rows.push([
         item?.event_date ? dayjs(item.event_date).format('MM-DD-YYYY') : '   ',
-        item?.event_time || '   ',
-        item?.event_code || '   ',
-        item?.vessel_name || '   ',
-        Array.isArray(item?.technicians)
+        {
+          content: item?.event_time || '   ',
+          styles: { textColor: [32, 50, 114] , fontStyle: 'bold', }
+        },
+        {
+          content: item?.event_code || '   ',
+          styles: { textColor: [32, 50, 114] , fontStyle: 'bold', }
+        },
+        {
+          content: item?.vessel_name || '   ',
+          styles: { textColor: [32, 50, 114] , fontStyle: 'bold', }
+        },
+        {
+          content: Array.isArray(item?.technicians)
           ? item.technicians.map(t => t.user_name).join(', ')
           : '   ',
-        item?.agent_name || '   ',
-        item?.status || '   '
+          styles: { textColor: [32, 50, 114] , fontStyle: 'bold', }
+        },
+        {
+          content: item?.agent_name || '   ',
+          styles: { textColor: [32, 50, 114] , fontStyle: 'bold', }
+        },
+        {
+          content: item?.status || '   ',
+          styles: { textColor: [32, 50, 114] , fontStyle: 'bold', }
+        },
       ]);
 
-      if (item?.technician_notes) {
+      if (item?.short_codes?.length) {
         table2Rows.push([
           {
-            content: 'Technician Notes:',
+            content: 'Job Scope:',
             colSpan: 1,
             styles: { fontStyle: 'bold', halign: 'left' }
           },
           {
-            content: item.technician_notes,
-            colSpan: 6,
-            styles: { fontStyle: 'normal', halign: 'left' }
-          }
-        ]);
-      }
-
-      if (item?.agent_notes) {
-        table2Rows.push([
-          {
-            content: 'Agent Notes:',
-            colSpan: 1,
-            styles: { fontStyle: 'bold', halign: 'left' }
-          },
-          {
-            content: item.agent_notes,
+            content: item.short_codes.map(sc => sc.label).join(', '),
             colSpan: 6,
             styles: { fontStyle: 'normal', halign: 'left' }
           }
@@ -171,15 +161,29 @@ const pdfContent = (doc, data, pageWidth) => {
           }
         ]);
       }
-      if (item?.short_codes?.length) {
+      if (item?.technician_notes) {
         table2Rows.push([
           {
-            content: 'Job Scope:',
+            content: 'Technician Notes:',
             colSpan: 1,
             styles: { fontStyle: 'bold', halign: 'left' }
           },
           {
-            content: item.short_codes.map(sc => sc.label).join(', '),
+            content: item.technician_notes,
+            colSpan: 6,
+            styles: { fontStyle: 'normal', halign: 'left' }
+          }
+        ]);
+      }
+      if (item?.agent_notes) {
+        table2Rows.push([
+          {
+            content: 'Agent Notes:',
+            colSpan: 1,
+            styles: { fontStyle: 'bold', halign: 'left' }
+          },
+          {
+            content: item.agent_notes,
             colSpan: 6,
             styles: { fontStyle: 'normal', halign: 'left' }
           }
@@ -192,7 +196,7 @@ const pdfContent = (doc, data, pageWidth) => {
     startY: 35,
     head: [table2Column],
     body: table2Rows,
-    margin: { right: 5, left: 5, top: 5, bottom: 5 },
+    margin: { right: 5, left: 5, top: 35, bottom: 5 },
     headStyles: {
       halign: 'center',
       valign: 'middle',
@@ -232,7 +236,6 @@ const pdfContent = (doc, data, pageWidth) => {
       const minHeight = 8;
       const additionalHeight = content.length > 50 ? 4 : 0;
       data.cell.styles.minCellHeight = minHeight + additionalHeight;
-      // data.cell.styles.minCellHeight = 8;
     }
   });
 };
