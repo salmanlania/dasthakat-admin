@@ -21,6 +21,8 @@ class QuotationController extends Controller
 
 	public function index(Request $request)
 	{
+		$port_id = $request->input('port_id', '');
+		$customer_ref = $request->input('customer_ref', '');
 		$customer_id = $request->input('customer_id', '');
 		$document_identity = $request->input('document_identity', '');
 		$document_date = $request->input('document_date', '');
@@ -44,6 +46,7 @@ class QuotationController extends Controller
 
 
 		$data = Quotation::LeftJoin('customer as c', 'c.customer_id', '=', 'quotation.customer_id')
+			->LeftJoin('port as p', 'p.port_id', '=', 'quotation.port_id')
 			->LeftJoin('event as e', 'e.event_id', '=', 'quotation.event_id')
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'quotation.vessel_id')
 			->leftJoinSub($latestStatusSubquery, 'qs', 'qs.quotation_id', '=', 'quotation.quotation_id')
@@ -53,9 +56,11 @@ class QuotationController extends Controller
 
 		if (!empty($status_updated_by)) $data = $data->where('qs.created_by', '=',  $status_updated_by);
 		if (!empty($status)) $data = $data->where('quotation.status', '=',  $status);
+		if (!empty($port_id)) $data = $data->where('quotation.port_id', '=',  $port_id);
 		if (!empty($customer_id)) $data = $data->where('quotation.customer_id', '=',  $customer_id);
 		if (!empty($vessel_id)) $data = $data->where('quotation.vessel_id', '=',  $vessel_id);
 		if (!empty($event_id)) $data = $data->where('quotation.event_id', '=',  $event_id);
+		if (!empty($customer_ref)) $data = $data->where('quotation.customer_ref', 'like', '%' . $customer_ref . '%');
 		if (!empty($document_identity)) $data = $data->where('quotation.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($document_date)) $data = $data->where('quotation.document_date', '=',  $document_date);
 
@@ -64,6 +69,8 @@ class QuotationController extends Controller
 			$data = $data->where(function ($query) use ($search) {
 				$query
 					->where('c.name', 'like', '%' . $search . '%')
+					->OrWhere('quotation.customer_ref', 'like', '%' . $search . '%')
+					->OrWhere('p.name', 'like', '%' . $search . '%')
 					->OrWhere('u.user_name', 'like', '%' . $search . '%')
 					->OrWhere('v.name', 'like', '%' . $search . '%')
 					->OrWhere('quotation.status', 'like', '%' . $search . '%')
@@ -75,7 +82,7 @@ class QuotationController extends Controller
 		$data = $data->select("quotation.*", DB::raw("CONCAT(e.event_code, ' (', CASE 
 		WHEN e.status = 1 THEN 'Active' 
 		ELSE 'Inactive' 
-	END, ')') AS event_code"), 'u.user_name as status_updated_by', "c.name as customer_name", "v.name as vessel_name");
+	END, ')') AS event_code"), 'u.user_name as status_updated_by', "c.name as customer_name", "v.name as vessel_name", "p.name as port_name");
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
