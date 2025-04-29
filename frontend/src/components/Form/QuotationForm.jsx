@@ -1225,13 +1225,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
     }
   };
 
-  console.log(
-    'service_date',
-    initialFormValues?.service_date
-      ? dayjs(initialFormValues?.service_date).format('MM-DD-YYYY')
-      : 'null'
-  );
-
   return (
     <>
       <Form
