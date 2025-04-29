@@ -153,7 +153,6 @@ const ServiceOrder = () => {
       toast.dismiss(loadingToast);
       createServiceOrderPrint(data);
     } catch (error) {
-      console.log(error);
       handleError(error);
     }
   };

@@ -58,7 +58,6 @@ const fillEmptyRows = (rows, rowsPerPage, notesLength = 1) => {
 };
 
 const addHeader = (doc, data, pageWidth, sideMargin) => {
-  console.log('data.service_date ' , data.service_date )
   doc.setFontSize(20);
   doc.setFont('times', 'bold');
   doc.text('Global Marine Safety - America', pageWidth / 2, 12, {

@@ -388,6 +388,12 @@ export const quotationSlice = createSlice({
             label: data.port.name
           }
           : null,
+        port: data.port
+          ? {
+            value: data.port.port_id,
+            label: data.port.name
+          }
+          : null,
         term_id: data.term_id || null,
         term_desc: data.term_desc,
         status: data.status

@@ -117,6 +117,13 @@ const QuotationForm = ({ mode, onSubmit }) => {
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
 
+  const [notesModalIsOpen, setNotesModalIsOpen] = useState({
+    open: false,
+    id: null,
+    column: null,
+    notes: null
+  });
+
   let totalQuantity = 0;
   let totalCost = 0;
   let totalAmount = 0;
@@ -798,13 +805,13 @@ const QuotationForm = ({ mode, onSubmit }) => {
       width: 240
     },
     {
-      title: 'Stock Quantity',
+      title: 'St Quantity',
       dataIndex: 'stock_quantity',
       key: 'stock_quantity',
       render: (_, { stock_quantity }) => {
         return <Input value={stock_quantity} disabled />;
       },
-      width: 122
+      width: 100
     },
     {
       title: 'Quantity',
@@ -830,7 +837,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         );
       },
-      width: 100
+      width: 90
     },
     {
       title: 'Unit',
@@ -859,7 +866,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 120
+      width: 100
     },
     {
       title: 'Vendor',
@@ -933,7 +940,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 120
+      width: 100
     },
     {
       title: (
@@ -1002,7 +1009,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         );
       },
-      width: 120
+      width: 100
     },
     {
       title: 'Amount',
@@ -1011,12 +1018,12 @@ const QuotationForm = ({ mode, onSubmit }) => {
       render: (_, { amount }) => (
         <DebouncedCommaSeparatedInput value={amount ? amount + '' : ''} disabled />
       ),
-      width: 120
+      width: 100
     },
     {
       title: (
         <div className="flex flex-wrap">
-          <span>Discount %</span>
+          <span>Dis %</span>
           <input
             value={globalDiscount}
             onChange={(e) => {
@@ -1026,7 +1033,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             }}
             placeholder="Discount %"
             style={{
-              width: '80px',
+              width: '60px',
               fontSize: '12px',
               padding: '2px 4px',
               border: '1px solid #d9d9d9',
@@ -1072,7 +1079,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         );
       },
-      width: 100
+      width: 80
     },
     {
       title: 'Discount Amt',
@@ -1227,12 +1234,16 @@ const QuotationForm = ({ mode, onSubmit }) => {
               document_date: initialFormValues.document_date
                 ? dayjs(initialFormValues.document_date)
                 : null,
+              // service_date:
+              //   initialFormValues.service_date === '0000-00-00'
+              //     ? dayjs(initialFormValues.service_date).format("MM-DD-YYYY")
+              //     : null,
               service_date:
-                initialFormValues.service_date === '0000-00-00'
+                initialFormValues.service_date && initialFormValues.service_date !== '0000-00-00'
                   ? dayjs(initialFormValues.service_date)
                   : null,
               due_date:
-                initialFormValues.due_date === '0000-00-00'
+                initialFormValues.due_date && initialFormValues.due_date !== '0000-00-00'
                   ? dayjs(initialFormValues.due_date)
                   : null
             }
@@ -1527,55 +1538,55 @@ const QuotationForm = ({ mode, onSubmit }) => {
             />
           </Col> */}
         </Row>
-        <Row gutter={[12, 12]} className="mb-4">
-          <Col span={24} sm={12}>
-            <h4 className="ml-1 mt-2 font-medium text-gray-800">Rebate:</h4>
-            <div className="flex gap-4">
-              <DetailSummaryInfo
-                title="Percentage:"
-                value={
-                  <DebouncedNumberInput
-                    type="decimal"
-                    size="small"
-                    className="w-20"
-                    value={rebatePercentage}
-                    onChange={(value) => dispatch(setRebatePercentage(value))}
-                  />
-                }
+        {/* <Row gutter={[12, 12]} className="mb-4"> */}
+        {/* <Col span={24} sm={12}> */}
+        <h4 className="ml-1 mt-2 font-medium text-gray-800">Rebate:</h4>
+        <div className="flex flex-col gap-4">
+          <DetailSummaryInfo
+            title="Percentage:"
+            value={
+              <DebouncedNumberInput
+                type="decimal"
+                size="small"
+                className="w-20"
+                value={rebatePercentage}
+                onChange={(value) => dispatch(setRebatePercentage(value))}
               />
-              <DetailSummaryInfo title="Amount:" value={rebateAmount} />
-            </div>
-          </Col>
-          <Col span={24} sm={12}>
-            <h4 className="ml-1 mt-2 font-medium text-gray-800">Salesman:</h4>
-            <div className="flex gap-4">
-              <DetailSummaryInfo
-                title="Percentage:"
-                value={
-                  <DebouncedNumberInput
-                    type="decimal"
-                    size="small"
-                    className="w-20"
-                    value={salesmanPercentage}
-                    onChange={(value) => dispatch(setSalesmanPercentage(value))}
-                  />
-                }
+            }
+          />
+          <DetailSummaryInfo title="Amount:" value={rebateAmount} />
+        </div>
+        {/* </Col> */}
+        {/* <Col span={24} sm={12}> */}
+        <h4 className="ml-1 mt-2 font-medium text-gray-800">Salesman:</h4>
+        <div className="flex flex-col gap-4">
+          <DetailSummaryInfo
+            title="Percentage:"
+            value={
+              <DebouncedNumberInput
+                type="decimal"
+                size="small"
+                className="w-20"
+                value={salesmanPercentage}
+                onChange={(value) => dispatch(setSalesmanPercentage(value))}
               />
-              <DetailSummaryInfo title="Amount:" value={salesmanAmount} />
-            </div>
-          </Col>
-        </Row>
-        <Row gutter={[12, 12]}>
-          <Col span={24} sm={12} md={6} lg={6}>
-            <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
-          </Col>
-          <Col span={24} sm={12} md={6} lg={6}>
-            <DetailSummaryInfo
-              title="Total Profit:"
-              value={formatThreeDigitCommas(roundUpto(totalProfit)) || 0}
-            />
-          </Col>
-        </Row>
+            }
+          />
+          <DetailSummaryInfo title="Amount:" value={salesmanAmount} />
+        </div>
+        {/* </Col> */}
+        {/* </Row> */}
+        {/* <Row gutter={[12, 12]}> */}
+        {/* <Col span={24} sm={12} md={6} lg={6}> */}
+        <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
+        {/* </Col> */}
+        {/* <Col span={24} sm={12} md={6} lg={6}> */}
+        <DetailSummaryInfo
+          title="Total Profit:"
+          value={formatThreeDigitCommas(roundUpto(totalProfit)) || 0}
+        />
+        {/* </Col> */}
+        {/* </Row> */}
       </div>
 
       <div className="mt-4 flex items-center justify-end gap-2">

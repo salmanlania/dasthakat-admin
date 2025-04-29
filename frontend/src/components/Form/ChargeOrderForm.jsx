@@ -105,7 +105,8 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       salesman_id: values.salesman_id ? values.salesman_id.value : null,
       class1_id: values.class1_id ? values.class1_id.value : null,
       class2_id: values.class2_id ? values.class2_id.value : null,
-      port_id: values.port_id ? values.port_id : null,
+      // port_id: values.port_id ? values.port_id : null,
+      port_id: values.port_id ? values.port_id.key : null,
       customer_id: values.customer_id ? values.customer_id.value : null,
       event_id: values.event_id ? values.event_id.value : null,
       flag_id: values.flag_id ? values.flag_id.value : null,
@@ -1126,7 +1127,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       customer_id: null,
       class1_id: null,
       class2_id: null,
-      // port_id: null,
       flag_id: null
     });
 
@@ -1138,7 +1138,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         customer_id: { value: data.customer_id, label: data.customer_name },
         class1_id: { value: data.class1_id, label: data.class1_name },
         class2_id: { value: data.class2_id, label: data.class2_name },
-        // port_id: { value: data.port_id, label: data.port_id },
         flag_id: { value: data.flag_id, label: data.flag_name }
       });
     } catch (error) {
@@ -1247,8 +1246,14 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item name="port_id" label="Port">
-            <Input />
+          <Form.Item
+            name="port_id"
+            label="Port"
+            initialValue={
+              initialFormValues?.port_id && initialFormValues?.name ? { value: initialFormValues.port_id, label: initialFormValues.name } : null
+            }>
+            {/* <Input /> */}
+            <AsyncSelect endpoint="/port" valueKey="port_id" labelKey="name" labelInValue />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={6} lg={6}>

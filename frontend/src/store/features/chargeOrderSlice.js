@@ -32,7 +32,7 @@ export const createChargeOrder = createAsyncThunk(
   'chargeOrder/create',
   async ({ data }, { rejectWithValue }) => {
     try {
-     return await api.post('/charge-order', data);
+      return await api.post('/charge-order', data);
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -512,7 +512,12 @@ export const chargeOrderSlice = createSlice({
             label: data.class2.name
           }
           : null,
-          port_id: data.port_id ? data.port_id : null,
+        // port_id: data?.port
+        //   ? { value: data.port_id, label: data.name }
+        //   : data?.port_id || null,
+        port_id: data?.port
+          ? { value: data?.port?.port_id, label: data?.port?.name }
+          : data?.port_id || null,
         flag_id: data.flag
           ? {
             value: data.flag.flag_id,

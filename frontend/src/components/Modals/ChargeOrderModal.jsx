@@ -20,6 +20,7 @@ const ChargeOrderModal = () => {
   const { isItemLoading, quotationDetails, initialFormValues } = useSelector(
     (state) => state.quotation
   );
+
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.quotation;
 
@@ -121,6 +122,7 @@ const ChargeOrderModal = () => {
       customer_id: initialFormValues.customer_id ? initialFormValues.customer_id.value : null,
       class1_id: initialFormValues.class1_id ? initialFormValues.class1_id.value : null,
       class2_id: initialFormValues.class2_id ? initialFormValues.class2_id.value : null,
+      port_id: initialFormValues.port_id ? initialFormValues.port_id.value : null,
       flag_id: initialFormValues.flag_id ? initialFormValues.flag_id.value : null,
       agent_id: initialFormValues.agent_id ? initialFormValues.agent_id.value : null,
       charge_order_detail: selectedDetails.map((detail, index) => ({
