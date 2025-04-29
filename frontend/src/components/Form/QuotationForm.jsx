@@ -23,6 +23,7 @@ import { Link, useParams } from 'react-router-dom';
 import useError from '../../hooks/useError';
 import { getEvent } from '../../store/features/eventSlice';
 import { getProduct, getProductList } from '../../store/features/productSlice';
+import NotesModal from '../../components/Modals/NotesModal.jsx';
 import {
   addQuotationDetail,
   changeQuotationDetailOrder,
@@ -103,16 +104,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
       });
     });
   }
-
-  // useEffect(() => {
-  //   quotationDetails.forEach((item, index) => {
-  //     form.setFieldsValue({
-  //       [`product_description-${index}`]: item.product_description,
-  //       [`product_id-${index}`]: item.product_id,
-  //       [`product_name-${index}`]: item.product_name
-  //     });
-  //   });
-  // }, [quotationDetails]);
 
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
@@ -227,6 +218,20 @@ const QuotationForm = ({ mode, onSubmit }) => {
     };
 
     onSubmit(data);
+  };
+
+  const closeNotesModal = () => {
+    setNotesModalIsOpen({ open: false, id: null, column: null, notes: null });
+  };
+
+  const onNotesSave = async ({ notes }) => {
+    try {
+      await updateValue(notesModalIsOpen.id, notesModalIsOpen.column, notes);
+      dispatch(getDispatchList(params)).unwrap();
+      closeNotesModal();
+    } catch (error) {
+      handleError(error);
+    }
   };
 
   const onProductCodeChange = async (index, value) => {
@@ -764,7 +769,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       title: 'Customer Notes',
       dataIndex: 'description',
       key: 'description',
-      render: (_, { description }, index) => {
+      render: (_, { event_id, description }, index) => {
         return (
           <DebounceInput
             value={description}
@@ -1221,404 +1226,411 @@ const QuotationForm = ({ mode, onSubmit }) => {
   };
 
   return (
-    <Form
-      name="quotation"
-      layout="vertical"
-      autoComplete="off"
-      form={form}
-      onFinish={onFinish}
-      initialValues={
-        mode === 'edit'
-          ? {
-              ...initialFormValues,
-              document_date: initialFormValues.document_date
-                ? dayjs(initialFormValues.document_date)
-                : null,
-              // service_date:
-              //   initialFormValues.service_date === '0000-00-00'
-              //     ? dayjs(initialFormValues.service_date).format("MM-DD-YYYY")
-              //     : null,
-              service_date:
-                initialFormValues.service_date && initialFormValues.service_date !== '0000-00-00'
-                  ? dayjs(initialFormValues.service_date)
+    <>
+      <Form
+        name="quotation"
+        layout="vertical"
+        autoComplete="off"
+        form={form}
+        onFinish={onFinish}
+        initialValues={
+          mode === 'edit'
+            ? {
+                ...initialFormValues,
+                document_date: initialFormValues.document_date
+                  ? dayjs(initialFormValues.document_date)
                   : null,
-              due_date:
-                initialFormValues.due_date && initialFormValues.due_date !== '0000-00-00'
-                  ? dayjs(initialFormValues.due_date)
-                  : null
-            }
-          : {
-              document_date: dayjs(),
-              due_date: dayjs(),
-              status: 'In Progress'
-            }
-      }
-      scrollToFirstError>
-      {/* Make this sticky */}
-      <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
-        <span className="text-sm text-gray-500">Quotation No:</span>
-        <span
-          className={`ml-4 text-amber-600 ${
-            mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
-          } rounded px-1`}
-          onClick={() => {
-            if (mode !== 'edit') return;
-            navigator.clipboard.writeText(initialFormValues.document_identity);
-            toast.success('Copied');
-          }}>
-          {mode === 'edit' ? initialFormValues.document_identity : 'AUTO'}
-        </span>
-      </p>
-      <Row gutter={12}>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item
-            name="document_date"
-            label="Quotation Date"
-            rules={[{ required: true, message: 'Quotation date is required' }]}
-            className="w-full">
-            <DatePicker format="MM-DD-YYYY" className="w-full" />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item
-            name="salesman_id"
-            label="Salesman"
-            rules={[{ required: true, message: 'Salesman is required' }]}>
-            <AsyncSelect
-              endpoint="/salesman"
-              valueKey="salesman_id"
-              labelKey="name"
-              labelInValue
-              addNewLink={
-                permissions.salesman.list && permissions.salesman.add ? '/salesman' : null
+                service_date:
+                  initialFormValues.service_date === '0000-00-00'
+                    ? dayjs(initialFormValues.service_date).format('MM-DD-YYYY')
+                    : null,
+                due_date:
+                  initialFormValues.due_date === '0000-00-00'
+                    ? dayjs(initialFormValues.due_date).format('MM-DD-YYYY')
+                    : null
               }
-              onChange={onSalesmanChange}
-            />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item
-            name="event_id"
-            label="Event"
-            rules={[{ required: true, message: 'Event is required' }]}>
-            <AsyncSelect
-              endpoint="/event"
-              valueKey="event_id"
-              labelKey="event_name"
-              labelInValue
-              onChange={onEventChange}
-              addNewLink={permissions.event.add ? '/event/create' : null}
-            />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="vessel_id" label="Vessel">
-            <Select labelInValue disabled />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="imo" label="IMO">
-            <Input disabled />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="customer_id" label="Customer">
-            <Select labelInValue disabled />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8} className="flex items-center gap-3">
-          <Form.Item name="class1_id" label="Class 1" className="w-full">
-            <Select labelInValue disabled />
-          </Form.Item>
-
-          <Form.Item name="class2_id" label="Class 2" className="w-full">
-            <Select labelInValue disabled />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="flag_id" label="Flag">
-            <AsyncSelect
-              endpoint="/flag"
-              valueKey="flag_id"
-              labelKey="name"
-              labelInValue
-              disabled
-            />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="person_incharge_id" label="Person Incharge">
-            <AsyncSelect
-              endpoint="/user"
-              valueKey="user_id"
-              labelKey="user_name"
-              labelInValue
-              addNewLink={permissions.user.add ? '/user/create' : null}
-            />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="customer_ref" label="Customer Ref">
-            <Input />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="due_date" label="Due Date" className="w-full">
-            <DatePicker format="MM-DD-YYYY" className="w-full" />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="service_date" label="Date of Service" className="w-full">
-            <DatePicker format="MM-DD-YYYY" className="w-full" />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="attn" label="Attn">
-            <Input />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="delivery" label="Delivery">
-            <Input />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="validity_id" label="Validity">
-            <AsyncSelect
-              endpoint="/validity"
-              valueKey="validity_id"
-              labelKey="name"
-              labelInValue
-              addNewLink={
-                permissions.validity.list && permissions.validity.add ? '/validity' : null
+            : {
+                document_date: dayjs(),
+                due_date: dayjs(),
+                status: 'In Progress'
               }
-              defaultFirstSelected
-            />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="payment_id" label="Payment Terms">
-            <AsyncSelect
-              endpoint="/payment"
-              valueKey="payment_id"
-              labelKey="name"
-              labelInValue
-              defaultFirstSelected
-              addNewLink={permissions.payment.list && permissions.payment.add ? '/payment' : null}
-            />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="port_id" label="Port">
-            <AsyncSelect
-              endpoint="/port"
-              valueKey="port_id"
-              labelKey="name"
-              labelInValue
-              addNewLink={permissions.port.list && permissions.port.add ? '/port' : null}
-            />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="status" label="Status">
-            <Select options={quotationStatusOptions} />
-          </Form.Item>
-        </Col>
-      </Row>
-
-      <div className="rounded-lg border border-slate-300 bg-slate-50 p-4">
-        <div className="flex flex-col items-center justify-between py-2 md:flex-row">
-          <h5 className="text-base font-medium">Notes</h5>
-          <Form.Item name="term_id" className="m-0 w-full p-0 md:w-96">
-            <AsyncSelect
-              endpoint="/terms"
-              valueKey="term_id"
-              labelKey="name"
-              placeholder="Select Terms"
-              labelInValue
-              mode="multiple"
-              maxTagCount="responsive"
-              onChange={(selected) => onTermChange(selected)}
-              addNewLink={permissions.terms.list && permissions.terms.add ? '/notes' : null}
-            />
-          </Form.Item>
-        </div>
-
-        <Form.Item name="term_desc" className="mb-3">
-          <Input.TextArea
-            autoSize={{
-              minRows: 2
-            }}
-            rows={2}
-          />
-        </Form.Item>
-      </div>
-
-      <Divider orientation="left" className="!border-gray-300">
-        Quotation Items
-      </Divider>
-
-      <Table
-        columns={columns}
-        dataSource={quotationDetails.filter((item) => !item.isDeleted)}
-        rowKey={'id'}
-        size="small"
-        scroll={{ x: 'calc(100% - 200px)' }}
-        pagination={false}
-        sticky={{
-          offsetHeader: 56
-        }}
-      />
-
-      <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
-        <Row gutter={[12, 12]}>
-          <Col span={24} sm={12} md={6} lg={6}>
-            <DetailSummaryInfo
-              title="Total Quantity:"
-              value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
-            />
-            <DetailSummaryInfo
-              title="Total Cost:"
-              value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
-            />
-            <DetailSummaryInfo
-              title="Total Amount:"
-              value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
-            />
-            <DetailSummaryInfo
-              title="Discount Amount:"
-              value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
-            />
-            <DetailSummaryInfo
-              title="Net Amount:"
-              value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
-            />
+        }
+        scrollToFirstError>
+        {/* Make this sticky */}
+        <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
+          <span className="text-sm text-gray-500">Quotation No:</span>
+          <span
+            className={`ml-4 text-amber-600 ${
+              mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
+            } rounded px-1`}
+            onClick={() => {
+              if (mode !== 'edit') return;
+              navigator.clipboard.writeText(initialFormValues.document_identity);
+              toast.success('Copied');
+            }}>
+            {mode === 'edit' ? initialFormValues.document_identity : 'AUTO'}
+          </span>
+        </p>
+        <Row gutter={12}>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item
+              name="document_date"
+              label="Quotation Date"
+              rules={[{ required: true, message: 'Quotation date is required' }]}
+              className="w-full">
+              <DatePicker format="MM-DD-YYYY" className="w-full" />
+            </Form.Item>
           </Col>
-          {/* <Col span={24} sm={12} md={6} lg={6}>
+
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item
+              name="salesman_id"
+              label="Salesman"
+              rules={[{ required: true, message: 'Salesman is required' }]}>
+              <AsyncSelect
+                endpoint="/salesman"
+                valueKey="salesman_id"
+                labelKey="name"
+                labelInValue
+                addNewLink={
+                  permissions.salesman.list && permissions.salesman.add ? '/salesman' : null
+                }
+                onChange={onSalesmanChange}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item
+              name="event_id"
+              label="Event"
+              rules={[{ required: true, message: 'Event is required' }]}>
+              <AsyncSelect
+                endpoint="/event"
+                valueKey="event_id"
+                labelKey="event_name"
+                labelInValue
+                onChange={onEventChange}
+                addNewLink={permissions.event.add ? '/event/create' : null}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="vessel_id" label="Vessel">
+              <Select labelInValue disabled />
+            </Form.Item>
+          </Col>
+
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="imo" label="IMO">
+              <Input disabled />
+            </Form.Item>
+          </Col>
+
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="customer_id" label="Customer">
+              <Select labelInValue disabled />
+            </Form.Item>
+          </Col>
+
+          <Col span={24} sm={12} md={8} lg={8} className="flex items-center gap-3">
+            <Form.Item name="class1_id" label="Class 1" className="w-full">
+              <Select labelInValue disabled />
+            </Form.Item>
+
+            <Form.Item name="class2_id" label="Class 2" className="w-full">
+              <Select labelInValue disabled />
+            </Form.Item>
+          </Col>
+
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="flag_id" label="Flag">
+              <AsyncSelect
+                endpoint="/flag"
+                valueKey="flag_id"
+                labelKey="name"
+                labelInValue
+                disabled
+              />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="person_incharge_id" label="Person Incharge">
+              <AsyncSelect
+                endpoint="/user"
+                valueKey="user_id"
+                labelKey="user_name"
+                labelInValue
+                addNewLink={permissions.user.add ? '/user/create' : null}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="customer_ref" label="Customer Ref">
+              <Input />
+            </Form.Item>
+          </Col>
+
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="due_date" label="Due Date" className="w-full">
+              <DatePicker format="MM-DD-YYYY" className="w-full" />
+            </Form.Item>
+          </Col>
+
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="service_date" label="Date of Service" className="w-full">
+              <DatePicker format="MM-DD-YYYY" className="w-full" />
+            </Form.Item>
+          </Col>
+
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="attn" label="Attn">
+              <Input />
+            </Form.Item>
+          </Col>
+
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="delivery" label="Delivery">
+              <Input />
+            </Form.Item>
+          </Col>
+
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="validity_id" label="Validity">
+              <AsyncSelect
+                endpoint="/validity"
+                valueKey="validity_id"
+                labelKey="name"
+                labelInValue
+                addNewLink={
+                  permissions.validity.list && permissions.validity.add ? '/validity' : null
+                }
+                defaultFirstSelected
+              />
+            </Form.Item>
+          </Col>
+
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="payment_id" label="Payment Terms">
+              <AsyncSelect
+                endpoint="/payment"
+                valueKey="payment_id"
+                labelKey="name"
+                labelInValue
+                defaultFirstSelected
+                addNewLink={permissions.payment.list && permissions.payment.add ? '/payment' : null}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="port_id" label="Port">
+              <AsyncSelect
+                endpoint="/port"
+                valueKey="port_id"
+                labelKey="name"
+                labelInValue
+                addNewLink={permissions.port.list && permissions.port.add ? '/port' : null}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="status" label="Status">
+              <Select options={quotationStatusOptions} />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <div className="rounded-lg border border-slate-300 bg-slate-50 p-4">
+          <div className="flex flex-col items-center justify-between py-2 md:flex-row">
+            <h5 className="text-base font-medium">Notes</h5>
+            <Form.Item name="term_id" className="m-0 w-full p-0 md:w-96">
+              <AsyncSelect
+                endpoint="/terms"
+                valueKey="term_id"
+                labelKey="name"
+                placeholder="Select Terms"
+                labelInValue
+                mode="multiple"
+                maxTagCount="responsive"
+                onChange={(selected) => onTermChange(selected)}
+                addNewLink={permissions.terms.list && permissions.terms.add ? '/notes' : null}
+              />
+            </Form.Item>
+          </div>
+
+          <Form.Item name="term_desc" className="mb-3">
+            <Input.TextArea
+              autoSize={{
+                minRows: 2
+              }}
+              rows={2}
+            />
+          </Form.Item>
+        </div>
+
+        <Divider orientation="left" className="!border-gray-300">
+          Quotation Items
+        </Divider>
+
+        <Table
+          columns={columns}
+          dataSource={quotationDetails.filter((item) => !item.isDeleted)}
+          rowKey={'id'}
+          size="small"
+          scroll={{ x: 'calc(100% - 200px)' }}
+          pagination={false}
+          sticky={{
+            offsetHeader: 56
+          }}
+        />
+
+        <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
+          <Row gutter={[12, 12]}>
+            <Col span={24} sm={12} md={6} lg={6}>
+              <DetailSummaryInfo
+                title="Total Quantity:"
+                value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
+              />
+              <DetailSummaryInfo
+                title="Total Cost:"
+                value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
+              />
+              <DetailSummaryInfo
+                title="Total Amount:"
+                value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
+              />
+              <DetailSummaryInfo
+                title="Discount Amount:"
+                value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
+              />
+              <DetailSummaryInfo
+                title="Net Amount:"
+                value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
+              />
+            </Col>
+            {/* <Col span={24} sm={12} md={6} lg={6}>
             <DetailSummaryInfo
               title="Total Cost:"
               value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
             />
           </Col> */}
 
-          {/* <Col span={24} sm={12} md={6} lg={6}>
+            {/* <Col span={24} sm={12} md={6} lg={6}>
             <DetailSummaryInfo
               title="Total Amount:"
               value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
             />
           </Col> */}
 
-          {/* <Col span={24} sm={12} md={6} lg={6}>
+            {/* <Col span={24} sm={12} md={6} lg={6}>
             <DetailSummaryInfo
               title="Discount Amount:"
               value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
             />
           </Col> */}
 
-          {/* <Col span={24} sm={12} md={6} lg={6}>
+            {/* <Col span={24} sm={12} md={6} lg={6}>
             <DetailSummaryInfo
               title="Net Amount:"
               value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
             />
           </Col> */}
-        </Row>
-        {/* <Row gutter={[12, 12]} className="mb-4"> */}
-        {/* <Col span={24} sm={12}> */}
-        <h4 className="ml-1 mt-2 font-medium text-gray-800">Rebate:</h4>
-        <div className="flex flex-col gap-4">
+          </Row>
+          {/* <Row gutter={[12, 12]} className="mb-4"> */}
+          {/* <Col span={24} sm={12}> */}
+          <h4 className="ml-1 mt-2 font-medium text-gray-800">Rebate:</h4>
+          <div className="flex flex-col gap-4">
+            <DetailSummaryInfo
+              title="Percentage:"
+              value={
+                <DebouncedNumberInput
+                  type="decimal"
+                  size="small"
+                  className="w-20"
+                  value={rebatePercentage}
+                  onChange={(value) => dispatch(setRebatePercentage(value))}
+                />
+              }
+            />
+            <DetailSummaryInfo title="Amount:" value={rebateAmount} />
+          </div>
+          {/* </Col> */}
+          {/* <Col span={24} sm={12}> */}
+          <h4 className="ml-1 mt-2 font-medium text-gray-800">Salesman:</h4>
+          <div className="flex flex-col gap-4">
+            <DetailSummaryInfo
+              title="Percentage:"
+              value={
+                <DebouncedNumberInput
+                  type="decimal"
+                  size="small"
+                  className="w-20"
+                  value={salesmanPercentage}
+                  onChange={(value) => dispatch(setSalesmanPercentage(value))}
+                />
+              }
+            />
+            <DetailSummaryInfo title="Amount:" value={salesmanAmount} />
+          </div>
+          {/* </Col> */}
+          {/* </Row> */}
+          {/* <Row gutter={[12, 12]}> */}
+          {/* <Col span={24} sm={12} md={6} lg={6}> */}
+          <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
+          {/* </Col> */}
+          {/* <Col span={24} sm={12} md={6} lg={6}> */}
           <DetailSummaryInfo
-            title="Percentage:"
-            value={
-              <DebouncedNumberInput
-                type="decimal"
-                size="small"
-                className="w-20"
-                value={rebatePercentage}
-                onChange={(value) => dispatch(setRebatePercentage(value))}
-              />
-            }
+            title="Total Profit:"
+            value={formatThreeDigitCommas(roundUpto(totalProfit)) || 0}
           />
-          <DetailSummaryInfo title="Amount:" value={rebateAmount} />
+          {/* </Col> */}
+          {/* </Row> */}
         </div>
-        {/* </Col> */}
-        {/* <Col span={24} sm={12}> */}
-        <h4 className="ml-1 mt-2 font-medium text-gray-800">Salesman:</h4>
-        <div className="flex flex-col gap-4">
-          <DetailSummaryInfo
-            title="Percentage:"
-            value={
-              <DebouncedNumberInput
-                type="decimal"
-                size="small"
-                className="w-20"
-                value={salesmanPercentage}
-                onChange={(value) => dispatch(setSalesmanPercentage(value))}
-              />
-            }
-          />
-          <DetailSummaryInfo title="Amount:" value={salesmanAmount} />
+
+        <div className="mt-4 flex items-center justify-end gap-2">
+          <Link to="/quotation">
+            <Button className="w-28">Cancel</Button>
+          </Link>
+          {mode === 'edit' ? (
+            <>
+              <Button
+                type="primary"
+                className="w-28 bg-rose-600 hover:!bg-rose-500"
+                onClick={printQuotation}>
+                Print
+              </Button>
+
+              <Button
+                type="primary"
+                className="w-28 bg-emerald-800 hover:!bg-emerald-700"
+                onClick={exportQuotation}>
+                Export
+              </Button>
+            </>
+          ) : null}
+          <Button
+            type="primary"
+            className="w-28"
+            loading={isFormSubmitting}
+            onClick={() => form.submit()}>
+            Save
+          </Button>
         </div>
-        {/* </Col> */}
-        {/* </Row> */}
-        {/* <Row gutter={[12, 12]}> */}
-        {/* <Col span={24} sm={12} md={6} lg={6}> */}
-        <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
-        {/* </Col> */}
-        {/* <Col span={24} sm={12} md={6} lg={6}> */}
-        <DetailSummaryInfo
-          title="Total Profit:"
-          value={formatThreeDigitCommas(roundUpto(totalProfit)) || 0}
-        />
-        {/* </Col> */}
-        {/* </Row> */}
-      </div>
-
-      <div className="mt-4 flex items-center justify-end gap-2">
-        <Link to="/quotation">
-          <Button className="w-28">Cancel</Button>
-        </Link>
-        {mode === 'edit' ? (
-          <>
-            <Button
-              type="primary"
-              className="w-28 bg-rose-600 hover:!bg-rose-500"
-              onClick={printQuotation}>
-              Print
-            </Button>
-
-            <Button
-              type="primary"
-              className="w-28 bg-emerald-800 hover:!bg-emerald-700"
-              onClick={exportQuotation}>
-              Export
-            </Button>
-          </>
-        ) : null}
-        <Button
-          type="primary"
-          className="w-28"
-          loading={isFormSubmitting}
-          onClick={() => form.submit()}>
-          Save
-        </Button>
-      </div>
-    </Form>
+      </Form>
+      <NotesModal
+        title={notesModalIsOpen.column === 'technician_notes' ? 'Technician Notes' : 'Agent Notes'}
+        initialValue={notesModalIsOpen.notes}
+        isSubmitting={isFormSubmitting}
+        open={notesModalIsOpen.open}
+        onCancel={closeNotesModal}
+        onSubmit={onNotesSave}
+        disabled={!permissions.update}
+      />
+    </>
   );
 };
 

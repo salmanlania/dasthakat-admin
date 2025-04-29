@@ -229,9 +229,9 @@ const pdfContent = (doc, data, pageWidth) => {
       0: { cellWidth: 27 },
       1: { cellWidth: 27 },
       2: { cellWidth: 27 },
-      3: { cellWidth: 27 },
-      4: { cellWidth: 35 },
-      6: { cellWidth: 27 },
+      3: { cellWidth: 45 },
+      4: { cellWidth: 45 },
+      5: { cellWidth: 27 },
       // 7: { cellWidth: 27 }
     },
     didParseCell: function (data) {
