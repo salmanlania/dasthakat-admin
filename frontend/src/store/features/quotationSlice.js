@@ -314,7 +314,7 @@ export const quotationSlice = createSlice({
         document_identity: data.document_identity,
         document_type_id: data.document_type_id,
         document_date: data.document_date ? dayjs(data.document_date) : null,
-        service_date: data.service_date ? dayjs(data.service_date) : null,
+        service_date: data.service_date,
         imo: data.vessel ? data.vessel.imo : null,
         internal_notes: data.internal_notes,
         salesman_id: data.salesman
@@ -378,7 +378,7 @@ export const quotationSlice = createSlice({
           }
           : null,
         customer_ref: data.customer_ref,
-        due_date: data.due_date ? dayjs(data.due_date) : null,
+        due_date: data.due_date,
         attn: data.attn,
         delivery: data.delivery,
         inclosure: data.inclosure,

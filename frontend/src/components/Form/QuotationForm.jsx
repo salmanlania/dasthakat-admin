@@ -1225,6 +1225,13 @@ const QuotationForm = ({ mode, onSubmit }) => {
     }
   };
 
+  console.log(
+    'service_date',
+    initialFormValues?.service_date
+      ? dayjs(initialFormValues?.service_date).format('MM-DD-YYYY')
+      : 'null'
+  );
+
   return (
     <>
       <Form
@@ -1240,14 +1247,20 @@ const QuotationForm = ({ mode, onSubmit }) => {
                 document_date: initialFormValues.document_date
                   ? dayjs(initialFormValues.document_date)
                   : null,
+                // service_date:
+                //   initialFormValues.service_date === '0000-00-00'
+                //     ? dayjs(initialFormValues.service_date).format('MM-DD-YYYY')
+                //     : null,
                 service_date:
-                  initialFormValues.service_date === '0000-00-00'
-                    ? dayjs(initialFormValues.service_date).format('MM-DD-YYYY')
-                    : null,
+                  initialFormValues?.service_date === '0000-00-00' ||
+                  initialFormValues?.service_date === '1899-30-11'
+                    ? null
+                    : dayjs(initialFormValues?.service_date),
                 due_date:
-                  initialFormValues.due_date === '0000-00-00'
-                    ? dayjs(initialFormValues.due_date).format('MM-DD-YYYY')
-                    : null
+                  initialFormValues?.due_date === '0000-00-00' ||
+                  initialFormValues?.due_date === '1899-30-11'
+                    ? null
+                    : dayjs(initialFormValues?.due_date)
               }
             : {
                 document_date: dayjs(),
