@@ -88,8 +88,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   doc.setFont('times', 'normal');
 
   const billTo = doc.splitTextToSize(
-    `${data.customer ? `${data.customer.name},` : ''}\n${
-      data.vessel ? data.vessel.billing_address || '' : ''
+    `${data.customer ? `${data.customer.name},` : ''}\n${data.vessel ? data.vessel.billing_address || '' : ''
     }`,
     120
   );
@@ -128,18 +127,18 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       data.document_date ? dayjs(data.document_date).format('MM-DD-YYYY') : '',
       data.document_identity,
       data.event.event_code,
-      data.customer_ref,  
+      data.customer_ref,
       data.port ? data.port.name : '',
       data.payment ? data.payment.name : '',
       data.flag ? data.flag.name : '',
       `${data.class1 ? `${data.class1.name},` : ''} ${data.class2 ? data.class2.name : ''}`,
-      data.service_date 
-      ? (data.service_date === "1989-11-30" 
-          ? dayjs(data.service_date).format('MM-DD-YYYY') 
-          : data.service_date === "0000-00-00" 
-            ? 'TBA' 
-            : 'TBA') 
-      : ''
+      data.service_date
+        ? (data.service_date === "1989-11-30"
+          ? dayjs(data.service_date).format('MM-DD-YYYY')
+          : data.service_date === "0000-00-00"
+            ? 'TBA'
+            : dayjs(data.service_date).format("MM-DD-YYYY"))
+        : ''
     ]
   ];
 
