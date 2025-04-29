@@ -34,6 +34,7 @@ class ChargeOrder extends Model
         "flag_id",
         "class1_id",
         "class2_id",
+        "port_id",
         "agent_id",
         "agent_notes",
         "technician_id", // user_id used in technician_id
@@ -96,5 +97,9 @@ class ChargeOrder extends Model
     public function agent()
     {
         return $this->hasOne(Agent::class, 'agent_id', 'agent_id')->select('*');
+    }
+    public function port()
+    {
+        return $this->hasOne(Port::class, 'port_id', 'port_id')->select('port_id', 'name');
     }
 }

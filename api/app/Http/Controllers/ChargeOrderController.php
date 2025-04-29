@@ -36,6 +36,7 @@ class ChargeOrderController extends Controller
 	public function index(Request $request)
 	{
 		$customer_id = $request->input('customer_id', '');
+		$port_id = $request->input('port_id', '');
 		$document_identity = $request->input('document_identity', '');
 		$ref_document_identity = $request->input('ref_document_identity', '');
 		$document_date = $request->input('document_date', '');
@@ -48,11 +49,13 @@ class ChargeOrderController extends Controller
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
 		$data = ChargeOrder::LeftJoin('customer as c', 'c.customer_id', '=', 'charge_order.customer_id')
+			->LeftJoin('port as p', 'p.port_id', '=', 'charge_order.port_id')
 			->LeftJoin('event as e', 'e.event_id', '=', 'charge_order.event_id')
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'charge_order.vessel_id');
 		$data = $data->where('charge_order.company_id', '=', $request->company_id);
 		$data = $data->where('charge_order.company_branch_id', '=', $request->company_branch_id);
 
+		if (!empty($port_id)) $data = $data->where('charge_order.port_id', '=',  $port_id);
 		if (!empty($customer_id)) $data = $data->where('charge_order.customer_id', '=',  $customer_id);
 		if (!empty($vessel_id)) $data = $data->where('charge_order.vessel_id', '=',  $vessel_id);
 		if (!empty($event_id)) $data = $data->where('charge_order.event_id', '=',  $event_id);
@@ -64,6 +67,7 @@ class ChargeOrderController extends Controller
 			$search = strtolower($search);
 			$data = $data->where(function ($query) use ($search) {
 				$query
+					->where('p.name', 'like', '%' . $search . '%')
 					->where('c.name', 'like', '%' . $search . '%')
 					->OrWhere('v.name', 'like', '%' . $search . '%')
 					->OrWhere('ref_document_identity', 'like', '%' . $search . '%')
@@ -75,7 +79,7 @@ class ChargeOrderController extends Controller
 		$data = $data->select("charge_order.*", DB::raw("CONCAT(e.event_code, ' (', CASE 
 		WHEN e.status = 1 THEN 'Active' 
 		ELSE 'Inactive' 
-	END, ')') AS event_code"), "c.name as customer_name", "v.name as vessel_name");
+	END, ')') AS event_code"), "c.name as customer_name", "v.name as vessel_name", "p.name as port_name");
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
@@ -94,6 +98,7 @@ class ChargeOrderController extends Controller
 			"event",
 			"vessel",
 			"customer",
+			"port",
 			"flag",
 			"class1",
 			"class2",
@@ -137,6 +142,7 @@ class ChargeOrderController extends Controller
 			"vessel",
 			"customer",
 			"flag",
+			"port",
 			"class1",
 			"class2",
 			"agent",
@@ -747,6 +753,7 @@ class ChargeOrderController extends Controller
 			'event_id' => $request->event_id ?? "",
 			'vessel_id' => $request->vessel_id ?? "",
 			'flag_id' => $request->flag_id ?? "",
+			'port_id' => $request->port_id ?? "",
 			'class1_id' => $request->class1_id ?? "",
 			'class2_id' => $request->class2_id ?? "",
 			'agent_id' => $request->agent_id ?? "",
@@ -829,6 +836,7 @@ class ChargeOrderController extends Controller
 			'customer_id' => $request->customer_id,
 			'event_id' => $request->event_id,
 			'vessel_id' => $request->vessel_id,
+			'port_id' => $request->port_id,
 			'flag_id' => $request->flag_id,
 			'class1_id' => $request->class1_id,
 			'class2_id' => $request->class2_id,

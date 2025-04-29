@@ -15,6 +15,7 @@ use App\Models\Picklist;
 use App\Models\PicklistReceived;
 use App\Models\Quotation;
 use App\Models\ServicelistReceived;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
@@ -255,7 +256,7 @@ class EventController extends Controller
 
 	public function show($id, $jsonResponse = true)
 	{
-		$data =  Event::with("company","company_branch","created_user","updated_user")->LeftJoin('customer as c', 'event.customer_id', 'c.customer_id')
+		$data =  Event::with("company", "company_branch", "created_user", "updated_user")->LeftJoin('customer as c', 'event.customer_id', 'c.customer_id')
 			->LeftJoin('vessel as v', 'event.vessel_id', 'v.vessel_id')
 			->LeftJoin('flag as f', 'f.flag_id', 'v.flag_id')
 			->LeftJoin('class as c1', 'c1.class_id', 'event.class1_id')
@@ -345,6 +346,8 @@ class EventController extends Controller
 			'company_id' => $request->company_id,
 			'company_branch_id' => $request->company_branch_id,
 			'event_id' => $uuid,
+			'event_date' => Carbon::now(),
+			'event_time' => '00:01'
 		]);
 
 		Audit::onInsert(

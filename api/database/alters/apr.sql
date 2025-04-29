@@ -114,3 +114,5 @@ MODIFY COLUMN `technician_id` BLOB DEFAULT NULL AFTER `event_id`;
 
 ALTER TABLE `job_order_detail_certificate`
 ADD COLUMN `type` VARCHAR(255) DEFAULT NULL AFTER `sort_order`;
+ALTER TABLE `charge_order`
+ADD COLUMN `port_id` CHAR(36) DEFAULT NULL AFTER `flag_id`;
