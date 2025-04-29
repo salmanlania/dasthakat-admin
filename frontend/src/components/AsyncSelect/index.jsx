@@ -19,6 +19,7 @@ const AsyncSelect = ({
   addNewLink,
   allowClear = true,
   defaultFirstSelected = false,
+  optionProps = {},
   ...props
 }) => {
   const [isClicked, setIsClicked] = useState(defaultFirstSelected);
@@ -139,7 +140,11 @@ const AsyncSelect = ({
         ) : undefined
       }>
       {options.map((option) => (
-        <Option key={option.value} value={option.value}>
+        <Option
+          key={option.value}
+          value={option.value}
+          style={optionProps.style || {}}
+          className={optionProps.className || ''}>
           {option.label}
         </Option>
       ))}

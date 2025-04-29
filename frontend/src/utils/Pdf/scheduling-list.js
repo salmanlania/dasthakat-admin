@@ -67,7 +67,7 @@ const pdfContent = (doc, data, pageWidth) => {
     'Event Number',
     'Vessel Name',
     'Technician',
-    'Agent',
+    // 'Agent',
     'Status'
   ];
 
@@ -105,33 +105,33 @@ const pdfContent = (doc, data, pageWidth) => {
       table2Rows.push([
         {
           content: item?.event_date ? dayjs(item.event_date).format('MM-DD-YYYY') : '   ',
-          styles: { textColor: [32, 50, 114] , fontStyle: 'bold', }
+          styles: { textColor: [0, 176, 80] , fontStyle: 'bold', }
         },
         {
           content: item?.event_time || '   ',
-          styles: { textColor: [32, 50, 114] , fontStyle: 'bold', }
+          styles: { textColor: [0, 176, 80] , fontStyle: 'bold', }
         },
         {
           content: item?.event_code || '   ',
-          styles: { textColor: [32, 50, 114] , fontStyle: 'bold', }
+          styles: { textColor: [0, 176, 80] , fontStyle: 'bold', }
         },
         {
           content: item?.vessel_name || '   ',
-          styles: { textColor: [32, 50, 114] , fontStyle: 'bold', }
+          styles: { textColor: [0, 176, 80] , fontStyle: 'bold', }
         },
         {
           content: Array.isArray(item?.technicians)
           ? item.technicians.map(t => t.user_name).join(', ')
           : '   ',
-          styles: { textColor: [32, 50, 114] , fontStyle: 'bold', }
+          styles: { textColor: [0, 176, 80] , fontStyle: 'bold', }
         },
-        {
-          content: item?.agent_name || '   ',
-          styles: { textColor: [32, 50, 114] , fontStyle: 'bold', }
-        },
+        // {
+        //   content: item?.agent_name || '   ',
+        //   styles: { textColor: [0, 176, 80] , fontStyle: 'bold', }
+        // },
         {
           content: item?.status || '   ',
-          styles: { textColor: [32, 50, 114] , fontStyle: 'bold', }
+          styles: { textColor: [0, 176, 80] , fontStyle: 'bold', }
         },
       ]);
 
@@ -232,7 +232,7 @@ const pdfContent = (doc, data, pageWidth) => {
       3: { cellWidth: 27 },
       4: { cellWidth: 35 },
       6: { cellWidth: 27 },
-      7: { cellWidth: 27 }
+      // 7: { cellWidth: 27 }
     },
     didParseCell: function (data) {
       const content = data.cell.text;

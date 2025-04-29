@@ -58,6 +58,7 @@ const fillEmptyRows = (rows, rowsPerPage, notesLength = 1) => {
 };
 
 const addHeader = (doc, data, pageWidth, sideMargin) => {
+  console.log('data.service_date ' , data.service_date )
   doc.setFontSize(20);
   doc.setFont('times', 'bold');
   doc.text('Global Marine Safety - America', pageWidth / 2, 12, {
@@ -128,12 +129,18 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       data.document_date ? dayjs(data.document_date).format('MM-DD-YYYY') : '',
       data.document_identity,
       data.event.event_code,
-      data.customer_ref,
+      data.customer_ref,  
       data.port ? data.port.name : '',
       data.payment ? data.payment.name : '',
       data.flag ? data.flag.name : '',
       `${data.class1 ? `${data.class1.name},` : ''} ${data.class2 ? data.class2.name : ''}`,
-      data.service_date ? dayjs(data.service_date).format('MM-DD-YYYY') : ''
+      data.service_date 
+      ? (data.service_date === "1989-11-30" 
+          ? dayjs(data.service_date).format('MM-DD-YYYY') 
+          : data.service_date === "0000-00-00" 
+            ? 'TBA' 
+            : 'TBA') 
+      : ''
     ]
   ];
 

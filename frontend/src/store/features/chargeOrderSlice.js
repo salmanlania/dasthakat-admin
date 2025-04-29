@@ -512,6 +512,7 @@ export const chargeOrderSlice = createSlice({
             label: data.class2.name
           }
           : null,
+          port_id: data.port_id ? data.port_id : null,
         flag_id: data.flag
           ? {
             value: data.flag.flag_id,

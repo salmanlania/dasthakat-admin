@@ -1,5 +1,17 @@
 /* eslint-disable react/prop-types */
-import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Select, Table , Tooltip} from 'antd';
+import {
+  Button,
+  Col,
+  DatePicker,
+  Divider,
+  Dropdown,
+  Form,
+  Input,
+  Row,
+  Select,
+  Table,
+  Tooltip
+} from 'antd';
 import dayjs from 'dayjs';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
@@ -58,6 +70,10 @@ export const quotationStatusOptions = [
   {
     value: 'Sent to customer',
     label: 'Sent to customer'
+  },
+  {
+    value: 'Cancelled',
+    label: 'Cancelled'
   }
 ];
 
@@ -680,7 +696,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Form.Item>
         );
       },
-      width: 200,
+      width: 130,
       fixed: 'left'
     },
     {
@@ -734,7 +750,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Tooltip>
         );
       },
-      width: 200,
+      width: 270,
       fixed: 'left'
     },
     {
@@ -1222,6 +1238,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
             }
           : {
               document_date: dayjs(),
+              due_date: dayjs(),
               status: 'In Progress'
             }
       }
@@ -1465,34 +1482,50 @@ const QuotationForm = ({ mode, onSubmit }) => {
               title="Total Quantity:"
               value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
             />
-          </Col>
-          <Col span={24} sm={12} md={6} lg={6}>
             <DetailSummaryInfo
               title="Total Cost:"
               value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
             />
-          </Col>
-
-          <Col span={24} sm={12} md={6} lg={6}>
             <DetailSummaryInfo
               title="Total Amount:"
               value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
             />
-          </Col>
-
-          <Col span={24} sm={12} md={6} lg={6}>
             <DetailSummaryInfo
               title="Discount Amount:"
               value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
             />
-          </Col>
-
-          <Col span={24} sm={12} md={6} lg={6}>
             <DetailSummaryInfo
               title="Net Amount:"
               value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
             />
           </Col>
+          {/* <Col span={24} sm={12} md={6} lg={6}>
+            <DetailSummaryInfo
+              title="Total Cost:"
+              value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
+            />
+          </Col> */}
+
+          {/* <Col span={24} sm={12} md={6} lg={6}>
+            <DetailSummaryInfo
+              title="Total Amount:"
+              value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
+            />
+          </Col> */}
+
+          {/* <Col span={24} sm={12} md={6} lg={6}>
+            <DetailSummaryInfo
+              title="Discount Amount:"
+              value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
+            />
+          </Col> */}
+
+          {/* <Col span={24} sm={12} md={6} lg={6}>
+            <DetailSummaryInfo
+              title="Net Amount:"
+              value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
+            />
+          </Col> */}
         </Row>
         <Row gutter={[12, 12]} className="mb-4">
           <Col span={24} sm={12}>

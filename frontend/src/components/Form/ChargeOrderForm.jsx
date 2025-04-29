@@ -1,5 +1,17 @@
 import { useState } from 'react';
-import { Button, Col, DatePicker, Dropdown, Form, Input, Popover, Row, Select, Table } from 'antd';
+import {
+  Button,
+  Col,
+  DatePicker,
+  Dropdown,
+  Form,
+  Input,
+  Popover,
+  Row,
+  Select,
+  Table,
+  Tooltip
+} from 'antd';
 import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
 import { BiPlus } from 'react-icons/bi';
@@ -38,6 +50,17 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues, chargeOrderDetails } = useSelector(
     (state) => state.chargeOrder
   );
+
+  chargeOrderDetails.forEach((item, index) => {
+    form.setFieldsValue({
+      [`product_description-${index}`]: item.product_description,
+      [`product_id-${index}`]: item.product_id,
+      [`product_name-${index}`]: item.product_name,
+      [`quantity-${index}`]: item.quantity,
+      [`rate-${index}`]: item.rate,
+      [`discount_percent-${index}`]: item.discount_percent
+    });
+  });
 
   const { poChargeID } = useSelector((state) => state.purchaseOrder);
 
@@ -82,6 +105,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       salesman_id: values.salesman_id ? values.salesman_id.value : null,
       class1_id: values.class1_id ? values.class1_id.value : null,
       class2_id: values.class2_id ? values.class2_id.value : null,
+      port_id: values.port_id ? values.port_id : null,
       customer_id: values.customer_id ? values.customer_id.value : null,
       event_id: values.event_id ? values.event_id.value : null,
       flag_id: values.flag_id ? values.flag_id.value : null,
@@ -94,7 +118,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         : null,
       user_id: values.user_id ? values.user_id.map((v) => v.value) : null,
       charge_order_detail: mappingSource.map(
-        ({ id, isDeleted,row_status, product_type, ...detail }, index) => {
+        ({ id, isDeleted, row_status, product_type, ...detail }, index) => {
           return {
             ...detail,
             picklist_id: detail?.picklist_id || '',
@@ -427,7 +451,8 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           </div>
         );
       },
-      width: 50
+      width: 50,
+      fixed: 'left'
     },
     {
       title: 'Sr.',
@@ -436,10 +461,11 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       render: (_, record, index) => {
         return <>{index + 1}.</>;
       },
-      width: 50
+      width: 50,
+      fixed: 'left'
     },
     {
-      title: 'Product Type',
+      title: 'P.Type',
       dataIndex: 'product_type',
       key: 'product_type',
       render: (_, { product_code, product_type_id, editable }, index) => {
@@ -452,8 +478,16 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             labelKey="name"
             labelInValue
             className="w-full"
-            value={product_type_id}
-            disabled={editable === false}
+            // value={product_type_id}
+            value={
+              product_type_id?.value
+                ? {
+                    value: product_type_id.value,
+                    label: product_type_id.label?.slice(0, 2) || ''
+                  }
+                : product_type_id
+            }
+            getOptionLabel={(item) => item.name?.slice(0, 2)}
             onChange={(selected) => {
               dispatch(resetChargeOrderDetail(index));
               dispatch(
@@ -467,33 +501,34 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 150
+      width: 70,
+      fixed: 'left'
     },
-    {
-      title: 'Product Code',
-      dataIndex: 'product_code',
-      key: 'product_code',
-      render: (_, { product_code, product_type_id }, index) => {
-        return (
-          <DebounceInput
-            value={product_code}
-            onChange={(value) =>
-              dispatch(
-                changeChargeOrderDetailValue({
-                  index,
-                  key: 'product_code',
-                  value: value
-                })
-              )
-            }
-            disabled={product_type_id?.value == 4}
-            onBlur={(e) => onProductCodeChange(index, e.target.value)}
-            onPressEnter={(e) => onProductCodeChange(index, e.target.value)}
-          />
-        );
-      },
-      width: 120
-    },
+    // {
+    //   title: 'Product Code',
+    //   dataIndex: 'product_code',
+    //   key: 'product_code',
+    //   render: (_, { product_code, product_type_id }, index) => {
+    //     return (
+    //       <DebounceInput
+    //         value={product_code}
+    //         onChange={(value) =>
+    //           dispatch(
+    //             changeChargeOrderDetailValue({
+    //               index,
+    //               key: 'product_code',
+    //               value: value
+    //             })
+    //           )
+    //         }
+    //         disabled={product_type_id?.value == 4}
+    //         onBlur={(e) => onProductCodeChange(index, e.target.value)}
+    //         onPressEnter={(e) => onProductCodeChange(index, e.target.value)}
+    //       />
+    //     );
+    //   },
+    //   width: 120
+    // },
     {
       title: 'Product Name',
       dataIndex: 'product_name',
@@ -516,6 +551,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             ]}>
             <DebounceInput
               value={product_name}
+              disabled={product_type_id?.value === 4}
               onChange={(value) => {
                 dispatch(
                   changeChargeOrderDetailValue({
@@ -559,11 +595,15 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
               value={product_id}
               onChange={(selected) => onProductChange(index, selected)}
               addNewLink={permissions.product.add ? '/product/create' : null}
+              dropdownStyle={{ backgroundColor: '#ebedf7' }}
+              optionLabelProp="children"
+              optionProps={{ style: { backgroundColor: '#f5f5f5', whiteSpace: 'nowrap' } }}
             />
           </Form.Item>
         );
       },
-      width: 560
+      width: 200,
+      fixed: 'left'
     },
     {
       title: 'Description',
@@ -572,34 +612,51 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       render: (_, { product_description, product_type_id }, index) => {
         form.setFieldsValue({ [`product_description-${index}`]: product_description });
         return (
-          <Form.Item
-            className="m-0"
-            name={`product_description-${index}`}
-            initialValue={product_description}
-            rules={[
-              {
-                required: true,
-                whitespace: true,
-                message: 'Description is required'
-              }
-            ]}>
-            <DebounceInput
-              value={product_description}
-              disabled={product_type_id?.value == 4}
-              onChange={(value) =>
-                dispatch(
-                  changeChargeOrderDetailValue({
-                    index,
-                    key: 'product_description',
-                    value: value
-                  })
-                )
-              }
-            />
-          </Form.Item>
+          <Tooltip title={product_description || ''}>
+            <Form.Item
+              className="m-0"
+              name={`product_description-${index}`}
+              initialValue={product_description}
+              rules={[
+                {
+                  required: true,
+                  whitespace: true,
+                  message: 'Description is required'
+                }
+              ]}>
+              <DebounceInput
+                value={product_description}
+                // disabled={product_type_id?.value == 4}
+                onChange={(value) => {
+                  dispatch(
+                    changeChargeOrderDetailValue({
+                      index,
+                      key: 'product_description',
+                      value: value
+                    })
+                  );
+
+                  if (product_type_id?.value === 4) {
+                    dispatch(
+                      changeChargeOrderDetailValue({
+                        index,
+                        key: 'product_name',
+                        value: value
+                      })
+                    );
+
+                    form.setFieldsValue({
+                      [`product_name-${index}`]: value
+                    });
+                  }
+                }}
+              />
+            </Form.Item>
+          </Tooltip>
         );
       },
-      width: 300
+      width: 200,
+      fixed: 'left'
     },
     {
       title: 'Customer Notes',
@@ -1069,6 +1126,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       customer_id: null,
       class1_id: null,
       class2_id: null,
+      // port_id: null,
       flag_id: null
     });
 
@@ -1080,6 +1138,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         customer_id: { value: data.customer_id, label: data.customer_name },
         class1_id: { value: data.class1_id, label: data.class1_name },
         class2_id: { value: data.class2_id, label: data.class2_name },
+        // port_id: { value: data.port_id, label: data.port_id },
         flag_id: { value: data.flag_id, label: data.flag_name }
       });
     } catch (error) {
@@ -1177,17 +1236,22 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
 
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={24} sm={12} md={6} lg={6}>
           <Form.Item name="class1_id" label="Class 1">
             <Select labelInValue disabled />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={24} sm={12} md={6} lg={6}>
           <Form.Item name="class2_id" label="Class 2">
             <Select labelInValue disabled />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={24} sm={12} md={6} lg={6}>
+          <Form.Item name="port_id" label="Port">
+            <Input />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={6} lg={6}>
           <Form.Item name="flag_id" label="Flag">
             <AsyncSelect
               endpoint="/flag"
@@ -1258,28 +1322,40 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
               title="Total Quantity:"
               value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
             />
-          </Col>
-
-          <Col span={24} sm={12} md={6} lg={6}>
             <DetailSummaryInfo
               title="Total Amount:"
               value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
             />
-          </Col>
-
-          <Col span={24} sm={12} md={6} lg={6}>
             <DetailSummaryInfo
               title="Discount Amount:"
               value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
             />
-          </Col>
-
-          <Col span={24} sm={12} md={6} lg={6}>
             <DetailSummaryInfo
               title="Net Amount:"
               value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
             />
           </Col>
+
+          {/* <Col span={24} sm={12} md={6} lg={6}>
+            <DetailSummaryInfo
+              title="Total Amount:"
+              value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
+            />
+          </Col> */}
+
+          {/* <Col span={24} sm={12} md={6} lg={6}>
+            <DetailSummaryInfo
+              title="Discount Amount:"
+              value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
+            />
+          </Col> */}
+
+          {/* <Col span={24} sm={12} md={6} lg={6}>
+            <DetailSummaryInfo
+              title="Net Amount:"
+              value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
+            />
+          </Col> */}
         </Row>
       </div>
 

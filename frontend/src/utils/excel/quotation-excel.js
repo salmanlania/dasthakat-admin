@@ -139,9 +139,14 @@ const generateQuotationExcel = async (data) => {
   worksheet.mergeCells(`Q${currentRow}:R${currentRow}`);
   worksheet.getCell(`Q${currentRow}`).value = 'Date of Service';
   worksheet.mergeCells(`Q${currentRow + 1}:R${currentRow + 1}`);
+  // worksheet.getCell(`Q${currentRow + 1}`).value = data.service_date
+  //   ? dayjs(data.service_date).format('MM-DD-YYYY')
+  //   : '';
   worksheet.getCell(`Q${currentRow + 1}`).value = data.service_date
+  ? data.service_date === "1989-11-30"
     ? dayjs(data.service_date).format('MM-DD-YYYY')
-    : '';
+    : 'TBA'
+  : '';
 
   for (let i = 0; i < 2; i++) {
     worksheet.getRow(currentRow + i).eachCell((cell) => {

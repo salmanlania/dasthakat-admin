@@ -39,6 +39,17 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
     (state) => state.purchaseOrder
   );
 
+  purchaseOrderDetails.forEach((item, index) => {
+    form.setFieldsValue({
+      [`product_description-${index}`]: item.product_description,
+      [`product_id-${index}`]: item.product_id,
+      [`product_name-${index}`]: item.product_name,
+      [`quantity-${index}`]: item.quantity,
+      [`rate-${index}`]: item.rate,
+      [`discount_percent-${index}`]: item.discount_percent
+    });
+  });
+
   const POType = Form.useWatch('type', form);
   const isBuyout = POType === 'Buyout';
 
@@ -456,6 +467,9 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
               value={product_id}
               onChange={(selected) => onProductChange(index, selected)}
               addNewLink={permissions.product.add ? '/product/create' : null}
+              dropdownStyle={{ backgroundColor: '#ebedf7' }}
+              optionLabelProp="children"
+              optionProps={{ style: { backgroundColor: '#f5f5f5', whiteSpace: 'nowrap' } }}
             />
           </Form.Item>
         );

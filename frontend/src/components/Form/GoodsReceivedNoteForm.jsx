@@ -38,6 +38,17 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
     (state) => state.goodsReceivedNote
   );
 
+  goodsReceivedNoteDetails.forEach((item, index) => {
+    form.setFieldsValue({
+      [`product_description-${index}`]: item.product_description,
+      [`product_id-${index}`]: item.product_id,
+      [`product_name-${index}`]: item.product_name,
+      [`quantity-${index}`]: item.quantity,
+      [`rate-${index}`]: item.rate,
+      [`discount_percent-${index}`]: item.discount_percent
+    });
+  });
+
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
   const currency = user.currency;

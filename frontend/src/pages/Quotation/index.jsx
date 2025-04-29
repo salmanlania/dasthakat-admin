@@ -42,6 +42,7 @@ const Quotation = () => {
 
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedQuotationNo = useDebounce(params.document_identity, 500);
+  const debouncedCustomerRef = useDebounce(params.customer_ref, 500);
 
   const formattedParams = {
     ...params,
@@ -126,6 +127,7 @@ const Quotation = () => {
           <Input
             className="font-normal"
             size="small"
+            allowClear
             onClick={(e) => e.stopPropagation()}
             value={params.document_identity}
             onChange={(e) =>
@@ -199,6 +201,49 @@ const Quotation = () => {
       ),
       dataIndex: 'event_code',
       key: 'event_code',
+      sorter: true,
+      width: 140,
+      ellipsis: true
+    },
+    {
+      title: (
+        <div>
+          <p>Customer Ref</p>
+          <Input
+            className="font-normal"
+            allowClear
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            value={params.customer_ref}
+            onChange={(e) =>
+              dispatch(setQuotationListParams({ customer_ref: e.target.value }))
+            }
+          />
+        </div>
+      ),
+      dataIndex: 'customer_ref',
+      key: 'customer_ref',
+      sorter: true,
+      width: 150,
+      ellipsis: true
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Port</p>
+          <AsyncSelect
+            endpoint="/port"
+            size="small"
+            className="w-full font-normal"
+            valueKey="port_id"
+            labelKey="name"
+            value={params.port_id}
+            onChange={(value) => dispatch(setQuotationListParams({ port_id: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'port_name',
+      key: 'port_name',
       sorter: true,
       width: 140,
       ellipsis: true
@@ -328,9 +373,11 @@ const Quotation = () => {
     params.customer_id,
     params.vessel_id,
     params.event_id,
+    params.port_id,
     params.status,
     debouncedSearch,
-    debouncedQuotationNo
+    debouncedQuotationNo,
+    debouncedCustomerRef
   ]);
 
   const groupedQuotationData = useMemo(() => {
