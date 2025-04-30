@@ -266,9 +266,9 @@ class JobOrderController extends Controller
 		];
 
 		$certificateConfig = [
-			'FRS' => ['prefix' => 'GMSH', 'type' => 'FRS'],
+			'LSA/FFE' => ['prefix' => 'GMSH', 'type' => 'LSA/FFE'],
 			'Calibration' => ['prefix' => 'GMSHC', 'type' => 'Calibration'],
-			'Life Boat' => ['prefix' => 'GMSHL', 'type' => 'Life Boat'],
+			'LB' => ['prefix' => 'GMSHL', 'type' => 'LB'],
 		];
 
 		if (isset($certificateConfig[$Category])) {
