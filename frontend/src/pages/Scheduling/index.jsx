@@ -325,7 +325,7 @@ const exportPdf = async () => {
               className="font-normal"
               showSecond={false}
               onChange={(time) =>
-                dispatch(setDispatchListParams({ event_time: time ? time.format('HH:mm') : null }))
+                dispatch(setDispatchListParams({ event_time: time ? time.format('HH:mm:ss') : null }))
               }
             />
           </div>
