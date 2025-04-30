@@ -137,82 +137,84 @@ const Scheduling = () => {
     }
   };
 
-  const exportExcel = async () => {
-    const loadingToast = toast.loading('Downloading Excel File...');
+const exportExcel = async () => {
+  const loadingToast = toast.loading('Downloading Excel File...');
 
-    const originalParams = { ...params };
+  const originalParams = { ...params };
+  
+  try {
+    const newDate = !isOldChecked ? dayjs().format('YYYY-MM-DD') : null;
+    const exportParams = {
+      ...params,
+      start_date: newDate,
+      end_date: null,
+      event_date: null,
+      search: null,
+      technician_notes: null,
+      agent_notes: null,
+      technician_id: null,
+      vessel_id: null,
+      agent_id: null,
+      event_id: null,
+      sort_direction: 'ascend'
+    };
 
-    try {
-      const newDate = !isOldChecked ? dayjs().format('YYYY-MM-DD') : null;
-      const exportParams = {
-        ...params,
-        start_date: newDate,
-        end_date: null,
-        event_date: null,
-        search: null,
-        technician_notes: null,
-        agent_notes: null,
-        technician_id: null,
-        vessel_id: null,
-        agent_id: null,
-        event_id: null,
-        sort_direction: 'ascend'
-      };
+    const data = await dispatch(getDispatchList(exportParams)).unwrap();
+    
+    generateSchedulingExcel(data, true);
+    
+    await dispatch(setDispatchListParams(originalParams)).unwrap();
+    await dispatch(getDispatchList(originalParams)).unwrap();
+    
+    setTableKey(prevKey => prevKey + 1);
+    
+  } catch (error) {
+    await dispatch(setDispatchListParams(originalParams)).unwrap();
+    await dispatch(getDispatchList(originalParams)).unwrap();
+    handleError(error);
+  } finally {
+    toast.dismiss(loadingToast);
+  }
+};
 
-      const data = await dispatch(getDispatchList(exportParams)).unwrap();
+const exportPdf = async () => {
+  const loadingToast = toast.loading('Loading Print View...');
 
-      generateSchedulingExcel(data, true);
+  const originalParams = { ...params };
+  
+  try {
+    const newDate = !isOldChecked ? dayjs().format('YYYY-MM-DD') : null;
+    const exportParams = {
+      ...params,
+      start_date: newDate,
+      end_date: null,
+      event_date: null,
+      search: null,
+      technician_notes: null,
+      agent_notes: null,
+      technician_id: null,
+      vessel_id: null,
+      agent_id: null,
+      event_id: null
+    };
 
-      await dispatch(setDispatchListParams(originalParams)).unwrap();
-      await dispatch(getDispatchList(originalParams)).unwrap();
-
-      setTableKey((prevKey) => prevKey + 1);
-    } catch (error) {
-      await dispatch(setDispatchListParams(originalParams)).unwrap();
-      await dispatch(getDispatchList(originalParams)).unwrap();
-      handleError(error);
-    } finally {
-      toast.dismiss(loadingToast);
-    }
-  };
-
-  const exportPdf = async () => {
-    const loadingToast = toast.loading('Loading Print View...');
-
-    const originalParams = { ...params };
-
-    try {
-      const newDate = !isOldChecked ? dayjs().format('YYYY-MM-DD') : null;
-      const exportParams = {
-        ...params,
-        start_date: newDate,
-        end_date: null,
-        event_date: null,
-        search: null,
-        technician_notes: null,
-        agent_notes: null,
-        technician_id: null,
-        vessel_id: null,
-        agent_id: null,
-        event_id: null
-      };
-
-      const data = await dispatch(getDispatchList(exportParams)).unwrap();
-
-      createSchedulingListPrint(Array.isArray(data) ? data : [data], true);
-
-      await dispatch(setDispatchListParams(originalParams)).unwrap();
-      await dispatch(getDispatchList(originalParams)).unwrap();
-
-      setTableKey((prevKey) => prevKey + 1);
-    } catch (error) {
-      await dispatch(setDispatchListParams(originalParams)).unwrap();
-      await dispatch(getDispatchList(originalParams)).unwrap();
-      handleError(error);
-    } finally {
-      toast.dismiss(loadingToast);
-    }
-  };
+    const data = await dispatch(getDispatchList(exportParams)).unwrap();
+    
+    createSchedulingListPrint(Array.isArray(data) ? data : [data], true);
+    
+    await dispatch(setDispatchListParams(originalParams)).unwrap();
+    await dispatch(getDispatchList(originalParams)).unwrap();
+    
+    setTableKey(prevKey => prevKey + 1);
+    
+  } catch (error) {
+    await dispatch(setDispatchListParams(originalParams)).unwrap();
+    await dispatch(getDispatchList(originalParams)).unwrap();
+    handleError(error);
+  } finally {
+    toast.dismiss(loadingToast);
+  }
+};
 
   const printPickLists = async (id) => {
     const loadingToast = toast.loading('Loading Pick Lists print...');
@@ -823,7 +825,8 @@ const Scheduling = () => {
                 if (dates && dates[0]) {
                   fetchParams.start_date = newParams.start_date;
                   fetchParams.end_date = newParams.end_date;
-                } else {
+                }
+                else {
                   if (!isOldChecked) {
                     fetchParams.start_date = today;
                     fetchParams.end_date = null;
@@ -907,7 +910,7 @@ const Scheduling = () => {
                   return (
                     <tr {...restProps} className="date-header-row bg-[#fafafa] font-bold">
                       <td colSpan={columns.length} className="text-md px-4 py-2 text-[#285198]">
-                        {formattedDate ? `Date: ${formattedDate}` : 'Date: Empty'}
+                       {formattedDate ? `Date: ${formattedDate}` : 'Date: Empty'}
                       </td>
                     </tr>
                   );
