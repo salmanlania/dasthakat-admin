@@ -43,6 +43,10 @@ class JobOrderDetail extends Model
     {
         return $this->hasOne(ChargeOrder::class, 'charge_order_id', 'charge_order_id')->select('*');
     }
+    public function service_order()
+    {
+        return $this->hasOne(ServiceOrder::class, 'charge_order_id', 'charge_order_id')->select('*');
+    }
     public function shipment_detail()
     {
         return $this->hasOne(ShipmentDetail::class, 'product_id', 'product_id')

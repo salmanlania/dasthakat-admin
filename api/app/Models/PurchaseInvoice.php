@@ -27,16 +27,13 @@ class PurchaseInvoice extends Model
         "ship_via",
         "ship_to",
         "department",
-        "good_received_note_id",
-        "quotation_id",
         "charge_order_id",
+        "purchase_order_id",
         "payment_id",
         "remarks",
         "total_quantity",
         "total_amount",
-        "created_at",
         "created_by",
-        "updated_at",
         "updated_by"
     ];
   
@@ -60,15 +57,11 @@ class PurchaseInvoice extends Model
         return $this->hasOne(Supplier::class, 'supplier_id','supplier_id')->select('*');
     }
 
-    public function grn(){
-        return $this->hasOne(GRN::class, 'good_received_note_id','good_received_note_id')->select('*');
+    public function purchase_order(){
+        return $this->hasOne(PurchaseOrder::class, 'purchase_order_id','purchase_order_id')->select('*');
     }
    
-    public function quotation()
-    {
-        return $this->hasOne(Quotation::class, 'quotation_id','quotation_id')->select('*');
-    }
-   
+
     public function charge_order()
     {
         return $this->hasOne(ChargeOrder::class, 'charge_order_id','charge_order_id')->select('*');

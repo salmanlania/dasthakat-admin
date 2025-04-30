@@ -116,3 +116,48 @@ ALTER TABLE `job_order_detail_certificate`
 ADD COLUMN `type` VARCHAR(255) DEFAULT NULL AFTER `sort_order`;
 ALTER TABLE `charge_order`
 ADD COLUMN `port_id` CHAR(36) DEFAULT NULL AFTER `flag_id`;
+
+ALTER TABLE `purchase_invoice`
+    DROP COLUMN `good_received_note_id`,
+    DROP COLUMN `quotation_id`,
+    ADD COLUMN `purchase_order_id` CHAR(36) NULL AFTER `charge_order_id`;
+
+-- CREATE TABLE Query
+CREATE TABLE `sale_invoice` (
+    `company_id` CHAR(36) NULL,
+    `company_branch_id` CHAR(36) NULL,
+    `sale_invoice_id` CHAR(36) NOT NULL,
+    `document_type_id` CHAR(36) NULL,
+    `document_no` VARCHAR(100) NULL,
+    `document_prefix` VARCHAR(50) NULL,
+    `document_identity` VARCHAR(100) NULL,
+    `document_date` DATE NOT NULL,
+    `charge_order_id` CHAR(36) NULL,
+    `total_quantity` DECIMAL(10,2) NOT NULL DEFAULT 0,
+    `total_amount` DECIMAL(10,2) NOT NULL DEFAULT 0,
+    `created_at` DATETIME NULL,
+    `created_by` CHAR(36) NULL,
+    `updated_at` DATETIME NULL,
+    `updated_by` CHAR(36) NULL,
+    PRIMARY KEY (`sale_invoice_id`)
+);
+
+CREATE TABLE `sale_invoice_detail` (
+    `sale_invoice_detail_id` CHAR(36) NOT NULL,
+    `charge_order_detail_id` CHAR(36) NULL,
+    `sale_invoice_id` CHAR(36) NULL,
+    `sort_order` INT NOT NULL DEFAULT 0,
+    `product_id` CHAR(36) NULL,
+    `product_name` VARCHAR(255) NULL,
+    `product_description` VARCHAR(255) NULL,
+    `description` TEXT NULL,
+    `unit_id` CHAR(36) NULL,
+    `quantity` DECIMAL(10,2) NOT NULL DEFAULT 0,
+    `rate` DECIMAL(10,2) NOT NULL DEFAULT 0,
+    `amount` DECIMAL(10,2) NOT NULL DEFAULT 0,
+    `created_at` DATETIME NULL,
+    `created_by` CHAR(36) NULL,
+    `updated_at` DATETIME NULL,
+    `updated_by` CHAR(36) NULL,
+    PRIMARY KEY (`sale_invoice_detail_id`)
+) ;

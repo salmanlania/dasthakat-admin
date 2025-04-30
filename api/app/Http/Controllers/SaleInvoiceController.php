@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChargeOrder;
 use App\Models\DocumentType;
 use App\Models\GRN;
 use App\Models\GRNDetail;
@@ -10,57 +11,53 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\PurchaseInvoice;
 use App\Models\PurchaseInvoiceDetail;
 use App\Models\PurchaseOrder;
+use App\Models\SaleInvoice;
+use App\Models\SaleInvoiceDetail;
 use Carbon\Carbon;
 
-class PurchaseInvoiceController extends Controller
+class SaleInvoiceController extends Controller
 {
-	protected $document_type_id = 42;
+	protected $document_type_id = 51;
 	protected $db;
 
 	public function index(Request $request)
 	{
-		$supplier_id = $request->input('supplier_id', '');
+
 		$document_identity = $request->input('document_identity', '');
 		$document_date = $request->input('document_date', '');
-		$required_date = $request->input('required_date', '');
 		$quotation_id = $request->input('quotation_id', '');
 		$charge_order_id = $request->input('charge_order_id', '');
-		$purchase_order_id = $request->input('purchase_order_id', '');
 
 		$search = $request->input('search', '');
 		$page =  $request->input('page', 1);
 		$perPage =  $request->input('limit', 10);
-		$sort_column = $request->input('sort_column', 'purchase_invoice.created_at');
+		$sort_column = $request->input('sort_column', 'sale_invoice.created_at');
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
-		$data = PurchaseInvoice::LeftJoin('supplier as s', 's.supplier_id', '=', 'purchase_invoice.supplier_id')
-			->LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'purchase_invoice.charge_order_id')
-			->LeftJoin('quotation as q', 'q.document_identity', '=', 'co.ref_document_identity')
-			->LeftJoin('purchase_order as po', 'po.purchase_order_id', '=', 'purchase_invoice.purchase_order_id');
-		$data = $data->where('purchase_invoice.company_id', '=', $request->company_id);
-		$data = $data->where('purchase_invoice.company_branch_id', '=', $request->company_branch_id);
+		$data = SaleInvoice::LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'sale_invoice.charge_order_id')
+			->LeftJoin('quotation as q', 'q.document_identity', '=', 'co.ref_document_identity');
 
-		if (!empty($supplier_id)) $data = $data->where('purchase_invoice.supplier_id', '=',  $supplier_id);
-		if (!empty($purchase_order_id)) $data = $data->where('purchase_invoice.purchase_order_id', '=',  $purchase_order_id);
-		if (!empty($quotation_id)) $data = $data->where('purchase_invoice.quotation_id', '=',  $quotation_id);
-		if (!empty($charge_order_id)) $data = $data->where('purchase_invoice.charge_order_id', '=',  $charge_order_id);
-		if (!empty($document_identity)) $data = $data->where('purchase_invoice.document_identity', 'like', '%' . $document_identity . '%');
-		if (!empty($document_date)) $data = $data->where('purchase_invoice.document_date', '=',  $document_date);
-		if (!empty($required_date)) $data = $data->where('purchase_invoice.required_date', '=',  $required_date);
+		$data = $data->where('sale_invoice.company_id', '=', $request->company_id);
+		$data = $data->where('sale_invoice.company_branch_id', '=', $request->company_branch_id);
+
+		if (!empty($quotation_id)) $data = $data->where('sale_invoice.quotation_id', '=',  $quotation_id);
+		if (!empty($charge_order_id)) $data = $data->where('sale_invoice.charge_order_id', '=',  $charge_order_id);
+		if (!empty($document_identity)) $data = $data->where('sale_invoice.document_identity', 'like', '%' . $document_identity . '%');
+		if (!empty($document_date)) $data = $data->where('sale_invoice.document_date', '=',  $document_date);
 
 		if (!empty($search)) {
 			$search = strtolower($search);
 			$data = $data->where(function ($query) use ($search) {
 				$query
-					->where('s.name', 'like', '%' . $search . '%')
-					->OrWhere('co.document_identity', 'like', '%' . $search . '%')
+
+					->Where('co.document_identity', 'like', '%' . $search . '%')
 					->OrWhere('q.document_identity', 'like', '%' . $search . '%')
-					->OrWhere('po.document_identity', 'like', '%' . $search . '%')
-					->OrWhere('purchase_invoice.document_identity', 'like', '%' . $search . '%');
+
+					->OrWhere('sale_invoice.document_identity', 'like', '%' . $search . '%');
 			});
 		}
 
-		$data = $data->select("purchase_invoice.*", "s.name as supplier_name", "q.document_identity as quotation_no", "co.document_identity as charge_no", "po.document_identity as purchase_order_no");
+		$data = $data->select("sale_invoice.*", "q.document_identity as quotation_no", "co.document_identity as charge_no");
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
@@ -69,20 +66,24 @@ class PurchaseInvoiceController extends Controller
 	public function show($id, Request $request)
 	{
 
-		$data = PurchaseInvoice::with(
-			"purchase_invoice_detail",
-			"purchase_invoice_detail.product",
-			"purchase_invoice_detail.unit",
-			"user",
-			"payment",
-			"supplier",
+		$data = SaleInvoice::with(
+			"sale_invoice_detail",
+			"sale_invoice_detail.charge_order_detail",
+			"sale_invoice_detail.product",
+			"sale_invoice_detail.unit",
 			"charge_order",
+			"charge_order.salesman",
+			"charge_order.event",
+			"charge_order.vessel",
+			"charge_order.customer",
+			"charge_order.flag",
+			"charge_order.agent",
+			"charge_order.port",
 			"charge_order.quotation",
-			"purchase_order",
 		)
-			->where('purchase_invoice_id', $id)->first();
+			->where('sale_invoice_id', $id)->first();
 
-		return $this->jsonResponse($data, 200, "Purchase Invoice Data");
+		return $this->jsonResponse($data, 200, "Sale Invoice Data");
 	}
 
 	public function validateRequest($request, $id = null)
@@ -108,102 +109,87 @@ class PurchaseInvoiceController extends Controller
 	public function store(Request $request)
 	{
 		// 1. Permission Check
-		if (!isPermission('add', 'purchase_invoice', $request->permission_list)) {
+		if (!isPermission('add', 'sale_invoice', $request->permission_list)) {
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		}
 
-		// 2. Validate Request
+		// 2. Validation
 		$validationError = $this->validateRequest($request->all());
 		if (!empty($validationError)) {
 			return $this->jsonResponse($validationError, 400, "Request Failed!");
 		}
 
-		// 3. Fetch Related Purchase Order
-		$purchaseOrder = PurchaseOrder::with('purchase_order_detail')
-			->find($request->purchase_order_id);
-
-		if (!$purchaseOrder) {
-			return $this->jsonResponse('Purchase Order not found.', 404);
+		// 3. Fetch Reference Data
+		$chargeOrder = ChargeOrder::with('charge_order_detail')->find($request->charge_order_id);
+		if (!$chargeOrder) {
+			return $this->jsonResponse('Charge Order not found.', 404);
 		}
 
-		// 4. Prepare Invoice Header Data
+		// 4. Prepare Invoice Meta Data
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument($this->document_type_id, $request);
 
 		$invoiceData = [
-			'purchase_invoice_id' => $uuid,
-			'company_id'          => $request->company_id ?? "",
-			'company_branch_id'   => $request->company_branch_id ?? "",
-			'document_type_id'    => $document['document_type_id'] ?? "",
-			'document_no'         => $document['document_no'] ?? "",
-			'document_prefix'     => $document['document_prefix'] ?? "",
-			'document_identity'   => $document['document_identity'] ?? "",
-			'document_date'       => $purchaseOrder->document_date ?? "",
-			'required_date'       => $purchaseOrder->required_date ?? "",
-			'supplier_id'         => $purchaseOrder->supplier_id ?? "",
-			'buyer_id'            => $purchaseOrder->buyer_id ?? "",
-			'ship_via'            => $purchaseOrder->ship_via ?? "",
-			'ship_to'             => $purchaseOrder->ship_to ?? "",
-			'department'          => $purchaseOrder->department ?? "",
-			'charge_order_id'     => $purchaseOrder->charge_order_id ?? "",
-			'purchase_order_id'   => $purchaseOrder->purchase_order_id ?? "",
-			'payment_id'          => $purchaseOrder->payment_id ?? "",
-			'remarks'             => $purchaseOrder->remarks ?? "",
-			'created_at'          => Carbon::now(),
-			'created_by'          => $request->login_user_id,
+			'sale_invoice_id'   => $uuid,
+			'company_id'        => $request->company_id ?? "",
+			'company_branch_id' => $request->company_branch_id ?? "",
+			'document_type_id'  => $document['document_type_id'] ?? "",
+			'document_no'       => $document['document_no'] ?? "",
+			'document_prefix'   => $document['document_prefix'] ?? "",
+			'document_identity' => $document['document_identity'] ?? "",
+			'document_date'     => $chargeOrder->document_date ?? "",
+			'charge_order_id'   => $request->charge_order_id,
+			'created_at'        => Carbon::now(),
+			'created_by'        => $request->login_user_id,
 		];
 
-		// 5. Process Line Items
+		// 5. Loop Through Charge Order Details
 		$totalQuantity = 0;
 		$totalAmount = 0;
-		$sortIndex = 0;
+		$index = 0;
 
-		foreach ($request->purchase_order_detail as $detail) {
-			if (PurchaseInvoiceDetail::where('purchase_order_detail_id', $detail->purchase_order_detail_id)->exists()) {
+		foreach ($request->charge_order_detail as $detail) {
+			if (SaleInvoiceDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->exists()) {
 				continue;
 			}
 
-			$grnQty = GRNDetail::where('purchase_order_detail_id', $detail->purchase_order_detail_id)->sum('quantity') ?? 0;
-			if ($grnQty <= 0) continue;
+			$actualQty = $this->getShipmentQuantity($detail->charge_order_detail_id) ?? 0;
+			if ($actualQty <= 0) continue;
 
-			$amount = $detail->rate * $grnQty;
-			$totalQuantity += $grnQty;
+			$amount = $detail->rate * $actualQty;
+			$totalQuantity += $actualQty;
 			$totalAmount += $amount;
 
-			PurchaseInvoiceDetail::create([
-				'purchase_invoice_detail_id' => $this->get_uuid(),
-				'purchase_invoice_id'        => $uuid,
-				'charge_order_detail_id'     => $detail->charge_order_detail_id ?? "",
-				'purchase_order_detail_id'   => $detail->purchase_order_detail_id ?? "",
-				'sort_order'                 => $sortIndex++,
-				'product_id'                 => $detail->product_id ?? "",
-				'product_name'               => $detail->product_name ?? "",
-				'product_description'        => $detail->product_description ?? "",
-				'description'                => $detail->description ?? "",
-				'vpart'                      => $detail->vpart ?? "",
-				'unit_id'                    => $detail->unit_id ?? "",
-				'supplier_id'                => $detail->supplier_id ?? "",
-				'quantity'                   => $grnQty,
-				'rate'                       => $detail->rate ?? 0,
-				'amount'                     => $amount,
-				'vendor_notes'               => $detail->vendor_notes ?? "",
-				'created_at'                 => Carbon::now(),
-				'created_by'                 => $request->login_user_id,
+			SaleInvoiceDetail::create([
+				'sale_invoice_detail_id'   => $this->get_uuid(),
+				'sale_invoice_id'          => $uuid,
+				'charge_order_detail_id'   => $detail->charge_order_detail_id,
+				'sort_order'               => $index++,
+				'product_id'               => $detail->product_id,
+				'product_name'             => $detail->product_name,
+				'product_description'      => $detail->product_description,
+				'description'              => $detail->description,
+				'unit_id'                  => $detail->unit_id,
+				'quantity'                 => $actualQty,
+				'rate'                     => $detail->rate,
+				'amount'                   => $amount,
+				'created_at'               => Carbon::now(),
+				'created_by'               => $request->login_user_id,
 			]);
 		}
 
-		// 6. Finalize and Save Invoice
+		// 6. Finalize Invoice
 		$invoiceData['total_quantity'] = $totalQuantity;
-		$invoiceData['total_amount'] = $totalAmount;
-		PurchaseInvoice::create($invoiceData);
+		$invoiceData['total_amount']   = $totalAmount;
+		SaleInvoice::create($invoiceData);
 
-		return $this->jsonResponse(['purchase_invoice_id' => $uuid], 200, "Add Purchase Invoice Successfully!");
+		return $this->jsonResponse(['sale_invoice_id' => $uuid], 200, "Add Sale Invoice Successfully!");
 	}
 
 
 	// public function update(Request $request, $id)
 	// {
-	// 	if (!isPermission('edit', 'purchase_invoice', $request->permission_list))
+	// 	if (!isPermission('edit', 'sale_invoice', $request->permission_list))
 	// 		return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
 
@@ -265,7 +251,7 @@ class PurchaseInvoiceController extends Controller
 	// }
 	public function delete($id, Request $request)
 	{
-		if (!isPermission('delete', 'purchase_invoice', $request->permission_list))
+		if (!isPermission('delete', 'sale_invoice', $request->permission_list))
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		$data  = PurchaseInvoice::where('purchase_invoice_id', $id)->first();
 		if (!$data) return $this->jsonResponse(['purchase_invoice_id' => $id], 404, "Purchase Invoice Not Found!");
@@ -275,7 +261,7 @@ class PurchaseInvoiceController extends Controller
 	}
 	public function bulkDelete(Request $request)
 	{
-		if (!isPermission('delete', 'purchase_invoice', $request->permission_list))
+		if (!isPermission('delete', 'sale_invoice', $request->permission_list))
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
 		try {

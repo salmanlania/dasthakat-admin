@@ -96,6 +96,7 @@ class JobOrderController extends Controller
 		$data = JobOrder::with(
 			"job_order_detail",
 			"job_order_detail.charge_order",
+			"job_order_detail.service_order",
 			"job_order_detail.product",
 			"job_order_detail.product_type",
 			"job_order_detail.unit",
@@ -109,6 +110,7 @@ class JobOrderController extends Controller
 			"salesman",
 			"agent",
 			"certificates",
+			
 		)
 			->where('job_order_id', $id)
 			->first();
