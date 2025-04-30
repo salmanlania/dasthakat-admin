@@ -137,197 +137,82 @@ const Scheduling = () => {
     }
   };
 
-  // Fixed Export Excel function
-const exportExcel = async () => {
-  const loadingToast = toast.loading('Downloading Excel File...');
+  const exportExcel = async () => {
+    const loadingToast = toast.loading('Downloading Excel File...');
 
-  // Store original params
-  const originalParams = { ...params };
-  
-  try {
-    // Create export params
-    const newDate = !isOldChecked ? dayjs().format('YYYY-MM-DD') : null;
-    const exportParams = {
-      ...params,
-      start_date: newDate,
-      end_date: null,
-      event_date: null,
-      search: null,
-      technician_notes: null,
-      agent_notes: null,
-      technician_id: null,
-      vessel_id: null,
-      agent_id: null,
-      event_id: null,
-      sort_direction: 'ascend'
-    };
+    const originalParams = { ...params };
 
-    // Get data for export
-    const data = await dispatch(getDispatchList(exportParams)).unwrap();
-    
-    // Generate Excel
-    generateSchedulingExcel(data, true);
-    
-    // Important: First set the params, then await the data fetch
-    await dispatch(setDispatchListParams(originalParams)).unwrap();
-    await dispatch(getDispatchList(originalParams)).unwrap();
-    
-    // Force table refresh
-    setTableKey(prevKey => prevKey + 1);
-    
-  } catch (error) {
-    // Error handling with awaits
-    await dispatch(setDispatchListParams(originalParams)).unwrap();
-    await dispatch(getDispatchList(originalParams)).unwrap();
-    handleError(error);
-  } finally {
-    toast.dismiss(loadingToast);
-  }
-};
+    try {
+      const newDate = !isOldChecked ? dayjs().format('YYYY-MM-DD') : null;
+      const exportParams = {
+        ...params,
+        start_date: newDate,
+        end_date: null,
+        event_date: null,
+        search: null,
+        technician_notes: null,
+        agent_notes: null,
+        technician_id: null,
+        vessel_id: null,
+        agent_id: null,
+        event_id: null,
+        sort_direction: 'ascend'
+      };
 
-// Fixed Export PDF function
-const exportPdf = async () => {
-  const loadingToast = toast.loading('Loading Print View...');
+      const data = await dispatch(getDispatchList(exportParams)).unwrap();
 
-  // Store original params
-  const originalParams = { ...params };
-  
-  try {
-    // Create export params
-    const newDate = !isOldChecked ? dayjs().format('YYYY-MM-DD') : null;
-    const exportParams = {
-      ...params,
-      start_date: newDate,
-      end_date: null,
-      event_date: null,
-      search: null,
-      technician_notes: null,
-      agent_notes: null,
-      technician_id: null,
-      vessel_id: null,
-      agent_id: null,
-      event_id: null
-    };
+      generateSchedulingExcel(data, true);
 
-    // Get data for export
-    const data = await dispatch(getDispatchList(exportParams)).unwrap();
-    
-    // Generate PDF
-    createSchedulingListPrint(Array.isArray(data) ? data : [data], true);
-    
-    // Important: First set the params, then await the data fetch
-    await dispatch(setDispatchListParams(originalParams)).unwrap();
-    await dispatch(getDispatchList(originalParams)).unwrap();
-    
-    // Force table refresh
-    setTableKey(prevKey => prevKey + 1);
-    
-  } catch (error) {
-    // Error handling with awaits
-    await dispatch(setDispatchListParams(originalParams)).unwrap();
-    await dispatch(getDispatchList(originalParams)).unwrap();
-    handleError(error);
-  } finally {
-    toast.dismiss(loadingToast);
-  }
-};
+      await dispatch(setDispatchListParams(originalParams)).unwrap();
+      await dispatch(getDispatchList(originalParams)).unwrap();
 
-  // const exportExcel = async () => {
-  //   const loadingToast = toast.loading('Downloading Excel File...');
+      setTableKey((prevKey) => prevKey + 1);
+    } catch (error) {
+      await dispatch(setDispatchListParams(originalParams)).unwrap();
+      await dispatch(getDispatchList(originalParams)).unwrap();
+      handleError(error);
+    } finally {
+      toast.dismiss(loadingToast);
+    }
+  };
 
-  //   const originalParams = { ...params };
+  const exportPdf = async () => {
+    const loadingToast = toast.loading('Loading Print View...');
 
-  //   const newDate = !isOldChecked ? dayjs().format('YYYY-MM-DD') : null;
-    
-  //   try {
-  //     const today = dayjs().format('YYYY-MM-DD');
-  //     const exportParams = {
-  //       ...params,
-  //       start_date: newDate,
-  //       end_date: null,
-  //       event_date: null,
-  //       search: null,
-  //       technician_notes: null,
-  //       agent_notes: null,
-  //       technician_id: null,
-  //       vessel_id: null,
-  //       agent_id: null,
-  //       event_id: null,
-  //       sort_direction: 'ascend'
-  //     };
+    const originalParams = { ...params };
 
-  //     const data = await dispatch(getDispatchList(exportParams)).unwrap();
+    try {
+      const newDate = !isOldChecked ? dayjs().format('YYYY-MM-DD') : null;
+      const exportParams = {
+        ...params,
+        start_date: newDate,
+        end_date: null,
+        event_date: null,
+        search: null,
+        technician_notes: null,
+        agent_notes: null,
+        technician_id: null,
+        vessel_id: null,
+        agent_id: null,
+        event_id: null
+      };
 
-      
-  //     generateSchedulingExcel(data, true);
-  //     dispatch(setDispatchListParams(originalParams));
-  //     await dispatch(getDispatchList(originalParams)).unwrap();
+      const data = await dispatch(getDispatchList(exportParams)).unwrap();
 
-  //     // const finalParams = {
-  //     //   ...originalParams,
-  //     //   start_date: !isOldChecked ? today : originalParams.start_date,
-  //     //   end_date: !isOldChecked ? today : originalParams.end_date
-  //     // };
+      createSchedulingListPrint(Array.isArray(data) ? data : [data], true);
 
-  //     // dispatch(setDispatchListParams(finalParams));
-  //     // dispatch(getDispatchList(finalParams));
+      await dispatch(setDispatchListParams(originalParams)).unwrap();
+      await dispatch(getDispatchList(originalParams)).unwrap();
 
-  //   } catch (error) {
-  //     dispatch(setDispatchListParams(originalParams));
-  //     dispatch(getDispatchList(originalParams));
-  //     handleError(error);
-  //   } finally {
-  //     toast.dismiss(loadingToast);
-  //   }
-  // };
-
-  // const exportPdf = async () => {
-  //   const loadingToast = toast.loading('Loading Print View...');
-
-  //   const originalParams = { ...params };
-
-  //   const newDate = !isOldChecked ? dayjs().format('YYYY-MM-DD') : null;
-
-  //   try {
-  //     const today = dayjs().format('YYYY-MM-DD');
-  //     const exportParams = {
-  //       ...params,
-  //       start_date: newDate,
-  //       end_date: null,
-  //       event_date: null,
-  //       search: null,
-  //       technician_notes: null,
-  //       agent_notes: null,
-  //       technician_id: null,
-  //       vessel_id: null,
-  //       agent_id: null,
-  //       event_id: null
-  //       // sort_direction: 'ascend'
-  //     };
-
-  //     const data = await dispatch(getDispatchList(exportParams)).unwrap();
-
-  //     createSchedulingListPrint(Array.isArray(data) ? data : [data], true);
-  //     dispatch(setDispatchListParams(originalParams));
-  //     dispatch(getDispatchList(originalParams));
-  //     // const finalParams = {
-  //     //   ...originalParams,
-  //     //   start_date: !isOldChecked ? today : originalParams.start_date,
-  //     //   end_date: !isOldChecked ? today : originalParams.end_date
-  //     // };
-
-  //     // dispatch(setDispatchListParams(finalParams));
-  //     // dispatch(getDispatchList(finalParams));
-
-
-  //   } catch (error) {
-  //     dispatch(setDispatchListParams(originalParams));
-  //     dispatch(getDispatchList(originalParams));
-  //     handleError(error);
-  //   } finally {
-  //     toast.dismiss(loadingToast);
-  //   }
-  // };
+      setTableKey((prevKey) => prevKey + 1);
+    } catch (error) {
+      await dispatch(setDispatchListParams(originalParams)).unwrap();
+      await dispatch(getDispatchList(originalParams)).unwrap();
+      handleError(error);
+    } finally {
+      toast.dismiss(loadingToast);
+    }
+  };
 
   const printPickLists = async (id) => {
     const loadingToast = toast.loading('Loading Pick Lists print...');
@@ -389,7 +274,6 @@ const exportPdf = async () => {
       ),
       dataIndex: 'event_date',
       key: 'event_date',
-      // sorter: true,
       sorter: (a, b) => {
         if (a.isDateHeader || b.isDateHeader) return 0;
         const aDate = a.event_date ? dayjs(a.event_date) : dayjs(0);
@@ -415,7 +299,6 @@ const exportPdf = async () => {
             }
             onChange={async (date) => {
               await updateValue(
-                // event_id,
                 record.event_id,
                 'event_date',
                 date ? dayjs(date).format('YYYY-MM-DD') : null
@@ -743,7 +626,6 @@ const exportPdf = async () => {
               <Button
                 icon={<CopyOutlined />}
                 size="small"
-                // onClick={() => handleCopy(agent_id)}
                 onClick={() =>
                   handleCopy(
                     `Name: ${agent_name}\nEmail: ${agent_email}\nPhone: ${agent_phone}\nFax: ${agent_fax}`
@@ -900,8 +782,6 @@ const exportPdf = async () => {
     debouncedSearch,
     debouncedTechnicianNotes,
     debouncedAgentNotes
-    // debouncedPorts,
-    // debouncedShort
   ]);
 
   return (
@@ -921,46 +801,6 @@ const exportPdf = async () => {
               allowClear
               onChange={(e) => dispatch(setDispatchListParams({ search: e.target.value }))}
             />
-            {/* <RangePicker
-              // value={[
-              //   params.start_date ? dayjs(params.start_date, 'YYYY-MM-DD') : null,
-              //   params.end_date ? dayjs(params.end_date, 'YYYY-MM-DD') : null
-              // ]}
-              value={[
-                params.start_date && params.start_date !== '' ? dayjs(params.start_date, 'YYYY-MM-DD') : null,
-                params.end_date && params.end_date !== '' ? dayjs(params.end_date, 'YYYY-MM-DD') : null
-              ]}
-              onChange={(dates) => {
-                // const today = dayjs().format('YYYY-MM-DD');
-                const newParams = {
-                  // start_date: dates?.[0] ? dayjs(dates[0]).format('YYYY-MM-DD') : null,
-                  // end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : null
-                  start_date: dates?.[0]
-                    ? dayjs(dates[0]).format('YYYY-MM-DD')
-                    : isOldChecked
-                      ? null
-                      : today,
-                  end_date: dates?.[1]
-                    ? dayjs(dates[1]).format('YYYY-MM-DD')
-                    : isOldChecked
-                      ? null
-                      : null
-                };
-
-                // dispatch(setDispatchListParams(newParams));
-                // const fetchParams = { ...params, ...newParams };
-                // if (!dates && !isOldChecked) {
-                //   const today = dayjs().format('YYYY-MM-DD');
-                //   fetchParams.start_date = today;
-                //   fetchParams.end_date = today;
-                // }
-                // dispatch(getDispatchList(fetchParams));
-
-                dispatch(setDispatchListParams(newParams));
-                dispatch(getDispatchList({ ...params, ...newParams }));
-              }}
-              format="MM-DD-YYYY"
-            /> */}
             <RangePicker
               value={[
                 params.start_date && params.start_date !== ''
@@ -971,39 +811,28 @@ const exportPdf = async () => {
                   : null
               ]}
               onChange={(dates) => {
-                // For UI: Always clear the dates in params state when user clears the picker
-                // This ensures the UI shows empty picker when cleared
                 const newParams = {
                   start_date: dates?.[0] ? dayjs(dates[0]).format('YYYY-MM-DD') : '',
                   end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : ''
                 };
 
-                // Update the UI state first
                 dispatch(setDispatchListParams(newParams));
 
-                // For data fetching: Apply the isOldChecked logic
                 const today = dayjs().format('YYYY-MM-DD');
                 const fetchParams = { ...params };
-
-                // If dates exist, use them for filtering
                 if (dates && dates[0]) {
                   fetchParams.start_date = newParams.start_date;
                   fetchParams.end_date = newParams.end_date;
-                }
-                // If dates are cleared, apply logic based on isOldChecked
-                else {
+                } else {
                   if (!isOldChecked) {
-                    // Show today and future dates
                     fetchParams.start_date = today;
                     fetchParams.end_date = null;
                   } else {
-                    // Show all dates
                     fetchParams.start_date = null;
                     fetchParams.end_date = null;
                   }
                 }
 
-                // Fetch with the correct filtering logic
                 dispatch(getDispatchList(fetchParams));
               }}
               format="MM-DD-YYYY"
@@ -1078,9 +907,6 @@ const exportPdf = async () => {
                   return (
                     <tr {...restProps} className="date-header-row bg-[#fafafa] font-bold">
                       <td colSpan={columns.length} className="text-md px-4 py-2 text-[#285198]">
-                        {/* {dateValue !== 'No Date'
-                          ? `Date: ${dayjs(dateValue).format('MM-DD-YYYY')}`
-                          : 'Date: Empty'} */}
                         {formattedDate ? `Date: ${formattedDate}` : 'Date: Empty'}
                       </td>
                     </tr>

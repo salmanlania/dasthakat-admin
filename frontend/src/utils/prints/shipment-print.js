@@ -311,10 +311,6 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
           content: detail?.product_description || '',
           styles: { halign: 'left', fillColor: rowBackgroundColor }
         },
-        // {
-        //   content: detail?.quantity || '',
-        //   styles: { halign: 'right', fillColor: rowBackgroundColor }
-        // },
         {
           content: (() => {
             const quantity = parseFloat(detail?.quantity);
@@ -346,7 +342,6 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
   }
 
   const filledRows = fillEmptyRows(tableHeaders, 24);
-  // tableHeaders.splice(1, tableHeaders.length - 1, ...filledRows);
 
   doc.autoTable({
     startY: doc.previousAutoTable.finalY + 5,

@@ -120,7 +120,7 @@ export const createServiceListPrint = (data) => {
                 halign: 'left'
               }
             },
-            item?.warehouse?.name || '', // Location
+            item?.warehouse?.name || '',
             parseFloat(item?.original_quantity || 0),
             parseFloat(item?.total_received_quantity || 0),
             item.remarks || ''

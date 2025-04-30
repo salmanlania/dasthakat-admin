@@ -48,7 +48,6 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   const date = dayjs().isValid() ? `Print Date: ${dayjs().format('MM-DD-YYYY HH:mm:ss')}` : 'Date: Empty';
   doc.setFontSize(10);
   doc.setFont('times', 'bold');
-  // doc.setTextColor(40, 81, 152);
   doc.setTextColor('#285198');
   doc.text(date, pageWidth - 54, 34);
   doc.setTextColor(0, 0, 0);

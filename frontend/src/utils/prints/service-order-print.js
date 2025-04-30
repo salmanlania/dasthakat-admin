@@ -302,10 +302,6 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
           content: detail?.product_description || '',
           styles: { halign: 'left', fillColor: rowBackgroundColor }
         },
-        // {
-        //   content: detail?.quantity || '',
-        //   styles: { halign: 'right', fillColor: rowBackgroundColor }
-        // },
         {
           content: (() => {
             const quantity = parseFloat(detail?.quantity);

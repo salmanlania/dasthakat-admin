@@ -105,7 +105,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       salesman_id: values.salesman_id ? values.salesman_id.value : null,
       class1_id: values.class1_id ? values.class1_id.value : null,
       class2_id: values.class2_id ? values.class2_id.value : null,
-      // port_id: values.port_id ? values.port_id : null,
       port_id: values.port_id ? values.port_id.key : null,
       customer_id: values.customer_id ? values.customer_id.value : null,
       event_id: values.event_id ? values.event_id.value : null,
@@ -135,7 +134,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             cost_price: detail.product_type_id?.value === 1 ? 0 : detail.cost_price,
             sort_order: index,
             charge_order_detail_id: id ? id : null,
-            // row_status: detail.row_status,
             ...(edit === 'edit' ? { row_status } : {})
           };
         }
@@ -470,8 +468,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       dataIndex: 'product_type',
       key: 'product_type',
       render: (_, { product_code, product_type_id, editable }, index) => {
-        // form.setFieldsValue({ [`product_code-${index}`]: product_code });
-        // form.setFieldsValue({ [`product_type_id-${index}`]: product_type_id });
         return (
           <AsyncSelectNoPaginate
             endpoint="/lookups/product-types"
@@ -479,7 +475,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             labelKey="name"
             labelInValue
             className="w-full"
-            // value={product_type_id}
             value={
               product_type_id?.value
                 ? {
@@ -505,31 +500,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       width: 70,
       fixed: 'left'
     },
-    // {
-    //   title: 'Product Code',
-    //   dataIndex: 'product_code',
-    //   key: 'product_code',
-    //   render: (_, { product_code, product_type_id }, index) => {
-    //     return (
-    //       <DebounceInput
-    //         value={product_code}
-    //         onChange={(value) =>
-    //           dispatch(
-    //             changeChargeOrderDetailValue({
-    //               index,
-    //               key: 'product_code',
-    //               value: value
-    //             })
-    //           )
-    //         }
-    //         disabled={product_type_id?.value == 4}
-    //         onBlur={(e) => onProductCodeChange(index, e.target.value)}
-    //         onPressEnter={(e) => onProductCodeChange(index, e.target.value)}
-    //       />
-    //     );
-    //   },
-    //   width: 120
-    // },
     {
       title: 'Product Name',
       dataIndex: 'product_name',
@@ -627,7 +597,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
               ]}>
               <DebounceInput
                 value={product_description}
-                // disabled={product_type_id?.value == 4}
                 onChange={(value) => {
                   dispatch(
                     changeChargeOrderDetailValue({
@@ -739,7 +708,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
                 {
                   validator: (_, value, callback, source) => {
                     const parsed = parseFloat(value?.toString().replace(/,/g, ''));
-                    const receivedQty = chargeOrderDetails[index]?.picked_quantity || 0; // example source
+                    const receivedQty = chargeOrderDetails[index]?.picked_quantity || 0;
                     if (parsed < receivedQty) {
                       return Promise.reject(`Less Than Received Quantity (${receivedQty})`);
                     }
@@ -1252,7 +1221,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             initialValue={
               initialFormValues?.port_id && initialFormValues?.name ? { value: initialFormValues.port_id, label: initialFormValues.name } : null
             }>
-            {/* <Input /> */}
             <AsyncSelect endpoint="/port" valueKey="port_id" labelKey="name" labelInValue />
           </Form.Item>
         </Col>
@@ -1317,7 +1285,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
         sticky={{
           offsetHeader: 56
         }}
-        // rowClassName={getRowClassName}
       />
 
       <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
@@ -1340,27 +1307,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
               value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
             />
           </Col>
-
-          {/* <Col span={24} sm={12} md={6} lg={6}>
-            <DetailSummaryInfo
-              title="Total Amount:"
-              value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
-            />
-          </Col> */}
-
-          {/* <Col span={24} sm={12} md={6} lg={6}>
-            <DetailSummaryInfo
-              title="Discount Amount:"
-              value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
-            />
-          </Col> */}
-
-          {/* <Col span={24} sm={12} md={6} lg={6}>
-            <DetailSummaryInfo
-              title="Net Amount:"
-              value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
-            />
-          </Col> */}
         </Row>
       </div>
 
@@ -1371,26 +1317,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
 
         {mode === 'edit' ? (
           <>
-            {/* {permissions.picklist.add ? (
-              <Button
-                type="primary"
-                loading={isFormSubmitting === 'CREATE_PICK_LIST'}
-                className="w-28 bg-slate-600 hover:!bg-slate-500"
-                onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PICK_LIST'))}>
-                Pick List
-              </Button>
-            ) : null} */}
-
-            {/* {permissions.servicelist.add ? (
-              <Button
-                type="primary"
-                loading={isFormSubmitting === 'CREATE_SERVICE_LIST'}
-                className="w-28 bg-slate-600 hover:!bg-slate-500"
-                onClick={() => (isFormSubmitting ? null : onFinish('CREATE_SERVICE_LIST'))}>
-                Service List
-              </Button>
-            ) : null} */}
-
             {permissions.purchase_order.add ? (
               <Button
                 type="primary"

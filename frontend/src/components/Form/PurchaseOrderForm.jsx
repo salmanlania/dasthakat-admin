@@ -100,8 +100,6 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
           product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
           sort_order: index,
           purchase_order_detail_id: id ? id : null,
-          // row_status: detail.row_status,
-          // row_status : edit === "edit" ? detail.row_status :
           ...(edit === 'edit' ? { row_status } : {})
         })
       ),
@@ -289,17 +287,6 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       handleError(error);
     }
   };
-
-  // useEffect(() => {
-  //   purchaseOrderDetails.forEach((item, index) => {
-  //     form.setFieldsValue({
-  //       [`product_name-${index}`]: item.product_name,
-  //       [`product_description-${index}`]: item.product_description,
-  //       [`quantity-${index}`]: item.quantity,
-  //       [`rate-${index}`]: item.rate
-  //     });
-  //   });
-  // }, [purchaseOrderDetails, form]);
 
   const columns = [
     {
@@ -577,7 +564,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
               {
                 validator: (_, value, callback, source) => {
                   const parsed = parseFloat(value?.toString().replace(/,/g, ''));
-                  const receivedQty = purchaseOrderDetails[index]?.received_quantity || 0; // example source
+                  const receivedQty = purchaseOrderDetails[index]?.received_quantity || 0;
                   if (parsed < receivedQty) {
                     return Promise.reject(`Less Than Received Quantity (${receivedQty})`);
                   }
@@ -713,9 +700,6 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       ),
       key: 'action',
       render: (record, { id }, index) => {
-        // if (mode === "edit" && record.isDeleted) {
-        //   return null;
-        // }
         return (
           <Dropdown
             trigger={['click']}
@@ -930,7 +914,6 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
 
       <Table
         columns={columns}
-        // dataSource={purchaseOrderDetails.filter(item => !item.isDeleted)}
         dataSource={
           mode === 'edit'
             ? purchaseOrderDetails.filter((item) => !item.isDeleted)

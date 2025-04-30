@@ -38,7 +38,6 @@ const AsyncSelect = ({
   const fetchData = async (inputValue = '', page = 1, merge = false) => {
     setLoading(true);
     try {
-      // Make API call to fetch options based on the inputValue and pagination
       const response = await api.get(endpoint, {
         params: { ...params, search: inputValue, page }
       });

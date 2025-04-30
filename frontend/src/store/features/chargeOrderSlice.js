@@ -234,7 +234,6 @@ export const chargeOrderSlice = createSlice({
         row_status: 'I'
       };
 
-      // If index is provided, insert the new detail after that index, otherwise push it to the end
       if (index || index === 0) {
         state.chargeOrderDetails.splice(index + 1, 0, newDetail);
       } else {
@@ -512,9 +511,6 @@ export const chargeOrderSlice = createSlice({
             label: data.class2.name
           }
           : null,
-        // port_id: data?.port
-        //   ? { value: data.port_id, label: data.name }
-        //   : data?.port_id || null,
         port_id: data?.port
           ? { value: data?.port?.port_id, label: data?.port?.name }
           : data?.port_id || null,

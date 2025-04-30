@@ -32,9 +32,9 @@ const generateQuotationExcel = async (data) => {
   worksheet.addImage(imageId, ' B2:C4');
 
   // Merge cells for the title section
-  worksheet.mergeCells('G2:M2'); // Company Name
-  worksheet.mergeCells('G3:M3'); // Address
-  worksheet.mergeCells('E4:O4'); // Contact Details
+  worksheet.mergeCells('G2:M2');
+  worksheet.mergeCells('G3:M3'); 
+  worksheet.mergeCells('E4:O4');
 
   worksheet.getCell('G2').value = 'Global Marine Safety - America';
   worksheet.getCell('G2').font = {
@@ -139,9 +139,7 @@ const generateQuotationExcel = async (data) => {
   worksheet.mergeCells(`Q${currentRow}:R${currentRow}`);
   worksheet.getCell(`Q${currentRow}`).value = 'Date of Service';
   worksheet.mergeCells(`Q${currentRow + 1}:R${currentRow + 1}`);
-  // worksheet.getCell(`Q${currentRow + 1}`).value = data.service_date
-  //   ? dayjs(data.service_date).format('MM-DD-YYYY')
-  //   : '';
+
   worksheet.getCell(`Q${currentRow + 1}`).value = data.service_date
   ? data.service_date === "1989-11-30"
     ? dayjs(data.service_date).format('MM-DD-YYYY')

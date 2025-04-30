@@ -17,46 +17,6 @@ const fillEmptyRows = (rows, rowsPerPage) => {
 
 const pdfContent = (doc, data, sideMargin, pageWidth) => {
 
-  // doc.setTextColor(32, 50, 114);
-  // doc.setFontSize(20);
-  // doc.setFont('times', 'bold');
-  // doc.text('Global Marine Safety - America', pageWidth / 2, 12, {
-  //   align: 'center'
-  // });
-  // doc.setFont('times', 'normal');
-  // doc.setFontSize(10);
-  // doc.text('9145 Wallisville Rd, Houston TX 77029, USA', pageWidth / 2, 18, {
-  //   align: 'center'
-  // });
-  // doc.text(
-  //   'Tel: 1 713-518-1715, Fax: 1 713-518-1760, Email: sales@gms-america.com',
-  //   pageWidth / 2,
-  //   22,
-  //   {
-  //     align: 'center'
-  //   }
-  // );
-
-  // // Header LOGO
-  // doc.addImage(GMSLogo, 'PNG', 8, 1, 35, 26);
-
-  // // Bill To and Ship To
-  // doc.setFontSize(15);
-  // doc.setFont('times', 'bold');
-  // doc.setTextColor(79, 101, 51);
-  // const text = 'INTERNAL JOB ORDER';
-  // const x = pageWidth / 2;
-  // const y = 30;
-
-  // doc.text(text, x, y, { align: 'center' });
-
-  // const textWidth = doc.getTextWidth(text);
-
-  // const underlineY = y + 2;
-  // doc.setDrawColor(32, 50, 114);
-  // doc.setLineWidth(0.5);
-  // doc.line(x - textWidth / 2, underlineY, x + textWidth / 2, underlineY);
-
   doc.setTextColor(32, 50, 114);
   doc.setFontSize(20);
   doc.setFont('times', 'bold');
@@ -97,10 +57,10 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
   doc.setLineWidth(0.5);
   doc.line(x - textWidth / 2, underlineY, x + textWidth / 2, underlineY);
 
-  doc.setFillColor(235, 241, 222); // gray fill color
-  doc.setDrawColor(196, 189, 151); // light gray border
-  doc.setLineWidth(0.1); // border thickness
-  doc.rect(153, 32, 56, 9, 'FD'); // (x, y, width, height, fill)
+  doc.setFillColor(235, 241, 222);
+  doc.setDrawColor(196, 189, 151);
+  doc.setLineWidth(0.1);
+  doc.rect(153, 32, 56, 9, 'FD');
 
   // Add text inside the box
   doc.setTextColor(200, 0, 0); // Red color
@@ -125,19 +85,6 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
           fillColor: 'ebf1de'
         }
       },
-      // {
-      //   content: 'Sales Person',
-      //   styles: {
-      //     fillColor: 'ebf1de' // gray color
-      //   }
-      // },
-      // {
-      //   content: data?.salesman?.name || '',
-      //   styles: {
-      //     fontSize: 11,
-      //     fillColor: 'ebf1de' // gray color
-      //   }
-      // }
     ]
   ];
 

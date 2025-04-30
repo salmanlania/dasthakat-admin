@@ -46,26 +46,6 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
   // LOGO
   doc.addImage(GMSLogo, 'PNG', 8, 4, 25, 18); // x, y, width, height
 
-  // IJO Heading
-  // doc.setFontSize(10);
-  // doc.setFont('times', 'bold');
-  // doc.setTextColor(79, 101, 51); // set Green color for IJO heading
-  // doc.text('INTERNAL JOB ORDER', pageWidth / 2, 23, {
-  //   align: 'center'
-  // }); // text, x, y, options
-
-  // V1 Box
-  // Draw the box (rectangle)
-  // doc.setFillColor(235, 241, 222); // gray fill color
-  // doc.setDrawColor(196, 189, 151); // light gray border
-  // doc.setLineWidth(0.1); // border thickness
-  // doc.rect(153, 18, 56, 9, 'FD'); // (x, y, width, height, fill)
-
-  // // Add text inside the box
-  // doc.setTextColor(200, 0, 0); // Red color
-  // doc.setFont('times', 'bold');
-  // doc.setFontSize(14);
-  // doc.text('V.1', 181, 24, { align: 'center' }); // text, x, y, options
 
   // Table 1
   const table1Row = [

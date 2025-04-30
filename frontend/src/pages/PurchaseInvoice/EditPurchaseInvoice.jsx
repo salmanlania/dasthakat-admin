@@ -38,19 +38,6 @@ const EditPurchaseInvoice = () => {
         <PageHeading>EDIT PURCHASE INVOICE</PageHeading>
         <Breadcrumb items={[{ title: 'Purchase Invoice' }, { title: 'Edit' }]} separator=">" />
       </div>
-
-      {/* {isItemLoading && (
-        <div className="mt-4 flex min-h-96 items-center justify-center rounded-md bg-white">
-          <Spin size="large" />
-        </div>
-      )} */}
-
-      {/* {!isItemLoading && initialFormValues ? (
-        <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <PurchaseInvoiceForm mode="edit" onSubmit={onPurchaseInvoiceUpdate} />
-        </div>
-      ) : null} */}
-
       <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
         <PurchaseInvoiceForm mode="edit" onSubmit={onPurchaseInvoiceUpdate} />
       </div>

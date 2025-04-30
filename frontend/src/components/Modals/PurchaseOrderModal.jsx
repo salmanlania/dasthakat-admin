@@ -64,8 +64,6 @@ const PurchaseOrderModal = () => {
       toast.success('Purchase Order created successfully');
       dispatch(setChargePoID(null));
       setDetails([]);
-
-      // if initialFormValues is available, that means we are in edit charge order screen, so we need to fetch the updated charge order
       if (initialFormValues) {
         dispatch(getChargeOrder(poChargeID)).unwrap();
       }

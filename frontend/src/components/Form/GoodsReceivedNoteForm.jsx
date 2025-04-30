@@ -93,7 +93,6 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
             unit_id: detail.unit_id ? detail.unit_id.value : null,
             sort_order: index,
             good_received_note_detail_id: id ? id : null,
-            // row_status: detail.row_status,
             ...(edit === 'edit' ? { row_status } : {})
           };
         }
@@ -846,19 +845,6 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
             </Col>
           </>
         )}
-        {/* 
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="payment_id" label="Payment Terms">
-            <AsyncSelect
-              endpoint="/payment"
-              valueKey="payment_id"
-              labelKey="name"
-              labelInValue
-              addNewLink={permissions.payment.list && permissions.payment.add ? '/payment' : null}
-            />
-          </Form.Item>
-        </Col> */}
-
         <Col span={24} sm={24} md={16} lg={16}>
           <Form.Item name="remarks" label="Remarks">
             <Input.TextArea rows={1} />
@@ -873,16 +859,6 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       <Table
         columns={columns}
         dataSource={goodsReceivedNoteDetails.filter((item) => !item.isDeleted)}
-        // dataSource={
-        //   mode === 'edit'
-        //     ? goodsReceivedNoteDetails.filter((item) => !item.isDeleted)
-        //     : purchaseOrderDetails
-        // }
-        // dataSource={
-        //   mode === 'edit'
-        //     ? goodsReceivedNoteDetails.filter((item) => !item.isDeleted)
-        //     : goodsReceivedNoteDetails
-        // }
         rowKey={'id'}
         size="small"
         scroll={{ x: 'calc(100% - 200px)' }}

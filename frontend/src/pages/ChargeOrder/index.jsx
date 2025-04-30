@@ -337,23 +337,6 @@ const ChargeOrder = () => {
             </Tooltip>
           ) : null}
 
-          {/* <Tooltip title="Service Order">
-            <Link>
-              <Button
-                size="small"
-                type="primary"
-                icon={
-                  <HiRefresh
-                    size={14}
-                    onClick={() => {
-                      dispatch(setTempChargeOrderID(charge_order_id));
-                    }}
-                  />
-                }
-              />
-            </Link>
-          </Tooltip> */}
-
           <Tooltip title="Product Status">
             <Link>
               <Button

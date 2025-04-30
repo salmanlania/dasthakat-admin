@@ -201,7 +201,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
             sort_order: index,
             quotation_detail_id: typeof id === 'number' ? id : null,
             quotation_detail_id: id ? id : null,
-            // row_status: detail.row_status,
             ...(edit === 'edit' ? { row_status } : {})
           };
         }
@@ -584,7 +583,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
             labelKey="name"
             labelInValue
             className="w-full"
-            // value={product_type_id}
             value={
               product_type_id?.value
                 ? {
@@ -610,32 +608,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
       width: 70,
       fixed: 'left'
     },
-    // {
-    //   title: 'Product Code',
-    //   dataIndex: 'product_code',
-    //   key: 'product_code',
-    //   render: (_, { product_code, product_type_id }, index) => {
-    //     return (
-    //       <DebounceInput
-    //         value={product_code}
-    //         onChange={(value) =>
-    //           dispatch(
-    //             changeQuotationDetailValue({
-    //               index,
-    //               key: 'product_code',
-    //               value: value
-    //             })
-    //           )
-    //         }
-    //         disabled={product_type_id?.value == 4}
-    //         onBlur={(e) => onProductCodeChange(index, e.target.value)}
-    //         onPressEnter={(e) => onProductCodeChange(index, e.target.value)}
-    //       />
-    //     );
-    //   },
-    //   width: 120,
-    //   fixed: 'left'
-    // },
     {
       title: 'Product Name',
       dataIndex: 'product_name',
@@ -732,7 +704,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
               ]}>
               <DebounceInput
                 value={product_description}
-                // disabled={product_type_id?.value !== 4}
                 onChange={(value) => {
                   dispatch(
                     changeQuotationDetailValue({
@@ -742,7 +713,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
                     })
                   );
 
-                  // Add this condition to update product_name when product_type_id is 4
                   if (product_type_id?.value === 4) {
                     dispatch(
                       changeQuotationDetailValue({
@@ -1240,10 +1210,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
                 document_date: initialFormValues.document_date
                   ? dayjs(initialFormValues.document_date)
                   : null,
-                // service_date:
-                //   initialFormValues.service_date === '0000-00-00'
-                //     ? dayjs(initialFormValues.service_date).format('MM-DD-YYYY')
-                //     : null,
                 service_date:
                   initialFormValues?.service_date === '0000-00-00' ||
                   initialFormValues?.service_date === '1899-30-11'
@@ -1518,36 +1484,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
                 value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
               />
             </Col>
-            {/* <Col span={24} sm={12} md={6} lg={6}>
-            <DetailSummaryInfo
-              title="Total Cost:"
-              value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
-            />
-          </Col> */}
-
-            {/* <Col span={24} sm={12} md={6} lg={6}>
-            <DetailSummaryInfo
-              title="Total Amount:"
-              value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
-            />
-          </Col> */}
-
-            {/* <Col span={24} sm={12} md={6} lg={6}>
-            <DetailSummaryInfo
-              title="Discount Amount:"
-              value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
-            />
-          </Col> */}
-
-            {/* <Col span={24} sm={12} md={6} lg={6}>
-            <DetailSummaryInfo
-              title="Net Amount:"
-              value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
-            />
-          </Col> */}
           </Row>
-          {/* <Row gutter={[12, 12]} className="mb-4"> */}
-          {/* <Col span={24} sm={12}> */}
           <h4 className="ml-1 mt-2 font-medium text-gray-800">Rebate:</h4>
           <div className="flex flex-col gap-4">
             <DetailSummaryInfo
@@ -1564,8 +1501,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
             />
             <DetailSummaryInfo title="Amount:" value={rebateAmount} />
           </div>
-          {/* </Col> */}
-          {/* <Col span={24} sm={12}> */}
           <h4 className="ml-1 mt-2 font-medium text-gray-800">Salesman:</h4>
           <div className="flex flex-col gap-4">
             <DetailSummaryInfo
@@ -1582,19 +1517,11 @@ const QuotationForm = ({ mode, onSubmit }) => {
             />
             <DetailSummaryInfo title="Amount:" value={salesmanAmount} />
           </div>
-          {/* </Col> */}
-          {/* </Row> */}
-          {/* <Row gutter={[12, 12]}> */}
-          {/* <Col span={24} sm={12} md={6} lg={6}> */}
           <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
-          {/* </Col> */}
-          {/* <Col span={24} sm={12} md={6} lg={6}> */}
           <DetailSummaryInfo
             title="Total Profit:"
             value={formatThreeDigitCommas(roundUpto(totalProfit)) || 0}
           />
-          {/* </Col> */}
-          {/* </Row> */}
         </div>
 
         <div className="mt-4 flex items-center justify-end gap-2">

@@ -186,7 +186,6 @@ const generateSchedulingExcel = async (datas) => {
             : '   ';
 
           const cell = worksheet.getCell(`G${currentRow}`);
-          // cell.value = detail?.ports.map(item => item) || '   '
           cell.value = (detail?.ports || []).join(', ') || '   ';
           cell.alignment = { horizontal: 'center' };
 
@@ -239,119 +238,6 @@ const generateSchedulingExcel = async (datas) => {
             horizontal: 'right',
             vertical: 'middle'
           };
-
-          // currentRow = worksheet.lastRow._number + 1;
-
-          // worksheet.getCell(`B${currentRow}`).value = 'Technician Notes:';
-          // worksheet.getCell(`B${currentRow}`).font = { bold: true };
-          // worksheet.getCell(`B${currentRow}`).alignment = { vertical: 'top', horizontal: 'left' };
-          // worksheet.getCell(`B${currentRow}`).border = {
-          //   top: { style: 'thin' },
-          //   left: { style: 'thin' },
-          //   bottom: { style: 'thin' },
-          //   right: { style: 'thin' }
-          // };
-
-          // worksheet.mergeCells(`C${currentRow}:H${currentRow}`);
-
-          // const allTechNotes = detail?.technician_notes || '';
-
-          // worksheet.getCell(`C${currentRow}`).value = allTechNotes || '';
-          // worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
-          // worksheet.getCell(`C${currentRow}`).border = {
-          //   top: { style: 'thin' },
-          //   left: { style: 'thin' },
-          //   bottom: { style: 'thin' },
-          //   right: { style: 'thin' }
-          // };
-
-          // currentRow = worksheet.lastRow._number + 1;
-
-          // worksheet.getCell(`B${currentRow}`).value = 'Agent Notes:';
-          // worksheet.getCell(`B${currentRow}`).font = { bold: true };
-          // worksheet.getCell(`B${currentRow}`).alignment = { vertical: 'top', horizontal: 'left' };
-          // worksheet.getCell(`B${currentRow}`).border = {
-          //   top: { style: 'thin' },
-          //   left: { style: 'thin' },
-          //   bottom: { style: 'thin' },
-          //   right: { style: 'thin' }
-          // };
-
-          // worksheet.mergeCells(`C${currentRow}:H${currentRow}`);
-
-          // const allAgentNotes = detail?.agent_notes || '';
-
-          // worksheet.getCell(`C${currentRow}`).value = allAgentNotes || '';
-          // worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
-          // worksheet.getCell(`C${currentRow}`).border = {
-          //   top: { style: 'thin' },
-          //   left: { style: 'thin' },
-          //   bottom: { style: 'thin' },
-          //   right: { style: 'thin' }
-          // };
-
-          // currentRow = worksheet.lastRow._number + 1;
-
-          // worksheet.getCell(`B${currentRow}`).value = 'Jobe Scope:';
-          // worksheet.getCell(`B${currentRow}`).font = { bold: true };
-          // worksheet.getCell(`B${currentRow}`).alignment = { vertical: 'top', horizontal: 'left' };
-          // worksheet.getCell(`B${currentRow}`).border = {
-          //   top: { style: 'thin' },
-          //   left: { style: 'thin' },
-          //   bottom: { style: 'thin' },
-          //   right: { style: 'thin' }
-          // };
-
-          // worksheet.mergeCells(`C${currentRow}:H${currentRow}`);
-
-          // const allShortCodes = Array.isArray(detail?.short_codes)
-          //   ? detail.short_codes.map(item => item.label).join(', ')
-          //   : '';
-
-          // worksheet.getCell(`C${currentRow}`).value = allShortCodes || '';
-          // worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
-          // worksheet.getCell(`C${currentRow}`).border = {
-          //   top: { style: 'thin' },
-          //   left: { style: 'thin' },
-          //   bottom: { style: 'thin' },
-          //   right: { style: 'thin' }
-          // };
-
-          // if (
-          //   detail?.agent_name ||
-          //   detail?.agent_email ||
-          //   detail?.agent_phone ||
-          //   detail?.agent_fax
-          // ) {
-          //   currentRow += 1;
-
-          //   worksheet.getCell(`B${currentRow}`).value = 'Agent Info:';
-          //   worksheet.getCell(`B${currentRow}`).font = { bold: true };
-          //   worksheet.getCell(`B${currentRow}`).alignment = { vertical: 'top', horizontal: 'left' };
-          //   worksheet.getCell(`B${currentRow}`).border = {
-          //     top: { style: 'thin' },
-          //     left: { style: 'thin' },
-          //     bottom: { style: 'thin' },
-          //     right: { style: 'thin' }
-          //   };
-
-          //   worksheet.mergeCells(`C${currentRow}:H${currentRow}`);
-
-          //   const agentInfo =
-          //     (detail?.agent_name ? `Name: ${detail.agent_name}` : '') +
-          //     (detail?.agent_email ? ` | Email: ${detail.agent_email}` : '') +
-          //     (detail?.agent_phone ? ` | Phone: ${detail.agent_phone}` : '') +
-          //     (detail?.agent_fax ? ` | Fax: ${detail.agent_fax}` : '');
-
-          //   worksheet.getCell(`C${currentRow}`).value = agentInfo;
-          //   worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
-          //   worksheet.getCell(`C${currentRow}`).border = {
-          //     top: { style: 'thin' },
-          //     left: { style: 'thin' },
-          //     bottom: { style: 'thin' },
-          //     right: { style: 'thin' }
-          //   };
-          // }
 
           // 1. Scope
           currentRow = worksheet.lastRow._number + 1;

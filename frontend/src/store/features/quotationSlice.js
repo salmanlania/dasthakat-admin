@@ -129,18 +129,11 @@ export const quotationSlice = createSlice({
         id: Date.now(),
         product_code: null,
         product_id: null,
-        // product_name: null,
         description: null,
-        // stock_quantity: null,
         quantity: null,
         unit_id: null,
-        // supplier_id: null,
-        // cost_price: null,
-        // markup: '0',
         rate: null,
         amount: null,
-        // discount_percent: '0',
-        // gross_amount: null,
         row_status: 'I'
       };
 
@@ -166,12 +159,7 @@ export const quotationSlice = createSlice({
       state.quotationDetails.splice(index + 1, 0, newDetail);
     },
 
-    // removeQuotationDetail: (state, action) => {
-    //   state.quotationDetails = state.quotationDetails.filter((item) => item.id !== action.payload);
-    // },
-
     removeQuotationDetail: (state, action) => {
-      // Find the item by ID
       const itemIndex = state.quotationDetails.findIndex(item => item.id === action.payload);
 
       if (itemIndex !== -1) {
@@ -213,7 +201,6 @@ export const quotationSlice = createSlice({
         detail.cost_price &&
         detail.markup !== null &&
         detail.markup !== undefined
-        // detail.markup
       ) {
         detail.rate = roundUpto(+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
       }

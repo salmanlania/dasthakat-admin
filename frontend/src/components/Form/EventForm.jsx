@@ -108,32 +108,6 @@ const EventForm = ({ mode, onSubmit }) => {
             />
           </Form.Item>
         </Col>
-        {/* <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="vessel_id" label="Vessel">
-            <Select
-              options={vessels}
-              showSearch
-              labelInValue
-              onChange={onVesselSelect}
-              onDropdownVisibleChange={(open) => (open && customerID ? getCustomerVessels() : null)}
-              suffixIcon={
-                permissions.vessel.add ? (
-                  <MdOutlineAddCircle
-                    className="absolute !-top-4 cursor-pointer rounded-full bg-white text-primary hover:text-blue-700"
-                    size={18}
-                    onClick={() => {
-                      window.open(
-                        `${import.meta.env.VITE_BASE_URL}/vessel/create`,
-                        '_blank',
-                        'toolbar=yes,scrollbars=yes,top=100,left=400,width=600,height=600'
-                      );
-                    }}
-                  />
-                ) : null
-              }
-            />
-          </Form.Item>
-        </Col> */}
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="vessel_id" label="Vessel">
             <AsyncSelect

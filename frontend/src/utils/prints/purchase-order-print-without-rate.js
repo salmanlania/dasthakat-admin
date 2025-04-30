@@ -222,14 +222,6 @@ export const createPurchaseOrderWithoutRatePrint = (data) => {
           content: detail?.product_description || '',
           styles: { halign: 'left' }
         },
-        // {
-        //   content: detail.rate ? formatThreeDigitCommas(detail.rate) : '',
-        //   styles: { halign: 'right' }
-        // },
-        // {
-        //   content: detail.amount ? formatThreeDigitCommas(detail.amount) : '',
-        //   styles: { halign: 'right' }
-        // },
         detail.vendor_notes || ''
       ])
     : [];
@@ -272,22 +264,12 @@ export const createPurchaseOrderWithoutRatePrint = (data) => {
       3: { cellWidth: 12 },
       4: { cellWidth: 15 },
       5: { cellWidth: 100 },
-      // 6: { cellWidth: 16 },
-      // 7: { cellWidth: 16 },
       6: { cellWidth: 35 }
     },
     didParseCell: function (data) {
       data.cell.styles.minCellHeight = 11;
     }
   });
-
-  // doc.setFontSize(12);
-  // doc.setFont('times', 'bold');
-  // doc.text(
-  //   `Total Value = ${formatThreeDigitCommas(data.total_amount) || ''}`,
-  //   142,
-  //   doc.previousAutoTable.finalY + 5
-  // );
 
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {

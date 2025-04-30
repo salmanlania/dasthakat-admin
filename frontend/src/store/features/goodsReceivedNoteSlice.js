@@ -164,14 +164,7 @@ export const goodsReceivedNoteSlice = createSlice({
       state.goodsReceivedNoteDetails.splice(index + 1, 0, newDetail);
     },
 
-    // removeGoodsReceivedNoteDetail: (state, action) => {
-    //   state.goodsReceivedNoteDetails = state.goodsReceivedNoteDetails.filter(
-    //     (item) => item.id !== action.payload
-    //   );
-    // },
-
     removeGoodsReceivedNoteDetail: (state, action) => {
-      // Find the item by ID
       const itemIndex = state.goodsReceivedNoteDetails.findIndex(item => item.id === action.payload);
 
       if (itemIndex !== -1) {
@@ -321,7 +314,6 @@ export const goodsReceivedNoteSlice = createSlice({
           ? {
             value: data.purchase_order.purchase_order_id,
             label: data.purchase_order.purchase_order_no ? data.purchase_order.purchase_order_no : data.purchase_order.document_identity
-            // label: data.purchase_order.document_identity
           }
           : null,
       };
