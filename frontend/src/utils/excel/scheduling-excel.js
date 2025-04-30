@@ -200,7 +200,7 @@ const generateSchedulingExcel = async (datas) => {
               };
               cell.font = {
                 bold: true,
-                color: { argb: 'FF3B7319' },
+                color: { argb: 'FF02AD2F' },
                 size: 8
               }
               cell.border = {
