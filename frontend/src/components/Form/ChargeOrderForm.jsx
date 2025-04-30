@@ -1159,7 +1159,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
             }
       }>
       {/* Make this sticky */}
-      <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
+      <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-base font-semibold">
         <span className="text-gray-500">Charge order No:</span>
         <span
           className={`ml-4 text-amber-600 ${

@@ -241,7 +241,7 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
       }}
       autoComplete="off"
       initialValues={mode === 'edit' ? initialFormValues : null}>
-      <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
+      <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-base font-semibold">
         <span className="text-gray-500">
           {initialFormValues?.document_type_id === "49" ? "SO No:" : initialFormValues?.document_type_id === "48" ? "DO No:" : "SO/DO No:"}
         </span>

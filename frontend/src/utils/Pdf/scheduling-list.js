@@ -67,8 +67,8 @@ const pdfContent = (doc, data, pageWidth) => {
     'Event Number',
     'Vessel Name',
     'Technician',
-    // 'Agent',
-    'Status'
+    'Ports',
+    'Status',
   ];
 
   const detail = data?.data;
@@ -105,33 +105,33 @@ const pdfContent = (doc, data, pageWidth) => {
       table2Rows.push([
         {
           content: item?.event_date ? dayjs(item.event_date).format('MM-DD-YYYY') : '   ',
-          styles: { textColor: [0, 176, 80] , fontStyle: 'bold', }
+          styles: { textColor: [27, 54, 11] , fontStyle: 'bold', }
         },
         {
           content: item?.event_time || '   ',
-          styles: { textColor: [0, 176, 80] , fontStyle: 'bold', }
+          styles: { textColor: [27, 54, 11] , fontStyle: 'bold', }
         },
         {
           content: item?.event_code || '   ',
-          styles: { textColor: [0, 176, 80] , fontStyle: 'bold', }
+          styles: { textColor: [27, 54, 11] , fontStyle: 'bold', }
         },
         {
           content: item?.vessel_name || '   ',
-          styles: { textColor: [0, 176, 80] , fontStyle: 'bold', }
+          styles: { textColor: [27, 54, 11] , fontStyle: 'bold', }
         },
         {
           content: Array.isArray(item?.technicians)
           ? item.technicians.map(t => t.user_name).join(', ')
           : '   ',
-          styles: { textColor: [0, 176, 80] , fontStyle: 'bold', }
+          styles: { textColor: [27, 54, 11] , fontStyle: 'bold', }
         },
-        // {
-        //   content: item?.agent_name || '   ',
-        //   styles: { textColor: [0, 176, 80] , fontStyle: 'bold', }
-        // },
+        {
+          content: item?.ports || '   ',
+          styles: { textColor: [27, 54, 11] , fontStyle: 'bold', }
+        },
         {
           content: item?.status || '   ',
-          styles: { textColor: [0, 176, 80] , fontStyle: 'bold', }
+          styles: { textColor: [27, 54, 11] , fontStyle: 'bold', }
         },
       ]);
 
@@ -203,7 +203,7 @@ const pdfContent = (doc, data, pageWidth) => {
     headStyles: {
       halign: 'center',
       valign: 'middle',
-      fontSize: 8,
+      fontSize: 12,
       fontStyle: 'bold',
       textColor: [0, 0, 0],
       fillColor: [255, 255, 255]
@@ -217,7 +217,7 @@ const pdfContent = (doc, data, pageWidth) => {
       cellPadding: 1,
     },
     bodyStyles: {
-      fontSize: 7,
+      fontSize: 10,
       textColor: [0, 0, 0],
       fillColor: [255, 255, 255]
     },
@@ -226,13 +226,13 @@ const pdfContent = (doc, data, pageWidth) => {
     },
     rowPageBreak: 'avoid',
     columnStyles: {
-      0: { cellWidth: 27 },
-      1: { cellWidth: 27 },
-      2: { cellWidth: 27 },
-      3: { cellWidth: 45 },
-      4: { cellWidth: 45 },
-      5: { cellWidth: 27 },
-      // 7: { cellWidth: 27 }
+      0: { cellWidth: 23 },
+      1: { cellWidth: 23 },
+      2: { cellWidth: 23 },
+      3: { cellWidth: 40 },
+      4: { cellWidth: 39 },
+      5: { cellWidth: 25 },
+      6: { cellWidth: 27 }
     },
     didParseCell: function (data) {
       const content = data.cell.text;

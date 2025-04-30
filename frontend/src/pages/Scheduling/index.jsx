@@ -162,8 +162,19 @@ const Scheduling = () => {
 
       const data = await dispatch(getDispatchList(exportParams)).unwrap();
 
-      dispatch(setDispatchListParams(originalParams));
-      dispatch(getDispatchList(originalParams));
+      // dispatch(setDispatchListParams(originalParams));
+      // dispatch(getDispatchList(originalParams));
+
+      const today = dayjs().format('YYYY-MM-DD');
+
+      const finalParams = {
+        ...originalParams,
+        start_date: !isOldChecked ? today : originalParams.start_date,
+        end_date: !isOldChecked ? today : originalParams.end_date
+      };
+
+      dispatch(setDispatchListParams(finalParams));
+      dispatch(getDispatchList(finalParams));
 
       generateSchedulingExcel(data, true);
     } catch (error) {
@@ -200,8 +211,19 @@ const Scheduling = () => {
 
       const data = await dispatch(getDispatchList(exportParams)).unwrap();
 
-      dispatch(setDispatchListParams(originalParams));
-      dispatch(getDispatchList(originalParams));
+      const today = dayjs().format('YYYY-MM-DD');
+
+      const finalParams = {
+        ...originalParams,
+        start_date: !isOldChecked ? today : originalParams.start_date,
+        end_date: !isOldChecked ? today : originalParams.end_date
+      };
+
+      dispatch(setDispatchListParams(finalParams));
+      dispatch(getDispatchList(finalParams));
+
+      // dispatch(setDispatchListParams(originalParams));
+      // dispatch(getDispatchList(originalParams));
 
       createSchedulingListPrint(Array.isArray(data) ? data : [data], true);
     } catch (error) {
@@ -755,8 +777,16 @@ const Scheduling = () => {
   ];
 
   useEffect(() => {
-    dispatch(getDispatchList(params)).unwrap().catch(handleError);
+    const today = dayjs().format('YYYY-MM-DD');
+
+    const modifiedParams = {
+      ...params,
+      start_date: !isOldChecked ? today : params.start_date,
+      end_date: !isOldChecked ? today : params.end_date
+    };
+    dispatch(getDispatchList(modifiedParams)).unwrap().catch(handleError);
   }, [
+    isOldChecked,
     params.page,
     params.limit,
     params.sort_column,
@@ -804,10 +834,20 @@ const Scheduling = () => {
                 params.end_date ? dayjs(params.end_date, 'YYYY-MM-DD') : null
               ]}
               onChange={(dates) => {
+                const todayDate = dayjs().format('YYYY-MM-DD');
                 const newParams = {
                   start_date: dates?.[0] ? dayjs(dates[0]).format('YYYY-MM-DD') : null,
                   end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : null
                 };
+
+                dispatch(setDispatchListParams(newParams));
+                const fetchParams = { ...params, ...newParams };
+                if (!dates && !isOldChecked) {
+                  const today = dayjs().format('YYYY-MM-DD');
+                  fetchParams.start_date = today;
+                  fetchParams.end_date = today;
+                }
+                dispatch(getDispatchList(fetchParams));
 
                 dispatch(setDispatchListParams(newParams));
                 dispatch(getDispatchList({ ...params, ...newParams }));
