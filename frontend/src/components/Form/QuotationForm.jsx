@@ -1464,10 +1464,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
           <Row gutter={[12, 12]}>
             <Col span={24} sm={12} md={6} lg={6}>
               <DetailSummaryInfo
-                title="Total Quantity:"
-                value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
-              />
-              <DetailSummaryInfo
                 title="Total Cost:"
                 value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
               />
@@ -1484,6 +1480,16 @@ const QuotationForm = ({ mode, onSubmit }) => {
                 value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
               />
             </Col>
+            <div className="flex flex-col gap-2">
+              <DetailSummaryInfo
+                title="Total Quantity:"
+                value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
+              />
+              <DetailSummaryInfo
+              title="Total Profit:"
+              value={formatThreeDigitCommas(roundUpto(totalProfit)) || 0}
+            />
+            </div>
           </Row>
           <h4 className="ml-1 mt-2 font-medium text-gray-800">Rebate:</h4>
           <div className="flex flex-col gap-4">
@@ -1520,10 +1526,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
             <DetailSummaryInfo title="Amount:" value={salesmanAmount} />
           </div>
           <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
-          <DetailSummaryInfo
-            title="Total Profit:"
-            value={formatThreeDigitCommas(roundUpto(totalProfit)) || 0}
-          />
         </div>
 
         <div className="mt-4 flex items-center justify-end gap-2">
