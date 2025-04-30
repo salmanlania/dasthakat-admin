@@ -96,7 +96,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
     data.customer?.name,
     data.customer?.address,
     data.customer?.billing_address
-  ].filter(Boolean).join(', ');
+  ].filter(Boolean).join(',\n');
   
   const billTo = doc.splitTextToSize(
     [customerInfo].filter(Boolean).join('\n'),
@@ -109,7 +109,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   const vesselInfo = [
     data.vessel?.name,
     data.vessel?.billing_address
-  ].filter(Boolean).join(', ');
+  ].filter(Boolean).join(',\n');
 
   const shipTo = doc.splitTextToSize([vesselInfo].filter(Boolean).join('\n'), 68);
   doc.text(shipTo, 140, 45);

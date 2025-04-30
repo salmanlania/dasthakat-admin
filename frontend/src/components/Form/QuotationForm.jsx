@@ -16,6 +16,7 @@ import dayjs from 'dayjs';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { BiPlus } from 'react-icons/bi';
+import { TbEdit } from 'react-icons/tb';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
@@ -780,7 +781,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       width: 240
     },
     {
-      title: 'St Quantity',
+      title: 'Stock Quantity',
       dataIndex: 'stock_quantity',
       key: 'stock_quantity',
       render: (_, { stock_quantity }) => {
