@@ -341,6 +341,7 @@ const exportPdf = async () => {
           size="small"
           className="font-normal"
           showSecond={false}
+          allowClear={false}
           disabled={!permissions.update}
           defaultValue={event_time ? dayjs(event_time, 'HH:mm') : null}
           onChange={(date) =>

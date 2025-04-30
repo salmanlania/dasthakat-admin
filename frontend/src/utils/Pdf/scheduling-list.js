@@ -65,8 +65,8 @@ const pdfContent = (doc, data, pageWidth) => {
     'Time',
     'Event Number',
     'Vessel Name',
-    'Technician',
     'Ports',
+    'Technician',
     'Status',
   ];
 
@@ -119,13 +119,13 @@ const pdfContent = (doc, data, pageWidth) => {
           styles: { textColor: [2, 158, 43] , fontStyle: 'bold', }
         },
         {
-          content: Array.isArray(item?.technicians)
-          ? item.technicians.map(t => t.user_name).join(', ')
-          : '   ',
+          content: item?.ports || '   ',
           styles: { textColor: [2, 158, 43] , fontStyle: 'bold', }
         },
         {
-          content: item?.ports || '   ',
+          content: Array.isArray(item?.technicians)
+          ? item.technicians.map(t => t.user_name).join(', ')
+          : '   ',
           styles: { textColor: [2, 158, 43] , fontStyle: 'bold', }
         },
         {

@@ -548,19 +548,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     }
     return [];
   }).filter(Boolean);
-  table4Row.push([
-    {
-      content: 'General Note',
-      styles: {
-        fillColor: 'ebf1de', // gray color
-        textColor: '#244062' // Blue Color
-      }
-    },
-    {
-      content: "",
-      colSpan: 3
-    }
-  ]);
+
   table4Row.push([
     {
       content: 'Technician Notes',

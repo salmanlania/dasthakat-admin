@@ -96,9 +96,9 @@ const generateSchedulingExcel = async (datas) => {
 
     worksheet.getCell(`E${currentRow}`).value = 'Vessel Name';
 
-    worksheet.getCell(`F${currentRow}`).value = 'Technician'
+    worksheet.getCell(`F${currentRow}`).value = 'Ports';
 
-    worksheet.getCell(`G${currentRow}`).value = 'Ports';
+    worksheet.getCell(`G${currentRow}`).value = 'Technician'
 
     worksheet.getCell(`H${currentRow}`).value = 'Status';
 
@@ -181,13 +181,13 @@ const generateSchedulingExcel = async (datas) => {
 
           worksheet.getCell(`E${currentRow}`).value = detail?.vessel_name || '   '
 
-          worksheet.getCell(`F${currentRow}`).value = Array.isArray(detail?.technicians)
-            ? detail.technicians.map(t => t.user_name).join(', ')
-            : '   ';
-
-          const cell = worksheet.getCell(`G${currentRow}`);
+          const cell = worksheet.getCell(`F${currentRow}`);
           cell.value = (detail?.ports || []).join(', ') || '   ';
           cell.alignment = { horizontal: 'center' };
+
+          worksheet.getCell(`G${currentRow}`).value = Array.isArray(detail?.technicians)
+          ? detail.technicians.map(t => t.user_name).join(', ')
+          : '   ';
 
           worksheet.getCell(`H${currentRow}`).value = detail?.status || '   '
 

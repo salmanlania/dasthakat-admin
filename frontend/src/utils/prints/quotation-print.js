@@ -87,14 +87,31 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   doc.text('Ship To', 140, 40);
   doc.setFont('times', 'normal');
 
+  // const billTo = doc.splitTextToSize(
+  //   `${data.customer ? `${data?.customer?.name.join(' ,')}, ${data.customer.address}, ${data.customer.billing_address},` : ''}\n${data.vessel ? `${data.vessel.name}, ${data.vessel.billing_address}` || '' : ''
+  //   }`,
+  //   120
+  // );
+  const customerInfo = [
+    data.customer?.name,
+    data.customer?.address,
+    data.customer?.billing_address
+  ].filter(Boolean).join(', ');
+  
   const billTo = doc.splitTextToSize(
-    `${data.customer ? `${data.customer.name},` : ''}\n${data.vessel ? data.vessel.billing_address || '' : ''
-    }`,
+    [customerInfo].filter(Boolean).join('\n'),
     120
   );
+  
   doc.text(billTo, sideMargin, 45);
 
-  const shipTo = doc.splitTextToSize(data.vessel ? data.vessel.name : '', 68);
+    
+  const vesselInfo = [
+    data.vessel?.name,
+    data.vessel?.billing_address
+  ].filter(Boolean).join(', ');
+
+  const shipTo = doc.splitTextToSize([vesselInfo].filter(Boolean).join('\n'), 68);
   doc.text(shipTo, 140, 45);
 
   // ESTIMATE

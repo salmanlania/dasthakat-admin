@@ -1495,6 +1495,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
                   size="small"
                   className="w-20"
                   value={rebatePercentage}
+                  disabled
                   onChange={(value) => dispatch(setRebatePercentage(value))}
                 />
               }
@@ -1511,6 +1512,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
                   size="small"
                   className="w-20"
                   value={salesmanPercentage}
+                  disabled
                   onChange={(value) => dispatch(setSalesmanPercentage(value))}
                 />
               }
