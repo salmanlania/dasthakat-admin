@@ -137,103 +137,197 @@ const Scheduling = () => {
     }
   };
 
-  const exportExcel = async () => {
-    const loadingToast = toast.loading('Downloading Excel File...');
+  // Fixed Export Excel function
+const exportExcel = async () => {
+  const loadingToast = toast.loading('Downloading Excel File...');
 
-    const originalParams = { ...params };
-
+  // Store original params
+  const originalParams = { ...params };
+  
+  try {
+    // Create export params
     const newDate = !isOldChecked ? dayjs().format('YYYY-MM-DD') : null;
+    const exportParams = {
+      ...params,
+      start_date: newDate,
+      end_date: null,
+      event_date: null,
+      search: null,
+      technician_notes: null,
+      agent_notes: null,
+      technician_id: null,
+      vessel_id: null,
+      agent_id: null,
+      event_id: null,
+      sort_direction: 'ascend'
+    };
 
-    try {
-      const exportParams = {
-        ...params,
-        start_date: newDate,
-        end_date: null,
-        event_date: null,
-        search: null,
-        technician_notes: null,
-        agent_notes: null,
-        technician_id: null,
-        vessel_id: null,
-        agent_id: null,
-        event_id: null,
-        sort_direction: 'ascend'
-      };
+    // Get data for export
+    const data = await dispatch(getDispatchList(exportParams)).unwrap();
+    
+    // Generate Excel
+    generateSchedulingExcel(data, true);
+    
+    // Important: First set the params, then await the data fetch
+    await dispatch(setDispatchListParams(originalParams)).unwrap();
+    await dispatch(getDispatchList(originalParams)).unwrap();
+    
+    // Force table refresh
+    setTableKey(prevKey => prevKey + 1);
+    
+  } catch (error) {
+    // Error handling with awaits
+    await dispatch(setDispatchListParams(originalParams)).unwrap();
+    await dispatch(getDispatchList(originalParams)).unwrap();
+    handleError(error);
+  } finally {
+    toast.dismiss(loadingToast);
+  }
+};
 
-      const data = await dispatch(getDispatchList(exportParams)).unwrap();
+// Fixed Export PDF function
+const exportPdf = async () => {
+  const loadingToast = toast.loading('Loading Print View...');
 
-      // dispatch(setDispatchListParams(originalParams));
-      // dispatch(getDispatchList(originalParams));
-
-      const today = dayjs().format('YYYY-MM-DD');
-
-      const finalParams = {
-        ...originalParams,
-        start_date: !isOldChecked ? today : originalParams.start_date,
-        end_date: !isOldChecked ? today : originalParams.end_date
-      };
-
-      dispatch(setDispatchListParams(finalParams));
-      dispatch(getDispatchList(finalParams));
-
-      generateSchedulingExcel(data, true);
-    } catch (error) {
-      dispatch(setDispatchListParams(originalParams));
-      dispatch(getDispatchList(originalParams));
-      handleError(error);
-    } finally {
-      toast.dismiss(loadingToast);
-    }
-  };
-
-  const exportPdf = async () => {
-    const loadingToast = toast.loading('Loading Print View...');
-
-    const originalParams = { ...params };
-
+  // Store original params
+  const originalParams = { ...params };
+  
+  try {
+    // Create export params
     const newDate = !isOldChecked ? dayjs().format('YYYY-MM-DD') : null;
+    const exportParams = {
+      ...params,
+      start_date: newDate,
+      end_date: null,
+      event_date: null,
+      search: null,
+      technician_notes: null,
+      agent_notes: null,
+      technician_id: null,
+      vessel_id: null,
+      agent_id: null,
+      event_id: null
+    };
 
-    try {
-      const exportParams = {
-        ...params,
-        start_date: newDate,
-        end_date: null,
-        event_date: null,
-        search: null,
-        technician_notes: null,
-        agent_notes: null,
-        technician_id: null,
-        vessel_id: null,
-        agent_id: null,
-        event_id: null
-        // sort_direction: 'ascend'
-      };
+    // Get data for export
+    const data = await dispatch(getDispatchList(exportParams)).unwrap();
+    
+    // Generate PDF
+    createSchedulingListPrint(Array.isArray(data) ? data : [data], true);
+    
+    // Important: First set the params, then await the data fetch
+    await dispatch(setDispatchListParams(originalParams)).unwrap();
+    await dispatch(getDispatchList(originalParams)).unwrap();
+    
+    // Force table refresh
+    setTableKey(prevKey => prevKey + 1);
+    
+  } catch (error) {
+    // Error handling with awaits
+    await dispatch(setDispatchListParams(originalParams)).unwrap();
+    await dispatch(getDispatchList(originalParams)).unwrap();
+    handleError(error);
+  } finally {
+    toast.dismiss(loadingToast);
+  }
+};
 
-      const data = await dispatch(getDispatchList(exportParams)).unwrap();
+  // const exportExcel = async () => {
+  //   const loadingToast = toast.loading('Downloading Excel File...');
 
-      const today = dayjs().format('YYYY-MM-DD');
+  //   const originalParams = { ...params };
 
-      const finalParams = {
-        ...originalParams,
-        start_date: !isOldChecked ? today : originalParams.start_date,
-        end_date: !isOldChecked ? today : originalParams.end_date
-      };
+  //   const newDate = !isOldChecked ? dayjs().format('YYYY-MM-DD') : null;
+    
+  //   try {
+  //     const today = dayjs().format('YYYY-MM-DD');
+  //     const exportParams = {
+  //       ...params,
+  //       start_date: newDate,
+  //       end_date: null,
+  //       event_date: null,
+  //       search: null,
+  //       technician_notes: null,
+  //       agent_notes: null,
+  //       technician_id: null,
+  //       vessel_id: null,
+  //       agent_id: null,
+  //       event_id: null,
+  //       sort_direction: 'ascend'
+  //     };
 
-      dispatch(setDispatchListParams(finalParams));
-      dispatch(getDispatchList(finalParams));
+  //     const data = await dispatch(getDispatchList(exportParams)).unwrap();
 
-      // dispatch(setDispatchListParams(originalParams));
-      // dispatch(getDispatchList(originalParams));
+      
+  //     generateSchedulingExcel(data, true);
+  //     dispatch(setDispatchListParams(originalParams));
+  //     await dispatch(getDispatchList(originalParams)).unwrap();
 
-      createSchedulingListPrint(Array.isArray(data) ? data : [data], true);
-    } catch (error) {
-      dispatch(setDispatchListParams(originalParams));
-      dispatch(getDispatchList(originalParams));
-      handleError(error);
-    } finally {
-      toast.dismiss(loadingToast);
-    }
-  };
+  //     // const finalParams = {
+  //     //   ...originalParams,
+  //     //   start_date: !isOldChecked ? today : originalParams.start_date,
+  //     //   end_date: !isOldChecked ? today : originalParams.end_date
+  //     // };
+
+  //     // dispatch(setDispatchListParams(finalParams));
+  //     // dispatch(getDispatchList(finalParams));
+
+  //   } catch (error) {
+  //     dispatch(setDispatchListParams(originalParams));
+  //     dispatch(getDispatchList(originalParams));
+  //     handleError(error);
+  //   } finally {
+  //     toast.dismiss(loadingToast);
+  //   }
+  // };
+
+  // const exportPdf = async () => {
+  //   const loadingToast = toast.loading('Loading Print View...');
+
+  //   const originalParams = { ...params };
+
+  //   const newDate = !isOldChecked ? dayjs().format('YYYY-MM-DD') : null;
+
+  //   try {
+  //     const today = dayjs().format('YYYY-MM-DD');
+  //     const exportParams = {
+  //       ...params,
+  //       start_date: newDate,
+  //       end_date: null,
+  //       event_date: null,
+  //       search: null,
+  //       technician_notes: null,
+  //       agent_notes: null,
+  //       technician_id: null,
+  //       vessel_id: null,
+  //       agent_id: null,
+  //       event_id: null
+  //       // sort_direction: 'ascend'
+  //     };
+
+  //     const data = await dispatch(getDispatchList(exportParams)).unwrap();
+
+  //     createSchedulingListPrint(Array.isArray(data) ? data : [data], true);
+  //     dispatch(setDispatchListParams(originalParams));
+  //     dispatch(getDispatchList(originalParams));
+  //     // const finalParams = {
+  //     //   ...originalParams,
+  //     //   start_date: !isOldChecked ? today : originalParams.start_date,
+  //     //   end_date: !isOldChecked ? today : originalParams.end_date
+  //     // };
+
+  //     // dispatch(setDispatchListParams(finalParams));
+  //     // dispatch(getDispatchList(finalParams));
+
+
+  //   } catch (error) {
+  //     dispatch(setDispatchListParams(originalParams));
+  //     dispatch(getDispatchList(originalParams));
+  //     handleError(error);
+  //   } finally {
+  //     toast.dismiss(loadingToast);
+  //   }
+  // };
 
   const printPickLists = async (id) => {
     const loadingToast = toast.loading('Loading Pick Lists print...');
@@ -827,30 +921,90 @@ const Scheduling = () => {
               allowClear
               onChange={(e) => dispatch(setDispatchListParams({ search: e.target.value }))}
             />
-
-            <RangePicker
+            {/* <RangePicker
+              // value={[
+              //   params.start_date ? dayjs(params.start_date, 'YYYY-MM-DD') : null,
+              //   params.end_date ? dayjs(params.end_date, 'YYYY-MM-DD') : null
+              // ]}
               value={[
-                params.start_date ? dayjs(params.start_date, 'YYYY-MM-DD') : null,
-                params.end_date ? dayjs(params.end_date, 'YYYY-MM-DD') : null
+                params.start_date && params.start_date !== '' ? dayjs(params.start_date, 'YYYY-MM-DD') : null,
+                params.end_date && params.end_date !== '' ? dayjs(params.end_date, 'YYYY-MM-DD') : null
               ]}
               onChange={(dates) => {
-                const todayDate = dayjs().format('YYYY-MM-DD');
+                // const today = dayjs().format('YYYY-MM-DD');
                 const newParams = {
-                  start_date: dates?.[0] ? dayjs(dates[0]).format('YYYY-MM-DD') : null,
-                  end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : null
+                  // start_date: dates?.[0] ? dayjs(dates[0]).format('YYYY-MM-DD') : null,
+                  // end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : null
+                  start_date: dates?.[0]
+                    ? dayjs(dates[0]).format('YYYY-MM-DD')
+                    : isOldChecked
+                      ? null
+                      : today,
+                  end_date: dates?.[1]
+                    ? dayjs(dates[1]).format('YYYY-MM-DD')
+                    : isOldChecked
+                      ? null
+                      : null
                 };
 
-                dispatch(setDispatchListParams(newParams));
-                const fetchParams = { ...params, ...newParams };
-                if (!dates && !isOldChecked) {
-                  const today = dayjs().format('YYYY-MM-DD');
-                  fetchParams.start_date = today;
-                  fetchParams.end_date = today;
-                }
-                dispatch(getDispatchList(fetchParams));
+                // dispatch(setDispatchListParams(newParams));
+                // const fetchParams = { ...params, ...newParams };
+                // if (!dates && !isOldChecked) {
+                //   const today = dayjs().format('YYYY-MM-DD');
+                //   fetchParams.start_date = today;
+                //   fetchParams.end_date = today;
+                // }
+                // dispatch(getDispatchList(fetchParams));
 
                 dispatch(setDispatchListParams(newParams));
                 dispatch(getDispatchList({ ...params, ...newParams }));
+              }}
+              format="MM-DD-YYYY"
+            /> */}
+            <RangePicker
+              value={[
+                params.start_date && params.start_date !== ''
+                  ? dayjs(params.start_date, 'YYYY-MM-DD')
+                  : null,
+                params.end_date && params.end_date !== ''
+                  ? dayjs(params.end_date, 'YYYY-MM-DD')
+                  : null
+              ]}
+              onChange={(dates) => {
+                // For UI: Always clear the dates in params state when user clears the picker
+                // This ensures the UI shows empty picker when cleared
+                const newParams = {
+                  start_date: dates?.[0] ? dayjs(dates[0]).format('YYYY-MM-DD') : '',
+                  end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : ''
+                };
+
+                // Update the UI state first
+                dispatch(setDispatchListParams(newParams));
+
+                // For data fetching: Apply the isOldChecked logic
+                const today = dayjs().format('YYYY-MM-DD');
+                const fetchParams = { ...params };
+
+                // If dates exist, use them for filtering
+                if (dates && dates[0]) {
+                  fetchParams.start_date = newParams.start_date;
+                  fetchParams.end_date = newParams.end_date;
+                }
+                // If dates are cleared, apply logic based on isOldChecked
+                else {
+                  if (!isOldChecked) {
+                    // Show today and future dates
+                    fetchParams.start_date = today;
+                    fetchParams.end_date = null;
+                  } else {
+                    // Show all dates
+                    fetchParams.start_date = null;
+                    fetchParams.end_date = null;
+                  }
+                }
+
+                // Fetch with the correct filtering logic
+                dispatch(getDispatchList(fetchParams));
               }}
               format="MM-DD-YYYY"
             />
