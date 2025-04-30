@@ -782,7 +782,7 @@ const Scheduling = () => {
     const modifiedParams = {
       ...params,
       start_date: !isOldChecked ? today : params.start_date,
-      end_date: !isOldChecked ? today : params.end_date
+      end_date: !isOldChecked ? null : params.end_date
     };
     dispatch(getDispatchList(modifiedParams)).unwrap().catch(handleError);
   }, [

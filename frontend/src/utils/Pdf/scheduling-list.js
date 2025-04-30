@@ -105,33 +105,33 @@ const pdfContent = (doc, data, pageWidth) => {
       table2Rows.push([
         {
           content: item?.event_date ? dayjs(item.event_date).format('MM-DD-YYYY') : '   ',
-          styles: { textColor: [27, 54, 11] , fontStyle: 'bold', }
+          styles: { textColor: [59, 115, 25] , fontStyle: 'bold', }
         },
         {
           content: item?.event_time || '   ',
-          styles: { textColor: [27, 54, 11] , fontStyle: 'bold', }
+          styles: { textColor: [59, 115, 25] , fontStyle: 'bold', }
         },
         {
           content: item?.event_code || '   ',
-          styles: { textColor: [27, 54, 11] , fontStyle: 'bold', }
+          styles: { textColor: [59, 115, 25] , fontStyle: 'bold', }
         },
         {
           content: item?.vessel_name || '   ',
-          styles: { textColor: [27, 54, 11] , fontStyle: 'bold', }
+          styles: { textColor: [59, 115, 25] , fontStyle: 'bold', }
         },
         {
           content: Array.isArray(item?.technicians)
           ? item.technicians.map(t => t.user_name).join(', ')
           : '   ',
-          styles: { textColor: [27, 54, 11] , fontStyle: 'bold', }
+          styles: { textColor: [59, 115, 25] , fontStyle: 'bold', }
         },
         {
           content: item?.ports || '   ',
-          styles: { textColor: [27, 54, 11] , fontStyle: 'bold', }
+          styles: { textColor: [59, 115, 25] , fontStyle: 'bold', }
         },
         {
           content: item?.status || '   ',
-          styles: { textColor: [27, 54, 11] , fontStyle: 'bold', }
+          styles: { textColor: [59, 115, 25] , fontStyle: 'bold', }
         },
       ]);
 
