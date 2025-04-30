@@ -364,6 +364,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
 
   if (data?.job_order_detail && data.job_order_detail.length) {
     let lastDocumentId = '';
+    let lastDocumentIdService = '';
     let lastSO_DO = '';
     let lastPO = '';
 
@@ -390,6 +391,10 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       const showDocumentId = currentDocId !== lastDocumentId ? currentDocId : '';
       lastDocumentId = currentDocId;
 
+      const currentDocIdService = detail?.service_order?.document_identity || '';
+      const showDocumentIdService = currentDocIdService !== lastDocumentIdService ? currentDocIdService : '';
+      lastDocumentIdService = currentDocIdService;
+
       const currentSO_DO = detail?.shipment?.document_identity || '';
       const showSO_DO = currentSO_DO !== lastSO_DO ? currentSO_DO : '';
       lastSO_DO = currentSO_DO;
@@ -399,7 +404,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       lastPO = currentPO;
 
       // Only add rows if there is non-empty content
-      if (showDocumentId || showPO || showSO_DO || detail?.product_description || detail?.quantity) {
+      if (showDocumentId || showPO || showSO_DO || showDocumentIdService || detail?.product_description || detail?.quantity) {
         table3Row.push([
           {
             content: showDocumentId || '',
@@ -410,7 +415,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
             styles: { textColor: '#d51902' }
           },
           {
-            content: showSO_DO || '',
+            content: showDocumentIdService || '',
             styles: { textColor: '#d51902' }
           },
           {
