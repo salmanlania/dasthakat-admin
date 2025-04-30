@@ -633,6 +633,7 @@ class ChargeOrderController extends Controller
 		}
 		$JODetailInsert = [];
 		$index = JobOrderDetail::where('job_order_id', $JO->job_order_id)->max('sort_order') ?? 0;
+		$index++;
 		foreach ($COD as $item) {
 			if (isset($existingDetails[$item->charge_order_detail_id])) {
 				// Update existing detail
@@ -1037,7 +1038,7 @@ class ChargeOrderController extends Controller
 							['model' => new PurchaseOrder],
 							['model' => new Picklist],
 							['model' => new Servicelist],
-						]
+						]	
 					];
 
 					$response = $this->checkAndDelete($validate);
