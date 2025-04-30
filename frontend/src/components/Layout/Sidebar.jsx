@@ -333,6 +333,11 @@ const Sidebar = () => {
           key: 'purchase-invoice',
           label: <Link to="/purchase-invoice">Purchase Invoice</Link>,
           disabled: !permissions?.purchase_invoice?.list
+        },
+        {
+          key: 'sale-invoice',
+          label: <Link to="/sale-invoice">Sale Invoice</Link>,
+          // disabled: !permissions?.purchase_invoice?.list
         }
       ]
     },

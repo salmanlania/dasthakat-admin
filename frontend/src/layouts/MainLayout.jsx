@@ -121,6 +121,13 @@ const MainLayout = () => {
 
   if (href === '/scheduling' && !permissions.dispatch.list) return <NotFound />;
 
+  // if (href === '/sale-invoice' && !permissions.shipment.list) return <NotFound />;
+  // if (href === '/sale-invoice/create' && !permissions.shipment.add) return <NotFound />;
+  // if (href.startsWith('/sale-invoice/edit') && !permissions.shipment.edit) return <NotFound />;
+  // if (href === '/sale-invoice') return <NotFound />;
+  // if (href === '/sale-invoice/create') return <NotFound />;
+  // if (href.startsWith('/sale-invoice/edit')) return <NotFound />;
+
   return (
     <Layout className="min-h-screen">
       <Sidebar />
