@@ -42,7 +42,7 @@ class EventDispatchController extends Controller
 			$query->where('event_dispatch.event_date', '<=', $end_date);
 		}
 		if ($event_time = $request->input('event_time')) {
-			$query->whereTime('event_dispatch.event_time', $event_time);
+			$query->where('event_dispatch.event_time', $event_time);
 		}
 		// if ($port_id = $request->input('port_id')) {
 		// 	$query->whereTime('p.port_id', $port_id);
