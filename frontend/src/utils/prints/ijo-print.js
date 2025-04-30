@@ -114,6 +114,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       if (cellIndex === 1) data.cell.styles.cellWidth = 30; // Second column width
       if (cellIndex === 2) data.cell.styles.cellWidth = 30; // Third column width
       if (cellIndex === 3) data.cell.styles.cellWidth = 124; // Fourth column width
+      
     }
   });
 
@@ -538,18 +539,42 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       }
     ]);
   }
-
+  const techNotes = data?.job_order_detail?.flatMap(item => {
+    const chargeOrder = item?.charge_order;
+    if (Array.isArray(chargeOrder)) {
+      return chargeOrder.map(c => c?.technician_notes);
+    } else if (chargeOrder) {
+      return chargeOrder.technician_notes;
+    }
+    return [];
+  }).filter(Boolean);
   table4Row.push([
     {
-      content: 'General Notes',
+      content: 'General Note',
       styles: {
         fillColor: 'ebf1de', // gray color
         textColor: '#244062' // Blue Color
       }
     },
     {
-      content: '',
+      content: "",
       colSpan: 3
+    }
+  ]);
+  table4Row.push([
+    {
+      content: 'Technician Notes',
+      styles: {
+        fillColor: 'ebf1de',
+        textColor: '#244062',
+      }
+    },
+    {
+      content: techNotes,
+      colSpan: 3,
+      styles: {
+        halign: 'left'
+      }
     }
   ]);
 
