@@ -83,7 +83,7 @@ class Quotation extends Model
     }
     public function customer()
     {
-        return $this->hasOne(Customer::class, 'customer_id', 'customer_id')->select('customer_id', 'name');
+        return $this->hasOne(Customer::class, 'customer_id', 'customer_id')->select('*');
     }
     public function flag()
     {
