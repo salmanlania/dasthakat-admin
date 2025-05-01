@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\Job;
 use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
 use App\Models\DocumentType;
@@ -110,7 +111,7 @@ class JobOrderController extends Controller
 			"salesman",
 			"agent",
 			"certificates",
-			
+
 		)
 			->where('job_order_id', $id)
 			->first();
@@ -284,8 +285,9 @@ class JobOrderController extends Controller
 				$certificateData['sort_order'],
 				Carbon::now()->format('m/Y')
 			);
-
-			JobOrderDetailCertificate::create($certificateData);
+			if (!JobOrderDetailCertificate::where('job_order_id', $jobOrderId)->where('type', $Category)->exist()) {
+				JobOrderDetailCertificate::create($certificateData);
+			}
 		}
 	}
 
