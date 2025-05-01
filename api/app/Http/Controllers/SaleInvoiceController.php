@@ -150,7 +150,7 @@ class SaleInvoiceController extends Controller
 		if ($chargeOrder->charge_order_detail) {
 
 			foreach ($chargeOrder->charge_order_detail as $detail) {
-				if($detail->charge_order_detail_id){
+				if(isset($detail->charge_order_detail_id)){
 
 				if (SaleInvoiceDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->exists()) {
 					continue;
