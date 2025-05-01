@@ -15,6 +15,7 @@ import toast from 'react-hot-toast';
 import { FaRegFilePdf } from 'react-icons/fa';
 import { GoTrash } from 'react-icons/go';
 import { MdOutlineEdit } from 'react-icons/md';
+import { FaFileInvoice } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect';
@@ -31,6 +32,7 @@ import {
   setPurchaseOrderDeleteIDs,
   setPurchaseOrderListParams
 } from '../../store/features/purchaseOrderSlice';
+import { createPurchaseInvoice } from '../../store/features/purchaseInvoiceSlice';
 import { createPurchaseOrderPrint } from '../../utils/prints/purchase-order-print';
 import { createPurchaseOrderWithoutRatePrint } from '../../utils/prints/purchase-order-print-without-rate';
 
@@ -398,7 +400,7 @@ const PurchaseOrder = () => {
       title: 'Action',
       key: 'action',
       render: (_, { purchase_order_id }) => (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {permissions.edit ? (
             <>
               <Tooltip title="Print without rate">
@@ -444,6 +446,24 @@ const PurchaseOrder = () => {
               </Popconfirm>
             </Tooltip>
           ) : null}
+          <Tooltip title="Purchase Invoice">
+            <Button
+              size="small"
+              type="primary"
+              className="bg-indigo-600 hover:!bg-indigo-500"
+              icon={<FaFileInvoice size={14} />}
+              onClick={async () => {
+                try {
+                  const document_date = dayjs().format('YYYY-MM-DD');
+                  await dispatch(createPurchaseInvoice({ purchase_order_id , document_date})).unwrap();
+                  toast.success('Purchase invoice created successfully');
+                } catch (error) {
+                  handleError(error);
+                  console.log('error' , error)
+                }
+              }}
+            />
+          </Tooltip>
         </div>
       ),
       width: 105,
@@ -485,7 +505,8 @@ const PurchaseOrder = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setPurchaseOrderListParams({ search: e.target.value }))}

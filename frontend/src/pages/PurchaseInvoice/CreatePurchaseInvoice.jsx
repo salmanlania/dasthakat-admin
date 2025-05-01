@@ -14,8 +14,8 @@ const CreatePurchaseInvoice = () => {
 
   const onPurchaseInvoiceCreate = async (data) => {
     try {
-      // await dispatch(createPurchaseInvoice(data)).unwrap();
-      // toast.success('Purchase invoice created successfully');
+      await dispatch(createPurchaseInvoice(data)).unwrap();
+      toast.success('Purchase invoice created successfully');
       navigate('/purchase-invoice');
     } catch (error) {
       handleError(error);

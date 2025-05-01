@@ -47,9 +47,9 @@ const PurchaseInvoice = () => {
 
   const onPurchaseInvoiceDelete = async (id) => {
     try {
-      // await dispatch(deletePurchaseInvoice(id)).unwrap();
-      // toast.success('Purchase order deleted successfully');
-      // dispatch(getPurchaseInvoiceList(formattedParams)).unwrap();
+      await dispatch(deletePurchaseInvoice(id)).unwrap();
+      toast.success('Purchase order deleted successfully');
+      dispatch(getPurchaseInvoiceList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -57,14 +57,14 @@ const PurchaseInvoice = () => {
 
   const onBulkDelete = async () => {
     closeDeleteModal();
-    // try {
-    //   await dispatch(bulkDeletePurchaseInvoice(deleteIDs)).unwrap();
-    //   toast.success('Purchase invoice deleted successfully');
-    //   closeDeleteModal();
-    //   await dispatch(getPurchaseInvoiceList(formattedParams)).unwrap();
-    // } catch (error) {
-    //   handleError(error);
-    // }
+    try {
+      await dispatch(bulkDeletePurchaseInvoice(deleteIDs)).unwrap();
+      toast.success('Purchase invoice deleted successfully');
+      closeDeleteModal();
+      await dispatch(getPurchaseInvoiceList(formattedParams)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
   };
 
   const printPurchaseInvoice = async (id) => {
@@ -130,27 +130,125 @@ const PurchaseInvoice = () => {
     },
     {
       title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Good Received Note</p>
-          <AsyncSelect
-            endpoint="/good-received-note"
-            valueKey="good_received_note_id"
-            labelKey="document_identity"
-            className="w-full font-normal"
+        <div>
+          <p>Ship Via</p>
+          <Input
+            className="font-normal"
             size="small"
-            value={params.good_received_note_id}
+            onClick={(e) => e.stopPropagation()}
+            value={params.ship_via}
             onChange={(e) =>
               dispatch(
                 setPurchaseInvoiceListParams({
-                  good_received_note_id: e
+                  ship_via: e.target.value
                 })
               )
             }
           />
         </div>
       ),
-      dataIndex: 'good_received_note',
-      key: 'good_received_note',
+      dataIndex: 'ship_via',
+      key: 'ship_via',
+      sorter: true,
+      width: 180,
+      ellipsis: true
+    },
+    {
+      title: (
+        <div>
+          <p>Vendor</p>
+          <Input
+            className="font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            value={params.supplier_name}
+            onChange={(e) =>
+              dispatch(
+                setPurchaseInvoiceListParams({
+                  supplier_name: e.target.value
+                })
+              )
+            }
+          />
+        </div>
+      ),
+      dataIndex: 'supplier_name',
+      key: 'supplier_name',
+      sorter: true,
+      width: 180,
+      ellipsis: true
+    },
+    {
+      title: (
+        <div>
+          <p>Quotation No</p>
+          <Input
+            className="font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            value={params.quotation_no}
+            onChange={(e) =>
+              dispatch(
+                setPurchaseInvoiceListParams({
+                  quotation_no: e.target.value
+                })
+              )
+            }
+          />
+        </div>
+      ),
+      dataIndex: 'quotation_no',
+      key: 'quotation_no',
+      sorter: true,
+      width: 180,
+      ellipsis: true
+    },
+    {
+      title: (
+        <div>
+          <p>Charge Order No</p>
+          <Input
+            className="font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            value={params.charge_no}
+            onChange={(e) =>
+              dispatch(
+                setPurchaseInvoiceListParams({
+                  charge_no: e.target.value
+                })
+              )
+            }
+          />
+        </div>
+      ),
+      dataIndex: 'charge_no',
+      key: 'charge_no',
+      sorter: true,
+      width: 180,
+      ellipsis: true
+    },
+    {
+      title: (
+        <div>
+          <p>Purchase Order No</p>
+          <Input
+            className="font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            value={params.purchase_order_no}
+            onChange={(e) =>
+              dispatch(
+                setPurchaseInvoiceListParams({
+                  purchase_order_no: e.target.value
+                })
+              )
+            }
+          />
+        </div>
+      ),
+      dataIndex: 'purchase_order_no',
+      key: 'purchase_order_no',
       sorter: true,
       width: 180,
       ellipsis: true
@@ -170,7 +268,7 @@ const PurchaseInvoice = () => {
         <div className="flex items-center gap-2">
           {permissions.edit ? (
             <>
-              <Tooltip title="Print">
+              {/* <Tooltip title="Print">
                 <Button
                   size="small"
                   type="primary"
@@ -178,7 +276,7 @@ const PurchaseInvoice = () => {
                   icon={<FaRegFilePdf size={14} />}
                   // onClick={() => printPurchaseInvoice(purchase_invoice_id)}
                 />
-              </Tooltip>
+              </Tooltip> */}
               <Tooltip title="Edit">
                 <Link to={`/purchase-invoice/edit/${purchase_invoice_id}`}>
                   <Button
@@ -206,7 +304,7 @@ const PurchaseInvoice = () => {
           ) : null}
         </div>
       ),
-      width: 105,
+      width: 75,
       fixed: 'right'
     }
   ];
@@ -215,20 +313,20 @@ const PurchaseInvoice = () => {
     columns.pop();
   }
 
-  // useEffect(() => {
-  //   dispatch(getPurchaseInvoiceList(formattedParams)).unwrap().catch(handleError);
-  // }, [
-  //   params.page,
-  //   params.limit,
-  //   params.sort_column,
-  //   params.sort_direction,
-  //   params.document_date,
-  //   params.customer_id,
-  //   debouncedSearch,
-  //   debouncedPurchaseInvoiceNo,
-  //   debouncedChargeNo,
-  //   debouncedQuotationNo
-  // ]);
+  useEffect(() => {
+    dispatch(getPurchaseInvoiceList(formattedParams)).unwrap().catch(handleError);
+  }, [
+    params.page,
+    params.limit,
+    params.sort_column,
+    params.sort_direction,
+    params.document_date,
+    params.customer_id,
+    debouncedSearch,
+    debouncedPurchaseInvoiceNo,
+    debouncedChargeNo,
+    debouncedQuotationNo
+  ]);
 
   return (
     <>
@@ -246,7 +344,7 @@ const PurchaseInvoice = () => {
             onChange={(e) => dispatch(setPurchaseInvoiceListParams({ search: e.target.value }))}
           />
 
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             {permissions.delete ? (
               <Button
                 type="primary"
@@ -261,7 +359,7 @@ const PurchaseInvoice = () => {
                 <Button type="primary">Add New</Button>
               </Link>
             ) : null}
-          </div>
+          </div> */}
         </div>
 
         <Table
@@ -296,15 +394,7 @@ const PurchaseInvoice = () => {
               })
             );
           }}
-          dataSource={[
-            {
-              purchase_invoice_id: '1',
-              document_date: dayjs(),
-              document_identity: '0001',
-              good_received_note: 'Notes....',
-              created_at: dayjs()
-            }
-          ]}
+          dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
