@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { GoTrash } from 'react-icons/go';
 import { IoCheckmarkDoneCircleSharp } from 'react-icons/io5';
+import { FaFileInvoice } from 'react-icons/fa';
 import { LuClipboardList } from 'react-icons/lu';
 import { HiRefresh } from 'react-icons/hi';
 import { MdOutlineEdit } from 'react-icons/md';
@@ -29,6 +30,8 @@ import {
   setAnalysisChargeOrderID
 } from '../../store/features/chargeOrderSlice';
 import { setChargePoID } from '../../store/features/purchaseOrderSlice';
+
+import { createSaleInvoice } from '../../store/features/saleInvoiceSlice';
 
 const ChargeOrder = () => {
   const navigate = useNavigate();
@@ -349,6 +352,26 @@ const ChargeOrder = () => {
               />
             </Link>
           </Tooltip>
+          <Tooltip title="Sale Invoice">
+            <Button
+              size="small"
+              type="primary"
+              icon={<FaFileInvoice size={14} />}
+              // onClick={() => dispatch(setChargePoID(charge_order_id))}
+              onClick={async () => {
+                try {
+                  const document_date = dayjs().format('YYYY-MM-DD');
+                  await dispatch(
+                    createSaleInvoice({ charge_order_id, document_date })
+                  ).unwrap();
+                  toast.success('Sale invoice created successfully');
+                } catch (error) {
+                  handleError(error);
+                  console.log('error', error);
+                }
+              }}
+            />
+          </Tooltip>
         </div>
       ),
       width: 115,
@@ -428,7 +451,6 @@ const ChargeOrder = () => {
           }
           loading={isListLoading}
           className="event-grouped-table mt-2"
-
           rowKey={(record) =>
             record.isEventHeader ? record.charge_order_id : record.charge_order_id
           }

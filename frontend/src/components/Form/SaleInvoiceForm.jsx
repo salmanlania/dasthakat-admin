@@ -1139,7 +1139,7 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
             navigator.clipboard.writeText(initialFormValues.document_identity);
             toast.success('Copied');
           }}>
-          {mode === 'edit' ? initialFormValues.document_identity : 'AUTO'}
+          {/* {mode === 'edit' ? initialFormValues.document_identity : 'AUTO'} */}
         </span>
       </p>
 

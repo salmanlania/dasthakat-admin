@@ -14,20 +14,16 @@ import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
 import {
-  bulkDeletePurchaseInvoice,
-  deletePurchaseInvoice,
-  getPurchaseInvoiceForPrint,
-  getPurchaseInvoiceList,
-  setPurchaseInvoiceDeleteIDs,
-  setPurchaseInvoiceListParams
-} from '../../store/features/purchaseInvoiceSlice';
-import { createPurchaseInvoicePrint } from '../../utils/prints/purchase-invoice-print';
+  getSaleInvoiceList,
+  setSaleInvoiceListParams
+} from '../../store/features/saleInvoiceSlice';
+// import { createPurchaseInvoicePrint } from '../../utils/prints/purchase-invoice-print';
 
 const SaleInvoice = () => {
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.purchaseInvoice
+    (state) => state.saleInvoice
   );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.purchase_invoice;
@@ -83,13 +79,13 @@ const SaleInvoice = () => {
     {
       title: (
         <div>
-          <p>Purchase Invoice Date</p>
+          <p>Sale Invoice Date</p>
           <div onClick={(e) => e.stopPropagation()}>
             <DatePicker
               size="small"
               value={params.document_date}
               className="font-normal"
-              onChange={(date) => dispatch(setPurchaseInvoiceListParams({ document_date: date }))}
+              onChange={(date) => dispatch(setSaleInvoiceListParams({ document_date: date }))}
               format="MM-DD-YYYY"
             />
           </div>
@@ -106,7 +102,7 @@ const SaleInvoice = () => {
     {
       title: (
         <div>
-          <p>Purchase Invoice No</p>
+          <p>Sale Invoice No</p>
           <Input
             className="font-normal"
             size="small"
@@ -114,7 +110,7 @@ const SaleInvoice = () => {
             value={params.document_identity}
             onChange={(e) =>
               dispatch(
-                setPurchaseInvoiceListParams({
+                setSaleInvoiceListParams({
                   document_identity: e.target.value
                 })
               )
@@ -130,27 +126,50 @@ const SaleInvoice = () => {
     },
     {
       title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Good Received Note</p>
-          <AsyncSelect
-            endpoint="/good-received-note"
-            valueKey="good_received_note_id"
-            labelKey="document_identity"
-            className="w-full font-normal"
+        <div>
+          <p>Quoation No</p>
+          <Input
+            className="font-normal"
             size="small"
-            value={params.good_received_note_id}
+            onClick={(e) => e.stopPropagation()}
+            value={params.quotation_no}
             onChange={(e) =>
               dispatch(
-                setPurchaseInvoiceListParams({
-                  good_received_note_id: e
+                setSaleInvoiceListParams({
+                  quotation_no: e.target.value
                 })
               )
             }
           />
         </div>
       ),
-      dataIndex: 'good_received_note',
-      key: 'good_received_note',
+      dataIndex: 'quotation_no',
+      key: 'quotation_no',
+      sorter: true,
+      width: 180,
+      ellipsis: true
+    },
+    {
+      title: (
+        <div>
+          <p>Charge No</p>
+          <Input
+            className="font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            value={params.charge_no}
+            onChange={(e) =>
+              dispatch(
+                setSaleInvoiceListParams({
+                  charge_no: e.target.value
+                })
+              )
+            }
+          />
+        </div>
+      ),
+      dataIndex: 'charge_no',
+      key: 'charge_no',
       sorter: true,
       width: 180,
       ellipsis: true
@@ -166,11 +185,11 @@ const SaleInvoice = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_, { purchase_invoice_id }) => (
-        <div className="flex items-center gap-2">
+      render: (_, { sale_invoice_id }) => (
+        <div className="flex justify-center items-center gap-2">
           {permissions.edit ? (
             <>
-              <Tooltip title="Print">
+              {/* <Tooltip title="Print">
                 <Button
                   size="small"
                   type="primary"
@@ -178,9 +197,9 @@ const SaleInvoice = () => {
                   icon={<FaRegFilePdf size={14} />}
                   // onClick={() => printPurchaseInvoice(purchase_invoice_id)}
                 />
-              </Tooltip>
+              </Tooltip> */}
               <Tooltip title="Edit">
-                <Link to={`/purchase-invoice/edit/${purchase_invoice_id}`}>
+                <Link to={`/sale-invoice/edit/${sale_invoice_id}`}>
                   <Button
                     size="small"
                     type="primary"
@@ -191,7 +210,7 @@ const SaleInvoice = () => {
               </Tooltip>
             </>
           ) : null}
-          {permissions.delete ? (
+          {/* {permissions.delete ? (
             <Tooltip title="Delete">
               <Popconfirm
                 title="Are you sure you want to delete?"
@@ -203,10 +222,10 @@ const SaleInvoice = () => {
                 <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
               </Popconfirm>
             </Tooltip>
-          ) : null}
+          ) : null} */}
         </div>
       ),
-      width: 105,
+      width: 70,
       fixed: 'right'
     }
   ];
@@ -215,20 +234,20 @@ const SaleInvoice = () => {
     columns.pop();
   }
 
-  // useEffect(() => {
-  //   dispatch(getPurchaseInvoiceList(formattedParams)).unwrap().catch(handleError);
-  // }, [
-  //   params.page,
-  //   params.limit,
-  //   params.sort_column,
-  //   params.sort_direction,
-  //   params.document_date,
-  //   params.customer_id,
-  //   debouncedSearch,
-  //   debouncedPurchaseInvoiceNo,
-  //   debouncedChargeNo,
-  //   debouncedQuotationNo
-  // ]);
+  useEffect(() => {
+    dispatch(getSaleInvoiceList(formattedParams)).unwrap().catch(handleError);
+  }, [
+    params.page,
+    params.limit,
+    params.sort_column,
+    params.sort_direction,
+    params.document_date,
+    params.customer_id,
+    debouncedSearch,
+    debouncedPurchaseInvoiceNo,
+    debouncedChargeNo,
+    debouncedQuotationNo
+  ]);
 
   return (
     <>
@@ -243,10 +262,10 @@ const SaleInvoice = () => {
             placeholder="Search..." allowClear
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) => dispatch(setPurchaseInvoiceListParams({ search: e.target.value }))}
+            onChange={(e) => dispatch(setSaleInvoiceListParams({ search: e.target.value }))}
           />
 
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             {permissions.delete ? (
               <Button
                 type="primary"
@@ -261,7 +280,7 @@ const SaleInvoice = () => {
                 <Button type="primary">Add New</Button>
               </Link>
             ) : null}
-          </div>
+          </div> */}
         </div>
 
         <Table
@@ -288,7 +307,7 @@ const SaleInvoice = () => {
           }}
           onChange={(page, _, sorting) => {
             dispatch(
-              setPurchaseInvoiceListParams({
+              setSaleInvoiceListParams({
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
@@ -296,15 +315,7 @@ const SaleInvoice = () => {
               })
             );
           }}
-          dataSource={[
-            {
-              purchase_invoice_id: '1',
-              document_date: dayjs(),
-              document_identity: '0001',
-              good_received_note: 'Notes....',
-              created_at: dayjs()
-            }
-          ]}
+          dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{

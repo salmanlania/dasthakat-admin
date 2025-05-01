@@ -265,7 +265,7 @@ const PurchaseInvoice = () => {
       title: 'Action',
       key: 'action',
       render: (_, { purchase_invoice_id }) => (
-        <div className="flex items-center gap-2">
+        <div className="flex justify-end items-center gap-2">
           {permissions.edit ? (
             <>
               {/* <Tooltip title="Print">
@@ -289,7 +289,7 @@ const PurchaseInvoice = () => {
               </Tooltip>
             </>
           ) : null}
-          {permissions.delete ? (
+          {/* {permissions.delete ? (
             <Tooltip title="Delete">
               <Popconfirm
                 title="Are you sure you want to delete?"
@@ -301,7 +301,7 @@ const PurchaseInvoice = () => {
                 <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
               </Popconfirm>
             </Tooltip>
-          ) : null}
+          ) : null} */}
         </div>
       ),
       width: 75,

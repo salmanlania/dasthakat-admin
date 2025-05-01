@@ -20,6 +20,7 @@ import pickListReducer from './features/pickListSlice';
 import portReducer from './features/portSlice';
 import productReducer from './features/productSlice';
 import purchaseInvoiceReducer from './features/purchaseInvoiceSlice';
+import saleInvoiceReducer from './features/saleInvoiceSlice';
 import purchaseOrderReducer from './features/purchaseOrderSlice';
 import quotationReducer from './features/quotationSlice';
 import salesmanReducer from './features/salesmanSlice';
@@ -73,6 +74,7 @@ const rootReducer = combineReducers({
   product: productReducer,
   purchaseOrder: purchaseOrderReducer,
   purchaseInvoice: purchaseInvoiceReducer,
+  saleInvoice: saleInvoiceReducer,
   goodsReceivedNote: goodsReceivedNoteReducer,
   quotation: quotationReducer,
   chargeOrder: chargeOrderReducer,

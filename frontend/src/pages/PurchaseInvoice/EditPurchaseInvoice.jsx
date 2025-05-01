@@ -20,17 +20,17 @@ const EditPurchaseInvoice = () => {
 
   const onPurchaseInvoiceUpdate = async (data) => {
     try {
-      // await dispatch(updatePurchaseInvoice({ id, data })).unwrap();
-      // toast.success('Purchase invoice updated successfully');
+      await dispatch(updatePurchaseInvoice({ id, data })).unwrap();
+      toast.success('Purchase invoice updated successfully');
       navigate('/purchase-invoice');
     } catch (error) {
       handleError(error);
     }
   };
 
-  // useEffect(() => {
-  //   dispatch(getPurchaseInvoice(id)).unwrap().catch(handleError);
-  // }, []);
+  useEffect(() => {
+    dispatch(getPurchaseInvoice(id)).unwrap().catch(handleError);
+  }, []);
 
   return (
     <>
