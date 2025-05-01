@@ -178,3 +178,6 @@ VALUES
         'sale_invoice',
         'sale_invoice_id'
     );
+
+ALTER TABLE `purchase_invoice_detail`
+ADD COLUMN `purchase_order_detail_id` CHAR(36) DEFAULT NULL AFTER `charge_order_detail_id`;
