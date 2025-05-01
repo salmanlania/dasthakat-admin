@@ -285,7 +285,7 @@ class JobOrderController extends Controller
 				$certificateData['sort_order'],
 				Carbon::now()->format('m/Y')
 			);
-			if (!JobOrderDetailCertificate::where('job_order_id', $jobOrderId)->where('type', $Category)->exist()) {
+			if (!JobOrderDetailCertificate::where('job_order_id', $jobOrderId)->where('type', $Category)->exists()) {
 				JobOrderDetailCertificate::create($certificateData);
 			}
 		}
