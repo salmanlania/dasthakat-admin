@@ -199,9 +199,12 @@ class PurchaseInvoiceController extends Controller
 		// 6. Finalize and Save Invoice
 		$invoiceData['total_quantity'] = $totalQuantity;
 		$invoiceData['total_amount'] = $totalAmount;
-		PurchaseInvoice::create($invoiceData);
-
-		return $this->jsonResponse(['purchase_invoice_id' => $uuid], 200, "Add Purchase Invoice Successfully!");
+		if ($totalQuantity > 0) {
+			PurchaseInvoice::create($invoiceData);
+			return $this->jsonResponse(['purchase_invoice_id' => $uuid], 200, "Add Purchase Invoice Successfully!");
+		} else {
+			return $this->jsonResponse(['purchase_invoice_id' => $uuid], 400, "Cannot generate invoice: No items with available quantity.");
+		}
 	}
 
 

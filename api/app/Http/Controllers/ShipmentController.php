@@ -20,6 +20,7 @@ use App\Models\Supplier;
 use App\Models\Technician;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use PDO;
 
 class ShipmentController extends Controller
 {
@@ -151,14 +152,15 @@ class ShipmentController extends Controller
 					'unit',
 					'supplier',
 				])
-				->whereNull('shipment_detail_id')
 				->whereHas('charge_order', fn($q) => $q->where('event_id', $request->event_id))
 				->where('charge_order_id', $request->charge_order_id)
 				// ->when($request->charge_order_id, fn($q) => $q->where('charge_order_id', $request->charge_order_id))
 				->where('product_type_id', $request->type === "DO" ? '!=' : '=', 1)
+				->where('shipment_detail_id', "")
 				->orderBy('sort_order');
 
 			$chargeOrderDetails = $query->get();
+			// return $this->jsonResponse($chargeOrderDetails, , "View Shipment Order");
 
 			if ($chargeOrderDetails->isEmpty()) {
 				return $this->jsonResponse('No Items Found For Shipment', 404, "No Data Found!");
@@ -167,7 +169,7 @@ class ShipmentController extends Controller
 
 			// Use collection methods for transformation
 			$shipmentDetails = $chargeOrderDetails
-				// ->filter(fn($item) => $this->getShipmentQuantity($item) > 0)
+				->filter(fn($item) => $this->getPickedQuantity($item) > 0)
 				->groupBy('charge_order_id')
 				->map(function ($group, $key) {
 					$firstItem = $group->first();
@@ -183,7 +185,7 @@ class ShipmentController extends Controller
 							'product_description' => $item->product_description,
 							'description' => $item->description,
 							'internal_notes' => $item->internal_notes,
-							'available_quantity' => $this->getShipmentQuantity($item),
+							'available_quantity' => $this->getPickedQuantity($item),
 							'quantity' => $item->quantity,
 							'unit_id' => $item->unit_id,
 							'unit_name' => $item->unit?->name,
@@ -247,9 +249,9 @@ class ShipmentController extends Controller
 			$query->where('event_id', $request->event_id)
 				->whereIn('charge_order_id', $chargeOrderIds);
 		})
-			->whereNull('shipment_detail_id') // Ensure it's not already shipped
 			->whereIn('charge_order_detail_id', $chargeOrderDetailIds)
 			->when($request->type == "DO", fn($query) => $query->where('product_type_id', '!=', 1), fn($query) => $query->where('product_type_id', 1))
+			->where('shipment_detail_id', "")
 			->orderBy('sort_order')
 			->get();
 		if ($chargeOrderDetails->isEmpty()) {
@@ -258,24 +260,26 @@ class ShipmentController extends Controller
 		// Process Shipment Details
 		$shipmentDetails = [];
 		foreach ($chargeOrderDetails as $index => $detail) {
-			$shipmentDetails[] = [
-				'shipment_id'           => $uuid,
-				'shipment_detail_id'    => $this->get_uuid(),
-				'sort_order'            => $index + 1,
-				'charge_order_id'       => $detail->charge_order_id,
-				'charge_order_detail_id' => $detail->charge_order_detail_id,
-				'product_id'            => $detail->product_id,
-				'product_type_id'       => $detail->product_type_id,
-				'product_name'          => $detail->product_name,
-				'product_description'   => $detail->product_description,
-				'description'           => $detail->description,
-				'internal_notes'        => $detail->internal_notes,
-				'quantity'              => $this->getShipmentQuantity($detail),
-				'unit_id'               => $detail->unit_id,
-				'supplier_id'           => $detail->supplier_id,
-				'created_at'            => Carbon::now(),
-				'created_by'            => $request->login_user_id,
-			];
+			if ($this->getPickedQuantity($detail) > 0 ) {
+				$shipmentDetails[] = [
+					'shipment_id'           => $uuid,
+					'shipment_detail_id'    => $this->get_uuid(),
+					'sort_order'            => $index + 1,
+					'charge_order_id'       => $detail->charge_order_id,
+					'charge_order_detail_id' => $detail->charge_order_detail_id,
+					'product_id'            => $detail->product_id,
+					'product_type_id'       => $detail->product_type_id,
+					'product_name'          => $detail->product_name,
+					'product_description'   => $detail->product_description,
+					'description'           => $detail->description,
+					'internal_notes'        => $detail->internal_notes,
+					'quantity'              => $this->getPickedQuantity($detail),
+					'unit_id'               => $detail->unit_id,
+					'supplier_id'           => $detail->supplier_id,
+					'created_at'            => Carbon::now(),
+					'created_by'            => $request->login_user_id,
+				];
+			}
 		}
 
 		if (empty($shipmentDetails)) {
