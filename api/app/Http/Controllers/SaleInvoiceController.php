@@ -156,7 +156,7 @@ class SaleInvoiceController extends Controller
 					continue;
 				}
 
-				$actualQty = $this->getShipmentQuantity($detail->charge_order_detail_id) ?? 0;
+				$actualQty = $this->getShipmentQuantity(['charge_order_detail_id'=>$detail->charge_order_detail_id]) ?? 0;
 				if ($actualQty <= 0) continue;
 
 				$amount = $detail->rate * $actualQty;
