@@ -21,10 +21,12 @@ class PurchaseInvoiceController extends Controller
 	{
 		$supplier_id = $request->input('supplier_id', '');
 		$document_identity = $request->input('document_identity', '');
+		$ship_via = $request->input('ship_via', '');
 		$document_date = $request->input('document_date', '');
 		$required_date = $request->input('required_date', '');
-		$quotation_id = $request->input('quotation_id', '');
-		$charge_order_id = $request->input('charge_order_id', '');
+		$quotation_no = $request->input('quotation_no', '');
+		$purchase_order_no = $request->input('purchase_order_no', '');
+		$charge_no = $request->input('charge_no', '');
 		$purchase_order_id = $request->input('purchase_order_id', '');
 
 		$search = $request->input('search', '');
@@ -42,9 +44,11 @@ class PurchaseInvoiceController extends Controller
 
 		if (!empty($supplier_id)) $data = $data->where('purchase_invoice.supplier_id', '=',  $supplier_id);
 		if (!empty($purchase_order_id)) $data = $data->where('purchase_invoice.purchase_order_id', '=',  $purchase_order_id);
-		if (!empty($quotation_id)) $data = $data->where('purchase_invoice.quotation_id', '=',  $quotation_id);
-		if (!empty($charge_order_id)) $data = $data->where('purchase_invoice.charge_order_id', '=',  $charge_order_id);
+		if (!empty($quotation_no)) $data = $data->where('q.document_identity', 'like',  '%' . $quotation_no . '%');
+		if (!empty($charge_no)) $data = $data->where('co.document_identity', 'like', '%' . $charge_no . '%');
+		if (!empty($purchase_order_no)) $data = $data->where('po.document_identity', 'like', '%' . $purchase_order_no . '%');
 		if (!empty($document_identity)) $data = $data->where('purchase_invoice.document_identity', 'like', '%' . $document_identity . '%');
+		if (!empty($ship_via)) $data = $data->where('po.ship_via', 'like', '%' . $ship_via . '%');
 		if (!empty($document_date)) $data = $data->where('purchase_invoice.document_date', '=',  $document_date);
 		if (!empty($required_date)) $data = $data->where('purchase_invoice.required_date', '=',  $required_date);
 
@@ -53,6 +57,7 @@ class PurchaseInvoiceController extends Controller
 			$data = $data->where(function ($query) use ($search) {
 				$query
 					->where('s.name', 'like', '%' . $search . '%')
+					->OrWhere('po.ship_via', 'like', '%' . $search . '%')
 					->OrWhere('co.document_identity', 'like', '%' . $search . '%')
 					->OrWhere('q.document_identity', 'like', '%' . $search . '%')
 					->OrWhere('po.document_identity', 'like', '%' . $search . '%')
@@ -182,7 +187,7 @@ class PurchaseInvoiceController extends Controller
 				'description'                => $detail->description ?? "",
 				'vpart'                      => $detail->vpart ?? "",
 				'unit_id'                    => $detail->unit_id ?? "",
-			'quantity'                   => $grnQty,
+				'quantity'                   => $grnQty,
 				'rate'                       => $detail->rate ?? 0,
 				'amount'                     => $amount,
 				'vendor_notes'               => $detail->vendor_notes ?? "",

@@ -137,7 +137,7 @@ class SaleInvoiceController extends Controller
 			'document_no'       => $document['document_no'] ?? "",
 			'document_prefix'   => $document['document_prefix'] ?? "",
 			'document_identity' => $document['document_identity'] ?? "",
-			'document_date'     => $chargeOrder->document_date ?? "",
+			'document_date'     => $request->document_date ?? "",
 			'charge_order_id'   => $request->charge_order_id,
 			'created_at'        => Carbon::now(),
 			'created_by'        => $request->login_user_id,
@@ -147,41 +147,43 @@ class SaleInvoiceController extends Controller
 		$totalQuantity = 0;
 		$totalAmount = 0;
 		$index = 0;
+		if ($chargeOrder->charge_order_detail) {
 
-		foreach ($chargeOrder->charge_order_detail as $detail) {
-			if (SaleInvoiceDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->exists()) {
-				continue;
+			foreach ($chargeOrder->charge_order_detail as $detail) {
+				if (SaleInvoiceDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->exists()) {
+					continue;
+				}
+
+				$actualQty = $this->getShipmentQuantity($detail->charge_order_detail_id) ?? 0;
+				if ($actualQty <= 0) continue;
+
+				$amount = $detail->rate * $actualQty;
+				$totalQuantity += $actualQty;
+				$totalAmount += $amount;
+
+				SaleInvoiceDetail::create([
+					'sale_invoice_detail_id'   => $this->get_uuid(),
+					'sale_invoice_id'          => $uuid,
+					'charge_order_detail_id'   => $detail->charge_order_detail_id,
+					'sort_order'               => $index++,
+					'product_id'               => $detail->product_id,
+					'product_name'             => $detail->product_name,
+					'product_description'      => $detail->product_description,
+					'description'              => $detail->description,
+					'unit_id'                  => $detail->unit_id,
+					'quantity'                 => $actualQty,
+					'rate'                     => $detail->rate,
+					'amount'                   => $amount,
+					'created_at'               => Carbon::now(),
+					'created_by'               => $request->login_user_id,
+				]);
 			}
 
-			$actualQty = $this->getShipmentQuantity($detail->charge_order_detail_id) ?? 0;
-			if ($actualQty <= 0) continue;
-
-			$amount = $detail->rate * $actualQty;
-			$totalQuantity += $actualQty;
-			$totalAmount += $amount;
-
-			SaleInvoiceDetail::create([
-				'sale_invoice_detail_id'   => $this->get_uuid(),
-				'sale_invoice_id'          => $uuid,
-				'charge_order_detail_id'   => $detail->charge_order_detail_id,
-				'sort_order'               => $index++,
-				'product_id'               => $detail->product_id,
-				'product_name'             => $detail->product_name,
-				'product_description'      => $detail->product_description,
-				'description'              => $detail->description,
-				'unit_id'                  => $detail->unit_id,
-				'quantity'                 => $actualQty,
-				'rate'                     => $detail->rate,
-				'amount'                   => $amount,
-				'created_at'               => Carbon::now(),
-				'created_by'               => $request->login_user_id,
-			]);
+			// 6. Finalize Invoice
+			$invoiceData['total_quantity'] = $totalQuantity;
+			$invoiceData['total_amount']   = $totalAmount;
+			SaleInvoice::create($invoiceData);
 		}
-
-		// 6. Finalize Invoice
-		$invoiceData['total_quantity'] = $totalQuantity;
-		$invoiceData['total_amount']   = $totalAmount;
-		SaleInvoice::create($invoiceData);
 
 		return $this->jsonResponse(['sale_invoice_id' => $uuid], 200, "Add Sale Invoice Successfully!");
 	}
