@@ -150,6 +150,8 @@ class SaleInvoiceController extends Controller
 		if ($chargeOrder->charge_order_detail) {
 
 			foreach ($chargeOrder->charge_order_detail as $detail) {
+				if($detail->charge_order_detail_id){
+
 				if (SaleInvoiceDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->exists()) {
 					continue;
 				}
@@ -177,6 +179,7 @@ class SaleInvoiceController extends Controller
 					'created_at'               => Carbon::now(),
 					'created_by'               => $request->login_user_id,
 				]);
+			}
 			}
 
 			// 6. Finalize Invoice
