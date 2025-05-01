@@ -18,6 +18,7 @@ class PurchaseInvoiceDetail extends Model
         "purchase_invoice_detail_id",
         "sort_order",
         "charge_order_detail_id",
+        "purchase_order_detail_id",
         "product_id",
         "product_name",
         "product_description",
