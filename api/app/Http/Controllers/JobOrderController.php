@@ -338,11 +338,13 @@ class JobOrderController extends Controller
 
 
 		foreach ($request->details as $detail) {
-			JobOrderDetail::where('job_order_detail_id', $detail['job_order_detail_id'])
-				->update([
-					'status' => $detail['status'] ?? 0,
-					'updated_at' => Carbon::now()
-				]);
+			$detail = JobOrderDetail::where('job_order_detail_id', $detail['job_order_detail_id'])->first();
+			// JobOrderDetail::where('job_order_detail_id', $detail['job_order_detail_id'])
+			// 	->update([
+			// 		'status' => $detail['status'] ?? 0,
+			// 		'updated_at' => Carbon::now()
+			// 	]);
+			$this->createCertificate($id, $detail['job_order_detail_id'], $detail, $request->login_user_id);
 		}
 
 		return $this->jsonResponse(['job_order_id' => $id], 200, "Update Job Order Successfully!");
