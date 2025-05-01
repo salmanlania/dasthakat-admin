@@ -161,3 +161,20 @@ CREATE TABLE `sale_invoice_detail` (
     `updated_by` CHAR(36) NULL,
     PRIMARY KEY (`sale_invoice_detail_id`)
 ) ;
+
+INSERT INTO
+    const_document_type (
+        document_type_id,
+        document_name,
+        document_prefix,
+        table_name,
+        primary_key
+    )
+VALUES
+    (
+        51,
+        'Sale Invoice',
+        '{BC}/SI-',
+        'sale_invoice',
+        'sale_invoice_id'
+    );
