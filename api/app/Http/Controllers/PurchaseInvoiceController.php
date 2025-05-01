@@ -158,7 +158,7 @@ class PurchaseInvoiceController extends Controller
 		$totalAmount = 0;
 		$sortIndex = 0;
 
-		foreach ($request->purchase_order_detail as $detail) {
+		foreach ($purchaseOrder->purchase_order_detail as $detail) {
 			if (PurchaseInvoiceDetail::where('purchase_order_detail_id', $detail->purchase_order_detail_id)->exists()) {
 				continue;
 			}
