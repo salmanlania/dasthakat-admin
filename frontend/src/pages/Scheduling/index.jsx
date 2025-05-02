@@ -413,15 +413,44 @@ const exportPdf = async () => {
       sorter: false,
       width: 200,
       ellipsis: true,
-      render: (_, { ports }) => {
-        if (!ports || !Array.isArray(ports)) return '';
+      render: (_, { event_id, ports }) => {       
+        return ( <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+        <AsyncSelect
+          endpoint="/port"
+          multiple
+          valueKey="port_id"
+          labelKey="name"
+          labelInValue
+          disabled={!permissions.update}
+          defaultValue={
+            ports[0]
+              ? {
+                  value: ports[0].port_id,
+                  label: ports[0].name
+                }
+              : null
+          }
+          onChange={(selected) =>
+            updateValue(event_id, 'port_id', selected ? selected.value : null)
+          }
+          className="w-[90%]"
+          size="small"
+          style={{
+            width: '90%',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}
+        />
+      </div>)
+        // if (!ports || !Array.isArray(ports)) return '';
 
-        const portNames = ports.map((port) => port.name || port).join(', ');
-        return (
-          <span className="line-clamp-1 block overflow-hidden text-ellipsis whitespace-nowrap">
-            {portNames}
-          </span>
-        );
+        // const portNames = ports.map((port) => port.name || port).join(', ');
+        // return (
+        //   <span className="line-clamp-1 block overflow-hidden text-ellipsis whitespace-nowrap">
+        //     {portNames}
+        //   </span>
+        // );
       }
     },
     {

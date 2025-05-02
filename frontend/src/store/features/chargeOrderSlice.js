@@ -454,10 +454,7 @@ export const chargeOrderSlice = createSlice({
     addCase(getChargeOrder.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
-      console.log(data.technicians.map((technician) => ({
-        value: technician.user_id,
-        label: technician.user_name
-      })))
+      
       state.initialFormValues = {
         document_identity: data.document_identity,
         document_date: data.document_date ? dayjs(data.document_date) : null,

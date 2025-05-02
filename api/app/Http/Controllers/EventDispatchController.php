@@ -44,9 +44,9 @@ class EventDispatchController extends Controller
 		if ($event_time = $request->input('event_time')) {
 			$query->where('event_dispatch.event_time', $event_time);
 		}
-		// if ($port_id = $request->input('port_id')) {
-		// 	$query->whereTime('p.port_id', $port_id);
-		// }
+		if ($port_id = $request->input('port_id')) {
+			$query->where('p.port_id', $port_id);
+		}
 		if ($event_id = $request->input('event_id')) {
 			$query->where('event_dispatch.event_id', $event_id);
 		}
@@ -165,7 +165,7 @@ class EventDispatchController extends Controller
 			$detail = ChargeOrder::where('event_id', $value->event_id)->get();
 			$portsData = Quotation::whereIn('document_identity', $detail->pluck('ref_document_identity'))->pluck('port_id')->toArray();
 
-			$value->ports = Port::whereIn('port_id', $portsData)->pluck('name')->toArray();
+			$value->ports = Port::whereIn('port_id', $portsData)->get();
 
 
 			$technicianIds = $value->technician_id;
@@ -202,6 +202,9 @@ class EventDispatchController extends Controller
 			if ($request->has('technician_notes')) {
 				$chargeOrder->technician_notes = $request->technician_notes;
 			}
+			if ($request->has('port_id')) {
+				$chargeOrder->port_id = $request->port_id;
+			}
 			if ($request->has('agent_id')) {
 				$chargeOrder->agent_id = $request->agent_id;
 			}
@@ -219,6 +222,9 @@ class EventDispatchController extends Controller
 		}
 		if ($request->has('technician_id')) {
 			$dispatch->technician_id = $request->technician_id;
+		}
+		if ($request->has('port_id')) {
+			$dispatch->port_id = $request->port_id;
 		}
 		if ($request->has('technician_notes')) {
 			$dispatch->technician_notes = $request->technician_notes;

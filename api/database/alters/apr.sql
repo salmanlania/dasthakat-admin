@@ -181,3 +181,8 @@ VALUES
 
 ALTER TABLE `purchase_invoice_detail`
 ADD COLUMN `purchase_order_detail_id` CHAR(36) DEFAULT NULL AFTER `charge_order_detail_id`;
+
+ALTER TABLE `event_dispatch`
+MODIFY COLUMN `technician_id` TEXT DEFAULT NULL AFTER `event_id`,
+ADD COLUMN `port_id` CHAR(36) DEFAULT NULL AFTER `event_id`;
+
