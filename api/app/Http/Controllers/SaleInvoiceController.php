@@ -80,6 +80,7 @@ class SaleInvoiceController extends Controller
 			"charge_order.agent",
 			"charge_order.port",
 			"charge_order.quotation",
+			"charge_order.quotation.payment",
 		)
 			->where('sale_invoice_id', $id)->first();
 
