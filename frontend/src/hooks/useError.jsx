@@ -21,8 +21,14 @@ const useError = () => {
         toast.error('Please check your internet connection.', {
           icon: <CiWifiOff size={22} strokeWidth={0.4} color="red" />
         });
+    } else if (error?.response?.data?.status_code === 500) {
+      showMessage && toast.error(error?.response?.data?.message || `We're unable to proceed at the moment. Please get in touch with your administrator for support.`);
     } else {
-      showMessage && toast.error(error?.response?.data?.error || `We're unable to proceed at the moment. Please get in touch with your administrator for support.`);
+      showMessage &&
+        toast.error(
+          error?.response?.data?.error ||
+            `We're unable to proceed at the moment. Please get in touch with your administrator for support.`
+        );
     }
   };
 

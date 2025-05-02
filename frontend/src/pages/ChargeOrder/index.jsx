@@ -366,9 +366,7 @@ const ChargeOrder = () => {
                   ).unwrap();
                   toast.success('Sale invoice created successfully');
                 } catch (error) {
-                  // handleError(error);
-                  toast.error(error.message)
-                  console.log('error', error);
+                  handleError(error);
                 }
               }}
             />

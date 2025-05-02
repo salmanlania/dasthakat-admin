@@ -93,7 +93,8 @@ const ChargeOrderModal = () => {
                   return Promise.resolve();
                 },
               },
-            ]}>
+            ]}
+           >
             <DebouncedCommaSeparatedInput
               value={quantity}
               onChange={(value) =>
