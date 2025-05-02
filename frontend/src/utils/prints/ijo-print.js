@@ -57,16 +57,16 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
   doc.setLineWidth(0.5);
   doc.line(x - textWidth / 2, underlineY, x + textWidth / 2, underlineY);
 
-  doc.setFillColor(235, 241, 222);
-  doc.setDrawColor(196, 189, 151);
-  doc.setLineWidth(0.1);
-  doc.rect(153, 32, 56, 9, 'FD');
+  // doc.setFillColor(235, 241, 222);
+  // doc.setDrawColor(196, 189, 151);
+  // doc.setLineWidth(0.1);
+  // doc.rect(153, 32, 56, 9, 'FD');
 
   // Add text inside the box
-  doc.setTextColor(200, 0, 0); // Red color
-  doc.setFont('times', 'bold');
-  doc.setFontSize(14);
-  doc.text('V.1', 181, 39, { align: 'center' })
+  // doc.setTextColor(200, 0, 0); // Red color
+  // doc.setFont('times', 'bold');
+  // doc.setFontSize(14);
+  // doc.text('V.1', 181, 39, { align: 'center' })
 
   // Table 1
   const table1Row = [
@@ -502,6 +502,16 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     ]
   ];
 
+  const techNotes = data?.job_order_detail?.flatMap(item => {
+    const chargeOrder = item?.charge_order;
+    if (Array.isArray(chargeOrder)) {
+      return chargeOrder.map(c => c?.technician_notes);
+    } else if (chargeOrder) {
+      return chargeOrder.technician_notes;
+    }
+    return [];
+  }).filter(Boolean);
+
   if (data?.certificates && data.certificates.length) {
     data.certificates.forEach((certificate) => {
       table4Row.push([
@@ -515,17 +525,30 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
           content: certificate?.certificate_number || ''
         },
         {
-          content: 'Work Order Complied By',
+          content: 'Technician Notes',
           styles: {
-            fillColor: 'ebf1de' // gray color
+            fillColor: 'ebf1de',
+            textColor: '#244062',
           }
         },
         {
-          content: 'Muhammad Ali',
+          content: techNotes,
           styles: {
-            textColor: '#d51902' // Red Color
+            halign: 'left'
           }
         }
+        // {
+        //   content: 'Work Order Complied By',
+        //   styles: {
+        //     fillColor: 'ebf1de' // gray color
+        //   }
+        // },
+        // {
+        //   content: 'Muhammad Ali',
+        //   styles: {
+        //     textColor: '#d51902' // Red Color
+        //   }
+        // }
       ]);
     });
   } else {
@@ -536,40 +559,44 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       {
         content: ''
       },
+      // {
+      //   content: ''
+      // },
+      // {
+      //   content: ''
+      // }
       {
-        content: ''
+        content: 'Technician Notes',
+        styles: {
+          fillColor: 'ebf1de',
+          textColor: '#244062',
+        }
       },
       {
-        content: ''
+        content: techNotes ? techNotes : "",
+        // styles: {
+        //   halign: 'left'
+        // }
       }
     ]);
   }
-  const techNotes = data?.job_order_detail?.flatMap(item => {
-    const chargeOrder = item?.charge_order;
-    if (Array.isArray(chargeOrder)) {
-      return chargeOrder.map(c => c?.technician_notes);
-    } else if (chargeOrder) {
-      return chargeOrder.technician_notes;
-    }
-    return [];
-  }).filter(Boolean);
 
-  table4Row.push([
-    {
-      content: 'Technician Notes',
-      styles: {
-        fillColor: 'ebf1de',
-        textColor: '#244062',
-      }
-    },
-    {
-      content: techNotes,
-      colSpan: 3,
-      styles: {
-        halign: 'left'
-      }
-    }
-  ]);
+  // table4Row.push([
+  //   {
+  //     content: 'Technician Notes',
+  //     styles: {
+  //       fillColor: 'ebf1de',
+  //       textColor: '#244062',
+  //     }
+  //   },
+  //   {
+  //     content: techNotes,
+  //     colSpan: 3,
+  //     styles: {
+  //       halign: 'left'
+  //     }
+  //   }
+  // ]);
 
   doc.autoTable({
     startY: doc.previousAutoTable.finalY,

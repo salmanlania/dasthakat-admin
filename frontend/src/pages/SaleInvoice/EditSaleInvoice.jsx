@@ -6,10 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import SaleInvoiceForm from '../../components/Form/SaleInvoiceForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
-import {
-  getPurchaseInvoice,
-  updatePurchaseInvoice
-} from '../../store/features/purchaseInvoiceSlice';
+import { getSaleInvoice } from '../../store/features/saleInvoiceSlice';
 
 const EditSaleInvoice = () => {
   const dispatch = useDispatch();
@@ -28,9 +25,9 @@ const EditSaleInvoice = () => {
     }
   };
 
-  // useEffect(() => {
-  //   dispatch(getPurchaseInvoice(id)).unwrap().catch(handleError);
-  // }, []);
+  useEffect(() => {
+    dispatch(getSaleInvoice(id)).unwrap().catch(handleError);
+  }, []);
 
   return (
     <>

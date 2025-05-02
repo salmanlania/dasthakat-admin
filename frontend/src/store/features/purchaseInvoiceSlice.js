@@ -98,7 +98,7 @@ const initialState = {
   deleteIDs: [],
   rebatePercentage: null,
   salesmanPercentage: null,
-  purchaseInvoiceDetails: [],
+  purchaseOrderDetails: [],
   params: {
     page: 1,
     limit: 50,
@@ -142,26 +142,26 @@ export const purchaseInvoiceSlice = createSlice({
 
       // If index is provided, insert the new detail after that index, otherwise push it to the end
       if (index || index === 0) {
-        state.purchaseInvoiceDetails.splice(index + 1, 0, newDetail);
+        state.purchaseOrderDetails.splice(index + 1, 0, newDetail);
       } else {
-        state.purchaseInvoiceDetails.push(newDetail);
+        state.purchaseOrderDetails.push(newDetail);
       }
     },
 
     copyPurchaseInvoiceDetail: (state, action) => {
       const index = action.payload;
 
-      const detail = state.purchaseInvoiceDetails[index];
+      const detail = state.purchaseOrderDetails[index];
       const newDetail = {
         ...detail,
         id: Date.now()
       };
 
-      state.purchaseInvoiceDetails.splice(index + 1, 0, newDetail);
+      state.purchaseOrderDetails.splice(index + 1, 0, newDetail);
     },
 
     removePurchaseInvoiceDetail: (state, action) => {
-      state.purchaseInvoiceDetails = state.purchaseInvoiceDetails.filter(
+      state.purchaseOrderDetails = state.purchaseOrderDetails.filter(
         (item) => item.id !== action.payload
       );
     },
@@ -169,14 +169,14 @@ export const purchaseInvoiceSlice = createSlice({
     // Change the order of quotation details, from is the index of the item to be moved, to is the index of the item to be moved to
     changePurchaseInvoiceDetailOrder: (state, action) => {
       const { from, to } = action.payload;
-      const temp = state.purchaseInvoiceDetails[from];
-      state.purchaseInvoiceDetails[from] = state.purchaseInvoiceDetails[to];
-      state.purchaseInvoiceDetails[to] = temp;
+      const temp = state.purchaseOrderDetails[from];
+      state.purchaseOrderDetails[from] = state.purchaseOrderDetails[to];
+      state.purchaseOrderDetails[to] = temp;
     },
 
     changePurchaseInvoiceDetailValue: (state, action) => {
       const { index, key, value } = action.payload;
-      const detail = state.purchaseInvoiceDetails[index];
+      const detail = state.purchaseOrderDetails[index];
       detail[key] = value;
 
       if (detail.quantity && detail.rate) {
@@ -200,7 +200,7 @@ export const purchaseInvoiceSlice = createSlice({
       state.initialFormValues = null;
       state.rebatePercentage = null;
       state.salesmanPercentage = null;
-      state.purchaseInvoiceDetails = [];
+      state.purchaseOrderDetails = [];
     });
     addCase(getPurchaseInvoiceList.fulfilled, (state, action) => {
       state.isListLoading = false;
@@ -231,6 +231,7 @@ export const purchaseInvoiceSlice = createSlice({
     addCase(getPurchaseInvoice.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
+      console.log('purchaseOrderDetails' , data)
       state.initialFormValues = {
         document_identity: data.document_identity,
         document_date: data.document_date ? dayjs(data.document_date) : null,
@@ -254,30 +255,101 @@ export const purchaseInvoiceSlice = createSlice({
               label: data.payment.name
             }
           : null,
+          supplier : data?.supplier?.name,
 
         supplier_id: data.supplier
           ? {
               value: data.supplier.supplier_id,
               label: data.supplier.name
             }
-          : null
+          : null,
+          purchaseOrderDetail : data.purchase_order
       };
 
-      if (!data.purchase_invoice_detail) return;
-      state.purchaseInvoiceDetails = data.purchase_invoice_detail.map((detail) => ({
-        id: detail.purchase_invoice_detail_id,
-        product_code: detail.product ? detail.product.product_code : null,
-        product_id: detail.product
-          ? { value: detail.product.product_id, label: detail.product.product_name }
-          : null,
-        description: detail.description,
-        vpart: detail.vpart,
-        quantity: detail.quantity ? parseFloat(detail.quantity) : null,
-        unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
-        rate: detail.rate,
-        vendor_notes: detail.vendor_notes,
-        amount: detail.amount
-      }));
+      if (!data.purchase_order_detail) return;
+      state.purchaseOrderDetails = data.purchase_order.map((detail, index) => {
+        console.log(`Mapping detail #${index + 1}:`, detail); // Logs each item before mapping
+      
+        const mappedDetail = {
+          id: detail.purchase_order_detail_id,
+          product_code: detail.product ? detail.product.product_code : null,
+          product_id: detail.product
+            ? { value: detail.product.product_id, label: detail.product.product_name }
+            : null,
+          product_type_id: detail.product_type
+            ? {
+                value: detail.product_type.product_type_id,
+                label: detail.product_type.name
+              }
+            : null,
+          product_name: detail.product_name,
+          product_description: detail.product_description,
+          charge_order_detail_id: detail.charge_order_detail_id,
+          description: detail.description,
+          purchase_order_detail_id: detail.purchase_order_detail_id,
+          vpart: detail.vpart,
+          quantity: detail.quantity ? parseFloat(detail.quantity) : null,
+          unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
+          rate: detail.rate,
+          vendor_notes: detail.vendor_notes,
+          amount: detail.amount,
+          editable: detail.editable,
+          received_quantity: detail.received_quantity ? parseFloat(detail.received_quantity) : null,
+          row_status: 'U',
+          isDeleted: false
+        };
+      
+        console.log(`Mapped detail #${index + 1}:`, mappedDetail); // Logs each mapped object
+      
+        return mappedDetail;
+      });
+      
+      console.log('Final purchaseOrderDetails array:', state.purchaseOrderDetails);
+      
+      // state.purchaseOrderDetails = data.purchase_order.map((detail) => ({
+      //   id: detail.purchase_order_detail_id,
+      //   product_code: detail.product ? detail.product.product_code : null,
+      //   product_id: detail.product
+      //     ? { value: detail.product.product_id, label: detail.product.product_name }
+      //     : null,
+      //   product_type_id: detail.product_type
+      //     ? {
+      //       value: detail.product_type.product_type_id,
+      //       label: detail.product_type.name
+      //     }
+      //     : null,
+      //   product_name: detail.product_name,
+      //   product_description: detail.product_description,
+      //   charge_order_detail_id: detail.charge_order_detail_id,
+      //   description: detail.description,
+      //   purchase_order_detail_id: detail.purchase_order_detail_id,
+      //   vpart: detail.vpart,
+      //   quantity: detail.quantity ? parseFloat(detail.quantity) : null,
+      //   unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
+      //   rate: detail.rate,
+      //   vendor_notes: detail.vendor_notes,
+      //   amount: detail.amount,
+      //   editable: detail.editable,
+      //   received_quantity: detail.received_quantity ? parseFloat(detail.received_quantity) : null,
+      //   row_status: 'U',
+      //   isDeleted: false
+      // }));
+
+      // if (!data.purchase_order_detail) return;
+      // state.purchaseOrderDetails = data.purchase_invoice_detail.map((detail) => ({
+      //   id: detail.purchase_invoice_detail_id,
+      //   product_code: detail.product ? detail.product.product_code : null,
+      //   product_id: detail.product
+      //     ? { value: detail.product.product_id, label: detail.product.product_name }
+      //     : null,
+      //   description: detail.description,
+      //   vpart: detail.vpart,
+      //   quantity: detail.quantity ? parseFloat(detail.quantity) : null,
+      //   unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
+      //   rate: detail.rate,
+      //   vendor_notes: detail.vendor_notes,
+      //   amount: detail.amount
+      // }));
     });
     addCase(getPurchaseInvoice.rejected, (state) => {
       state.isItemLoading = false;

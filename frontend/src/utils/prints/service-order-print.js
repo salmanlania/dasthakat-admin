@@ -306,11 +306,11 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
           content: (() => {
             const quantity = parseFloat(detail?.quantity);
             if (!isNaN(quantity)) {
-              const finalValue = quantity % 1 === 0 
+              const finalValue = quantity % 1 === 0
                 ? Math.floor(quantity)
                 : quantity;
-        
-              return String(finalValue); // 👈 Force to string here
+
+              return String(finalValue);
             }
             return '';
           })(),
@@ -318,7 +318,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
             halign: 'center',
             fillColor: rowBackgroundColor
           }
-        },       
+        },
         {
           content: detail?.unit?.name || '',
           styles: { halign: 'center', fillColor: rowBackgroundColor }
@@ -333,8 +333,6 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
   }
 
   const filledRows = fillEmptyRows(tableHeaders, 24);
-  // tableHeaders.splice(1, tableHeaders.length - 1, ...filledRows);
-
   doc.autoTable({
     startY: doc.previousAutoTable.finalY + 5,
     body: filledRows,
@@ -372,7 +370,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
 
   doc.setFont('times', 'normal');
   doc.setFontSize(9);
-  doc.text('SIGNATURES AND STAMP FOR TRUE RECEIPT', 100, footerY + 10);
+  doc.text('SIGNATURES AND STAMP FOR TRUE RECEIPT', doc.internal.pageSize.getWidth() / 2, footerY + 10, { align: 'center' });
 
 };
 

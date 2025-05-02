@@ -18,6 +18,7 @@ export const getSaleInvoiceList = createAsyncThunk('saleInvoice/list', async (pa
 export const getSaleInvoice = createAsyncThunk('saleInvoice/get', async (id, { rejectWithValue }) => {
   try {
     const res = await api.get(`/sale-invoice/${id}`);
+    console.log('res' , res.data.data)
     return res.data.data;
   } catch (err) {
     throw rejectWithValue(err);
@@ -101,7 +102,11 @@ export const saleInvoiceSlice = createSlice({
     });
     addCase(getSaleInvoice.fulfilled, (state, action) => {
       state.isItemLoading = false;
-      state.initialFormValues = action.payload;
+      const data = action.payload
+      state.initialFormValues = {
+        document_identity: data.document_identity || '',
+        document_date: data.document_date || '',
+      };
     });
     addCase(getSaleInvoice.rejected, (state) => {
       state.isItemLoading = false;
