@@ -502,15 +502,17 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     ]
   ];
 
-  const techNotes = data?.job_order_detail?.flatMap(item => {
-    const chargeOrder = item?.charge_order;
-    if (Array.isArray(chargeOrder)) {
-      return chargeOrder.map(c => c?.technician_notes);
-    } else if (chargeOrder) {
-      return chargeOrder.technician_notes;
-    }
-    return [];
-  }).filter(Boolean);
+  // const techNotes = data?.job_order_detail?.flatMap(item => {
+  //   const chargeOrder = item?.charge_order;
+  //   if (Array.isArray(chargeOrder)) {
+  //     return chargeOrder.map(c => c?.technician_notes);
+  //   } else if (chargeOrder) {
+  //     return chargeOrder.technician_notes;
+  //   }
+  //   return [];
+  // }).filter(Boolean);
+  const techNotes = data?.job_order_detail[0]?.charge_order?.technician_notes
+  
 
   if (data?.certificates && data.certificates.length) {
     const certiLen = data?.certificates.length
@@ -534,7 +536,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
           }
         },
         {
-          content: index === 0 ? techNotes.join(',') : '',
+          content: index === 0 ? techNotes : '',
           rowSpan : certiLen,
           styles: {
             halign: 'left',
