@@ -84,7 +84,15 @@ const ChargeOrderModal = () => {
               {
                 required: true,
                 message: 'Quantity required'
-              }
+              },
+              {
+                validator: (_, value) => {
+                  if (!value || parseFloat(value) <= 0) {
+                    return Promise.reject(new Error('Quantity must be greater than 0'));
+                  }
+                  return Promise.resolve();
+                },
+              },
             ]}>
             <DebouncedCommaSeparatedInput
               value={quantity}
