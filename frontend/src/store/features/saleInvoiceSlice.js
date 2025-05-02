@@ -128,7 +128,8 @@ export const saleInvoiceSlice = createSlice({
             label: detail.product_type.name
           }
           : null,
-        product_name: detail.product_name,
+        // product_name: detail.product_name,
+        product_name: detail.charge_order_detail.product_type_id == '4' ? detail.product_name || detail.charge_order_detail.product_name : detail?.product?.name,
         product_description: detail.product_description,
         charge_order_detail_id: detail.charge_order_detail_id,
         description: detail.description,

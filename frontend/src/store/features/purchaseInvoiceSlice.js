@@ -32,7 +32,6 @@ export const createPurchaseInvoice = createAsyncThunk(
   'purchase-invoice/create',
   async (data, { rejectWithValue }) => {
     try {
-      console.log(data)
       const response = await api.post('/purchase-invoice', data);
       return response.data.data;
     } catch (err) {
@@ -232,7 +231,6 @@ export const purchaseInvoiceSlice = createSlice({
     addCase(getPurchaseInvoice.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
-      console.log('purchaseOrderDetails' , data)
       state.initialFormValues = {
         document_identity: data.document_identity,
         document_date: data.document_date ? dayjs(data.document_date) : null,
@@ -246,33 +244,26 @@ export const purchaseInvoiceSlice = createSlice({
         ship_to: data.ship_to,
         buyer_id: data.user
           ? {
-              value: data.user.user_id,
-              label: data.user.user_name
-            }
+            value: data.user.user_id,
+            label: data.user.user_name
+          }
           : null,
         payment_id: data.payment
           ? {
-              value: data.payment.payment_id,
-              label: data.payment.name
-            }
+            value: data.payment.payment_id,
+            label: data.payment.name
+          }
           : null,
-          supplier : data?.supplier?.name,
+        supplier: data?.supplier?.name,
 
         supplier_id: data.supplier
           ? {
-              value: data.supplier.supplier_id,
-              label: data.supplier.name
-            }
+            value: data.supplier.supplier_id,
+            label: data.supplier.name
+          }
           : null,
-          // purchaseInvoiceDetail : data.purchase_invoice_detail
-          
       };
 
-      // if (!data.purchase_order_detail) return;
-      // state.purchaseOrderDetails =
-      
-      console.log('Final purchaseOrderDetails array:', state.purchaseOrderDetails);
-      
       state.purchaseOrderDetails = data.purchase_invoice_detail.map((detail) => ({
         id: detail.purchase_order_detail_id,
         product_code: detail.product ? detail.product.product_code : null,
@@ -286,6 +277,7 @@ export const purchaseInvoiceSlice = createSlice({
           }
           : null,
         product_name: detail.product_name,
+        // product_name: detail.charge_order_detail.product_type_id == '4' ? detail.product_name || detail.charge_order_detail.product_name : detail?.product?.name,
         product_description: detail.product_description,
         charge_order_detail_id: detail.charge_order_detail_id,
         description: detail.description,
@@ -302,22 +294,6 @@ export const purchaseInvoiceSlice = createSlice({
         isDeleted: false
       }));
 
-      // if (!data.purchase_order_detail) return;
-      // state.purchaseOrderDetails = data.purchase_invoice_detail.map((detail) => ({
-      //   id: detail.purchase_invoice_detail_id,
-      //   product_code: detail.product ? detail.product.product_code : null,
-      //   product_id: detail.product
-      //     ? { value: detail.product.product_id, label: detail.product.product_name }
-      //     : null,
-      //   description: detail.description,
-      //   vpart: detail.vpart,
-      //   quantity: detail.quantity ? parseFloat(detail.quantity) : null,
-      //   unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
-      //   rate: detail.rate,
-      //   vendor_notes: detail.vendor_notes,
-      //   amount: detail.amount
-      // }));
-    
     });
     addCase(getPurchaseInvoice.rejected, (state) => {
       state.isItemLoading = false;
