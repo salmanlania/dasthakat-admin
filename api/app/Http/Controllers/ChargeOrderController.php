@@ -707,8 +707,7 @@ class ChargeOrderController extends Controller
 
 		if (isset($certificateConfig[$Category])) {
 			$config = $certificateConfig[$Category];
-			$lastCertificate = JobOrderDetailCertificate::
-				orderBy('sort_order', 'desc')
+			$lastCertificate = JobOrderDetailCertificate::orderBy('sort_order', 'desc')
 				->first();
 
 			$certificateData['sort_order'] = ($lastCertificate->sort_order ?? 0) + 1;
@@ -719,7 +718,9 @@ class ChargeOrderController extends Controller
 				Carbon::now()->format('m/Y')
 			);
 
-			JobOrderDetailCertificate::create($certificateData);
+			if (!JobOrderDetailCertificate::where('job_order_id', $jobOrderId)->where('type', $Category)->exists()) {
+				JobOrderDetailCertificate::create($certificateData);
+			}
 		}
 	}
 
@@ -1042,7 +1043,7 @@ class ChargeOrderController extends Controller
 							['model' => new PurchaseOrder],
 							['model' => new Picklist],
 							['model' => new Servicelist],
-						]	
+						]
 					];
 
 					$response = $this->checkAndDelete($validate);
