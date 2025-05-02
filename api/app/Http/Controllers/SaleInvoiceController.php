@@ -188,11 +188,10 @@ class SaleInvoiceController extends Controller
 		}
 
 		if ($totalQuantity > 0) {
-
 			SaleInvoice::create($invoiceData);
 			return $this->jsonResponse(['sale_invoice_id' => $uuid], 200, "Add Sale Invoice Successfully!");
 		} else {
-			return $this->jsonResponse(['sale_invoice_id' => $uuid], 400, " ");
+			return $this->jsonResponse(['sale_invoice_id' => $uuid], 400, "Cannot generate invoice: No items with available quantity.");
 		}
 	}
 

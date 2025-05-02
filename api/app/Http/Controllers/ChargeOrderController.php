@@ -700,15 +700,15 @@ class ChargeOrderController extends Controller
 		];
 
 		$certificateConfig = [
-			'FRS' => ['prefix' => 'GMSH', 'type' => 'FRS'],
+			'LSA/FFE' => ['prefix' => 'GMSH', 'type' => 'LSA/FFE'],
 			'Calibration' => ['prefix' => 'GMSHC', 'type' => 'Calibration'],
-			'Life Boat' => ['prefix' => 'GMSHL', 'type' => 'Life Boat'],
+			'LB' => ['prefix' => 'GMSHL', 'type' => 'LB'],
 		];
 
 		if (isset($certificateConfig[$Category])) {
 			$config = $certificateConfig[$Category];
-			$lastCertificate = JobOrderDetailCertificate::where('type', $config['type'])
-				->orderBy('sort_order', 'desc')
+			$lastCertificate = JobOrderDetailCertificate::
+				orderBy('sort_order', 'desc')
 				->first();
 
 			$certificateData['sort_order'] = ($lastCertificate->sort_order ?? 0) + 1;
