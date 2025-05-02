@@ -203,7 +203,7 @@ class PurchaseInvoiceController extends Controller
 			PurchaseInvoice::create($invoiceData);
 			return $this->jsonResponse(['purchase_invoice_id' => $uuid], 200, "Add Purchase Invoice Successfully!");
 		} else {
-			return $this->jsonResponse(['purchase_invoice_id' => $uuid], 400, "Cannot generate invoice: No items with available quantity.");
+			return $this->jsonResponse(['purchase_invoice_id' => $uuid], 500, "Cannot generate invoice: No items with available quantity.");
 		}
 	}
 
