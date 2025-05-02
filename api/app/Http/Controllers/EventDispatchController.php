@@ -2,6 +2,7 @@
 // Dispatch renamed as Scheduling	
 namespace App\Http\Controllers;
 
+use App\Events\Event;
 use Illuminate\Http\Request;
 use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
@@ -45,7 +46,7 @@ class EventDispatchController extends Controller
 			$query->where('event_dispatch.event_time', $event_time);
 		}
 		if ($port_id = $request->input('port_id')) {
-			$query->where('p.port_id', $port_id);
+			$query->where('event_dispatch.port_id', $port_id);
 		}
 		if ($event_id = $request->input('event_id')) {
 			$query->where('event_dispatch.event_id', $event_id);
@@ -80,7 +81,7 @@ class EventDispatchController extends Controller
 					->from('quotation as q')
 					->join('charge_order as co', 'co.ref_document_identity', '=', 'q.document_identity')
 					->whereColumn('co.event_id', 'e.event_id')
-					->whereIn('q.port_id', $request->port_id);
+					->whereIn('event_dispatch.port_id', $request->port_id);
 			});
 		}
 
@@ -162,10 +163,10 @@ class EventDispatchController extends Controller
 
 			$value->short_codes = $shortCodes;
 
-			$detail = ChargeOrder::where('event_id', $value->event_id)->get();
-			$portsData = Quotation::whereIn('document_identity', $detail->pluck('ref_document_identity'))->pluck('port_id')->toArray();
+			$detail = ChargeOrder::with('port')->where('event_id', $value->event_id)->get();
+			// $portsData = EventDispatch::whereIn('document_identity', $detail->pluck('ref_document_identity'))->pluck('port_id')->toArray();
 
-			$value->ports = Port::whereIn('port_id', $portsData)->get();
+			$value->ports = Port::whereIn('port_id', $detail->pluck('port_id'))->get();
 
 
 			$technicianIds = $value->technician_id;
