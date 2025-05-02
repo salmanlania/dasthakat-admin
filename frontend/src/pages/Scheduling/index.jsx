@@ -334,7 +334,7 @@ const Scheduling = () => {
                 date ? dayjs(date).format('YYYY-MM-DD') : null
               );
 
-              dispatch(getDispatchList(params))
+              dispatch(getDispatchList(getFilteredParams()))
                 .unwrap()
                 .then(() => setTableKey((prev) => prev + 1));
             }}
