@@ -6,6 +6,7 @@ use App\Models\DocumentType;
 use Illuminate\Http\Request;
 use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
+use App\Models\EventDispatch;
 use App\Models\JobOrder;
 use App\Models\JobOrderDetail;
 use App\Models\JobOrderDetailCertificate;
@@ -805,7 +806,10 @@ class ChargeOrderController extends Controller
 				ChargeOrderDetail::create($insert);
 			}
 		}
-
+		EventDispatch::where('event_id', $request->event_id)->update([
+			'event_date' => Carbon::now(),
+			'event_time' => '00:01'
+		]);
 		$this->updatePicklist($request, $chargeOrder);
 		$this->updateServicelist($request, $chargeOrder);
 		$this->updateJobOrder($request, $chargeOrder);
