@@ -455,11 +455,13 @@ const PurchaseOrder = () => {
               onClick={async () => {
                 try {
                   const document_date = dayjs().format('YYYY-MM-DD');
-                  await dispatch(createPurchaseInvoice({ purchase_order_id , document_date})).unwrap();
+                  const res = await dispatch(createPurchaseInvoice({ purchase_order_id , document_date})).unwrap();
+                  console.log(res)
                   toast.success('Purchase invoice created successfully');
                 } catch (error) {
-                  handleError(error);
-                  console.log('error' , error)
+                  // handleError(error);
+                  toast.error(error.message)
+                  console.log('error' , error.code)
                 }
               }}
             />

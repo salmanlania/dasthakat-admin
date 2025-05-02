@@ -252,8 +252,8 @@ const SaleInvoice = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>PURCHASE INVOICE</PageHeading>
-        <Breadcrumb items={[{ title: 'Purchase Invoice' }, { title: 'List' }]} separator=">" />
+        <PageHeading>SALE INVOICE</PageHeading>
+        <Breadcrumb items={[{ title: 'Sale Invoice' }, { title: 'List' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
@@ -303,7 +303,7 @@ const SaleInvoice = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} purchase invoice`
+            showTotal: (total) => `Total ${total} sale invoice`
           }}
           onChange={(page, _, sorting) => {
             dispatch(

@@ -537,18 +537,6 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
             halign: 'left'
           }
         }
-        // {
-        //   content: 'Work Order Complied By',
-        //   styles: {
-        //     fillColor: 'ebf1de' // gray color
-        //   }
-        // },
-        // {
-        //   content: 'Muhammad Ali',
-        //   styles: {
-        //     textColor: '#d51902' // Red Color
-        //   }
-        // }
       ]);
     });
   } else {
@@ -559,12 +547,6 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       {
         content: ''
       },
-      // {
-      //   content: ''
-      // },
-      // {
-      //   content: ''
-      // }
       {
         content: 'Technician Notes',
         styles: {
@@ -574,30 +556,12 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       },
       {
         content: techNotes ? techNotes : "",
-        // styles: {
-        //   halign: 'left'
-        // }
+        styles: {
+          halign: 'left'
+        }
       }
     ]);
   }
-
-  // table4Row.push([
-  //   {
-  //     content: 'Technician Notes',
-  //     styles: {
-  //       fillColor: 'ebf1de',
-  //       textColor: '#244062',
-  //     }
-  //   },
-  //   {
-  //     content: techNotes,
-  //     colSpan: 3,
-  //     styles: {
-  //       halign: 'left'
-  //     }
-  //   }
-  // ]);
-
   doc.autoTable({
     startY: doc.previousAutoTable.finalY,
     body: table4Row,
@@ -622,8 +586,8 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       const cellIndex = data.column.index;
       if (cellIndex === 0) data.cell.styles.cellWidth = 54; // First column width
       if (cellIndex === 1) data.cell.styles.cellWidth = 30; // Second column width
-      if (cellIndex === 2) data.cell.styles.cellWidth = 62; // Third column width
-      if (cellIndex === 3) data.cell.styles.cellWidth = 62; // Fourth column width
+      if (cellIndex === 2) data.cell.styles.cellWidth = 35; // Third column width
+      if (cellIndex === 3) data.cell.styles.cellWidth = 89; // Fourth column width
     }
   });
 };

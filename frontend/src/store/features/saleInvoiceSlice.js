@@ -18,7 +18,6 @@ export const getSaleInvoiceList = createAsyncThunk('saleInvoice/list', async (pa
 export const getSaleInvoice = createAsyncThunk('saleInvoice/get', async (id, { rejectWithValue }) => {
   try {
     const res = await api.get(`/sale-invoice/${id}`);
-    console.log('res' , res.data.data)
     return res.data.data;
   } catch (err) {
     throw rejectWithValue(err);
@@ -38,6 +37,7 @@ const initialState = {
   isFormSubmitting: false,
   isBulkDeleting: false,
   initialFormValues: null,
+  saleInvoiceDetail: null,
   isItemLoading: false,
   list: [],
   deleteIDs: [],
@@ -106,7 +106,44 @@ export const saleInvoiceSlice = createSlice({
       state.initialFormValues = {
         document_identity: data.document_identity || '',
         document_date: data.document_date || '',
+        totalQuantity: data.total_quantity || '',
+        totalAmount: data.total_amount || '',
+        salesman_id : data?.charge_order?.salesman?.name,
+        customer_po_no : data?.charge_order?.customer_po_no,
+        event_id : data?.charge_order?.event?.event_name,
+        vessel_id : data?.charge_order?.vessel?.name,
+        customer_id : data?.charge_order?.customer?.name,
+        port_id : data?.charge_order?.port?.name,
+        ref_document_identity : data?.charge_order?.ref_document_identity,
       };
+      state.saleInvoiceDetail = data.sale_invoice_detail.map((detail) => ({
+        id: detail.charge_order_detail_id,
+        product_code: detail.product ? detail.product.product_code : null,
+        product_id: detail.product
+          ? { value: detail.product.product_id, label: detail.product.product_name }
+          : null,
+        product_type_id: detail.product_type
+          ? {
+            value: detail.product_type.product_type_id,
+            label: detail.product_type.name
+          }
+          : null,
+        product_name: detail.product_name,
+        product_description: detail.product_description,
+        charge_order_detail_id: detail.charge_order_detail_id,
+        description: detail.description,
+        charge_order_detail_id: detail.charge_order_detail_id,
+        vpart: detail.vpart,
+        quantity: detail.quantity ? parseFloat(detail.quantity) : null,
+        unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
+        rate: detail.rate,
+        vendor_notes: detail.vendor_notes,
+        amount: detail.amount,
+        editable: detail.editable,
+        received_quantity: detail.received_quantity ? parseFloat(detail.received_quantity) : null,
+        row_status: 'U',
+        isDeleted: false
+      }))
     });
     addCase(getSaleInvoice.rejected, (state) => {
       state.isItemLoading = false;

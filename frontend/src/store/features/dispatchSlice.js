@@ -54,6 +54,19 @@ export const getEventPickLists = createAsyncThunk(
   }
 );
 
+
+export const getEventServiceOrder = createAsyncThunk(
+  'event/get-picklist',
+  async (event_id, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/event/${event_id}/service-orders`);
+      return res.data.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 const initialState = {
   isListLoading: false,
   isFormSubmitting: false,

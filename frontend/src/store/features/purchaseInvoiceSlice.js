@@ -32,6 +32,7 @@ export const createPurchaseInvoice = createAsyncThunk(
   'purchase-invoice/create',
   async (data, { rejectWithValue }) => {
     try {
+      console.log(data)
       const response = await api.post('/purchase-invoice', data);
       return response.data.data;
     } catch (err) {
@@ -240,7 +241,7 @@ export const purchaseInvoiceSlice = createSlice({
         buyer_name: data.buyer_name,
         buyer_email: data.buyer_email,
         ship_via: data.ship_via,
-        department: data.department,
+        department: data.department ? data.department : "",
         remarks: data.remarks,
         ship_to: data.ship_to,
         buyer_id: data.user
@@ -263,77 +264,43 @@ export const purchaseInvoiceSlice = createSlice({
               label: data.supplier.name
             }
           : null,
-          purchaseOrderDetail : data.purchase_order
+          // purchaseInvoiceDetail : data.purchase_invoice_detail
+          
       };
 
-      if (!data.purchase_order_detail) return;
-      state.purchaseOrderDetails = data.purchase_order.map((detail, index) => {
-        console.log(`Mapping detail #${index + 1}:`, detail); // Logs each item before mapping
-      
-        const mappedDetail = {
-          id: detail.purchase_order_detail_id,
-          product_code: detail.product ? detail.product.product_code : null,
-          product_id: detail.product
-            ? { value: detail.product.product_id, label: detail.product.product_name }
-            : null,
-          product_type_id: detail.product_type
-            ? {
-                value: detail.product_type.product_type_id,
-                label: detail.product_type.name
-              }
-            : null,
-          product_name: detail.product_name,
-          product_description: detail.product_description,
-          charge_order_detail_id: detail.charge_order_detail_id,
-          description: detail.description,
-          purchase_order_detail_id: detail.purchase_order_detail_id,
-          vpart: detail.vpart,
-          quantity: detail.quantity ? parseFloat(detail.quantity) : null,
-          unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
-          rate: detail.rate,
-          vendor_notes: detail.vendor_notes,
-          amount: detail.amount,
-          editable: detail.editable,
-          received_quantity: detail.received_quantity ? parseFloat(detail.received_quantity) : null,
-          row_status: 'U',
-          isDeleted: false
-        };
-      
-        console.log(`Mapped detail #${index + 1}:`, mappedDetail); // Logs each mapped object
-      
-        return mappedDetail;
-      });
+      // if (!data.purchase_order_detail) return;
+      // state.purchaseOrderDetails =
       
       console.log('Final purchaseOrderDetails array:', state.purchaseOrderDetails);
       
-      // state.purchaseOrderDetails = data.purchase_order.map((detail) => ({
-      //   id: detail.purchase_order_detail_id,
-      //   product_code: detail.product ? detail.product.product_code : null,
-      //   product_id: detail.product
-      //     ? { value: detail.product.product_id, label: detail.product.product_name }
-      //     : null,
-      //   product_type_id: detail.product_type
-      //     ? {
-      //       value: detail.product_type.product_type_id,
-      //       label: detail.product_type.name
-      //     }
-      //     : null,
-      //   product_name: detail.product_name,
-      //   product_description: detail.product_description,
-      //   charge_order_detail_id: detail.charge_order_detail_id,
-      //   description: detail.description,
-      //   purchase_order_detail_id: detail.purchase_order_detail_id,
-      //   vpart: detail.vpart,
-      //   quantity: detail.quantity ? parseFloat(detail.quantity) : null,
-      //   unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
-      //   rate: detail.rate,
-      //   vendor_notes: detail.vendor_notes,
-      //   amount: detail.amount,
-      //   editable: detail.editable,
-      //   received_quantity: detail.received_quantity ? parseFloat(detail.received_quantity) : null,
-      //   row_status: 'U',
-      //   isDeleted: false
-      // }));
+      state.purchaseOrderDetails = data.purchase_invoice_detail.map((detail) => ({
+        id: detail.purchase_order_detail_id,
+        product_code: detail.product ? detail.product.product_code : null,
+        product_id: detail.product
+          ? { value: detail.product.product_id, label: detail.product.product_name }
+          : null,
+        product_type_id: detail.product_type
+          ? {
+            value: detail.product_type.product_type_id,
+            label: detail.product_type.name
+          }
+          : null,
+        product_name: detail.product_name,
+        product_description: detail.product_description,
+        charge_order_detail_id: detail.charge_order_detail_id,
+        description: detail.description,
+        purchase_order_detail_id: detail.purchase_order_detail_id,
+        vpart: detail.vpart,
+        quantity: detail.quantity ? parseFloat(detail.quantity) : null,
+        unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
+        rate: detail.rate,
+        vendor_notes: detail.vendor_notes,
+        amount: detail.amount,
+        editable: detail.editable,
+        received_quantity: detail.received_quantity ? parseFloat(detail.received_quantity) : null,
+        row_status: 'U',
+        isDeleted: false
+      }));
 
       // if (!data.purchase_order_detail) return;
       // state.purchaseOrderDetails = data.purchase_invoice_detail.map((detail) => ({
@@ -350,6 +317,7 @@ export const purchaseInvoiceSlice = createSlice({
       //   vendor_notes: detail.vendor_notes,
       //   amount: detail.amount
       // }));
+    
     });
     addCase(getPurchaseInvoice.rejected, (state) => {
       state.isItemLoading = false;

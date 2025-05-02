@@ -56,7 +56,7 @@ const CompanySetting = () => {
     if (initialFormValues && Array.isArray(initialFormValues)) {
       const formValues = initialFormValues.reduce((acc, item) => {
         const formKey = fieldKeyMap[item.field];
-        if (formKey) { 
+        if (formKey) {
           acc[formKey] = item.field === 'debug' ? item.value === '1' : item.value;
         }
         return acc;
@@ -139,7 +139,7 @@ const CompanySetting = () => {
               mailEngine: 'Mail'
             }}>
             <Tabs activeKey={activeTab} onChange={setActiveTab} className="mb-6" type="card">
-              <TabPane tab="EMail Setting" key="1">
+              <TabPane tab="Email Setting" key="1">
                 <div className="rounded border border-gray-200 bg-white p-6">
                   <Form.Item label="Mail Engine" name="mailEngine" className="mb-6">
                     <Select className="w-full">
@@ -237,8 +237,25 @@ const CompanySetting = () => {
               </TabPane>
               <TabPane tab="SMS Setting" key="2">
                 <div className="rounded border border-gray-200 bg-white p-6">
-                  <div className="py-12 text-center text-gray-500">
-                  </div>
+                  <div className="py-12 text-center text-gray-500"></div>
+                </div>
+              </TabPane>
+              <TabPane tab="WhatsApp Setting" key="3">
+                <div className="rounded border border-gray-200 bg-white p-6">
+                  <Row gutter={[16, 16]} align="middle" justify="start">
+                    <Col xs={24} sm={12} style={{ display: 'flex', flexDirection: 'column' }}>
+                      <Form.Item label="WhatsApp Token" name="whatsappToken">
+                        <Input placeholder="Enter WhatsApp Token" />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Row gutter={[16, 16]} align="middle" justify="start">
+                    <Col xs={24} sm={12} style={{ display: 'flex', flexDirection: 'column' }}>
+                      <Form.Item label="WhatsApp Name" name="whatsappName">
+                        <Input placeholder="Enter WhatsApp Name" />
+                      </Form.Item>
+                    </Col>
+                  </Row>
                 </div>
               </TabPane>
             </Tabs>
