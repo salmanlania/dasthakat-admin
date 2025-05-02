@@ -116,7 +116,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       document_date: dayjs(values.document_date).format('YYYY-MM-DD')
         ? dayjs(values.document_date).format('YYYY-MM-DD')
         : null,
-      user_id: values.user_id ? values.user_id.map((v) => v.value) : null,
+      technician_id: values.technician_id ? values.technician_id.map((v) => v.value) : null,
       charge_order_detail: mappingSource.map(
         ({ id, isDeleted, row_status, product_type, ...detail }, index) => {
           return {
@@ -1236,7 +1236,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="user_id" label="Technician">
+          <Form.Item name="technician_id" label="Technician">
             <AsyncSelect
               endpoint="/user"
               valueKey="user_id"

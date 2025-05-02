@@ -454,6 +454,10 @@ export const chargeOrderSlice = createSlice({
     addCase(getChargeOrder.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
+      console.log(data.technicians.map((technician) => ({
+        value: technician.user_id,
+        label: technician.user_name
+      })))
       state.initialFormValues = {
         document_identity: data.document_identity,
         document_date: data.document_date ? dayjs(data.document_date) : null,
@@ -463,8 +467,8 @@ export const chargeOrderSlice = createSlice({
         technician_id:
           data.technicians && data.technicians.length
             ? data.technicians.map((technician) => ({
-              value: technician.technician_id,
-              label: technician.name
+              value: technician.user_id,
+              label: technician.user_name
             }))
             : null,
         agent_notes: data.agent_notes,

@@ -164,6 +164,7 @@ $router->group(['prefix' => 'event'], function ($router) {
    $router->get('/{id}', 'EventController@show');
    $router->get('/{id}/charge-orders', 'EventController@getChargeOrders');
    $router->get('/{id}/job-orders', 'EventController@EventJobOrders');
+   $router->get('/{id}/service-orders', 'EventController@EventServiceOrders');
    $router->get('/{id}/picklists', 'EventController@EventChargeOrdersWithPicklists');
    $router->post('/', 'EventController@store');
    $router->put('/{id}', 'EventController@update');

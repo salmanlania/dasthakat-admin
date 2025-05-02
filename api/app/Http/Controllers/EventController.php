@@ -15,6 +15,7 @@ use App\Models\Picklist;
 use App\Models\PicklistReceived;
 use App\Models\Quotation;
 use App\Models\ServicelistReceived;
+use App\Models\ServiceOrder;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -129,6 +130,33 @@ class EventController extends Controller
 			'charge_orders' => $chargeOrders,
 			'event' => $event
 		], 200, "Event Charge Orders Data");
+	}
+	public function EventServiceOrders($id)
+	{
+		
+		$data = ServiceOrder::with(
+			"service_order_detail",
+			"service_order_detail.charge_order",
+			"service_order_detail.charge_order_detail",
+			"service_order_detail.product",
+			"service_order_detail.product_type",
+			"service_order_detail.unit",
+			"service_order_detail.supplier",
+			"event",
+			"charge_order",
+			"charge_order.quotation",
+			"charge_order.quotation.port",
+			"charge_order.agent",
+			"event.vessel",
+			"event.customer",
+			"event.class1",
+			"event.class2",
+			"event.customer.salesman",
+			"event.vessel.flag"
+		)
+			->where('event_id', $id)->get();
+
+		return $this->jsonResponse($data, 200, "Show Data");
 	}
 	public function EventJobOrders($id, Request $request)
 	{
