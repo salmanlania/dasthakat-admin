@@ -73,6 +73,7 @@ class SaleInvoiceController extends Controller
 			"sale_invoice_detail.unit",
 			"charge_order",
 			"charge_order.salesman",
+			"charge_order.service_order",
 			"charge_order.event",
 			"charge_order.vessel",
 			"charge_order.customer",

@@ -56,6 +56,10 @@ class ChargeOrder extends Model
     {
         return $this->hasOne(Quotation::class, 'document_identity', 'ref_document_identity');
     }
+    public function service_order()
+    {
+        return $this->hasOne(ServiceOrder::class, 'charge_order_id', 'charge_order_id');
+    }
     public function picklists()
     {
         return $this->hasMany(Picklist::class, 'charge_order_id', 'charge_order_id')->orderBy('document_date');
