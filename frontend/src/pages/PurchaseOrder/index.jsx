@@ -459,9 +459,7 @@ const PurchaseOrder = () => {
                   console.log(res)
                   toast.success('Purchase invoice created successfully');
                 } catch (error) {
-                  // handleError(error);
-                  toast.error(error.message)
-                  console.log('error' , error.code)
+                  handleError(error);
                 }
               }}
             />

@@ -114,7 +114,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       if (cellIndex === 1) data.cell.styles.cellWidth = 30; // Second column width
       if (cellIndex === 2) data.cell.styles.cellWidth = 30; // Third column width
       if (cellIndex === 3) data.cell.styles.cellWidth = 124; // Fourth column width
-      
+
     }
   });
 
@@ -513,7 +513,8 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
   }).filter(Boolean);
 
   if (data?.certificates && data.certificates.length) {
-    data.certificates.forEach((certificate) => {
+    const certiLen = data?.certificates.length
+    data.certificates.forEach((certificate, index) => {
       table4Row.push([
         {
           content: certificate?.certificate_number || '',
@@ -522,19 +523,21 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
           }
         },
         {
-          content: certificate?.certificate_number || ''
+          content: certificate?.type || ''
         },
         {
-          content: 'Technician Notes',
+          content: index === 0 ? 'Technician Notes' : '',
+          rowSpan : certiLen,
           styles: {
             fillColor: 'ebf1de',
             textColor: '#244062',
           }
         },
         {
-          content: techNotes,
+          content: index === 0 ? techNotes.join(',') : '',
+          rowSpan : certiLen,
           styles: {
-            halign: 'left'
+            halign: 'left',
           }
         }
       ]);
@@ -549,19 +552,37 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       },
       {
         content: 'Technician Notes',
+        // rowSpan : certiLen,
         styles: {
           fillColor: 'ebf1de',
           textColor: '#244062',
         }
       },
       {
-        content: techNotes ? techNotes : "",
+        content: techNotes,
+        // rowSpan : certiLen,
         styles: {
-          halign: 'left'
+          halign: 'left',
         }
       }
     ]);
   }
+  // table4Row.push([
+  //   {
+  //     content: 'Technician Notes',
+  //     styles: {
+  //       fillColor: 'ebf1de',
+  //       textColor: '#244062',
+  //     }
+  //   },
+  //   {
+  //     content: techNotes ? techNotes : "",
+  //     styles: {
+  //       halign: 'left',
+  //       colSpan : 3
+  //     }
+  //   }
+  // ])
   doc.autoTable({
     startY: doc.previousAutoTable.finalY,
     body: table4Row,
