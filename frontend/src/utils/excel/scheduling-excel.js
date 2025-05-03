@@ -182,7 +182,7 @@ const generateSchedulingExcel = async (datas) => {
           worksheet.getCell(`E${currentRow}`).value = detail?.vessel_name || '   '
 
           const cell = worksheet.getCell(`F${currentRow}`);
-          cell.value = (detail?.ports || []).join(', ') || '   ';
+          cell.value = (detail?.ports.map(i => i?.name) || []).join(', ') || '   ';
           cell.alignment = { horizontal: 'center' };
 
           worksheet.getCell(`G${currentRow}`).value = Array.isArray(detail?.technicians)

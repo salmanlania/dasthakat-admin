@@ -101,6 +101,7 @@ const pdfContent = (doc, data, pageWidth) => {
     ]);
 
     groupedRows[eventDate].forEach(item => {
+      // console.log('item' , item?.ports.map(i => i.name))
       table2Rows.push([
         {
           content: item?.event_date ? dayjs(item.event_date).format('MM-DD-YYYY') : '   ',
@@ -119,7 +120,7 @@ const pdfContent = (doc, data, pageWidth) => {
           styles: { textColor: [2, 158, 43] , fontStyle: 'bold', }
         },
         {
-          content: item?.ports || '   ',
+          content: item?.ports.map(i => i?.name) || '   ',
           styles: { textColor: [2, 158, 43] , fontStyle: 'bold', }
         },
         {
