@@ -13,6 +13,7 @@ use App\Models\PurchaseInvoiceDetail;
 use App\Models\PurchaseOrder;
 use App\Models\SaleInvoice;
 use App\Models\SaleInvoiceDetail;
+use App\Models\Shipment;
 use Carbon\Carbon;
 
 class SaleInvoiceController extends Controller
@@ -84,6 +85,8 @@ class SaleInvoiceController extends Controller
 			"charge_order.quotation.payment",
 		)
 			->where('sale_invoice_id', $id)->first();
+
+			$data->shipment = Shipment::where('charge_order_id', $data->charge_order_id)->orderby('created_at', 'desc')->first();
 
 		return $this->jsonResponse($data, 200, "Sale Invoice Data");
 	}
