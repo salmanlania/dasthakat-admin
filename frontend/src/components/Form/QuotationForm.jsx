@@ -789,7 +789,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </div>
         );
       },
-      width: 150
+      width: 100
     },
     {
       title: 'Internal Notes',
@@ -829,7 +829,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </div>
         );
       },
-      width: 150
+      width: 100
     },
     {
       title: 'Stock Quantity',
