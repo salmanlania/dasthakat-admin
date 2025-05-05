@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import useError from '../../hooks/useError';
 import { getProduct, getProductList } from '../../store/features/productSlice';
 import { getSaleInvoice } from '../../store/features/saleInvoiceSlice';
-import { createPurchaseInvoicePrint } from '../../utils/prints/purchase-invoice-print';
+// import { createPurchaseInvoicePrint } from '../../utils/prints/purchase-invoice-print';
 import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
@@ -73,44 +73,44 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
     onSubmit(data);
   };
 
-  const onProductCodeChange = async (index, value) => {
-    if (!value.trim()) return;
-    try {
-      const res = await dispatch(getProductList({ product_code: value })).unwrap();
+  // const onProductCodeChange = async (index, value) => {
+  //   if (!value.trim()) return;
+  //   try {
+  //     const res = await dispatch(getProductList({ product_code: value })).unwrap();
 
-      if (!res.data.length) return;
+  //     if (!res.data.length) return;
 
-      const product = res.data[0];
-      dispatch(
-        changePurchaseInvoiceDetailValue({
-          index,
-          key: 'product_id',
-          value: {
-            value: product.product_id,
-            label: product.name
-          }
-        })
-      );
+  //     const product = res.data[0];
+  //     dispatch(
+  //       changePurchaseInvoiceDetailValue({
+  //         index,
+  //         key: 'product_id',
+  //         value: {
+  //           value: product.product_id,
+  //           label: product.name
+  //         }
+  //       })
+  //     );
 
-      dispatch(
-        changePurchaseInvoiceDetailValue({
-          index,
-          key: 'unit_id',
-          value: { value: product.unit_id, label: product.unit_name }
-        })
-      );
+  //     dispatch(
+  //       changePurchaseInvoiceDetailValue({
+  //         index,
+  //         key: 'unit_id',
+  //         value: { value: product.unit_id, label: product.unit_name }
+  //       })
+  //     );
 
-      dispatch(
-        changePurchaseInvoiceDetailValue({
-          index,
-          key: 'rate',
-          value: product.cost_price
-        })
-      );
-    } catch (error) {
-      handleError(error);
-    }
-  };
+  //     dispatch(
+  //       changePurchaseInvoiceDetailValue({
+  //         index,
+  //         key: 'rate',
+  //         value: product.cost_price
+  //       })
+  //     );
+  //   } catch (error) {
+  //     handleError(error);
+  //   }
+  // };
 
   const onProductChange = async (index, selected) => {
     dispatch(
@@ -152,16 +152,16 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
     }
   };
 
-  const printPurchaseInvoice = async () => {
-    const loadingToast = toast.loading('Loading print...');
-    try {
-      const data = await dispatch(getPurchaseInvoiceForPrint(id)).unwrap();
-      toast.dismiss(loadingToast);
-      createPurchaseInvoicePrint(data);
-    } catch (error) {
-      handleError(error);
-    }
-  };
+  // const printPurchaseInvoice = async () => {
+  //   const loadingToast = toast.loading('Loading print...');
+  //   try {
+  //     const data = await dispatch(getPurchaseInvoiceForPrint(id)).unwrap();
+  //     toast.dismiss(loadingToast);
+  //     createPurchaseInvoicePrint(data);
+  //   } catch (error) {
+  //     handleError(error);
+  //   }
+  // };
 
   const [totalQuantity, setTotalQuantity] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
@@ -177,6 +177,7 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
       const customerName = initialFormValues?.customer_id || '';
       const portName = initialFormValues?.port_id || '';
       const refDocumentIdentity = initialFormValues?.ref_document_identity || '';
+      const chargeOrderNo = initialFormValues?.charger_order_id || '';
 
       setTotalQuantity(quantity);
       setTotalAmount(amount);
@@ -188,6 +189,7 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
         event_id: eventName,
         vessel_id: vesselName,
         customer_id: customerName,
+        charger_order_id: chargeOrderNo,
         port_id: portName,
         ref_document_identity: refDocumentIdentity,
         // Ensure dates are properly formatted
@@ -209,7 +211,7 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
           type="primary"
           className="!w-8"
           icon={<BiPlus size={14} />}
-          onClick={() => dispatch(addPurchaseInvoiceDetail())}
+          // onClick={() => dispatch(addPurchaseInvoiceDetail())}
         />
       ),
       key: 'order',
@@ -222,18 +224,18 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
               size="small"
               icon={<IoMdArrowDropup size={16} />}
               disabled={index === 0}
-              onClick={() => {
-                dispatch(changePurchaseInvoiceDetailOrder({ from: index, to: index - 1 }));
-              }}
+              // onClick={() => {
+              //   dispatch(changePurchaseInvoiceDetailOrder({ from: index, to: index - 1 }));
+              // }}
             />
             <Button
               className="h-4"
               size="small"
               icon={<IoMdArrowDropdown size={16} />}
               disabled={index === saleInvoiceDetail.length - 1}
-              onClick={() => {
-                dispatch(changePurchaseInvoiceDetailOrder({ from: index, to: index + 1 }));
-              }}
+              // onClick={() => {
+              //   dispatch(changePurchaseInvoiceDetailOrder({ from: index, to: index + 1 }));
+              // }}
             />
           </div>
         );
@@ -292,7 +294,7 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 360
+      width: 280
     },
     {
       title: 'Description',
@@ -313,7 +315,7 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 360
+      width: 300
     },
     {
       title: 'Customer Notes',
@@ -324,42 +326,19 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
           <DebounceInput
             disabled
             value={description}
-            onChange={(value) =>
-              dispatch(
-                changePurchaseInvoiceDetailValue({
-                  index,
-                  key: 'description',
-                  value: value
-                })
-              )
-            }
+            // onChange={(value) =>
+            //   dispatch(
+            //     changePurchaseInvoiceDetailValue({
+            //       index,
+            //       key: 'description',
+            //       value: value
+            //     })
+            //   )
+            // }
           />
         );
       },
       width: 240
-    },
-    {
-      title: 'V.Part#',
-      dataIndex: 'vpart',
-      key: 'vpart',
-      render: (_, { vpart }, index) => {
-        return (
-          <DebounceInput
-            disabled
-            value={vpart}
-            onChange={(value) =>
-              dispatch(
-                changePurchaseInvoiceDetailValue({
-                  index,
-                  key: 'vpart',
-                  value: value
-                })
-              )
-            }
-          />
-        );
-      },
-      width: 100
     },
     {
       title: 'Quantity',
@@ -411,15 +390,15 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
             labelInValue
             className="w-full"
             value={unit_id}
-            onChange={(selected) =>
-              dispatch(
-                changePurchaseInvoiceDetailValue({
-                  index,
-                  key: 'unit_id',
-                  value: selected
-                })
-              )
-            }
+            // onChange={(selected) =>
+            //   dispatch(
+            //     changePurchaseInvoiceDetailValue({
+            //       index,
+            //       key: 'unit_id',
+            //       value: selected
+            //     })
+            //   )
+            // }
             // // addNewLink={permissions.unit.list && permissions.unit.add ? '/unit' : null}
           />
         );
@@ -435,15 +414,15 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
           <DebouncedCommaSeparatedInput
             value={rate}
             disabled
-            onChange={(value) =>
-              dispatch(
-                changePurchaseInvoiceDetailValue({
-                  index,
-                  key: 'rate',
-                  value: value
-                })
-              )
-            }
+            // onChange={(value) =>
+            //   dispatch(
+            //     changePurchaseInvoiceDetailValue({
+            //       index,
+            //       key: 'rate',
+            //       value: value
+            //     })
+            //   )
+            // }
           />
         );
       },
@@ -457,29 +436,6 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
         <DebouncedCommaSeparatedInput value={amount ? amount + '' : ''} disabled />
       ),
       width: 120
-    },
-    {
-      title: 'Vend Notes',
-      dataIndex: 'vendor_notes',
-      key: 'vendor_notes',
-      render: (_, { vendor_notes }, index) => {
-        return (
-          <DebounceInput
-            disabled
-            value={vendor_notes}
-            onChange={(value) =>
-              dispatch(
-                changePurchaseInvoiceDetailValue({
-                  index,
-                  key: 'vendor_notes',
-                  value: value
-                })
-              )
-            }
-          />
-        );
-      },
-      width: 240
     },
     {
       title: (
@@ -544,7 +500,7 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
       scrollToFirstError>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
-        <span className="text-gray-500">Purchase Invoice No:</span>
+        <span className="text-gray-500">Sale Invoice No:</span>
         <span
           className={`ml-4 text-amber-600 ${
             mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
@@ -563,7 +519,7 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
             name="document_date"
-            label="Charge Order Date"
+            label="Sale Invoice Date"
             disabled
             rules={[{ required: true, message: 'charge order date is required' }]}>
             <DatePicker format="MM-DD-YYYY" className="w-full" />
@@ -596,28 +552,30 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
             />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={24} sm={12} md={6} lg={6}>
           <Form.Item
             name="event_id"
-            label="Event"
-            rules={[{ required: true, message: 'Event is required' }]}>
+            label="Event">
             <AsyncSelect
               endpoint="/event"
               valueKey="event_id"
               disabled
               labelKey="event_name"
               labelInValue
-              // onChange={onEventChange}
-              // addNewLink={permissions.event.add ? '/event/create' : null}
             />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={24} sm={12} md={6} lg={6}>
           <Form.Item name="vessel_id" label="Vessel">
             <Select labelInValue disabled />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={24} sm={12} md={6} lg={6}>
+          <Form.Item name="charger_order_id" label="Charge Order No">
+            <Select labelInValue disabled />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={6} lg={6}>
           <Form.Item name="customer_id" label="Customer">
             <Select labelInValue disabled />
           </Form.Item>
@@ -744,7 +702,7 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
       </div>
 
       <div className="mt-4 flex items-center justify-end gap-2">
-        <Link to="/purchase-invoice">
+        <Link to="/sale-invoice">
           <Button className="w-28">Cancel</Button>
         </Link>
         {/* {mode === 'edit' ? (
