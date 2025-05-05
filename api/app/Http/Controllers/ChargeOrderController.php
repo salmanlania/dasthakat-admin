@@ -707,7 +707,8 @@ class ChargeOrderController extends Controller
 
 		if (isset($certificateConfig[$Category])) {
 			$config = $certificateConfig[$Category];
-			$lastCertificate = JobOrderDetailCertificate::orderBy('sort_order', 'desc')
+			$lastCertificate = JobOrderDetailCertificate::where('type', $config['type'])
+				->orderBy('sort_order', 'desc')
 				->first();
 
 			$certificateData['sort_order'] = ($lastCertificate->sort_order ?? 0) + 1;
