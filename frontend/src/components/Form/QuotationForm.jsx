@@ -224,14 +224,29 @@ const QuotationForm = ({ mode, onSubmit }) => {
     setNotesModalIsOpen({ open: false, id: null, column: null, notes: null });
   };
 
-  const onNotesSave = async ({ notes }) => {
-    try {
-      await updateValue(notesModalIsOpen.id, notesModalIsOpen.column, notes);
-      dispatch(getDispatchList(params)).unwrap();
-      closeNotesModal();
-    } catch (error) {
-      handleError(error);
-    }
+  // const onNotesSave = async ({ notes }) => {
+  //   try {
+  //     await updateValue(notesModalIsOpen.id, notesModalIsOpen.column, notes);
+  //     dispatch(getDispatchList(params)).unwrap();
+  //     closeNotesModal();
+  //   } catch (error) {
+  //     handleError(error);
+  //   }
+  // };
+
+  const onNotesSave = ({ notes }) => {
+    const index = notesModalIsOpen.id;
+    const column = notesModalIsOpen.column;
+    
+    dispatch(
+      changeQuotationDetailValue({
+        index,
+        key: column,
+        value: notes
+      })
+    );
+    
+    closeNotesModal();
   };
 
   const onProductCodeChange = async (index, value) => {
@@ -742,21 +757,39 @@ const QuotationForm = ({ mode, onSubmit }) => {
       key: 'description',
       render: (_, { event_id, description }, index) => {
         return (
-          <DebounceInput
-            value={description}
-            onChange={(value) =>
-              dispatch(
-                changeQuotationDetailValue({
-                  index,
-                  key: 'description',
-                  value: value
-                })
-              )
-            }
-          />
+          // <DebounceInput
+          //   value={description}
+          //   onChange={(value) =>
+          //     dispatch(
+          //       changeQuotationDetailValue({
+          //         index,
+          //         key: 'description',
+          //         value: value
+          //       })
+          //     )
+          //   }
+          // />
+          <div className="relative">
+            <p>{description}</p>
+            <div
+              className={`absolute -right-2 ${description?.trim() ? '-top-[2px]' : '-top-[12px]'} flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-white`}>
+              <TbEdit
+                size={22}
+                className="text-primary hover:text-blue-600"
+                onClick={() =>
+                  setNotesModalIsOpen({
+                    open: true,
+                    id: index,
+                    column: 'description',
+                    notes: description
+                  })
+                }
+              />
+            </div>
+          </div>
         );
       },
-      width: 240
+      width: 150
     },
     {
       title: 'Internal Notes',
@@ -764,21 +797,39 @@ const QuotationForm = ({ mode, onSubmit }) => {
       key: 'internal_notes',
       render: (_, { internal_notes }, index) => {
         return (
-          <DebounceInput
-            value={internal_notes}
-            onChange={(value) =>
-              dispatch(
-                changeQuotationDetailValue({
-                  index,
-                  key: 'internal_notes',
-                  value: value
-                })
-              )
-            }
-          />
+          // <DebounceInput
+          //   value={internal_notes}
+          //   onChange={(value) =>
+          //     dispatch(
+          //       changeQuotationDetailValue({
+          //         index,
+          //         key: 'internal_notes',
+          //         value: value
+          //       })
+          //     )
+          //   }
+          // />
+          <div className="relative">
+            <p>{internal_notes}</p>
+            <div
+              className={`absolute -right-2 ${internal_notes?.trim() ? '-top-[2px]' : '-top-[12px]'} flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-white`}>
+              <TbEdit
+                size={22}
+                className="text-primary hover:text-blue-600"
+                onClick={() =>
+                  setNotesModalIsOpen({
+                    open: true,
+                    id: index,
+                    column: 'internal_notes',
+                    notes: internal_notes
+                  })
+                }
+              />
+            </div>
+          </div>
         );
       },
-      width: 240
+      width: 150
     },
     {
       title: 'Stock Quantity',
@@ -1487,9 +1538,9 @@ const QuotationForm = ({ mode, onSubmit }) => {
                 value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
               />
               <DetailSummaryInfo
-              title="Total Profit:"
-              value={formatThreeDigitCommas(roundUpto(totalProfit)) || 0}
-            />
+                title="Total Profit:"
+                value={formatThreeDigitCommas(roundUpto(totalProfit)) || 0}
+              />
             </div>
           </Row>
           <h4 className="ml-1 mt-2 font-medium text-gray-800">Rebate:</h4>
@@ -1559,7 +1610,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Button>
         </div>
       </Form>
-      <NotesModal
+      {/* <NotesModal
         title={notesModalIsOpen.column === 'technician_notes' ? 'Technician Notes' : 'Agent Notes'}
         initialValue={notesModalIsOpen.notes}
         isSubmitting={isFormSubmitting}
@@ -1567,6 +1618,15 @@ const QuotationForm = ({ mode, onSubmit }) => {
         onCancel={closeNotesModal}
         onSubmit={onNotesSave}
         disabled={!permissions.update}
+      /> */}
+      <NotesModal
+        title={notesModalIsOpen.column === 'description' ? 'Customer Notes' : 'Internal Notes'}
+        initialValue={notesModalIsOpen.notes}
+        isSubmitting={false} // You might want to add a loading state
+        open={notesModalIsOpen.open}
+        onCancel={closeNotesModal}
+        onSubmit={onNotesSave}
+        disabled={!permissions?.quotation?.edit || !permissions?.quotation?.add}
       />
     </>
   );
