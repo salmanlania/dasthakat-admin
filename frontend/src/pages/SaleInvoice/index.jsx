@@ -15,9 +15,10 @@ import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
 import {
   getSaleInvoiceList,
-  setSaleInvoiceListParams
+  setSaleInvoiceListParams,
+  getSaleInvoice
 } from '../../store/features/saleInvoiceSlice';
-// import { createPurchaseInvoicePrint } from '../../utils/prints/purchase-invoice-print';
+import { createSaleInvoicePrint } from '../../utils/prints/sale-invoice-print';
 
 const SaleInvoice = () => {
   const dispatch = useDispatch();
@@ -63,13 +64,13 @@ const SaleInvoice = () => {
     // }
   };
 
-  const printPurchaseInvoice = async (id) => {
+  const printSaleInvoice = async (id) => {
     const loadingToast = toast.loading('Loading print...');
 
     try {
-      const data = await dispatch(getPurchaseInvoiceForPrint(id)).unwrap();
+      const data = await dispatch(getSaleInvoice(id)).unwrap();
       toast.dismiss(loadingToast);
-      createPurchaseInvoicePrint(data);
+      createSaleInvoicePrint(data);
     } catch (error) {
       handleError(error);
     }
@@ -189,15 +190,15 @@ const SaleInvoice = () => {
         <div className="flex justify-center items-center gap-2">
           {permissions.edit ? (
             <>
-              {/* <Tooltip title="Print">
+              <Tooltip title="Print">
                 <Button
                   size="small"
                   type="primary"
                   className="bg-rose-600 hover:!bg-rose-500"
                   icon={<FaRegFilePdf size={14} />}
-                  // onClick={() => printPurchaseInvoice(purchase_invoice_id)}
+                  onClick={() => printSaleInvoice(sale_invoice_id)}
                 />
-              </Tooltip> */}
+              </Tooltip>
               <Tooltip title="Edit">
                 <Link to={`/sale-invoice/edit/${sale_invoice_id}`}>
                   <Button
@@ -225,7 +226,7 @@ const SaleInvoice = () => {
           ) : null} */}
         </div>
       ),
-      width: 70,
+      width: 90,
       fixed: 'right'
     }
   ];

@@ -113,6 +113,7 @@ export const saleInvoiceSlice = createSlice({
         event_id : data?.charge_order?.event?.event_name,
         vessel_id : data?.charge_order?.vessel?.name,
         customer_id : data?.charge_order?.customer?.name,
+        charger_order_id : data?.charge_order?.document_identity,
         port_id : data?.charge_order?.port?.name,
         ref_document_identity : data?.charge_order?.ref_document_identity,
       };
