@@ -362,8 +362,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     ]
   ];
 
-  if (data?.job_order_detail && data.job_order_detail.length) {
-    console.log('data?.job_order_detail' , data?.job_order_detail)
+  if (data?.job_order_detail && data.job_order_detail.length > 0) {
     let lastDocumentId = '';
     let lastDocumentIdService = '';
     let lastSO_DO = '';
@@ -390,7 +389,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
 
     // Process the sorted details
     sortedDetails.forEach((detail) => {
-      console.log('detail' , detail)
+      console.log('detail', detail)
       const currentDocId = detail?.charge_order?.document_identity || '';
       const showDocumentId = currentDocId !== lastDocumentId ? currentDocId : '';
       lastDocumentId = currentDocId;
@@ -515,8 +514,8 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
   //   }
   //   return [];
   // }).filter(Boolean);
-  const techNotes = data?.job_order_detail[0]?.charge_order?.technician_notes
-  
+  const techNotes = data?.job_order_detail ? data?.job_order_detail[0]?.charge_order?.technician_notes : ""
+
 
   if (data?.certificates && data.certificates.length) {
     const certiLen = data?.certificates.length
@@ -533,7 +532,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         },
         {
           content: index === 0 ? 'Technician Notes' : '',
-          rowSpan : certiLen,
+          rowSpan: certiLen,
           styles: {
             fillColor: 'ebf1de',
             textColor: '#244062',
@@ -541,7 +540,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         },
         {
           content: index === 0 ? techNotes : '',
-          rowSpan : certiLen,
+          rowSpan: certiLen,
           styles: {
             halign: 'left',
           }

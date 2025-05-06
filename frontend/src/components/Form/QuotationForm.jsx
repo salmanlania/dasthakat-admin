@@ -93,19 +93,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
   } = useSelector((state) => state.quotation);
   const [prevEvent, setPrevEvent] = useState(initialFormValues?.event_id);
 
-  if (quotationDetails.length) {
-    quotationDetails.forEach((item, index) => {
-      form.setFieldsValue({
-        [`product_description-${index}`]: item.product_description,
-        [`product_id-${index}`]: item.product_id,
-        [`product_name-${index}`]: item.product_name,
-        [`quantity-${index}`]: item.quantity,
-        [`rate-${index}`]: item.rate,
-        [`discount_percent-${index}`]: item.discount_percent
-      });
-    });
-  }
-
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
   const [notesModalIsOpen, setNotesModalIsOpen] = useState({
@@ -124,6 +111,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
   let typeId = 0;
 
   quotationDetails.forEach((detail) => {
+
     typeId = detail?.product_type_id?.value;
     totalQuantity += +detail.quantity || 0;
     if (typeId !== 1) {
@@ -844,12 +832,16 @@ const QuotationForm = ({ mode, onSubmit }) => {
       dataIndex: 'quantity',
       key: 'quantity',
       render: (_, { quantity }, index) => {
-        form.setFieldsValue({ [`quantity-${index}`]: quantity });
+        const newQuantity = Number(quantity) % 1 === 0
+        ? Number(quantity).toFixed(0)  // Remove decimals if integer
+        : quantity;
+        form.setFieldsValue({ [`quantity-${index}`]: newQuantity });
         return (
-          <Form.Item className="m-0" name={`quantity-${index}`} initialValue={quantity}>
+          <Form.Item className="m-0" name={`quantity-${index}`} initialValue={newQuantity}>
             <DebouncedCommaSeparatedInput
               decimalPlaces={2}
-              value={quantity}
+              // value={quantity}
+              value={newQuantity}
               onChange={(value) =>
                 dispatch(
                   changeQuotationDetailValue({
@@ -1144,9 +1136,9 @@ const QuotationForm = ({ mode, onSubmit }) => {
       ),
       key: 'action',
       render: (record, { id }, index) => {
-        if (record.isDeleted) {
-          return null;
-        }
+        // if (record.isDeleted) {
+        //   return null;
+        // }
         return (
           <Dropdown
             trigger={['click']}

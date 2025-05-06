@@ -435,7 +435,6 @@ const Scheduling = () => {
             labelKey="name"
             valueKey="port_id"
             className="w-full font-normal"
-            mode="multiple"
             value={params.port_id}
             onChange={(selected) => dispatch(setDispatchListParams({ port_id: selected }))}
           />
@@ -608,6 +607,7 @@ const Scheduling = () => {
           <Input
             className="font-normal"
             size="small"
+            allowClear
             onClick={(e) => e.stopPropagation()}
             value={params.technician_notes}
             onChange={(e) => dispatch(setDispatchListParams({ technician_notes: e.target.value }))}
@@ -738,6 +738,7 @@ const Scheduling = () => {
           <Input
             className="font-normal"
             size="small"
+            allowClear
             onClick={(e) => e.stopPropagation()}
             value={params.agent_notes}
             onChange={(e) => dispatch(setDispatchListParams({ agent_notes: e.target.value }))}

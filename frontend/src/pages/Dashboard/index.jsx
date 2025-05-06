@@ -3,16 +3,17 @@ import { FaArrowDown, FaArrowUp, FaDollarSign, FaReceipt } from 'react-icons/fa6
 import { GoArrowUpRight } from 'react-icons/go';
 import DashboardCard from '../../components/Card/DashboardCard';
 import PageHeading from '../../components/Heading/PageHeading';
+import { useNavigate } from 'react-router-dom';
 
 const shortcuts = [
-  { title: 'Chart of Accounts' },
-  { title: 'Sales Invoice' },
-  { title: 'Purchase Invoice' },
-  { title: 'Journal Entry' },
-  { title: 'Payment Entry' },
-  { title: 'Accounts Receivable' },
-  { title: 'General Ledger' },
-  { title: 'Trial Balance' }
+  { title: 'Quotation', url: '/quotation/' },
+  { title: 'Charge Order', url: '/charge-order/' },
+  { title: 'Scheduling', url: '/scheduling/' },
+  { title: 'Purchase Order', url: '/purchase-order/' },
+  { title: 'Pick List', url: '/pick-list/' },
+  { title: 'Service List', url: '/service-list/' },
+  { title: 'Sales Invoice', url: '/sale-invoice/' },
+  { title: 'Purchase Invoice', url: '/purchase-invoice/' }
 ];
 
 const months = [
@@ -31,6 +32,7 @@ const months = [
 ];
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -83,10 +85,10 @@ const Dashboard = () => {
       <div className="mt-4 w-full rounded-md bg-white p-4 shadow-sm">
         <h4 className="text-lg">Shortcuts</h4>
         <Row gutter={[12, 12]} className="mt-4">
-          {shortcuts.map(({ title }, i) => (
+          {shortcuts.map(({ title , url }, i) => (
             <Col span={24} lg={6} md={8} sm={12} key={i}>
               <div className="flex h-6 w-fit cursor-pointer items-center gap-1 text-sm text-gray-600 transition-all hover:border-b hover:border-gray-400">
-                <span>{title}</span>
+                <span onClick={() => navigate(url)}>{title}</span>
                 <GoArrowUpRight size={16} />
               </div>
             </Col>
