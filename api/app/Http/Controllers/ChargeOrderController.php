@@ -1008,7 +1008,6 @@ class ChargeOrderController extends Controller
 				'id' => $id,
 			],
 			'with' => [
-				['model' => new PurchaseOrder],
 				['model' => new Picklist],
 				['model' => new Servicelist],
 				['model' => new Shipment],
