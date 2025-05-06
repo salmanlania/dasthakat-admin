@@ -108,7 +108,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
 
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
-
   const [notesModalIsOpen, setNotesModalIsOpen] = useState({
     open: false,
     id: null,
@@ -1610,24 +1609,16 @@ const QuotationForm = ({ mode, onSubmit }) => {
           </Button>
         </div>
       </Form>
-      {/* <NotesModal
-        title={notesModalIsOpen.column === 'technician_notes' ? 'Technician Notes' : 'Agent Notes'}
-        initialValue={notesModalIsOpen.notes}
-        isSubmitting={isFormSubmitting}
-        open={notesModalIsOpen.open}
-        onCancel={closeNotesModal}
-        onSubmit={onNotesSave}
-        disabled={!permissions.update}
-      /> */}
+      
       <NotesModal
         title={notesModalIsOpen.column === 'description' ? 'Customer Notes' : 'Internal Notes'}
         initialValue={notesModalIsOpen.notes}
-        isSubmitting={false} // You might want to add a loading state
+        isSubmitting={false}
         open={notesModalIsOpen.open}
         onCancel={closeNotesModal}
         onSubmit={onNotesSave}
         disabled={!permissions?.quotation?.edit || !permissions?.quotation?.add}
-      />
+      />``
     </>
   );
 };

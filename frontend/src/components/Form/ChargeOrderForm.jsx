@@ -16,10 +16,12 @@ import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
 import { BiPlus } from 'react-icons/bi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
+import { TbEdit } from 'react-icons/tb';
 import { IoIosWarning, IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import useError from '../../hooks/useError';
+import NotesModal from '../../components/Modals/NotesModal.jsx';
 import {
   addChargeOrderDetail,
   changeChargeOrderDetailOrder,
@@ -87,6 +89,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
     const isValidFields = await form.validateFields();
     if (!isValidFields) return;
     const values = form.getFieldsValue();
+    console.log('values' , values)
 
     const edit = mode;
     const deletedDetails = chargeOrderDetails.filter((detail) => detail.isDeleted !== true);
@@ -105,7 +108,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       salesman_id: values.salesman_id ? values.salesman_id.value : null,
       class1_id: values.class1_id ? values.class1_id.value : null,
       class2_id: values.class2_id ? values.class2_id.value : null,
-      port_id: values.port_id ? values.port_id.key : null,
+      port_id: values.port_id ? values.port_id.value : null,
       customer_id: values.customer_id ? values.customer_id.value : null,
       event_id: values.event_id ? values.event_id.value : null,
       flag_id: values.flag_id ? values.flag_id.value : null,
@@ -146,6 +149,25 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
     if (additionalRequest === 'CREATE_PO') {
       dispatch(setChargePoID(id));
     }
+  };
+
+  const closeNotesModal = () => {
+    setNotesModalIsOpen({ open: false, id: null, column: null, notes: null });
+  };
+
+  const onNotesSave = ({ notes }) => {
+    const index = notesModalIsOpen.id;
+    const column = notesModalIsOpen.column;
+
+    dispatch(
+      changeChargeOrderDetailValue({
+        index,
+        key: column,
+        value: notes
+      })
+    );
+
+    closeNotesModal();
   };
 
   const onProductCodeChange = async (index, value) => {
@@ -364,6 +386,12 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
 
   const [globalMarkup, setGlobalMarkup] = useState('');
   const [globalDiscount, setGlobalDiscount] = useState('');
+  const [notesModalIsOpen, setNotesModalIsOpen] = useState({
+    open: false,
+    id: null,
+    column: null,
+    notes: null
+  });
 
   const applyGlobalDiscount = (inputValue) => {
     const trimmed = inputValue.trim();
@@ -573,7 +601,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           </Form.Item>
         );
       },
-      width: 200,
+      width: 130,
       fixed: 'left'
     },
     {
@@ -625,7 +653,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           </Tooltip>
         );
       },
-      width: 200,
+      width: 270,
       fixed: 'left'
     },
     {
@@ -634,22 +662,40 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       key: 'description',
       render: (_, { description, editable }, index) => {
         return (
-          <DebounceInput
-            value={description}
-            disabled={editable === false}
-            onChange={(value) =>
-              dispatch(
-                changeChargeOrderDetailValue({
-                  index,
-                  key: 'description',
-                  value: value
-                })
-              )
-            }
-          />
+          // <DebounceInput
+          //   value={description}
+          //   disabled={editable === false}
+          //   onChange={(value) =>
+          //     dispatch(
+          //       changeChargeOrderDetailValue({
+          //         index,
+          //         key: 'description',
+          //         value: value
+          //       })
+          //     )
+          //   }
+          // />
+          <div className="relative">
+            <p>{description}</p>
+            <div
+              className={`absolute -right-2 ${description?.trim() ? '-top-[2px]' : '-top-[12px]'} flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-white`}>
+              <TbEdit
+                size={22}
+                className="text-primary hover:text-blue-600"
+                onClick={() =>
+                  setNotesModalIsOpen({
+                    open: true,
+                    id: index,
+                    column: 'description',
+                    notes: description
+                  })
+                }
+              />
+            </div>
+          </div>
         );
       },
-      width: 240
+      width: 100
     },
     {
       title: 'Internal Notes',
@@ -657,21 +703,39 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       key: 'internal_notes',
       render: (_, { internal_notes }, index) => {
         return (
-          <DebounceInput
-            value={internal_notes}
-            onChange={(value) =>
-              dispatch(
-                changeChargeOrderDetailValue({
-                  index,
-                  key: 'internal_notes',
-                  value: value
-                })
-              )
-            }
-          />
+          // <DebounceInput
+          //   value={internal_notes}
+          //   onChange={(value) =>
+          //     dispatch(
+          //       changeChargeOrderDetailValue({
+          //         index,
+          //         key: 'internal_notes',
+          //         value: value
+          //       })
+          //     )
+          //   }
+          // />
+          <div className="relative">
+            <p>{internal_notes}</p>
+            <div
+              className={`absolute -right-2 ${internal_notes?.trim() ? '-top-[2px]' : '-top-[12px]'} flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-white`}>
+              <TbEdit
+                size={22}
+                className="text-primary hover:text-blue-600"
+                onClick={() =>
+                  setNotesModalIsOpen({
+                    open: true,
+                    id: index,
+                    column: 'internal_notes',
+                    notes: internal_notes
+                  })
+                }
+              />
+            </div>
+          </div>
         );
       },
-      width: 240
+      width: 100
     },
     {
       title: 'Stock Quantity',
@@ -680,7 +744,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       render: (_, { stock_quantity }) => {
         return <Input value={stock_quantity} disabled />;
       },
-      width: 122
+      width: 100
     },
     {
       title: 'Quantity',
@@ -757,7 +821,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           </div>
         );
       },
-      width: 100
+      width: 90
     },
     {
       title: 'Unit',
@@ -786,7 +850,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 120
+      width: 100
     },
     {
       title: 'Vendor',
@@ -863,7 +927,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      width: 120
+      width: 100
     },
     {
       title: (
@@ -942,7 +1006,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           </Form.Item>
         );
       },
-      width: 120
+      width: 100
     },
     {
       title: 'Amount',
@@ -951,12 +1015,12 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       render: (_, { amount }) => (
         <DebouncedCommaSeparatedInput value={amount ? amount + '' : ''} disabled />
       ),
-      width: 120
+      width: 100
     },
     {
       title: (
         <div className="flex flex-wrap">
-          <span>Discount %</span>
+          <span>Dis %</span>
           <input
             value={globalDiscount}
             onChange={(e) => {
@@ -1012,7 +1076,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           </Form.Item>
         );
       },
-      width: 100
+      width: 80
     },
     {
       title: 'Discount Amt',
@@ -1115,228 +1179,241 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
   };
 
   return (
-    <Form
-      name="chargeOrder"
-      layout="vertical"
-      autoComplete="off"
-      form={form}
-      initialValues={
-        mode === 'edit' || chargeOrder_id
-          ? initialFormValues
-          : {
-              document_date: dayjs()
-            }
-      }>
-      {/* Make this sticky */}
-      <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-base font-semibold">
-        <span className="text-gray-500">Charge order No:</span>
-        <span
-          className={`ml-4 text-amber-600 ${
-            mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : 'select-none'
-          } rounded px-1`}
-          onClick={() => {
-            if (mode !== 'edit') return;
-            navigator.clipboard.writeText(initialFormValues.document_identity);
-            toast.success('Copied');
-          }}>
-          {mode === 'edit' ? initialFormValues.document_identity : 'AUTO'}
-        </span>
-      </p>
-
-      <Row gutter={12}>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item
-            name="document_date"
-            label="Charge Order Date"
-            rules={[{ required: true, message: 'charge order date is required' }]}>
-            <DatePicker format="MM-DD-YYYY" className="w-full" />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={5} lg={5}>
-          <Form.Item name="customer_po_no" label="Customer PO No">
-            <Input />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={5} lg={5}>
-          <Form.Item name="ref_document_identity" label="Quote No">
-            <Input disabled />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={5} lg={5}>
-          <Form.Item
-            name="salesman_id"
-            label="Salesman"
-            rules={[{ required: true, message: 'Salesman is required' }]}>
-            <AsyncSelect
-              endpoint="/salesman"
-              valueKey="salesman_id"
-              labelKey="name"
-              labelInValue
-              addNewLink={
-                permissions.salesman.list && permissions.salesman.add ? '/salesman' : null
+    <>
+      <Form
+        name="chargeOrder"
+        layout="vertical"
+        autoComplete="off"
+        form={form}
+        initialValues={
+          mode === 'edit' || chargeOrder_id
+            ? initialFormValues
+            : {
+                document_date: dayjs()
               }
-            />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item
-            name="event_id"
-            label="Event"
-            rules={[{ required: true, message: 'Event is required' }]}>
-            <AsyncSelect
-              endpoint="/event"
-              valueKey="event_id"
-              labelKey="event_name"
-              labelInValue
-              onChange={onEventChange}
-              addNewLink={permissions.event.add ? '/event/create' : null}
-            />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="vessel_id" label="Vessel">
-            <Select labelInValue disabled />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="customer_id" label="Customer">
-            <Select labelInValue disabled />
-          </Form.Item>
-        </Col>
+        }>
+        {/* Make this sticky */}
+        <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-base font-semibold">
+          <span className="text-gray-500">Charge order No:</span>
+          <span
+            className={`ml-4 text-amber-600 ${
+              mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : 'select-none'
+            } rounded px-1`}
+            onClick={() => {
+              if (mode !== 'edit') return;
+              navigator.clipboard.writeText(initialFormValues.document_identity);
+              toast.success('Copied');
+            }}>
+            {mode === 'edit' ? initialFormValues.document_identity : 'AUTO'}
+          </span>
+        </p>
 
-        <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item name="class1_id" label="Class 1">
-            <Select labelInValue disabled />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item name="class2_id" label="Class 2">
-            <Select labelInValue disabled />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item
-            name="port_id"
-            label="Port"
-            initialValue={
-              initialFormValues?.port_id && initialFormValues?.name ? { value: initialFormValues.port_id, label: initialFormValues.name } : null
-            }>
-            <AsyncSelect endpoint="/port" valueKey="port_id" labelKey="name" labelInValue />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item name="flag_id" label="Flag">
-            <AsyncSelect
-              endpoint="/flag"
-              valueKey="flag_id"
-              labelKey="name"
-              labelInValue
-              disabled
-            />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="technician_id" label="Technician">
-            <AsyncSelect
-              endpoint="/user"
-              valueKey="user_id"
-              labelKey="user_name"
-              mode="multiple"
-              labelInValue
-              addNewLink={permissions.user.add ? '/user/create' : null}
-            />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="technician_notes" label="Technician Notes">
-            <Input.TextArea rows={1} />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="agent_id" label="Agent">
-            <AsyncSelect
-              endpoint="/agent"
-              valueKey="agent_id"
-              labelKey="name"
-              labelInValue
-              addNewLink={permissions.agent.add ? '/agent/create' : null}
-            />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="agent_notes" label="Agent Notes">
-            <Input.TextArea rows={1} />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={24} md={16} lg={16}>
-          <Form.Item name="remarks" label="Remarks">
-            <Input.TextArea rows={1} />
-          </Form.Item>
-        </Col>
-      </Row>
+        <Row gutter={12}>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item
+              name="document_date"
+              label="Charge Order Date"
+              rules={[{ required: true, message: 'charge order date is required' }]}>
+              <DatePicker format="MM-DD-YYYY" className="w-full" />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={5} lg={5}>
+            <Form.Item name="customer_po_no" label="Customer PO No">
+              <Input />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={5} lg={5}>
+            <Form.Item name="ref_document_identity" label="Quote No">
+              <Input disabled />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={5} lg={5}>
+            <Form.Item
+              name="salesman_id"
+              label="Salesman"
+              rules={[{ required: true, message: 'Salesman is required' }]}>
+              <AsyncSelect
+                endpoint="/salesman"
+                valueKey="salesman_id"
+                labelKey="name"
+                labelInValue
+                addNewLink={
+                  permissions.salesman.list && permissions.salesman.add ? '/salesman' : null
+                }
+              />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item
+              name="event_id"
+              label="Event"
+              rules={[{ required: true, message: 'Event is required' }]}>
+              <AsyncSelect
+                endpoint="/event"
+                valueKey="event_id"
+                labelKey="event_name"
+                labelInValue
+                onChange={onEventChange}
+                addNewLink={permissions.event.add ? '/event/create' : null}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="vessel_id" label="Vessel">
+              <Select labelInValue disabled />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="customer_id" label="Customer">
+              <Select labelInValue disabled />
+            </Form.Item>
+          </Col>
 
-      <Table
-        columns={columns}
-        dataSource={chargeOrderDetails.filter((item) => !item.isDeleted)}
-        rowKey="id"
-        size="small"
-        scroll={{ x: 'calc(100% - 200px)' }}
-        pagination={false}
-        sticky={{
-          offsetHeader: 56
-        }}
-      />
-
-      <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
-        <Row gutter={[12, 12]}>
           <Col span={24} sm={12} md={6} lg={6}>
-            <DetailSummaryInfo
-              title="Total Quantity:"
-              value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
-            />
-            <DetailSummaryInfo
-              title="Total Amount:"
-              value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
-            />
-            <DetailSummaryInfo
-              title="Discount Amount:"
-              value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
-            />
-            <DetailSummaryInfo
-              title="Net Amount:"
-              value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
-            />
+            <Form.Item name="class1_id" label="Class 1">
+              <Select labelInValue disabled />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={6} lg={6}>
+            <Form.Item name="class2_id" label="Class 2">
+              <Select labelInValue disabled />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={6} lg={6}>
+            <Form.Item
+              name="port_id"
+              label="Port"
+              initialValue={
+                initialFormValues?.port_id && initialFormValues?.name
+                  ? { value: initialFormValues.port_id, label: initialFormValues.name }
+                  : null
+              }>
+              <AsyncSelect endpoint="/port" valueKey="port_id" labelKey="name" labelInValue />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={6} lg={6}>
+            <Form.Item name="flag_id" label="Flag">
+              <AsyncSelect
+                endpoint="/flag"
+                valueKey="flag_id"
+                labelKey="name"
+                labelInValue
+                disabled
+              />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="technician_id" label="Technician">
+              <AsyncSelect
+                endpoint="/user"
+                valueKey="user_id"
+                labelKey="user_name"
+                mode="multiple"
+                labelInValue
+                addNewLink={permissions.user.add ? '/user/create' : null}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="technician_notes" label="Technician Notes">
+              <Input.TextArea rows={1} />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="agent_id" label="Agent">
+              <AsyncSelect
+                endpoint="/agent"
+                valueKey="agent_id"
+                labelKey="name"
+                labelInValue
+                addNewLink={permissions.agent.add ? '/agent/create' : null}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="agent_notes" label="Agent Notes">
+              <Input.TextArea rows={1} />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={24} md={16} lg={16}>
+            <Form.Item name="remarks" label="Remarks">
+              <Input.TextArea rows={1} />
+            </Form.Item>
           </Col>
         </Row>
-      </div>
 
-      <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
-        <Link to="/charge-order">
-          <Button className="w-28">Cancel</Button>
-        </Link>
+        <Table
+          columns={columns}
+          dataSource={chargeOrderDetails.filter((item) => !item.isDeleted)}
+          rowKey="id"
+          size="small"
+          scroll={{ x: 'calc(100% - 200px)' }}
+          pagination={false}
+          sticky={{
+            offsetHeader: 56
+          }}
+        />
 
-        {mode === 'edit' ? (
-          <>
-            {permissions.purchase_order.add ? (
-              <Button
-                type="primary"
-                loading={isFormSubmitting === 'CREATE_PO' && !poChargeID}
-                onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PO'))}>
-                Save & Create PO
-              </Button>
-            ) : null}
-          </>
-        ) : null}
+        <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
+          <Row gutter={[12, 12]}>
+            <Col span={24} sm={12} md={6} lg={6}>
+              <DetailSummaryInfo
+                title="Total Quantity:"
+                value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
+              />
+              <DetailSummaryInfo
+                title="Total Amount:"
+                value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
+              />
+              <DetailSummaryInfo
+                title="Discount Amount:"
+                value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
+              />
+              <DetailSummaryInfo
+                title="Net Amount:"
+                value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
+              />
+            </Col>
+          </Row>
+        </div>
 
-        <Button
-          type="primary"
-          className="w-28"
-          loading={isFormSubmitting}
-          onClick={() => (isFormSubmitting ? null : onFinish())}>
-          Save
-        </Button>
-      </div>
-    </Form>
+        <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
+          <Link to="/charge-order">
+            <Button className="w-28">Cancel</Button>
+          </Link>
+
+          {mode === 'edit' ? (
+            <>
+              {permissions.purchase_order.add ? (
+                <Button
+                  type="primary"
+                  loading={isFormSubmitting === 'CREATE_PO' && !poChargeID}
+                  onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PO'))}>
+                  Save & Create PO
+                </Button>
+              ) : null}
+            </>
+          ) : null}
+
+          <Button
+            type="primary"
+            className="w-28"
+            loading={isFormSubmitting}
+            onClick={() => (isFormSubmitting ? null : onFinish())}>
+            Save
+          </Button>
+        </div>
+      </Form>
+      <NotesModal
+        title={notesModalIsOpen.column === 'description' ? 'Customer Notes' : 'Internal Notes'}
+        initialValue={notesModalIsOpen.notes}
+        isSubmitting={false}
+        open={notesModalIsOpen.open}
+        onCancel={closeNotesModal}
+        onSubmit={onNotesSave}
+        disabled={!permissions?.charge_order?.edit || !permissions?.charge_order?.add}
+      />
+    </>
   );
 };
 
