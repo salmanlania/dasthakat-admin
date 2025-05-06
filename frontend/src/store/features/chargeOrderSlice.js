@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import dayjs from 'dayjs';
 import api from '../../axiosInstance';
 import { roundUpto } from '../../utils/number';
+import { v4 as uuidv4 } from 'uuid';
 
 export const getChargeOrderList = createAsyncThunk(
   'chargeOrder/list',
@@ -159,22 +160,28 @@ export const chargeOrderAnalysis = createAsyncThunk(
 );
 
 const initialState = {
+
+  // Meta state
   isListLoading: false,
   isFormSubmitting: false,
   isBulkDeleting: false,
+  isTempDataLoading: false,
+  isAnalysisLoading: false,
+  isItemLoading: false,
+
+  // IDs and references
   initialFormValues: null,
   tempChargeOrderID: null,
-  tempChargeDetails: [],
-  isTempDataLoading: false,
-  chargeOrderDetailId: null,
-  isAnalysisLoading: false,
   analysisChargeOrderID: null,
+  chargeQuotationID: null,
+
+  // Entities (normalized structure)
+  tempChargeDetails: [],
+  chargeOrderDetailId: null,
   analysisChargeDetails: [],
-  isItemLoading: false,
   list: [],
   deleteIDs: [],
   chargeOrderDetails: [],
-  chargeQuotationID: null,
   params: {
     page: 1,
     limit: 50,
@@ -222,7 +229,7 @@ export const chargeOrderSlice = createSlice({
     addChargeOrderDetail: (state, action) => {
       const index = action.payload;
       const newDetail = {
-        id: Date.now(),
+        id: uuidv4(),
         product_code: null,
         product_id: null,
         product_nature: null,
@@ -259,7 +266,7 @@ export const chargeOrderSlice = createSlice({
         job_order_detail_id: null,
         shipment_id: null,
         shipment_detail_id: null,
-        id: Date.now(),
+        id: uuidv4(),
         row_status: 'I',
         isDeleted: false
       };
@@ -400,7 +407,7 @@ export const chargeOrderSlice = createSlice({
           (detail.discount_percent
             ? detail.rate * splittedQuantity * (detail.discount_percent / 100)
             : 0),
-        id: Date.now()
+        id: uuidv4()
       };
 
       state.chargeOrderDetails.splice(index, 1, row, splittedRow);
@@ -454,7 +461,7 @@ export const chargeOrderSlice = createSlice({
     addCase(getChargeOrder.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
-      
+
       state.initialFormValues = {
         document_identity: data.document_identity,
         document_date: data.document_date ? dayjs(data.document_date) : null,

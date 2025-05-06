@@ -89,7 +89,6 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
     const isValidFields = await form.validateFields();
     if (!isValidFields) return;
     const values = form.getFieldsValue();
-    console.log('values' , values)
 
     const edit = mode;
     const deletedDetails = chargeOrderDetails.filter((detail) => detail.isDeleted !== true);

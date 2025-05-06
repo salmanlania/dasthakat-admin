@@ -18,6 +18,7 @@ import { FaRegFilePdf } from 'react-icons/fa';
 import { TbEdit } from 'react-icons/tb';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncSelect from '../../components/AsyncSelect/index.jsx';
+import AsyncSelectSpecial from '../../components/AsyncSelectSpecial/index.jsx';
 import PageHeading from '../../components/Heading/PageHeading.jsx';
 import NotesModal from '../../components/Modals/NotesModal.jsx';
 import useDebounce from '../../hooks/useDebounce.js';
@@ -45,6 +46,7 @@ const Scheduling = () => {
   const { list, isListLoading, params, paginationInfo, isFormSubmitting } = useSelector(
     (state) => state.dispatch
   );
+
   const [tableKey, setTableKey] = useState(0);
   const [isOldChecked, setIsOldChecked] = useState(false);
   const [agentDetails, setAgentDetails] = useState(null);
@@ -65,7 +67,8 @@ const Scheduling = () => {
     return {
       ...params,
       start_date: !isOldChecked ? today : params.start_date,
-      end_date: !isOldChecked ? null : params.end_date
+      end_date: !isOldChecked ? null : params.end_date,
+      status: params.status
     };
   };
 
@@ -250,7 +253,7 @@ const Scheduling = () => {
       const data = await dispatch(getEventServiceOrder(id)).unwrap();
       createServiceOrderPrint(data, true);
     } catch (error) {
-      console.log('error' , error)
+      console.log('error', error);
       handleError(error);
     } finally {
       toast.dismiss(loadingToast);
@@ -443,36 +446,38 @@ const Scheduling = () => {
       sorter: false,
       width: 200,
       ellipsis: true,
-      render: (_, { event_id, ports }) => {       
-        return ( <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
-        <AsyncSelect
-          endpoint="/port"
-          multiple
-          valueKey="port_id"
-          labelKey="name"
-          labelInValue
-          disabled={!permissions.update}
-          defaultValue={
-            ports[0]
-              ? {
-                  value: ports[0].port_id,
-                  label: ports[0].name
-                }
-              : null
-          }
-          onChange={(selected) =>
-            updateValue(event_id, 'port_id', selected ? selected.value : null)
-          }
-          className="w-[90%]"
-          size="small"
-          style={{
-            width: '90%',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
-          }}
-        />
-      </div>)
+      render: (_, { event_id, ports }) => {
+        return (
+          <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+            <AsyncSelect
+              endpoint="/port"
+              multiple
+              valueKey="port_id"
+              labelKey="name"
+              labelInValue
+              disabled={!permissions.update}
+              defaultValue={
+                ports[0]
+                  ? {
+                      value: ports[0].port_id,
+                      label: ports[0].name
+                    }
+                  : null
+              }
+              onChange={(selected) =>
+                updateValue(event_id, 'port_id', selected ? selected.value : null)
+              }
+              className="w-[90%]"
+              size="small"
+              style={{
+                width: '90%',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}
+            />
+          </div>
+        );
         // if (!ports || !Array.isArray(ports)) return '';
 
         // const portNames = ports.map((port) => port.name || port).join(', ');
@@ -487,15 +492,41 @@ const Scheduling = () => {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Job Scope</p>
-          <AsyncSelect
+          {/* <AsyncSelect
             endpoint="/product"
             size="small"
             labelKey="short_code"
             valueKey="short_code"
             mode="multiple"
             className="w-full font-normal"
-            value={params.short_code}
-            onChange={(selected) => dispatch(setDispatchListParams({ short_code: selected }))}
+            value={params.short_code === null ? null : params.short_code}
+            // onChange={(selected) => dispatch(setDispatchListParams({ short_code: selected }))}
+            onChange={(selected) =>
+              dispatch(setDispatchListParams({
+                short_code: selected?.filter((item) => item !== null)
+              }))
+            }
+          /> */}
+          <AsyncSelectSpecial
+            endpoint="/product"
+            size="small"
+            labelKey="short_code"
+            valueKey="short_code"
+            mode="multiple"
+            className="w-full font-normal"
+            value={params.short_code?.filter((item) => item !== null)}
+            // onChange={(selected) =>
+            //   dispatch(
+            //     setDispatchListParams({
+            //       short_code: selected?.filter((item) => item !== null)
+            //     })
+            //   )
+            // }
+            onChange={(selected) => {
+              const filteredShortCodes = selected?.filter((item) => item !== null) || [];
+              console.log
+              dispatch(setDispatchListParams({ short_code: filteredShortCodes }));
+            }}
           />
         </div>
       ),
@@ -745,17 +776,17 @@ const Scheduling = () => {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Status</p>
-          <AsyncSelect
-            endpoint="/status"
+          <Select
             size="small"
-            className="w-full font-normal"
-            valueKey="status_id"
-            labelKey="name"
-            value={params.status_id}
+            className="w-full"
+            allowClear
+            disabled={!permissions.update}
+            options={statusOptions}
+            value={params.status ?? null}
             onChange={(selected) => {
               dispatch(
                 setDispatchListParams({
-                  status_id: selected
+                  status: selected
                 })
               );
             }}
@@ -840,7 +871,7 @@ const Scheduling = () => {
     params.sort_column,
     params.sort_direction,
     params.agent_id,
-    params.status_id,
+    params.status,
     params.technician_id,
     params.short_code,
     params.user_id,

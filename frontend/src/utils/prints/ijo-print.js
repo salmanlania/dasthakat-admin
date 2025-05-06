@@ -363,30 +363,34 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
   ];
 
   if (data?.job_order_detail && data.job_order_detail.length) {
+    console.log('data?.job_order_detail' , data?.job_order_detail)
     let lastDocumentId = '';
     let lastDocumentIdService = '';
     let lastSO_DO = '';
     let lastPO = '';
 
     // Sort function to sort by showDocumentId, showSO_DO, and showPO in order
-    const sortedDetails = [...data.job_order_detail].sort((a, b) => {
-      const docIdA = a?.charge_order?.document_identity || '';
-      const docIdB = b?.charge_order?.document_identity || '';
+    // const sortedDetails = [...data.job_order_detail].sort((a, b) => {
+    //   const docIdA = a?.charge_order?.document_identity || '';
+    //   const docIdB = b?.charge_order?.document_identity || '';
 
-      const soDoA = a?.shipment?.document_identity || '';
-      const soDoB = b?.shipment?.document_identity || '';
+    //   const soDoA = a?.shipment?.document_identity || '';
+    //   const soDoB = b?.shipment?.document_identity || '';
 
-      const poA = a?.charge_order?.customer_po_no || '';
-      const poB = b?.charge_order?.customer_po_no || '';
+    //   const poA = a?.charge_order?.customer_po_no || '';
+    //   const poB = b?.charge_order?.customer_po_no || '';
 
-      // Sorting logic (you can adjust the order of sorting or make it ascending/descending)
-      if (docIdA !== docIdB) return docIdA.localeCompare(docIdB);
-      if (soDoA !== soDoB) return soDoA.localeCompare(soDoB);
-      return poA.localeCompare(poB);
-    });
+    //   // Sorting logic (you can adjust the order of sorting or make it ascending/descending)
+    //   if (docIdA !== docIdB) return docIdA.localeCompare(docIdB);
+    //   if (soDoA !== soDoB) return soDoA.localeCompare(soDoB);
+    //   return poA.localeCompare(poB);
+    // });
+
+    const sortedDetails = [...data.job_order_detail];
 
     // Process the sorted details
     sortedDetails.forEach((detail) => {
+      console.log('detail' , detail)
       const currentDocId = detail?.charge_order?.document_identity || '';
       const showDocumentId = currentDocId !== lastDocumentId ? currentDocId : '';
       lastDocumentId = currentDocId;
