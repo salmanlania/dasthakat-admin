@@ -832,9 +832,10 @@ const QuotationForm = ({ mode, onSubmit }) => {
       dataIndex: 'quantity',
       key: 'quantity',
       render: (_, { quantity }, index) => {
-        const newQuantity = Number(quantity) % 1 === 0
-        ? Number(quantity).toFixed(0)  // Remove decimals if integer
-        : quantity;
+        // const newQuantity = Number(quantity) % 1 === 0
+        // ? Number(quantity).toFixed(0)
+        // : quantity;
+        const newQuantity =  Number(quantity).toString().replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
         form.setFieldsValue({ [`quantity-${index}`]: newQuantity });
         return (
           <Form.Item className="m-0" name={`quantity-${index}`} initialValue={newQuantity}>
