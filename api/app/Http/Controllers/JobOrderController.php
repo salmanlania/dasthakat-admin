@@ -93,10 +93,10 @@ class JobOrderController extends Controller
 
 	public function show($id, Request $request)
 	{
-
 		$data = JobOrder::with(
 			"job_order_detail",
 			"job_order_detail.charge_order",
+			"job_order_detail.charge_order_detail",
 			"job_order_detail.service_order",
 			"job_order_detail.product",
 			"job_order_detail.product_type",
@@ -110,27 +110,38 @@ class JobOrderController extends Controller
 			"class2",
 			"salesman",
 			"agent",
-			"certificates",
-
-		)
-			->where('job_order_id', $id)
-			->first();
-
-
+			"certificates"
+		)->where('job_order_id', $id)->first();
 
 		if ($data) {
-			foreach ($data->job_order_detail as &$detail) {
+			$details = $data->job_order_detail->sort(function ($a, $b) {
+				$docA = $a->charge_order->document_identity ?? '';
+				$docB = $b->charge_order->document_identity ?? '';
 
-				$shippedRow = ShipmentDetail::with("shipment");
-				$shippedRow->where('charge_order_detail_id', $detail->charge_order_detail_id);
-				$shippedRow = $shippedRow->where('charge_order_id', $detail->charge_order_id)
-					->first();
-				$detail->shipment = $shippedRow?->shipment ?: null; // Attach shipment if found, else null
-			}
+				$compareDoc = strcmp($docA, $docB);
+				if ($compareDoc !== 0) {
+					return $compareDoc;
+				}
+
+				return ($a->charge_order_detail->sort_order ?? 0) <=> ($b->charge_order_detail->sort_order ?? 0);
+			})->values();
+
+			unset($data->job_order_detail);
+			$data->job_order_detail = $details;
+			
+			foreach ($data->job_order_detail as &$detail) {
+							$shippedRow = ShipmentDetail::with("shipment")
+								->where('charge_order_detail_id', $detail->charge_order_detail_id)
+								->where('charge_order_id', $detail->charge_order_id)
+								->first();
+
+							$detail->shipment = $shippedRow?->shipment ?: null;
+						}
 		}
 
 		return $this->jsonResponse($data, 200, "Job Order Data");
 	}
+
 
 
 	public function Validator($request, $id = null)
