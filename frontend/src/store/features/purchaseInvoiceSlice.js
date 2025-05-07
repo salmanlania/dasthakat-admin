@@ -242,6 +242,8 @@ export const purchaseInvoiceSlice = createSlice({
         department: data.department ? data.department : "",
         remarks: data.remarks,
         ship_to: data.ship_to,
+        freight: data?.freight,
+        net_amount: data?.net_amount,
         buyer_id: data.user
           ? {
             value: data.user.user_id,
@@ -277,7 +279,6 @@ export const purchaseInvoiceSlice = createSlice({
           }
           : null,
         product_name: detail.product_name,
-        // product_name: detail.charge_order_detail.product_type_id == '4' ? detail.product_name || detail.charge_order_detail.product_name : detail?.product?.name,
         product_description: detail.product_description,
         charge_order_detail_id: detail.charge_order_detail_id,
         description: detail.description,
@@ -286,12 +287,14 @@ export const purchaseInvoiceSlice = createSlice({
         quantity: detail.quantity ? parseFloat(detail.quantity) : null,
         unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
         rate: detail.rate,
+        po_price: detail.po_price,
         vendor_notes: detail.vendor_notes,
         amount: detail.amount,
         editable: detail.editable,
         received_quantity: detail.received_quantity ? parseFloat(detail.received_quantity) : null,
         row_status: 'U',
-        isDeleted: false
+        isDeleted: false,
+        grn_date: detail?.grn_date
       }));
 
     });

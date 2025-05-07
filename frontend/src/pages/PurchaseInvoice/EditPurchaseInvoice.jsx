@@ -25,6 +25,7 @@ const EditPurchaseInvoice = () => {
       navigate('/purchase-invoice');
     } catch (error) {
       handleError(error);
+      console.log('error' , error)
     }
   };
 
