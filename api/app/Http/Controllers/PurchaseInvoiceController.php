@@ -285,7 +285,6 @@ class PurchaseInvoiceController extends Controller
 				}
 				if ($value['row_status'] == 'U') {
 					$UpdateArr = [
-						'charge_order_detail_id' => $value->charge_order_detail_id ?? "",
 						'sort_order' => $value['sort_order'] ?? "",
 						'product_id' => $value['product_id'] ?? "",
 						'product_name' => $value['product_name'] ?? "",
@@ -301,7 +300,7 @@ class PurchaseInvoiceController extends Controller
 						'updated_at' => Carbon::now(),
 						'updated_by' => $request->login_user_id,
 					];
-					PurchaseInvoiceDetail::create($UpdateArr);
+					PurchaseInvoiceDetail::where('purchase_invoice_detail_id', $value['purchase_invoice_detail_id'])->update($UpdateArr);
 				}
 				if ($value['row_status'] == 'D') {
 					PurchaseInvoiceDetail::where('purchase_invoice_detail_id', $value['purchase_invoice_detail_id'])->delete();
