@@ -195,3 +195,7 @@ ADD COLUMN `freight` DECIMAL(10,2) DEFAULT 0.00 AFTER `remarks`;
 
 ALTER TABLE `purchase_invoice_detail`
 ADD COLUMN `po_quantity` DECIMAL(10,2) DEFAULT 0.00 AFTER `unit_id`;
+
+ALTER TABLE `purchase_invoice_detail`
+DROP COLUMN `po_quantity`,
+ADD COLUMN `po_price` DECIMAL(10,2) DEFAULT 0.00 AFTER `unit_id`;
