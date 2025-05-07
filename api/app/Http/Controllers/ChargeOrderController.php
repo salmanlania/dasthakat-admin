@@ -7,11 +7,14 @@ use Illuminate\Http\Request;
 use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
 use App\Models\EventDispatch;
+use App\Models\GRN;
+use App\Models\GRNDetail;
 use App\Models\JobOrder;
 use App\Models\JobOrderDetail;
 use App\Models\JobOrderDetailCertificate;
 use App\Models\Picklist;
 use App\Models\PicklistDetail;
+use App\Models\PicklistReceived;
 use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
@@ -19,6 +22,7 @@ use App\Models\Quotation;
 use App\Models\Salesman;
 use App\Models\Servicelist;
 use App\Models\ServicelistDetail;
+use App\Models\ServicelistReceived;
 use App\Models\ServiceOrder;
 use App\Models\ServiceOrderDetail;
 use App\Models\Shipment;
@@ -532,6 +536,14 @@ class ChargeOrderController extends Controller
 			if (isset($existingDetails[$item->charge_order_detail_id])) {
 				// Update existing detail
 				$existingDetails[$item->charge_order_detail_id]->update([
+					'product_id' => $item->product_id ?? "",
+					'product_type_id' => $item->product_type_id ?? "",
+					'product_name' => $item->product_name ?? "",
+					'product_description' => $item->product_description ?? "",
+					'description' => $item->description ?? "",
+					'internal_notes' => $item->internal_notes ?? "",
+					'supplier_id' => $item->supplier_id ?? "",
+					'unit_id' => $item->unit_id ?? "",
 					'quantity'   => $item->quantity ?? 0,
 					'updated_at' =>  Carbon::now(),
 					'updated_by' => $request->login_user_id,
@@ -833,7 +845,7 @@ class ChargeOrderController extends Controller
 
 
 		$chargeOrder = ChargeOrder::findOrFail($id);
-
+		$oldChargeOrder = clone $chargeOrder;
 		$chargeOrder->fill([
 			'company_id' => $request->company_id,
 			'company_branch_id' => $request->company_branch_id,
@@ -983,6 +995,14 @@ class ChargeOrderController extends Controller
 			}
 		}
 
+		if (isset($request->is_event_changed) && $request->is_event_changed == 1) {
+			$event_id =	$oldChargeOrder->event_id;
+			JobOrderDetail::where('charge_order_id', $id)->whereHas('job_order', function ($q) use ($event_id) {
+				$q->where('event_id', $event_id);
+			})->delete();
+		}
+
+
 		$this->updatePicklist($request, $chargeOrder);
 		$this->updateServicelist($request, $chargeOrder);
 		$this->updateJobOrder($request, $chargeOrder);
@@ -1008,10 +1028,9 @@ class ChargeOrderController extends Controller
 				'id' => $id,
 			],
 			'with' => [
-				['model' => new PurchaseOrder],
-				['model' => new Picklist],
-				['model' => new Servicelist],
-				['model' => new Shipment],
+				['model' => new GRN],
+				['model' => new PicklistReceived],
+				['model' => new ServicelistReceived],
 			]
 		];
 
@@ -1021,8 +1040,39 @@ class ChargeOrderController extends Controller
 		}
 
 
+		$Ref = PurchaseOrder::where('charge_order_id', $id);
+		$Ids = $Ref->pluck('purchase_order_id')->toArray();
+		if ($Ids) PurchaseOrderDetail::whereIn('purchase_order_id', $Ids)->delete();
+		$Ref->delete();
+
+		$Ref = Picklist::where('charge_order_id', $id);
+		$Ids = $Ref->pluck('picklist_id')->toArray();
+		if ($Ids) PicklistDetail::whereIn('picklist_id', $Ids)->delete();
+		$Ref->delete();
+
+		$Ref = Servicelist::where('charge_order_id', $id);
+		$Ids = $Ref->pluck('servicelist_id')->toArray();
+		if ($Ids) ServicelistDetail::whereIn('servicelist_id', $Ids)->delete();
+		$Ref->delete();
+
+		$Ref = ServiceOrder::where('charge_order_id', $id);
+		$Ids = $Ref->pluck('service_order_id')->toArray();
+		if ($Ids) ServiceOrderDetail::whereIn('service_order_id', $Ids)->delete();
+		$Ref->delete();
+
+		JobOrderDetail::where('charge_order_id', $id)->delete();
+		$Ref = JobOrder::where('event_id', $data->event_id)->first();
+		if ($Ref) {
+			if (JobOrderDetail::where('job_order_id', $Ref->job_order_id)->count() == 0) {
+				$Ref->delete();
+			};
+		}
+
+
 		$data->delete();
 		ChargeOrderDetail::where('charge_order_id', $id)->delete();
+
+
 		return $this->jsonResponse(['charge_order_id' => $id], 200, "Delete Charge Order Successfully!");
 	}
 	public function bulkDelete(Request $request)
@@ -1041,9 +1091,9 @@ class ChargeOrderController extends Controller
 							'id' => $id,
 						],
 						'with' => [
-							['model' => new PurchaseOrder],
-							['model' => new Picklist],
-							['model' => new Servicelist],
+							['model' => new GRN],
+							['model' => new PicklistReceived],
+							['model' => new ServicelistReceived],
 						]
 					];
 
@@ -1051,6 +1101,35 @@ class ChargeOrderController extends Controller
 					if ($response['error']) {
 						return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
 					}
+
+					$Ref = PurchaseOrder::where('charge_order_id', $id);
+					$Ids = $Ref->pluck('purchase_order_id')->toArray();
+					if ($Ids) PurchaseOrderDetail::whereIn('purchase_order_id', $Ids)->delete();
+					$Ref->delete();
+
+					$Ref = Picklist::where('charge_order_id', $id);
+					$Ids = $Ref->pluck('picklist_id')->toArray();
+					if ($Ids) PicklistDetail::whereIn('picklist_id', $Ids)->delete();
+					$Ref->delete();
+
+					$Ref = Servicelist::where('charge_order_id', $id);
+					$Ids = $Ref->pluck('servicelist_id')->toArray();
+					if ($Ids) ServicelistDetail::whereIn('servicelist_id', $Ids)->delete();
+					$Ref->delete();
+
+					$Ref = ServiceOrder::where('charge_order_id', $id);
+					$Ids = $Ref->pluck('service_order_id')->toArray();
+					if ($Ids) ServiceOrderDetail::whereIn('service_order_id', $Ids)->delete();
+					$Ref->delete();
+
+					JobOrderDetail::where('charge_order_id', $id)->delete();
+					$Ref = JobOrder::where('event_id', $data->event_id)->first();
+					if ($Ref) {
+						if (JobOrderDetail::where('job_order_id', $Ref->job_order_id)->count() == 0) {
+							$Ref->delete();
+						};
+					}
+
 
 					$data->delete();
 					ChargeOrderDetail::where('charge_order_id', $id)->delete();

@@ -28,6 +28,11 @@ class EventDispatchController extends Controller
 					->from('charge_order')
 					->whereRaw('charge_order.event_id = e.event_id');
 			});
+		if (User::where('user_id', $request->login_user_id)->first()->user_type == 'technicians') {
+			$query->where(function ($q) use ($request) {
+				$q->orWhereJsonContains('event_dispatch.technician_id', $request->login_user_id);
+			});
+		}
 		if ($event_date = $request->input('event_date')) {
 			$query->whereDate('event_dispatch.event_date', $event_date);
 		}
