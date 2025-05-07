@@ -389,7 +389,6 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
 
     // Process the sorted details
     sortedDetails.forEach((detail) => {
-      console.log('detail', detail)
       const currentDocId = detail?.charge_order?.document_identity || '';
       const showDocumentId = currentDocId !== lastDocumentId ? currentDocId : '';
       lastDocumentId = currentDocId;

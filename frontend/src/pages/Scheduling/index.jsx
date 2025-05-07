@@ -254,7 +254,6 @@ const Scheduling = () => {
       const data = await dispatch(getEventServiceOrder(id)).unwrap();
       createServiceOrderPrint(data, true);
     } catch (error) {
-      console.log('error', error);
       handleError(error);
     } finally {
       toast.dismiss(loadingToast);

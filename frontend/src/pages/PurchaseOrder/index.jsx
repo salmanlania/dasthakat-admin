@@ -455,8 +455,7 @@ const PurchaseOrder = () => {
               onClick={async () => {
                 try {
                   const document_date = dayjs().format('YYYY-MM-DD');
-                  const res = await dispatch(createPurchaseInvoice({ purchase_order_id , document_date})).unwrap();
-                  console.log(res)
+                  await dispatch(createPurchaseInvoice({ purchase_order_id , document_date})).unwrap();
                   toast.success('Purchase invoice created successfully');
                 } catch (error) {
                   handleError(error);

@@ -101,7 +101,6 @@ const pdfContent = (doc, data, pageWidth) => {
     ]);
 
     groupedRows[eventDate].forEach(item => {
-      // console.log('item' , item?.ports.map(i => i.name))
       table2Rows.push([
         {
           content: item?.event_date ? dayjs(item.event_date).format('MM-DD-YYYY') : '   ',
