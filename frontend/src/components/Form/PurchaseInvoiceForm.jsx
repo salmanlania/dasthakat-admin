@@ -35,8 +35,6 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
     (state) => state.purchaseInvoice
   );
 
-  console.log('purchaseOrderDetails' , purchaseOrderDetails)
-
   const [freightRate, setFreightRate] = useState(0);
   const [netAmount, setNetAmount] = useState(0);
 
