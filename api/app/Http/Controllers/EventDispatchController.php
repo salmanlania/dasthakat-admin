@@ -79,24 +79,34 @@ class EventDispatchController extends Controller
 				});
 			}
 		}
-		if ($request->has('port_id') && is_array($request->port_id)) {
+		if ($request->has('port_id')) {
 			$query->whereExists(function ($q) use ($request) {
 				$q->select(DB::raw(1))
 					->from('quotation as q')
 					->join('charge_order as co', 'co.ref_document_identity', '=', 'q.document_identity')
 					->whereColumn('co.event_id', 'e.event_id')
-					->whereIn('co.port_id', $request->port_id);
+					->where('q.company_id', $request->company_id)
+					->where('q.company_branch_id', $request->company_branch_id)
+					->where('co.port_id', $request->port_id);
 			});
 		}
 
 		if ($request->has('short_code') && is_array($request->short_code)) {
-			$query->whereExists(function ($q) use ($request) {
+			$shortCodes = $request->short_code;
+
+			$query->whereExists(function ($q) use ($shortCodes) {
 				$q->select(DB::raw(1))
 					->from('charge_order_detail as cod')
 					->join('product as p', 'p.product_id', '=', 'cod.product_id')
 					->join('charge_order as co', 'co.charge_order_id', '=', 'cod.charge_order_id')
 					->whereColumn('co.event_id', 'e.event_id')
-					->whereIn('p.short_code', $request->short_code);
+					->where(function ($subQ) use ($shortCodes) {
+						$subQ->whereIn('p.short_code', array_filter($shortCodes, fn($sc) => $sc !== 'new_supply'));
+
+						if (in_array('new_supply', $shortCodes)) {
+							$subQ->orWhere('p.product_type_id', '!=', 1);
+						}
+					});
 			});
 		}
 

@@ -459,9 +459,9 @@ const Scheduling = () => {
               defaultValue={
                 ports[0]
                   ? {
-                      value: ports[0].port_id,
-                      label: ports[0].name
-                    }
+                    value: ports[0].port_id,
+                    label: ports[0].name
+                  }
                   : null
               }
               onChange={(selected) =>
@@ -485,6 +485,12 @@ const Scheduling = () => {
         <div onClick={(e) => e.stopPropagation()}>
           <p>Job Scope</p>
           <AsyncSelectSpecial
+            additionalOptions={[
+              {
+                label: 'New Supply',
+                value: 'new_supply'
+              }
+            ]}
             endpoint="/lookups/short-codes"
             size="small"
             labelKey="short_code"
@@ -541,9 +547,9 @@ const Scheduling = () => {
       render: (_, { event_id, users, technicians }) => {
         const selectedValues = technicians
           ? technicians.map((tech) => ({
-              value: tech.user_id,
-              label: tech.user_name
-            }))
+            value: tech.user_id,
+            label: tech.user_name
+          }))
           : [];
         return (
           <AsyncSelect
@@ -655,9 +661,9 @@ const Scheduling = () => {
                 defaultValue={
                   agent_id
                     ? {
-                        value: agent_id,
-                        label: agent_name
-                      }
+                      value: agent_id,
+                      label: agent_name
+                    }
                     : null
                 }
                 onChange={(selected) =>

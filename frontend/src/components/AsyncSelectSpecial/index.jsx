@@ -20,6 +20,7 @@ const AsyncSelectSpecial = ({
   allowClear = true,
   defaultFirstSelected = false,
   optionProps = {},
+  additionalOptions = [],
   ...props
 }) => {
   const [isClicked, setIsClicked] = useState(defaultFirstSelected);
@@ -60,8 +61,8 @@ const AsyncSelectSpecial = ({
       }
 
       merge
-        ? setOptions((prevOptions) => [...prevOptions, ...optionsData])
-        : setOptions(optionsData);
+        ? setOptions((prevOptions) => [...additionalOptions, ...prevOptions, ...optionsData])
+        : setOptions([...additionalOptions, ...optionsData]);
       setHasMore(page < data.last_page);
 
       if (defaultFirstSelected && optionsData.length > 0 && !props.value) {
