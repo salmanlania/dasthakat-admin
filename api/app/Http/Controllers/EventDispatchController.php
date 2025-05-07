@@ -104,7 +104,7 @@ class EventDispatchController extends Controller
 						$subQ->whereIn('p.short_code', array_filter($shortCodes, fn($sc) => $sc !== 'new_supply'));
 
 						if (in_array('new_supply', $shortCodes)) {
-							$subQ->orWhere('p.product_type_id', '!=', 1);
+							$subQ->orWhere('cod.product_type_id', '!=', 1);
 						}
 					});
 			});
