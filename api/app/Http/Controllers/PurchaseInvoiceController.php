@@ -232,8 +232,7 @@ class PurchaseInvoiceController extends Controller
 		$isError = $this->validateRequest($request->all(), $id);
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
-		$ref  = PurchaseOrder::where('purchase_order_id', $request->purchase_order_id)->first();
-
+		
 		$data  = PurchaseInvoice::where('purchase_invoice_id', $id)->first();
 		$data->company_id = $request->company_id;
 		$data->company_branch_id = $request->company_branch_id;
@@ -245,8 +244,7 @@ class PurchaseInvoiceController extends Controller
 		$data->ship_via = $request->ship_via;
 		$data->ship_to = $request->ship_to;
 		$data->department = $request->department;
-		$data->charge_order_id = $ref->charge_order_id;
-		$data->purchase_order_id = $request->purchase_order_id;
+	
 		$data->payment_id = $request->payment_id;
 		$data->remarks = $request->remarks;
 		$data->freight = $request->freight;
