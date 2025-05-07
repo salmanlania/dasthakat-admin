@@ -335,7 +335,8 @@ export const goodsReceivedNoteSlice = createSlice({
         product_name: detail.product_name,
         product_description: detail.product_description,
         description: detail.description,
-        quantity: detail.quantity ? parseFloat(detail.quantity) : null,
+        // quantity: detail.quantity ? parseFloat(detail.quantity) : null,
+        quantity: detail.quantity ? detail.quantity : null,
         unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
         warehouse_id: detail.warehouse
           ? { value: detail.warehouse.warehouse_id, label: detail.warehouse.name }

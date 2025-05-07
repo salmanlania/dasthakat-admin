@@ -550,12 +550,13 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
       dataIndex: 'quantity',
       key: 'quantity',
       render: (_, { quantity, editable }, index) => {
-        form.setFieldsValue({ [`quantity-${index}`]: quantity });
+        const newQuantity =  Number(quantity).toString().replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
+        form.setFieldsValue({ [`quantity-${index}`]: newQuantity });
         return (
           <Form.Item
             className="m-0"
             name={`quantity-${index}`}
-            initialValue={quantity}
+            initialValue={newQuantity}
             rules={[
               {
                 required: true,
@@ -574,7 +575,7 @@ const PurchaseOrderForm = ({ mode, onSubmit }) => {
             ]}>
             <DebouncedCommaSeparatedInput
               decimalPlaces={2}
-              value={quantity}
+              value={newQuantity}
               disabled={editable === false}
               onChange={(value) =>
                 dispatch(

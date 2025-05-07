@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Select, Table } from 'antd';
 import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
@@ -17,6 +17,7 @@ import {
   changePurchaseInvoiceDetailValue,
   copyPurchaseInvoiceDetail,
   getPurchaseInvoiceForPrint,
+  updatePurchaseInvoice,
   removePurchaseInvoiceDetail
 } from '../../store/features/purchaseInvoiceSlice';
 import { createPurchaseInvoicePrint } from '../../utils/prints/purchase-invoice-print';
@@ -34,8 +35,8 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
     (state) => state.purchaseInvoice
   );
 
-  console.log('initialFormValues', initialFormValues);
-  console.log('purchaseOrderDetails 2.0', purchaseOrderDetails);
+  const [freightRate, setFreightRate] = useState(0);
+  const [netAmount, setNetAmount] = useState(0);
 
   const POType = Form.useWatch('type', form);
   const isBillable = POType === 'Billable';
@@ -52,8 +53,8 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
   });
 
   const onFinish = (values) => {
+    console.log('values' , values)
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
-
     const data = {
       type: values.type,
       remarks: values.remarks,
@@ -67,6 +68,7 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
       customer_id: values.customer_id ? values.customer_id.value : null,
       buyer_id: values.buyer_id ? values.buyer_id.value : null,
       event_id: values.event_id ? values.event_id.value : null,
+      freight : freightRate || 0,
       payment_id: values.payment_id ? values.payment_id.value : null,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
       required_date: values.required_date ? dayjs(values.required_date).format('YYYY-MM-DD') : null,
@@ -79,7 +81,8 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
       total_amount: totalAmount,
       total_quantity: totalQuantity
     };
-
+    console.log('data' , data)
+    // return
     onSubmit(data);
   };
 
@@ -190,8 +193,9 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
         required_date: initialFormValues.required_date
           ? dayjs(initialFormValues.required_date)
           : null
-        // product_name : purchaseInvoiceDetail.map(item => item.product_name)
       });
+      setFreightRate(initialFormValues.freight || 0);
+      setNetAmount(initialFormValues.net_amount || 0);
     }
   }, [initialFormValues, form, mode]);
 
@@ -243,30 +247,6 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
       },
       width: 50
     },
-    // {
-    //   title: 'Product Code',
-    //   dataIndex: 'product_code',
-    //   key: 'product_code',
-    //   render: (_, { product_code }, index) => {
-    //     return (
-    //       <DebounceInput
-    //         value={product_code}
-    //         onChange={(value) =>
-    //           dispatch(
-    //             changePurchaseInvoiceDetailValue({
-    //               index,
-    //               key: 'product_code',
-    //               value: value
-    //             })
-    //           )
-    //         }
-    //         onBlur={(e) => onProductCodeChange(index, e.target.value)}
-    //         onPressEnter={(e) => onProductCodeChange(index, e.target.value)}
-    //       />
-    //     );
-    //   },
-    //   width: 120
-    // },
     {
       title: 'Product Name',
       dataIndex: 'product_description',
@@ -279,7 +259,6 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
             labelKey="product_description"
             labelInValue
             className="w-full"
-            // value={product_id}
             value={record.product_description}
             disabled
             onChange={(selected) => onProductChange(index, selected)}
@@ -287,11 +266,7 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
           />
         );
       },
-      // render: (_, record) => {
-      //   console.log('record' , record.product_name)
-      //   return (<span>{record.product_name || '-'}</span>);
-      // },
-      width: 560
+      width: 250
     },
     {
       title: 'Description',
@@ -305,19 +280,13 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
             labelKey="product_name"
             labelInValue
             className="w-full"
-            // value={product_id}
             value={record.product_name}
             disabled
             onChange={(selected) => onProductChange(index, selected)}
-            // addNewLink={permissions.product.add ? '/product/create' : null}
           />
         );
       },
-      // render: (_, record) => {
-      //   console.log('record' , record.product_name)
-      //   return (<span>{record.product_name || '-'}</span>);
-      // },
-      width: 560
+      width: 250
     },
     {
       title: 'Customer Notes',
@@ -424,7 +393,29 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
                 })
               )
             }
-            // addNewLink={permissions.unit.list && permissions.unit.add ? '/unit' : null}
+          />
+        );
+      },
+      width: 120
+    },
+    {
+      title: 'Po Price',
+      dataIndex: 'po_price',
+      key: 'po_price',
+      render: (_, { po_price }, index) => {
+        return (
+          <DebouncedCommaSeparatedInput
+            value={po_price}
+            disabled
+            onChange={(value) =>
+              dispatch(
+                changePurchaseInvoiceDetailValue({
+                  index,
+                  key: 'po_price',
+                  value: value
+                })
+              )
+            }
           />
         );
       },
@@ -438,7 +429,6 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
         return (
           <DebouncedCommaSeparatedInput
             value={rate}
-            disabled
             onChange={(value) =>
               dispatch(
                 changePurchaseInvoiceDetailValue({
@@ -463,7 +453,7 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
       width: 120
     },
     {
-      title: 'Vend Notes',
+      title: 'Vendor Notes',
       dataIndex: 'vendor_notes',
       key: 'vendor_notes',
       render: (_, { vendor_notes }, index) => {
@@ -484,6 +474,20 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
         );
       },
       width: 240
+    },
+    {
+      title: 'Received Date',
+      dataIndex: 'grn_date',
+      key: 'grn_date',
+      render: (_, { grn_date }) => (
+        <DatePicker 
+          value={grn_date ? dayjs(grn_date) : null}
+          format="MM-DD-YYYY"
+          disabled
+          style={{ width: '100%' }}
+        />
+      ),
+      width: 150
     },
     {
       title: (
@@ -712,10 +716,25 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
       />
 
       <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
-        <Row gutter={[12, 12]}>
-          <Col span={24} sm={12} md={6} lg={6}>
+        <Row gutter={[16, 16]}>
+          <Col span={24} sm={12} md={8} lg={6}>
             <DetailSummaryInfo title="Total Quantity:" value={totalQuantity} />
             <DetailSummaryInfo title="Total Amount:" value={totalAmount} />
+            <DetailSummaryInfo
+              title="Freight Rate:"
+              value={
+                <DebouncedCommaSeparatedInput
+                  value={freightRate}
+                  type="decimal"
+                  size="small"
+                  className="w-20"
+                  onChange={(value) => setFreightRate(value)}
+                  decimalPlaces={2}
+                />
+              }
+            />
+            {/* <DetailSummaryInfo title="Net Amount:" value={parseInt(totalAmount) + parseInt(freightRate) || 0} /> */}
+            <DetailSummaryInfo title="Net Amount:" value={netAmount > 0 ? netAmount : parseInt(totalAmount) + parseInt(freightRate) || 0} />
           </Col>
         </Row>
       </div>
@@ -731,14 +750,14 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
             onClick={printPurchaseInvoice}>
             Print
           </Button>
-        ) : null}
+        ) : null} */}
         <Button
           type="primary"
           className="w-28"
           loading={isFormSubmitting}
           onClick={() => form.submit()}>
           Save
-        </Button> */}
+        </Button>
       </div>
     </Form>
   );

@@ -560,7 +560,8 @@ export const chargeOrderSlice = createSlice({
         stock_quantity: detail?.product?.stock?.quantity
           ? parseFloat(detail.product.stock.quantity)
           : 0,
-        quantity: detail.quantity ? parseFloat(detail.quantity) : null,
+        // quantity: detail.quantity ? parseFloat(detail.quantity) : null,
+        quantity: detail.quantity ? detail.quantity : null,
         picked_quantity: detail.picked_quantity ? parseFloat(detail.picked_quantity) : null,
         unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
         supplier_id: detail.supplier

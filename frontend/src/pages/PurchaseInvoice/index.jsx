@@ -131,24 +131,24 @@ const PurchaseInvoice = () => {
     {
       title: (
         <div>
-          <p>Ship Via</p>
+          <p>Purchase Order No</p>
           <Input
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.ship_via}
+            value={params.purchase_order_no}
             onChange={(e) =>
               dispatch(
                 setPurchaseInvoiceListParams({
-                  ship_via: e.target.value
+                  purchase_order_no: e.target.value
                 })
               )
             }
           />
         </div>
       ),
-      dataIndex: 'ship_via',
-      key: 'ship_via',
+      dataIndex: 'purchase_order_no',
+      key: 'purchase_order_no',
       sorter: true,
       width: 180,
       ellipsis: true
@@ -181,24 +181,24 @@ const PurchaseInvoice = () => {
     {
       title: (
         <div>
-          <p>Quotation No</p>
+          <p>Vendor Invoice No</p>
           <Input
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.quotation_no}
+            value={params.supplier_name}
             onChange={(e) =>
               dispatch(
                 setPurchaseInvoiceListParams({
-                  quotation_no: e.target.value
+                  supplier_name: e.target.value
                 })
               )
             }
           />
         </div>
       ),
-      dataIndex: 'quotation_no',
-      key: 'quotation_no',
+      dataIndex: 'supplier_name',
+      key: 'supplier_name',
       sorter: true,
       width: 180,
       ellipsis: true
@@ -231,24 +231,24 @@ const PurchaseInvoice = () => {
     {
       title: (
         <div>
-          <p>Purchase Order No</p>
+          <p>Ship Via</p>
           <Input
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.purchase_order_no}
+            value={params.ship_via}
             onChange={(e) =>
               dispatch(
                 setPurchaseInvoiceListParams({
-                  purchase_order_no: e.target.value
+                  ship_via: e.target.value
                 })
               )
             }
           />
         </div>
       ),
-      dataIndex: 'purchase_order_no',
-      key: 'purchase_order_no',
+      dataIndex: 'ship_via',
+      key: 'ship_via',
       sorter: true,
       width: 180,
       ellipsis: true
