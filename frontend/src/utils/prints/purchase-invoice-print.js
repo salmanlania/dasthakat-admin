@@ -210,7 +210,7 @@ export const createPurchaseInvoicePrint = (data) => {
     'Cust Notes',
     'Unit Price',
     'Ext. Cos',
-    'Vend Notes'
+    'Vendor Notes'
   ];
   const table2Rows = data.purchase_order_detail
     ? data.purchase_order_detail.map((detail, index) => [

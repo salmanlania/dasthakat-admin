@@ -167,14 +167,14 @@ const Scheduling = () => {
         ...params,
         start_date: newDate,
         end_date: null,
-        event_date: null,
-        search: null,
-        technician_notes: null,
-        agent_notes: null,
-        technician_id: null,
-        vessel_id: null,
-        agent_id: null,
-        event_id: null,
+        // event_date: null,
+        // search: null,
+        // technician_notes: null,
+        // agent_notes: null,
+        // technician_id: null,
+        // vessel_id: null,
+        // agent_id: null,
+        // event_id: null,
         sort_direction: 'ascend'
       };
 
@@ -206,14 +206,15 @@ const Scheduling = () => {
         ...params,
         start_date: newDate,
         end_date: null,
-        event_date: null,
-        search: null,
-        technician_notes: null,
-        agent_notes: null,
-        technician_id: null,
-        vessel_id: null,
-        agent_id: null,
-        event_id: null
+        // event_date: null,
+        // search: null,
+        // technician_notes: null,
+        // agent_notes: null,
+        // technician_id: null,
+        // vessel_id: null,
+        // agent_id: null,
+        // event_id: null
+        sort_direction: 'ascend'
       };
 
       const data = await dispatch(getDispatchList(exportParams)).unwrap();
@@ -477,55 +478,21 @@ const Scheduling = () => {
             />
           </div>
         );
-        // if (!ports || !Array.isArray(ports)) return '';
-
-        // const portNames = ports.map((port) => port.name || port).join(', ');
-        // return (
-        //   <span className="line-clamp-1 block overflow-hidden text-ellipsis whitespace-nowrap">
-        //     {portNames}
-        //   </span>
-        // );
       }
     },
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Job Scope</p>
-          {/* <AsyncSelect
-            endpoint="/product"
-            size="small"
-            labelKey="short_code"
-            valueKey="short_code"
-            mode="multiple"
-            className="w-full font-normal"
-            value={params.short_code === null ? null : params.short_code}
-            // onChange={(selected) => dispatch(setDispatchListParams({ short_code: selected }))}
-            onChange={(selected) =>
-              dispatch(setDispatchListParams({
-                short_code: selected?.filter((item) => item !== null)
-              }))
-            }
-          /> */}
           <AsyncSelectSpecial
-            endpoint="/product"
+            endpoint="/lookups/short-codes"
             size="small"
             labelKey="short_code"
             valueKey="short_code"
             mode="multiple"
             className="w-full font-normal"
-            value={params.short_code?.filter((item) => item !== null)}
-            // onChange={(selected) =>
-            //   dispatch(
-            //     setDispatchListParams({
-            //       short_code: selected?.filter((item) => item !== null)
-            //     })
-            //   )
-            // }
-            onChange={(selected) => {
-              const filteredShortCodes = selected?.filter((item) => item !== null) || [];
-              console.log
-              dispatch(setDispatchListParams({ short_code: filteredShortCodes }));
-            }}
+            value={params.short_code}
+            onChange={(selected) => dispatch(setDispatchListParams({ short_code: selected }))}
           />
         </div>
       ),

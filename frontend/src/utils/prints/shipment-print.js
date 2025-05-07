@@ -319,7 +319,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
                 ? Math.floor(quantity)
                 : quantity;
 
-              return String(finalValue); // 👈 Force to string here
+              return String(finalValue);
             }
             return '';
           })(),
@@ -333,7 +333,18 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
           styles: { halign: 'left', fillColor: rowBackgroundColor }
         },
         {
-          content: '',
+          // content: '',
+          content: (() => {
+            const quantity = parseFloat(detail?.quantity);
+            if (!isNaN(quantity)) {
+              const finalValue = quantity % 1 === 0
+                ? Math.floor(quantity)
+                : quantity;
+
+              return String(finalValue);
+            }
+            return '';
+          })(),
           styles: { halign: 'right', fillColor: rowBackgroundColor }
         },
 
