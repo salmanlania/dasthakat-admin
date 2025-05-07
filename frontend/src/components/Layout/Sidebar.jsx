@@ -36,6 +36,7 @@ const Sidebar = () => {
   const searchRef = useRef(null);
 
   const permissions = user?.permission;
+  console.log('permissions' , permissions?.sale_invoice)
 
   const activeKey = pathname === '/' ? '/' : pathname.split('/')[1];
   let isSmallScreen = window.innerWidth <= 1000;
@@ -337,7 +338,7 @@ const Sidebar = () => {
         {
           key: 'sale-invoice',
           label: <Link to="/sale-invoice">Sale Invoice</Link>,
-          // disabled: !permissions?.purchase_invoice?.list
+          disabled: !permissions?.sale_invoice?.list
         }
       ]
     },
