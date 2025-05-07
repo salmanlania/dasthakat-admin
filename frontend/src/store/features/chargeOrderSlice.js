@@ -461,7 +461,6 @@ export const chargeOrderSlice = createSlice({
     addCase(getChargeOrder.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
-
       state.initialFormValues = {
         document_identity: data.document_identity,
         document_date: data.document_date ? dayjs(data.document_date) : null,
@@ -570,7 +569,8 @@ export const chargeOrderSlice = createSlice({
         vendor_part_no: detail.vendor_part_no,
         markup: detail.markup,
         cost_price: detail.cost_price,
-        rate: detail?.rate,
+        // rate: detail?.rate,
+        rate: detail.rate !== undefined ? parseFloat(detail.rate) : null,
         amount: detail.amount,
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_amount,

@@ -195,6 +195,7 @@ export const userSlice = createSlice({
 
       state.initialFormValues = {
         user_name: data.user_name,
+        user_type: data.user_type,
         email: data.email,
         permission_id: {
           value: data.permission.user_permission_id,

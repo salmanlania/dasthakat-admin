@@ -29,6 +29,13 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
     }
   };
 
+  const userTypeOptions = [
+    { label: 'Accounts', value: 'accounts' },
+    { label: 'Warehouse', value: 'warehouse' },
+    { label: 'Technicians', value: 'technicians' },
+    { label: 'Sales', value: 'sales' }
+  ];
+
   const onFinish = (formValues) => {
     const data = {
       ...formValues,
@@ -66,7 +73,7 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
       }>
       <div className="flex flex-col-reverse items-center justify-between gap-6 md:flex-row md:items-start">
         <Row gutter={[12, 12]}>
-          <Col span={24} sm={12} md={12} lg={12}>
+          <Col span={24} sm={8} md={8} lg={8}>
             <Form.Item
               name="user_name"
               label="User Name"
@@ -80,7 +87,20 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
               <Input />
             </Form.Item>
           </Col>
-          <Col span={24} sm={12} md={12} lg={12}>
+          <Col span={24} sm={8} md={8} lg={8}>
+            <Form.Item
+              name="user_type"
+              label="User Type"
+              rules={[
+                {
+                  required: true,
+                  message: 'User Type is required!'
+                }
+              ]}>
+              <Select size="middle" className="w-full" allowClear options={userTypeOptions} />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={8} md={8} lg={8}>
             <Form.Item
               name="email"
               label="Email"
@@ -147,11 +167,7 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
             </Form.Item>
           </Col>
           <Col xs={6} sm={6} md={6} lg={6}>
-            <Form.Item
-              label="Is Exempted"
-              name="is_exempted"
-              valuePropName="checked"
-            >
+            <Form.Item label="Is Exempted" name="is_exempted" valuePropName="checked">
               <Switch />
             </Form.Item>
           </Col>
