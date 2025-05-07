@@ -268,6 +268,7 @@ export const purchaseInvoiceSlice = createSlice({
 
       state.purchaseOrderDetails = data.purchase_invoice_detail.map((detail) => ({
         id: detail.purchase_order_detail_id,
+        purchase_invoice_detail_id: detail.purchase_invoice_detail_id,
         product_code: detail.product ? detail.product.product_code : null,
         product_id: detail.product
           ? { value: detail.product.product_id, label: detail.product.product_name }

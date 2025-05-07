@@ -35,6 +35,8 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
     (state) => state.purchaseInvoice
   );
 
+  console.log('purchaseOrderDetails' , purchaseOrderDetails)
+
   const [freightRate, setFreightRate] = useState(0);
   const [netAmount, setNetAmount] = useState(0);
 
@@ -53,7 +55,6 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
   });
 
   const onFinish = (values) => {
-    console.log('values' , values)
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
     const data = {
       type: values.type,
@@ -81,8 +82,6 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
       total_amount: totalAmount,
       total_quantity: totalQuantity
     };
-    console.log('data' , data)
-    // return
     onSubmit(data);
   };
 
