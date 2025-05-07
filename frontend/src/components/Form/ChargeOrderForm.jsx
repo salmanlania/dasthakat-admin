@@ -140,7 +140,8 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           };
         }
       ),
-      total_quantity: totalQuantity
+      total_quantity: totalQuantity,
+      is_event_changed: isEventChanged
     };
 
     await onSubmit(data, additionalRequest);
@@ -384,6 +385,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
   };
 
   const [globalMarkup, setGlobalMarkup] = useState('');
+  const [isEventChanged, setIsEventChanged] = useState(false);
   const [globalDiscount, setGlobalDiscount] = useState('');
   const [notesModalIsOpen, setNotesModalIsOpen] = useState({
     open: false,
@@ -1161,6 +1163,8 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       class2_id: null,
       flag_id: null
     });
+
+    setIsEventChanged(true);
 
     if (!selected) return;
     try {
