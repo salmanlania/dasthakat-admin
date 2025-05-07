@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Company;
 use App\Models\CompanyBranch;
 use App\Models\ControlAccess;
+use App\Models\Product;
 use App\Models\ProductType;
 use App\Models\User;
 use App\Models\UserBranchAccess;
@@ -81,6 +82,34 @@ class LookUpsController extends Controller
         }
 
         return response()->json($arrModules);
+    }
+    public function getShortCodes(Request $request)
+    {
+        $name = $request->input('name', '');
+        $page =  $request->input('page', 1);
+        $perPage =  $request->input('limit', 10);
+        $sort_column = $request->input('sort_column', 'created_at');
+        $sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
+
+        $data = Product::query();
+        $data = $data->where('company_id', '=', $request->company_id);
+        $data = $data->where('company_branch_id', '=', $request->company_branch_id);
+        $data = $data->where('short_code', '!=', "");
+        $data = $data->where('short_code', '!=', null);
+        $data = $data->where('product.status', '=', 1);
+        if (!empty($name)) $data = $data->where('name', 'like', '%' . $name . '%');
+        if (!empty($search)) {
+            $search = strtolower($search);
+            $data = $data->where(function ($query) use ($search) {
+                $query
+                    ->where('short_code', 'like', '%' . $search . '%');
+            });
+        }
+
+        $data = $data->select("product_id", "short_code");
+        $data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json($data);
     }
     public function getCompanyBranch(Request $request)
     {

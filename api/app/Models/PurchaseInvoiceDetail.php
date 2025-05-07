@@ -25,6 +25,7 @@ class PurchaseInvoiceDetail extends Model
         "description",
         "vpart",
         "unit_id",
+        "po_quantity",
         "quantity",
         "rate",
         "amount",

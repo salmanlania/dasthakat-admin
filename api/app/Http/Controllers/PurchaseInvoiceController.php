@@ -87,6 +87,13 @@ class PurchaseInvoiceController extends Controller
 		)
 			->where('purchase_invoice_id', $id)->first();
 
+		// foreach ($data->purchase_invoice_detail as &$detail) {
+
+		// 	$grn = GRNDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->orderby('document_date')->first();
+		// 	dd($grn);
+		// 	$detail->grn_date = $grn['document_date'];
+		// }
+
 		return $this->jsonResponse($data, 200, "Purchase Invoice Data");
 	}
 
@@ -187,6 +194,7 @@ class PurchaseInvoiceController extends Controller
 				'description'                => $detail->description ?? "",
 				'vpart'                      => $detail->vpart ?? "",
 				'unit_id'                    => $detail->unit_id ?? "",
+				'po_quantity'                => $grnQty,
 				'quantity'                   => $grnQty,
 				'rate'                       => $detail->rate ?? 0,
 				'amount'                     => $amount,

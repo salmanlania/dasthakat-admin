@@ -291,6 +291,7 @@ $router->group(['prefix' => 'lookups'], function ($router) {
    $router->get('/company-branch', 'LookUpsController@getCompanyBranch');
    $router->get('/company-and-branches', 'LookUpsController@getCompanyAndBranches');
    $router->get('/modules', 'LookUpsController@getModules');
+   $router->get('/short-codes', 'LookUpsController@getShortCodes');
 });
 
 $router->group(['prefix' => 'quotation'], function ($router) {

@@ -186,3 +186,12 @@ ALTER TABLE `event_dispatch`
 MODIFY COLUMN `technician_id` TEXT DEFAULT NULL AFTER `event_id`,
 ADD COLUMN `port_id` CHAR(36) DEFAULT NULL AFTER `event_id`;
 
+ALTER TABLE `user`
+ADD COLUMN `user_type` CHAR(36) DEFAULT NULL AFTER `user_name`;
+
+ALTER TABLE `purchase_invoice`
+ADD COLUMN `vendor_invoice_no` VARCHAR(100) DEFAULT NULL AFTER `document_identity`,
+ADD COLUMN `freight` DECIMAL(10,2) DEFAULT 0.00 AFTER `remarks`;
+
+ALTER TABLE `purchase_invoice_detail`
+ADD COLUMN `po_quantity` DECIMAL(10,2) DEFAULT 0.00 AFTER `unit_id`;
