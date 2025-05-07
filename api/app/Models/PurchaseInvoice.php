@@ -33,6 +33,7 @@ class PurchaseInvoice extends Model
         "payment_id",
         "remarks",
         "freight",
+        "net_amount",
         "total_quantity",
         "total_amount",
         "created_by",

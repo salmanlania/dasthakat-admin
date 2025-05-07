@@ -213,6 +213,7 @@ class PurchaseInvoiceController extends Controller
 		// 6. Finalize and Save Invoice
 		$invoiceData['total_quantity'] = $totalQuantity;
 		$invoiceData['total_amount'] = $totalAmount;
+		$invoiceData['net_amount'] = $totalAmount;
 		if ($totalQuantity > 0) {
 			PurchaseInvoice::create($invoiceData);
 			return $this->jsonResponse(['purchase_invoice_id' => $uuid], 200, "Add Purchase Invoice Successfully!");
@@ -247,9 +248,10 @@ class PurchaseInvoiceController extends Controller
 	
 		$data->payment_id = $request->payment_id;
 		$data->remarks = $request->remarks;
-		$data->freight = $request->freight;
 		$data->total_quantity = $request->total_quantity;
 		$data->total_amount = $request->total_amount;
+		$data->freight = $request->freight;
+		$data->net_amount = $request->net_amount;
 		$data->updated_at = Carbon::now();
 		$data->updated_by = $request->login_user_id;
 		$data->update();
