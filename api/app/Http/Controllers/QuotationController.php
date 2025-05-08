@@ -204,6 +204,7 @@ class QuotationController extends Controller
 			'salesman_percent' => $request->salesman_percent ?? "",
 			'salesman_amount' => $request->salesman_amount ?? "",
 			'final_amount' => $request->final_amount ?? "",
+			'remarks' => $request->remarks ?? "",
 			'status' => $request->status ?? "",
 			'created_at' => date('Y-m-d H:i:s'),
 			'created_by' => $request->login_user_id,
@@ -298,6 +299,7 @@ class QuotationController extends Controller
 		$data->salesman_percent = $request->salesman_percent;
 		$data->salesman_amount = $request->salesman_amount;
 		$data->final_amount = $request->final_amount;
+		$data->remarks = $request->remarks;
 		$data->status = $request->status;
 		$data->updated_at = date('Y-m-d H:i:s');
 		$data->updated_by = $request->login_user_id;

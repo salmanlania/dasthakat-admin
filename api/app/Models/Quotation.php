@@ -51,6 +51,7 @@ class Quotation extends Model
         "salesman_percent",
         "salesman_amount",
         "final_amount",
+        "remarks",
         "status",
         "created_by",
         "updated_by"
