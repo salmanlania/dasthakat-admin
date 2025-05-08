@@ -63,18 +63,20 @@ function stdDate(string $strDate = ''): string
 }
 
 if (!function_exists('updateMailConfig')) {
-	function updateMailConfig($setting)
+	function updateMailConfig($setting, $type = "email")
 	{
-		Config::set('mail.mailers.smtp.host', $setting['host']);
-		Config::set('mail.mailers.smtp.port', $setting['port']);
-		Config::set('mail.mailers.smtp.encryption', $setting['encryption']);
-		Config::set('mail.mailers.smtp.username', $setting['username']);
-		Config::set('mail.mailers.smtp.password', $setting['password']);
-		// Set the 'from' name and address (sender's email and display name)
-		Config::set('mail.from', [
-			'address' => $setting['username'],  // Using the SMTP username as the sender address
-			'name' => $setting['from_name']     // Using the SMTP from name as the sender display name
-		]);
+		if ($type == "email") {
+			Config::set('mail.mailers.smtp.host', $setting['host']);
+			Config::set('mail.mailers.smtp.port', $setting['port']);
+			Config::set('mail.mailers.smtp.encryption', $setting['encryption']);
+			Config::set('mail.mailers.smtp.username', $setting['username']);
+			Config::set('mail.mailers.smtp.password', $setting['password']);
+			// Set the 'from' name and address (sender's email and display name)
+			Config::set('mail.from', [
+				'address' => $setting['username'],  // Using the SMTP username as the sender address
+				'name' => $setting['from_name']     // Using the SMTP from name as the sender display name
+			]);
+		}
 	}
 }
 

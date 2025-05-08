@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\PurchaseInvoice;
 use App\Models\PurchaseInvoiceDetail;
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderDetail;
 use Carbon\Carbon;
 
 class PurchaseInvoiceController extends Controller
@@ -96,6 +97,10 @@ class PurchaseInvoiceController extends Controller
 				$grnDate = $grn?->document_date ?? "";
 				$detail->grn_date = $grnDate;
 			}
+
+			$PurchaseOrderDetail = PurchaseOrderDetail::where('purchase_order_detail_id', $detail->purchase_order_detail_id)->first();
+			unset($detail->po_price);
+			$detail->po_price = $PurchaseOrderDetail->rate ?? 0;
 		}
 
 		return $this->jsonResponse($data, 200, "Purchase Invoice Data");
@@ -233,7 +238,7 @@ class PurchaseInvoiceController extends Controller
 		$isError = $this->validateRequest($request->all(), $id);
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
-		
+
 		$data  = PurchaseInvoice::where('purchase_invoice_id', $id)->first();
 		$data->company_id = $request->company_id;
 		$data->company_branch_id = $request->company_branch_id;
@@ -245,7 +250,7 @@ class PurchaseInvoiceController extends Controller
 		$data->ship_via = $request->ship_via;
 		$data->ship_to = $request->ship_to;
 		$data->department = $request->department;
-	
+
 		$data->payment_id = $request->payment_id;
 		$data->remarks = $request->remarks;
 		$data->total_quantity = $request->total_quantity;

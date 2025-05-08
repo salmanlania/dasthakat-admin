@@ -10,7 +10,7 @@ class SettingController extends Controller
 	protected $db;
 	public function update(Request $request)
 	{
-		$post = $request->only(['mail', 'sms']);
+		$post = $request->only(['mail', 'sms','whatsapp']);
 		foreach ($post as $module_name => $data) {
 			Setting::where('module', $module_name)->delete();
 			if (is_array($data) || is_object($data))

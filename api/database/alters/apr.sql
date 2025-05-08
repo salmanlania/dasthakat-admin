@@ -202,3 +202,6 @@ ADD COLUMN `po_price` DECIMAL(10,2) DEFAULT 0.00 AFTER `unit_id`;
 
 ALTER TABLE `purchase_invoice`
 ADD COLUMN `net_amount` DECIMAL(10,2) DEFAULT 0.00 AFTER `freight`;
+
+ALTER TABLE `user`
+ADD COLUMN `phone_no` VARCHAR(100) DEFAULT NULL AFTER `email`;

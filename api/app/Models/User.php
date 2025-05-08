@@ -34,6 +34,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'api_token',
         'user_name',
         'user_type',
+        'phone_no',
         'email',
         'image',
         'status',
