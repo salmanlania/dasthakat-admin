@@ -26,7 +26,7 @@ import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput'
 import DebounceInput from '../Input/DebounceInput';
 import { DetailSummaryInfo } from './QuotationForm';
 
-const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
+const PurchaseInvoiceForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const handleError = useError();
   const dispatch = useDispatch();
@@ -37,6 +37,7 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
 
   const [freightRate, setFreightRate] = useState(0);
   const [netAmount, setNetAmount] = useState(0);
+  const [submitAction, setSubmitAction] = useState(null);
 
   const POType = Form.useWatch('type', form);
   const isBillable = POType === 'Billable';
@@ -61,6 +62,7 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
       buyer_name: values.buyer_name,
       buyer_email: values.buyer_email,
       ship_via: values.ship_via,
+      vendor_invoice_no: values?.vendor_invoice_no ? values?.vendor_invoice_no : '',
       department: values.department,
       supplier_id: initialFormValues.supplier_id ? initialFormValues.supplier_id.value : null,
       class1_id: values.class1_id ? values.class1_id.value : null,
@@ -81,7 +83,8 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
       total_quantity: totalQuantity,
       net_amount: netAmount
     };
-    onSubmit(data);
+
+    submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 
   const onProductCodeChange = async (index, value) => {
@@ -176,14 +179,20 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
 
   useEffect(() => {
     if (mode === 'edit' && initialFormValues) {
-      const supplierValue = initialFormValues?.supplier_id.label || '';
-      const shipVia = initialFormValues?.ship_via || '';
-      const shipTo = initialFormValues?.ship_to || '';
-      const department = initialFormValues?.department || '';
+      const supplierValue = initialFormValues?.supplier_id?.label
+        ? initialFormValues.supplier_id.label
+        : initialFormValues?.purchase_order?.supplier?.name || '';
+      const shipVia = initialFormValues?.ship_via ? initialFormValues?.ship_via : '';
+      const shipTo = initialFormValues?.ship_to ? initialFormValues?.ship_to : '';
+      const department = initialFormValues?.department ? initialFormValues?.department : '';
+      const vendorInvoice = initialFormValues?.vendor_invoice_no
+        ? initialFormValues?.vendor_invoice_no
+        : '';
       form.setFieldsValue({
         supplier_id: supplierValue,
         ship_via: shipVia,
         ship_to: shipTo,
+        vendor_invoice_no: vendorInvoice,
         department: department,
         document_date: initialFormValues.document_date
           ? dayjs(initialFormValues.document_date)
@@ -563,7 +572,7 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
         </span>
       </p>
       <Row gutter={12}>
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={6} sm={6} md={6} lg={6}>
           <Form.Item
             name="document_date"
             label="Purchase Invoice Date"
@@ -572,7 +581,7 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
             <DatePicker format="MM-DD-YYYY" className="w-full" disabled />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={6} sm={6} md={6} lg={6}>
           <Form.Item
             name="required_date"
             label="Required Date"
@@ -582,13 +591,19 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
 
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={6} sm={6} md={6} lg={6}>
           <Form.Item name="supplier_id" label="Vendor">
             <Input disabled />
           </Form.Item>
         </Col>
 
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={6} sm={6} md={6} lg={6}>
+          <Form.Item name="vendor_invoice_no" label="Vendor Invoice No">
+            <Input />
+          </Form.Item>
+        </Col>
+
+        <Col span={8} sm={8} md={8} lg={8}>
           <Form.Item name="ship_via" label="Ship Via">
             <Input disabled />
           </Form.Item>
@@ -603,12 +618,6 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="ship_to" label="Ship To">
             <Input.TextArea rows={1} disabled />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="vendor_invoice_no" label="Vendor Invoice No">
-            <Input />
           </Form.Item>
         </Col>
       </Row>
@@ -654,7 +663,7 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
 
       <div className="mt-4 flex items-center justify-end gap-2">
         <Link to="/purchase-invoice">
-          <Button className="w-28">Cancel</Button>
+          <Button className="w-28">Exit</Button>
         </Link>
         {/* {mode === 'edit' ? (
           <Button
@@ -667,9 +676,22 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
         <Button
           type="primary"
           className="w-28"
-          loading={isFormSubmitting}
-          onClick={() => form.submit()}>
+          loading={isFormSubmitting && submitAction === 'save'}
+          onClick={() => {
+            setSubmitAction('save');
+            form.submit();
+          }}>
           Save
+        </Button>
+        <Button
+          type="primary"
+          className="w-28 bg-green-600 hover:!bg-green-500"
+          loading={isFormSubmitting && submitAction === 'saveAndExit'}
+          onClick={() => {
+            setSubmitAction('saveAndExit');
+            form.submit();
+          }}>
+          Save & Exit
         </Button>
       </div>
     </Form>

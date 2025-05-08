@@ -22,6 +22,15 @@ const EditPurchaseInvoice = () => {
     try {
       await dispatch(updatePurchaseInvoice({ id, data })).unwrap();
       toast.success('Purchase invoice updated successfully');
+      dispatch(getPurchaseInvoice(id)).unwrap().catch(handleError);
+    } catch (error) {
+      handleError(error);
+    }
+  };
+  const onPurchaseInvoiceUpdates = async (data) => {
+    try {
+      await dispatch(updatePurchaseInvoice({ id, data })).unwrap();
+      toast.success('Purchase invoice updated successfully');
       navigate('/purchase-invoice');
     } catch (error) {
       handleError(error);
@@ -39,7 +48,7 @@ const EditPurchaseInvoice = () => {
         <Breadcrumb items={[{ title: 'Purchase Invoice' }, { title: 'Edit' }]} separator=">" />
       </div>
       <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-        <PurchaseInvoiceForm mode="edit" onSubmit={onPurchaseInvoiceUpdate} />
+        <PurchaseInvoiceForm mode="edit" onSubmit={onPurchaseInvoiceUpdate} onSave={onPurchaseInvoiceUpdates} />
       </div>
     </>
   );

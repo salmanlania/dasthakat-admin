@@ -239,31 +239,32 @@ export const purchaseInvoiceSlice = createSlice({
         buyer_name: data.buyer_name,
         buyer_email: data.buyer_email,
         ship_via: data.ship_via,
-        department: data.department ? data.department : "",
+        department: data.department ? data.department : '',
         remarks: data.remarks,
         ship_to: data.ship_to,
         freight: data?.freight,
         net_amount: data?.net_amount,
+        vendor_invoice_no: data?.vendor_invoice_no,
         buyer_id: data.user
           ? {
-            value: data.user.user_id,
-            label: data.user.user_name
-          }
+              value: data.user.user_id,
+              label: data.user.user_name
+            }
           : null,
         payment_id: data.payment
           ? {
-            value: data.payment.payment_id,
-            label: data.payment.name
-          }
+              value: data.payment.payment_id,
+              label: data.payment.name
+            }
           : null,
         supplier: data?.supplier?.name,
-
+        purchase_order: data?.purchase_order,
         supplier_id: data.supplier
           ? {
-            value: data.supplier.supplier_id,
-            label: data.supplier.name
-          }
-          : null,
+              value: data.supplier.supplier_id,
+              label: data.supplier.name
+            }
+          : null
       };
 
       state.purchaseOrderDetails = data.purchase_invoice_detail.map((detail) => ({
@@ -275,9 +276,9 @@ export const purchaseInvoiceSlice = createSlice({
           : null,
         product_type_id: detail.product_type
           ? {
-            value: detail.product_type.product_type_id,
-            label: detail.product_type.name
-          }
+              value: detail.product_type.product_type_id,
+              label: detail.product_type.name
+            }
           : null,
         product_name: detail.product_name,
         product_description: detail.product_description,
@@ -297,7 +298,6 @@ export const purchaseInvoiceSlice = createSlice({
         isDeleted: false,
         grn_date: detail?.grn_date
       }));
-
     });
     addCase(getPurchaseInvoice.rejected, (state) => {
       state.isItemLoading = false;
