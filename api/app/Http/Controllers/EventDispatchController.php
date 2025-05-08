@@ -97,8 +97,8 @@ class EventDispatchController extends Controller
 			$query->whereExists(function ($q) use ($shortCodes) {
 				$q->select(DB::raw(1))
 					->from('charge_order_detail as cod')
-					->join('product as p', 'p.product_id', '=', 'cod.product_id')
-					->join('charge_order as co', 'co.charge_order_id', '=', 'cod.charge_order_id')
+					->leftJoin('product as p', 'p.product_id', '=', 'cod.product_id')
+					->leftJoin('charge_order as co', 'co.charge_order_id', '=', 'cod.charge_order_id')
 					->whereColumn('co.event_id', 'e.event_id')
 					->where(function ($subQ) use ($shortCodes) {
 						$subQ->whereIn('p.short_code', array_filter($shortCodes, fn($sc) => $sc !== 'new_supply'));
