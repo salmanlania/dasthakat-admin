@@ -11,7 +11,9 @@ use App\Models\PurchaseInvoice;
 use App\Models\PurchaseInvoiceDetail;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
+use App\Models\Supplier;
 use Carbon\Carbon;
+use PDO;
 
 class PurchaseInvoiceController extends Controller
 {
@@ -68,7 +70,16 @@ class PurchaseInvoiceController extends Controller
 
 		$data = $data->select("purchase_invoice.*", "s.name as supplier_name", "q.document_identity as quotation_no", "co.document_identity as charge_no", "po.document_identity as purchase_order_no");
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
-
+		foreach ($data as &$item) {
+			if (!empty($item->supplier_id)) {
+				continue;
+			}
+			$PR = PurchaseOrder::where('purchase_order_id', $item->purchase_order_id)->first();
+			if ($PR->supplier_id) {
+				$Sr = Supplier::where('supplier_id', $PR->supplier_id)->first();
+				$item->supplier_name = $Sr->name ?? "";
+			}
+		}
 		return response()->json($data);
 	}
 
