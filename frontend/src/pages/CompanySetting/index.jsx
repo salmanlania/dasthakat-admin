@@ -50,7 +50,9 @@ const CompanySetting = () => {
       smtp_timeout: 'smtpTimeout',
       mail_type: 'mailEngine',
       smtp_encryption: 'smtpEncryption',
-      debug: 'debug'
+      debug: 'debug',
+      whatsapp_token: 'whatsappToken',
+      whatsapp_api_url: 'whatsappURL',
     };
 
     if (initialFormValues && Array.isArray(initialFormValues)) {
@@ -89,8 +91,14 @@ const CompanySetting = () => {
         mail.debug_email = values.debugEmailAddress;
       }
 
+      const whatsapp = {
+        whatsapp_token : values.whatsappToken,
+        whatsapp_api_url : values.whatsappURL,
+      };
+
       const data = {
-        mail
+        mail,
+        whatsapp
       };
       await dispatch(updateCompanySetting(data)).unwrap();
       toast.success('Update Setting Successfully!');
@@ -235,12 +243,7 @@ const CompanySetting = () => {
                   </Row>
                 </div>
               </TabPane>
-              <TabPane tab="SMS Setting" key="2">
-                <div className="rounded border border-gray-200 bg-white p-6">
-                  <div className="py-12 text-center text-gray-500"></div>
-                </div>
-              </TabPane>
-              <TabPane tab="WhatsApp Setting" key="3">
+              <TabPane tab="WhatsApp Setting" key="2">
                 <div className="rounded border border-gray-200 bg-white p-6">
                   <Row gutter={[16, 16]} align="middle" justify="start">
                     <Col xs={24} sm={12} style={{ display: 'flex', flexDirection: 'column' }}>
@@ -251,7 +254,7 @@ const CompanySetting = () => {
                   </Row>
                   <Row gutter={[16, 16]} align="middle" justify="start">
                     <Col xs={24} sm={12} style={{ display: 'flex', flexDirection: 'column' }}>
-                      <Form.Item label="WhatsApp Name" name="whatsappName">
+                      <Form.Item label="WhatsApp URL" name="whatsappURL">
                         <Input placeholder="Enter WhatsApp Name" />
                       </Form.Item>
                     </Col>

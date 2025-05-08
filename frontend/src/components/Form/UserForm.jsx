@@ -6,6 +6,8 @@ import { Link } from 'react-router-dom';
 import userImagePlaceholder from '../../assets/user-placeholder.jpg';
 import AsyncSelect from '../AsyncSelect';
 import UserCompanyTemplates from './UserCompanyTemplates';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 // eslint-disable-next-line react/prop-types
 const UserForm = ({ mode = 'create', onSubmit }) => {
@@ -73,7 +75,7 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
       }>
       <div className="flex flex-col-reverse items-center justify-between gap-6 md:flex-row md:items-start">
         <Row gutter={[12, 12]}>
-          <Col span={24} sm={8} md={8} lg={8}>
+          <Col span={24} sm={12} md={12} lg={12}>
             <Form.Item
               name="user_name"
               label="User Name"
@@ -87,7 +89,7 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
               <Input />
             </Form.Item>
           </Col>
-          <Col span={24} sm={8} md={8} lg={8}>
+          <Col span={24} sm={12} md={12} lg={12}>
             <Form.Item
               name="user_type"
               label="User Type"
@@ -100,7 +102,19 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
               <Select size="middle" className="w-full" allowClear options={userTypeOptions} />
             </Form.Item>
           </Col>
-          <Col span={24} sm={8} md={8} lg={8}>
+          <Col span={24} sm={12} md={12} lg={12}>
+            <Form.Item
+              name="phone_no"
+              label="Phone Number"
+              rules={[{ required: true, message: 'Phone number is required!' }]}>
+              <PhoneInput
+                country={'us'}
+                enableSearch
+                inputStyle={{ width: '100%' }}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={12} lg={12}>
             <Form.Item
               name="email"
               label="Email"
