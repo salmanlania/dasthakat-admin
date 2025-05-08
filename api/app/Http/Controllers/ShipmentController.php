@@ -151,11 +151,14 @@ class ShipmentController extends Controller
 					'product_type',
 					'unit',
 					'supplier',
-				])
-				->whereHas('charge_order', fn($q) => $q->where('event_id', $request->event_id))
-				->where('charge_order_id', $request->charge_order_id)
-				// ->when($request->charge_order_id, fn($q) => $q->where('charge_order_id', $request->charge_order_id))
-				->where('product_type_id', $request->type === "DO" ? '!=' : '=', 1)
+				]);
+			$query = $query->whereHas('charge_order', fn($q) => $q->where('event_id', $request->event_id));
+			if ($request->charge_order_id) {
+
+				$query = $query->where('charge_order_id', $request->charge_order_id);
+			}
+			// ->when($request->charge_order_id, fn($q) => $q->where('charge_order_id', $request->charge_order_id))
+			$query = $query->where('product_type_id', $request->type === "DO" ? '!=' : '=', 1)
 				->where('shipment_detail_id', "")
 				->orderBy('sort_order');
 
@@ -260,7 +263,7 @@ class ShipmentController extends Controller
 		// Process Shipment Details
 		$shipmentDetails = [];
 		foreach ($chargeOrderDetails as $index => $detail) {
-			if ($this->getPickedQuantity($detail) > 0 ) {
+			if ($this->getPickedQuantity($detail) > 0) {
 				$shipmentDetails[] = [
 					'shipment_id'           => $uuid,
 					'shipment_detail_id'    => $this->get_uuid(),
