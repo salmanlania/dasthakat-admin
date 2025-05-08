@@ -247,6 +247,3 @@ ALTER TABLE `good_received_note_detail`
     
 ALTER TABLE job_order_detail
 MODIFY COLUMN internal_notes VARCHAR(255) NULL;
-    
-ALTER TABLE quotation
-ADD COLUMN remarks VARCHAR(255) DEFAULT NULL AFTER final_amount;

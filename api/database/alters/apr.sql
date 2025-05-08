@@ -205,3 +205,6 @@ ADD COLUMN `net_amount` DECIMAL(10,2) DEFAULT 0.00 AFTER `freight`;
 
 ALTER TABLE `user`
 ADD COLUMN `phone_no` VARCHAR(100) DEFAULT NULL AFTER `email`;
+    
+ALTER TABLE quotation
+ADD COLUMN remarks VARCHAR(255) DEFAULT NULL AFTER final_amount;
