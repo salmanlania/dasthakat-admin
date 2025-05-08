@@ -41,33 +41,69 @@ class Controller extends BaseController
 
         // Optional: Force configuration cache to update if caching is enabled
     }
+    public function whatsAppAPI($data, $setting)
+    {
+        $url = $setting['url'];
+        $data = json_encode($data);
+        $authorization = "Authorization: Bearer " . $setting['token'];
+        $headers =  [
+            "Content-Type: application/json",
+            "Accept: application/json",
+            $authorization
+        ];
+    
+        try {
+            Log::info('WAAPI Request URL: ' . $url);
+            Log::info('WAAPI Request Headers: ' . json_encode($headers));
+            Log::info('WAAPI Request Payload: ' . $data);
+    
+            $cc = curl_init();
+            curl_setopt($cc, CURLOPT_URL, $url); 
+            curl_setopt($cc, CURLOPT_POST, true);
+            curl_setopt($cc, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($cc, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($cc, CURLOPT_HTTPHEADER, $headers);
+            $response = curl_exec($cc);
+    
+            if (curl_errno($cc)) {
+                Log::error('WAAPI CURL Error: ' . curl_error($cc));
+            } else {
+                Log::info('WAAPI Response: ' . $response);
+            }
+    
+            curl_close($cc);
+        } catch (\Exception $e) {
+            Log::error('WhatsApp API Exception: ' . $e->getMessage());
+        }
+    }
+    
 
     public function sentMail($data)
     {
-        
+
         if (empty($data['name'])) return false;
-        
+
         //if Debug on email will be sent to administrator only
         $config = Setting::where('module', 'mail')->pluck('value', 'field');
         if (@$config['debug'] == 1) {
             $data["email"] = $config['debug_email'];
         }
-        
+
         $_return = "";
         // Email Generate update Settings
         $this->getSettings(true);
-        
+
         // try {
-            $insdata = [
-                'template' => $data['template'],
-                'name' => $data['name'],
-                'subject' => $data['subject'],
-                'message' => $data['message'],
-                'data' => $data['data'] ?? [],
-            ];
-            // dd($insdata);
-            Mail::to($data["email"])->send(new GenerateMail($insdata));
-            // dd(1);
+        $insdata = [
+            'template' => $data['template'] ?? "",
+            'name' => $data['name'],
+            'subject' => $data['subject'],
+            'message' => $data['message'],
+            'data' => $data['data'] ?? [],
+        ];
+        // dd($insdata);
+        Mail::to($data["email"])->send(new GenerateMail($insdata));
+        // dd(1);
         // } catch (\Exception $e) {
         //     Log::error('Email sending failed: ' . $e->getMessage());
         //     $_return = "Email Not Sent.Please Check Your Email or Contact to your Administrator!";
@@ -91,30 +127,28 @@ class Controller extends BaseController
             'encryption' => @$config['smtp_encryption'] ? @$config['smtp_encryption'] :  env('MAIL_ENCRYPTION'),
             'username' => @$config['smtp_user'] ? @$config['smtp_user'] :  env('MAIL_USERNAME'),
             'password' => @$config['smtp_password'] ? @$config['smtp_password'] :  env('MAIL_PASSWORD'),
-            'from_name' => @$config['display_name'] ? @$config['display_name'] : env('MAIL_FROM_NAME'), 
-       
+            'from_name' => @$config['display_name'] ? @$config['display_name'] : env('MAIL_FROM_NAME'),
+
         ];
         // dd($setting);
         if ($is_email == true)
             updateMailConfig($setting);
-
-
     }
 
 
-  
+
     public function testApi()
     {
         // $users = $this->dbset()->get();
-	
+
         $users = User::get();
-	// exit;
-	
-	// test setting
-	$this->getSettings(true);
-	
+        // exit;
+
+        // test setting
+        $this->getSettings(true);
+
         $data = [
-	    'email' => 'test',
+            'email' => 'test',
             'name' => 'Dear Test',
             'subject' => 'Your Dynamic Subject Here',
             'message' => ' Thank you for Registering to our platform.<br>
@@ -122,11 +156,11 @@ class Controller extends BaseController
                     Please remember to login. <br>
 		    <br> You can access your Account to management your Quote Request and change your password here. <br> servermail@gmail.com'
         ];
-	
-	
-	// Sent Email
-	$this->sentMail($data );
-        return response()->json(['message' => 'Email sent successfully']);
+
+
+        // Sent Email
+        // $this->sentMail($data );
+        //     return response()->json(['message' => 'Email sent successfully']);
 
 
 
@@ -205,17 +239,17 @@ class Controller extends BaseController
 
     public function convertImageToBase64($path)
     {
-      
-    
+
+
         if (!file_exists($path)) {
             return response()->json(['error' => 'Image not found'], 404);
         }
-    
+
         $imageData = base64_encode(file_get_contents($path));
         $mimeType = mime_content_type($path); // e.g., image/png
-    
+
         $base64Image = "data:$mimeType;base64,$imageData";
-    
+
         return $base64Image;
     }
 
@@ -325,8 +359,8 @@ class Controller extends BaseController
     {
         if ($row->product_type_id == 1) {
             $quantity = ServicelistReceivedDetail::query()
-            ->where('charge_order_detail_id', $row->charge_order_detail_id)
-            ->sum('quantity');
+                ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                ->sum('quantity');
         } else
 		if ($row->product_type_id == 2) {
             $quantity = PicklistReceivedDetail::query()
@@ -335,9 +369,9 @@ class Controller extends BaseController
         } else
 		if ($row->product_type_id == 3 || $row->product_type_id == 4) {
             $quantity = GRNDetail::query()
-            ->where('charge_order_detail_id', $row->charge_order_detail_id)
-            ->sum('quantity');
-        }else{
+                ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                ->sum('quantity');
+        } else {
             $quantity = 0;
         }
         return $quantity;
@@ -345,8 +379,8 @@ class Controller extends BaseController
     static public function getShipmentQuantity($row)
     {
         $quantity = ShipmentDetail::query()
-        ->where('charge_order_detail_id', $row->charge_order_detail_id)
-        ->sum('quantity');
+            ->where('charge_order_detail_id', $row->charge_order_detail_id)
+            ->sum('quantity');
 
         return $quantity;
     }
