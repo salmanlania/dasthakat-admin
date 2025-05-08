@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, DatePicker, Form, Modal, Row } from 'antd';
+import { Button, Checkbox, Col, DatePicker, Form, Modal, Row , Select} from 'antd';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
@@ -175,9 +175,22 @@ const PurchaseOrderModal = () => {
                   />
                 </Form.Item>
               </Col>
-              <Col span={24} sm={8} lg={8}>
+              {/* <Col span={24} sm={8} lg={8}>
                 <Form.Item name={`ship_via_${detail.supplier_id}`} label="Ship Via">
                   <DebounceInput
+                    onChange={(value) => onValuesChange(detail.supplier_id, 'ship_via', value)}
+                  />
+                </Form.Item>
+              </Col> */}
+              <Col span={24} sm={8} lg={8}>
+                <Form.Item name={`ship_via_${detail.supplier_id}`} label="Ship Via">
+                  <Select
+                    options={[
+                      { value: 'Courier', label: 'Courier' },
+                      { value: 'Pickup', label: 'Pickup' },
+                      { value: 'Delivery', label: 'Delivery' }
+                    ]}
+                    allowClear
                     onChange={(value) => onValuesChange(detail.supplier_id, 'ship_via', value)}
                   />
                 </Form.Item>
