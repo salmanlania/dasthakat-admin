@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Validator;
 use App\Models\Company;
+use App\Models\Setting;
 use App\Models\User;
 use App\Models\UserToken;
 use Illuminate\Http\Request;
@@ -109,8 +110,26 @@ class AuthController extends Controller
 
             $this->sentMail($data);
 
-            return $this->jsonResponse(null,200,"OTP sent! Please check your email to proceed with verification.");
 
+
+            if (!empty($user->phone_no)) {
+
+                $config = Setting::where('module', 'whatsapp')->pluck('value', 'field');
+                $setting = [
+                    'url' => @$config['whatsapp_api_url'] ? @$config['whatsapp_api_url'] : env('WHATSAPP_API_URL'),
+                    'token' => @$config['whatsapp_token'] ? @$config['whatsapp_token'] : env('WHATSAPP_TOKEN'),
+                ];
+
+                $data = [
+                    'chatId' => $user->phone_no . "@c.us",
+                    'message' => "*" . $otp . "* is your login verification code for Global Marine Safety - America, Do not share this code."
+                ];
+                $this->whatsAppAPI($data, $setting);
+            }
+
+
+
+            return $this->jsonResponse(null, 200, "OTP sent! Please check your email to proceed with verification.");
         } else {
             return $this->jsonResponse($user, 400, 'Session Failed');
         }

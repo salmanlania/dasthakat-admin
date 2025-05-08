@@ -85,15 +85,16 @@ class PurchaseInvoiceController extends Controller
 			"charge_order",
 			"charge_order.quotation",
 			"purchase_order",
+			"purchase_order.supplier",
 		)
 			->where('purchase_invoice_id', $id)->first();
 
 		foreach ($data->purchase_invoice_detail as &$detail) {
 
-			$grnDetail = GRNDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->orderby('created_by')->first();
+			$GRND = GRNDetail::where('purchase_order_detail_id', $detail->purchase_order_detail_id)->orderby('created_by')->first();
 
-			if ($grnDetail) {
-				$grn = GRN::where('good_received_note_id', $grnDetail->good_received_note_id)->first();
+			if ($GRND) {
+				$grn = GRN::where('good_received_note_id', $GRND->good_received_note_id)->first();
 				$grnDate = $grn?->document_date ?? "";
 				$detail->grn_date = $grnDate;
 			}

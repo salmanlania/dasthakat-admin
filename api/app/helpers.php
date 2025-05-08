@@ -63,9 +63,10 @@ function stdDate(string $strDate = ''): string
 }
 
 if (!function_exists('updateMailConfig')) {
-	function updateMailConfig($setting, $type = "email")
+	function updateMailConfig($setting,$type="email")
 	{
-		if ($type == "email") {
+		if($type == "email"){
+
 			Config::set('mail.mailers.smtp.host', $setting['host']);
 			Config::set('mail.mailers.smtp.port', $setting['port']);
 			Config::set('mail.mailers.smtp.encryption', $setting['encryption']);
