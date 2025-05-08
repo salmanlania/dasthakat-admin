@@ -186,19 +186,19 @@ const PurchaseInvoice = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.supplier_name}
+            value={params.vendor_invoice_no}
             onChange={(e) =>
               dispatch(
                 setPurchaseInvoiceListParams({
-                  supplier_name: e.target.value
+                  vendor_invoice_no: e.target.value
                 })
               )
             }
           />
         </div>
       ),
-      dataIndex: 'supplier_name',
-      key: 'supplier_name',
+      dataIndex: 'vendor_invoice_no',
+      key: 'vendor_invoice_no',
       sorter: true,
       width: 180,
       ellipsis: true
