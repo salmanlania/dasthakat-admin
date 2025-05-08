@@ -62,12 +62,12 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
       buyer_email: values.buyer_email,
       ship_via: values.ship_via,
       department: values.department,
-      supplier_id: values.supplier_id ? values.supplier_id.value : null,
+      supplier_id: initialFormValues.supplier_id ? initialFormValues.supplier_id.value : null,
       class1_id: values.class1_id ? values.class1_id.value : null,
       customer_id: values.customer_id ? values.customer_id.value : null,
       buyer_id: values.buyer_id ? values.buyer_id.value : null,
       event_id: values.event_id ? values.event_id.value : null,
-      freight : freightRate || 0,
+      freight: freightRate,
       payment_id: values.payment_id ? values.payment_id.value : null,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
       required_date: values.required_date ? dayjs(values.required_date).format('YYYY-MM-DD') : null,
@@ -78,7 +78,8 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
         sort_order: index
       })),
       total_amount: totalAmount,
-      total_quantity: totalQuantity
+      total_quantity: totalQuantity,
+      net_amount: netAmount
     };
     onSubmit(data);
   };
@@ -175,7 +176,7 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
 
   useEffect(() => {
     if (mode === 'edit' && initialFormValues) {
-      const supplierValue = initialFormValues?.supplier || '';
+      const supplierValue = initialFormValues?.supplier_id.label || '';
       const shipVia = initialFormValues?.ship_via || '';
       const shipTo = initialFormValues?.ship_to || '';
       const department = initialFormValues?.department || '';
@@ -477,7 +478,7 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
       dataIndex: 'grn_date',
       key: 'grn_date',
       render: (_, { grn_date }) => (
-        <DatePicker 
+        <DatePicker
           value={grn_date ? dayjs(grn_date) : null}
           format="MM-DD-YYYY"
           disabled
@@ -587,78 +588,6 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
 
-        {/* <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item
-            name="type"
-            label="Good Received Note"
-            rules={[
-              {
-                required: true,
-                message: 'Good Received Note Type is required'
-              }
-            ]}>
-            <AsyncSelect
-              endpoint="/good-received-note"
-              valueKey="good_received_note_id"
-              labelKey="document_identity"
-              labelInValue
-              addNewLink={permissions.good_received_note.add ? '/good-received-note/create' : null}
-            />
-          </Form.Item>
-        </Col>
-
-        {isBillable ? (
-          <>
-            <Col span={24} sm={12} md={8} lg={8} className="flex gap-3">
-              <Form.Item name="charge_no" label="Charge No" className="w-full">
-                <Input disabled />
-              </Form.Item>
-
-              <Form.Item name="quotation_no" label="Quotation No" className="w-full">
-                <Input disabled />
-              </Form.Item>
-            </Col>
-
-            <Col span={24} sm={12} md={8} lg={8}>
-              <Form.Item name="event_id" label="Event">
-                <AsyncSelect
-                  endpoint="/event"
-                  valueKey="event_id"
-                  labelKey="name"
-                  labelInValue
-                  disabled
-                  addNewLink={permissions.event.add ? '/event/create' : null}
-                />
-              </Form.Item>
-            </Col>
-
-            <Col span={24} sm={12} md={8} lg={8}>
-              <Form.Item name="customer_id" label="Customer">
-                <AsyncSelect
-                  endpoint="/customer"
-                  valueKey="customer_id"
-                  labelKey="name"
-                  labelInValue
-                  disabled
-                  addNewLink={permissions.customer.add ? '/customer/create' : null}
-                />
-              </Form.Item>
-            </Col>
-          </>
-        ) : null}
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="payment_id" label="Payment Terms">
-            <AsyncSelect
-              endpoint="/payment"
-              valueKey="payment_id"
-              labelKey="name"
-              labelInValue
-              addNewLink={permissions.payment.list && permissions.payment.add ? '/payment' : null}
-            />
-          </Form.Item>
-        </Col> */}
-
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="ship_via" label="Ship Via">
             <Input disabled />
@@ -671,34 +600,18 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
 
-        {/* <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="buyer_id" label="Buyer">
-            <AsyncSelect
-              endpoint="/user"
-              valueKey="user_id"
-              labelKey="user_name"
-              labelInValue
-              addNewLink={permissions.user.add ? '/user/create' : null}
-            />
-          </Form.Item>
-        </Col> */}
-
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="ship_to" label="Ship To">
             <Input.TextArea rows={1} disabled />
           </Form.Item>
         </Col>
 
-        {/* <Col span={24}>
-          <Form.Item name="remarks" label="Remarks">
-            <Input.TextArea rows={1} />
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="vendor_invoice_no" label="Vendor Invoice No">
+            <Input />
           </Form.Item>
-        </Col> */}
+        </Col>
       </Row>
-
-      {/* <Divider orientation="left" className="!border-gray-300">
-        Purchase Order Items
-      </Divider> */}
 
       <Table
         columns={columns}
@@ -731,7 +644,10 @@ const PurchaseInvoiceForm = ({ mode, onSubmit }) => {
               }
             />
             {/* <DetailSummaryInfo title="Net Amount:" value={parseInt(totalAmount) + parseInt(freightRate) || 0} /> */}
-            <DetailSummaryInfo title="Net Amount:" value={netAmount > 0 ? netAmount : parseInt(totalAmount) + parseInt(freightRate) || 0} />
+            <DetailSummaryInfo
+              title="Net Amount:"
+              value={netAmount > 0 ? netAmount : parseInt(totalAmount) + parseInt(freightRate) || 0}
+            />
           </Col>
         </Row>
       </div>
