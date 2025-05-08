@@ -22,8 +22,17 @@ const EditGoodsReceivedNote = () => {
     try {
       await dispatch(updateGoodsReceivedNote({ id, data })).unwrap();
       toast.success('Goods Received Note updated successfully');
-      // navigate('/goods-received-note');
       dispatch(getGoodsReceivedNote(id)).unwrap().catch(handleError);
+    } catch (error) {
+      handleError(error);
+    }
+  };
+  
+  const onGoodsReceivedNoteUpdates = async (data) => {
+    try {
+      await dispatch(updateGoodsReceivedNote({ id, data })).unwrap();
+      toast.success('Goods Received Note updated successfully');
+      navigate('/goods-received-note');
     } catch (error) {
       handleError(error);
     }
@@ -48,7 +57,7 @@ const EditGoodsReceivedNote = () => {
 
       {!isItemLoading && initialFormValues ? (
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <GoodsReceivedNoteForm mode="edit" onSubmit={onGoodsReceivedNoteUpdate} />
+          <GoodsReceivedNoteForm mode="edit" onSubmit={onGoodsReceivedNoteUpdate} onSave={onGoodsReceivedNoteUpdates} />
         </div>
       ) : null}
     </>

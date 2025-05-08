@@ -2,6 +2,7 @@
 import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Select, Table } from 'antd';
 import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
+import React, { useState } from 'react';
 import { BiPlus } from 'react-icons/bi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
@@ -27,9 +28,10 @@ import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput'
 import DebounceInput from '../Input/DebounceInput';
 import { DetailSummaryInfo } from './QuotationForm';
 
-const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
+const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const type = Form.useWatch('type', form);
+  const [submitAction, setSubmitAction] = useState(null);
 
   const handleError = useError();
   const dispatch = useDispatch();
@@ -60,11 +62,8 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
   });
 
   const onFinish = (values) => {
-
     const edit = mode;
-    const deletedDetails = goodsReceivedNoteDetails.filter(
-      (detail) => detail.isDeleted !== true
-    );
+    const deletedDetails = goodsReceivedNoteDetails.filter((detail) => detail.isDeleted !== true);
 
     const filteredDetails = goodsReceivedNoteDetails.filter(
       (detail) => !(detail.isDeleted && detail.row_status === 'I')
@@ -99,8 +98,8 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       ),
       total_quantity: totalQuantity
     };
-    
-    onSubmit(data);
+
+    submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 
   const onProductCodeChange = async (index, value) => {
@@ -605,7 +604,10 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
       dataIndex: 'quantity',
       key: 'quantity',
       render: (_, { quantity }, index) => {
-        const newQuantity =  Number(quantity).toString().replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
+        const newQuantity = Number(quantity)
+          .toString()
+          .replace(/(\.\d*?)0+$/, '$1')
+          .replace(/\.$/, '');
         form.setFieldsValue({ [`quantity-${index}`]: newQuantity });
         return (
           <Form.Item
@@ -875,7 +877,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
 
       <div className="mt-4 flex items-center justify-end gap-2">
         <Link to="/goods-received-note">
-          <Button className="w-28">Cancel</Button>
+          <Button className="w-28">Exit</Button>
         </Link>
         {mode === 'edit' ? (
           <Button
@@ -888,9 +890,22 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit }) => {
         <Button
           type="primary"
           className="w-28"
-          loading={isFormSubmitting}
-          onClick={() => form.submit()}>
+          loading={isFormSubmitting && submitAction === 'save'}
+          onClick={() => {
+            setSubmitAction('save');
+            form.submit();
+          }}>
           Save
+        </Button>
+        <Button
+          type="primary"
+          className="w-28 bg-green-600 hover:!bg-green-500"
+          loading={isFormSubmitting && submitAction === 'saveAndExit'}
+          onClick={() => {
+            setSubmitAction('saveAndExit');
+            form.submit();
+          }}>
+          Save & Exit
         </Button>
       </div>
     </Form>

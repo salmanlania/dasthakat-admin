@@ -324,6 +324,7 @@ const Scheduling = () => {
             size="small"
             className="font-normal"
             format="MM-DD-YYYY"
+            allowClear={false} 
             disabled={!permissions.update}
             defaultValue={
               record.event_date && record.event_date !== '0000-00-00'

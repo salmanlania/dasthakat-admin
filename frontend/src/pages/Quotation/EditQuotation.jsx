@@ -25,6 +25,15 @@ const EditQuotation = () => {
       handleError(error);
     }
   };
+  const onQuotationUpdates = async (data) => {
+    try {
+      await dispatch(updateQuotation({ id, data })).unwrap();
+      toast.success('Quotation updated successfully');
+      navigate('/quotation');
+    } catch (error) {
+      handleError(error);
+    }
+  };
 
   useEffect(() => {
     dispatch(getQuotation(id)).unwrap().catch(handleError);
@@ -46,7 +55,7 @@ const EditQuotation = () => {
 
       {!isItemLoading && initialFormValues ? (
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <QuotationForm mode="edit" onSubmit={onQuotationUpdate} />
+          <QuotationForm mode="edit" onSubmit={onQuotationUpdate} onSave={onQuotationUpdates} />
         </div>
       ) : null}
     </>

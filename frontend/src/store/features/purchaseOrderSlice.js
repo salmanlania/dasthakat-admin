@@ -32,7 +32,8 @@ export const createPurchaseOrder = createAsyncThunk(
   'purchase-order/create',
   async (data, { rejectWithValue }) => {
     try {
-      await api.post('/purchase-order', data);
+      const res = await api.post('/purchase-order', data);
+      return res.data.data
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -67,7 +68,8 @@ export const updatePurchaseOrder = createAsyncThunk(
   'purchase-order/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      await api.put(`/purchase-order/${id}`, data);
+      const res = await api.put(`/purchase-order/${id}`, data);
+      return res.data.data
     } catch (err) {
       throw rejectWithValue(err);
     }

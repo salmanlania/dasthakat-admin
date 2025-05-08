@@ -14,6 +14,17 @@ const CreateGoodsReceivedNote = () => {
 
   const onGoodsReceivedNoteCreate = async (data) => {
     try {
+      const res = await dispatch(createGoodsReceivedNote(data)).unwrap();
+      toast.success('Goods Received Note created successfully');
+      const createdId = res.data.data.good_received_note_id;
+      navigate(`/goods-received-note/edit/${createdId}`);
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const onGoodsReceivedNoteCreates = async (data) => {
+    try {
       await dispatch(createGoodsReceivedNote(data)).unwrap();
       toast.success('Goods Received Note created successfully');
       navigate('/goods-received-note');
@@ -30,7 +41,7 @@ const CreateGoodsReceivedNote = () => {
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-        <GoodsReceivedNoteForm onSubmit={onGoodsReceivedNoteCreate} />
+        <GoodsReceivedNoteForm onSubmit={onGoodsReceivedNoteCreate} onSave={onGoodsReceivedNoteCreates} />
       </div>
     </>
   );

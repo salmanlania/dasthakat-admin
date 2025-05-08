@@ -104,7 +104,6 @@ const Shipment = () => {
     try {
       setShipmentType('DO');
       setChargeDataGetting(true);
-      setCreateModalIsOpen(true);
       const values = form.getFieldsValue();
       const res = await dispatch(
         viewBeforeCreate({
@@ -114,8 +113,10 @@ const Shipment = () => {
         })
       ).unwrap();
       setChargeData(res);
+      setCreateModalIsOpen(true);
     } catch (error) {
       handleError(error);
+      closeCreateModal()
     } finally {
       setChargeDataGetting(false);
     }
@@ -128,7 +129,6 @@ const Shipment = () => {
 
     try {
       setChargeDataGetting(true);
-      setCreateModalIsOpen(true);
       setShipmentType('SO');
       const values = form.getFieldsValue();
       const res = await dispatch(
@@ -138,9 +138,11 @@ const Shipment = () => {
           type: 'SO'
         })
       ).unwrap();
+      setCreateModalIsOpen(true);
       setChargeData(res);
     } catch (error) {
       handleError(error);
+      closeCreateModal()
     } finally {
       setChargeDataGetting(false);
     }

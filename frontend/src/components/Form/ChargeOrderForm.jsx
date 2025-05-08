@@ -44,7 +44,7 @@ import DebouncedNumberInput from '../Input/DebouncedNumberInput';
 import { DetailSummaryInfo } from './QuotationForm';
 
 // eslint-disable-next-line react/prop-types
-const ChargeOrderForm = ({ mode, onSubmit }) => {
+const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const handleError = useError();
   const { id } = useParams();
@@ -144,7 +144,8 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
       is_event_changed: isEventChanged
     };
 
-    await onSubmit(data, additionalRequest);
+    // await onSubmit(data, additionalRequest);
+    submitAction === 'save' ? onSubmit(data, additionalRequest) : submitAction === 'saveAndExit' ? onSave(data, additionalRequest) : null;
 
     if (additionalRequest === 'CREATE_PO') {
       dispatch(setChargePoID(id));
@@ -387,6 +388,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
   const [globalMarkup, setGlobalMarkup] = useState('');
   const [isEventChanged, setIsEventChanged] = useState(false);
   const [globalDiscount, setGlobalDiscount] = useState('');
+  const [submitAction, setSubmitAction] = useState(null);
   const [notesModalIsOpen, setNotesModalIsOpen] = useState({
     open: false,
     id: null,
@@ -1385,7 +1387,7 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
 
         <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
           <Link to="/charge-order">
-            <Button className="w-28">Cancel</Button>
+            <Button className="w-28">Exit</Button>
           </Link>
 
           {mode === 'edit' ? (
@@ -1404,9 +1406,22 @@ const ChargeOrderForm = ({ mode, onSubmit }) => {
           <Button
             type="primary"
             className="w-28"
-            loading={isFormSubmitting}
-            onClick={() => (isFormSubmitting ? null : onFinish())}>
+            loading={isFormSubmitting && submitAction === 'save'}
+            onClick={() => {
+              setSubmitAction('save');
+              (isFormSubmitting ? null : onFinish())
+            }}>
             Save
+          </Button>
+          <Button
+            type="primary"
+            className="w-28 bg-green-600 hover:!bg-green-500"
+            loading={isFormSubmitting && submitAction === 'saveAndExit'}
+            onClick={() => {
+              setSubmitAction('saveAndExit');
+              (isFormSubmitting ? null : onFinish())
+            }}>
+            Save & Exit
           </Button>
         </div>
       </Form>

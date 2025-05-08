@@ -1,11 +1,11 @@
 import { Breadcrumb } from 'antd';
 import toast from 'react-hot-toast';
-import { useDispatch , useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import ChargeOrderForm from '../../components/Form/ChargeOrderForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
-import { createChargeOrder , getChargeOrder} from '../../store/features/chargeOrderSlice';
+import { createChargeOrder, getChargeOrder } from '../../store/features/chargeOrderSlice';
 import { setChargePoID } from '../../store/features/purchaseOrderSlice';
 
 const CreateChargeOrder = () => {
@@ -14,11 +14,22 @@ const CreateChargeOrder = () => {
   const dispatch = useDispatch();
   const { chargeOrderDetailId } = useSelector((state) => state.chargeOrder);
 
-  const onChargeOrderCreate = async (data, additionalRequest = null , chargeOrderDetailId) => {
+  const onChargeOrderCreate = async (data, additionalRequest = null, chargeOrderDetailId) => {
+    try {
+      const res = await dispatch(createChargeOrder({ data, additionalRequest })).unwrap();
+      toast.success('Charge Order created successfully');
+      const createdId = res.data.data.charge_order_id;
+      navigate(`/charge-order/edit/${createdId}`)
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const onChargeOrderCreates = async (data, additionalRequest = null, chargeOrderDetailId) => {
     try {
       await dispatch(createChargeOrder({ data, additionalRequest })).unwrap();
       toast.success('Charge Order created successfully');
-      navigate('/charge-order')
+      navigate('/charge-order');
     } catch (error) {
       handleError(error);
     }
@@ -32,7 +43,7 @@ const CreateChargeOrder = () => {
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-        <ChargeOrderForm onSubmit={onChargeOrderCreate} />
+        <ChargeOrderForm onSubmit={onChargeOrderCreate} onSave={onChargeOrderCreates} />
       </div>
     </>
   );

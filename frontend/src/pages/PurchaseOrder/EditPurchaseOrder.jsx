@@ -17,10 +17,19 @@ const EditPurchaseOrder = () => {
 
   const onPurchaseOrderUpdate = async (data) => {
     try {
+      const res = await dispatch(updatePurchaseOrder({ id, data })).unwrap();
+      toast.success('Purchase order updated successfully');
+      await dispatch(getPurchaseOrder(id)).unwrap().catch(handleError);
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const onPurchaseOrderUpdates = async (data) => {
+    try {
       await dispatch(updatePurchaseOrder({ id, data })).unwrap();
       toast.success('Purchase order updated successfully');
-      // navigate('/purchase-order');
-      await dispatch(getPurchaseOrder(id)).unwrap().catch(handleError);
+      navigate('/purchase-order');
     } catch (error) {
       handleError(error);
     }
@@ -45,7 +54,7 @@ const EditPurchaseOrder = () => {
 
       {!isItemLoading && initialFormValues ? (
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <PurchaseOrderForm mode="edit" onSubmit={onPurchaseOrderUpdate} />
+          <PurchaseOrderForm mode="edit" onSubmit={onPurchaseOrderUpdate} onSave={onPurchaseOrderUpdates} />
         </div>
       ) : null}
     </>

@@ -14,6 +14,17 @@ const CreatePurchaseOrder = () => {
 
   const onPurchaseOrderCreate = async (data) => {
     try {
+      const res = await dispatch(createPurchaseOrder(data)).unwrap();
+      toast.success('Purchase order created successfully');
+      const createdId = res.purchase_order_id;
+      navigate(`/purchase-order/edit/${createdId}`);
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const onPurchaseOrderCreates = async (data) => {
+    try {
       await dispatch(createPurchaseOrder(data)).unwrap();
       toast.success('Purchase order created successfully');
       navigate('/purchase-order');
@@ -30,7 +41,7 @@ const CreatePurchaseOrder = () => {
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-        <PurchaseOrderForm onSubmit={onPurchaseOrderCreate} />
+        <PurchaseOrderForm onSubmit={onPurchaseOrderCreate} onSave={onPurchaseOrderCreates} />
       </div>
     </>
   );

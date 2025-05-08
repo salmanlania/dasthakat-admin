@@ -32,7 +32,7 @@ export const createGoodsReceivedNote = createAsyncThunk(
   'good-received-note/create',
   async (data, { rejectWithValue }) => {
     try {
-      await api.post('/good-received-note', data);
+      return await api.post('/good-received-note', data);
     } catch (err) {
       throw rejectWithValue(err);
     }

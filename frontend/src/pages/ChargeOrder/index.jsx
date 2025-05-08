@@ -29,8 +29,10 @@ import {
   setTempChargeOrderID,
   setAnalysisChargeOrderID
 } from '../../store/features/chargeOrderSlice';
+import { getEventJobOrders , getEventServiceOrder} from '../../store/features/dispatchSlice.js';
 import { setChargePoID } from '../../store/features/purchaseOrderSlice';
-
+import { createIJOPrint } from '../../utils/prints/ijo-print.js';
+import { createServiceOrderPrint } from '../../utils/prints/service-order-print.js';
 import { createSaleInvoice } from '../../store/features/saleInvoiceSlice';
 
 const ChargeOrder = () => {
@@ -151,6 +153,32 @@ const ChargeOrder = () => {
           duration: 8000
         }
       );
+    } catch (error) {
+      handleError(error);
+    } finally {
+      toast.dismiss(loadingToast);
+    }
+  };
+
+  const printIJO = async (id) => {
+    const loadingToast = toast.loading('Loading IJO print...');
+
+    try {
+      const data = await dispatch(getEventJobOrders(id)).unwrap();
+      createIJOPrint(data, true);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      toast.dismiss(loadingToast);
+    }
+  };
+
+  const printServiceOrder = async (id) => {
+    const loadingToast = toast.loading('Loading Service Order print...');
+
+    try {
+      const data = await dispatch(getEventServiceOrder(id)).unwrap();
+      createServiceOrderPrint(data, true);
     } catch (error) {
       handleError(error);
     } finally {
@@ -300,80 +328,96 @@ const ChargeOrder = () => {
       render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
     },
     {
-      title: 'Action',
+      title: <div style={{ textAlign: 'center', width: '100%' }}>Action</div>,
+      // title: 'Action',
       key: 'action',
-      render: (_, { charge_order_id }) => (
-        <div className="flex flex-wrap items-center gap-2">
-          <Tooltip title="Create PO">
-            <Button
-              size="small"
-              type="primary"
-              icon={<LuClipboardList size={14} />}
-              onClick={() => dispatch(setChargePoID(charge_order_id))}
-            />
-          </Tooltip>
-
-          {permissions.edit ? (
-            <Tooltip title="Edit">
-              <Link to={`/charge-order/edit/${charge_order_id}`}>
-                <Button
-                  size="small"
-                  type="primary"
-                  className="bg-gray-500 hover:!bg-gray-400"
-                  icon={<MdOutlineEdit size={14} />}
-                />
-              </Link>
-            </Tooltip>
-          ) : null}
-
-          {permissions.delete ? (
-            <Tooltip title="Delete">
-              <Popconfirm
-                title="Are you sure you want to delete?"
-                description="After deleting, You will not be able to recover it."
-                okButtonProps={{ danger: true }}
-                okText="Yes"
-                cancelText="No"
-                onConfirm={() => onChargeOrderDelete(charge_order_id)}>
-                <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
-              </Popconfirm>
-            </Tooltip>
-          ) : null}
-
-          <Tooltip title="Product Status">
-            <Link>
+      render: (_, { charge_order_id, event_id }) => {
+        return (
+          <div className="flex flex-wrap items-center gap-2">
+            <Tooltip title="Create PO">
               <Button
                 size="small"
                 type="primary"
-                icon={<FaEye size={14} />}
-                onClick={() => {
-                  dispatch(setAnalysisChargeOrderID(charge_order_id));
+                icon={<LuClipboardList size={14} />}
+                onClick={() => dispatch(setChargePoID(charge_order_id))}
+              />
+            </Tooltip>
+
+            {permissions.edit ? (
+              <Tooltip title="Edit">
+                <Link to={`/charge-order/edit/${charge_order_id}`}>
+                  <Button
+                    size="small"
+                    type="primary"
+                    className="bg-gray-500 hover:!bg-gray-400"
+                    icon={<MdOutlineEdit size={14} />}
+                  />
+                </Link>
+              </Tooltip>
+            ) : null}
+
+            {permissions.delete ? (
+              <Tooltip title="Delete">
+                <Popconfirm
+                  title="Are you sure you want to delete?"
+                  description="After deleting, You will not be able to recover it."
+                  okButtonProps={{ danger: true }}
+                  okText="Yes"
+                  cancelText="No"
+                  onConfirm={() => onChargeOrderDelete(charge_order_id)}>
+                  <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
+                </Popconfirm>
+              </Tooltip>
+            ) : null}
+
+            <Tooltip title="Product Status">
+              <Link>
+                <Button
+                  size="small"
+                  type="primary"
+                  icon={<FaEye size={14} />}
+                  onClick={() => {
+                    dispatch(setAnalysisChargeOrderID(charge_order_id));
+                  }}
+                />
+              </Link>
+            </Tooltip>
+            <Tooltip title="Sale Invoice">
+              <Button
+                size="small"
+                type="primary"
+                icon={<FaFileInvoice size={14} />}
+                onClick={async () => {
+                  try {
+                    const document_date = dayjs().format('YYYY-MM-DD');
+                    await dispatch(createSaleInvoice({ charge_order_id, document_date })).unwrap();
+                    toast.success('Sale invoice created successfully');
+                  } catch (error) {
+                    handleError(error);
+                  }
                 }}
               />
-            </Link>
-          </Tooltip>
-          <Tooltip title="Sale Invoice">
-            <Button
-              size="small"
-              type="primary"
-              icon={<FaFileInvoice size={14} />}
-              // onClick={() => dispatch(setChargePoID(charge_order_id))}
-              onClick={async () => {
-                try {
-                  const document_date = dayjs().format('YYYY-MM-DD');
-                  await dispatch(
-                    createSaleInvoice({ charge_order_id, document_date })
-                  ).unwrap();
-                  toast.success('Sale invoice created successfully');
-                } catch (error) {
-                  handleError(error);
-                }
-              }}
-            />
-          </Tooltip>
-        </div>
-      ),
-      width: 115,
+            </Tooltip>
+            <Tooltip title="Print IJO">
+              <Button
+                size="small"
+                type="primary"
+                className="w-20"
+                icon={<span style={{ fontSize: 12, fontWeight: 'bold' }}>IJO</span>}
+                onClick={() => printIJO(event_id)}></Button>
+            </Tooltip>
+            <Tooltip title="Print SO">
+              <Button
+                size="small"
+                type="primary"
+                className="w-20 bg-green-600 hover:!bg-green-500"
+                icon={<span style={{ fontSize: 12, fontWeight: 'bold' }}>SO</span>}
+                onClick={() => printServiceOrder(event_id)}></Button>
+            </Tooltip>
+          </div>
+        );
+      },
+      width: 150,
       fixed: 'right'
     }
   ];

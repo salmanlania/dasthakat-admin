@@ -703,7 +703,7 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
 
       <div className="mt-4 flex items-center justify-end gap-2">
         <Link to="/sale-invoice">
-          <Button className="w-28">Cancel</Button>
+          <Button className="w-28">Exit</Button>
         </Link>
         {/* {mode === 'edit' ? (
           <Button

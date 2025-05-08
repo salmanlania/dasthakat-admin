@@ -13,7 +13,7 @@ import {
   Tooltip
 } from 'antd';
 import dayjs from 'dayjs';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiPlus } from 'react-icons/bi';
 import { TbEdit } from 'react-icons/tb';
@@ -79,7 +79,7 @@ export const quotationStatusOptions = [
   }
 ];
 
-const QuotationForm = ({ mode, onSubmit }) => {
+const QuotationForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const handleError = useError();
   const dispatch = useDispatch();
@@ -111,7 +111,6 @@ const QuotationForm = ({ mode, onSubmit }) => {
   let typeId = 0;
 
   quotationDetails.forEach((detail) => {
-
     typeId = detail?.product_type_id?.value;
     totalQuantity += +detail.quantity || 0;
     if (typeId !== 1) {
@@ -204,7 +203,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
       salesman_amount: salesmanAmount
     };
 
-    onSubmit(data);
+    submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 
   const closeNotesModal = () => {
@@ -224,7 +223,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
   const onNotesSave = ({ notes }) => {
     const index = notesModalIsOpen.id;
     const column = notesModalIsOpen.column;
-    
+
     dispatch(
       changeQuotationDetailValue({
         index,
@@ -232,7 +231,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
         value: notes
       })
     );
-    
+
     closeNotesModal();
   };
 
@@ -475,6 +474,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
 
   const [globalMarkup, setGlobalMarkup] = useState('');
   const [globalDiscount, setGlobalDiscount] = useState('');
+  const [submitAction, setSubmitAction] = useState(null);
 
   const applyGlobalDiscount = (inputValue) => {
     const trimmed = inputValue.trim();
@@ -835,7 +835,10 @@ const QuotationForm = ({ mode, onSubmit }) => {
         // const newQuantity = Number(quantity) % 1 === 0
         // ? Number(quantity).toFixed(0)
         // : quantity;
-        const newQuantity =  Number(quantity).toString().replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
+        const newQuantity = Number(quantity)
+          .toString()
+          .replace(/(\.\d*?)0+$/, '$1')
+          .replace(/\.$/, '');
         form.setFieldsValue({ [`quantity-${index}`]: newQuantity });
         return (
           <Form.Item className="m-0" name={`quantity-${index}`} initialValue={newQuantity}>
@@ -1574,7 +1577,7 @@ const QuotationForm = ({ mode, onSubmit }) => {
 
         <div className="mt-4 flex items-center justify-end gap-2">
           <Link to="/quotation">
-            <Button className="w-28">Cancel</Button>
+            <Button className="w-28">Exit</Button>
           </Link>
           {mode === 'edit' ? (
             <>
@@ -1596,13 +1599,24 @@ const QuotationForm = ({ mode, onSubmit }) => {
           <Button
             type="primary"
             className="w-28"
-            loading={isFormSubmitting}
-            onClick={() => form.submit()}>
+            loading={isFormSubmitting && submitAction === 'save'}
+            onClick={() => {
+              setSubmitAction('save');
+              form.submit()}}>
             Save
+          </Button>
+          <Button
+            type="primary"
+            className="w-28 bg-green-600 hover:!bg-green-500"
+            loading={isFormSubmitting && submitAction === 'saveAndExit'}
+            onClick={() => {
+              setSubmitAction('saveAndExit');
+              form.submit();
+            }}>
+            Save & Exit
           </Button>
         </div>
       </Form>
-      
       <NotesModal
         title={notesModalIsOpen.column === 'description' ? 'Customer Notes' : 'Internal Notes'}
         initialValue={notesModalIsOpen.notes}
@@ -1611,7 +1625,8 @@ const QuotationForm = ({ mode, onSubmit }) => {
         onCancel={closeNotesModal}
         onSubmit={onNotesSave}
         disabled={!permissions?.quotation?.edit || !permissions?.quotation?.add}
-      />``
+      />
+      ``
     </>
   );
 };
