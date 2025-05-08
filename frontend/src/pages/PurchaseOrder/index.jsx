@@ -475,6 +475,7 @@ const PurchaseOrder = () => {
   }
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     dispatch(getPurchaseOrderList(formattedParams)).unwrap().catch(handleError);
   }, [
     params.page,

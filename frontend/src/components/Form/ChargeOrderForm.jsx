@@ -1338,12 +1338,12 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
               />
             </Form.Item>
           </Col>
-          <Col span={24} sm={12} md={8} lg={8}>
+          {/* <Col span={24} sm={12} md={8} lg={8}>
             <Form.Item name="agent_notes" label="Agent Notes">
               <Input.TextArea rows={1} />
             </Form.Item>
-          </Col>
-          <Col span={24} sm={24} md={16} lg={16}>
+          </Col> */}
+          <Col span={24} sm={24} md={24} lg={24}>
             <Form.Item name="remarks" label="Remarks">
               <Input.TextArea rows={1} />
             </Form.Item>

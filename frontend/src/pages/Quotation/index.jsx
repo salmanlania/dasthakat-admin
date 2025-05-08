@@ -362,6 +362,7 @@ const Quotation = () => {
   }
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     dispatch(getQuotationList(formattedParams)).unwrap().catch(handleError);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [

@@ -314,6 +314,7 @@ const PurchaseInvoice = () => {
   }
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     dispatch(getPurchaseInvoiceList(formattedParams)).unwrap().catch(handleError);
   }, [
     params.page,

@@ -301,6 +301,7 @@ const GoodsReceivedNote = () => {
   }
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     dispatch(getGoodsReceivedNoteList(formattedParams)).unwrap().catch(handleError);
   }, [
     params.page,

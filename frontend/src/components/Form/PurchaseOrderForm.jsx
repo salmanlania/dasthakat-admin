@@ -874,12 +874,12 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
                   label: 'Courier'
                 },
                 {
-                  value: 'Delivery',
-                  label: 'Delivery'
+                  value: 'Pickup',
+                  label: 'Pickup'
                 },
                 {
-                  value: 'Will Call',
-                  label: 'Will Call'
+                  value: 'Delivery',
+                  label: 'Delivery'
                 }
               ]}
               allowClear
