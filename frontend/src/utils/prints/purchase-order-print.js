@@ -72,7 +72,7 @@ const addHeader = (doc, data, sideMargin) => {
     },
     { label: 'Terms', value: data.payment ? data.payment.name : '' },
     { label: 'Charge No.', value: data?.charge_order?.document_identity || '' },
-    { label: 'Quotation No.', value: data?.quotation?.document_identity || ''  },
+    { label: 'Quotation No.', value: data?.quotation?.document_identity || '' },
     { label: 'Page', value: `Page ${currentPage} of ${totalPages}` }
   ];
 
@@ -135,7 +135,7 @@ const addHeader = (doc, data, sideMargin) => {
   // const shipTo = doc.splitTextToSize(data.ship_to || '', 88);
   // doc.text(shipTo, startShipToX + 4, startShipToY + 16);
 
-    // Ship To box
+  // Ship To box
   // Draw the main box
   let startShipToX = 107;
   let startShipToY = 87;
@@ -158,9 +158,14 @@ const addHeader = (doc, data, sideMargin) => {
   let currentYPosition = startShipToY + 16;
 
   shipToLines.forEach((line) => {
+    if (line.includes('Global Marine Safety 9145 Wallisville Road Houston TX 77029')) {
+      doc.setFont('times', 'bold');
+    } else {
+      doc.setFont('times', 'normal');
+    }
     const splitLine = doc.splitTextToSize(line.trim(), shipToWidth);
     doc.text(splitLine, startShipToX + 4, currentYPosition);
-    currentYPosition += splitLine.length * 10; // Adjust the vertical spacing as needed
+    currentYPosition += splitLine.length * 6; // Adjust the vertical spacing as needed
   });
 
   // Buyer's Info Table

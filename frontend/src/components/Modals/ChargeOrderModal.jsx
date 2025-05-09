@@ -7,7 +7,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import useError from '../../hooks/useError';
 import { createChargeOrder, setChargeQuotationID } from '../../store/features/chargeOrderSlice';
-import { changeQuotationDetailValue, getQuotation } from '../../store/features/quotationSlice';
+import {
+  changeQuotationDetailValue,
+  getQuotation,
+  resetQuotationState
+} from '../../store/features/quotationSlice';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import dayjs from 'dayjs';
 
@@ -29,6 +33,7 @@ const ChargeOrderModal = () => {
   const closeModal = () => {
     dispatch(setChargeQuotationID(null));
     setSelectedRowKeys([]);
+    dispatch(resetQuotationState());
   };
 
   const columns = [
@@ -68,6 +73,48 @@ const ChargeOrderModal = () => {
       ellipsis: true
     },
     {
+      title: 'Available Quantity',
+      dataIndex: 'available_quantity',
+      key: 'available_quantity',
+      width: 120,
+      render: (_, { available_quantity }, index) => {
+        form.setFieldsValue({ [`available_quantity-${index}`]: available_quantity });
+        return (
+          <Form.Item
+            className="m-0"
+            initialValue={available_quantity}
+            name={`available_quantity-${index}`}
+            rules={[
+              {
+                required: true,
+                message: 'Quantity required'
+              },
+              {
+                validator: (_, value) => {
+                  if (!value || parseFloat(value) <= 0) {
+                    return Promise.reject(new Error('Quantity must be greater than 0'));
+                  }
+                  return Promise.resolve();
+                }
+              }
+            ]}>
+            <DebouncedCommaSeparatedInput
+              value={available_quantity}
+              onChange={(value) =>
+                dispatch(
+                  changeQuotationDetailValue({
+                    index,
+                    key: 'available_quantity',
+                    value: value
+                  })
+                )
+              }
+            />
+          </Form.Item>
+        );
+      }
+    },
+    {
       title: 'Quantity',
       dataIndex: 'quantity',
       key: 'quantity',
@@ -91,12 +138,12 @@ const ChargeOrderModal = () => {
                     return Promise.reject(new Error('Quantity must be greater than 0'));
                   }
                   return Promise.resolve();
-                },
-              },
-            ]}
-           >
+                }
+              }
+            ]}>
             <DebouncedCommaSeparatedInput
               value={quantity}
+              disabled={true}
               onChange={(value) =>
                 dispatch(
                   changeQuotationDetailValue({
@@ -113,7 +160,7 @@ const ChargeOrderModal = () => {
     }
   ];
 
-  const onChargeCreate = async () => {
+  const onChargeCreate = async (values) => {
     const selectedDetails = quotationDetails.filter((detail) =>
       selectedRowKeys.includes(detail.id)
     );
@@ -131,16 +178,21 @@ const ChargeOrderModal = () => {
       port_id: initialFormValues.port_id ? initialFormValues.port_id.value : null,
       flag_id: initialFormValues.flag_id ? initialFormValues.flag_id.value : null,
       agent_id: initialFormValues.agent_id ? initialFormValues.agent_id.value : null,
+      customer_po_no: values.customer_po_no ? values.customer_po_no : null,
       remarks: initialFormValues.remarks ? initialFormValues.remarks : null,
-      charge_order_detail: selectedDetails.map((detail, index) => ({
-        ...detail,
-        quotation_detail_id: detail.id,
-        product_id: detail.product_id ? detail.product_id.value : null,
-        product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
-        unit_id: detail.unit_id ? detail.unit_id.value : null,
-        supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
-        sort_order: index
-      }))
+      charge_order_detail: selectedDetails.map((detail, index) => {
+        const { quantity, available_quantity, ...restOfDetail } = detail;
+        return {
+          ...restOfDetail,
+          quotation_detail_id: detail.id,
+          product_id: detail.product_id ? detail.product_id.value : null,
+          product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
+          unit_id: detail.unit_id ? detail.unit_id.value : null,
+          supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
+          sort_order: index,
+          quantity: available_quantity
+        };
+      })
     };
 
     try {
@@ -213,6 +265,23 @@ const ChargeOrderModal = () => {
       </div>
 
       <Form name="charge-order-modal" form={form} onFinish={onChargeCreate}>
+        <Form.Item
+          name="customer_po_no"
+          label="Customer PO"
+          // rules={[
+          //   {
+          //     required: true,
+          //     message: 'Customer PO is required'
+          //   }
+          // ]}
+        >
+          <input
+            style={{ border: '1px solid black', padding: '2px' }}
+            type="text"
+            placeholder="Enter Customer PO"
+            className="ant-input" // You can use Ant Design's default input styles or add custom ones.
+          />
+        </Form.Item>
         <Table
           columns={columns}
           dataSource={quotationDetails}

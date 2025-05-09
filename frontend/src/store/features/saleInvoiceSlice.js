@@ -1,36 +1,45 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import api from '../../axiosInstance';
 
-export const getSaleInvoiceList = createAsyncThunk('saleInvoice/list', async (params, { rejectWithValue }) => {
-  try {
-    const res = await api.get('/sale-invoice', {
-      params: {
-        ...params,
-        all: 1
-      }
-    });
-    return res.data;
-  } catch (err) {
-    throw rejectWithValue(err);
+export const getSaleInvoiceList = createAsyncThunk(
+  'saleInvoice/list',
+  async (params, { rejectWithValue }) => {
+    try {
+      const res = await api.get('/sale-invoice', {
+        params: {
+          ...params,
+          all: 1
+        }
+      });
+      return res.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
   }
-});
+);
 
-export const getSaleInvoice = createAsyncThunk('saleInvoice/get', async (id, { rejectWithValue }) => {
-  try {
-    const res = await api.get(`/sale-invoice/${id}`);
-    return res.data.data;
-  } catch (err) {
-    throw rejectWithValue(err);
+export const getSaleInvoice = createAsyncThunk(
+  'saleInvoice/get',
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/sale-invoice/${id}`);
+      return res.data.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
   }
-});
+);
 
-export const createSaleInvoice = createAsyncThunk('saleInvoice/create', async (data, { rejectWithValue }) => {
-  try {
-    await api.post('/sale-invoice', data);
-  } catch (err) {
-    throw rejectWithValue(err);
+export const createSaleInvoice = createAsyncThunk(
+  'saleInvoice/create',
+  async (data, { rejectWithValue }) => {
+    try {
+      await api.post('/sale-invoice', data);
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
   }
-});
+);
 
 const initialState = {
   isListLoading: false,
@@ -40,6 +49,7 @@ const initialState = {
   saleInvoiceDetail: null,
   isItemLoading: false,
   list: [],
+  listID: [],
   deleteIDs: [],
   params: {
     page: 1,
@@ -78,6 +88,9 @@ export const saleInvoiceSlice = createSlice({
       state.isListLoading = false;
       const { data, ...rest } = action.payload;
       state.list = data;
+      state.listID = data.map((item) => {
+        return item.sale_invoice_id;
+      });
       state.paginationInfo = {
         total_records: rest.total,
         total_pages: rest.last_page
@@ -102,20 +115,20 @@ export const saleInvoiceSlice = createSlice({
     });
     addCase(getSaleInvoice.fulfilled, (state, action) => {
       state.isItemLoading = false;
-      const data = action.payload
+      const data = action.payload;
       state.initialFormValues = {
         document_identity: data.document_identity || '',
         document_date: data.document_date || '',
         totalQuantity: data.total_quantity || '',
         totalAmount: data.total_amount || '',
-        salesman_id : data?.charge_order?.salesman?.name,
-        customer_po_no : data?.charge_order?.customer_po_no,
-        event_id : data?.charge_order?.event?.event_name,
-        vessel_id : data?.charge_order?.vessel?.name,
-        customer_id : data?.charge_order?.customer?.name,
-        charger_order_id : data?.charge_order?.document_identity,
-        port_id : data?.charge_order?.port?.name,
-        ref_document_identity : data?.charge_order?.ref_document_identity,
+        salesman_id: data?.charge_order?.salesman?.name,
+        customer_po_no: data?.charge_order?.customer_po_no,
+        event_id: data?.charge_order?.event?.event_name,
+        vessel_id: data?.charge_order?.vessel?.name,
+        customer_id: data?.charge_order?.customer?.name,
+        charger_order_id: data?.charge_order?.document_identity,
+        port_id: data?.charge_order?.port?.name,
+        ref_document_identity: data?.charge_order?.ref_document_identity
       };
       state.saleInvoiceDetail = data.sale_invoice_detail.map((detail) => ({
         id: detail.charge_order_detail_id,
@@ -125,12 +138,15 @@ export const saleInvoiceSlice = createSlice({
           : null,
         product_type_id: detail.product_type
           ? {
-            value: detail.product_type.product_type_id,
-            label: detail.product_type.name
-          }
+              value: detail.product_type.product_type_id,
+              label: detail.product_type.name
+            }
           : null,
         // product_name: detail.product_name,
-        product_name: detail.charge_order_detail.product_type_id == '4' ? detail.product_name || detail.charge_order_detail.product_name : detail?.product?.name,
+        product_name:
+          detail.charge_order_detail.product_type_id == '4'
+            ? detail.product_name || detail.charge_order_detail.product_name
+            : detail?.product?.name,
         product_description: detail.product_description,
         charge_order_detail_id: detail.charge_order_detail_id,
         description: detail.description,
@@ -145,7 +161,7 @@ export const saleInvoiceSlice = createSlice({
         received_quantity: detail.received_quantity ? parseFloat(detail.received_quantity) : null,
         row_status: 'U',
         isDeleted: false
-      }))
+      }));
     });
     addCase(getSaleInvoice.rejected, (state) => {
       state.isItemLoading = false;

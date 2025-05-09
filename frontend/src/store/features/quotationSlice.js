@@ -112,6 +112,11 @@ export const quotationSlice = createSlice({
   name: 'quotation',
   initialState,
   reducers: {
+    resetQuotationState: (state) => {
+      state.isItemLoading = false;
+      state.quotationDetails = [];
+      state.initialFormValues = null;
+    },
     setQuotationListParams: (state, action) => {
       state.params = {
         ...state.params,
@@ -417,6 +422,7 @@ export const quotationSlice = createSlice({
           : 0,
         // quantity: detail.quantity ? parseFloat(detail.quantity) : null,
         quantity: detail.quantity ? detail.quantity : null,
+        available_quantity: detail.available_quantity ? detail.available_quantity : null,
         unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
         supplier_id: detail.supplier
           ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
@@ -487,6 +493,7 @@ export const {
   changeQuotationDetailValue,
   resetQuotationDetail,
   setRebatePercentage,
-  setSalesmanPercentage
+  setSalesmanPercentage,
+  resetQuotationState
 } = quotationSlice.actions;
 export default quotationSlice.reducer;

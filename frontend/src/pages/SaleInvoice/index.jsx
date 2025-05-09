@@ -23,7 +23,7 @@ import { createSaleInvoicePrint } from '../../utils/prints/sale-invoice-print';
 const SaleInvoice = () => {
   const dispatch = useDispatch();
   const handleError = useError();
-  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
+  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs , listID} = useSelector(
     (state) => state.saleInvoice
   );
   const { user } = useSelector((state) => state.auth);
