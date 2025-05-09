@@ -104,7 +104,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
 
   const [globalMarkup, setGlobalMarkup] = useState('');
   const [globalDiscount, setGlobalDiscount] = useState('');
-
+  const [submitAction, setSubmitAction] = useState(null);
   let totalQuantity = 0;
   let totalCost = 0;
   let totalAmount = 0;
