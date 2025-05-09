@@ -131,6 +131,7 @@ const ChargeOrderModal = () => {
       port_id: initialFormValues.port_id ? initialFormValues.port_id.value : null,
       flag_id: initialFormValues.flag_id ? initialFormValues.flag_id.value : null,
       agent_id: initialFormValues.agent_id ? initialFormValues.agent_id.value : null,
+      remarks: initialFormValues.remarks ? initialFormValues.remarks : null,
       charge_order_detail: selectedDetails.map((detail, index) => ({
         ...detail,
         quotation_detail_id: detail.id,

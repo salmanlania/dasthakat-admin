@@ -177,6 +177,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       due_date: values.due_date ? dayjs(values.due_date).format('YYYY-MM-DD') : '',
       term_id: values.term_id && values.term_id.length ? values.term_id.map((v) => v.value) : null,
       status: values.status,
+      remarks: values.remarks,
       quotation_detail: mappingSource.map(
         ({ id, row_status, isDeleted, product_type, ...detail }, index) => {
           return {
@@ -1356,6 +1357,11 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           <Col span={24} sm={12} md={8} lg={8}>
             <Form.Item name="status" label="Status">
               <Select options={quotationStatusOptions} />
+            </Form.Item>
+          </Col>
+          <Col span={24}>
+            <Form.Item name="remarks" label="Remarks">
+              <Input.TextArea rows={1} />
             </Form.Item>
           </Col>
         </Row>

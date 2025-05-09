@@ -378,6 +378,7 @@ export const quotationSlice = createSlice({
         attn: data.attn,
         delivery: data.delivery,
         inclosure: data.inclosure,
+        remarks: data.remarks,
         port_id: data.port
           ? {
               value: data.port.port_id,
