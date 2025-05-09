@@ -13,18 +13,18 @@ import {
   Tooltip
 } from 'antd';
 import dayjs from 'dayjs';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiPlus } from 'react-icons/bi';
-import { TbEdit } from 'react-icons/tb';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
+import { TbEdit } from 'react-icons/tb';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
+import NotesModal from '../../components/Modals/NotesModal.jsx';
 import useError from '../../hooks/useError';
 import { getEvent } from '../../store/features/eventSlice';
-import { getProduct, getProductList } from '../../store/features/productSlice';
-import NotesModal from '../../components/Modals/NotesModal.jsx';
+import { getProduct } from '../../store/features/productSlice';
 import {
   addQuotationDetail,
   changeQuotationDetailOrder,
@@ -101,6 +101,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     column: null,
     notes: null
   });
+
+  const [globalMarkup, setGlobalMarkup] = useState('');
+  const [globalDiscount, setGlobalDiscount] = useState('');
 
   let totalQuantity = 0;
   let totalCost = 0;
@@ -186,7 +189,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
             markup: detail.product_type_id?.value === 1 ? 0 : detail.markup,
             cost_price: detail.product_type_id?.value === 1 ? 0 : detail.cost_price,
             sort_order: index,
-            quotation_detail_id: typeof id === 'number' ? id : null,
             quotation_detail_id: id ? id : null,
             ...(edit === 'edit' ? { row_status } : {})
           };
@@ -210,16 +212,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     setNotesModalIsOpen({ open: false, id: null, column: null, notes: null });
   };
 
-  // const onNotesSave = async ({ notes }) => {
-  //   try {
-  //     await updateValue(notesModalIsOpen.id, notesModalIsOpen.column, notes);
-  //     dispatch(getDispatchList(params)).unwrap();
-  //     closeNotesModal();
-  //   } catch (error) {
-  //     handleError(error);
-  //   }
-  // };
-
   const onNotesSave = ({ notes }) => {
     const index = notesModalIsOpen.id;
     const column = notesModalIsOpen.column;
@@ -235,157 +227,125 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     closeNotesModal();
   };
 
-  const onProductCodeChange = async (index, value) => {
-    if (!value.trim()) return;
-    try {
-      const res = await dispatch(getProductList({ product_code: value, stock: true })).unwrap();
+  // const onProductCodeChange = async (index, value) => {
+  //   if (!value.trim()) return;
+  //   try {
+  //     const res = await dispatch(getProductList({ product_code: value, stock: true })).unwrap();
 
-      if (!res.data.length) return;
+  //     if (!res.data.length) return;
 
-      const product = res.data[0];
-      const stockQuantity = product?.stock?.quantity || 0;
+  //     const product = res.data[0];
+  //     const stockQuantity = product?.stock?.quantity || 0;
 
-      form.setFieldsValue({
-        [`product_id-${index}`]: product?.product_id
-          ? {
-              value: product.product_id,
-              label: product.product_name
-            }
-          : null,
-        [`product_description-${index}`]: product?.product_name || ''
-      });
+  //     form.setFieldsValue({
+  //       [`product_id-${index}`]: product?.product_id
+  //         ? {
+  //             value: product.product_id,
+  //             label: product.product_name
+  //           }
+  //         : null,
+  //       [`product_description-${index}`]: product?.product_name || ''
+  //     });
 
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'product_id',
-          value: {
-            value: product.product_id,
-            label: product.product_name
-          }
-        })
-      );
+  //     dispatch(
+  //       changeQuotationDetailValue({
+  //         index,
+  //         key: 'product_id',
+  //         value: {
+  //           value: product.product_id,
+  //           label: product.product_name
+  //         }
+  //       })
+  //     );
 
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'product_description',
-          value: product?.product_name || ''
-        })
-      );
+  //     dispatch(
+  //       changeQuotationDetailValue({
+  //         index,
+  //         key: 'product_description',
+  //         value: product?.product_name || ''
+  //       })
+  //     );
 
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'product_type_id',
-          value: product.product_type_id
-            ? {
-                value: product.product_type_id,
-                label: product.product_type_name
-              }
-            : null
-        })
-      );
+  //     dispatch(
+  //       changeQuotationDetailValue({
+  //         index,
+  //         key: 'product_type_id',
+  //         value: product.product_type_id
+  //           ? {
+  //               value: product.product_type_id,
+  //               label: product.product_type_name
+  //             }
+  //           : null
+  //       })
+  //     );
 
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'unit_id',
-          value: { value: product.unit_id, label: product.unit_name }
-        })
-      );
+  //     dispatch(
+  //       changeQuotationDetailValue({
+  //         index,
+  //         key: 'unit_id',
+  //         value: { value: product.unit_id, label: product.unit_name }
+  //       })
+  //     );
 
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'stock_quantity',
-          value: stockQuantity
-        })
-      );
+  //     dispatch(
+  //       changeQuotationDetailValue({
+  //         index,
+  //         key: 'stock_quantity',
+  //         value: stockQuantity
+  //       })
+  //     );
 
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'cost_price',
-          value: product.cost_price
-        })
-      );
+  //     dispatch(
+  //       changeQuotationDetailValue({
+  //         index,
+  //         key: 'cost_price',
+  //         value: product.cost_price
+  //       })
+  //     );
 
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'rate',
-          value: product.sale_price
-        })
-      );
-    } catch (error) {
-      handleError(error);
-    }
-  };
+  //     dispatch(
+  //       changeQuotationDetailValue({
+  //         index,
+  //         key: 'rate',
+  //         value: product.sale_price
+  //       })
+  //     );
+  //   } catch (error) {
+  //     handleError(error);
+  //   }
+  // };
 
-  const onProductChange = async (index, selected) => {
-    dispatch(
-      changeQuotationDetailValue({
-        index,
-        key: 'product_id',
-        value: selected
-      })
-    );
-
+  const onProductChange = useCallback(async (index, selected) => {
     if (!selected) {
       dispatch(
         changeQuotationDetailValue({
           index,
-          key: 'product_code',
-          value: null
-        })
-      );
-
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'product_type',
-          value: null
-        })
-      );
-
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'unit_id',
-          value: null
-        })
-      );
-
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'cost_price',
-          value: null
-        })
-      );
-
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'rate',
-          value: null
+          key: [
+            'product_id',
+            'product_description',
+            'product_code',
+            'product_type_id',
+            'unit_id',
+            'cost_price',
+            'rate'
+          ],
+          value: [null, null, null, null, null, null, null]
         })
       );
       return;
+    } else {
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: ['product_id', 'product_description'],
+          value: [selected, selected?.label || '']
+        })
+      );
     }
 
     form.setFieldsValue({
       [`product_description-${index}`]: selected?.label || ''
     });
-
-    dispatch(
-      changeQuotationDetailValue({
-        index,
-        key: 'product_description',
-        value: selected?.label || ''
-      })
-    );
 
     try {
       const product = await dispatch(getProduct(selected.value)).unwrap();
@@ -394,61 +354,37 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       dispatch(
         changeQuotationDetailValue({
           index,
-          key: 'product_code',
-          value: product.product_code
-        })
-      );
-
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'product_type_id',
-          value: product.product_type_id
-            ? {
-                value: product.product_type_id,
-                label: product.product_type_name
-              }
-            : null
-        })
-      );
-
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'unit_id',
-          value: { value: product.unit_id, label: product.unit_name }
-        })
-      );
-
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'stock_quantity',
-          value: stockQuantity
-        })
-      );
-
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'cost_price',
-          value: product.cost_price
-        })
-      );
-
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'rate',
-          value: product.sale_price
+          key: [
+            'product_code',
+            'product_type_id',
+            'product_description',
+            'unit_id',
+            'stock_quantity',
+            'cost_price',
+            'rate'
+          ],
+          value: [
+            product.product_code,
+            product.product_type_id
+              ? {
+                  value: product.product_type_id,
+                  label: product.product_type_name
+                }
+              : null,
+            selected?.label || '', // product_description
+            { value: product.unit_id, label: product.unit_name },
+            stockQuantity,
+            product.cost_price,
+            product.sale_price
+          ]
         })
       );
     } catch (error) {
       handleError(error);
     }
-  };
+  }, []);
 
-  const printQuotation = async () => {
+  const printQuotation = useCallback(async () => {
     const loadingToast = toast.loading('Loading print...');
     try {
       const data = await dispatch(getQuotationForPrint(id)).unwrap();
@@ -458,9 +394,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     } finally {
       toast.dismiss(loadingToast);
     }
-  };
+  }, []);
 
-  const exportQuotation = async () => {
+  const exportQuotation = useCallback(async () => {
     const loadingToast = toast.loading('Loading excel...');
     try {
       const data = await dispatch(getQuotationForPrint(id)).unwrap();
@@ -470,13 +406,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     } finally {
       toast.dismiss(loadingToast);
     }
-  };
+  }, []);
 
-  const [globalMarkup, setGlobalMarkup] = useState('');
-  const [globalDiscount, setGlobalDiscount] = useState('');
-  const [submitAction, setSubmitAction] = useState(null);
-
-  const applyGlobalDiscount = (inputValue) => {
+  const applyGlobalDiscount = useCallback((inputValue) => {
     const trimmed = inputValue.trim();
     if (trimmed === '') {
       return;
@@ -493,9 +425,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         );
       });
     }
-  };
+  }, []);
 
-  const applyGlobalMarkup = (inputValue) => {
+  const applyGlobalMarkup = useCallback((inputValue) => {
     const trimmed = inputValue.trim();
     if (trimmed === '' && trimmed !== '0') {
       return;
@@ -522,7 +454,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         }
       });
     }
-  };
+  }, []);
 
   const columns = [
     {
@@ -634,14 +566,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
               value={product_name}
               disabled={product_type_id?.value === 4}
               onChange={(value) => {
-                dispatch(
-                  changeQuotationDetailValue({
-                    index,
-                    key: 'product_name',
-                    value: value
-                  })
-                );
-
                 form.setFieldsValue({
                   [`product_description-${index}`]: value
                 });
@@ -649,8 +573,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                 dispatch(
                   changeQuotationDetailValue({
                     index,
-                    key: 'product_description',
-                    value: value
+                    key: ['product_name', 'product_description'],
+                    value: [value, value]
                   })
                 );
               }}
@@ -708,26 +632,26 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
               <DebounceInput
                 value={product_description}
                 onChange={(value) => {
-                  dispatch(
-                    changeQuotationDetailValue({
-                      index,
-                      key: 'product_description',
-                      value: value
-                    })
-                  );
-
                   if (product_type_id?.value === 4) {
                     dispatch(
                       changeQuotationDetailValue({
                         index,
-                        key: 'product_name',
-                        value: value
+                        key: ['product_name', product_description],
+                        value: [value, value]
                       })
                     );
 
                     form.setFieldsValue({
                       [`product_name-${index}`]: value
                     });
+                  } else {
+                    dispatch(
+                      changeQuotationDetailValue({
+                        index,
+                        key: 'product_description',
+                        value: value
+                      })
+                    );
                   }
                 }}
               />
@@ -744,18 +668,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       key: 'description',
       render: (_, { event_id, description }, index) => {
         return (
-          // <DebounceInput
-          //   value={description}
-          //   onChange={(value) =>
-          //     dispatch(
-          //       changeQuotationDetailValue({
-          //         index,
-          //         key: 'description',
-          //         value: value
-          //       })
-          //     )
-          //   }
-          // />
           <div className="relative">
             <p>{description}</p>
             <div
@@ -784,18 +696,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       key: 'internal_notes',
       render: (_, { internal_notes }, index) => {
         return (
-          // <DebounceInput
-          //   value={internal_notes}
-          //   onChange={(value) =>
-          //     dispatch(
-          //       changeQuotationDetailValue({
-          //         index,
-          //         key: 'internal_notes',
-          //         value: value
-          //       })
-          //     )
-          //   }
-          // />
           <div className="relative">
             <p>{internal_notes}</p>
             <div
@@ -832,9 +732,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'quantity',
       key: 'quantity',
       render: (_, { quantity }, index) => {
-        // const newQuantity = Number(quantity) % 1 === 0
-        // ? Number(quantity).toFixed(0)
-        // : quantity;
         const newQuantity = Number(quantity)
           .toString()
           .replace(/(\.\d*?)0+$/, '$1')
@@ -1178,7 +1075,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     }
   ];
 
-  const onTermChange = (selected) => {
+  const onTermChange = useCallback((selected) => {
     if (!selected.length) {
       form.setFieldsValue({ term_desc: '' });
       return;
@@ -1186,9 +1083,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
 
     const newTermDesc = selected.map((t) => `* ${t.label}`).join('\n');
     form.setFieldsValue({ term_desc: newTermDesc });
-  };
+  }, []);
 
-  const onEventChange = async (selected) => {
+  const onEventChange = useCallback(async (selected) => {
     if (prevEvent) {
       const isWantToChange = await toastConfirm('Are you sure you want to change event?');
       if (!isWantToChange) {
@@ -1226,9 +1123,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     } catch (error) {
       handleError(error);
     }
-  };
+  }, []);
 
-  const onSalesmanChange = async (selected) => {
+  const onSalesmanChange = useCallback(async (selected) => {
     dispatch(setSalesmanPercentage(null));
     if (!selected) return;
 
@@ -1240,7 +1137,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     } catch (error) {
       handleError(error);
     }
-  };
+  }, []);
 
   return (
     <>
@@ -1499,8 +1396,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           columns={columns}
           dataSource={quotationDetails.filter((item) => !item.isDeleted)}
           rowKey={'id'}
+          virtual
           size="small"
-          scroll={{ x: 'calc(100% - 200px)' }}
+          scroll={{ x: 1400, y: 500 }}
           pagination={false}
           sticky={{
             offsetHeader: 56
@@ -1602,7 +1500,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
             loading={isFormSubmitting && submitAction === 'save'}
             onClick={() => {
               setSubmitAction('save');
-              form.submit()}}>
+              form.submit();
+            }}>
             Save
           </Button>
           <Button
@@ -1626,7 +1525,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         onSubmit={onNotesSave}
         disabled={!permissions?.quotation?.edit || !permissions?.quotation?.add}
       />
-      ``
     </>
   );
 };
