@@ -37,7 +37,7 @@ const addHeader = (doc, data, sideMargin) => {
   doc.text('9145 Wallisville Rd, Houston TX 77029, USA', sideMargin, 44);
   doc.text('Tel: 1 713-518-1715', sideMargin, 48);
   doc.text('Fax: 1 713-518-1760', sideMargin, 52);
-  doc.text('Email: sales@gms-america.com', sideMargin, 56);
+  doc.text('Email: tech1@gms-america.com', sideMargin, 56);
 
   // Purchase Order Box
   // Draw the rectangle (outer border)
@@ -115,7 +115,27 @@ const addHeader = (doc, data, sideMargin) => {
   doc.text('Fax :', startSendToX + 4, startSendToY + 34);
   doc.text(`Email : ${data?.supplier?.email || ''}`, startSendToX + 4, startSendToY + 38);
 
-  // Ship To box
+  // // Ship To box
+  // // Draw the main box
+  // let startShipToX = 107;
+  // let startShipToY = 87;
+  // let shipToWidth = 99;
+  // let shipToHeight = 42;
+  // doc.rect(startShipToX, startShipToY, shipToWidth, shipToHeight); // x, y, width, height
+
+  // // Add "Ship To :" text
+  // doc.setFontSize(10);
+  // doc.setFont('times', 'bold');
+  // doc.text('Ship To :', startShipToX + 4, startShipToY + 6); // x, y
+  // doc.rect(startShipToX, startShipToY + 10, shipToWidth, 0);
+
+  // // Add the content
+  // doc.setFontSize(8);
+  // doc.setFont('times', 'normal');
+  // const shipTo = doc.splitTextToSize(data.ship_to || '', 88);
+  // doc.text(shipTo, startShipToX + 4, startShipToY + 16);
+
+    // Ship To box
   // Draw the main box
   let startShipToX = 107;
   let startShipToY = 87;
@@ -132,15 +152,24 @@ const addHeader = (doc, data, sideMargin) => {
   // Add the content
   doc.setFontSize(8);
   doc.setFont('times', 'normal');
-  const shipTo = doc.splitTextToSize(data.ship_to || '', 88);
-  doc.text(shipTo, startShipToX + 4, startShipToY + 16);
+
+  const shipToContent = data.ship_to || '';
+  const shipToLines = shipToContent.split(',');
+  let currentYPosition = startShipToY + 16;
+
+  shipToLines.forEach((line) => {
+    const splitLine = doc.splitTextToSize(line.trim(), shipToWidth);
+    doc.text(splitLine, startShipToX + 4, currentYPosition);
+    currentYPosition += splitLine.length * 10; // Adjust the vertical spacing as needed
+  });
 
   // Buyer's Info Table
   const table1Column = ["Buyer's Name", "Buyer's Email", 'Required Date', 'Ship via'];
   const table1Rows = [
     [
       data.user ? data.user.user_name : '',
-      data.user ? data.user.email : '',
+      // data.user ? data.user.email : '',
+      'tech1@gms-america.com',
       data.required_date ? dayjs(data.required_date).format('MM-DD-YYYY') : '',
       data.ship_via || ''
     ]

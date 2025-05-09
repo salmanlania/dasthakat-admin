@@ -47,12 +47,10 @@ const Scheduling = () => {
     (state) => state.dispatch
   );
 
-  const [tableKey, setTableKey] = useState(0);
-  const [isOldChecked, setIsOldChecked] = useState(false);
-  const [agentDetails, setAgentDetails] = useState(null);
-
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.dispatch;
+  const [tableKey, setTableKey] = useState(0);
+  const [isOldChecked, setIsOldChecked] = useState(false);
 
   const [notesModalIsOpen, setNotesModalIsOpen] = useState({
     open: false,
@@ -143,12 +141,13 @@ const Scheduling = () => {
     }
   };
 
-  const printIJO = async (id) => {
+  const printIJO = async (id, event_date) => {
     const loadingToast = toast.loading('Loading IJO print...');
 
     try {
       const data = await dispatch(getEventJobOrders(id)).unwrap();
-      createIJOPrint(data, true);
+      // createIJOPrint(data, true);
+      createIJOPrint({ data, event_date }, true);
     } catch (error) {
       handleError(error);
     } finally {
@@ -790,7 +789,7 @@ const Scheduling = () => {
       title: 'Print',
       key: 'print',
       align: 'center',
-      render: (_, { event_id }) => (
+      render: (_, { event_id , event_date}) => (
         <div className="flex flex-col justify-center gap-1">
           <div className="flex items-center gap-1">
             <Tooltip title="Print IJO">
@@ -798,7 +797,7 @@ const Scheduling = () => {
                 size="small"
                 type="primary"
                 className="w-20"
-                onClick={() => printIJO(event_id)}>
+                onClick={() => printIJO(event_id , event_date)}>
                 IJO
               </Button>
             </Tooltip>

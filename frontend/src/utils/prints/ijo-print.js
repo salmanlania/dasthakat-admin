@@ -15,7 +15,7 @@ const fillEmptyRows = (rows, rowsPerPage) => {
   return rows;
 };
 
-const pdfContent = (doc, data, sideMargin, pageWidth) => {
+const pdfContent = (doc, data, sideMargin, pageWidth, eventDate) => {
 
   doc.setTextColor(32, 50, 114);
   doc.setFontSize(20);
@@ -84,7 +84,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
           fontSize: 11,
           fillColor: 'ebf1de'
         }
-      },
+      }
     ]
   ];
 
@@ -114,7 +114,6 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       if (cellIndex === 1) data.cell.styles.cellWidth = 30; // Second column width
       if (cellIndex === 2) data.cell.styles.cellWidth = 30; // Third column width
       if (cellIndex === 3) data.cell.styles.cellWidth = 124; // Fourth column width
-
     }
   });
 
@@ -266,7 +265,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         }
       },
       {
-        content: '07/DECMBER/2023',
+        content: eventDate ? eventDate : '',
         styles: {
           fontSize: 9
         }
@@ -394,7 +393,8 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       lastDocumentId = currentDocId;
 
       const currentDocIdService = detail?.service_order?.document_identity || '';
-      const showDocumentIdService = currentDocIdService !== lastDocumentIdService ? currentDocIdService : '';
+      const showDocumentIdService =
+        currentDocIdService !== lastDocumentIdService ? currentDocIdService : '';
       lastDocumentIdService = currentDocIdService;
 
       const currentSO_DO = detail?.shipment?.document_identity || '';
@@ -406,7 +406,14 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       lastPO = currentPO;
 
       // Only add rows if there is non-empty content
-      if (showDocumentId || showPO || showSO_DO || showDocumentIdService || detail?.product_description || detail?.quantity) {
+      if (
+        showDocumentId ||
+        showPO ||
+        showSO_DO ||
+        showDocumentIdService ||
+        detail?.product_description ||
+        detail?.quantity
+      ) {
         table3Row.push([
           {
             content: showDocumentId || '',
@@ -440,7 +447,6 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       }
     });
   }
-
 
   const filledRows = fillEmptyRows(table3Row, 15);
   doc.autoTable({
@@ -513,11 +519,12 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
   //   }
   //   return [];
   // }).filter(Boolean);
-  const techNotes = data?.job_order_detail ? data?.job_order_detail[0]?.charge_order?.technician_notes : ""
-
+  const techNotes = data?.job_order_detail
+    ? data?.job_order_detail[0]?.charge_order?.technician_notes
+    : '';
 
   if (data?.certificates && data.certificates.length) {
-    const certiLen = data?.certificates.length
+    const certiLen = data?.certificates.length;
     data.certificates.forEach((certificate, index) => {
       table4Row.push([
         {
@@ -534,14 +541,14 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
           rowSpan: certiLen,
           styles: {
             fillColor: 'ebf1de',
-            textColor: '#244062',
+            textColor: '#244062'
           }
         },
         {
           content: index === 0 ? techNotes : '',
           rowSpan: certiLen,
           styles: {
-            halign: 'left',
+            halign: 'left'
           }
         }
       ]);
@@ -559,14 +566,14 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         // rowSpan : certiLen,
         styles: {
           fillColor: 'ebf1de',
-          textColor: '#244062',
+          textColor: '#244062'
         }
       },
       {
         content: techNotes,
         // rowSpan : certiLen,
         styles: {
-          halign: 'left',
+          halign: 'left'
         }
       }
     ]);
@@ -618,6 +625,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
 };
 
 export const createIJOPrint = (data, multiple = false) => {
+  const eventDate = data?.event_date;
   const doc = new jsPDF();
 
   const sideMargin = 1;
@@ -625,10 +633,10 @@ export const createIJOPrint = (data, multiple = false) => {
   const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
 
   if (!multiple) {
-    pdfContent(doc, data, sideMargin, pageWidth);
+    pdfContent(doc, data, sideMargin, pageWidth, eventDate);
   } else {
-    data.forEach((item, index) => {
-      pdfContent(doc, item, sideMargin, pageWidth);
+    data.data.forEach((item, index) => {
+      pdfContent(doc, item, sideMargin, pageWidth, eventDate);
 
       if (index < data.length - 1) {
         doc.addPage();

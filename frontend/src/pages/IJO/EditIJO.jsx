@@ -19,6 +19,16 @@ const EditIJO = () => {
     try {
       await dispatch(updateIJO({ id, data })).unwrap();
       toast.success('IJO updated successfully');
+      await dispatch(getIJO(id)).unwrap().catch(handleError);
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const onIJOUpdates = async (data) => {
+    try {
+      await dispatch(updateIJO({ id, data })).unwrap();
+      toast.success('IJO updated successfully');
       navigate('/ijo');
     } catch (error) {
       handleError(error);
@@ -44,7 +54,7 @@ const EditIJO = () => {
 
       {!isItemLoading && initialFormValues ? (
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <IJOForm mode="edit" onSubmit={onIJOUpdate} />
+          <IJOForm mode="edit" onSubmit={onIJOUpdate} onSave={onIJOUpdates} />
         </div>
       ) : null}
     </>

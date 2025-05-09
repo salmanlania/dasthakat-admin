@@ -8,13 +8,15 @@ import AsyncSelect from '../AsyncSelect';
 import toast from 'react-hot-toast';
 
 // eslint-disable-next-line react/prop-types
-const IJOForm = ({ mode = 'create', onSubmit }) => {
+const IJOForm = ({ mode = 'create', onSubmit, onSave }) => {
   const dispatch = useDispatch();
   const handleError = useError();
   const [form] = Form.useForm();
   const { isFormSubmitting, initialFormValues, chargeOrderDetails } = useSelector(
     (state) => state.ijo
   );
+
+  const [submitAction, setSubmitAction] = useState(null);
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
 
@@ -106,7 +108,7 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
       }));
     }
 
-    onSubmit(payload);
+    submitAction === 'save' ? onSubmit(payload) : submitAction === 'saveAndExit' ? onSave(payload) : null;
   };
 
   const onEventChange = async (selected) => {
@@ -282,10 +284,27 @@ const IJOForm = ({ mode = 'create', onSubmit }) => {
 
       <div className="mt-4 flex items-center justify-end gap-2">
         <Link to="/ijo">
-          <Button className="w-28">Cancel</Button>
+          <Button className="w-28">Exit</Button>
         </Link>
-        <Button type="primary" htmlType="submit" className="w-28" loading={isFormSubmitting}>
+        <Button
+          type="primary"
+          className="w-28"
+          loading={isFormSubmitting && submitAction === 'save'}
+          onClick={() => {
+            setSubmitAction('save');
+            form.submit();
+          }}>
           Save
+        </Button>
+        <Button
+          type="primary"
+          className="w-28 bg-green-600 hover:!bg-green-500"
+          loading={isFormSubmitting && submitAction === 'saveAndExit'}
+          onClick={() => {
+            setSubmitAction('saveAndExit');
+            form.submit();
+          }}>
+          Save & Exit
         </Button>
       </div>
     </Form>

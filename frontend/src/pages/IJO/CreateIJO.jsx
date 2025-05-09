@@ -14,13 +14,24 @@ const CreateIJO = () => {
 
   const onIJOCreate = async (data) => {
     try {
+      const res = await dispatch(createIJO(data)).unwrap();
+      toast.success('IJO created successfully');
+      navigate(`/ijo/edit/${res?.data?.data?.job_order_id}`);
+    } catch (error) {
+      handleError(error);
+      console.log('error' , error)
+    }
+  };
+
+  const onIJOSaveAndExit = async (data) => {
+    try {
       await dispatch(createIJO(data)).unwrap();
       toast.success('IJO created successfully');
       navigate('/ijo');
     } catch (error) {
       handleError(error);
     }
-  };
+  }
 
   return (
     <>
@@ -30,7 +41,7 @@ const CreateIJO = () => {
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-        <IJOForm onSubmit={onIJOCreate} />
+      <IJOForm onSubmit={onIJOCreate} onSave={onIJOSaveAndExit} />
       </div>
     </>
   );

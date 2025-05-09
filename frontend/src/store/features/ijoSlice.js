@@ -28,7 +28,7 @@ export const deleteIJO = createAsyncThunk('job-order/delete', async (id, { rejec
 
 export const createIJO = createAsyncThunk('job-order/create', async (data, { rejectWithValue }) => {
   try {
-    await api.post('/job-order', data);
+    return await api.post('/job-order', data);
   } catch (err) {
     throw rejectWithValue(err);
   }

@@ -549,63 +549,38 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'product_name',
       key: 'product_name',
       render: (_, { product_id, product_name, product_type_id }, index) => {
-        form.setFieldsValue({ [`product_name-${index}`]: product_name });
-        form.setFieldsValue({ [`product_id-${index}`]: product_id });
         return product_type_id?.value == 4 ? (
-          <Form.Item
-            className="m-0"
-            name={`product_name-${index}`}
-            initialValue={product_name}
-            rules={[
-              {
-                required: true,
-                whitespace: true,
-                message: 'Product Name is required'
-              }
-            ]}>
-            <DebounceInput
-              value={product_name}
-              disabled={product_type_id?.value === 4}
-              onChange={(value) => {
-                form.setFieldsValue({
-                  [`product_description-${index}`]: value
-                });
+          <DebounceInput
+            value={product_name}
+            disabled={product_type_id?.value === 4}
+            onChange={(value) => {
+              form.setFieldsValue({
+                [`product_description-${index}`]: value
+              });
 
-                dispatch(
-                  changeQuotationDetailValue({
-                    index,
-                    key: ['product_name', 'product_description'],
-                    value: [value, value]
-                  })
-                );
-              }}
-            />
-          </Form.Item>
+              dispatch(
+                changeQuotationDetailValue({
+                  index,
+                  key: ['product_name', 'product_description'],
+                  value: [value, value]
+                })
+              );
+            }}
+          />
         ) : (
-          <Form.Item
-            className="m-0"
-            name={`product_id-${index}`}
-            initialValue={product_id}
-            rules={[
-              {
-                required: true,
-                message: 'Product Name is required'
-              }
-            ]}>
-            <AsyncSelect
-              endpoint="/product"
-              valueKey="product_id"
-              labelKey="product_name"
-              labelInValue
-              className="w-full"
-              value={product_id}
-              onChange={(selected) => onProductChange(index, selected)}
-              addNewLink={permissions.product.add ? '/product/create' : null}
-              dropdownStyle={{ backgroundColor: '#a2e1eb' }}
-              optionLabelProp="children"
-              optionProps={{ style: { backgroundColor: '#a2e1eb', whiteSpace: 'nowrap' } }}
-            />
-          </Form.Item>
+          <AsyncSelect
+            endpoint="/product"
+            valueKey="product_id"
+            labelKey="product_name"
+            labelInValue
+            className="w-full"
+            value={product_id}
+            onChange={(selected) => onProductChange(index, selected)}
+            addNewLink={permissions.product.add ? '/product/create' : null}
+            dropdownStyle={{ backgroundColor: '#a2e1eb' }}
+            optionLabelProp="children"
+            optionProps={{ style: { backgroundColor: '#a2e1eb', whiteSpace: 'nowrap' } }}
+          />
         );
       },
       width: 130,
@@ -616,47 +591,34 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'product_description',
       key: 'product_description',
       render: (_, { product_description, product_type_id }, index) => {
-        form.setFieldsValue({ [`product_description-${index}`]: product_description });
         return (
           <Tooltip title={product_description || ''}>
-            <Form.Item
-              className="m-0"
-              name={`product_description-${index}`}
-              initialValue={product_description}
-              rules={[
-                {
-                  required: true,
-                  whitespace: true,
-                  message: 'Description is required'
-                }
-              ]}>
-              <DebounceInput
-                value={product_description}
-                onChange={(value) => {
-                  if (product_type_id?.value === 4) {
-                    dispatch(
-                      changeQuotationDetailValue({
-                        index,
-                        key: ['product_name', product_description],
-                        value: [value, value]
-                      })
-                    );
+            <DebounceInput
+              value={product_description}
+              onChange={(value) => {
+                if (product_type_id?.value === 4) {
+                  dispatch(
+                    changeQuotationDetailValue({
+                      index,
+                      key: ['product_name', product_description],
+                      value: [value, value]
+                    })
+                  );
 
-                    form.setFieldsValue({
-                      [`product_name-${index}`]: value
-                    });
-                  } else {
-                    dispatch(
-                      changeQuotationDetailValue({
-                        index,
-                        key: 'product_description',
-                        value: value
-                      })
-                    );
-                  }
-                }}
-              />
-            </Form.Item>
+                  form.setFieldsValue({
+                    [`product_name-${index}`]: value
+                  });
+                } else {
+                  dispatch(
+                    changeQuotationDetailValue({
+                      index,
+                      key: 'product_description',
+                      value: value
+                    })
+                  );
+                }
+              }}
+            />
           </Tooltip>
         );
       },
@@ -737,24 +699,20 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           .toString()
           .replace(/(\.\d*?)0+$/, '$1')
           .replace(/\.$/, '');
-        form.setFieldsValue({ [`quantity-${index}`]: newQuantity });
         return (
-          <Form.Item className="m-0" name={`quantity-${index}`} initialValue={newQuantity}>
-            <DebouncedCommaSeparatedInput
-              decimalPlaces={2}
-              // value={quantity}
-              value={newQuantity}
-              onChange={(value) =>
-                dispatch(
-                  changeQuotationDetailValue({
-                    index,
-                    key: 'quantity',
-                    value: value
-                  })
-                )
-              }
-            />
-          </Form.Item>
+          <DebouncedCommaSeparatedInput
+            decimalPlaces={2}
+            value={newQuantity}
+            onChange={(value) =>
+              dispatch(
+                changeQuotationDetailValue({
+                  index,
+                  key: 'quantity',
+                  value: value
+                })
+              )
+            }
+          />
         );
       },
       width: 90
@@ -911,22 +869,19 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'rate',
       key: 'rate',
       render: (_, { rate }, index) => {
-        form.setFieldsValue({ [`rate-${index}`]: rate });
         return (
-          <Form.Item className="m-0" name={`rate-${index}`} initialValue={rate}>
-            <DebouncedCommaSeparatedInput
-              value={rate}
-              onChange={(value) =>
-                dispatch(
-                  changeQuotationDetailValue({
-                    index,
-                    key: 'rate',
-                    value: value
-                  })
-                )
-              }
-            />
-          </Form.Item>
+          <DebouncedCommaSeparatedInput
+            value={rate}
+            onChange={(value) =>
+              dispatch(
+                changeQuotationDetailValue({
+                  index,
+                  key: 'rate',
+                  value: value
+                })
+              )
+            }
+          />
         );
       },
       width: 100
@@ -969,34 +924,19 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           [`discount_percent-${index}`]: discount_percent
         });
         return (
-          <Form.Item
-            className="m-0"
-            initialValue={discount_percent}
-            name={`discount_percent-${index}`}
-            rules={[
-              {
-                validator: (_, value) => {
-                  if (value > 100) {
-                    return Promise.reject(new Error('Invalid discount percent.'));
-                  }
-                  return Promise.resolve();
-                }
-              }
-            ]}>
-            <DebouncedNumberInput
-              value={discount_percent}
-              type="decimal"
-              onChange={(value) =>
-                dispatch(
-                  changeQuotationDetailValue({
-                    index,
-                    key: 'discount_percent',
-                    value: value
-                  })
-                )
-              }
-            />
-          </Form.Item>
+          <DebouncedNumberInput
+            value={discount_percent}
+            type="decimal"
+            onChange={(value) =>
+              dispatch(
+                changeQuotationDetailValue({
+                  index,
+                  key: 'discount_percent',
+                  value: value
+                })
+              )
+            }
+          />
         );
       },
       width: 80

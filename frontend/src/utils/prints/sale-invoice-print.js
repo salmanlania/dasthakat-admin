@@ -13,6 +13,7 @@ import Logo6 from '../../assets/quotation/logo6.png';
 import Logo7 from '../../assets/quotation/logo7.png';
 
 import { formatThreeDigitCommas, roundUpto } from '../number';
+import { AiOutlineConsoleSql } from 'react-icons/ai';
 
 const mergePDFs = async (quotationPDFBlob) => {
   const quotationPDFBytes = await quotationPDFBlob.arrayBuffer();
@@ -148,6 +149,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
     'Payment Terms',
     'Delivery Location',
     'S.O No.',
+    'Event No.',
     'Sales Rep',
     'Ship Date'
   ];
@@ -159,6 +161,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       data?.charge_order?.quotation?.payment.name ? data?.charge_order?.quotation?.payment.name : '',
       data?.charge_order ? data?.charge_order?.quotation?.delivery : '',
       data?.charge_order ? data.charge_order?.salesman?.name : '',
+      data?.charge_order ? data.charge_order?.event?.event_code : '',
       data?.charge_order ? data.charge_order?.service_order?.document_identity : '',
       data.service_date
         ? (data.service_date === "1989-11-30"
@@ -202,12 +205,13 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       0: { cellWidth: 19 },
       1: { cellWidth: 24 },
       2: { cellWidth: 22 },
-      3: { cellWidth: 50 },
-      4: { cellWidth: 30 },
+      3: { cellWidth: 37 },
+      4: { cellWidth: 25 },
       5: { cellWidth: 19 },
       6: { cellWidth: 19 },
-      7: { cellWidth: 19 },
-      8: { cellWidth: 21 }
+      7: { cellWidth: 15 },
+      8: { cellWidth: 22 },
+      9: { cellWidth: 21 },
     },
     didParseCell: function (data) {
       data.cell.styles.minCellHeight = 9;
