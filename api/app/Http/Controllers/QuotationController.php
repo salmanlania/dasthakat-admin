@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ChargeOrder;
+use App\Models\ChargeOrderDetail;
 use App\Models\DocumentType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -116,6 +117,8 @@ class QuotationController extends Controller
 				if ($detail->product) {
 					$detail->product->stock = StockLedger::Check($detail->product, $request->all());
 				}
+				$chargeOrderQty = ChargeOrderDetail::where('quotation_detail_id', $detail->quotation_detail_id)->sum('quantity') ?? 0;
+				$detail->available_quantity = ($detail->quantity ?? 0) - $chargeOrderQty;
 			}
 		}
 
