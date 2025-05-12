@@ -181,7 +181,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       remarks: values.remarks,
       quotation_detail: mappingSource.map(
         ({ id, row_status, isDeleted, product_type, ...detail }, index) => {
-          console.log('detail' , detail)
           return {
             ...detail,
             product_id: detail.product_type_id?.value == 4 ? null : detail?.product_id?.value,
@@ -480,7 +479,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       changeQuotationDetailValue({
         index,
         key: 'product_id',
-        value: selected?.value || '',
+        value: selected?.value || ''
       })
     );
 
@@ -1123,9 +1122,13 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'markup',
       key: 'markup',
       render: (_, { markup, product_type_id, product_type }, index) => {
+        const newMarkup = Number(markup)
+          .toString()
+          .replace(/(\.\d*?)0+$/, '$1')
+          .replace(/\.$/, '');
         return (
           <DebouncedNumberInput
-            value={product_type_id?.value == 1 ? 0 : markup}
+            value={product_type_id?.value == 1 ? 0 : newMarkup}
             type="decimal"
             disabled={product_type_id?.value == 1 || product_type === 'Service'}
             onChange={(value) => {
@@ -1133,7 +1136,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                 changeQuotationDetailValue({
                   index,
                   key: 'markup',
-                  value: product_type === 'Service' ? 0 : value
+                  value: value
                 })
               );
             }}

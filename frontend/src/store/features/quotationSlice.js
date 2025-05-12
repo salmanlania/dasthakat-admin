@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import dayjs from 'dayjs';
 import api from '../../axiosInstance';
+import { v4 as uuidv4 } from 'uuid';
 import { roundUpto } from '../../utils/number';
 
 export const getQuotationList = createAsyncThunk(
@@ -131,7 +132,8 @@ export const quotationSlice = createSlice({
     addQuotationDetail: (state, action) => {
       const index = action.payload;
       const newDetail = {
-        id: Date.now(),
+        // id: Date.now(),
+        id: uuidv4(),
         product_code: null,
         product_id: null,
         description: null,
@@ -156,7 +158,8 @@ export const quotationSlice = createSlice({
       const detail = state.quotationDetails[index];
       const newDetail = {
         ...detail,
-        id: Date.now(),
+        // id: Date.now(),
+        id: uuidv4(),
         row_status: 'I',
         isDeleted: false
       };
@@ -197,19 +200,12 @@ export const quotationSlice = createSlice({
       }
 
       detail[key] = value;
-      // if (typeof key === 'string') {
-      //   detail[key] = value;
-      // } else {
-      //   key.forEach((k, i) => {
-      //     detail[k] = value[i];
-      //   });
-      // }
-
       const productType = detail.product_type_id;
 
       if (
         productType?.label !== 'Service' &&
-        key !== 'rate' &&
+        // key !== 'rate' &&
+        key === 'markup' &&
         detail.cost_price &&
         detail.markup !== null &&
         detail.markup !== undefined
@@ -220,10 +216,11 @@ export const quotationSlice = createSlice({
       if (detail.quantity && detail.rate) {
         detail.amount = roundUpto(+detail.quantity * +detail.rate);
 
-        if (+detail.cost_price && +detail.rate) {
+        if (key === 'rate' && +detail.cost_price && +detail.rate) {
           detail.markup = roundUpto(
             ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100
           );
+          console.log('detail.markup' , detail.markup)
         }
       } else {
         detail.amount = '';
