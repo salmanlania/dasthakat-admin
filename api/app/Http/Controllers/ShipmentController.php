@@ -131,19 +131,16 @@ class ShipmentController extends Controller
 
 	public function viewBeforeShipment(Request $request)
 	{
-		// Early permission check
 		if (!isPermission('add', 'shipment', $request->permission_list)) {
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		}
 
-		// Validate request early
 		$validationErrors = $this->Validator($request->all());
 		if ($validationErrors) {
 			return $this->jsonResponse($validationErrors, 400, "Request Failed!");
 		}
 
 		try {
-			// Build query with optimized relationships and conditions
 			$query = ChargeOrderDetail::query()
 				->with([
 					'charge_order',
@@ -157,44 +154,55 @@ class ShipmentController extends Controller
 
 				$query = $query->where('charge_order_id', $request->charge_order_id);
 			}
-			// ->when($request->charge_order_id, fn($q) => $q->where('charge_order_id', $request->charge_order_id))
-			$query = $query->where('product_type_id', $request->type === "DO" ? '!=' : '=', 1)
-				->where('shipment_detail_id', "")
+			$query = $query->where('product_type_id', $request->type === "DO" ? '!=' : '=', 1)->whereRaw('
+        (
+            SELECT COALESCE(SUM(quantity), 0)
+            FROM shipment_detail
+            WHERE shipment_detail.charge_order_detail_id = charge_order_detail.charge_order_detail_id
+        ) < charge_order_detail.quantity
+    ')
 				->orderBy('sort_order');
 
 			$chargeOrderDetails = $query->get();
-			// return $this->jsonResponse($chargeOrderDetails, , "View Shipment Order");
 
 			if ($chargeOrderDetails->isEmpty()) {
 				return $this->jsonResponse('No Items Found For Shipment', 404, "No Data Found!");
 			}
 			// exit;
 
-			// Use collection methods for transformation
 			$shipmentDetails = $chargeOrderDetails
-				->filter(fn($item) => $this->getPickedQuantity($item) > 0)
+				->filter(function ($item) {
+					$shippedQty = ShipmentDetail::where('charge_order_detail_id', $item->charge_order_detail_id)->sum('quantity');
+
+					return ($this->getPickedQuantity($item) - $shippedQty) > 0;
+				})
 				->groupBy('charge_order_id')
 				->map(function ($group, $key) {
 					$firstItem = $group->first();
+
 					return [
 						'charge_order_id' => $key,
 						'document_identity' => $firstItem->charge_order?->document_identity,
-						'details' => $group->map(fn($item) => [
-							'charge_order_detail_id' => $item->charge_order_detail_id,
-							'product_id' => $item->product_id,
-							'product_name' => $item->product?->name ?? $item->product_name,
-							'product_type_id' => $item->product_type_id,
-							'product_type_name' => $item->product_type?->name,
-							'product_description' => $item->product_description,
-							'description' => $item->description,
-							'internal_notes' => $item->internal_notes,
-							'available_quantity' => $this->getPickedQuantity($item),
-							'quantity' => $item->quantity,
-							'unit_id' => $item->unit_id,
-							'unit_name' => $item->unit?->name,
-							'supplier_id' => $item->supplier_id,
-							'supplier_name' => $item->supplier?->name,
-						])->values()->all()
+						'details' => $group->map(function ($item) {
+							$shippedQty = ShipmentDetail::where('charge_order_detail_id', $item->charge_order_detail_id)->sum('quantity');
+							$remainingQty = $item->quantity - $shippedQty;
+							return [
+								'charge_order_detail_id' => $item->charge_order_detail_id,
+								'product_id' => $item->product_id,
+								'product_name' => $item->product?->name ?? $item->product_name,
+								'product_type_id' => $item->product_type_id,
+								'product_type_name' => $item->product_type?->name,
+								'product_description' => $item->product_description,
+								'description' => $item->description,
+								'internal_notes' => $item->internal_notes,
+								'available_quantity' => $this->getPickedQuantity($item) - $shippedQty,
+								'quantity' => $remainingQty,
+								'unit_id' => $item->unit_id,
+								'unit_name' => $item->unit?->name,
+								'supplier_id' => $item->supplier_id,
+								'supplier_name' => $item->supplier?->name,
+							];
+						})->values()->all()
 					];
 				})->values()->all();
 
@@ -204,7 +212,6 @@ class ShipmentController extends Controller
 
 			return $this->jsonResponse($shipmentDetails, 200, "View Shipment Order");
 		} catch (\Exception $e) {
-			// Add proper error handling
 			return $this->jsonResponse('An error occurred while processing the request', 500, $e->getMessage());
 		}
 	}
@@ -254,7 +261,14 @@ class ShipmentController extends Controller
 		})
 			->whereIn('charge_order_detail_id', $chargeOrderDetailIds)
 			->when($request->type == "DO", fn($query) => $query->where('product_type_id', '!=', 1), fn($query) => $query->where('product_type_id', 1))
-			->where('shipment_detail_id', "")
+			->whereRaw('
+        (
+            SELECT COALESCE(SUM(quantity), 0)
+            FROM shipment_detail
+            WHERE shipment_detail.charge_order_detail_id = charge_order_detail.charge_order_detail_id
+        ) < charge_order_detail.quantity
+    ')
+
 			->orderBy('sort_order')
 			->get();
 		if ($chargeOrderDetails->isEmpty()) {
@@ -263,7 +277,9 @@ class ShipmentController extends Controller
 		// Process Shipment Details
 		$shipmentDetails = [];
 		foreach ($chargeOrderDetails as $index => $detail) {
-			if ($this->getPickedQuantity($detail) > 0) {
+			$shippedQty = ShipmentDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->sum('quantity');
+
+			if (($this->getPickedQuantity($detail) - $shippedQty) > 0) {
 				$shipmentDetails[] = [
 					'shipment_id'           => $uuid,
 					'shipment_detail_id'    => $this->get_uuid(),
@@ -276,7 +292,7 @@ class ShipmentController extends Controller
 					'product_description'   => $detail->product_description,
 					'description'           => $detail->description,
 					'internal_notes'        => $detail->internal_notes,
-					'quantity'              => $this->getPickedQuantity($detail),
+					'quantity'              => $this->getPickedQuantity($detail) - $shippedQty,
 					'unit_id'               => $detail->unit_id,
 					'supplier_id'           => $detail->supplier_id,
 					'created_at'            => Carbon::now(),
