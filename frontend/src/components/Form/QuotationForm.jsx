@@ -8,6 +8,7 @@ import {
   Form,
   Input,
   Row,
+  Popover,
   Select,
   Table,
   Tooltip
@@ -17,14 +18,14 @@ import { useCallback, useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiPlus } from 'react-icons/bi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
-import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
+import { IoIosWarning, IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { TbEdit } from 'react-icons/tb';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import NotesModal from '../../components/Modals/NotesModal.jsx';
 import useError from '../../hooks/useError';
 import { getEvent } from '../../store/features/eventSlice';
-import { getProduct } from '../../store/features/productSlice';
+import { getProduct, getProductList } from '../../store/features/productSlice';
 import {
   addQuotationDetail,
   changeQuotationDetailOrder,
@@ -180,10 +181,11 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       remarks: values.remarks,
       quotation_detail: mappingSource.map(
         ({ id, row_status, isDeleted, product_type, ...detail }, index) => {
+          console.log('detail' , detail)
           return {
             ...detail,
             product_id: detail.product_type_id?.value == 4 ? null : detail?.product_id?.value,
-            product_name: detail.product_type_id?.value == 4 ? detail?.product_name : null,
+            product_name: detail?.product_name ? detail?.product_name : null,
             supplier_id: detail.supplier_id ? detail?.supplier_id?.value : null,
             product_type_id: detail?.product_type_id ? detail?.product_type_id?.value : null,
             unit_id: detail?.unit_id ? detail?.unit_id?.value : null,
@@ -228,8 +230,97 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     closeNotesModal();
   };
 
+  const onProductCodeChange = async (index, value) => {
+    const productCode = String(value).trim();
+    if (!productCode) return;
+    try {
+      const res = await dispatch(getProductList({ product_code: value, stock: true })).unwrap();
+
+      if (!res.data.length) return;
+
+      const product = res.data[0];
+      const stockQuantity = product?.stock?.quantity || 0;
+
+      form.setFieldsValue({
+        [`product_id-${index}`]: product?.product_id
+          ? {
+              value: product.product_id,
+              label: product.product_name
+            }
+          : null,
+        [`product_description-${index}`]: product?.product_name || ''
+      });
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'product_id',
+          value: {
+            value: product.product_id,
+            label: product.product_name
+          }
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'product_description',
+          value: product?.product_name || ''
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'product_type_id',
+          value: product.product_type_id
+            ? {
+                value: product.product_type_id,
+                label: product.product_type_name
+              }
+            : null
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'unit_id',
+          value: { value: product.unit_id, label: product.unit_name }
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'stock_quantity',
+          value: stockQuantity
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'cost_price',
+          value: product.cost_price
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'rate',
+          value: product.sale_price
+        })
+      );
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
   // const onProductCodeChange = async (index, value) => {
-  //   if (!value.trim()) return;
+  //   // if (!value.trim()) return;
   //   try {
   //     const res = await dispatch(getProductList({ product_code: value, stock: true })).unwrap();
 
@@ -315,6 +406,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
   //     handleError(error);
   //   }
   // };
+  var a;
 
   const onProductChange = async (index, selected) => {
     if (!selected) {
@@ -371,6 +463,24 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         index,
         key: 'product_description',
         value: selected?.label || ''
+      })
+    );
+    form.setFieldsValue({
+      [`product_name-${index}`]: selected?.label || ''
+    });
+
+    dispatch(
+      changeQuotationDetailValue({
+        index,
+        key: 'product_name',
+        value: selected?.label || ''
+      })
+    );
+    dispatch(
+      changeQuotationDetailValue({
+        index,
+        key: 'product_id',
+        value: selected?.value || '',
       })
     );
 
@@ -628,7 +738,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           <Form.Item
             className="m-0"
             name={`product_name-${index}`}
-            initialValue={product_name}
+            value={product_name}
             rules={[
               {
                 required: true,
@@ -640,10 +750,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
               value={product_name}
               disabled={product_type_id?.value === 4}
               onChange={(value) => {
-                form.setFieldsValue({
-                  [`product_description-${index}`]: value
-                });
-
                 dispatch(
                   changeQuotationDetailValue({
                     index,
@@ -653,14 +759,19 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                     value: value
                   })
                 );
+
+                form.setFieldsValue({
+                  [`product_description-${index}`]: value
+                });
               }}
             />
           </Form.Item>
         ) : (
           <Form.Item
             className="m-0"
-            name={`product_id-${index}`}
-            initialValue={product_id}
+            name={`product_name-${index}`}
+            // value={product_id}
+            value={product_id ? { value: product_id, label: product_name } : null}
             rules={[
               {
                 required: true,
@@ -673,7 +784,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
               labelKey="product_name"
               labelInValue
               className="w-full"
-              value={product_id}
+              // value={product_id}
+              value={product_id ? { value: product_id, label: product_name } : null}
+              // value={{ label: product_name, value: product_id }}
               onChange={(selected) => onProductChange(index, selected)}
               addNewLink={permissions.product.add ? '/product/create' : null}
               dropdownStyle={{ backgroundColor: '#a2e1eb' }}
@@ -715,9 +828,19 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                       value: value
                     })
                   );
-                  form.setFieldsValue({
-                    [`product_name-${index}`]: value
-                  });
+
+                  if (product_type_id?.value === 4) {
+                    dispatch(
+                      changeQuotationDetailValue({
+                        index,
+                        key: 'product_name',
+                        value: value
+                      })
+                    );
+                    form.setFieldsValue({
+                      [`product_name-${index}`]: value
+                    });
+                  }
                 }}
               />
             </Form.Item>
@@ -796,47 +919,78 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       title: 'Quantity',
       dataIndex: 'quantity',
       key: 'quantity',
-      render: (_, { quantity }, index) => {
+      render: (_, { stock_quantity, quantity, editable, product_type_id }, index) => {
+        const stockQuantityNum = stock_quantity ? parseFloat(stock_quantity) : 0;
+        const quantityNum = quantity ? parseFloat(quantity) : 0;
+
+        const isQuantityExceedsStock =
+          product_type_id?.value == 2 && quantityNum > stockQuantityNum;
         const newQuantity = Number(quantity)
           .toString()
           .replace(/(\.\d*?)0+$/, '$1')
           .replace(/\.$/, '');
         form.setFieldsValue({ [`quantity-${index}`]: newQuantity });
         return (
-          <Form.Item
-            className="m-0"
-            name={`quantity-${index}`}
-            initialValue={newQuantity}
-            rules={[
-              {
-                required: true,
-                message: 'Quantity is required'
-              },
-              {
-                validator: (_, value, callback, source) => {
-                  const parsed = parseFloat(value?.toString().replace(/,/g, ''));
-                  const receivedQty = chargeOrderDetails[index]?.picked_quantity || 0;
-                  if (parsed < receivedQty) {
-                    return Promise.reject(`Less Than Received Quantity (${receivedQty})`);
+          <div className="relative">
+            <Form.Item
+              className="m-0"
+              name={`quantity-${index}`}
+              initialValue={newQuantity}
+              rules={[
+                {
+                  required: true,
+                  message: 'Quantity is required'
+                },
+                {
+                  validator: (_, value, callback, source) => {
+                    const parsed = parseFloat(value?.toString().replace(/,/g, ''));
+                    const receivedQty = quotationDetails[index]?.picked_quantity || 0;
+                    if (parsed < receivedQty) {
+                      return Promise.reject(`Less Than Received Quantity (${receivedQty})`);
+                    }
+                    return Promise.resolve();
                   }
-                  return Promise.resolve();
                 }
-              }
-            ]}>
-            <DebouncedCommaSeparatedInput
-              decimalPlaces={2}
-              value={newQuantity}
-              onChange={(value) =>
-                dispatch(
-                  changeQuotationDetailValue({
-                    index,
-                    key: 'quantity',
-                    value: value
-                  })
-                )
-              }
-            />
-          </Form.Item>
+              ]}>
+              <DebouncedCommaSeparatedInput
+                decimalPlaces={2}
+                value={newQuantity}
+                disabled={editable === false}
+                onChange={(value) =>
+                  dispatch(
+                    changeQuotationDetailValue({
+                      index,
+                      key: 'quantity',
+                      value: value
+                    })
+                  )
+                }
+              />
+            </Form.Item>
+            {isQuantityExceedsStock && (
+              <Popover
+                content={
+                  <div>
+                    <p>Would you like to split the quantity?</p>
+
+                    <div className="mt-2 flex w-full justify-end gap-2">
+                      <Button
+                        type="primary"
+                        size="small"
+                        onClick={() => dispatch(splitChargeOrderQuantity(index))}>
+                        Yes
+                      </Button>
+                    </div>
+                  </div>
+                }
+                title="Quantity Exceeds Stock">
+                <IoIosWarning
+                  size={18}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer text-red-500"
+                />
+              </Popover>
+            )}
+          </div>
         );
       },
       width: 90

@@ -19,7 +19,6 @@ const CreateIJO = () => {
       navigate(`/ijo/edit/${res?.data?.data?.job_order_id}`);
     } catch (error) {
       handleError(error);
-      console.log('error' , error)
     }
   };
 

@@ -196,13 +196,14 @@ export const quotationSlice = createSlice({
         detail.row_status = 'U';
       }
 
-      if (typeof key === 'string') {
-        detail[key] = value;
-      } else {
-        key.forEach((k, i) => {
-          detail[k] = value[i];
-        });
-      }
+      detail[key] = value;
+      // if (typeof key === 'string') {
+      //   detail[key] = value;
+      // } else {
+      //   key.forEach((k, i) => {
+      //     detail[k] = value[i];
+      //   });
+      // }
 
       const productType = detail.product_type_id;
 
@@ -414,13 +415,12 @@ export const quotationSlice = createSlice({
               label: detail.product_type.name
             }
           : null,
-        product_name: detail.product_name,
+        product_name: detail.product_name ? detail.product_name : detail?.product?.product_name || null,
         product_description: detail.product_description,
         description: detail.description,
         stock_quantity: detail?.product?.stock?.quantity
           ? parseFloat(detail.product.stock.quantity)
           : 0,
-        // quantity: detail.quantity ? parseFloat(detail.quantity) : null,
         quantity: detail.quantity ? detail.quantity : null,
         available_quantity: detail.available_quantity ? detail.available_quantity : null,
         unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
