@@ -110,6 +110,11 @@ class AuthController extends Controller
 
             try {
 
+                $this->sentMail($data);
+            } catch (\Exception $e) {
+            }
+            try {
+
                 if (!empty($user->phone_no)) {
 
                     $config = Setting::where('module', 'whatsapp')->pluck('value', 'field');
@@ -127,11 +132,6 @@ class AuthController extends Controller
             } catch (\Exception $e) {
             }
 
-            try {
-
-                $this->sentMail($data);
-            } catch (\Exception $e) {
-            }
 
 
 
