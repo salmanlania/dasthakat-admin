@@ -86,7 +86,7 @@ class SaleInvoiceController extends Controller
 		)
 			->where('sale_invoice_id', $id)->first();
 
-			$data->shipment = Shipment::where('charge_order_id', $data->charge_order_id)->orderby('created_at', 'desc')->first();
+		$data->shipment = Shipment::where('charge_order_id', $data->charge_order_id)->orderby('created_at', 'desc')->first();
 
 		return $this->jsonResponse($data, 200, "Sale Invoice Data");
 	}
@@ -156,12 +156,12 @@ class SaleInvoiceController extends Controller
 
 			foreach ($chargeOrder->charge_order_detail as $detail) {
 				if (isset($detail->charge_order_detail_id)) {
-
-					if (SaleInvoiceDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->exists()) {
+					$saleInvoiceDetail = SaleInvoiceDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->get();
+					if ($detail->quantity == $saleInvoiceDetail->sum('quantity')) {
 						continue;
 					}
 
-					$actualQty = $this->getShipmentQuantity($detail) ?? 0;
+					$actualQty = ($this->getShipmentQuantity($detail) - $saleInvoiceDetail->sum('quantity')) ?? 0;
 					if ($actualQty <= 0) continue;
 
 					$amount = $detail->rate * $actualQty;
