@@ -51,7 +51,7 @@ import DebounceInput from '../Input/DebounceInput';
 export const DetailSummaryInfo = ({ title, value }) => {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="ml-1 text-sm text-gray-500 font-bold">{title}</span>
+      <span className="ml-1 text-sm text-gray-500 font-bold text-black">{title}</span>
       <span className="ml-1 text-sm text-gray-500">{value}</span>
     </div>
   );
@@ -60,7 +60,7 @@ export const DetailSummaryInfo = ({ title, value }) => {
 export const DetailSummary = ({ title, value }) => {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="ml-4 text-sm text-gray-500 font-bold">{title}</span>
+      <span className="ml-4 text-sm text-gray-500 font-bold text-black">{title}</span>
       <span className="ml-4 text-sm text-gray-500">{value}</span>
     </div>
   );
