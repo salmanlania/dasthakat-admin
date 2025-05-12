@@ -102,30 +102,37 @@ class AuthController extends Controller
             $data = [
                 'template' => 'otp-verify-template',
                 'data' => ['otp' => $otp],
-                'email' => $updateUser->email,
+                'email' => $updateUser->email ?? "",
                 'name' => $updateUser->user_name,
                 'subject' => 'OTP Verification',
                 'message' => 'Your OTP is ' . $otp,
             ];
 
-            $this->sentMail($data);
+            try {
 
+                if (!empty($user->phone_no)) {
 
+                    $config = Setting::where('module', 'whatsapp')->pluck('value', 'field');
+                    $setting = [
+                        'url' => @$config['whatsapp_api_url'] ? @$config['whatsapp_api_url'] : env('WHATSAPP_API_URL'),
+                        'token' => @$config['whatsapp_token'] ? @$config['whatsapp_token'] : env('WHATSAPP_TOKEN'),
+                    ];
 
-            if (!empty($user->phone_no)) {
-
-                $config = Setting::where('module', 'whatsapp')->pluck('value', 'field');
-                $setting = [
-                    'url' => @$config['whatsapp_api_url'] ? @$config['whatsapp_api_url'] : env('WHATSAPP_API_URL'),
-                    'token' => @$config['whatsapp_token'] ? @$config['whatsapp_token'] : env('WHATSAPP_TOKEN'),
-                ];
-
-                $data = [
-                    'chatId' => $user->phone_no . "@c.us",
-                    'message' => "*" . $otp . "* is your login verification code for Global Marine Safety - America, Do not share this code."
-                ];
-                $this->whatsAppAPI($data, $setting);
+                    $data = [
+                        'chatId' => $user->phone_no . "@c.us",
+                        'message' => "*" . $otp . "* is your login verification code for Global Marine Safety - America, Do not share this code."
+                    ];
+                    $this->whatsAppAPI($data, $setting);
+                }
+            } catch (\Exception $e) {
             }
+
+            try {
+
+                $this->sentMail($data);
+            } catch (\Exception $e) {
+            }
+
 
 
 
