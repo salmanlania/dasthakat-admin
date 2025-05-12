@@ -73,49 +73,7 @@ const ChargeOrderModal = () => {
       ellipsis: true
     },
     {
-      title: 'Available Quantity',
-      dataIndex: 'available_quantity',
-      key: 'available_quantity',
-      width: 120,
-      render: (_, { available_quantity }, index) => {
-        form.setFieldsValue({ [`available_quantity-${index}`]: available_quantity });
-        return (
-          <Form.Item
-            className="m-0"
-            initialValue={available_quantity}
-            name={`available_quantity-${index}`}
-            rules={[
-              {
-                required: true,
-                message: 'Quantity required'
-              },
-              {
-                validator: (_, value) => {
-                  if (!value || parseFloat(value) <= 0) {
-                    return Promise.reject(new Error('Quantity must be greater than 0'));
-                  }
-                  return Promise.resolve();
-                }
-              }
-            ]}>
-            <DebouncedCommaSeparatedInput
-              value={available_quantity}
-              onChange={(value) =>
-                dispatch(
-                  changeQuotationDetailValue({
-                    index,
-                    key: 'available_quantity',
-                    value: value
-                  })
-                )
-              }
-            />
-          </Form.Item>
-        );
-      }
-    },
-    {
-      title: 'Quantity',
+      title: 'Quote Quantity',
       dataIndex: 'quantity',
       key: 'quantity',
       width: 120,
@@ -149,6 +107,48 @@ const ChargeOrderModal = () => {
                   changeQuotationDetailValue({
                     index,
                     key: 'quantity',
+                    value: value
+                  })
+                )
+              }
+            />
+          </Form.Item>
+        );
+      }
+    },
+    {
+      title: 'Quantity',
+      dataIndex: 'available_quantity',
+      key: 'available_quantity',
+      width: 120,
+      render: (_, { available_quantity }, index) => {
+        form.setFieldsValue({ [`available_quantity-${index}`]: available_quantity });
+        return (
+          <Form.Item
+            className="m-0"
+            initialValue={available_quantity}
+            name={`available_quantity-${index}`}
+            rules={[
+              {
+                required: true,
+                message: 'Quantity required'
+              },
+              {
+                validator: (_, value) => {
+                  if (!value || parseFloat(value) <= 0) {
+                    return Promise.reject(new Error('Quantity must be greater than 0'));
+                  }
+                  return Promise.resolve();
+                }
+              }
+            ]}>
+            <DebouncedCommaSeparatedInput
+              value={available_quantity}
+              onChange={(value) =>
+                dispatch(
+                  changeQuotationDetailValue({
+                    index,
+                    key: 'available_quantity',
                     value: value
                   })
                 )
@@ -254,7 +254,7 @@ const ChargeOrderModal = () => {
   }, [chargeQuotationID]);
 
   return (
-    <Modal open={chargeQuotationID} closable={false} footer={null} width={840}>
+    <Modal open={chargeQuotationID} closable={false} footer={null} width={"80vw"} >
       <div className="mb-3 flex items-center justify-between text-gray-600">
         <p className="text-base font-medium">Select products to charge order.</p>
         {isItemLoading ? (

@@ -50,9 +50,18 @@ import DebounceInput from '../Input/DebounceInput';
 
 export const DetailSummaryInfo = ({ title, value }) => {
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center justify-between gap-2">
       <span className="ml-1 text-sm text-gray-500">{title}</span>
-      {value}
+      <span className="ml-1 text-sm text-gray-500">{value}</span>
+    </div>
+  );
+};
+
+export const DetailSummary = ({ title, value }) => {
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <span className="ml-4 text-sm text-gray-500">{title}</span>
+      <span className="ml-4 text-sm text-gray-500">{value}</span>
     </div>
   );
 };
@@ -1678,8 +1687,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                 value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
               />
             </Col>
-            <div className="flex flex-col gap-2">
-              <DetailSummaryInfo
+            <div className="flex flex-col gap-2 text-right">
+              <DetailSummary
                 title="Total Quantity:"
                 value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
               />
@@ -1689,41 +1698,51 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
               />
             </div>
           </Row>
-          <h4 className="ml-1 mt-2 font-medium text-gray-800">Rebate:</h4>
-          <div className="flex flex-col gap-4">
-            <DetailSummaryInfo
-              title="Percentage:"
-              value={
-                <DebouncedNumberInput
-                  type="decimal"
-                  size="small"
-                  className="w-20"
-                  value={rebatePercentage}
-                  disabled
-                  onChange={(value) => dispatch(setRebatePercentage(value))}
-                />
-              }
-            />
-            <DetailSummaryInfo title="Amount:" value={rebateAmount} />
-          </div>
-          <h4 className="ml-1 mt-2 font-medium text-gray-800">Salesman:</h4>
-          <div className="flex flex-col gap-4">
-            <DetailSummaryInfo
-              title="Percentage:"
-              value={
-                <DebouncedNumberInput
-                  type="decimal"
-                  size="small"
-                  className="w-20"
-                  value={salesmanPercentage}
-                  disabled
-                  onChange={(value) => dispatch(setSalesmanPercentage(value))}
-                />
-              }
-            />
-            <DetailSummaryInfo title="Amount:" value={salesmanAmount} />
-          </div>
-          <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
+          <Row gutter={[12, 12]}>
+            <Col span={24} sm={12} md={6} lg={6}>
+              <DetailSummaryInfo
+                title="Rebate:"
+                value={
+                  <div className="item-center flex flex-row-reverse gap-2">
+                    {rebateAmount}
+                    <DebouncedNumberInput
+                      type="decimal"
+                      size="small"
+                      className="w-[3.8rem] text-right"
+                      value={`${rebatePercentage}%`}
+                      disabled
+                      onChange={(value) => dispatch(setRebatePercentage(value))}
+                    />
+                  </div>
+                }
+              />
+            </Col>
+          </Row>
+          <Row gutter={[12, 12]}>
+            <Col span={24} sm={12} md={6} lg={6}>
+              <DetailSummaryInfo
+                title="Salesman:"
+                value={
+                  <div className="item-center flex flex-row-reverse gap-12 mt-2">
+                    {salesmanAmount || 0}
+                    <DebouncedNumberInput
+                      type="decimal"
+                      size="small"
+                      className="w-[3.8rem] text-right"
+                      value={`${salesmanPercentage}%`}
+                      disabled
+                      onChange={(value) => dispatch(setSalesmanPercentage(value))}
+                    />
+                  </div>
+                }
+              />
+            </Col>
+          </Row>
+          <Row gutter={[12, 12]}>
+            <Col span={24} sm={12} md={6} lg={6}>
+              <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
+            </Col>
+          </Row>
         </div>
 
         <div className="mt-4 flex items-center justify-end gap-2">

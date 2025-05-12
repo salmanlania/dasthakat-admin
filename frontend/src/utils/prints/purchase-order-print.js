@@ -24,20 +24,41 @@ const fillEmptyRows = (rows, rowsPerPage) => {
 const addHeader = (doc, data, sideMargin) => {
   // *** Header ***
   // Logo
-  doc.addImage(GMSLogo, 'PNG', 8, 3, 32, 26); // x, y, width, height
+  // doc.addImage(GMSLogo, 'PNG', 8, 3, 32, 26); // x, y, width, height
 
-  // Main Heading
-  doc.setFontSize(18);
+  // // Main Heading
+  // doc.setFontSize(18);
+  // doc.setFont('times', 'bold');
+  // doc.text('Global Marine Safety - America', sideMargin, 36);
+
+  // // Company Info
+  // doc.setFontSize(10);
+  // doc.setFont('times', 'normal');
+  // doc.text('9145 Wallisville Rd, Houston TX 77029, USA', sideMargin, 44);
+  // doc.text('Tel: 1 713-518-1715', sideMargin, 48);
+  // doc.text('Fax: 1 713-518-1760', sideMargin, 52);
+  // doc.text('Email: tech1@gms-america.com', sideMargin, 56);
+  doc.setTextColor(32, 50, 114);
+  doc.setFontSize(20);
   doc.setFont('times', 'bold');
-  doc.text('Global Marine Safety - America', sideMargin, 36);
-
-  // Company Info
-  doc.setFontSize(10);
+  const pageWidth = doc.internal.pageSize.getWidth();
+  doc.text('Global Marine Safety - America', pageWidth / 2, 36, {
+    align: 'center'
+  });
   doc.setFont('times', 'normal');
-  doc.text('9145 Wallisville Rd, Houston TX 77029, USA', sideMargin, 44);
-  doc.text('Tel: 1 713-518-1715', sideMargin, 48);
-  doc.text('Fax: 1 713-518-1760', sideMargin, 52);
-  doc.text('Email: tech1@gms-america.com', sideMargin, 56);
+  doc.setFontSize(10);
+  doc.text('9145 Wallisville Rd, Houston TX 77029, USA', pageWidth / 2, 44, {
+    align: 'center'
+  });
+  doc.text(
+    'Tel: 1 713-518-1715, Fax: 1 713-518-1760, Email: sales@gms-america.com',
+    pageWidth / 2,
+    52,
+    { align: 'center' }
+  );
+
+  // Header LOGO
+  doc.addImage(GMSLogo, 'PNG', 8, 1, 35, 26);
 
   // Purchase Order Box
   // Draw the rectangle (outer border)
@@ -232,116 +253,119 @@ const addFooter = (doc, data, sideMargin, pageHeight) => {
 };
 
 export const createPurchaseOrderPrint = (data) => {
-  const doc = new jsPDF();
-  const sideMargin = 4;
+  try {
+    const doc = new jsPDF();
+    const sideMargin = 4;
+    // Purchase Order Items Table
+    const table2Column = [
+      'S#',
+      'IMPA',
+      'Qty',
+      'Unit',
+      'V.Part#',
+      'Description',
+      'Unit Price',
+      'Ext. Cos',
+      'Vend Notes'
+    ];
+    const table2Rows = data.purchase_order_detail
+      ? data.purchase_order_detail.map((detail, index) => [
+          index + 1,
+          detail?.product?.impa_code || '',
+          detail.quantity ? parseFloat(detail.quantity) : '',
+          detail.unit ? detail.unit.name : '',
+          detail.vpart || '',
+          {
+            content: detail?.product_description || '',
+            styles: { halign: 'left' }
+          },
+          {
+            content: detail.rate ? formatThreeDigitCommas(detail.rate) : '',
+            styles: { halign: 'right' }
+          },
+          {
+            content: detail.amount ? formatThreeDigitCommas(detail.amount) : '',
+            styles: { halign: 'right' }
+          },
+          detail.vendor_notes || ''
+        ])
+      : [];
 
-  // Purchase Order Items Table
-  const table2Column = [
-    'S#',
-    'IMPA',
-    'Qty',
-    'Unit',
-    'V.Part#',
-    'Description',
-    'Unit Price',
-    'Ext. Cos',
-    'Vend Notes'
-  ];
-  const table2Rows = data.purchase_order_detail
-    ? data.purchase_order_detail.map((detail, index) => [
-        index + 1,
-        detail?.product?.impa_code || '',
-        detail.quantity ? parseFloat(detail.quantity) : '',
-        detail.unit ? detail.unit.name : '',
-        detail.vpart || '',
-        {
-          content: detail?.product_description || '',
-          styles: { halign: 'left' }
-        },
-        {
-          content: detail.rate ? formatThreeDigitCommas(detail.rate) : '',
-          styles: { halign: 'right' }
-        },
-        {
-          content: detail.amount ? formatThreeDigitCommas(detail.amount) : '',
-          styles: { halign: 'right' }
-        },
-        detail.vendor_notes || ''
-      ])
-    : [];
+    const filledRows = fillEmptyRows(table2Rows, 9);
+    doc.autoTable({
+      startY: 156,
+      head: [table2Column],
+      body: filledRows,
+      margin: { left: 4, top: 156, bottom: 22 },
+      headStyles: {
+        halign: 'center',
+        valign: 'middle',
+        fontSize: 8,
+        fontStyle: 'bold',
+        textColor: [0, 0, 0],
+        fillColor: [255, 255, 255]
+      },
+      styles: {
+        halign: 'center',
+        valign: 'middle',
+        font: 'times',
+        lineWidth: 0.1,
+        lineColor: [0, 0, 0],
+        cellPadding: 1
+      },
+      bodyStyles: {
+        fontSize: 7,
+        textColor: [0, 0, 0],
+        fillColor: [255, 255, 255]
+      },
+      alternateRowStyles: {
+        fillColor: [255, 255, 255]
+      },
+      rowPageBreak: 'avoid',
+      columnStyles: {
+        0: { cellWidth: 9 },
+        1: { cellWidth: 15 },
+        2: { cellWidth: 12 },
+        3: { cellWidth: 10 },
+        4: { cellWidth: 12 },
+        5: { cellWidth: 88 },
+        6: { cellWidth: 16 },
+        7: { cellWidth: 16 },
+        8: { cellWidth: 24 }
+      },
+      didParseCell: function (data) {
+        data.cell.styles.minCellHeight = 11;
+      }
+    });
 
-  const filledRows = fillEmptyRows(table2Rows, 9);
-  doc.autoTable({
-    startY: 156,
-    head: [table2Column],
-    body: filledRows,
-    margin: { left: 4, top: 156, bottom: 22 },
-    headStyles: {
-      halign: 'center',
-      valign: 'middle',
-      fontSize: 8,
-      fontStyle: 'bold',
-      textColor: [0, 0, 0],
-      fillColor: [255, 255, 255]
-    },
-    styles: {
-      halign: 'center',
-      valign: 'middle',
-      font: 'times',
-      lineWidth: 0.1,
-      lineColor: [0, 0, 0],
-      cellPadding: 1
-    },
-    bodyStyles: {
-      fontSize: 7,
-      textColor: [0, 0, 0],
-      fillColor: [255, 255, 255]
-    },
-    alternateRowStyles: {
-      fillColor: [255, 255, 255]
-    },
-    rowPageBreak: 'avoid',
-    columnStyles: {
-      0: { cellWidth: 9 },
-      1: { cellWidth: 15 },
-      2: { cellWidth: 12 },
-      3: { cellWidth: 10 },
-      4: { cellWidth: 12 },
-      5: { cellWidth: 88 },
-      6: { cellWidth: 16 },
-      7: { cellWidth: 16 },
-      8: { cellWidth: 24 }
-    },
-    didParseCell: function (data) {
-      data.cell.styles.minCellHeight = 11;
+    doc.setFontSize(12);
+    doc.setFont('times', 'bold');
+    doc.text(
+      `Total Value = ${formatThreeDigitCommas(data.total_amount) || ''}`,
+      142,
+      doc.previousAutoTable.finalY + 5
+    );
+
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      const pageSize = doc.internal.pageSize;
+      const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
+
+      // Header
+      addHeader(doc, data, sideMargin);
+
+      // Footer
+      addFooter(doc, data, sideMargin, pageHeight - 25);
     }
-  });
 
-  doc.setFontSize(12);
-  doc.setFont('times', 'bold');
-  doc.text(
-    `Total Value = ${formatThreeDigitCommas(data.total_amount) || ''}`,
-    142,
-    doc.previousAutoTable.finalY + 5
-  );
-
-  const pageCount = doc.internal.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-    const pageSize = doc.internal.pageSize;
-    const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
-
-    // Header
-    addHeader(doc, data, sideMargin);
-
-    // Footer
-    addFooter(doc, data, sideMargin, pageHeight - 25);
+    doc.setProperties({
+      title: `PO - ${data.document_identity}`
+    });
+    const pdfBlob = doc.output('blob');
+    const pdfUrl = URL.createObjectURL(pdfBlob, {});
+    window.open(pdfUrl, '_blank');
+  } catch (error) {
+    console.error('Error generating the purchase order PDF:', error);
   }
-
-  doc.setProperties({
-    title: `PO - ${data.document_identity}`
-  });
-  const pdfBlob = doc.output('blob');
-  const pdfUrl = URL.createObjectURL(pdfBlob, {});
-  window.open(pdfUrl, '_blank');
 };
