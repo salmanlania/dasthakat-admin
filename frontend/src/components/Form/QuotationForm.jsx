@@ -1692,7 +1692,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                 title="Total Quantity:"
                 value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
               />
-              <DetailSummaryInfo
+              <DetailSummary
                 title="Total Profit:"
                 value={formatThreeDigitCommas(roundUpto(totalProfit)) || 0}
               />
