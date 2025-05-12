@@ -140,7 +140,7 @@ const CompanySetting = () => {
         </div>
 
         <div className="mb-4 flex justify-end px-6">
-          <Button className="mr-2" onClick={dashboardRedirection}>Cancel</Button>
+          <Button className="mr-2" onClick={dashboardRedirection}>Exit</Button>
           <Button type="primary" onClick={() => form.submit()}>Save</Button>
         </div>
 
@@ -272,7 +272,7 @@ const CompanySetting = () => {
         </div>
 
         <div className="mt-6 flex justify-end px-6 py-4">
-          <Button className="mr-2" onClick={dashboardRedirection}>Cancel</Button>
+          <Button className="mr-2" onClick={dashboardRedirection}>Exit</Button>
           <Button type="primary" onClick={() => form.submit()}>
             Save
           </Button>
