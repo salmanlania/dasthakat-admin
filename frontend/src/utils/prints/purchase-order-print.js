@@ -3,9 +3,6 @@ import 'jspdf-autotable';
 
 import dayjs from 'dayjs';
 import GMSLogo from '../../assets/logo-with-title.png';
-import Logo1 from '../../assets/purchaseOrder/logo1.png';
-import Logo2 from '../../assets/purchaseOrder/logo2.png';
-import Logo3 from '../../assets/purchaseOrder/logo3.png';
 import { formatThreeDigitCommas } from '../number';
 
 const fillEmptyRows = (rows, rowsPerPage) => {
@@ -22,38 +19,36 @@ const fillEmptyRows = (rows, rowsPerPage) => {
 };
 
 const addHeader = (doc, data, sideMargin) => {
-  // *** Header ***
-  // Logo
-  doc.addImage(GMSLogo, 'PNG', 8, 3, 32, 26); // x, y, width, height
 
-  // Main Heading
+  // doc.addImage(GMSLogo, 'PNG', 88, 5, 32, 26); // Centered logo
+  doc.addImage(GMSLogo, 'PNG', 20, 1, 35, 26);
   doc.setFontSize(18);
   doc.setFont('times', 'bold');
-  doc.text('Global Marine Safety - America', sideMargin, 36);
+  doc.text('Global Marine Safety - America', 110, 10, { align: 'center' });
 
   // Company Info
   doc.setFontSize(10);
   doc.setFont('times', 'normal');
-  doc.text('9145 Wallisville Rd, Houston TX 77029, USA', sideMargin, 44);
-  doc.text('Tel: 1 713-518-1715', sideMargin, 48);
-  doc.text('Fax: 1 713-518-1760', sideMargin, 52);
-  doc.text('Email: tech1@gms-america.com', sideMargin, 56);
+  doc.text('9145 Wallisville Rd, Houston TX 77029, USA', 105, 18, { align: 'center' });
+  doc.text('Tel: 1 713-518-1715, Fax: 1 713-518-1760, Email: tech1@gms-america.com', 110, 22, { align: 'center' });
+  
+  // Logo
 
   // Purchase Order Box
   // Draw the rectangle (outer border)
   doc.setDrawColor(0, 0, 0);
   doc.setLineWidth(1); // Set border thickness
-  doc.rect(sideMargin, 65, 80, 10); // x, y, width, height
+  doc.rect(sideMargin, 32, 80, 10); // x, y, width, height
   doc.setLineWidth(0.3);
 
   // Add the text inside the box
   doc.setFontSize(15); // Set font size
   doc.setFont('times', 'bolditalic'); // Set font style (italic and bold)
-  doc.text('Purchase Order', 26, 71.5); // Centered text
+  doc.text('Purchase Order', 26, 39); // Centered text
 
   // *** Right side boxes ***
   let startX = 126;
-  let startY = 35;
+  let startY = 30;
   let boxWidth = 40;
   let boxHeight = 7;
 
@@ -115,26 +110,6 @@ const addHeader = (doc, data, sideMargin) => {
   doc.text('Fax :', startSendToX + 4, startSendToY + 34);
   doc.text(`Email : ${data?.supplier?.email || ''}`, startSendToX + 4, startSendToY + 38);
 
-  // // Ship To box
-  // // Draw the main box
-  // let startShipToX = 107;
-  // let startShipToY = 87;
-  // let shipToWidth = 99;
-  // let shipToHeight = 42;
-  // doc.rect(startShipToX, startShipToY, shipToWidth, shipToHeight); // x, y, width, height
-
-  // // Add "Ship To :" text
-  // doc.setFontSize(10);
-  // doc.setFont('times', 'bold');
-  // doc.text('Ship To :', startShipToX + 4, startShipToY + 6); // x, y
-  // doc.rect(startShipToX, startShipToY + 10, shipToWidth, 0);
-
-  // // Add the content
-  // doc.setFontSize(8);
-  // doc.setFont('times', 'normal');
-  // const shipTo = doc.splitTextToSize(data.ship_to || '', 88);
-  // doc.text(shipTo, startShipToX + 4, startShipToY + 16);
-
   // Ship To box
   // Draw the main box
   let startShipToX = 107;
@@ -180,7 +155,7 @@ const addHeader = (doc, data, sideMargin) => {
     ]
   ];
   doc.autoTable({
-    startY: 138,
+    startY: 135,
     head: [table1Column],
     body: table1Rows,
     margin: { left: sideMargin },
@@ -272,10 +247,10 @@ export const createPurchaseOrderPrint = (data) => {
 
   const filledRows = fillEmptyRows(table2Rows, 9);
   doc.autoTable({
-    startY: 156,
+    startY: 155,
     head: [table2Column],
     body: filledRows,
-    margin: { left: 4, top: 156, bottom: 22 },
+    margin: { left: 4, top: 150, bottom: 22 },
     headStyles: {
       halign: 'center',
       valign: 'middle',
