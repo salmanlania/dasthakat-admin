@@ -51,7 +51,7 @@ import DebounceInput from '../Input/DebounceInput';
 export const DetailSummaryInfo = ({ title, value }) => {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="ml-1 text-sm text-gray-500">{title}</span>
+      <span className="ml-1 text-sm text-gray-500 font-bold">{title}</span>
       <span className="ml-1 text-sm text-gray-500">{value}</span>
     </div>
   );
@@ -60,7 +60,7 @@ export const DetailSummaryInfo = ({ title, value }) => {
 export const DetailSummary = ({ title, value }) => {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="ml-4 text-sm text-gray-500">{title}</span>
+      <span className="ml-4 text-sm text-gray-500 font-bold">{title}</span>
       <span className="ml-4 text-sm text-gray-500">{value}</span>
     </div>
   );
@@ -1703,8 +1703,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
               <DetailSummaryInfo
                 title="Rebate:"
                 value={
-                  <div className="item-center flex flex-row-reverse gap-2">
-                    {rebateAmount}
+                  <div className="item-center flex flex-row-reverse gap-12">
+                    {rebateAmount || 0}
                     <DebouncedNumberInput
                       type="decimal"
                       size="small"
