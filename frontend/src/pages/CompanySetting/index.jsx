@@ -21,6 +21,7 @@ import {
 } from '../../store/features/companySetting';
 import toast from 'react-hot-toast';
 import useError from '../../hooks/useError.jsx';
+import { useNavigate } from 'react-router-dom';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -31,6 +32,7 @@ const CompanySetting = () => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const handleError = useError();
+  const navigate = useNavigate()
 
   const { initialFormValues, isItemLoading, isTestEmailSending } = useSelector(
     (state) => state.CompanySetting
@@ -120,6 +122,10 @@ const CompanySetting = () => {
     }
   };
 
+  const dashboardRedirection = ()=>{
+    navigate('/')
+  }
+
   return (
     <Spin spinning={isItemLoading}>
       <div className="min-h-screen bg-white">
@@ -134,8 +140,8 @@ const CompanySetting = () => {
         </div>
 
         <div className="mb-4 flex justify-end px-6">
-          <Button className="mr-2">Cancel</Button>
-          <Button type="primary">Save</Button>
+          <Button className="mr-2" onClick={dashboardRedirection}>Cancel</Button>
+          <Button type="primary" onClick={() => form.submit()}>Save</Button>
         </div>
 
         <div className="px-6">
@@ -266,7 +272,7 @@ const CompanySetting = () => {
         </div>
 
         <div className="mt-6 flex justify-end px-6 py-4">
-          <Button className="mr-2">Cancel</Button>
+          <Button className="mr-2" onClick={dashboardRedirection}>Cancel</Button>
           <Button type="primary" onClick={() => form.submit()}>
             Save
           </Button>

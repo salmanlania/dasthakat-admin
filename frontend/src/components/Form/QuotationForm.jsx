@@ -316,21 +316,39 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
   //   }
   // };
 
-  const onProductChange = useCallback(async (index, selected) => {
+  const onProductChange = async (index, selected) => {
     if (!selected) {
       dispatch(
         changeQuotationDetailValue({
           index,
-          key: [
-            'product_id',
-            'product_description',
-            'product_code',
-            'product_type_id',
-            'unit_id',
-            'cost_price',
-            'rate'
-          ],
-          value: [null, null, null, null, null, null, null]
+          // key: [
+          //   'product_id',
+          //   'product_description',
+          //   'product_code',
+          //   'product_type_id',
+          //   'unit_id',
+          //   'cost_price',
+          //   'rate'
+          // ],
+          // value: [null, null, null, null, null, null, null]
+          key: 'product_code',
+          value: null
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'unit_id',
+          value: null
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'cost_price',
+          value: null
         })
       );
       return;
@@ -338,8 +356,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       dispatch(
         changeQuotationDetailValue({
           index,
-          key: ['product_id', 'product_description'],
-          value: [selected, selected?.label || '']
+          key: 'rate',
+          value: null
         })
       );
     }
@@ -348,6 +366,14 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       [`product_description-${index}`]: selected?.label || ''
     });
 
+    dispatch(
+      changeQuotationDetailValue({
+        index,
+        key: 'product_description',
+        value: selected?.label || ''
+      })
+    );
+
     try {
       const product = await dispatch(getProduct(selected.value)).unwrap();
       const stockQuantity = product?.stock?.quantity || 0;
@@ -355,37 +381,84 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       dispatch(
         changeQuotationDetailValue({
           index,
-          key: [
-            'product_code',
-            'product_type_id',
-            'product_description',
-            'unit_id',
-            'stock_quantity',
-            'cost_price',
-            'rate'
-          ],
-          value: [
-            product.product_code,
-            product.product_type_id
-              ? {
-                  value: product.product_type_id,
-                  label: product.product_type_name
-                }
-              : null,
-            selected?.label || '', // product_description
-            { value: product.unit_id, label: product.unit_name },
-            stockQuantity,
-            product.cost_price,
-            product.sale_price
-          ]
+          // key: [
+          //   'product_code',
+          //   'product_type_id',
+          //   'product_description',
+          //   'unit_id',
+          //   'stock_quantity',
+          //   'cost_price',
+          //   'rate'
+          // ],
+          // value: [
+          //   product.product_code,
+          //   product.product_type_id
+          //     ? {
+          //         value: product.product_type_id,
+          //         label: product.product_type_name
+          //       }
+          //     : null,
+          //   selected?.label || '', // product_description
+          //   { value: product.unit_id, label: product.unit_name },
+          //   stockQuantity,
+          //   product.cost_price,
+          //   product.sale_price
+          // ]
+          key: 'product_code',
+          value: product.product_code
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'product_type_id',
+          value: product.product_type_id
+            ? {
+                value: product.product_type_id,
+                label: product.product_type_name
+              }
+            : null
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'unit_id',
+          value: { value: product.unit_id, label: product.unit_name }
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'stock_quantity',
+          value: stockQuantity
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'cost_price',
+          value: product.cost_price
+        })
+      );
+
+      dispatch(
+        changeQuotationDetailValue({
+          index,
+          key: 'rate',
+          value: product.sale_price
         })
       );
     } catch (error) {
       handleError(error);
     }
-  }, []);
+  };
 
-  const printQuotation = useCallback(async () => {
+  const printQuotation = async () => {
     const loadingToast = toast.loading('Loading print...');
     try {
       const data = await dispatch(getQuotationForPrint(id)).unwrap();
@@ -395,9 +468,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     } finally {
       toast.dismiss(loadingToast);
     }
-  }, []);
+  };
 
-  const exportQuotation = useCallback(async () => {
+  const exportQuotation = async () => {
     const loadingToast = toast.loading('Loading excel...');
     try {
       const data = await dispatch(getQuotationForPrint(id)).unwrap();
@@ -407,9 +480,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     } finally {
       toast.dismiss(loadingToast);
     }
-  }, []);
+  };
 
-  const applyGlobalDiscount = useCallback((inputValue) => {
+  const applyGlobalDiscount = (inputValue) => {
     const trimmed = inputValue.trim();
     if (trimmed === '') {
       return;
@@ -426,9 +499,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         );
       });
     }
-  }, []);
+  };
 
-  const applyGlobalMarkup = useCallback((inputValue) => {
+  const applyGlobalMarkup = (inputValue) => {
     const trimmed = inputValue.trim();
     if (trimmed === '' && trimmed !== '0') {
       return;
@@ -455,7 +528,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         }
       });
     }
-  }, []);
+  };
 
   const columns = [
     {
@@ -549,38 +622,65 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'product_name',
       key: 'product_name',
       render: (_, { product_id, product_name, product_type_id }, index) => {
+        form.setFieldsValue({ [`product_name-${index}`]: product_name });
+        form.setFieldsValue({ [`product_id-${index}`]: product_id });
         return product_type_id?.value == 4 ? (
-          <DebounceInput
-            value={product_name}
-            disabled={product_type_id?.value === 4}
-            onChange={(value) => {
-              form.setFieldsValue({
-                [`product_description-${index}`]: value
-              });
+          <Form.Item
+            className="m-0"
+            name={`product_name-${index}`}
+            initialValue={product_name}
+            rules={[
+              {
+                required: true,
+                whitespace: true,
+                message: 'Product Name is required'
+              }
+            ]}>
+            <DebounceInput
+              value={product_name}
+              disabled={product_type_id?.value === 4}
+              onChange={(value) => {
+                form.setFieldsValue({
+                  [`product_description-${index}`]: value
+                });
 
-              dispatch(
-                changeQuotationDetailValue({
-                  index,
-                  key: ['product_name', 'product_description'],
-                  value: [value, value]
-                })
-              );
-            }}
-          />
+                dispatch(
+                  changeQuotationDetailValue({
+                    index,
+                    // key: ['product_name', 'product_description'],
+                    key: 'product_name',
+                    // value: [value, value]
+                    value: value
+                  })
+                );
+              }}
+            />
+          </Form.Item>
         ) : (
-          <AsyncSelect
-            endpoint="/product"
-            valueKey="product_id"
-            labelKey="product_name"
-            labelInValue
-            className="w-full"
-            value={product_id}
-            onChange={(selected) => onProductChange(index, selected)}
-            addNewLink={permissions.product.add ? '/product/create' : null}
-            dropdownStyle={{ backgroundColor: '#a2e1eb' }}
-            optionLabelProp="children"
-            optionProps={{ style: { backgroundColor: '#a2e1eb', whiteSpace: 'nowrap' } }}
-          />
+          <Form.Item
+            className="m-0"
+            name={`product_id-${index}`}
+            initialValue={product_id}
+            rules={[
+              {
+                required: true,
+                message: 'Product Name is required'
+              }
+            ]}>
+            <AsyncSelect
+              endpoint="/product"
+              valueKey="product_id"
+              labelKey="product_name"
+              labelInValue
+              className="w-full"
+              value={product_id}
+              onChange={(selected) => onProductChange(index, selected)}
+              addNewLink={permissions.product.add ? '/product/create' : null}
+              dropdownStyle={{ backgroundColor: '#a2e1eb' }}
+              optionLabelProp="children"
+              optionProps={{ style: { backgroundColor: '#a2e1eb', whiteSpace: 'nowrap' } }}
+            />
+          </Form.Item>
         );
       },
       width: 130,
@@ -591,24 +691,23 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'product_description',
       key: 'product_description',
       render: (_, { product_description, product_type_id }, index) => {
+        form.setFieldsValue({ [`product_description-${index}`]: product_description });
         return (
           <Tooltip title={product_description || ''}>
-            <DebounceInput
-              value={product_description}
-              onChange={(value) => {
-                if (product_type_id?.value === 4) {
-                  dispatch(
-                    changeQuotationDetailValue({
-                      index,
-                      key: ['product_name', product_description],
-                      value: [value, value]
-                    })
-                  );
-
-                  form.setFieldsValue({
-                    [`product_name-${index}`]: value
-                  });
-                } else {
+            <Form.Item
+              className="m-0"
+              name={`product_description-${index}`}
+              initialValue={product_description}
+              rules={[
+                {
+                  required: true,
+                  whitespace: true,
+                  message: 'Description is required'
+                }
+              ]}>
+              <DebounceInput
+                value={product_description}
+                onChange={(value) => {
                   dispatch(
                     changeQuotationDetailValue({
                       index,
@@ -616,9 +715,12 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                       value: value
                     })
                   );
-                }
-              }}
-            />
+                  form.setFieldsValue({
+                    [`product_name-${index}`]: value
+                  });
+                }}
+              />
+            </Form.Item>
           </Tooltip>
         );
       },
@@ -699,20 +801,42 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           .toString()
           .replace(/(\.\d*?)0+$/, '$1')
           .replace(/\.$/, '');
+        form.setFieldsValue({ [`quantity-${index}`]: newQuantity });
         return (
-          <DebouncedCommaSeparatedInput
-            decimalPlaces={2}
-            value={newQuantity}
-            onChange={(value) =>
-              dispatch(
-                changeQuotationDetailValue({
-                  index,
-                  key: 'quantity',
-                  value: value
-                })
-              )
-            }
-          />
+          <Form.Item
+            className="m-0"
+            name={`quantity-${index}`}
+            initialValue={newQuantity}
+            rules={[
+              {
+                required: true,
+                message: 'Quantity is required'
+              },
+              {
+                validator: (_, value, callback, source) => {
+                  const parsed = parseFloat(value?.toString().replace(/,/g, ''));
+                  const receivedQty = chargeOrderDetails[index]?.picked_quantity || 0;
+                  if (parsed < receivedQty) {
+                    return Promise.reject(`Less Than Received Quantity (${receivedQty})`);
+                  }
+                  return Promise.resolve();
+                }
+              }
+            ]}>
+            <DebouncedCommaSeparatedInput
+              decimalPlaces={2}
+              value={newQuantity}
+              onChange={(value) =>
+                dispatch(
+                  changeQuotationDetailValue({
+                    index,
+                    key: 'quantity',
+                    value: value
+                  })
+                )
+              }
+            />
+          </Form.Item>
         );
       },
       width: 90
@@ -868,20 +992,32 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       title: 'Selling Price',
       dataIndex: 'rate',
       key: 'rate',
-      render: (_, { rate }, index) => {
+      render: (_, { rate, editable }, index) => {
+        form.setFieldsValue({ [`rate-${index}`]: rate });
         return (
-          <DebouncedCommaSeparatedInput
-            value={rate}
-            onChange={(value) =>
-              dispatch(
-                changeQuotationDetailValue({
-                  index,
-                  key: 'rate',
-                  value: value
-                })
-              )
-            }
-          />
+          <Form.Item
+            className="m-0"
+            name={`rate-${index}`}
+            initialValue={rate}
+            rules={[
+              {
+                required: true,
+                message: 'Selling price is required'
+              }
+            ]}>
+            <DebouncedCommaSeparatedInput
+              value={rate}
+              onChange={(value) =>
+                dispatch(
+                  changeQuotationDetailValue({
+                    index,
+                    key: 'rate',
+                    value: value
+                  })
+                )
+              }
+            />
+          </Form.Item>
         );
       },
       width: 100
@@ -924,19 +1060,34 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           [`discount_percent-${index}`]: discount_percent
         });
         return (
-          <DebouncedNumberInput
-            value={discount_percent}
-            type="decimal"
-            onChange={(value) =>
-              dispatch(
-                changeQuotationDetailValue({
-                  index,
-                  key: 'discount_percent',
-                  value: value
-                })
-              )
-            }
-          />
+          <Form.Item
+            className="m-0"
+            initialValue={discount_percent}
+            name={`discount_percent-${index}`}
+            rules={[
+              {
+                validator: (_, value) => {
+                  if (value > 100) {
+                    return Promise.reject(new Error('Invalid discount percent.'));
+                  }
+                  return Promise.resolve();
+                }
+              }
+            ]}>
+            <DebouncedNumberInput
+              value={discount_percent}
+              type="decimal"
+              onChange={(value) =>
+                dispatch(
+                  changeQuotationDetailValue({
+                    index,
+                    key: 'discount_percent',
+                    value: value
+                  })
+                )
+              }
+            />
+          </Form.Item>
         );
       },
       width: 80
@@ -1016,7 +1167,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     }
   ];
 
-  const onTermChange = useCallback((selected) => {
+  const onTermChange = (selected) => {
     if (!selected.length) {
       form.setFieldsValue({ term_desc: '' });
       return;
@@ -1024,9 +1175,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
 
     const newTermDesc = selected.map((t) => `* ${t.label}`).join('\n');
     form.setFieldsValue({ term_desc: newTermDesc });
-  }, []);
+  };
 
-  const onEventChange = useCallback(async (selected) => {
+  const onEventChange = async (selected) => {
     if (prevEvent) {
       const isWantToChange = await toastConfirm('Are you sure you want to change event?');
       if (!isWantToChange) {
@@ -1064,9 +1215,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     } catch (error) {
       handleError(error);
     }
-  }, []);
+  };
 
-  const onSalesmanChange = useCallback(async (selected) => {
+  const onSalesmanChange = async (selected) => {
     dispatch(setSalesmanPercentage(null));
     if (!selected) return;
 
@@ -1078,7 +1229,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     } catch (error) {
       handleError(error);
     }
-  }, []);
+  };
 
   return (
     <>
@@ -1342,9 +1493,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           columns={columns}
           dataSource={quotationDetails.filter((item) => !item.isDeleted)}
           rowKey={'id'}
-          virtual
           size="small"
-          scroll={{ x: 1400, y: 500 }}
+          scroll={{ x: 'calc(100% - 200px)' }}
           pagination={false}
           sticky={{
             offsetHeader: 56
