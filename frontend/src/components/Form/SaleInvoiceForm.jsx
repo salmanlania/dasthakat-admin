@@ -12,7 +12,6 @@ import { v4 as uuidv4 } from 'uuid';
 import useError from '../../hooks/useError';
 import { getProduct, getProductList } from '../../store/features/productSlice';
 import { getSaleInvoice } from '../../store/features/saleInvoiceSlice';
-// import { createPurchaseInvoicePrint } from '../../utils/prints/purchase-invoice-print';
 import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
@@ -33,14 +32,6 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
 
-  // let totalAmount = 0;
-  // let totalQuantity = 0;
-
-  // saleInvoiceDetail.forEach((detail) => {
-  //   totalAmount += +detail.amount || 0;
-  //   totalQuantity += +detail.quantity || 0;
-  // });
-
   const onFinish = (values) => {
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
 
@@ -49,7 +40,7 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
       remarks: values.remarks,
       ship_to: values.ship_to,
       buyer_name: values.buyer_name,
-      buyer_email: values.buyer_email, // Fixed typo from yer_email to buyer_email
+      buyer_email: values.buyer_email,
       ship_via: values.ship_via,
       department: values.department,
       supplier_id: values.supplier_id ? values.supplier_id.value : null,
@@ -72,45 +63,6 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
 
     onSubmit(data);
   };
-
-  // const onProductCodeChange = async (index, value) => {
-  //   if (!value.trim()) return;
-  //   try {
-  //     const res = await dispatch(getProductList({ product_code: value })).unwrap();
-
-  //     if (!res.data.length) return;
-
-  //     const product = res.data[0];
-  //     dispatch(
-  //       changePurchaseInvoiceDetailValue({
-  //         index,
-  //         key: 'product_id',
-  //         value: {
-  //           value: product.product_id,
-  //           label: product.name
-  //         }
-  //       })
-  //     );
-
-  //     dispatch(
-  //       changePurchaseInvoiceDetailValue({
-  //         index,
-  //         key: 'unit_id',
-  //         value: { value: product.unit_id, label: product.unit_name }
-  //       })
-  //     );
-
-  //     dispatch(
-  //       changePurchaseInvoiceDetailValue({
-  //         index,
-  //         key: 'rate',
-  //         value: product.cost_price
-  //       })
-  //     );
-  //   } catch (error) {
-  //     handleError(error);
-  //   }
-  // };
 
   const onProductChange = async (index, selected) => {
     dispatch(
@@ -152,17 +104,6 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
     }
   };
 
-  // const printPurchaseInvoice = async () => {
-  //   const loadingToast = toast.loading('Loading print...');
-  //   try {
-  //     const data = await dispatch(getPurchaseInvoiceForPrint(id)).unwrap();
-  //     toast.dismiss(loadingToast);
-  //     createPurchaseInvoicePrint(data);
-  //   } catch (error) {
-  //     handleError(error);
-  //   }
-  // };
-
   const [totalQuantity, setTotalQuantity] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
 
@@ -192,7 +133,6 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
         charger_order_id: chargeOrderNo,
         port_id: portName,
         ref_document_identity: refDocumentIdentity,
-        // Ensure dates are properly formatted
         document_date: initialFormValues.document_date
           ? dayjs(initialFormValues.document_date)
           : null,
@@ -205,44 +145,6 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
 
   const columns = [
     {
-      title: (
-        <Button
-          size="small"
-          type="primary"
-          className="!w-8"
-          icon={<BiPlus size={14} />}
-          // onClick={() => dispatch(addPurchaseInvoiceDetail())}
-        />
-      ),
-      key: 'order',
-      dataIndex: 'order',
-      render: (_, record, index) => {
-        return (
-          <div className="flex flex-col gap-1">
-            <Button
-              className="h-4"
-              size="small"
-              icon={<IoMdArrowDropup size={16} />}
-              disabled={index === 0}
-              // onClick={() => {
-              //   dispatch(changePurchaseInvoiceDetailOrder({ from: index, to: index - 1 }));
-              // }}
-            />
-            <Button
-              className="h-4"
-              size="small"
-              icon={<IoMdArrowDropdown size={16} />}
-              disabled={index === saleInvoiceDetail.length - 1}
-              // onClick={() => {
-              //   dispatch(changePurchaseInvoiceDetailOrder({ from: index, to: index + 1 }));
-              // }}
-            />
-          </div>
-        );
-      },
-      width: 50
-    },
-    {
       title: 'Sr.',
       dataIndex: 'sr',
       key: 'sr',
@@ -251,30 +153,6 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
       },
       width: 50
     },
-    // {
-    //   title: 'Product Code',
-    //   dataIndex: 'product_code',
-    //   key: 'product_code',
-    //   render: (_, { product_code }, index) => {
-    //     return (
-    //       <DebounceInput
-    //         value={product_code}
-    //         onChange={(value) =>
-    //           dispatch(
-    //             changePurchaseInvoiceDetailValue({
-    //               index,
-    //               key: 'product_code',
-    //               value: value
-    //             })
-    //           )
-    //         }
-    //         onBlur={(e) => onProductCodeChange(index, e.target.value)}
-    //         onPressEnter={(e) => onProductCodeChange(index, e.target.value)}
-    //       />
-    //     );
-    //   },
-    //   width: 120
-    // },
     {
       title: 'Product Name',
       dataIndex: 'product_name',
@@ -290,7 +168,6 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
             disabled
             value={record.product_name}
             onChange={(selected) => onProductChange(index, selected)}
-            // // addNewLink={permissions.product.add ? '/product/create' : null}
           />
         );
       },
@@ -311,7 +188,6 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
             className="w-full"
             value={record.product_description}
             onChange={(selected) => onProductChange(index, selected)}
-            // // addNewLink={permissions.product.add ? '/product/create' : null}
           />
         );
       },
@@ -326,15 +202,6 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
           <DebounceInput
             disabled
             value={description}
-            // onChange={(value) =>
-            //   dispatch(
-            //     changePurchaseInvoiceDetailValue({
-            //       index,
-            //       key: 'description',
-            //       value: value
-            //     })
-            //   )
-            // }
           />
         );
       },
@@ -361,15 +228,6 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
               disabled
               decimalPlaces={2}
               value={quantity}
-              // onChange={(value) =>
-              //   dispatch(
-              //     changePurchaseInvoiceDetailValue({
-              //       index,
-              //       key: 'quantity',
-              //       value: value
-              //     })
-              //   )
-              // }
             />
           </Form.Item>
         );
@@ -390,16 +248,6 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
             labelInValue
             className="w-full"
             value={unit_id}
-            // onChange={(selected) =>
-            //   dispatch(
-            //     changePurchaseInvoiceDetailValue({
-            //       index,
-            //       key: 'unit_id',
-            //       value: selected
-            //     })
-            //   )
-            // }
-            // // addNewLink={permissions.unit.list && permissions.unit.add ? '/unit' : null}
           />
         );
       },
@@ -414,15 +262,6 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
           <DebouncedCommaSeparatedInput
             value={rate}
             disabled
-            // onChange={(value) =>
-            //   dispatch(
-            //     changePurchaseInvoiceDetailValue({
-            //       index,
-            //       key: 'rate',
-            //       value: value
-            //     })
-            //   )
-            // }
           />
         );
       },
@@ -437,49 +276,6 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
       ),
       width: 120
     },
-    {
-      title: (
-        <Button
-          size="small"
-          type="primary"
-          className="!w-8"
-          icon={<BiPlus size={14} />}
-          // onClick={() => dispatch(addPurchaseInvoiceDetail())}
-        />
-      ),
-      key: 'action',
-      render: (_, { id }, index) => (
-        <Dropdown
-          trigger={['click']}
-          arrow
-          menu={{
-            items: [
-              {
-                key: '1',
-                label: 'Add'
-                // onClick: () => dispatch(addPurchaseInvoiceDetail(index))
-              },
-              {
-                key: '2',
-                label: 'Copy'
-                // onClick: () => dispatch(copyPurchaseInvoiceDetail(index))
-              },
-              {
-                key: '3',
-                label: 'Delete',
-                danger: true
-                // onClick: () => dispatch(removePurchaseInvoiceDetail(id))
-              }
-            ]
-          }}>
-          <Button size="small">
-            <BsThreeDotsVertical />
-          </Button>
-        </Dropdown>
-      ),
-      width: 50,
-      fixed: 'right'
-    }
   ];
 
   return (
@@ -493,7 +289,6 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
         mode === 'edit'
           ? {
               ...initialFormValues
-              // supplier : initialFormValues?.supplier
             }
           : { document_date: dayjs() }
       }
@@ -513,7 +308,6 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
           {mode === 'edit' ? initialFormValues?.document_identity : 'AUTO'}
         </span>
       </p>
-      {/*  */}
 
       <Row gutter={12}>
         <Col span={24} sm={12} md={8} lg={8}>
@@ -546,16 +340,11 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
               labelKey="name"
               disabled
               labelInValue
-              // // addNewLink={
-              //   permissions.salesman.list && permissions.salesman.add ? '/salesman' : null
-              // }
             />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item
-            name="event_id"
-            label="Event">
+          <Form.Item name="event_id" label="Event">
             <AsyncSelect
               endpoint="/event"
               valueKey="event_id"
@@ -580,17 +369,6 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
             <Select labelInValue disabled />
           </Form.Item>
         </Col>
-        {/* 
-        <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item name="class1_id" label="Class 1">
-            <Select labelInValue disabled />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item name="class2_id" label="Class 2">
-            <Select labelInValue disabled />
-          </Form.Item>
-        </Col> */}
         <Col span={24} sm={12} md={6} lg={6}>
           <Form.Item
             name="port_id"
@@ -609,61 +387,7 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
             />
           </Form.Item>
         </Col>
-        {/* <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item name="flag_id" label="Flag">
-            <AsyncSelect
-              endpoint="/flag"
-              valueKey="flag_id"
-              labelKey="name"
-              labelInValue
-              disabled
-            />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="user_id" label="Technician">
-            <AsyncSelect
-              endpoint="/user"
-              valueKey="user_id"
-              labelKey="user_name"
-              mode="multiple"
-              labelInValue
-              // addNewLink={permissions.user.add ? '/user/create' : null}
-            />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="technician_notes" label="Technician Notes">
-            <Input.TextArea rows={1} />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="agent_id" label="Agent">
-            <AsyncSelect
-              endpoint="/agent"
-              valueKey="agent_id"
-              labelKey="name"
-              labelInValue
-              // addNewLink={permissions.agent.add ? '/agent/create' : null}
-            />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="agent_notes" label="Agent Notes">
-            <Input.TextArea rows={1} />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={24} md={16} lg={16}>
-          <Form.Item name="remarks" label="Remarks">
-            <Input.TextArea rows={1} />
-          </Form.Item>
-        </Col> */}
       </Row>
-
-      {/* <Divider orientation="left" className="!border-gray-300">
-        Purchase Order Items
-      </Divider> */}
-
       <Table
         columns={columns}
         dataSource={saleInvoiceDetail}
@@ -681,22 +405,12 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
           <Col span={24} sm={12} md={6} lg={6}>
             <DetailSummaryInfo
               title="Total Quantity:"
-              // value={totalQuantity ? totalQuantity : 0}
               value={totalQuantity || 0}
             />
             <DetailSummaryInfo
               title="Total Amount:"
-              // value={totalAmount ? totalAmount: 0}
               value={totalAmount || 0}
             />
-            {/* <DetailSummaryInfo
-                    title="Discount Amount:"
-                    value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
-                  />
-                  <DetailSummaryInfo
-                    title="Net Amount:"
-                    value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
-                  /> */}
           </Col>
         </Row>
       </div>

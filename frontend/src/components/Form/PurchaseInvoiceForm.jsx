@@ -208,44 +208,6 @@ const PurchaseInvoiceForm = ({ mode, onSubmit, onSave }) => {
 
   const columns = [
     {
-      title: (
-        <Button
-          size="small"
-          type="primary"
-          className="!w-8"
-          icon={<BiPlus size={14} />}
-          onClick={() => dispatch(addPurchaseInvoiceDetail())}
-        />
-      ),
-      key: 'order',
-      dataIndex: 'order',
-      render: (_, record, index) => {
-        return (
-          <div className="flex flex-col gap-1">
-            <Button
-              className="h-4"
-              size="small"
-              icon={<IoMdArrowDropup size={16} />}
-              disabled={index === 0}
-              onClick={() => {
-                dispatch(changePurchaseInvoiceDetailOrder({ from: index, to: index - 1 }));
-              }}
-            />
-            <Button
-              className="h-4"
-              size="small"
-              icon={<IoMdArrowDropdown size={16} />}
-              disabled={index === purchaseOrderDetails.length - 1}
-              onClick={() => {
-                dispatch(changePurchaseInvoiceDetailOrder({ from: index, to: index + 1 }));
-              }}
-            />
-          </div>
-        );
-      },
-      width: 50
-    },
-    {
       title: 'Sr.',
       dataIndex: 'sr',
       key: 'sr',
@@ -496,49 +458,6 @@ const PurchaseInvoiceForm = ({ mode, onSubmit, onSave }) => {
       ),
       width: 150
     },
-    {
-      title: (
-        <Button
-          size="small"
-          type="primary"
-          className="!w-8"
-          icon={<BiPlus size={14} />}
-          onClick={() => dispatch(addPurchaseInvoiceDetail())}
-        />
-      ),
-      key: 'action',
-      render: (_, { id }, index) => (
-        <Dropdown
-          trigger={['click']}
-          arrow
-          menu={{
-            items: [
-              {
-                key: '1',
-                label: 'Add',
-                onClick: () => dispatch(addPurchaseInvoiceDetail(index))
-              },
-              {
-                key: '2',
-                label: 'Copy',
-                onClick: () => dispatch(copyPurchaseInvoiceDetail(index))
-              },
-              {
-                key: '3',
-                label: 'Delete',
-                danger: true,
-                onClick: () => dispatch(removePurchaseInvoiceDetail(id))
-              }
-            ]
-          }}>
-          <Button size="small">
-            <BsThreeDotsVertical />
-          </Button>
-        </Dropdown>
-      ),
-      width: 50,
-      fixed: 'right'
-    }
   ];
 
   return (
@@ -652,7 +571,6 @@ const PurchaseInvoiceForm = ({ mode, onSubmit, onSave }) => {
                 />
               }
             />
-            {/* <DetailSummaryInfo title="Net Amount:" value={parseInt(totalAmount) + parseInt(freightRate) || 0} /> */}
             <DetailSummaryInfo
               title="Net Amount:"
               value={netAmount > 0 ? netAmount : parseInt(totalAmount) + parseInt(freightRate) || 0}
