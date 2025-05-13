@@ -16,7 +16,6 @@ const fillEmptyRows = (rows, rowsPerPage) => {
 };
 
 const pdfContent = (doc, data, sideMargin, pageWidth, eventDate) => {
-
   doc.setTextColor(32, 50, 114);
   doc.setFontSize(20);
   doc.setFont('times', 'bold');
@@ -429,7 +428,10 @@ const pdfContent = (doc, data, sideMargin, pageWidth, eventDate) => {
           },
           {
             content: detail?.product_description || '',
-            styles: { halign: 'left' }
+            styles: {
+              halign: 'left',
+              ...(detail?.product_type_id !== 1 && { textColor: '#9D00FF' })
+            }
           },
           {
             content: detail?.internal_notes || '',
