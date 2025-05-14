@@ -55,7 +55,7 @@ class SettingController extends Controller
 			'subject' => 'Testing Email',
 			'message' => 'Testing Email is Working!'
 		];
-		$response = $this->sentMail($data);
+		$response = $this->sendEmail($data);
 		if (!empty($response))
 			return $this->jsonResponse($response, 400, "Invalid Email / Configuration!");
 		else

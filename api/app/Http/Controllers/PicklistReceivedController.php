@@ -9,8 +9,8 @@ use App\Models\PicklistReceived;
 use App\Models\PicklistReceivedDetail;
 use App\Models\Product;
 use App\Models\StockLedger;
+use App\Models\Warehouse;
 use Carbon\Carbon;
-use Illuminate\Validation\Rule;
 
 class PicklistReceivedController extends Controller
 {
@@ -41,7 +41,7 @@ class PicklistReceivedController extends Controller
 
 				// Sum received quantities for this product
 				foreach ($receivedData as $received) {
-					foreach ($received->picklist_received_detail as $receivedDetail) {						
+					foreach ($received->picklist_received_detail as $receivedDetail) {
 						if ($receivedDetail->charge_order_detail_id == $detail->charge_order_detail_id) {
 							$receivedQty += $receivedDetail->quantity;
 						}
@@ -75,13 +75,13 @@ class PicklistReceivedController extends Controller
 				$originalQty = optional($thisPicklist)->quantity ?? 0;
 				$detail->original_quantity = $originalQty;
 				$detail->product_description = optional($thisPicklist)->product_description ?? "";
-				
+
 				return $detail;
 			});
 			return $received;
 		});
 
-		usort($picklist_remainings, function($a, $b) {
+		usort($picklist_remainings, function ($a, $b) {
 			return $a['sort_order'] - $b['sort_order'];
 		});
 
@@ -156,10 +156,11 @@ class PicklistReceivedController extends Controller
 			];
 
 			if ($product->product_type_id == 2 && !empty($item['warehouse_id']) && ($item['quantity'] > 0)) {
+				$warehouse = Warehouse::find($item['warehouse_id']);
 				$item['unit_id'] = $product->unit_id ?? null;
 				$item['unit_name'] = $product->unit->name ?? null;
 				$value['remarks'] = sprintf(
-					"%d %s of %s (Code: %s) deducted from %s - Document: %s",
+					"%d %s of %s (Code: %s) deducted from %s warehouse under Picklist Document: %s",
 					$value['quantity'] ?? 0,
 					$value['unit_name'] ?? '',
 					$product->name ?? 'Unknown Product',

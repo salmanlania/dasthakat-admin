@@ -324,6 +324,15 @@ $router->group(['prefix' => 'job-order'], function ($router) {
    $router->post('/bulk-delete', 'JobOrderController@bulkDelete');
 });
 
+$router->group(['prefix' => 'sale-return'], function ($router) {
+   $router->get('/', 'SaleReturnController@index');
+   $router->get('/{id}', 'SaleReturnController@show');
+   $router->post('/', 'SaleReturnController@store');
+   $router->put('/{id}', 'SaleReturnController@update');
+   $router->delete('/{id}', 'SaleReturnController@delete');
+   $router->post('/bulk-delete', 'SaleReturnController@bulkDelete');
+});
+
 // pick list routes
 $router->group(['prefix' => 'picklist'], function ($router) {
    $router->get('/', 'PicklistController@index');

@@ -17,6 +17,7 @@ use App\Models\Shipment;
 use App\Models\ShipmentDetail;
 use App\Models\User;
 use Carbon\Carbon;
+use Error;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 
@@ -51,65 +52,114 @@ class Controller extends BaseController
             "Accept: application/json",
             $authorization
         ];
-    
+
         try {
             Log::info('WAAPI Request URL: ' . $url);
             Log::info('WAAPI Request Headers: ' . json_encode($headers));
             Log::info('WAAPI Request Payload: ' . $data);
-    
+
             $cc = curl_init();
-            curl_setopt($cc, CURLOPT_URL, $url); 
+            curl_setopt($cc, CURLOPT_URL, $url);
             curl_setopt($cc, CURLOPT_POST, true);
             curl_setopt($cc, CURLOPT_POSTFIELDS, $data);
             curl_setopt($cc, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($cc, CURLOPT_HTTPHEADER, $headers);
             $response = curl_exec($cc);
-    
+
             if (curl_errno($cc)) {
                 Log::error('WAAPI CURL Error: ' . curl_error($cc));
             } else {
                 Log::info('WAAPI Response: ' . $response);
             }
-    
+
             curl_close($cc);
         } catch (\Exception $e) {
             Log::error('WhatsApp API Exception: ' . $e->getMessage());
         }
     }
-    
 
-    public function sentMail($data)
+    /**
+     * Sends an email with proper error handling and logging
+     * 
+     * @param array $data Email data including recipient, subject, template etc.
+     * @return string Empty string on success, error message on failure
+     */
+    public function sendEmail(array $data): string
     {
 
-        if (empty($data['name'])) return false;
-
-        //if Debug on email will be sent to administrator only
-        $config = Setting::where('module', 'mail')->pluck('value', 'field');
-        if (@$config['debug'] == 1) {
-            $data["email"] = $config['debug_email'];
+        $mailConfig = $this->getValidatedMailConfig();
+        if (!is_array($mailConfig)) {
+            return $mailConfig; // Returns error message
         }
-
-        $_return = "";
-        // Email Generate update Settings
         $this->getSettings(true);
 
-        // try {
-        $insdata = [
-            'template' => $data['template'] ?? "",
-            'name' => $data['name'],
+        $recipientEmail = $this->getRecipientEmail($data['email'] ?? '', $mailConfig);
+        $emailData = $this->prepareEmailData($data);
+        try {
+            Mail::to($recipientEmail)->send(new GenerateMail($emailData));
+            return '';
+        } catch (\Exception $e) {
+            Log::error('Email sending failed', [
+                'error' => $e->getMessage(),
+                'recipient' => $recipientEmail,
+                'subject' => $data['subject'] ?? ''
+            ]);
+            return $e->getMessage();
+        }
+    }
+
+    /**
+     * Validates and retrieves mail configuration
+     * 
+     * @return array|string Returns config array or error message
+     */
+    private function getValidatedMailConfig()
+    {
+        $requiredConfig = [
+            'smtp_user',
+            'smtp_password',
+            'smtp_host',
+            'smtp_port',
+            'smtp_encryption',
+            'mail_type',
+            'display_name'
+        ];
+
+        $config = Setting::where('module', 'mail')
+            ->pluck('value', 'field')
+            ->toArray();
+
+        foreach ($requiredConfig as $key) {
+            if (empty($config[$key])) {
+                return "Mail configuration incomplete. Missing: $key";
+            }
+        }
+
+        return $config;
+    }
+
+    /**
+     * Determines recipient email based on debug mode
+     */
+    private function getRecipientEmail(string $originalEmail, array $config): string
+    {
+        return ($config['debug'] == 1)
+            ? $config['debug_email']
+            : $originalEmail;
+    }
+
+    /**
+     * Prepares structured email data
+     */
+    private function prepareEmailData(array $data): array
+    {
+        return [
+            'template' => $data['template'] ?? '',
+            'name' => $data['name'] ?? 'Unknown User',
             'subject' => $data['subject'],
             'message' => $data['message'],
             'data' => $data['data'] ?? [],
         ];
-        // dd($insdata);
-        Mail::to($data["email"])->send(new GenerateMail($insdata));
-        // dd(1);
-        // } catch (\Exception $e) {
-        //     Log::error('Email sending failed: ' . $e->getMessage());
-        //     $_return = "Email Not Sent.Please Check Your Email or Contact to your Administrator!";
-        // }
-
-        return $_return;
     }
 
     public function SystemConfig($module = 'general')

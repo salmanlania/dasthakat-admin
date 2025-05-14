@@ -28,6 +28,8 @@ class DocumentTypeSeeder extends Seeder
             ['document_type_id' => 49, 'document_name' => 'Service Order', 'document_prefix' => '{BC}/SO-',  'table_name' => 'shipment', 'primary_key' => 'shipment_id'],
             ['document_type_id' => 50, 'document_name' => 'SO Document Number', 'document_prefix' => '{BC}/DN-',  'table_name' => 'service_order', 'primary_key' => 'service_order_id'],
             ['document_type_id' => 51, 'document_name' => 'Sale Invoice', 'document_prefix' => '{BC}/SI-', 'table_name' => 'sale_invoice', 'primary_key' => 'sale_invoice_id'],
+            ['document_type_id' => 52, 'document_name' => 'Purchase Return', 'document_prefix' => '{BC}/PR-', 'table_name' => 'purchase_return', 'primary_key' => 'purchase_return_id'],
+            ['document_type_id' => 53, 'document_name' => 'Sale Return', 'document_prefix' => '{BC}/SR-', 'table_name' => 'sale_return', 'primary_key' => 'sale_return_id'],
         ];
         DocumentType::insert($data);
     }

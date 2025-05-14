@@ -185,7 +185,7 @@ class GRNController extends Controller
 					$value['unit_id'] = $product->unit_id ?? null;
 					$value['unit_name'] = $product->unit->name ?? null;
 					$value['remarks'] = sprintf(
-						"%d %s of %s (Code: %s) added in %s - Document: %s",
+						"%d %s of %s (Code: %s) added in %s warehouse under Good Received Document: %s",
 						$value['quantity'] ?? 0,
 						$value['unit_name'] ?? '',
 						$product->name ?? 'Unknown Product',

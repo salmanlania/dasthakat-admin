@@ -145,19 +145,24 @@
   ('Sale Management', 'Internal Job Order', 'job_order', 'delete', 'Delete', 1.104),
   
   ('Sale Management', 'Service Order', 'service_order', 'list', 'List', 1.101),
-  ('Sale Management', 'Service Order', 'service_order', 'add', 'Update', 1.102),
-  ('Sale Management', 'Service Order', 'service_order', 'edit', 'Update', 1.103),
-  ('Sale Management', 'Service Order', 'service_order', 'delete', 'Update', 1.104),
+  ('Sale Management', 'Service Order', 'service_order', 'add', 'Add', 1.102),
+  ('Sale Management', 'Service Order', 'service_order', 'edit', 'Edit', 1.103),
+  ('Sale Management', 'Service Order', 'service_order', 'delete', 'Delete', 1.104),
   
   ('Sale Management', 'Shipment', 'shipment', 'list', 'List', 1.101),
-  ('Sale Management', 'Shipment', 'shipment', 'add', 'Update', 1.102),
-  ('Sale Management', 'Shipment', 'shipment', 'edit', 'Update', 1.103),
-  ('Sale Management', 'Shipment', 'shipment', 'delete', 'Update', 1.104),
+  ('Sale Management', 'Shipment', 'shipment', 'add', 'Add', 1.102),
+  ('Sale Management', 'Shipment', 'shipment', 'edit', 'Edit', 1.103),
+  ('Sale Management', 'Shipment', 'shipment', 'delete', 'Delete', 1.104),
   
   ('Sale Management', 'Sale Invoice', 'sale_invoice', 'list', 'List', 1.101),
-  ('Sale Management', 'Sale Invoice', 'sale_invoice', 'add', 'Update', 1.102),
-  ('Sale Management', 'Sale Invoice', 'sale_invoice', 'edit', 'Update', 1.103),
-  ('Sale Management', 'Sale Invoice', 'sale_invoice', 'delete', 'Update', 1.104),
+  ('Sale Management', 'Sale Invoice', 'sale_invoice', 'add', 'Add', 1.102),
+  ('Sale Management', 'Sale Invoice', 'sale_invoice', 'edit', 'Edit', 1.103),
+  ('Sale Management', 'Sale Invoice', 'sale_invoice', 'delete', 'Delete', 1.104),
+  
+  ('Sale Management', 'Sale Return', 'sale_return', 'list', 'List', 1.101),
+  ('Sale Management', 'Sale Return', 'sale_return', 'add', 'Add', 1.102),
+  ('Sale Management', 'Sale Return', 'sale_return', 'edit', 'Edit', 1.103),
+  ('Sale Management', 'Sale Return', 'sale_return', 'delete', 'Delete', 1.104),
   
   ('Warehousing', 'Picklist', 'picklist', 'list', 'List', 1.101),
   ('Warehousing', 'Picklist', 'picklist', 'add', 'Add', 1.102),
@@ -179,6 +184,11 @@
   ('Accounting', 'Purchase Invoice', 'purchase_invoice', 'add', 'Add', 1.102),
   ('Accounting', 'Purchase Invoice', 'purchase_invoice', 'edit', 'Edit', 1.103),
   ('Accounting', 'Purchase Invoice', 'purchase_invoice', 'delete', 'Delete', 1.104),
+
+  ('Accounting', 'Purchase Return', 'purchase_return', 'list', 'List', 1.101),
+  ('Accounting', 'Purchase Return', 'purchase_return', 'add', 'Add', 1.102),
+  ('Accounting', 'Purchase Return', 'purchase_return', 'edit', 'Edit', 1.103),
+  ('Accounting', 'Purchase Return', 'purchase_return', 'delete', 'Delete', 1.104),
 
   ('System', 'Audit', 'audit', 'list', 'List', 1.101),
   ('System', 'Audit', 'audit', 'view', 'View', 1.103); 

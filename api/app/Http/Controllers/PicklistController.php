@@ -126,6 +126,13 @@ class PicklistController extends Controller
 			"charge_order",
 			"charge_order.vessel",
 			"charge_order.event",
+			"charge_order.salesman",
+			"charge_order.customer",
+			"charge_order.agent",
+			"charge_order.flag",
+			"charge_order.class1",
+			"charge_order.class2",
+			"charge_order.port",
 			"picklist_detail",
 			"picklist_detail.product"
 		])->where('picklist_id', $id)->first();

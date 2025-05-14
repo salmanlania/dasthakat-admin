@@ -45,9 +45,6 @@ class StockLedger extends Model
         static public function handleStockMovement(array $arg, $type = 'I')
         {
 
-                // dd(1);
-
-
                 $row = $arg['row'] ?? [];
                 $document = $arg['master_model']::find($arg['document_id']);
                 $multiplier = (int)($type == 'O' ? -1 : 1);
