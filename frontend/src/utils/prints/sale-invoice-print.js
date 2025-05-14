@@ -101,7 +101,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   const customerInfo = [
     data?.charge_order?.customer?.name,
     data?.charge_order?.customer?.address,
-    data?.charge_order?.customer?.billing_address
+    data?.charge_order?.vessel?.billing_address
   ].filter(Boolean);
 
   const billTo = doc.splitTextToSize(customerInfo.join('\n'), boxWidth);

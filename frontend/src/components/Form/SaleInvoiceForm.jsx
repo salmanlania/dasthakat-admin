@@ -7,11 +7,9 @@ import { BiPlus } from 'react-icons/bi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
-import { v4 as uuidv4 } from 'uuid';
+import { Link, useParams } from 'react-router-dom'
 import useError from '../../hooks/useError';
 import { getProduct, getProductList } from '../../store/features/productSlice';
-import { getSaleInvoice } from '../../store/features/saleInvoiceSlice';
 import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
@@ -119,6 +117,7 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
       const portName = initialFormValues?.port_id || '';
       const refDocumentIdentity = initialFormValues?.ref_document_identity || '';
       const chargeOrderNo = initialFormValues?.charger_order_id || '';
+      const billingAddress = initialFormValues?.vessel || '';
 
       setTotalQuantity(quantity);
       setTotalAmount(amount);
@@ -132,6 +131,7 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
         customer_id: customerName,
         charger_order_id: chargeOrderNo,
         port_id: portName,
+        billing_address : billingAddress?.billing_address,
         ref_document_identity: refDocumentIdentity,
         document_date: initialFormValues.document_date
           ? dayjs(initialFormValues.document_date)
@@ -288,8 +288,8 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
       initialValues={
         mode === 'edit'
           ? {
-              ...initialFormValues
-            }
+            ...initialFormValues
+          }
           : { document_date: dayjs() }
       }
       scrollToFirstError>
@@ -297,9 +297,8 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
         <span className="text-gray-500">Sale Invoice No:</span>
         <span
-          className={`ml-4 text-amber-600 ${
-            mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
-          } rounded px-1`}
+          className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
+            } rounded px-1`}
           onClick={() => {
             if (mode !== 'edit') return;
             navigator.clipboard.writeText(initialFormValues?.document_identity);
@@ -385,6 +384,11 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
               labelInValue
               disabled
             />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={5} lg={5}>
+          <Form.Item name="billing_address" label="Vessel Billing Address">
+            <Input />
           </Form.Item>
         </Col>
       </Row>
