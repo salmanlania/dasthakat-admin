@@ -123,9 +123,9 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
       form.setFieldsValue({
         salesman_id: event?.customer?.salesman
           ? {
-              value: event.customer.salesman.salesman_id,
-              label: event.customer.salesman.name
-            }
+            value: event.customer.salesman.salesman_id,
+            label: event.customer.salesman.name
+          }
           : null,
         vessel_id: event?.vessel
           ? { value: event.vessel.vessel_id, label: event.vessel.name }
@@ -139,9 +139,9 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
           : null,
         flag_id: event?.vessel?.flag
           ? {
-              value: event.vessel.flag.flag_id,
-              label: event.vessel.flag.name
-            }
+            value: event.vessel.flag.flag_id,
+            label: event.vessel.flag.name
+          }
           : null
       });
 
@@ -199,28 +199,28 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
       form.setFieldsValue({
         event_id: res.event
           ? {
-              value: res.event.event_id,
-              label: res.event.event_code
-            }
+            value: res.event.event_id,
+            label: res.event.event_code
+          }
           : null
       });
 
       const chargeDetails = res.charge_order_detail
         ? res.charge_order_detail.map((detail) => ({
-            id: detail.charge_order_detail_id,
-            charge_order_no: res?.document_identity,
-            product_type: detail?.product_type?.name,
-            product_code: detail?.product_code,
-            product_name:
-              detail?.product_type?.product_type_id == 4
-                ? detail?.product_name
-                : detail?.product?.product_name,
-            description: detail?.product_description,
-            customer_notes: detail?.description,
-            internal_notes: detail?.internal_notes,
-            quantity: parseFloat(detail?.quantity || 0),
-            unit: detail?.unit?.name || null
-          }))
+          id: detail.charge_order_detail_id,
+          charge_order_no: res?.document_identity,
+          product_type: detail?.product_type?.name,
+          product_code: detail?.product_code,
+          product_name:
+            detail?.product_type?.product_type_id == 4
+              ? detail?.product_name
+              : detail?.product?.product_name,
+          description: detail?.product_description,
+          customer_notes: detail?.description,
+          internal_notes: detail?.internal_notes,
+          quantity: parseFloat(detail?.quantity || 0),
+          unit: detail?.unit?.name || null
+        }))
         : [];
 
       dispatch(setChargeOrderDetails(chargeDetails));
@@ -246,9 +246,8 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
           {initialFormValues?.document_type_id === "49" ? "SO No:" : initialFormValues?.document_type_id === "48" ? "DO No:" : "SO/DO No:"}
         </span>
         <span
-          className={`ml-4 text-amber-600 ${
-            mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : 'select-none'
-          } rounded px-1`}
+          className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : 'select-none'
+            } rounded px-1`}
           onClick={() => {
             if (mode !== 'edit') return;
             navigator.clipboard.writeText(initialFormValues?.document_identity);
@@ -277,7 +276,7 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="charge_order_id" label="Charge Order">
-            <AsyncSelect
+            {/* <AsyncSelect
               endpoint="/charge-order"
               valueKey="charge_order_id"
               labelKey="document_identity"
@@ -285,7 +284,8 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
               labelInValue
               onChange={onChargeOrderChange}
               addNewLink={permissions.charge_order.add ? '/charge-order/create' : null}
-            />
+            /> */}
+            <Input disabled />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
