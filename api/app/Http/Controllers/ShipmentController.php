@@ -114,6 +114,24 @@ class ShipmentController extends Controller
 			"event.vessel.flag"
 		)
 			->where('shipment_id', $id)->first();
+		$chargeOrders = [];
+		$CustomerPos = [];
+
+			$documentIdentity = $detail->charge_order->document_identity ?? null;
+			$customerNo = $detail->charge_order->customer_no_no ?? null;
+
+			if ($documentIdentity !== null) {
+				$chargeOrders[] = $documentIdentity;
+			}
+
+			if ($customerNo !== null) {
+				$CustomerPos[] = $customerNo;
+			}
+		}
+
+		// Remove duplicates
+		$data->charge_orders = array_unique($chargeOrders);
+		$data->customer_pos = array_unique($CustomerPos);
 
 		return $this->jsonResponse($data, 200, "Shipment Data");
 	}

@@ -110,7 +110,7 @@ class AuthController extends Controller
 
             try {
 
-                $this->sentMail($data);
+                $this->sendEmail($data);
             } catch (\Exception $e) {
             }
             try {
