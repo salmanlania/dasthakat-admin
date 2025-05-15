@@ -99,6 +99,7 @@ class ShipmentController extends Controller
 			"shipment_detail",
 			"shipment_detail.charge_order",
 			"shipment_detail.charge_order.agent",
+			"shipment_detail.charge_order.port",
 			"shipment_detail.charge_order_detail",
 			"shipment_detail.product",
 			"shipment_detail.product_type",
@@ -117,10 +118,12 @@ class ShipmentController extends Controller
 			->where('shipment_id', $id)->first();
 		$chargeOrders = [];
 		$CustomerPos = [];
+		$Ports = [];
 
 		foreach ($data->shipment_detail as $detail) {
 			$documentIdentity = $detail->charge_order->document_identity ?? null;
 			$customerNo = $detail->charge_order->customer_po_no ?? null;
+			$port = $detail->port->name ?? null;
 
 			if ($documentIdentity !== null) {
 				$chargeOrders[] = $documentIdentity;
@@ -129,11 +132,15 @@ class ShipmentController extends Controller
 			if ($customerNo !== null) {
 				$CustomerPos[] = $customerNo;
 			}
+			if ($port !== null) {
+				$Ports[] = $port;
+			}
 		}
 
 		// Remove duplicates
 		$data->charge_orders = array_unique($chargeOrders);
 		$data->customer_pos = array_unique($CustomerPos);
+		$data->ports = array_unique($Ports);
 
 		return $this->jsonResponse($data, 200, "Shipment Data");
 	}
