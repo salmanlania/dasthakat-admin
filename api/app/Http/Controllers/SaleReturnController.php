@@ -169,23 +169,23 @@ class SaleReturnController extends Controller
 
 			foreach ($request->sale_return_detail as $detail) {
 
-				$PicklistDetail = PicklistDetail::find($detail->picklist_detail_id);
+				$PicklistDetail = PicklistDetail::find($detail["picklist_detail_id"]);
 				$Picklist = Picklist::find($PicklistDetail->picklist_id);
 				$chargeOrderDetail = ChargeOrderDetail::where('product_type_id', "!=", 1)->find($PicklistDetail->charge_order_detail_id);
 				$Product = Product::with('unit')->find($chargeOrderDetail->product_id);
-				$Warehouse = Warehouse::find($detail->warehouse_id);
+				$Warehouse = Warehouse::find($detail["warehouse_id"]);
 
 				if (empty($chargeOrderDetail)) continue;
 
-				$amount = $chargeOrderDetail->rate * $detail->quantity;
-				$totalQuantity += $detail->quantity;
+				$amount = $chargeOrderDetail->rate * $detail["quantity"];
+				$totalQuantity += $detail["quantity"];
 				$totalAmount += $amount;
 				$detail_uuid = $this->get_uuid();
 				SaleReturnDetail::create([
 					'sale_return_detail_id'   => $detail_uuid,
 					'sale_return_id'          => $uuid,
 					'charge_order_detail_id'   => $PicklistDetail->charge_order_detail_id,
-					'picklist_detail_id'       => $detail->picklist_detail_id,
+					'picklist_detail_id'       => $detail["picklist_detail_id"],
 					'sort_order'               => $index++,
 					'product_id'               => $chargeOrderDetail->product_id,
 					'product_name'             => $chargeOrderDetail->product_name,
@@ -193,27 +193,27 @@ class SaleReturnController extends Controller
 					'description'              => $chargeOrderDetail->description,
 					'unit_id'                  => $chargeOrderDetail->unit_id,
 					'warehouse_id'             => $chargeOrderDetail->warehouse_id,
-					'quantity'                 => $detail->quantity,
+					'quantity'                 => $detail["quantity"],
 					'rate'                     => $chargeOrderDetail->rate,
 					'amount'                   => $amount,
 					'created_at'               => Carbon::now(),
 					'created_by'               => $request->login_user_id,
 				]);
 
-				if ($Product->product_type_id == 2 && !empty($detail->warehouse_id) && ($detail->quantity > 0)) {
+				if ($Product->product_type_id == 2 && !empty($detail["warehouse_id"]) && ($detail["quantity"] > 0)) {
 
 					$stockEntry = [
 						'sort_order' => $index,
 						'product_id' => $chargeOrderDetail->product_id,
-						'warehouse_id' => $detail->warehouse_id,
+						'warehouse_id' => $detail["warehouse_id"],
 						'unit_id' => $Product->unit_id ?? null,
 						'unit_name' =>  $Product->unit->name ?? null,
-						'quantity' => $detail->quantity,
+						'quantity' => $detail["quantity"],
 						'rate' => $chargeOrderDetail->rate,
 						'amount' => $amount,
 						'remarks'      => sprintf(
 							"%d %s of %s (Code: %s) returned in %s warehouse under Sale Return document %s. Original rate: %s. Total amount: %s.",
-							$detail->quantity ?? 0,
+							$detail["quantity"] ?? 0,
 							$Product->unit->name ?? '',
 							$Product->name ?? 'Unknown Product',
 							$Product->impa_code ?? 'N/A',
