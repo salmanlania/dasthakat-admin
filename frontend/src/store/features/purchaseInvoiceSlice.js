@@ -80,7 +80,7 @@ export const bulkDeletePurchaseInvoice = createAsyncThunk(
   async (ids, { rejectWithValue }) => {
     try {
       await api.post('/purchase-invoice/bulk-delete', {
-        purchase_order_ids: ids
+        purchase_invoice_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);

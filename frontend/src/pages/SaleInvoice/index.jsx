@@ -16,24 +16,27 @@ import useError from '../../hooks/useError';
 import {
   getSaleInvoiceList,
   setSaleInvoiceListParams,
-  getSaleInvoice
+  setSaleInvoiceDeleteIDs,
+  getSaleInvoice,
+  deleteSaleInvoice,
+  bulkDeleteSaleInvoice
 } from '../../store/features/saleInvoiceSlice';
 import { createSaleInvoicePrint } from '../../utils/prints/sale-invoice-print';
 
 const SaleInvoice = () => {
   const dispatch = useDispatch();
   const handleError = useError();
-  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs , listID} = useSelector(
+  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs, listID } = useSelector(
     (state) => state.saleInvoice
   );
   const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.purchase_invoice;
+  const permissions = user.permission.sale_invoice;
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
-  const debouncedPurchaseInvoiceNo = useDebounce(params.document_identity, 500);
+  const debouncedSaleInvoiceNo = useDebounce(params.document_identity, 500);
   const debouncedChargeNo = useDebounce(params.charge_no, 500);
   const debouncedQuotationNo = useDebounce(params.quotation_no, 500);
 
@@ -42,26 +45,27 @@ const SaleInvoice = () => {
     document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null
   };
 
-  const onPurchaseInvoiceDelete = async (id) => {
+  const onSaleInvoiceDelete = async (id) => {
     try {
-      // await dispatch(deletePurchaseInvoice(id)).unwrap();
-      // toast.success('Purchase order deleted successfully');
-      // dispatch(getPurchaseInvoiceList(formattedParams)).unwrap();
+      await dispatch(deleteSaleInvoice(id)).unwrap();
+      toast.success('Sale Invoice deleted successfully');
+      dispatch(getSaleInvoiceList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
   };
 
+
   const onBulkDelete = async () => {
     closeDeleteModal();
-    // try {
-    //   await dispatch(bulkDeletePurchaseInvoice(deleteIDs)).unwrap();
-    //   toast.success('Purchase invoice deleted successfully');
-    //   closeDeleteModal();
-    //   await dispatch(getPurchaseInvoiceList(formattedParams)).unwrap();
-    // } catch (error) {
-    //   handleError(error);
-    // }
+    try {
+      await dispatch(bulkDeleteSaleInvoice(deleteIDs)).unwrap();
+      toast.success('Sale Invoices deleted successfully');
+      closeDeleteModal();
+      await dispatch(getSaleInvoiceList(formattedParams)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
   };
 
   const printSaleInvoice = async (id) => {
@@ -184,7 +188,7 @@ const SaleInvoice = () => {
       render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
     },
     {
-      title: 'Action',
+      title: <div style={{ textAlign: 'center', width: '100%' }}>Action</div>,
       key: 'action',
       render: (_, { sale_invoice_id }) => (
         <div className="flex justify-center items-center gap-2">
@@ -209,21 +213,22 @@ const SaleInvoice = () => {
                   />
                 </Link>
               </Tooltip>
+              {permissions.delete ? (
+                <Tooltip title="Delete">
+                  <Popconfirm
+                    title="Are you sure you want to delete?"
+                    description="After deleting, You will not be able to recover it."
+                    okButtonProps={{ danger: true }}
+                    okText="Yes"
+                    cancelText="No"
+                    onConfirm={() => onSaleInvoiceDelete(sale_invoice_id)}
+                  >
+                    <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
+                  </Popconfirm>
+                </Tooltip>
+              ) : null}
             </>
           ) : null}
-          {/* {permissions.delete ? (
-            <Tooltip title="Delete">
-              <Popconfirm
-                title="Are you sure you want to delete?"
-                description="After deleting, You will not be able to recover it."
-                okButtonProps={{ danger: true }}
-                okText="Yes"
-                cancelText="No"
-                onConfirm={() => onPurchaseInvoiceDelete(purchase_invoice_id)}>
-                <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
-              </Popconfirm>
-            </Tooltip>
-          ) : null} */}
         </div>
       ),
       width: 90,
@@ -236,7 +241,9 @@ const SaleInvoice = () => {
   }
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     dispatch(getSaleInvoiceList(formattedParams)).unwrap().catch(handleError);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params.page,
     params.limit,
@@ -245,7 +252,7 @@ const SaleInvoice = () => {
     params.document_date,
     params.customer_id,
     debouncedSearch,
-    debouncedPurchaseInvoiceNo,
+    debouncedSaleInvoiceNo,
     debouncedChargeNo,
     debouncedQuotationNo
   ]);
@@ -266,7 +273,7 @@ const SaleInvoice = () => {
             onChange={(e) => dispatch(setSaleInvoiceListParams({ search: e.target.value }))}
           />
 
-          {/* <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             {permissions.delete ? (
               <Button
                 type="primary"
@@ -276,12 +283,7 @@ const SaleInvoice = () => {
                 Delete
               </Button>
             ) : null}
-            {permissions.add ? (
-              <Link to="/purchase-invoice/create">
-                <Button type="primary">Add New</Button>
-              </Link>
-            ) : null}
-          </div> */}
+          </div>
         </div>
 
         <Table
@@ -289,16 +291,16 @@ const SaleInvoice = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: 'checkbox',
-                  selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) =>
-                    dispatch(setPurchaseInvoiceDeleteIDs(selectedRowKeys))
-                }
+                type: 'checkbox',
+                selectedRowKeys: deleteIDs,
+                onChange: (selectedRowKeys) =>
+                  dispatch(setSaleInvoiceDeleteIDs(selectedRowKeys))
+              }
               : null
           }
           loading={isListLoading}
           className="mt-2"
-          rowKey="purchase_invoice_id"
+          rowKey="sale_invoice_id"
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
@@ -330,7 +332,7 @@ const SaleInvoice = () => {
         onCancel={closeDeleteModal}
         isDeleting={isBulkDeleting}
         onDelete={onBulkDelete}
-        title="Are you sure you want to delete these purchase invoice?"
+        title="Are you sure you want to delete these Sale invoice?"
         description="After deleting, you will not be able to recover."
       />
     </>

@@ -52,6 +52,30 @@ export const createSaleInvoice = createAsyncThunk(
   }
 );
 
+export const deleteSaleInvoice = createAsyncThunk(
+  'saleInvoice/delete',
+  async (id, { rejectWithValue }) => {
+    try {
+      await api.delete(`/sale-invoice/${id}`);
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
+export const bulkDeleteSaleInvoice = createAsyncThunk(
+  'saleInvoice/bulkDelete',
+  async (ids, { rejectWithValue }) => {
+    try {
+      await api.post('/sale-invoice/bulk-delete', {
+        sale_invoice_ids: ids
+      });
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 const initialState = {
   isListLoading: false,
   isFormSubmitting: false,
@@ -120,6 +144,21 @@ export const saleInvoiceSlice = createSlice({
     addCase(createSaleInvoice.rejected, (state) => {
       state.isFormSubmitting = false;
     });
+
+    // start bulk delete
+    
+    addCase(bulkDeleteSaleInvoice.pending, (state) => {
+      state.isBulkDeleting = true;
+    });
+    addCase(bulkDeleteSaleInvoice.fulfilled, (state) => {
+      state.isBulkDeleting = false;
+      state.deleteIDs = [];
+    });
+    addCase(bulkDeleteSaleInvoice.rejected, (state) => {
+      state.isBulkDeleting = false;
+    });
+
+    // end bulk delete
 
     addCase(getSaleInvoice.pending, (state) => {
       state.isItemLoading = true;

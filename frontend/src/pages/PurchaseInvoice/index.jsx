@@ -48,7 +48,7 @@ const PurchaseInvoice = () => {
   const onPurchaseInvoiceDelete = async (id) => {
     try {
       await dispatch(deletePurchaseInvoice(id)).unwrap();
-      toast.success('Purchase order deleted successfully');
+      toast.success('Purchase Invoice deleted successfully');
       dispatch(getPurchaseInvoiceList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
@@ -289,7 +289,7 @@ const PurchaseInvoice = () => {
               </Tooltip>
             </>
           ) : null}
-          {/* {permissions.delete ? (
+          {permissions.delete ? (
             <Tooltip title="Delete">
               <Popconfirm
                 title="Are you sure you want to delete?"
@@ -301,7 +301,7 @@ const PurchaseInvoice = () => {
                 <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
               </Popconfirm>
             </Tooltip>
-          ) : null} */}
+          ) : null}
         </div>
       ),
       width: 75,
@@ -345,7 +345,7 @@ const PurchaseInvoice = () => {
             onChange={(e) => dispatch(setPurchaseInvoiceListParams({ search: e.target.value }))}
           />
 
-          {/* <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             {permissions.delete ? (
               <Button
                 type="primary"
@@ -355,12 +355,7 @@ const PurchaseInvoice = () => {
                 Delete
               </Button>
             ) : null}
-            {permissions.add ? (
-              <Link to="/purchase-invoice/create">
-                <Button type="primary">Add New</Button>
-              </Link>
-            ) : null}
-          </div> */}
+          </div>
         </div>
 
         <Table
@@ -368,11 +363,11 @@ const PurchaseInvoice = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: 'checkbox',
-                  selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) =>
-                    dispatch(setPurchaseInvoiceDeleteIDs(selectedRowKeys))
-                }
+                type: 'checkbox',
+                selectedRowKeys: deleteIDs,
+                onChange: (selectedRowKeys) =>
+                  dispatch(setPurchaseInvoiceDeleteIDs(selectedRowKeys))
+              }
               : null
           }
           loading={isListLoading}

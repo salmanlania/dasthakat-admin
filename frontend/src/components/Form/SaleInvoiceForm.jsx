@@ -15,7 +15,7 @@ import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput'
 import DebounceInput from '../Input/DebounceInput';
 import { DetailSummaryInfo } from './QuotationForm';
 
-const SaleInvoiceForm = ({ mode, onSubmit }) => {
+const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const handleError = useError();
   const dispatch = useDispatch();
@@ -30,15 +30,19 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
 
+  const [totalQuantity, setTotalQuantity] = useState('');
+  const [totalAmount, setTotalAmount] = useState('');
+  const [submitAction, setSubmitAction] = useState(null);
+
   const onFinish = (values) => {
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
-    
+
     const data = {
       ...values,
-      vessel_billing_address : values?.vessel_billing_address ? values?.vessel_billing_address : null
+      vessel_billing_address: values?.vessel_billing_address ? values?.vessel_billing_address : null
     };
 
-    onSubmit(data);
+    submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 
   const onProductChange = async (index, selected) => {
@@ -80,9 +84,6 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
       handleError(error);
     }
   };
-
-  const [totalQuantity, setTotalQuantity] = useState('');
-  const [totalAmount, setTotalAmount] = useState('');
 
   useEffect(() => {
     if (mode === 'edit' && initialFormValues) {
@@ -403,20 +404,25 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
         <Link to="/sale-invoice">
           <Button className="w-28">Exit</Button>
         </Link>
-        {/* {mode === 'edit' ? (
-          <Button
-            type="primary"
-            className="w-28 bg-rose-600 hover:!bg-rose-500"
-            onClick={printPurchaseInvoice}>
-            Print
-          </Button>
-        ) : null} */}
         <Button
           type="primary"
           className="w-28"
-          loading={isFormSubmitting}
-          onClick={() => form.submit()}>
+          loading={isFormSubmitting && submitAction === 'save'}
+          onClick={() => {
+            setSubmitAction('save');
+            form.submit()
+          }}>
           Save
+        </Button>
+        <Button
+          type="primary"
+          className="w-28 bg-green-600 hover:!bg-green-500"
+          loading={isFormSubmitting && submitAction === 'saveAndExit'}
+          onClick={() => {
+            setSubmitAction('saveAndExit');
+            form.submit();
+          }}>
+          Save & Exit
         </Button>
       </div>
     </Form>

@@ -6,19 +6,29 @@ import { useNavigate, useParams } from 'react-router-dom';
 import SaleInvoiceForm from '../../components/Form/SaleInvoiceForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
-import { getSaleInvoice , updateSaleInvoiceForm} from '../../store/features/saleInvoiceSlice';
+import { getSaleInvoice, updateSaleInvoiceForm } from '../../store/features/saleInvoiceSlice';
 
 const EditSaleInvoice = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();
   const { id } = useParams();
-  const { isItemLoading, initialFormValues } = useSelector((state) => state.purchaseInvoice);
+  const { isItemLoading, initialFormValues } = useSelector((state) => state.saleInvoice);
 
   const onSaleInvoiceUpdate = async (data) => {
     try {
       await dispatch(updateSaleInvoiceForm({ id, data })).unwrap();
-      toast.success('Purchase invoice updated successfully');
+      toast.success('Sale invoice updated successfully');
+      dispatch(getSaleInvoice(id)).unwrap()
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const onSaleInvoiceUpdates = async (data) => {
+    try {
+      await dispatch(updateSaleInvoiceForm({ id, data })).unwrap();
+      toast.success('Sale invoice updated successfully');
       navigate('/sale-invoice');
     } catch (error) {
       handleError(error);
@@ -36,7 +46,7 @@ const EditSaleInvoice = () => {
         <Breadcrumb items={[{ title: 'Sale Invoice' }, { title: 'Edit' }]} separator=">" />
       </div>
       <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-        <SaleInvoiceForm mode="edit" onSubmit={onSaleInvoiceUpdate} />
+        <SaleInvoiceForm mode="edit" onSubmit={onSaleInvoiceUpdate} onSave={onSaleInvoiceUpdates} />
       </div>
     </>
   );

@@ -329,7 +329,6 @@ const ChargeOrder = () => {
     },
     {
       title: <div style={{ textAlign: 'center', width: '100%' }}>Action</div>,
-      // title: 'Action',
       key: 'action',
       render: (_, { charge_order_id, event_id }) => {
         return (
