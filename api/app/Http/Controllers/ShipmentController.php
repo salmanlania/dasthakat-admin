@@ -98,6 +98,7 @@ class ShipmentController extends Controller
 		$data = Shipment::with(
 			"shipment_detail",
 			"shipment_detail.charge_order",
+			"shipment_detail.charge_order.agent",
 			"shipment_detail.charge_order_detail",
 			"shipment_detail.product",
 			"shipment_detail.product_type",
