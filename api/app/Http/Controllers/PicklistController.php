@@ -134,7 +134,8 @@ class PicklistController extends Controller
 			"charge_order.class2",
 			"charge_order.port",
 			"picklist_detail",
-			"picklist_detail.product"
+			"picklist_detail.product",
+			"picklist_detail.product.product_type",
 		])->where('picklist_id', $id)->first();
 
 		if (!$picklist) {
@@ -199,7 +200,7 @@ class PicklistController extends Controller
 	public function store(Request $request)
 	{
 		if (!isPermission('add', 'picklist', $request->permission_list)) {
-		    return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		}
 
 		// Validation
