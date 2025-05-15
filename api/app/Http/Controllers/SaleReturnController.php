@@ -166,6 +166,7 @@ class SaleReturnController extends Controller
 		$totalAmount = 0;
 		$index = 0;
 		if ($request->sale_return_detail) {
+			SaleReturn::create($data);
 
 			foreach ($request->sale_return_detail as $detail) {
 
@@ -238,7 +239,6 @@ class SaleReturnController extends Controller
 		}
 
 		if ($totalQuantity > 0) {
-			SaleReturn::create($data);
 			return $this->jsonResponse(['sale_return_id' => $uuid], 200, "Add Sale Return Successfully!");
 		} else {
 			return $this->jsonResponse(['sale_return_id' => $uuid], 500, "Cannot generate Return: No items with available quantity.");
