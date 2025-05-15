@@ -9,7 +9,7 @@ import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom'
 import useError from '../../hooks/useError';
-import { getProduct, getProductList } from '../../store/features/productSlice';
+import { getProduct } from '../../store/features/productSlice';
 import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
@@ -32,31 +32,10 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
 
   const onFinish = (values) => {
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
-
+    
     const data = {
-      type: values.type,
-      remarks: values.remarks,
-      ship_to: values.ship_to,
-      buyer_name: values.buyer_name,
-      buyer_email: values.buyer_email,
-      ship_via: values.ship_via,
-      department: values.department,
-      supplier_id: values.supplier_id ? values.supplier_id.value : null,
-      class1_id: values.class1_id ? values.class1_id.value : null,
-      customer_id: values.customer_id ? values.customer_id.value : null,
-      buyer_id: values.buyer_id ? values.buyer_id.value : null,
-      event_id: values.event_id ? values.event_id.value : null,
-      payment_id: values.payment_id ? values.payment_id.value : null,
-      document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
-      required_date: values.required_date ? dayjs(values.required_date).format('YYYY-MM-DD') : null,
-      purchase_invoice_detail: purchaseOrderDetails.map(({ id, ...detail }, index) => ({
-        ...detail,
-        product_id: detail.product_id ? detail.product_id.value : null,
-        unit_id: detail.unit_id ? detail.unit_id.value : null,
-        sort_order: index
-      })),
-      total_amount: totalAmount,
-      total_quantity: totalQuantity
+      ...values,
+      vessel_billing_address : values?.vessel_billing_address ? values?.vessel_billing_address : null
     };
 
     onSubmit(data);
@@ -117,7 +96,8 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
       const portName = initialFormValues?.port_id || '';
       const refDocumentIdentity = initialFormValues?.ref_document_identity || '';
       const chargeOrderNo = initialFormValues?.charger_order_id || '';
-      const billingAddress = initialFormValues?.vessel || '';
+      // const billingAddress = initialFormValues?.vessel || '';
+      const billingAddress = initialFormValues?.vessel_billing_address ? initialFormValues?.vessel_billing_address : initialFormValues?.vessel?.billing_address || '';
 
       setTotalQuantity(quantity);
       setTotalAmount(amount);
@@ -131,7 +111,7 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
         customer_id: customerName,
         charger_order_id: chargeOrderNo,
         port_id: portName,
-        billing_address : billingAddress?.billing_address,
+        vessel_billing_address: billingAddress,
         ref_document_identity: refDocumentIdentity,
         document_date: initialFormValues.document_date
           ? dayjs(initialFormValues.document_date)
@@ -386,8 +366,8 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
             />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={5} lg={5}>
-          <Form.Item name="billing_address" label="Vessel Billing Address">
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="vessel_billing_address" label="Vessel Billing Address">
             <Input />
           </Form.Item>
         </Col>
@@ -430,14 +410,14 @@ const SaleInvoiceForm = ({ mode, onSubmit }) => {
             onClick={printPurchaseInvoice}>
             Print
           </Button>
-        ) : null}
+        ) : null} */}
         <Button
           type="primary"
           className="w-28"
           loading={isFormSubmitting}
           onClick={() => form.submit()}>
           Save
-        </Button> */}
+        </Button>
       </div>
     </Form>
   );

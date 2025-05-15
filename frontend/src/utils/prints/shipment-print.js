@@ -110,7 +110,9 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         }
       },
       {
-        content: data?.charge_order?.quotation?.port?.name || '-',
+        content: Array.isArray(data?.ports)
+          ? data?.ports?.map((doc) => doc || '').join(', ')
+          : data?.charge_order?.quotation?.port?.name || '',
         styles: {
           halign: 'left',
         }
@@ -138,7 +140,10 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         }
       },
       {
-        content: data?.charge_order?.customer_po_no || '-',
+        // content: data?.charge_order?.customer_po_no || '-',
+        content: Array.isArray(data?.customer_pos)
+          ? data?.customer_pos?.map((doc) => doc || '').join(', ')
+          : data?.charge_order?.customer_po_no || '',
         styles: {
           halign: 'left',
         }
@@ -151,7 +156,9 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         }
       },
       {
-        content: data?.charge_order?.document_identity || '-',
+        content: Array.isArray(data?.charge_orders)
+          ? data?.charge_orders?.map((doc) => doc || '').join(', ')
+          : data?.charge_order?.document_identity || '',
         styles: {
           halign: 'left',
         }
@@ -166,7 +173,12 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         }
       },
       {
-        content: data?.charge_order?.agent?.name || '-',
+        content: Array.isArray(data?.charge_orders)
+          ? data?.shipment_detail
+            .map((item) => item?.charge_order?.agent?.name || '')
+            .filter(Boolean)
+            .join(', ')
+          : data?.charge_order?.agent?.name || '',
         styles: {
           halign: 'left',
         }
@@ -196,7 +208,19 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         }
       },
       {
-        content: data?.charge_order?.agent?.fax || '' + ' ' + '' + '',
+        // content: data?.charge_order?.agent?.fax || '' + ' ' + '' + '',
+        content: Array.isArray(data?.charge_orders)
+          ? data?.shipment_detail
+            .map((item) => {
+              const fax = item?.charge_order?.agent?.fax || '' + ' ' + '' + '';
+              const phone = item?.charge_order?.agent?.phone || '' + ' ' + '' + '';
+              return fax || phone ? `${fax} / ${phone}` : '' + ' ' + '' + '';
+            })
+            .filter(Boolean)
+            .join(', ')
+          : (data?.charge_order?.agent?.name || data?.charge_order?.agent?.phone
+            ? `${data?.charge_order?.agent?.name || '' + ' ' + '' + ''} / ${data?.charge_order?.agent?.phone || '' + ' ' + '' + ''}`
+            : '' + ' ' + '' + ''),
         colSpan: 3,
         styles: {
           halign: 'left',

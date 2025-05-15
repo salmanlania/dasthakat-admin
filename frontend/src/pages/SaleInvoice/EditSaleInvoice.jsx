@@ -6,7 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import SaleInvoiceForm from '../../components/Form/SaleInvoiceForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
-import { getSaleInvoice } from '../../store/features/saleInvoiceSlice';
+import { getSaleInvoice , updateSaleInvoiceForm} from '../../store/features/saleInvoiceSlice';
 
 const EditSaleInvoice = () => {
   const dispatch = useDispatch();
@@ -17,9 +17,9 @@ const EditSaleInvoice = () => {
 
   const onSaleInvoiceUpdate = async (data) => {
     try {
-      // await dispatch(updatePurchaseInvoice({ id, data })).unwrap();
-      // toast.success('Purchase invoice updated successfully');
-      navigate('/purchase-invoice');
+      await dispatch(updateSaleInvoiceForm({ id, data })).unwrap();
+      toast.success('Purchase invoice updated successfully');
+      navigate('/sale-invoice');
     } catch (error) {
       handleError(error);
     }

@@ -30,6 +30,17 @@ export const getSaleInvoice = createAsyncThunk(
   }
 );
 
+export const updateSaleInvoiceForm = createAsyncThunk(
+  'saleInvoice/update',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      await api.put(`/sale-invoice/${id}`, data);
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const createSaleInvoice = createAsyncThunk(
   'saleInvoice/create',
   async (data, { rejectWithValue }) => {
@@ -123,6 +134,8 @@ export const saleInvoiceSlice = createSlice({
         totalAmount: data.total_amount || '',
         salesman_id: data?.charge_order?.salesman?.name,
         customer_po_no: data?.charge_order?.customer_po_no,
+        vessel: data?.charge_order?.vessel,
+        vessel_billing_address: data?.vessel_billing_address,
         event_id: data?.charge_order?.event?.event_name,
         vessel_id: data?.charge_order?.vessel?.name,
         customer_id: data?.charge_order?.customer?.name,
@@ -138,11 +151,10 @@ export const saleInvoiceSlice = createSlice({
           : null,
         product_type_id: detail.product_type
           ? {
-              value: detail.product_type.product_type_id,
-              label: detail.product_type.name
-            }
+            value: detail.product_type.product_type_id,
+            label: detail.product_type.name
+          }
           : null,
-        // product_name: detail.product_name,
         product_name:
           detail.charge_order_detail.product_type_id == '4'
             ? detail.product_name || detail.charge_order_detail.product_name
