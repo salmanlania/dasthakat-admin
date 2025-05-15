@@ -164,6 +164,7 @@ class ChargeOrderController extends Controller
 			$detail->picked_quantity = $this->getPickedQuantity($detail);
 			$detail->shipped_quantity = $this->getShipmentQuantity($detail);
 			$detail->invoiced_quantity = $this->getInvoicedQuantity($detail);
+			$detail->returned_quantity = $this->getReturnedQuantity($detail);
 		}
 		return $this->jsonResponse($record, 200, "Charge Order Detailed Analysis.");
 	}

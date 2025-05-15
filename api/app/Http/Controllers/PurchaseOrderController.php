@@ -27,6 +27,7 @@ class PurchaseOrderController extends Controller
 		$quotation_id = $request->input('quotation_id', '');
 		$customer_id = $request->input('customer_id', '');
 		$charge_order_id = $request->input('charge_order_id', '');
+		$charge_no = $request->input('charge_no', '');
 		$event_id = $request->input('event_id', '');
 		$vessel_id = $request->input('vessel_id', '');
 		$type = $request->input('type', '');
@@ -51,6 +52,7 @@ class PurchaseOrderController extends Controller
 		if (!empty($supplier_id)) $data->where('purchase_order.supplier_id', $supplier_id);
 		if (!empty($quotation_id)) $data->where('purchase_order.quotation_id', $quotation_id);
 		if (!empty($charge_order_id)) $data->where('purchase_order.charge_order_id', $charge_order_id);
+		if (!empty($charge_no)) $data->where('co.document_identity', 'like', "%" . $charge_no . "%");
 		if (!empty($document_identity)) $data->where('purchase_order.document_identity', 'like', "%$document_identity%");
 		if (!empty($document_date)) $data->where('purchase_order.document_date', $document_date);
 		if (!empty($required_date)) $data->where('purchase_order.required_date', $required_date);
@@ -243,7 +245,7 @@ class PurchaseOrderController extends Controller
 
 	public function store(Request $request)
 	{
-	
+
 		if (!isPermission('add', 'purchase_order', $request->permission_list))
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
@@ -343,7 +345,7 @@ class PurchaseOrderController extends Controller
 		$data->total_amount = $request->total_amount;
 		$data->updated_at = Carbon::now();
 		$data->updated_by = $request->login_user_id;
-	
+
 		if ($request->purchase_order_detail) {
 			$data->save();
 			foreach ($request->purchase_order_detail as $value) {
@@ -414,7 +416,6 @@ class PurchaseOrderController extends Controller
 				if ($value['row_status'] == 'D') {
 					PurchaseOrderDetail::where('purchase_order_detail_id', $value['purchase_order_detail_id'])->delete();
 				}
-
 			}
 			if (!empty($request->charge_order_id)) {
 				$data = ChargeOrder::where('charge_order_id', $request->charge_order_id)->first();

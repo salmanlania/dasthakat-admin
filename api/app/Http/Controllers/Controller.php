@@ -12,6 +12,11 @@ use App\Mail\GenerateMail;
 use App\Models\Audit;
 use App\Models\GRNDetail;
 use App\Models\PicklistReceivedDetail;
+use App\Models\PurchaseInvoiceDetail;
+use App\Models\PurchaseReturnDetail;
+use App\Models\SaleInvoice;
+use App\Models\SaleInvoiceDetail;
+use App\Models\SaleReturnDetail;
 use App\Models\ServicelistReceivedDetail;
 use App\Models\Shipment;
 use App\Models\ShipmentDetail;
@@ -436,8 +441,35 @@ class Controller extends BaseController
     }
     static public function getInvoicedQuantity($row)
     {
-
-        return 0;
+        if ($row->product_type_id == 2) {
+            $quantity = SaleInvoiceDetail::query()
+                ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                ->sum('quantity');
+        } else
+		if ($row->product_type_id == 3 || $row->product_type_id == 4) {
+            $quantity = PurchaseInvoiceDetail::query()
+                ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                ->sum('quantity');
+        } else {
+            $quantity = 0;
+        }
+        return $quantity;
+    }
+    static public function getReturnedQuantity($row)
+    {
+        if ($row->product_type_id == 2) {
+            $quantity = SaleReturnDetail::query()
+                ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                ->sum('quantity');
+        } else
+		if ($row->product_type_id == 3 || $row->product_type_id == 4) {
+            $quantity = PurchaseReturnDetail::query()
+                ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                ->sum('quantity');
+        } else {
+            $quantity = 0;
+        }
+        return $quantity;
     }
 
 

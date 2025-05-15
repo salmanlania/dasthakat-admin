@@ -46,13 +46,13 @@ class SaleReturnController extends Controller
 		$data = $data->where('sale_return.company_id', '=', $request->company_id);
 		$data = $data->where('sale_return.company_branch_id', '=', $request->company_branch_id);
 
-		if (!empty($picklist_id)) $data = $data->where('sale_invoice.picklist_id', '=',  $picklist_id);
-		if (!empty($charge_order_id)) $data = $data->where('sale_invoice.charge_order_id', '=',  $charge_order_id);
+		if (!empty($picklist_id)) $data = $data->where('sale_return.picklist_id', '=',  $picklist_id);
+		if (!empty($charge_order_id)) $data = $data->where('sale_return.charge_order_id', '=',  $charge_order_id);
 		if (!empty($event_id)) $data = $data->where('co.event_id', '=',  $event_id);
 		if (!empty($vessel_id)) $data = $data->where('co.vessel_id', '=',  $vessel_id);
 		if (!empty($customer_id)) $data = $data->where('co.customer_id', '=',  $customer_id);
-		if (!empty($document_identity)) $data = $data->where('sale_invoice.document_identity', 'like', '%' . $document_identity . '%');
-		if (!empty($document_date)) $data = $data->where('sale_invoice.document_date', '=',  $document_date);
+		if (!empty($document_identity)) $data = $data->where('sale_return.document_identity', 'like', '%' . $document_identity . '%');
+		if (!empty($document_date)) $data = $data->where('sale_return.document_date', '=',  $document_date);
 
 		if (!empty($search)) {
 			$search = strtolower($search);
@@ -64,11 +64,11 @@ class SaleReturnController extends Controller
 					->OrWhere('v.name', 'like', '%' . $search . '%')
 					->OrWhere('c.name', 'like', '%' . $search . '%')
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
-					->OrWhere('sale_invoice.document_identity', 'like', '%' . $search . '%');
+					->OrWhere('sale_return.document_identity', 'like', '%' . $search . '%');
 			});
 		}
 
-		$data = $data->select("sale_invoice.*", "co.document_identity as charge_no", "e.event_code", "v.name as vessel_name", "c.name as customer_name", "p.document_identity as picklist_no");
+		$data = $data->select("sale_return.*", "co.document_identity as charge_no", "e.event_code", "v.name as vessel_name", "c.name as customer_name", "p.document_identity as picklist_no");
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
