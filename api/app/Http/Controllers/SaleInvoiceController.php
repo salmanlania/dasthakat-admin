@@ -158,7 +158,7 @@ class SaleInvoiceController extends Controller
 			foreach ($chargeOrder->charge_order_detail as $detail) {
 				if (isset($detail->charge_order_detail_id)) {
 					$saleInvoiceDetail = SaleInvoiceDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->get();
-					if ($detail->quantity == $saleInvoiceDetail->sum('quantity')) {
+					if ($this->getShipmentQuantity($detail) == $saleInvoiceDetail->sum('quantity')) {
 						continue;
 					}
 
@@ -226,11 +226,11 @@ class SaleInvoiceController extends Controller
 	{
 		if (!isPermission('delete', 'sale_invoice', $request->permission_list))
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
-		$data  = PurchaseInvoice::where('purchase_invoice_id', $id)->first();
-		if (!$data) return $this->jsonResponse(['purchase_invoice_id' => $id], 404, "Purchase Invoice Not Found!");
+		$data  = SaleInvoice::where('sale_invoice_id', $id)->first();
+		if (!$data) return $this->jsonResponse(['sale_invoice_id' => $id], 404, "Sale Invoice Not Found!");
 		$data->delete();
-		PurchaseInvoiceDetail::where('purchase_invoice_id', $id)->delete();
-		return $this->jsonResponse(['purchase_invoice_id' => $id], 200, "Delete Purchase Invoice Successfully!");
+		SaleInvoiceDetail::where('sale_invoice_id', $id)->delete();
+		return $this->jsonResponse(['sale_invoice_id' => $id], 200, "Delete Sale Invoice Successfully!");
 	}
 	public function bulkDelete(Request $request)
 	{
@@ -238,15 +238,15 @@ class SaleInvoiceController extends Controller
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
 		try {
-			if (isset($request->purchase_invoice_ids) && !empty($request->purchase_invoice_ids) && is_array($request->purchase_invoice_ids)) {
-				foreach ($request->purchase_invoice_ids as $purchase_invoice_id) {
-					$user = PurchaseInvoice::where(['purchase_invoice_id' => $purchase_invoice_id])->first();
+			if (isset($request->sale_invoice_ids) && !empty($request->sale_invoice_ids) && is_array($request->sale_invoice_ids)) {
+				foreach ($request->sale_invoice_ids as $sale_invoice_id) {
+					$user = SaleInvoice::where(['sale_invoice_id' => $sale_invoice_id])->first();
 					$user->delete();
-					PurchaseInvoiceDetail::where('purchase_invoice_id', $purchase_invoice_id)->delete();
+					SaleInvoiceDetail::where('sale_invoice_id', $sale_invoice_id)->delete();
 				}
 			}
 
-			return $this->jsonResponse('Deleted', 200, "Delete Purchase Invoice successfully!");
+			return $this->jsonResponse('Deleted', 200, "Delete Sale Invoice successfully!");
 		} catch (\Exception $e) {
 			return $this->jsonResponse('some error occured', 500, $e->getMessage());
 		}
