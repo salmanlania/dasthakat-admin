@@ -123,7 +123,7 @@ class ShipmentController extends Controller
 		foreach ($data->shipment_detail as $detail) {
 			$documentIdentity = $detail->charge_order->document_identity ?? null;
 			$customerNo = $detail->charge_order->customer_po_no ?? null;
-			$port = $detail->port->name ?? null;
+			$port = $detail->charge_order->port->name ?? null;
 
 			if ($documentIdentity !== null) {
 				$chargeOrders[] = $documentIdentity;
