@@ -117,6 +117,7 @@ class ShipmentController extends Controller
 		$chargeOrders = [];
 		$CustomerPos = [];
 
+		foreach ($data->shipment_detail as $detail) {
 			$documentIdentity = $detail->charge_order->document_identity ?? null;
 			$customerNo = $detail->charge_order->customer_no_no ?? null;
 
