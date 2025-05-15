@@ -21,6 +21,7 @@ class SaleInvoice extends Model
         "document_prefix",
         "document_identity",
         "document_date",
+        "vessel_billing_address",
         "charge_order_id",
         "total_quantity",
         "total_amount",

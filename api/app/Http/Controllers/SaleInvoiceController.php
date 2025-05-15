@@ -125,7 +125,7 @@ class SaleInvoiceController extends Controller
 		}
 
 		// 3. Fetch Reference Data
-		$chargeOrder = ChargeOrder::with('charge_order_detail')->find($request->charge_order_id);
+		$chargeOrder = ChargeOrder::with('charge_order_detail', 'vessel')->find($request->charge_order_id);
 		if (!$chargeOrder) {
 			return $this->jsonResponse('Charge Order not found.', 404);
 		}
@@ -143,6 +143,7 @@ class SaleInvoiceController extends Controller
 			'document_prefix'   => $document['document_prefix'] ?? "",
 			'document_identity' => $document['document_identity'] ?? "",
 			'document_date'     => $request->document_date ?? "",
+			'vessel_billing_address' => $chargeOrder?->vessel?->billing_address ?? "",
 			'charge_order_id'   => $request->charge_order_id,
 			'created_at'        => Carbon::now(),
 			'created_by'        => $request->login_user_id,
@@ -201,68 +202,26 @@ class SaleInvoiceController extends Controller
 	}
 
 
-	// public function update(Request $request, $id)
-	// {
-	// 	if (!isPermission('edit', 'sale_invoice', $request->permission_list))
-	// 		return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+	public function update(Request $request, $id)
+	{
+		if (!isPermission('edit', 'sale_invoice', $request->permission_list))
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
 
-	// 	// Validation Rules
-	// 	$isError = $this->validateRequest($request->all(), $id);
-	// 	if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
+		// Validation Rules
+		$isError = $this->validateRequest($request->all(), $id);
+		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
-	// 	$ref  = PurchaseOrder::where('purchase_order_id', $request->purchase_order_id)->first();
-
-	// 	$data  = PurchaseInvoice::where('purchase_invoice_id', $id)->first();
-	// 	$data->company_id = $request->company_id;
-	// 	$data->company_branch_id = $request->company_branch_id;
-	// 	$data->document_date = $request->document_date;
-	// 	$data->required_date = $request->required_date;
-	// 	$data->supplier_id = $request->supplier_id;
-	// 	$data->buyer_id = $request->buyer_id;
-	// 	$data->ship_via = $request->ship_via;
-	// 	$data->ship_to = $request->ship_to;
-	// 	$data->department = $request->department;
-	// 	$data->charge_order_id = $ref->charge_order_id;
-	// 	$data->purchase_order_id = $request->purchase_order_id;
-	// 	$data->payment_id = $request->payment_id;
-	// 	$data->remarks = $request->remarks;
-	// 	$data->total_quantity = $request->total_quantity;
-	// 	$data->total_amount = $request->total_amount;
-	// 	$data->updated_at = Carbon::now();
-	// 	$data->updated_by = $request->login_user_id;
-	// 	$data->update();
-	// 	PurchaseInvoiceDetail::where('purchase_invoice_id', $id)->delete();
-	// 	if ($request->purchase_invoice_detail) {
-
-	// 		foreach ($request->purchase_invoice_detail as $key => $value) {
-	// 			$detail_uuid = $this->get_uuid();
-
-	// 			$insertArr = [
-	// 				'purchase_invoice_id' => $id,
-	// 				'purchase_invoice_detail_id' => $detail_uuid,
-	// 				'charge_order_detail_id' => $value->charge_order_detail_id ?? "",
-	// 				'sort_order' => $value['sort_order'] ?? "",
-	// 				'product_id' => $value['product_id'] ?? "",
-	// 				'product_name' => $value['product_name'] ?? "",
-	// 				'product_description' => $value['product_description'] ?? "",
-	// 				'description' => $value['description'] ?? "",
-	// 				'vpart' => $value['vpart'] ?? "",
-	// 				'unit_id' => $value['unit_id'] ?? "",
-	// 				'quantity' => $value['quantity'] ?? "",
-	// 				'rate' => $value['rate'] ?? "",
-	// 				'amount' => $value['amount'] ?? "",
-	// 				'vendor_notes' => $value['vendor_notes'] ?? "",
-	// 				'created_at' => Carbon::now(),
-	// 				'created_by' => $request->login_user_id,
-	// 			];
-	// 			PurchaseInvoiceDetail::create($insertArr);
-	// 		}
-	// 	}
+		$data  = SaleInvoice::find($id);
+		$data->document_date = $request->document_date;
+		$data->vessel_billing_address = $request->vessel_billing_address;
+		$data->updated_at = Carbon::now();
+		$data->updated_by = $request->login_user_id;
+		$data->update();
 
 
-	// 	return $this->jsonResponse(['purchase_invoice_id' => $id], 200, "Update Purchase Invoice Successfully!");
-	// }
+		return $this->jsonResponse(['sale_invoice_id' => $id], 200, "Update Sale Invoice Successfully!");
+	}
 	public function delete($id, Request $request)
 	{
 		if (!isPermission('delete', 'sale_invoice', $request->permission_list))

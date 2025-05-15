@@ -103,3 +103,5 @@ CREATE TABLE purchase_return_detail (
     created_at DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE `sale_invoice` ADD COLUMN `vessel_billing_address` VARCHAR(255) AFTER `document_date`;
