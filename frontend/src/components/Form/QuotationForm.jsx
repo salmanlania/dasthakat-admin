@@ -327,95 +327,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     }
   };
 
-  // const onProductCodeChange = async (index, value) => {
-  //   // if (!value.trim()) return;
-  //   try {
-  //     const res = await dispatch(getProductList({ product_code: value, stock: true })).unwrap();
-
-  //     if (!res.data.length) return;
-
-  //     const product = res.data[0];
-  //     const stockQuantity = product?.stock?.quantity || 0;
-
-  //     form.setFieldsValue({
-  //       [`product_id-${index}`]: product?.product_id
-  //         ? {
-  //             value: product.product_id,
-  //             label: product.product_name
-  //           }
-  //         : null,
-  //       [`product_description-${index}`]: product?.product_name || ''
-  //     });
-
-  //     dispatch(
-  //       changeQuotationDetailValue({
-  //         index,
-  //         key: 'product_id',
-  //         value: {
-  //           value: product.product_id,
-  //           label: product.product_name
-  //         }
-  //       })
-  //     );
-
-  //     dispatch(
-  //       changeQuotationDetailValue({
-  //         index,
-  //         key: 'product_description',
-  //         value: product?.product_name || ''
-  //       })
-  //     );
-
-  //     dispatch(
-  //       changeQuotationDetailValue({
-  //         index,
-  //         key: 'product_type_id',
-  //         value: product.product_type_id
-  //           ? {
-  //               value: product.product_type_id,
-  //               label: product.product_type_name
-  //             }
-  //           : null
-  //       })
-  //     );
-
-  //     dispatch(
-  //       changeQuotationDetailValue({
-  //         index,
-  //         key: 'unit_id',
-  //         value: { value: product.unit_id, label: product.unit_name }
-  //       })
-  //     );
-
-  //     dispatch(
-  //       changeQuotationDetailValue({
-  //         index,
-  //         key: 'stock_quantity',
-  //         value: stockQuantity
-  //       })
-  //     );
-
-  //     dispatch(
-  //       changeQuotationDetailValue({
-  //         index,
-  //         key: 'cost_price',
-  //         value: product.cost_price
-  //       })
-  //     );
-
-  //     dispatch(
-  //       changeQuotationDetailValue({
-  //         index,
-  //         key: 'rate',
-  //         value: product.sale_price
-  //       })
-  //     );
-  //   } catch (error) {
-  //     handleError(error);
-  //   }
-  // };
-  var a;
-
   const onProductChange = async (index, selected) => {
     if (!selected) {
       dispatch(
@@ -761,9 +672,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                 dispatch(
                   changeQuotationDetailValue({
                     index,
-                    // key: ['product_name', 'product_description'],
                     key: 'product_name',
-                    // value: [value, value]
                     value: value
                   })
                 );

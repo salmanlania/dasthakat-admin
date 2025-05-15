@@ -220,7 +220,6 @@ export const quotationSlice = createSlice({
           detail.markup = roundUpto(
             ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100
           );
-          console.log('detail.markup' , detail.markup)
         }
       } else {
         detail.amount = '';
@@ -426,7 +425,7 @@ export const quotationSlice = createSlice({
           : null,
         vendor_part_no: detail.vendor_part_no,
         internal_notes: detail.internal_notes,
-        cost_price: +detail.cost_price || +detail.rate,
+        cost_price: detail?.product_type?.product_type_id === 4 ? detail.cost_price : +detail.cost_price || +detail.rate,
         markup: detail.markup,
         rate: detail.rate,
         amount: detail.amount,
