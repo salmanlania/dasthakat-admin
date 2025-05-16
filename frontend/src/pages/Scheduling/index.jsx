@@ -51,6 +51,7 @@ const Scheduling = () => {
   const permissions = user.permission.dispatch;
   const [tableKey, setTableKey] = useState(0);
   const [isOldChecked, setIsOldChecked] = useState(false);
+  const [formatDate, setFormatDate] = useState([])
 
   const [notesModalIsOpen, setNotesModalIsOpen] = useState({
     open: false,
@@ -141,13 +142,12 @@ const Scheduling = () => {
     }
   };
 
-  const printIJO = async (id, event_date) => {
+  const printIJO = async (id) => {
     const loadingToast = toast.loading('Loading IJO print...');
 
     try {
       const data = await dispatch(getEventJobOrders(id)).unwrap();
-      // createIJOPrint(data, true);
-      createIJOPrint({ data, event_date }, true);
+      createIJOPrint(data, true);
     } catch (error) {
       handleError(error);
     } finally {
@@ -251,7 +251,7 @@ const Scheduling = () => {
 
     try {
       const data = await dispatch(getEventServiceOrder(id)).unwrap();
-      createServiceOrderPrint(data, true);
+      createServiceOrderPrint(data , true);
     } catch (error) {
       handleError(error);
     } finally {
@@ -323,7 +323,7 @@ const Scheduling = () => {
             size="small"
             className="font-normal"
             format="MM-DD-YYYY"
-            allowClear={false} 
+            allowClear={false}
             disabled={!permissions.update}
             defaultValue={
               record.event_date && record.event_date !== '0000-00-00'
@@ -789,7 +789,7 @@ const Scheduling = () => {
       title: 'Print',
       key: 'print',
       align: 'center',
-      render: (_, { event_id , event_date}) => (
+      render: (_, { event_id, event_date }) => (
         <div className="flex flex-col justify-center gap-1">
           <div className="flex items-center gap-1">
             <Tooltip title="Print IJO">
@@ -797,7 +797,7 @@ const Scheduling = () => {
                 size="small"
                 type="primary"
                 className="w-20"
-                onClick={() => printIJO(event_id , event_date)}>
+                onClick={() => printIJO(event_id)}>
                 IJO
               </Button>
             </Tooltip>
@@ -979,6 +979,14 @@ const Scheduling = () => {
                     dateValue && dayjs(dateValue).isValid()
                       ? dayjs(dateValue).format('MM-DD-YYYY')
                       : '';
+                  // if (formattedDate) {
+                  //   setFormatDate((prevDates) => {
+                  //     if (!prevDates.includes(formattedDate)) {
+                  //       return [...prevDates, formattedDate];
+                  //     }
+                  //     return prevDates;
+                  //   });
+                  // }
 
                   return (
                     <tr {...restProps} className="date-header-row bg-[#fafafa] font-bold">

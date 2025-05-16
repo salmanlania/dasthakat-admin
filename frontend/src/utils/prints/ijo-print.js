@@ -15,7 +15,7 @@ const fillEmptyRows = (rows, rowsPerPage) => {
   return rows;
 };
 
-const pdfContent = (doc, data, sideMargin, pageWidth, eventDate) => {
+const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
   doc.setTextColor(32, 50, 114);
   doc.setFontSize(20);
   doc.setFont('times', 'bold');
@@ -264,7 +264,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth, eventDate) => {
         }
       },
       {
-        content: eventDate ? eventDate : '',
+        content: schedulingDate,
         styles: {
           fontSize: 9
         }
@@ -627,7 +627,9 @@ const pdfContent = (doc, data, sideMargin, pageWidth, eventDate) => {
 };
 
 export const createIJOPrint = (data, multiple = false) => {
-  const eventDate = data?.event_date;
+  console.log('data', data)
+  const schedulingDate = data?.scheduling?.event_date ? data?.scheduling?.event_date : data[0]?.scheduling?.event_date ? data[0]?.scheduling?.event_date : null
+  console.log('schedulingDate' , schedulingDate)
   const doc = new jsPDF();
 
   const sideMargin = 1;
@@ -635,10 +637,10 @@ export const createIJOPrint = (data, multiple = false) => {
   const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
 
   if (!multiple) {
-    pdfContent(doc, data, sideMargin, pageWidth, eventDate);
+    pdfContent(doc, data, sideMargin, pageWidth , schedulingDate);
   } else {
-    data.data.forEach((item, index) => {
-      pdfContent(doc, item, sideMargin, pageWidth, eventDate);
+    data.forEach((item, index) => {
+      pdfContent(doc, item, sideMargin, pageWidth , schedulingDate);
 
       if (index < data.length - 1) {
         doc.addPage();

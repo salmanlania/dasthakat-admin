@@ -21,7 +21,9 @@ const fillEmptyRows = (rows, rowsPerPage) => {
   return rows;
 };
 
-const pdfContent = (doc, data, sideMargin, pageWidth) => {
+const pdfContent = (doc, data, sideMargin, pageWidth, eventDate) => {
+  console.log('data' , data)
+  const schedulingDate = data?.scheduling?.event_date ? data?.scheduling?.event_date : data?.scheduling?.event_date ? data?.scheduling?.event_date : null
   doc.setTextColor(32, 50, 114);
   doc.setFontSize(20);
   doc.setFont('times', 'bold');
@@ -85,7 +87,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         }
       },
       {
-        content: dayjs(data?.created_at).format('MM-DD-YYYY') || '-',
+        content: eventDate ? eventDate : schedulingDate,
         styles: {
           halign: 'left',
           width: '40%'
@@ -375,6 +377,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
 };
 
 export const createServiceOrderPrint = (data, multiple = false) => {
+  const eventDate = data?.event_date;
   const doc = new jsPDF();
 
   const sideMargin = 1;
@@ -382,10 +385,10 @@ export const createServiceOrderPrint = (data, multiple = false) => {
   const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
 
   if (!multiple) {
-    pdfContent(doc, data, sideMargin, pageWidth);
+    pdfContent(doc, data, sideMargin, pageWidth, eventDate);
   } else {
     data.forEach((item, index) => {
-      pdfContent(doc, item, sideMargin, pageWidth);
+      pdfContent(doc, item, sideMargin, pageWidth, eventDate);
 
       if (index < data.length - 1) {
         doc.addPage();
