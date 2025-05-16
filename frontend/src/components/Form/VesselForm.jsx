@@ -17,7 +17,7 @@ const VesselForm = ({ mode, onSubmit }) => {
       class1_id: values.class1_id ? values.class1_id.value : null,
       class2_id: values.class2_id ? values.class2_id.value : null
     };
-
+    
     onSubmit(data);
   };
 

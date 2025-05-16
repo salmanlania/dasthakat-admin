@@ -4,12 +4,14 @@ import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { FaRegFilePdf } from 'react-icons/fa';
 import { LuListChecks } from 'react-icons/lu';
+import { MdOutlineEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
 import PickListReceiveModal from '../../components/Modals/PickListReceiveModal';
 import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
+import { Link } from 'react-router-dom';
 import {
   getPickListForPrint,
   getPickListList,
@@ -260,9 +262,17 @@ const PickList = () => {
               onClick={() => printPickList(id)}
             />
           </Tooltip>
+          <Link to={`/pick-list/edit/${id}`}>
+            <Button
+              size="small"
+              type="primary"
+              className="bg-gray-500 hover:!bg-gray-400"
+              icon={<MdOutlineEdit size={14} />}
+            />
+          </Link>
         </div>
       ),
-      width: 80,
+      width: 105,
       fixed: 'right'
     }
   ];

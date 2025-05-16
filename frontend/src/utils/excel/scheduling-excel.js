@@ -2,15 +2,6 @@ import dayjs from 'dayjs';
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import GMSLogo from '../../assets/logo-with-title.png';
-import Logo1 from '../../assets/quotation/logo1.png';
-import Logo2 from '../../assets/quotation/logo2.png';
-import Logo3 from '../../assets/quotation/logo3.png';
-import Logo4 from '../../assets/quotation/logo4.png';
-import Logo5 from '../../assets/quotation/logo5.png';
-import Logo6 from '../../assets/quotation/logo6.png';
-import Logo7 from '../../assets/quotation/logo7.png';
-import QuotationTerms from '../../assets/quotation/quotationTerms.jpg';
-import { formatThreeDigitCommas, roundUpto } from '../number';
 import useError from '../../hooks/useError';
 
 const getImageBuffer = async (image) => {
@@ -23,6 +14,7 @@ const getImageBuffer = async (image) => {
 
 const generateSchedulingExcel = async (datas) => {
 
+  const handleError = useError()
   try {
     const data = datas?.data
     const workbook = new ExcelJS.Workbook();
@@ -375,7 +367,7 @@ const generateSchedulingExcel = async (datas) => {
     saveAs(new Blob([buffer]), `Scheduling-${datas?.data[0]?.company_id ? datas?.data[0]?.company_id : datas?.data[0]?.created_at}.xlsx`);
 
   } catch (error) {
-    console.log('error', error)
+    handleError(error)
   }
 
 };
