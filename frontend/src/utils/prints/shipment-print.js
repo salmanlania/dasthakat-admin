@@ -174,10 +174,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       },
       {
         content: Array.isArray(data?.charge_orders)
-          ? data?.shipment_detail
-            .map((item) => item?.charge_order?.agent?.name || '')
-            .filter(Boolean)
-            .join(', ')
+          ? data?.shipment_detail[0]?.charge_order?.agent?.name || ''
           : data?.charge_order?.agent?.name || '',
         styles: {
           halign: 'left',
@@ -208,16 +205,9 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         }
       },
       {
-        // content: data?.charge_order?.agent?.fax || '' + ' ' + '' + '',
         content: Array.isArray(data?.charge_orders)
-          ? data?.shipment_detail
-            .map((item) => {
-              const fax = item?.charge_order?.agent?.fax || '' + ' ' + '' + '';
-              const phone = item?.charge_order?.agent?.phone || '' + ' ' + '' + '';
-              return fax || phone ? `${fax} / ${phone}` : '' + ' ' + '' + '';
-            })
-            .filter(Boolean)
-            .join(', ')
+          ?
+          `${data?.shipment_detail[0]?.charge_order?.agent?.fax || '' + ' ' + '' + ''} / ${data?.shipment_detail[0]?.charge_order?.agent?.phone || '' + ' ' + '' + ''}`
           : (data?.charge_order?.agent?.name || data?.charge_order?.agent?.phone
             ? `${data?.charge_order?.agent?.name || '' + ' ' + '' + ''} / ${data?.charge_order?.agent?.phone || '' + ' ' + '' + ''}`
             : '' + ' ' + '' + ''),
