@@ -33,6 +33,10 @@ class ServiceOrder extends Model
     {
         return $this->hasMany(ServiceOrderDetail::class, 'service_order_id', 'service_order_id')->orderBy('sort_order')->select('*');
     }
+    public function scheduling()
+    {
+        return $this->hasOne(EventDispatch::class, 'event_id', 'event_id')->select('*');
+    }
     public function event()
     {
         return $this->hasOne(Event::class, 'event_id', 'event_id')->select('*');

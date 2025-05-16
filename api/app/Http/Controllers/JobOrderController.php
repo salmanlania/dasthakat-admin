@@ -102,6 +102,7 @@ class JobOrderController extends Controller
 			"job_order_detail.product_type",
 			"job_order_detail.unit",
 			"job_order_detail.supplier",
+			"scheduling",
 			"event",
 			"vessel",
 			"customer",

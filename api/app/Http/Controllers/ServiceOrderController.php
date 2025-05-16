@@ -104,6 +104,7 @@ class ServiceOrderController extends Controller
 			"service_order_detail.product_type",
 			"service_order_detail.unit",
 			"service_order_detail.supplier",
+			"scheduling",
 			"event",
 			"charge_order",
 			"charge_order.quotation",

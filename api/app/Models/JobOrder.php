@@ -42,6 +42,10 @@ class JobOrder extends Model
     {
         return $this->hasOne(Salesman::class, 'salesman_id', 'salesman_id')->select('salesman_id', 'name');
     }
+    public function scheduling()
+    {
+        return $this->hasOne(EventDispatch::class, 'event_id', 'event_id')->select('*');
+    }
     public function event()
     {
         return $this->hasOne(Event::class, 'event_id', 'event_id')
