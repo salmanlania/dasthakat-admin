@@ -399,7 +399,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       changeQuotationDetailValue({
         index,
         key: 'product_id',
-        value: selected?.value || ''
+        value: selected || ''
       })
     );
 
