@@ -79,11 +79,12 @@ const ChargeOrderModal = () => {
       width: 120,
       fixed: 'right',
       render: (_, { quantity }, index) => {
-        form.setFieldsValue({ [`quantity-${index}`]: quantity });
+        const newQuantity = parseFloat(quantity)
+        form.setFieldsValue({ [`quantity-${index}`]: newQuantity });
         return (
           <Form.Item
             className="m-0"
-            initialValue={quantity}
+            initialValue={newQuantity}
             name={`quantity-${index}`}
             rules={[
               {
@@ -100,7 +101,7 @@ const ChargeOrderModal = () => {
               }
             ]}>
             <DebouncedCommaSeparatedInput
-              value={quantity}
+              value={newQuantity}
               disabled={true}
               onChange={(value) =>
                 dispatch(
@@ -268,23 +269,17 @@ const ChargeOrderModal = () => {
         <Form.Item
           name="customer_po_no"
           label="Customer PO"
-          // rules={[
-          //   {
-          //     required: true,
-          //     message: 'Customer PO is required'
-          //   }
-          // ]}
         >
           <input
             style={{ border: '1px solid black', padding: '2px' }}
             type="text"
             placeholder="Enter Customer PO"
-            className="ant-input" // You can use Ant Design's default input styles or add custom ones.
+            className="ant-input"
           />
         </Form.Item>
         <Table
           columns={columns}
-          dataSource={quotationDetails}
+          dataSource={quotationDetails.filter((item) => item.available_quantity > 0)}
           rowKey="id"
           pagination={false}
           size="small"
