@@ -166,7 +166,7 @@ class PurchaseReturnController extends Controller
 
 			foreach ($request->purchase_return_detail as $detail) {
 
-				$PurchaseOrderDetail = PurchaseOrderDetail::find($detail->purchase_order_detail_id);
+				$PurchaseOrderDetail = PurchaseOrderDetail::find($detail['purchase_order_detail_id']);
 				$chargeOrderDetail = ChargeOrderDetail::where('product_type_id', "!=", 1)->find($PurchaseOrderDetail->charge_order_detail_id);
 
 				if (empty($chargeOrderDetail)) continue;
@@ -179,7 +179,7 @@ class PurchaseReturnController extends Controller
 					'purchase_return_detail_id' => $detail_uuid,
 					'purchase_return_id'       => $uuid,
 					'charge_order_detail_id'   => $PurchaseOrderDetail->charge_order_detail_id,
-					'purchase_order_detail_id' => $detail->purchase_order_detail_id,
+					'purchase_order_detail_id' => $detail['purchase_order_detail_id'],
 					'sort_order'               => $index++,
 					'product_id'               => $chargeOrderDetail->product_id,
 					'product_name'             => $chargeOrderDetail->product_name,
@@ -248,7 +248,7 @@ class PurchaseReturnController extends Controller
 		if ($request->purchase_return_detail) {
 
 			foreach ($request->purchase_return_detail as $detail) {
-				$PurchaseOrderDetail = PurchaseOrderDetail::find($detail->purchase_order_detail_id);
+				$PurchaseOrderDetail = PurchaseOrderDetail::find($detail['purchase_order_detail_id']);
 				$ChargeOrderDetail = ChargeOrderDetail::where('product_type_id', "!=", 1)->find($PurchaseOrderDetail->charge_order_detail_id);
 				$index++;
 				if ($detail->row_status == 'I') {
@@ -264,7 +264,7 @@ class PurchaseReturnController extends Controller
 						'purchase_return_detail_id' => $detail_uuid,
 						'purchase_return_id'       => $purchaseReturnId,
 						'charge_order_detail_id'   => $ChargeOrderDetail->charge_order_detail_id,
-						'purchase_order_detail_id' => $detail->purchase_order_detail_id,
+						'purchase_order_detail_id' => $detail['purchase_order_detail_id'],
 						'sort_order'               => $index,
 						'product_id'               => $ChargeOrderDetail->product_id,
 						'product_name'             => $ChargeOrderDetail->product_name,
