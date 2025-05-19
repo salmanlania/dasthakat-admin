@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
 use App\Models\DocumentType;
+use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\purchaseReturn;
 use App\Models\purchaseReturnDetail;
+use App\Models\StockLedger;
+use App\Models\Warehouse;
 use Carbon\Carbon;
 
 class PurchaseReturnController extends Controller
@@ -168,6 +171,12 @@ class PurchaseReturnController extends Controller
 
 				$PurchaseOrderDetail = PurchaseOrderDetail::find($detail['purchase_order_detail_id']);
 				$chargeOrderDetail = ChargeOrderDetail::where('product_type_id', "!=", 1)->find($PurchaseOrderDetail->charge_order_detail_id);
+				if (!empty($chargeOrderDetail->product_id)) {
+					$Product = Product::with('unit')->find($chargeOrderDetail->product_id);
+				}
+				if (!empty($detail["warehouse_id"])) {
+					$Warehouse = Warehouse::find($detail["warehouse_id"]);
+				}
 
 				if (empty($chargeOrderDetail)) continue;
 
@@ -181,19 +190,52 @@ class PurchaseReturnController extends Controller
 					'charge_order_detail_id'   => $PurchaseOrderDetail->charge_order_detail_id,
 					'purchase_order_detail_id' => $detail['purchase_order_detail_id'],
 					'sort_order'               => $index++,
-					'product_id'               => $chargeOrderDetail->product_id,
-					'product_name'             => $chargeOrderDetail->product_name,
+					'product_id'               => $chargeOrderDetail->product_id ?? "",
+					'product_name'             => $chargeOrderDetail->product_name ?? "",
 					'product_description'      => $chargeOrderDetail->product_description,
 					'description'              => $chargeOrderDetail->description,
 					'unit_id'                  => $chargeOrderDetail->unit_id,
 					'vpart'                    => $PurchaseOrderDetail->vpart,
-					'quantity'                 => $detail->quantity,
+					'quantity'                 => $detail['quantity'],
+					'warehouse_id'             => $detail['warehouse_id'] ?? "",
 					'rate'                     => $chargeOrderDetail->rate,
 					'amount'                   => $amount,
 					'vendor_notes'             => $PurchaseOrderDetail->vendor_notes,
 					'created_at'               => Carbon::now(),
 					'created_by'               => $request->login_user_id,
 				]);
+
+				if ($chargeOrderDetail->product_type_id == 2 && !empty($detail["warehouse_id"]) && ($detail["quantity"] > 0)) {
+
+					$stockEntry = [
+						'sort_order' => $index,
+						'product_id' => $chargeOrderDetail->product_id,
+						'warehouse_id' => $detail["warehouse_id"] ?? "",
+						'unit_id' => $Product->unit_id ?? null,
+						'unit_name' =>  $Product->unit->name ?? null,
+						'quantity' => $detail["quantity"],
+						'rate' => $chargeOrderDetail->rate,
+						'amount' => $amount,
+						'remarks'      => sprintf(
+							"%d %s of %s (Code: %s) returned in %s warehouse under Purchase Return document %s. Original rate: %s. Total amount: %s.",
+							$detail["quantity"] ?? 0,
+							$Product->unit->name ?? '',
+							$Product->name ?? 'Unknown Product',
+							$Product->impa_code ?? 'N/A',
+							$Warehouse->name ?? 'Unknown Warehouse',
+							$PurchaseOrder->document_identity ?? 'N/A',
+							$chargeOrderDetail->rate ?? 'N/A',
+							$amount ?? '0.00'
+						),
+					];
+					StockLedger::handleStockMovement([
+						'sort_order' => $index,
+						'master_model' => new PurchaseReturn,
+						'document_id' => $uuid,
+						'document_detail_id' => $detail_uuid,
+						'row' => $stockEntry,
+					], 'I');
+				}
 			}
 
 			$data['total_quantity'] = $totalQuantity;

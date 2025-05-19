@@ -59,7 +59,7 @@ CREATE TABLE sale_return_detail (
     created_by CHAR(36) DEFAULT NULL,
     updated_by CHAR(36) DEFAULT NULL,
     created_at DATETIME DEFAULT NULL,
-    updated_at DATETIME DEFAULT NULL,
+    updated_at DATETIME DEFAULT NULL
 );
 
 
@@ -105,3 +105,5 @@ CREATE TABLE purchase_return_detail (
 );
 
 ALTER TABLE `sale_invoice` ADD COLUMN `vessel_billing_address` VARCHAR(255) AFTER `document_date`;
+
+ALTER TABLE `purchase_return_detail` ADD COLUMN `warehouse_id` CHAR(36) AFTER `unit_id`;

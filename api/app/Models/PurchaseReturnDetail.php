@@ -23,6 +23,7 @@ class PurchaseReturnDetail extends Model
         "product_name",
         "product_description",
         "description",
+        "warehouse_id",
         "unit_id",
         "vpart",
         "quantity",
