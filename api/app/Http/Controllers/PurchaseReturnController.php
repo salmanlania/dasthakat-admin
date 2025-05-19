@@ -234,7 +234,7 @@ class PurchaseReturnController extends Controller
 						'document_id' => $uuid,
 						'document_detail_id' => $detail_uuid,
 						'row' => $stockEntry,
-					], 'I');
+					], 'O');
 				}
 			}
 
