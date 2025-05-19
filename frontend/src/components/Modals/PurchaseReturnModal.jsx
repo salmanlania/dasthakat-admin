@@ -3,10 +3,11 @@ import { Modal, Table, Input, Button } from 'antd';
 import toast from 'react-hot-toast';
 import AsyncSelect from '../AsyncSelect';
 import { useSelector, useDispatch } from 'react-redux';
-import { returnSaleInvoice } from '../../store/features/saleReturnSlice'
+import { returnPurchaseOrder } from '../../store/features/purchaseReturnSlice'
 import useError from '../../hooks/useError';
 
-const ReturnModal = ({ visible, onClose, data }) => {
+const PurchaseReturnModal = ({ visible, onClose, data }) => {
+    console.log('data', data)
     const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
     const permissions = user.permission;
@@ -26,25 +27,26 @@ const ReturnModal = ({ visible, onClose, data }) => {
 
     const handleReturn = async () => {
         try {
-            const picklist_id = tableData[0]?.picklist_id || null;
+            const purchase_order_id = tableData[0]?.purchase_order_id || null;
 
-            const sale_return_detail = tableData.map((item, index) => {
+            const purchase_return_detail = tableData.map((item) => {
                 const detail = {
-                    picklist_detail_id: item.id,
+                    purchase_order_detail_id: item.id,
                     quantity: item.return_quantity,
-                    warehouse_id: item.warehouse_id?.value ? item.warehouse_id?.value : null
                 };
 
                 return detail;
             });
             const data = {
-                picklist_id,
-                sale_return_detail
+                purchase_order_id,
+                purchase_return_detail
             }
-            await dispatch(returnSaleInvoice(data)).unwrap();
-            toast.success('Sale Return created successfully');
+            console.log('dispatch' , data)
+            await dispatch(returnPurchaseOrder(data)).unwrap();
+            toast.success('Return created successfully');
             onClose();
         } catch (error) {
+            console.log('error new' , error)
             handleError(error)
         }
     };
@@ -106,45 +108,6 @@ const ReturnModal = ({ visible, onClose, data }) => {
                 );
             }
         },
-        {
-            title: 'Warehouse',
-            dataIndex: 'warehouse_id',
-            key: 'warehouse_id',
-            render: (_, { warehouse_id }, index) => {
-                return (
-                    <AsyncSelect
-                        endpoint="/warehouse"
-                        valueKey="warehouse_id"
-                        labelKey="name"
-                        labelInValue
-                        className="w-full"
-                        value={warehouse_id}
-                        onChange={(selected) => {
-                            //     dispatch(
-                            //         changePickListDetailValue({
-                            //             index,
-                            //             key: 'warehouse_id',
-                            //             value: selected
-                            //         })
-                            //     );
-                            setTableData((prev) => {
-                                const updated = [...prev];
-                                updated[index] = {
-                                    ...updated[index],
-                                    warehouse_id: selected
-                                };
-                                return updated;
-                            });
-                        }
-                        }
-                        addNewLink={
-                            permissions.warehouse.list && permissions.warehouse.add ? '/warehouse' : null
-                        }
-                    />
-                );
-            },
-            width: 200
-        },
     ];
 
     return (
@@ -173,4 +136,4 @@ const ReturnModal = ({ visible, onClose, data }) => {
     );
 };
 
-export default ReturnModal;
+export default PurchaseReturnModal;

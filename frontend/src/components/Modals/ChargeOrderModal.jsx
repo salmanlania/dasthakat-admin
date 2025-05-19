@@ -9,7 +9,7 @@ import useError from '../../hooks/useError';
 import { createChargeOrder, setChargeQuotationID } from '../../store/features/chargeOrderSlice';
 import {
   changeQuotationDetailValue,
-  getQuotation,
+  getQuotationModal,
   resetQuotationState
 } from '../../store/features/quotationSlice';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
@@ -204,9 +204,8 @@ const ChargeOrderModal = () => {
       toast.custom(
         (t) => (
           <div
-            className={`${
-              t.visible ? 'animate-enter' : 'animate-leave'
-            } pointer-events-auto flex w-full max-w-md rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5`}>
+            className={`${t.visible ? 'animate-enter' : 'animate-leave'
+              } pointer-events-auto flex w-full max-w-md rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5`}>
             <div className="w-0 flex-1 p-4">
               <div className="flex items-start">
                 <div className="flex-shrink-0 pt-0.5">
@@ -249,7 +248,7 @@ const ChargeOrderModal = () => {
 
   useEffect(() => {
     if (chargeQuotationID) {
-      dispatch(getQuotation(chargeQuotationID)).unwrap().catch(handleError);
+      dispatch(getQuotationModal(chargeQuotationID)).unwrap().catch(handleError);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chargeQuotationID]);
@@ -279,7 +278,7 @@ const ChargeOrderModal = () => {
         </Form.Item>
         <Table
           columns={columns}
-          dataSource={quotationDetails.filter((item) => item.available_quantity > 0)}
+          dataSource={quotationDetails}
           rowKey="id"
           pagination={false}
           size="small"

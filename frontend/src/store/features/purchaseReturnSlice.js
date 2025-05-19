@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import api from '../../axiosInstance';
 
-export const getPickListList = createAsyncThunk(
+export const getPurchaseReturnList = createAsyncThunk(
   'picklist/list',
   async (params, { rejectWithValue }) => {
     try {
@@ -27,36 +27,12 @@ export const getPickListListDetail = createAsyncThunk(
   }
 );
 
-export const getPickListListReceives = createAsyncThunk(
-  'picklist/getReceives',
-  async (id, { rejectWithValue }) => {
+export const returnPurchaseOrder = createAsyncThunk(
+  'picklist/detailPost',
+  async (data, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/picklist-received/${id}`);
+      const res = await api.post('/purchase-return', data);
       return res.data.data;
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
-  }
-);
-
-
-export const getPickListForPrint = createAsyncThunk(
-  'picklist/getById',
-  async (id, { rejectWithValue }) => {
-    try {
-      const res = await api.get(`/picklist/${id}`);
-      return res.data.data;
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
-  }
-);
-
-export const updatePickListListReceives = createAsyncThunk(
-  'picklist/updateReceives',
-  async ({ id, data }, { rejectWithValue }) => {
-    try {
-      const res = await api.put(`/picklist-received/${id}`, data);
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -86,7 +62,7 @@ const initialState = {
 };
 
 export const pickListSlice = createSlice({
-  name: 'pickList',
+  name: 'purchaseReturn',
   initialState,
   reducers: {
     setPickListListParams: (state, action) => {
@@ -105,10 +81,10 @@ export const pickListSlice = createSlice({
     }
   },
   extraReducers: ({ addCase }) => {
-    addCase(getPickListList.pending, (state) => {
+    addCase(getPurchaseReturnList.pending, (state) => {
       state.isListLoading = true;
     });
-    addCase(getPickListList.fulfilled, (state, action) => {
+    addCase(getPurchaseReturnList.fulfilled, (state, action) => {
       state.isListLoading = false;
       const { data, ...rest } = action.payload;
       state.list = data;
@@ -117,30 +93,8 @@ export const pickListSlice = createSlice({
         total_pages: rest.last_page
       };
     });
-    addCase(getPickListList.rejected, (state) => {
+    addCase(getPurchaseReturnList.rejected, (state) => {
       state.isListLoading = false;
-    });
-
-    addCase(getPickListListReceives.pending, (state) => {
-      state.isPickListReceivesLoading = true;
-    });
-    addCase(getPickListListReceives.fulfilled, (state, action) => {
-      state.isPickListReceivesLoading = false;
-      state.pickListReceives = action.payload;
-    });
-    addCase(getPickListListReceives.rejected, (state) => {
-      state.isPickListReceivesLoading = false;
-    });
-
-    addCase(updatePickListListReceives.pending, (state) => {
-      state.isPickListReceivesSaving = true;
-    });
-    addCase(updatePickListListReceives.fulfilled, (state, action) => {
-      state.isPickListReceivesSaving = false;
-      state.pickListReceives = null;
-    });
-    addCase(updatePickListListReceives.rejected, (state) => {
-      state.isPickListReceivesSaving = false;
     });
 
     addCase(getPickListListDetail.pending, (state) => {

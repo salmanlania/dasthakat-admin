@@ -27,6 +27,18 @@ export const getPickListListDetail = createAsyncThunk(
   }
 );
 
+export const returnSaleInvoice = createAsyncThunk(
+  'return/saleInvoice',
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await api.post('/sale-return', data);
+      return res.data.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const getPickListListReceives = createAsyncThunk(
   'picklist/getReceives',
   async (id, { rejectWithValue }) => {
@@ -86,7 +98,7 @@ const initialState = {
 };
 
 export const pickListSlice = createSlice({
-  name: 'pickList',
+  name: 'saleReturn',
   initialState,
   reducers: {
     setPickListListParams: (state, action) => {

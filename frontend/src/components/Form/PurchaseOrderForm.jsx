@@ -3,6 +3,7 @@ import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Select, T
 import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
 import { useState } from 'react';
+import ReturnModal from '../Modals/PurchaseReturnModal'
 import { BiPlus } from 'react-icons/bi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
@@ -39,6 +40,9 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
     (state) => state.purchaseOrder
   );
   const [submitAction, setSubmitAction] = useState(null);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [returnModalVisible, setReturnModalVisible] = useState(false);
 
   purchaseOrderDetails.forEach((item, index) => {
     form.setFieldsValue({
@@ -122,9 +126,9 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
       form.setFieldsValue({
         [`product_id-${index}`]: product?.product_id
           ? {
-              value: product.product_id,
-              label: product.product_name
-            }
+            value: product.product_id,
+            label: product.product_name
+          }
           : null,
         [`product_description-${index}`]: product?.product_name || ''
       });
@@ -154,9 +158,9 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
           key: 'product_type_id',
           value: product.product_type_id
             ? {
-                value: product.product_type_id,
-                label: product.product_type_name
-              }
+              value: product.product_type_id,
+              label: product.product_type_name
+            }
             : null
         })
       );
@@ -239,9 +243,9 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
           key: 'product_type_id',
           value: product.product_type_id
             ? {
-                value: product.product_type_id,
-                label: product.product_type_name
-              }
+              value: product.product_type_id,
+              label: product.product_type_name
+            }
             : null
         })
       );
@@ -744,233 +748,254 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
   ];
 
   return (
-    <Form
-      name="purchaseOrder"
-      layout="vertical"
-      autoComplete="off"
-      form={form}
-      onFinish={onFinish}
-      initialValues={
-        mode === 'edit'
-          ? initialFormValues
-          : {
+    <>
+      <Form
+        name="purchaseOrder"
+        layout="vertical"
+        autoComplete="off"
+        form={form}
+        onFinish={onFinish}
+        initialValues={
+          mode === 'edit'
+            ? initialFormValues
+            : {
               document_date: dayjs(),
               type: 'Inventory',
               ship_to: GMS_ADDRESS
             }
-      }
-      scrollToFirstError={{
-        behavior: 'smooth',
-        block: 'center',
-        scrollMode: 'always'
-      }}>
-      {/* Make this sticky */}
-      <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-base font-semibold">
-        <span className="text-gray-500">Purchase Order No:</span>
-        <span
-          className={`ml-4 text-amber-600 ${
-            mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
-          } rounded px-1`}
-          onClick={() => {
-            if (mode !== 'edit') return;
-            navigator.clipboard.writeText(initialFormValues?.document_identity);
-            toast.success('Copied');
-          }}>
-          {mode === 'edit' ? initialFormValues?.document_identity : 'AUTO'}
-        </span>
-      </p>
-      <Row gutter={12}>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item
-            name="document_date"
-            label="Purchase Order Date"
-            rules={[{ required: true, message: 'Purchase Order date is required' }]}
-            className="w-full">
-            <DatePicker format="MM-DD-YYYY" className="w-full" />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item
-            name="required_date"
-            label="Required Date"
-            rules={[{ required: true, message: 'Required date is required' }]}
-            className="w-full">
-            <DatePicker format="MM-DD-YYYY" className="w-full" />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="supplier_id" label="Vendor">
-            <AsyncSelect
-              endpoint="/supplier"
-              valueKey="supplier_id"
-              onChange={onVendorChange}
-              labelKey="name"
-              labelInValue
-              addNewLink={permissions.supplier.add ? '/vendor/create' : null}
-            />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item
-            name="type"
-            label="Purchase Order Type"
-            rules={[
-              {
-                required: true,
-                message: 'Purchase Order Type is required'
-              }
-            ]}>
-            <Select disabled options={purchaseOrderTypes} />
-          </Form.Item>
-        </Col>
-
-        {isBuyout ? (
-          <>
-            <Col span={24} sm={12} md={8} lg={8} className="flex gap-3">
-              <Form.Item name="charge_no" label="Charge No" className="w-full">
-                <Input disabled />
-              </Form.Item>
-
-              <Form.Item name="purchase_order_no" label="Purchase Order No" className="w-full">
-                <Input disabled />
-              </Form.Item>
-            </Col>
-
-            <Col span={24} sm={12} md={8} lg={8}>
-              <Form.Item name="event_id" label="Event">
-                <Select labelInValue disabled />
-              </Form.Item>
-            </Col>
-
-            <Col span={24} sm={12} md={8} lg={8}>
-              <Form.Item name="customer_id" label="Customer">
-                <Select labelInValue disabled />
-              </Form.Item>
-            </Col>
-          </>
-        ) : null}
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="payment_id" label="Payment Terms">
-            <AsyncSelect
-              endpoint="/payment"
-              valueKey="payment_id"
-              labelKey="name"
-              labelInValue
-              addNewLink={permissions.payment.list && permissions.payment.add ? '/payment' : null}
-            />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="ship_via" label="Ship Via">
-            <Select
-              options={[
-                {
-                  value: 'Courier',
-                  label: 'Courier'
-                },
-                {
-                  value: 'Pickup',
-                  label: 'Pickup'
-                },
-                {
-                  value: 'Delivery',
-                  label: 'Delivery'
-                }
-              ]}
-              allowClear
-            />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="buyer_id" label="Buyer">
-            <AsyncSelect
-              endpoint="/user"
-              valueKey="user_id"
-              labelKey="user_name"
-              labelInValue
-              addNewLink={permissions.user.add ? '/user/create' : null}
-            />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="ship_to" label="Ship To">
-            <Input.TextArea rows={1} />
-          </Form.Item>
-        </Col>
-
-        <Col span={24}>
-          <Form.Item name="remarks" label="Remarks">
-            <Input.TextArea rows={1} />
-          </Form.Item>
-        </Col>
-      </Row>
-
-      <Divider orientation="left" className="!border-gray-300">
-        Purchase Order Items
-      </Divider>
-
-      <Table
-        columns={columns}
-        dataSource={
-          mode === 'edit'
-            ? purchaseOrderDetails.filter((item) => !item.isDeleted)
-            : purchaseOrderDetails
         }
-        rowKey={'id'}
-        size="small"
-        scroll={{ x: 'calc(100% - 200px)' }}
-        pagination={false}
-        sticky={{
-          offsetHeader: 56
-        }}
-      />
+        scrollToFirstError={{
+          behavior: 'smooth',
+          block: 'center',
+          scrollMode: 'always'
+        }}>
+        {/* Make this sticky */}
+        <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-base font-semibold">
+          <span className="text-gray-500">Purchase Order No:</span>
+          <span
+            className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
+              } rounded px-1`}
+            onClick={() => {
+              if (mode !== 'edit') return;
+              navigator.clipboard.writeText(initialFormValues?.document_identity);
+              toast.success('Copied');
+            }}>
+            {mode === 'edit' ? initialFormValues?.document_identity : 'AUTO'}
+          </span>
+        </p>
+        <Row gutter={12}>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item
+              name="document_date"
+              label="Purchase Order Date"
+              rules={[{ required: true, message: 'Purchase Order date is required' }]}
+              className="w-full">
+              <DatePicker format="MM-DD-YYYY" className="w-full" />
+            </Form.Item>
+          </Col>
 
-      <div className="flex flex-wrap gap-4 rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
-        <DetailSummaryInfo title="Total Quantity:" value={totalQuantity} />
-        <DetailSummaryInfo title="Total Amount:" value={totalAmount} />
-      </div>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item
+              name="required_date"
+              label="Required Date"
+              rules={[{ required: true, message: 'Required date is required' }]}
+              className="w-full">
+              <DatePicker format="MM-DD-YYYY" className="w-full" />
+            </Form.Item>
+          </Col>
 
-      <div className="mt-4 flex items-center justify-end gap-2">
-        <Link to="/purchase-order">
-          <Button className="w-28">Exit</Button>
-        </Link>
-        {mode === 'edit' ? (
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="supplier_id" label="Vendor">
+              <AsyncSelect
+                endpoint="/supplier"
+                valueKey="supplier_id"
+                onChange={onVendorChange}
+                labelKey="name"
+                labelInValue
+                addNewLink={permissions.supplier.add ? '/vendor/create' : null}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item
+              name="type"
+              label="Purchase Order Type"
+              rules={[
+                {
+                  required: true,
+                  message: 'Purchase Order Type is required'
+                }
+              ]}>
+              <Select disabled options={purchaseOrderTypes} />
+            </Form.Item>
+          </Col>
+
+          {isBuyout ? (
+            <>
+              <Col span={24} sm={12} md={8} lg={8} className="flex gap-3">
+                <Form.Item name="charge_no" label="Charge No" className="w-full">
+                  <Input disabled />
+                </Form.Item>
+
+                <Form.Item name="purchase_order_no" label="Purchase Order No" className="w-full">
+                  <Input disabled />
+                </Form.Item>
+              </Col>
+
+              <Col span={24} sm={12} md={8} lg={8}>
+                <Form.Item name="event_id" label="Event">
+                  <Select labelInValue disabled />
+                </Form.Item>
+              </Col>
+
+              <Col span={24} sm={12} md={8} lg={8}>
+                <Form.Item name="customer_id" label="Customer">
+                  <Select labelInValue disabled />
+                </Form.Item>
+              </Col>
+            </>
+          ) : null}
+
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="payment_id" label="Payment Terms">
+              <AsyncSelect
+                endpoint="/payment"
+                valueKey="payment_id"
+                labelKey="name"
+                labelInValue
+                addNewLink={permissions.payment.list && permissions.payment.add ? '/payment' : null}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="ship_via" label="Ship Via">
+              <Select
+                options={[
+                  {
+                    value: 'Courier',
+                    label: 'Courier'
+                  },
+                  {
+                    value: 'Pickup',
+                    label: 'Pickup'
+                  },
+                  {
+                    value: 'Delivery',
+                    label: 'Delivery'
+                  }
+                ]}
+                allowClear
+              />
+            </Form.Item>
+          </Col>
+
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="buyer_id" label="Buyer">
+              <AsyncSelect
+                endpoint="/user"
+                valueKey="user_id"
+                labelKey="user_name"
+                labelInValue
+                addNewLink={permissions.user.add ? '/user/create' : null}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="ship_to" label="Ship To">
+              <Input.TextArea rows={1} />
+            </Form.Item>
+          </Col>
+
+          <Col span={24}>
+            <Form.Item name="remarks" label="Remarks">
+              <Input.TextArea rows={1} />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Divider orientation="left" className="!border-gray-300">
+          Purchase Order Items
+        </Divider>
+
+        <Table
+          columns={columns}
+          dataSource={
+            mode === 'edit'
+              ? purchaseOrderDetails.filter((item) => !item.isDeleted)
+              : purchaseOrderDetails
+          }
+          rowKey={'id'}
+          size="small"
+          scroll={{ x: 'calc(100% - 200px)' }}
+          pagination={false}
+          sticky={{
+            offsetHeader: 56
+          }}
+          rowSelection={{
+            selectedRowKeys,
+            onChange: (newSelectedRowKeys, newSelectedRows) => {
+              setSelectedRowKeys(newSelectedRowKeys);
+              setSelectedRows(newSelectedRows);
+            }
+          }}
+        />
+
+        <div className="flex flex-wrap gap-4 rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
+          <DetailSummaryInfo title="Total Quantity:" value={totalQuantity} />
+          <DetailSummaryInfo title="Total Amount:" value={totalAmount} />
+        </div>
+
+        <div className="mt-4 flex items-center justify-end gap-2">
+          <Link to="/purchase-order">
+            <Button className="w-28">Exit</Button>
+          </Link>
+          {mode === 'edit' ? (
+            <Button
+              type="primary"
+              className="w-28 bg-rose-600 hover:!bg-rose-500"
+              onClick={printPurchaseOrder}>
+              Print
+            </Button>
+          ) : null}
           <Button
             type="primary"
-            className="w-28 bg-rose-600 hover:!bg-rose-500"
-            onClick={printPurchaseOrder}>
-            Print
+            className="w-28"
+            loading={isFormSubmitting && submitAction === 'save'}
+            onClick={() => {
+              setSubmitAction('save');
+              form.submit();
+            }}>
+            Save
           </Button>
-        ) : null}
-        <Button
-          type="primary"
-          className="w-28"
-          loading={isFormSubmitting && submitAction === 'save'}
-          onClick={() => {
-            setSubmitAction('save');
-            form.submit();
-          }}>
-          Save
-        </Button>
-        <Button
-          type="primary"
-          className="w-28 bg-green-600 hover:!bg-green-500"
-          loading={isFormSubmitting && submitAction === 'saveAndExit'}
-          onClick={() => {
-            setSubmitAction('saveAndExit');
-            form.submit();
-          }}>
-          Save & Exit
-        </Button>
-      </div>
-    </Form>
+          <Button
+            type="primary"
+            className="w-28 bg-green-600 hover:!bg-green-500"
+            loading={isFormSubmitting && submitAction === 'saveAndExit'}
+            onClick={() => {
+              setSubmitAction('saveAndExit');
+              form.submit();
+            }}>
+            Save & Exit
+          </Button>
+          <Button
+            className="w-28 bg-amber-500 text-white hover:!bg-amber-400"
+            type="primary"
+            disabled={selectedRows.length === 0}
+            onClick={() => setReturnModalVisible(true)}
+          >
+            Return
+          </Button>
+        </div>
+      </Form>
+      <ReturnModal
+        visible={returnModalVisible}
+        onClose={() => setReturnModalVisible(false)}
+        data={selectedRows}
+      />
+    </>
   );
 };
 

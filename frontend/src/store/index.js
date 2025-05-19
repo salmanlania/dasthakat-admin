@@ -40,6 +40,8 @@ import vesselReducer from './features/vesselSlice';
 import warehouseReducer from './features/warehouseSlice';
 import auditReducer from './features/auditSlice';
 import CompanySettingReducer from './features/companySetting';
+import SaleReturnReducer from './features/saleReturnSlice';
+import PurchaseReturnReducer from './features/purchaseReturnSlice';
 
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
@@ -75,6 +77,8 @@ const rootReducer = combineReducers({
   purchaseOrder: purchaseOrderReducer,
   purchaseInvoice: purchaseInvoiceReducer,
   saleInvoice: saleInvoiceReducer,
+  SaleReturn: SaleReturnReducer,
+  PurchaseReturn: PurchaseReturnReducer,
   goodsReceivedNote: goodsReceivedNoteReducer,
   quotation: quotationReducer,
   chargeOrder: chargeOrderReducer,

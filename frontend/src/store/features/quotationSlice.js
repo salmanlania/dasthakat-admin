@@ -49,6 +49,23 @@ export const getQuotation = createAsyncThunk('quotation/get', async (id, { rejec
   }
 });
 
+export const getQuotationModal = createAsyncThunk(
+  'quotation/getModal',
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/quotation/${id}`, {
+        params: {
+          hasAvailableQty: true,
+        },
+      });
+      return res.data.data;
+    } catch (err) {
+      // Use return rejectWithValue, not throw
+      return rejectWithValue(err);
+    }
+  }
+);
+
 export const getQuotationForPrint = createAsyncThunk(
   'quotationForPrint/get',
   async (id, { rejectWithValue }) => {
@@ -142,7 +159,7 @@ export const quotationSlice = createSlice({
         rate: null,
         amount: null,
         row_status: 'I',
-        markup : 0
+        markup: 0
       };
 
       // If index is provided, insert the new detail after that index, otherwise push it to the end
@@ -318,63 +335,63 @@ export const quotationSlice = createSlice({
         internal_notes: data.internal_notes,
         salesman_id: data.salesman
           ? {
-              value: data.salesman.salesman_id,
-              label: data.salesman.name
-            }
+            value: data.salesman.salesman_id,
+            label: data.salesman.name
+          }
           : null,
         event_id: data.event
           ? {
-              value: data.event.event_id,
-              label: data.event.event_name
-            }
+            value: data.event.event_id,
+            label: data.event.event_name
+          }
           : null,
         vessel_id: data.vessel
           ? {
-              value: data.vessel.vessel_id,
-              label: data.vessel.name
-            }
+            value: data.vessel.vessel_id,
+            label: data.vessel.name
+          }
           : null,
         customer_id: data.customer
           ? {
-              value: data.customer.customer_id,
-              label: data.customer.name
-            }
+            value: data.customer.customer_id,
+            label: data.customer.name
+          }
           : null,
         class1_id: data.class1
           ? {
-              value: data.class1.class_id,
-              label: data.class1.name
-            }
+            value: data.class1.class_id,
+            label: data.class1.name
+          }
           : null,
         class2_id: data.class2
           ? {
-              value: data.class2.class_id,
-              label: data.class2.name
-            }
+            value: data.class2.class_id,
+            label: data.class2.name
+          }
           : null,
         flag_id: data.flag
           ? {
-              value: data.flag.flag_id,
-              label: data.flag.name
-            }
+            value: data.flag.flag_id,
+            label: data.flag.name
+          }
           : null,
         person_incharge_id: data.person_incharge
           ? {
-              value: data.person_incharge.user_id,
-              label: data.person_incharge.user_name
-            }
+            value: data.person_incharge.user_id,
+            label: data.person_incharge.user_name
+          }
           : null,
         validity_id: data.validity
           ? {
-              value: data.validity.validity_id,
-              label: data.validity.name
-            }
+            value: data.validity.validity_id,
+            label: data.validity.name
+          }
           : null,
         payment_id: data.payment
           ? {
-              value: data.payment.payment_id,
-              label: data.payment.name
-            }
+            value: data.payment.payment_id,
+            label: data.payment.name
+          }
           : null,
         customer_ref: data.customer_ref,
         due_date: data.due_date,
@@ -384,15 +401,15 @@ export const quotationSlice = createSlice({
         remarks: data.remarks,
         port_id: data.port
           ? {
-              value: data.port.port_id,
-              label: data.port.name
-            }
+            value: data.port.port_id,
+            label: data.port.name
+          }
           : null,
         port: data.port
           ? {
-              value: data.port.port_id,
-              label: data.port.name
-            }
+            value: data.port.port_id,
+            label: data.port.name
+          }
           : null,
         term_id: data.term_id || null,
         term_desc: data.term_desc,
@@ -408,9 +425,9 @@ export const quotationSlice = createSlice({
           : null,
         product_type_id: detail.product_type
           ? {
-              value: detail.product_type.product_type_id,
-              label: detail.product_type.name
-            }
+            value: detail.product_type.product_type_id,
+            label: detail.product_type.name
+          }
           : null,
         product_name: detail.product_name ? detail.product_name : detail?.product?.product_name || null,
         product_description: detail.product_description,
@@ -441,6 +458,151 @@ export const quotationSlice = createSlice({
       state.salesmanPercentage = data?.salesman_percent ? data?.salesman_percent : 0;
     });
     addCase(getQuotation.rejected, (state) => {
+      state.isItemLoading = false;
+      state.initialFormValues = null;
+      state.rebatePercentage = null;
+      state.salesmanPercentage = null;
+    });
+
+    addCase(getQuotationModal.pending, (state) => {
+      state.isItemLoading = true;
+    });
+    addCase(getQuotationModal.fulfilled, (state, action) => {
+      state.isItemLoading = false;
+      const data = action.payload;
+      console.log('data' , data.quotation_detail)
+      state.initialFormValues = {
+        document_identity: data.document_identity,
+        document_type_id: data.document_type_id,
+        document_date: data.document_date ? dayjs(data.document_date) : null,
+        service_date: data.service_date,
+        imo: data.vessel ? data.vessel.imo : null,
+        internal_notes: data.internal_notes,
+        salesman_id: data.salesman
+          ? {
+            value: data.salesman.salesman_id,
+            label: data.salesman.name
+          }
+          : null,
+        event_id: data.event
+          ? {
+            value: data.event.event_id,
+            label: data.event.event_name
+          }
+          : null,
+        vessel_id: data.vessel
+          ? {
+            value: data.vessel.vessel_id,
+            label: data.vessel.name
+          }
+          : null,
+        customer_id: data.customer
+          ? {
+            value: data.customer.customer_id,
+            label: data.customer.name
+          }
+          : null,
+        class1_id: data.class1
+          ? {
+            value: data.class1.class_id,
+            label: data.class1.name
+          }
+          : null,
+        class2_id: data.class2
+          ? {
+            value: data.class2.class_id,
+            label: data.class2.name
+          }
+          : null,
+        flag_id: data.flag
+          ? {
+            value: data.flag.flag_id,
+            label: data.flag.name
+          }
+          : null,
+        person_incharge_id: data.person_incharge
+          ? {
+            value: data.person_incharge.user_id,
+            label: data.person_incharge.user_name
+          }
+          : null,
+        validity_id: data.validity
+          ? {
+            value: data.validity.validity_id,
+            label: data.validity.name
+          }
+          : null,
+        payment_id: data.payment
+          ? {
+            value: data.payment.payment_id,
+            label: data.payment.name
+          }
+          : null,
+        customer_ref: data.customer_ref,
+        due_date: data.due_date,
+        attn: data.attn,
+        delivery: data.delivery,
+        inclosure: data.inclosure,
+        remarks: data.remarks,
+        port_id: data.port
+          ? {
+            value: data.port.port_id,
+            label: data.port.name
+          }
+          : null,
+        port: data.port
+          ? {
+            value: data.port.port_id,
+            label: data.port.name
+          }
+          : null,
+        term_id: data.term_id || null,
+        term_desc: data.term_desc,
+        status: data.status
+      };
+
+      if (!data.quotation_detail) return;
+      state.quotationDetails = data.quotation_detail.map((detail) => ({
+        id: detail.quotation_detail_id,
+        product_code: detail.product ? detail.product.product_code : null,
+        product_id: detail.product
+          ? { value: detail.product.product_id, label: detail.product.product_name }
+          : null,
+        product_type_id: detail.product_type
+          ? {
+            value: detail.product_type.product_type_id,
+            label: detail.product_type.name
+          }
+          : null,
+        product_name: detail.product_name ? detail.product_name : detail?.product?.product_name || null,
+        product_description: detail.product_description,
+        description: detail.description,
+        stock_quantity: detail?.product?.stock?.quantity
+          ? parseFloat(detail.product.stock.quantity)
+          : 0,
+        quantity: detail.quantity ? detail.quantity : null,
+        available_quantity: detail.available_quantity ? detail.available_quantity : null,
+        unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
+        supplier_id: detail.supplier
+          ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
+          : null,
+        vendor_part_no: detail.vendor_part_no,
+        internal_notes: detail.internal_notes,
+        cost_price: detail?.product_type?.product_type_id === 4 ? detail.cost_price : +detail.cost_price || +detail.rate,
+        markup: detail.markup,
+        rate: detail.rate,
+        amount: detail.amount,
+        discount_percent: detail.discount_percent,
+        discount_amount: detail.discount_amount,
+        gross_amount: detail.gross_amount,
+        row_status: 'U',
+        isDeleted: false
+      }));
+
+      state.rebatePercentage = data?.rebate_percent ? data?.rebate_percent : 0;
+      state.salesmanPercentage = data?.salesman_percent ? data?.salesman_percent : 0;
+    });
+    addCase(getQuotationModal.rejected, (state) => {
       state.isItemLoading = false;
       state.initialFormValues = null;
       state.rebatePercentage = null;
