@@ -178,8 +178,8 @@ class PurchaseReturnController extends Controller
 				}
 
 	
-				$amount = $PurchaseOrderDetail->rate * $detail->quantity;
-				$totalQuantity += $detail->quantity;
+				$amount = $PurchaseOrderDetail->rate * $detail['quantity'];
+				$totalQuantity += $detail['quantity'];
 				$totalAmount += $amount;
 				$detail_uuid = $this->get_uuid();
 				PurchaseReturnDetail::create([
@@ -302,8 +302,8 @@ class PurchaseReturnController extends Controller
 
 					if (empty($ChargeOrderDetail)) continue;
 
-					$amount = $ChargeOrderDetail->rate * $detail->quantity;
-					$totalQuantity += $detail->quantity;
+					$amount = $ChargeOrderDetail->rate * $detail['quantity'];
+					$totalQuantity += $detail['quantity'];
 					$totalAmount += $amount;
 
 					$detail_uuid = $this->get_uuid();
@@ -318,7 +318,7 @@ class PurchaseReturnController extends Controller
 						'product_description'      => $ChargeOrderDetail->product_description,
 						'description'              => $ChargeOrderDetail->description,
 						'unit_id'                  => $ChargeOrderDetail->unit_id,
-						'quantity'                 => $detail->quantity,
+						'quantity'                 => $detail['quantity'],
 						'rate'                     => $ChargeOrderDetail->rate,
 						'amount'                   => $amount,
 						'created_at'               => Carbon::now(),
@@ -364,7 +364,7 @@ class PurchaseReturnController extends Controller
 						'product_description' => $detail->product_description ?? "",
 						'description' => $detail->description ?? "",
 						'unit_id' => $detail->unit_id ?? "",
-						'quantity' => $detail->quantity ?? "",
+						'quantity' => $detail['quantity'] ?? "",
 						'rate' => $detail->rate ?? "",
 						'amount' => $detail->amount ?? "",
 						'updated_at' => Carbon::now(),
