@@ -332,6 +332,14 @@ $router->group(['prefix' => 'sale-return'], function ($router) {
    $router->delete('/{id}', 'SaleReturnController@delete');
    $router->post('/bulk-delete', 'SaleReturnController@bulkDelete');
 });
+$router->group(['prefix' => 'purchase-return'], function ($router) {
+   $router->get('/', 'PurchaseReturnController@index');
+   $router->get('/{id}', 'PurchaseReturnController@show');
+   $router->post('/', 'PurchaseReturnController@store');
+   $router->put('/{id}', 'PurchaseReturnController@update');
+   $router->delete('/{id}', 'PurchaseReturnController@delete');
+   $router->post('/bulk-delete', 'PurchaseReturnController@bulkDelete');
+});
 
 // pick list routes
 $router->group(['prefix' => 'picklist'], function ($router) {
