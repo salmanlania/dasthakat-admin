@@ -282,7 +282,7 @@ class GRNController extends Controller
 				if ($value['row_status'] == 'U') {
 
 					$update = [
-		
+
 						'sort_order' => $value['sort_order'] ?? 0,
 						'purchase_order_detail_id' => $value['purchase_order_detail_id'] ?? "",
 						'product_type_id' => $value['product_type_id'] ?? "",
@@ -308,7 +308,7 @@ class GRNController extends Controller
 						StockLedger::handleStockMovement([
 							'master_model' => new GRN,
 							'document_id' => $id,
-							'document_detail_id' =>$value['good_received_note_detail_id'],
+							'document_detail_id' => $value['good_received_note_detail_id'],
 							'row' => $value,
 						], 'I');
 					}
@@ -332,20 +332,7 @@ class GRNController extends Controller
 		if (!$data) return $this->jsonResponse(['good_received_note_id' => $id], 404, "Good Received Note Not Found!");
 
 
-		// $validate = [
-		// 	'main' => [
-		// 		'check' => new GRN,
-		// 		'id' => $id,
-		// 	],
-		// 	'with' => [
-		// 		['model' => new PurchaseInvoice],
-		// 	]
-		// ];
-
-		// $response = $this->checkAndDelete($validate);
-		// if ($response['error']) {
-		// 	return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
-		// }
+		if (PurchaseInvoice::where('purchase_order_id', $data->purchase_order_id)->exists()) return $this->jsonResponse(['good_received_note_id' => $id], 400, "Cannot delete good received note, already used in purchase invoice!");
 
 		$data->delete();
 		GRNDetail::where('good_received_note_id', $id)->delete();
@@ -362,22 +349,7 @@ class GRNController extends Controller
 				foreach ($request->good_received_note_ids as $good_received_note_id) {
 					$data = GRN::where(['good_received_note_id' => $good_received_note_id])->first();
 
-
-					// $validate = [
-					// 	'main' => [
-					// 		'check' => new GRN,
-					// 		'id' => $good_received_note_id,
-					// 	],
-					// 	'with' => [
-					// 		['model' => new PurchaseInvoice],
-					// 	]
-					// ];
-
-					// $response = $this->checkAndDelete($validate);
-					// if ($response['error']) {
-					// 	return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
-					// }
-
+					if (PurchaseInvoice::where('purchase_order_id', $data->purchase_order_id)->exists()) return $this->jsonResponse(['good_received_note_id' => $good_received_note_id], 400, "Cannot delete good received note, already used in purchase invoice!");
 
 					$data->delete();
 					GRNDetail::where('good_received_note_id', $good_received_note_id)->delete();

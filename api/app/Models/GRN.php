@@ -54,9 +54,9 @@ class GRN extends Model
         //     return $this->hasOne(PurchaseOrder::class, 'purchase_order_id','purchase_order_id')->select('*');
 
         return $this->hasOne(PurchaseOrder::class, 'purchase_order_id', 'purchase_order_id')
-            ->join('charge_order as c', 'c.charge_order_id', '=', 'purchase_order.charge_order_id')
-            ->join('event as e', 'e.event_id', '=', 'c.event_id')
-            ->join('vessel as v', 'v.vessel_id', '=', 'c.vessel_id')
+            ->leftJoin('charge_order as c', 'c.charge_order_id', '=', 'purchase_order.charge_order_id')
+            ->leftJoin('event as e', 'e.event_id', '=', 'c.event_id')
+            ->leftJoin('vessel as v', 'v.vessel_id', '=', 'c.vessel_id')
             ->select(
                 'purchase_order.*',
                 DB::raw("CONCAT(purchase_order.document_identity , ' - ', e.event_code, ' (', v.name, ')') as purchase_order_no"),

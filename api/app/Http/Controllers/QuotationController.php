@@ -133,6 +133,16 @@ class QuotationController extends Controller
 			}
 		}
 		$data['term_id'] = $terms;
+
+		if (isset($request->hasAvailableQty) && $request->hasAvailableQty == true) {
+			$quotationDetails = $data->quotation_detail->toArray();
+			$filteredDetails = array_filter($quotationDetails, function ($detail) {
+				return ($detail['available_quantity'] ?? 0) > 0;
+			});
+			unset(	$data->quotation_detail);
+			$data->quotation_detail = collect($filteredDetails);
+		}
+
 		return $this->jsonResponse($data, 200, "Quotation Data");
 	}
 
