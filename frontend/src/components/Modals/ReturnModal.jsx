@@ -3,11 +3,11 @@ import { Modal, Table, Input, Button } from 'antd';
 import toast from 'react-hot-toast';
 import AsyncSelect from '../AsyncSelect';
 import { useSelector, useDispatch } from 'react-redux';
-import {postPickListDetail } from '../../store/features/pickListSlice'
+import { postPickListDetail } from '../../store/features/pickListSlice'
 import useError from '../../hooks/useError';
 
 const ReturnModal = ({ visible, onClose, data }) => {
-    console.log('data' , data)
+    console.log('data', data)
     const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
     const permissions = user.permission;
@@ -27,12 +27,24 @@ const ReturnModal = ({ visible, onClose, data }) => {
 
     const handleReturn = async () => {
         try {
-            const picklist_id = tableData[0]?.pickListDetailID || null;
-            const sale_return_detail = tableData.map(item => ({
-                picklist_detail_id: item.id,
-                quantity: item.return_quantity,
-                warehouse_id: item.warehouse_id?.value ? item.warehouse_id?.value : null
-            }));
+            const picklist_id = tableData[0]?.picklist_id || null;
+
+            // const sale_return_detail = tableData.map(item => ({
+            //     picklist_detail_id: item.id,
+            //     quantity: item.return_quantity,
+            //     warehouse_id: item.warehouse_id?.value ? item.warehouse_id?.value : null
+            // }));
+            const sale_return_detail = tableData.map((item, index) => {
+                const detail = {
+                    picklist_detail_id: item.id,
+                    quantity: item.return_quantity,
+                    warehouse_id: item.warehouse_id?.value ? item.warehouse_id?.value : null
+                };
+
+                console.log(`Mapped item ${index + 1}:`, detail);
+
+                return detail;
+            });
             const data = {
                 picklist_id,
                 sale_return_detail
@@ -41,7 +53,7 @@ const ReturnModal = ({ visible, onClose, data }) => {
             toast.success('Return created successfully');
             onClose();
         } catch (error) {
-            console.log('error' , error)
+            console.log('error', error)
             handleError(error)
         }
     };
@@ -117,13 +129,13 @@ const ReturnModal = ({ visible, onClose, data }) => {
                         className="w-full"
                         value={warehouse_id}
                         onChange={(selected) => {
-                        //     dispatch(
-                        //         changePickListDetailValue({
-                        //             index,
-                        //             key: 'warehouse_id',
-                        //             value: selected
-                        //         })
-                        //     );
+                            //     dispatch(
+                            //         changePickListDetailValue({
+                            //             index,
+                            //             key: 'warehouse_id',
+                            //             value: selected
+                            //         })
+                            //     );
                             setTableData((prev) => {
                                 const updated = [...prev];
                                 updated[index] = {

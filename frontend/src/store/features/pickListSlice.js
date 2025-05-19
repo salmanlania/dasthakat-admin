@@ -31,7 +31,7 @@ export const postPickListDetail = createAsyncThunk(
   'picklist/detailPost',
   async (data, { rejectWithValue }) => {
     try {
-      const res = await api.post('/picklist', data);
+      const res = await api.post('/sale-return', data);
       return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);
@@ -176,6 +176,8 @@ export const pickListSlice = createSlice({
       }
 
       state.pickListDetail = data.picklist_detail.map((detail) => ({
+        id: detail?.picklist_detail_id,
+        picklist_id: detail?.picklist_id,
         sr: detail?.sort_order + 1,
         product_type: detail?.product?.product_type?.name,
         product_name: detail?.product?.name,
