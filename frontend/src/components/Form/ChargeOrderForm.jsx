@@ -1225,7 +1225,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
               <DatePicker format="MM-DD-YYYY" className="w-full" />
             </Form.Item>
           </Col>
-          <Col span={24} sm={12} md={5} lg={5}>
+          <Col span={24} sm={12} md={6} lg={6}>
             <Form.Item name="customer_po_no" label="Customer PO No">
               <Input />
             </Form.Item>
