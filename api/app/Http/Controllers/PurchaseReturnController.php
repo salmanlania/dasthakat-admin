@@ -131,7 +131,7 @@ class PurchaseReturnController extends Controller
 			return $this->jsonResponse($validationError, 400, "Request Failed!");
 		}
 
-		$PurchaseOrder = PurchaseOrder::find($request->PurchaseOrder_id);
+		$PurchaseOrder = PurchaseOrder::find($request->purchase_order_id);
 		if (!$PurchaseOrder) {
 			return $this->jsonResponse('Purchase Order not found.', 404);
 		}
