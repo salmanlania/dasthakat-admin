@@ -140,7 +140,7 @@ class QuotationController extends Controller
 				return ($detail['available_quantity'] ?? 0) > 0;
 			});
 			unset(	$data->quotation_detail);
-			$data->quotation_detail = collect($filteredDetails);
+			$data->quotation_detail = $filteredDetails;
 		}
 
 		return $this->jsonResponse($data, 200, "Quotation Data");
