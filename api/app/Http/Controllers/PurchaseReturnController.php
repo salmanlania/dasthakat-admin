@@ -139,10 +139,10 @@ class PurchaseReturnController extends Controller
 			return $this->jsonResponse('Purchase Order not found.', 404);
 		}
 
-		$chargeOrder = ChargeOrder::with('charge_order_detail')->find($PurchaseOrder->charge_order_id);
-		if (!$chargeOrder) {
-			return $this->jsonResponse('Charge Order not found.', 404);
-		}
+		// $chargeOrder = ChargeOrder::with('charge_order_detail')->find($PurchaseOrder->charge_order_id);
+		// if (!$chargeOrder) {
+		// 	return $this->jsonResponse('Charge Order not found.', 404);
+		// }
 
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument($this->document_type_id, $request);
@@ -156,7 +156,7 @@ class PurchaseReturnController extends Controller
 			'document_prefix'   => $document['document_prefix'] ?? "",
 			'document_identity' => $document['document_identity'] ?? "",
 			'document_date'     => $request->document_date ?? Carbon::now(),
-			'charge_order_id'   => $PurchaseOrder->charge_order_id,
+			'charge_order_id'   => $PurchaseOrder->charge_order_id ?? "",
 			'purchase_order_id' => $request->purchase_order_id,
 			'created_at'        => Carbon::now(),
 			'created_by'        => $request->login_user_id,
@@ -170,51 +170,49 @@ class PurchaseReturnController extends Controller
 			foreach ($request->purchase_return_detail as $detail) {
 
 				$PurchaseOrderDetail = PurchaseOrderDetail::find($detail['purchase_order_detail_id']);
-				$chargeOrderDetail = ChargeOrderDetail::where('product_type_id', "!=", 1)->find($PurchaseOrderDetail->charge_order_detail_id);
-				if (!empty($chargeOrderDetail->product_id)) {
-					$Product = Product::with('unit')->find($chargeOrderDetail->product_id);
+				if (!empty($PurchaseOrderDetail->product_id)) {
+					$Product = Product::with('unit')->find($PurchaseOrderDetail->product_id);
 				}
 				if (!empty($detail["warehouse_id"])) {
 					$Warehouse = Warehouse::find($detail["warehouse_id"]);
 				}
 
-				if (empty($chargeOrderDetail)) continue;
-
-				$amount = $chargeOrderDetail->rate * $detail->quantity;
+	
+				$amount = $PurchaseOrderDetail->rate * $detail->quantity;
 				$totalQuantity += $detail->quantity;
 				$totalAmount += $amount;
 				$detail_uuid = $this->get_uuid();
 				PurchaseReturnDetail::create([
 					'purchase_return_detail_id' => $detail_uuid,
 					'purchase_return_id'       => $uuid,
-					'charge_order_detail_id'   => $PurchaseOrderDetail->charge_order_detail_id,
+					'charge_order_detail_id'   => $PurchaseOrderDetail->charge_order_detail_id ?? "",
 					'purchase_order_detail_id' => $detail['purchase_order_detail_id'],
 					'sort_order'               => $index++,
-					'product_id'               => $chargeOrderDetail->product_id ?? "",
-					'product_name'             => $chargeOrderDetail->product_name ?? "",
-					'product_description'      => $chargeOrderDetail->product_description,
-					'description'              => $chargeOrderDetail->description,
-					'unit_id'                  => $chargeOrderDetail->unit_id,
+					'product_id'               => $PurchaseOrderDetail->product_id ?? "",
+					'product_name'             => $PurchaseOrderDetail->product_name ?? "",
+					'product_description'      => $PurchaseOrderDetail->product_description,
+					'description'              => $PurchaseOrderDetail->description,
+					'unit_id'                  => $PurchaseOrderDetail->unit_id,
 					'vpart'                    => $PurchaseOrderDetail->vpart,
 					'quantity'                 => $detail['quantity'],
 					'warehouse_id'             => $detail['warehouse_id'] ?? "",
-					'rate'                     => $chargeOrderDetail->rate,
+					'rate'                     => $PurchaseOrderDetail->rate,
 					'amount'                   => $amount,
 					'vendor_notes'             => $PurchaseOrderDetail->vendor_notes,
 					'created_at'               => Carbon::now(),
 					'created_by'               => $request->login_user_id,
 				]);
 
-				if ($chargeOrderDetail->product_type_id == 2 && !empty($detail["warehouse_id"]) && ($detail["quantity"] > 0)) {
+				if ($PurchaseOrderDetail->product_type_id == 2 && !empty($detail["warehouse_id"]) && ($detail["quantity"] > 0)) {
 
 					$stockEntry = [
 						'sort_order' => $index,
-						'product_id' => $chargeOrderDetail->product_id,
+						'product_id' => $PurchaseOrderDetail->product_id,
 						'warehouse_id' => $detail["warehouse_id"] ?? "",
 						'unit_id' => $Product->unit_id ?? null,
 						'unit_name' =>  $Product->unit->name ?? null,
 						'quantity' => $detail["quantity"],
-						'rate' => $chargeOrderDetail->rate,
+						'rate' => $PurchaseOrderDetail->rate,
 						'amount' => $amount,
 						'remarks'      => sprintf(
 							"%d %s of %s (Code: %s) returned in %s warehouse under Purchase Return document %s. Original rate: %s. Total amount: %s.",
@@ -409,7 +407,6 @@ class PurchaseReturnController extends Controller
 				if ($detail->row_status == 'D') {
 					purchaseReturnDetail::where('purchase_return_detail_id', $detail->purchase_return_detail_id)->delete();
 					StockLedger::where('document_detail_id', $detail->purchase_return_detail_id)->delete();
-				
 				}
 			}
 
