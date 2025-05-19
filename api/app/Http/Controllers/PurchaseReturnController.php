@@ -292,6 +292,13 @@ class PurchaseReturnController extends Controller
 			foreach ($request->purchase_return_detail as $detail) {
 				$PurchaseOrderDetail = PurchaseOrderDetail::find($detail['purchase_order_detail_id']);
 				$ChargeOrderDetail = ChargeOrderDetail::where('product_type_id', "!=", 1)->find($PurchaseOrderDetail->charge_order_detail_id);
+				if (!empty($ChargeOrderDetail->product_id)) {
+					$Product = Product::with('unit')->find($ChargeOrderDetail->product_id);
+				}
+				if (!empty($detail["warehouse_id"])) {
+					$Warehouse = Warehouse::find($detail["warehouse_id"]);
+				}
+
 				$index++;
 				if ($detail->row_status == 'I') {
 
@@ -319,6 +326,37 @@ class PurchaseReturnController extends Controller
 						'created_at'               => Carbon::now(),
 						'created_by'               => $request->login_user_id,
 					]);
+					if ($ChargeOrderDetail->product_type_id == 2 && !empty($detail["warehouse_id"]) && ($detail["quantity"] > 0)) {
+
+						$stockEntry = [
+							'sort_order' => $index,
+							'product_id' => $ChargeOrderDetail->product_id,
+							'warehouse_id' => $detail["warehouse_id"] ?? "",
+							'unit_id' => $Product->unit_id ?? null,
+							'unit_name' =>  $Product->unit->name ?? null,
+							'quantity' => $detail["quantity"],
+							'rate' => $ChargeOrderDetail->rate,
+							'amount' => $amount,
+							'remarks'      => sprintf(
+								"%d %s of %s (Code: %s) returned in %s warehouse under Purchase Return document %s. Original rate: %s. Total amount: %s.",
+								$detail["quantity"] ?? 0,
+								$Product->unit->name ?? '',
+								$Product->name ?? 'Unknown Product',
+								$Product->impa_code ?? 'N/A',
+								$Warehouse->name ?? 'Unknown Warehouse',
+								$PurchaseOrder->document_identity ?? 'N/A',
+								$chargeOrderDetail->rate ?? 'N/A',
+								$amount ?? '0.00'
+							),
+						];
+						StockLedger::handleStockMovement([
+							'sort_order' => $index,
+							'master_model' => new PurchaseReturn,
+							'document_id' => $purchaseReturnId,
+							'document_detail_id' => $detail_uuid,
+							'row' => $stockEntry,
+						], 'O');
+					}
 				}
 				if ($detail->row_status == 'U') {
 					$row = [
@@ -335,9 +373,43 @@ class PurchaseReturnController extends Controller
 						'updated_by' => $request->login_user_id,
 					];
 					purchaseReturnDetail::where('purchase_return_detail_id', $detail->purchase_return_detail_id)->update($row);
+					StockLedger::where('document_detail_id', $detail->purchase_return_detail_id)->delete();
+					if ($ChargeOrderDetail->product_type_id == 2 && !empty($detail["warehouse_id"]) && ($detail["quantity"] > 0)) {
+
+						$stockEntry = [
+							'sort_order' => $index,
+							'product_id' => $ChargeOrderDetail->product_id,
+							'warehouse_id' => $detail["warehouse_id"] ?? "",
+							'unit_id' => $Product->unit_id ?? null,
+							'unit_name' =>  $Product->unit->name ?? null,
+							'quantity' => $detail["quantity"],
+							'rate' => $ChargeOrderDetail->rate,
+							'amount' => $amount,
+							'remarks'      => sprintf(
+								"%d %s of %s (Code: %s) returned in %s warehouse under Purchase Return document %s. Original rate: %s. Total amount: %s.",
+								$detail["quantity"] ?? 0,
+								$Product->unit->name ?? '',
+								$Product->name ?? 'Unknown Product',
+								$Product->impa_code ?? 'N/A',
+								$Warehouse->name ?? 'Unknown Warehouse',
+								$PurchaseOrder->document_identity ?? 'N/A',
+								$chargeOrderDetail->rate ?? 'N/A',
+								$amount ?? '0.00'
+							),
+						];
+						StockLedger::handleStockMovement([
+							'sort_order' => $index,
+							'master_model' => new PurchaseReturn,
+							'document_id' => $purchaseReturnId,
+							'document_detail_id' => $detail->purchase_return_detail_id,
+							'row' => $stockEntry,
+						], 'O');
+					}
 				}
 				if ($detail->row_status == 'D') {
 					purchaseReturnDetail::where('purchase_return_detail_id', $detail->purchase_return_detail_id)->delete();
+					StockLedger::where('document_detail_id', $detail->purchase_return_detail_id)->delete();
+				
 				}
 			}
 

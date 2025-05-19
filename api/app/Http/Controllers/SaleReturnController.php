@@ -397,6 +397,7 @@ class SaleReturnController extends Controller
 				}
 				if ($detail->row_status == 'D') {
 					SaleReturnDetail::where('sale_return_detail_id', $detail->sale_return_detail_id)->delete();
+					StockLedger::where('document_detail_id', $detail->sale_return_detail_id)->delete();
 				}
 			}
 
