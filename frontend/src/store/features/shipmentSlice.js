@@ -250,8 +250,8 @@ export const shipmentSlice = createSlice({
         product_code: detail?.product?.product_code || null,
         product_name: detail.product?.name ? detail.product.name : detail.product_name,
         description: detail?.product_description || null,
-        customer_notes: detail?.description || null,
-        internal_notes: detail?.internal_notes || null,
+        customer_notes: detail?.charge_order_detail?.description || null,
+        internal_notes: detail?.charge_order_detail?.internal_notes || null,
         quantity: parseFloat(detail?.quantity || 0),
         unit: detail?.unit ? detail.unit.name : null
       }));
