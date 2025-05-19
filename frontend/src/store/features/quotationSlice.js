@@ -141,7 +141,8 @@ export const quotationSlice = createSlice({
         unit_id: null,
         rate: null,
         amount: null,
-        row_status: 'I'
+        row_status: 'I',
+        markup : 0
       };
 
       // If index is provided, insert the new detail after that index, otherwise push it to the end
@@ -436,8 +437,8 @@ export const quotationSlice = createSlice({
         isDeleted: false
       }));
 
-      state.rebatePercentage = data.rebate_percent;
-      state.salesmanPercentage = data.salesman_percent;
+      state.rebatePercentage = data?.rebate_percent ? data?.rebate_percent : 0;
+      state.salesmanPercentage = data?.salesman_percent ? data?.salesman_percent : 0;
     });
     addCase(getQuotation.rejected, (state) => {
       state.isItemLoading = false;

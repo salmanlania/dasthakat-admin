@@ -51,7 +51,7 @@ import DebounceInput from '../Input/DebounceInput';
 export const DetailSummaryInfo = ({ title, value }) => {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="ml-1 text-sm font-bold" style={{color : 'black !important'}}>{title}</span>
+      <span className="ml-1 text-sm font-bold" style={{ color: 'black !important' }}>{title}</span>
       <span className="ml-1 text-sm text-gray-500">{value}</span>
     </div>
   );
@@ -60,7 +60,7 @@ export const DetailSummaryInfo = ({ title, value }) => {
 export const DetailSummary = ({ title, value }) => {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="ml-4 text-sm font-bold" style={{color : 'black !important'}}>{title}</span>
+      <span className="ml-4 text-sm font-bold" style={{ color: 'black !important' }}>{title}</span>
       <span className="ml-4 text-sm text-gray-500">{value}</span>
     </div>
   );
@@ -252,9 +252,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       form.setFieldsValue({
         [`product_id-${index}`]: product?.product_id
           ? {
-              value: product.product_id,
-              label: product.product_name
-            }
+            value: product.product_id,
+            label: product.product_name
+          }
           : null,
         [`product_description-${index}`]: product?.product_name || ''
       });
@@ -284,9 +284,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           key: 'product_type_id',
           value: product.product_type_id
             ? {
-                value: product.product_type_id,
-                label: product.product_type_name
-              }
+              value: product.product_type_id,
+              label: product.product_type_name
+            }
             : null
         })
       );
@@ -444,9 +444,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           key: 'product_type_id',
           value: product.product_type_id
             ? {
-                value: product.product_type_id,
-                label: product.product_type_name
-              }
+              value: product.product_type_id,
+              label: product.product_type_name
+            }
             : null
         })
       );
@@ -624,9 +624,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
             value={
               product_type_id?.value
                 ? {
-                    value: product_type_id.value,
-                    label: product_type_id.label?.slice(0, 2) || ''
-                  }
+                  value: product_type_id.value,
+                  label: product_type_id.label?.slice(0, 2) || ''
+                }
                 : product_type_id
             }
             getOptionLabel={(item) => item.name?.slice(0, 2)}
@@ -1286,7 +1286,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         payment_id: { value: data.payment_id, label: data.payment_name },
         salesman_id: { value: data.salesman_id, label: data.salesman_name }
       });
-      dispatch(setRebatePercentage(data.rebate_percent ? +data.rebate_percent : null));
+      dispatch(setRebatePercentage(data.rebate_percent ? +data.rebate_percent : 0));
     } catch (error) {
       handleError(error);
     }
@@ -1299,7 +1299,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     try {
       const data = await dispatch(getSalesman(selected.value)).unwrap();
       dispatch(
-        setSalesmanPercentage(data.commission_percentage ? +data.commission_percentage : null)
+        setSalesmanPercentage(data.commission_percentage ? +data.commission_percentage : 0)
       );
     } catch (error) {
       handleError(error);
@@ -1317,35 +1317,34 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         initialValues={
           mode === 'edit'
             ? {
-                ...initialFormValues,
-                document_date: initialFormValues.document_date
-                  ? dayjs(initialFormValues.document_date)
-                  : null,
-                service_date:
-                  initialFormValues?.service_date === '0000-00-00' ||
+              ...initialFormValues,
+              document_date: initialFormValues.document_date
+                ? dayjs(initialFormValues.document_date)
+                : null,
+              service_date:
+                initialFormValues?.service_date === '0000-00-00' ||
                   initialFormValues?.service_date === '1899-30-11'
-                    ? null
-                    : dayjs(initialFormValues?.service_date),
-                due_date:
-                  initialFormValues?.due_date === '0000-00-00' ||
+                  ? null
+                  : dayjs(initialFormValues?.service_date),
+              due_date:
+                initialFormValues?.due_date === '0000-00-00' ||
                   initialFormValues?.due_date === '1899-30-11'
-                    ? null
-                    : dayjs(initialFormValues?.due_date)
-              }
+                  ? null
+                  : dayjs(initialFormValues?.due_date)
+            }
             : {
-                document_date: dayjs(),
-                due_date: dayjs(),
-                status: 'In Progress'
-              }
+              document_date: dayjs(),
+              due_date: dayjs(),
+              status: 'In Progress'
+            }
         }
         scrollToFirstError>
         {/* Make this sticky */}
         <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-base font-semibold">
           <span className="text-sm text-gray-500">Quotation No:</span>
           <span
-            className={`ml-4 text-amber-600 ${
-              mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
-            } rounded px-1`}
+            className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
+              } rounded px-1`}
             onClick={() => {
               if (mode !== 'edit') return;
               navigator.clipboard.writeText(initialFormValues.document_identity);
@@ -1618,7 +1617,15 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                       type="decimal"
                       size="small"
                       className="w-[3.8rem] text-right"
-                      value={`${rebatePercentage}%`}
+                      value={
+                        rebatePercentage === 0
+                          ? '0%'
+                          : rebatePercentage
+                            ? rebatePercentage.toString().endsWith('%')
+                              ? rebatePercentage
+                              : `${rebatePercentage}%`
+                            : ''
+                      }
                       disabled
                       onChange={(value) => dispatch(setRebatePercentage(value))}
                     />
@@ -1638,7 +1645,15 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                       type="decimal"
                       size="small"
                       className="w-[3.8rem] text-right"
-                      value={`${salesmanPercentage}%`}
+                      value={
+                        salesmanPercentage === 0
+                          ? '0%'
+                          : salesmanPercentage
+                            ? salesmanPercentage.toString().endsWith('%')
+                              ? salesmanPercentage
+                              : `${salesmanPercentage}%`
+                            : ''
+                      }
                       disabled
                       onChange={(value) => dispatch(setSalesmanPercentage(value))}
                     />
