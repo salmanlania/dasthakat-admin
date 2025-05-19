@@ -308,7 +308,7 @@ class GRNController extends Controller
 						StockLedger::handleStockMovement([
 							'master_model' => new GRN,
 							'document_id' => $id,
-							'document_detail_id' => $detail_uuid,
+							'document_detail_id' =>$value['good_received_note_detail_id'],
 							'row' => $value,
 						], 'I');
 					}
@@ -332,20 +332,20 @@ class GRNController extends Controller
 		if (!$data) return $this->jsonResponse(['good_received_note_id' => $id], 404, "Good Received Note Not Found!");
 
 
-		$validate = [
-			'main' => [
-				'check' => new GRN,
-				'id' => $id,
-			],
-			'with' => [
-				['model' => new PurchaseInvoice],
-			]
-		];
+		// $validate = [
+		// 	'main' => [
+		// 		'check' => new GRN,
+		// 		'id' => $id,
+		// 	],
+		// 	'with' => [
+		// 		['model' => new PurchaseInvoice],
+		// 	]
+		// ];
 
-		$response = $this->checkAndDelete($validate);
-		if ($response['error']) {
-			return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
-		}
+		// $response = $this->checkAndDelete($validate);
+		// if ($response['error']) {
+		// 	return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+		// }
 
 		$data->delete();
 		GRNDetail::where('good_received_note_id', $id)->delete();
@@ -363,20 +363,20 @@ class GRNController extends Controller
 					$data = GRN::where(['good_received_note_id' => $good_received_note_id])->first();
 
 
-					$validate = [
-						'main' => [
-							'check' => new GRN,
-							'id' => $good_received_note_id,
-						],
-						'with' => [
-							['model' => new PurchaseInvoice],
-						]
-					];
+					// $validate = [
+					// 	'main' => [
+					// 		'check' => new GRN,
+					// 		'id' => $good_received_note_id,
+					// 	],
+					// 	'with' => [
+					// 		['model' => new PurchaseInvoice],
+					// 	]
+					// ];
 
-					$response = $this->checkAndDelete($validate);
-					if ($response['error']) {
-						return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
-					}
+					// $response = $this->checkAndDelete($validate);
+					// if ($response['error']) {
+					// 	return $this->jsonResponse($response['msg'], $response['error_code'], "Deletion Failed!");
+					// }
 
 
 					$data->delete();
