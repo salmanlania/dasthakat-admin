@@ -7,7 +7,7 @@ import NotFound from './pages/feedback/NotFound';
 
 const Login = lazy(() => import('./pages/Login'));
 const Session = lazy(() => import('./pages/Session'));
-const OtpVerification  = lazy(() => import('./pages/OtpVerification'));
+const OtpVerification = lazy(() => import('./pages/OtpVerification'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 
 const User = lazy(() => import('./pages/User'));
@@ -103,6 +103,7 @@ const CreateIJO = lazy(() => import('./pages/IJO/CreateIJO'));
 const EditIJO = lazy(() => import('./pages/IJO/EditIJO'));
 
 const PickList = lazy(() => import('./pages/PickList'));
+const EditPickList = lazy(() => import('./pages/PickList/EditPickList'));
 const ServiceList = lazy(() => import('./pages/ServiceList'));
 
 const Audit = lazy(() => import('./pages/Audit'));
@@ -681,6 +682,14 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <PickList />
+              </Suspense>
+            )
+          },
+          {
+            path: '/pick-list/edit/:id',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditPickList />
               </Suspense>
             )
           },

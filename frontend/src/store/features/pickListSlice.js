@@ -15,6 +15,30 @@ export const getPickListList = createAsyncThunk(
   }
 );
 
+export const getPickListListDetail = createAsyncThunk(
+  'picklist/detail',
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/picklist/${id}`);
+      return res.data.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
+export const postPickListDetail = createAsyncThunk(
+  'picklist/detailPost',
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await api.post('/picklist', data);
+      return res.data.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const getPickListListReceives = createAsyncThunk(
   'picklist/getReceives',
   async (id, { rejectWithValue }) => {
@@ -44,7 +68,7 @@ export const updatePickListListReceives = createAsyncThunk(
   'picklist/updateReceives',
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      await api.put(`/picklist-received/${id}`, data);
+      const res = await api.put(`/picklist-received/${id}`, data);
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -55,6 +79,8 @@ const initialState = {
   isListLoading: false,
   list: [],
   pickListOpenModalId: null,
+  initialFormValues: null,
+  pickListDetail: [],
   pickListReceives: null,
   isPickListReceivesLoading: false,
   isPickListReceivesSaving: false,
@@ -127,6 +153,40 @@ export const pickListSlice = createSlice({
     });
     addCase(updatePickListListReceives.rejected, (state) => {
       state.isPickListReceivesSaving = false;
+    });
+
+    addCase(getPickListListDetail.pending, (state) => {
+      state.isListLoading = true;
+    });
+    addCase(getPickListListDetail.fulfilled, (state, action) => {
+      state.isListLoading = false;
+      const data = action.payload;
+      console.log('data', data)
+      state.initialFormValues = {
+        document_date: data?.document_date,
+        customer_po_no: data?.charge_order?.customer_po_no,
+        ref_document_identity: data?.charge_order?.ref_document_identity,
+        salesman: data?.charge_order?.salesman?.name,
+        event_id: data?.charge_order?.event?.event_name ? data?.charge_order?.event?.event_name : data?.charge_order?.event?.event_code ? data?.charge_order?.event?.event_code : null,
+        vessel_id: data?.charge_order?.vessel?.name,
+        charger_order_id: data?.charge_order?.document_identity,
+        customer: data?.charge_order?.customer?.name,
+        port_id: data?.charge_order?.port?.name,
+        billing_address: data?.charge_order?.vessel?.billing_address,
+      }
+
+      state.pickListDetail = data.picklist_detail.map((detail) => ({
+        sr: detail?.sort_order + 1,
+        product_type: detail?.product?.product_type?.name,
+        product_name: detail?.product?.name,
+        product_description: detail?.product?.name,
+        quantity: detail?.quantity,
+        cost_price: detail?.product?.cost_price,
+        sale_price: detail?.product?.sale_price,
+      }))
+    });
+    addCase(getPickListListDetail.rejected, (state) => {
+      state.isListLoading = false;
     });
   }
 });

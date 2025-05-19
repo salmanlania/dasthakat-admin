@@ -6,6 +6,7 @@ import { Navigate, Outlet, useHref, useLocation } from 'react-router-dom';
 import Footer from '../components/Layout/Footer';
 import Navbar from '../components/Layout/Navbar';
 import Sidebar from '../components/Layout/Sidebar';
+import NotFound from '../pages/feedback/NotFound';
 
 const removeTrailingSlashes = (url) => url.replace(/\/+$/, '');
 const MainLayout = () => {

@@ -3,10 +3,11 @@ import { Modal, Table, Input, Button } from 'antd';
 import toast from 'react-hot-toast';
 import AsyncSelect from '../AsyncSelect';
 import { useSelector, useDispatch } from 'react-redux';
-import { changePickListDetailValue, saleReturn } from '../../store/features/pickListSlice'
+import {postPickListDetail } from '../../store/features/pickListSlice'
 import useError from '../../hooks/useError';
 
 const ReturnModal = ({ visible, onClose, data }) => {
+    console.log('data' , data)
     const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
     const permissions = user.permission;
@@ -19,14 +20,14 @@ const ReturnModal = ({ visible, onClose, data }) => {
             data.map((row) => ({
                 ...row,
                 quantity: row.quantity || 0,
-                return_quantity: row.quantity || 0, 
+                return_quantity: row.quantity || 0,
             }))
         );
     }, [data]);
 
     const handleReturn = async () => {
         try {
-            const picklist_id = tableData[0]?.pickListDetailID|| null;
+            const picklist_id = tableData[0]?.pickListDetailID || null;
             const sale_return_detail = tableData.map(item => ({
                 picklist_detail_id: item.id,
                 quantity: item.return_quantity,
@@ -36,10 +37,11 @@ const ReturnModal = ({ visible, onClose, data }) => {
                 picklist_id,
                 sale_return_detail
             }
-            await dispatch(saleReturn(data)).unwrap();
-            toast.success('Agent created successfully');
+            await dispatch(postPickListDetail(data)).unwrap();
+            toast.success('Return created successfully');
             onClose();
         } catch (error) {
+            console.log('error' , error)
             handleError(error)
         }
     };
@@ -115,13 +117,13 @@ const ReturnModal = ({ visible, onClose, data }) => {
                         className="w-full"
                         value={warehouse_id}
                         onChange={(selected) => {
-                            dispatch(
-                                changePickListDetailValue({
-                                    index,
-                                    key: 'warehouse_id',
-                                    value: selected
-                                })
-                            );
+                        //     dispatch(
+                        //         changePickListDetailValue({
+                        //             index,
+                        //             key: 'warehouse_id',
+                        //             value: selected
+                        //         })
+                        //     );
                             setTableData((prev) => {
                                 const updated = [...prev];
                                 updated[index] = {

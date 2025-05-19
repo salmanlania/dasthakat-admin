@@ -14,35 +14,11 @@ const EditPickList = () => {
   const navigate = useNavigate();
   const handleError = useError();
   const { id } = useParams();
+  console.log('id' , id)
   const { isListLoading, initialFormValues, pickListReceives, pickListDetail } = useSelector((state) => state.pickList);
 
-  const onPurchaseOrderUpdate = async (data) => {
-    try {
-      const res = await dispatch(updatePurchaseOrder({ id, data })).unwrap();
-      toast.success('Purchase order updated successfully');
-      await dispatch(getPurchaseOrder(id)).unwrap().catch(handleError);
-    } catch (error) {
-      handleError(error);
-    }
-  };
-
-  const onPurchaseOrderUpdates = async (data) => {
-    try {
-      await dispatch(updatePurchaseOrder({ id, data })).unwrap();
-      toast.success('Purchase order updated successfully');
-      navigate('/purchase-order');
-    } catch (error) {
-      handleError(error);
-    }
-  };
-
-  // useEffect(() => {
-  //   // dispatch(getPurchaseOrder(id)).unwrap().catch(handleError);
-  //   const res = dispatch(getPickListListDetail({ id })).unwrap().catch(handleError);
-  // }, []);
-
   useEffect(() => {
-    dispatch(getPickListListDetail({ id })).unwrap().catch(handleError);
+    dispatch(getPickListListDetail(id)).unwrap().catch(handleError);
   }, []);
 
   return (
@@ -63,6 +39,7 @@ const EditPickList = () => {
           <PickListForm mode="edit" initialValues={initialFormValues} />
         </div>
         ) : null}
+        {/* <h1>Hello World</h1> */}
     </>
   );
 };
