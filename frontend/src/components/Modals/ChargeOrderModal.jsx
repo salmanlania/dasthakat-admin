@@ -162,6 +162,12 @@ const ChargeOrderModal = () => {
   ];
 
   const onChargeCreate = async (values) => {
+
+    if (!selectedRowKeys || selectedRowKeys.length === 0) {
+      toast.error('Please select at least one item.');
+      return;
+    }
+
     const selectedDetails = quotationDetails.filter((detail) =>
       selectedRowKeys.includes(detail.id)
     );

@@ -2,10 +2,10 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import api from '../../axiosInstance';
 
 export const getPurchaseReturnList = createAsyncThunk(
-  'picklist/list',
+  'purchaseReturn/list',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get('/picklist', {
+      const res = await api.get('/purchase-return', {
         params
       });
       return res.data;
