@@ -349,7 +349,7 @@ const SaleReturn = () => {
         onCancel={closeDeleteModal}
         isDeleting={isBulkDeleting}
         onDelete={onBulkDelete}
-        title="Are you sure you want to delete these Sale invoice?"
+        title="Are you sure you want to delete these Sale Return?"
         description="After deleting, you will not be able to recover."
       />
     </>

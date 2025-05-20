@@ -404,7 +404,7 @@ const PurchaseInvoice = () => {
         onCancel={closeDeleteModal}
         isDeleting={isBulkDeleting}
         onDelete={onBulkDelete}
-        title="Are you sure you want to delete these purchase invoice?"
+        title="Are you sure you want to delete these purchase return?"
         description="After deleting, you will not be able to recover."
       />
     </>
