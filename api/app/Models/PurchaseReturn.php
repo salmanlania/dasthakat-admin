@@ -31,7 +31,7 @@ class PurchaseReturn extends Model
 
     public function purchase_return_detail()
     {
-        return $this->hasMany(SaleReturnDetail::class, 'purchase_return_id', 'purchase_return_id')->orderBy('sort_order');
+        return $this->hasMany(PurchaseReturnDetail::class, 'purchase_return_id', 'purchase_return_id')->orderBy('sort_order');
     }
 
 
