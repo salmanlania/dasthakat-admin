@@ -166,6 +166,7 @@ class PurchaseReturnController extends Controller
 		$totalAmount = 0;
 		$index = 0;
 		if ($request->purchase_return_detail) {
+			PurchaseReturn::create($data);
 
 			foreach ($request->purchase_return_detail as $detail) {
 
@@ -236,12 +237,11 @@ class PurchaseReturnController extends Controller
 				}
 			}
 
-			$data['total_quantity'] = $totalQuantity;
-			$data['total_amount']   = $totalAmount;
+			// $data['total_quantity'] = $totalQuantity;
+			// $data['total_amount']   = $totalAmount;
 		}
 
 		if ($totalQuantity > 0) {
-			PurchaseReturn::create($data);
 			return $this->jsonResponse(['purchase_return_id' => $uuid], 200, "Add Purchase Return Successfully!");
 		} else {
 			return $this->jsonResponse(['purchase_return_id' => $uuid], 500, "Cannot generate Return: No items with available quantity.");
