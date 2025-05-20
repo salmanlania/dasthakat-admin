@@ -79,6 +79,7 @@ const initialState = {
   isListLoading: false,
   isItemLoading: false,
   list: [],
+  deleteIDs: [],
   pickListOpenModalId: null,
   initialFormValues: null,
   pickListDetail: [],
@@ -199,6 +200,22 @@ export const saleReturnListSlice = createSlice({
       state.isItemLoading = false;
       state.initialFormValues = null;
     });
+
+    // start bulk delete
+
+    addCase(bulkDeleteSaleReturn.pending, (state) => {
+      state.isBulkDeleting = true;
+    });
+    addCase(bulkDeleteSaleReturn.fulfilled, (state) => {
+      state.isBulkDeleting = false;
+      state.deleteIDs = [];
+    });
+    addCase(bulkDeleteSaleReturn.rejected, (state) => {
+      state.isBulkDeleting = false;
+    });
+
+    // end bulk delete
+
   }
 });
 

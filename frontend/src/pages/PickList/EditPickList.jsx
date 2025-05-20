@@ -14,8 +14,8 @@ const EditPickList = () => {
   const navigate = useNavigate();
   const handleError = useError();
   const { id } = useParams();
-  console.log('id' , id)
-  const { isListLoading, initialFormValues, pickListReceives, pickListDetail } = useSelector((state) => state.pickList);
+  console.log('id', id)
+  const { isListLoading, initialFormValues } = useSelector((state) => state.pickList);
 
   useEffect(() => {
     dispatch(getPickListListDetail(id)).unwrap().catch(handleError);
@@ -38,8 +38,7 @@ const EditPickList = () => {
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
           <PickListForm mode="edit" initialValues={initialFormValues} />
         </div>
-        ) : null}
-        {/* <h1>Hello World</h1> */}
+      ) : null}
     </>
   );
 };

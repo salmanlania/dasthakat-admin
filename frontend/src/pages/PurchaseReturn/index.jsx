@@ -15,24 +15,24 @@ import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
 
 import {
-  getSaleReturnList,
-  setSaleReturnListParams,
-  saleReturnDelete,
-  setSaleReturnDeleteIDs,
-  bulkDeleteSaleReturn,
-  getSaleReturnInvoice
-} from '../../store/features/saleReturnSlice';
+  getPurchaseReturnList,
+  setPurchaseReturnListParams,
+  purchaseReturnDelete,
+  setPurchaseReturnDeleteIDs,
+  bulkDeletePurchaseReturn,
+  getPurchaseReturnInvoice
+} from '../../store/features/purchaseReturnSlice';
 
 import { createSaleInvoicePrint } from '../../utils/prints/sale-invoice-print';
 
-const SaleReturn = () => {
+const PurchaseReturn = () => {
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs, listID } = useSelector(
-    (state) => state.saleReturn
+    (state) => state.purchaseReturn
   );
   const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.sale_return;
+  const permissions = user.permission.purchase_return;
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
@@ -47,11 +47,11 @@ const SaleReturn = () => {
     document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null
   };
 
-  const onSaleReturnDelete = async (id) => {
+  const onPurchaseReturnDelete = async (id) => {
     try {
-      await dispatch(saleReturnDelete(id)).unwrap();
-      toast.success('Sale Return deleted successfully');
-      dispatch(getSaleReturnList(formattedParams)).unwrap();
+      await dispatch(purchaseReturnDelete(id)).unwrap();
+      toast.success('Purchase Return deleted successfully');
+      dispatch(getPurchaseReturnList(formattedParams)).unwrap();
     } catch (error) {
       console.log('error', error)
       handleError(error);
@@ -62,10 +62,10 @@ const SaleReturn = () => {
   const onBulkDelete = async () => {
     closeDeleteModal();
     try {
-      await dispatch(bulkDeleteSaleReturn(deleteIDs)).unwrap();
-      toast.success('Sale Return deleted successfully');
+      await dispatch(bulkDeletePurchaseReturn(deleteIDs)).unwrap();
+      toast.success('Purchase Return deleted successfully');
       closeDeleteModal();
-      await dispatch(getSaleReturnList(formattedParams)).unwrap();
+      await dispatch(getPurchaseReturnList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -75,7 +75,7 @@ const SaleReturn = () => {
     const loadingToast = toast.loading('Loading print...');
 
     try {
-      const data = await dispatch(getSaleReturnInvoice(id)).unwrap();
+      const data = await dispatch(getPurchaseReturnInvoice(id)).unwrap();
       toast.dismiss(loadingToast);
       createSaleInvoicePrint(data);
     } catch (error) {
@@ -93,7 +93,7 @@ const SaleReturn = () => {
               size="small"
               value={params.document_date}
               className="font-normal"
-              onChange={(date) => dispatch(setSaleReturnListParams({ document_date: date }))}
+              onChange={(date) => dispatch(setPurchaseReturnListParams({ document_date: date }))}
               format="MM-DD-YYYY"
             />
           </div>
@@ -110,7 +110,7 @@ const SaleReturn = () => {
     {
       title: (
         <div>
-          <p>Sale Return No</p>
+          <p>Purchase Return No</p>
           <Input
             className="font-normal"
             size="small"
@@ -118,7 +118,7 @@ const SaleReturn = () => {
             value={params.document_identity}
             onChange={(e) =>
               dispatch(
-                setSaleReturnListParams({
+                setPurchaseReturnListParams({
                   document_identity: e.target.value
                 })
               )
@@ -143,7 +143,7 @@ const SaleReturn = () => {
             valueKey="vessel_id"
             labelKey="name"
             value={params.vessel_id}
-            onChange={(value) => dispatch(setSaleReturnListParams({ vessel_id: value }))}
+            onChange={(value) => dispatch(setPurchaseReturnListParams({ vessel_id: value }))}
           />
         </div>
       ),
@@ -164,7 +164,7 @@ const SaleReturn = () => {
             value={params.charge_no}
             onChange={(e) =>
               dispatch(
-                setSaleReturnListParams({
+                setPurchaseReturnListParams({
                   charge_no: e.target.value
                 })
               )
@@ -189,7 +189,7 @@ const SaleReturn = () => {
             valueKey="event_id"
             labelKey="event_code"
             value={params.event_id}
-            onChange={(value) => dispatch(setSaleReturnListParams({ event_id: value }))}
+            onChange={(value) => dispatch(setPurchaseReturnListParams({ event_id: value }))}
           />
         </div>
       ),
@@ -214,12 +214,12 @@ const SaleReturn = () => {
     {
       title: <div style={{ textAlign: 'center', width: '100%' }}>Action</div>,
       key: 'action',
-      render: (_, { sale_return_id }) => (
+      render: (_, { purchase_return_id }) => (
         <div className="flex justify-center items-center gap-2">
           {permissions.edit ? (
             <>
               <Tooltip title="Edit">
-                <Link to={`/sale-return/edit/${sale_return_id}`}>
+                <Link to={`/purchase-return/edit/${purchase_return_id}`}>
                   <Button
                     size="small"
                     type="primary"
@@ -236,7 +236,7 @@ const SaleReturn = () => {
                     okButtonProps={{ danger: true }}
                     okText="Yes"
                     cancelText="No"
-                    onConfirm={() => onSaleReturnDelete(sale_return_id)}
+                    onConfirm={() => onPurchaseReturnDelete(purchase_return_id)}
                   >
                     <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                   </Popconfirm>
@@ -257,7 +257,7 @@ const SaleReturn = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    dispatch(getSaleReturnList(formattedParams)).unwrap().catch(handleError);
+    dispatch(getPurchaseReturnList(formattedParams)).unwrap().catch(handleError);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params.page,
@@ -276,8 +276,8 @@ const SaleReturn = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>SALE RETURN</PageHeading>
-        <Breadcrumb items={[{ title: 'Sale Return' }, { title: 'List' }]} separator=">" />
+        <PageHeading>PURCHASE Return</PageHeading>
+        <Breadcrumb items={[{ title: 'Purchase Return' }, { title: 'List' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
@@ -286,7 +286,7 @@ const SaleReturn = () => {
             placeholder="Search..." allowClear
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) => dispatch(setSaleReturnListParams({ search: e.target.value }))}
+            onChange={(e) => dispatch(setPurchaseReturnListParams({ search: e.target.value }))}
           />
 
           <div className="flex items-center gap-2">
@@ -311,13 +311,13 @@ const SaleReturn = () => {
                 type: 'checkbox',
                 selectedRowKeys: deleteIDs,
                 onChange: (selectedRowKeys) =>
-                  dispatch(setSaleReturnDeleteIDs(selectedRowKeys))
+                  dispatch(setPurchaseReturnDeleteIDs(selectedRowKeys))
               }
               : null
           }
           loading={isListLoading}
           className="mt-2"
-          rowKey="sale_return_id"
+          rowKey="purchase_return_id"
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
@@ -327,7 +327,7 @@ const SaleReturn = () => {
           }}
           onChange={(page, _, sorting) => {
             dispatch(
-              setSaleReturnListParams({
+              setPurchaseReturnListParams({
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
@@ -356,4 +356,4 @@ const SaleReturn = () => {
   );
 };
 
-export default SaleReturn;
+export default PurchaseReturn;
