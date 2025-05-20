@@ -470,7 +470,6 @@ export const quotationSlice = createSlice({
     addCase(getQuotationModal.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
-      console.log('data' , data.quotation_detail)
       state.initialFormValues = {
         document_identity: data.document_identity,
         document_type_id: data.document_type_id,

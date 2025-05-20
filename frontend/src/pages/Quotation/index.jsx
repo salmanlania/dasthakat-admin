@@ -1,6 +1,6 @@
 import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Select, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
-import { useEffect, useState , useMemo} from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import { FaRegFilePdf } from 'react-icons/fa';
 import { FaRegFileExcel } from 'react-icons/fa6';
@@ -383,34 +383,34 @@ const Quotation = () => {
 
   const groupedQuotationData = useMemo(() => {
     if (!list || !list.length) return [];
-  
+
     const result = [];
     const groupedByEvent = {};
-  
+
     list.forEach((item) => {
       const eventCode = item.event_code || 'No Event';
-  
+
       if (!groupedByEvent[eventCode]) {
         groupedByEvent[eventCode] = [];
       }
-  
+
       groupedByEvent[eventCode].push(item);
     });
-  
+
     Object.keys(groupedByEvent).forEach((eventCode) => {
       result.push({
         isEventHeader: true,
         event_code: eventCode,
         quotation_id: `header-${eventCode}`
       });
-  
+
       groupedByEvent[eventCode].forEach((item) => {
         result.push(item);
       });
     });
-  
+
     return result;
-  }, [list]);  
+  }, [list]);
 
   return (
     <>
@@ -451,10 +451,10 @@ const Quotation = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: 'checkbox',
-                  selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setQuotationDeleteIDs(selectedRowKeys))
-                }
+                type: 'checkbox',
+                selectedRowKeys: deleteIDs,
+                onChange: (selectedRowKeys) => dispatch(setQuotationDeleteIDs(selectedRowKeys))
+              }
               : null
           }
           loading={isListLoading}
@@ -494,7 +494,7 @@ const Quotation = () => {
             body: {
               row: (props) => {
                 const { children, className, ...restProps } = props;
-          
+
                 if (className && className.includes('event-header-row')) {
                   const eventCode = props['data-row-key'].replace('header-', '');
                   return (
@@ -507,7 +507,7 @@ const Quotation = () => {
                     </tr>
                   );
                 }
-          
+
                 return <tr {...props} />;
               }
             }
