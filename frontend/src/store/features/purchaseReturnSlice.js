@@ -56,7 +56,6 @@ export const getPurchaseReturn = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const res = await api.get(`/purchase-return/${id}`);
-      console.log('res' , res.data)
       return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);
@@ -149,54 +148,55 @@ export const purchaseReturnListSlice = createSlice({
     addCase(getPurchaseReturn.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
-      console.log('purchase_return_detail' , data)
       state.initialFormValues = {
         document_identity: data.document_identity || '',
         document_date: data.document_date || '',
         totalQuantity: data.total_quantity || '',
         totalAmount: data.total_amount || '',
-        salesman_id: data?.charge_order?.salesman?.name,
+        supplier: data?.purchase_order?.supplier?.name,
         customer_po_no: data?.charge_order?.customer_po_no,
         vessel: data?.charge_order?.vessel,
         vessel_billing_address: data?.vessel_billing_address,
-        event_id: data?.charge_order?.event?.event_name,
+        ship_via: data?.purchase_order?.ship_via,
+        contact_person: data?.purchase_order?.supplier?.contact_person,
         vessel_id: data?.charge_order?.vessel?.name,
         customer_id: data?.charge_order?.customer?.name,
-        charger_order_id: data?.charge_order?.document_identity,
+        contact1: data?.purchase_order?.supplier?.contact1,
+        contact2: data?.purchase_order?.supplier?.contact2,
         port_id: data?.charge_order?.port?.name,
-        ref_document_identity: data?.charge_order?.ref_document_identity
+        supplier_code: data?.purchase_order?.supplier?.supplier_code,
       };
-      // state.purchaseReturnDetail = data.purchase_return_detail.map((detail) => ({
-      //   id: detail.charge_order_detail_id,
-      //   product_code: detail.product ? detail.product.product_code : null,
-      //   product_id: detail.product
-      //     ? { value: detail.product.product_id, label: detail.product.product_name }
-      //     : null,
-      //   product_type_id: detail.product_type
-      //     ? {
-      //       value: detail.product_type.product_type_id,
-      //       label: detail.product_type.name
-      //     }
-      //     : null,
-      //   product_name:
-      //     detail.charge_order_detail.product_type_id == '4'
-      //       ? detail.product_name || detail.charge_order_detail.product_name
-      //       : detail?.product?.name,
-      //   product_description: detail.product_description,
-      //   charge_order_detail_id: detail.charge_order_detail_id,
-      //   description: detail.description,
-      //   charge_order_detail_id: detail.charge_order_detail_id,
-      //   vpart: detail.vpart,
-      //   quantity: detail.quantity ? parseFloat(detail.quantity) : null,
-      //   unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
-      //   rate: detail.rate,
-      //   vendor_notes: detail.vendor_notes,
-      //   amount: detail.amount,
-      //   editable: detail.editable,
-      //   received_quantity: detail.received_quantity ? parseFloat(detail.received_quantity) : null,
-      //   row_status: 'U',
-      //   isDeleted: false
-      // }));
+      state.purchaseReturnDetail = data.purchase_return_detail.map((detail) => ({
+        id: detail.purchase_return_detail_id,
+        product_code: detail.product ? detail.product.product_code : null,
+        product_id: detail.product
+          ? { value: detail.product.product_id, label: detail.product.product_name }
+          : null,
+        product_type: detail.product
+          ? {
+            value: detail.product?.product_type.product_type_id,
+            label: detail.product?.product_type.name
+          }
+          : null,
+        product_name: detail?.product ? detail?.product?.name : detail?.product_name ? detail?.product_name : null,
+        product_description: detail.product_description,
+        charge_order_detail_id: detail.charge_order_detail_id,
+        description: detail.description,
+        charge_order_detail_id: detail.charge_order_detail_id,
+        vpart: detail.vpart,
+        quantity: detail.quantity ? parseFloat(detail.quantity) : null,
+        unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
+        rate: detail.rate,
+        vendor_notes: detail.vendor_notes,
+        sale_price: detail?.product ? detail?.product?.sale_price : null,
+        cost_price: detail?.product ? detail?.product?.cost_price : null,
+        short_code: detail?.product ? detail?.product?.short_code : null,
+        amount: detail.amount,
+        editable: detail.editable,
+        received_quantity: detail.received_quantity ? parseFloat(detail.received_quantity) : null,
+        row_status: 'U',
+        isDeleted: false
+      }));
     });
     addCase(getPurchaseReturn.rejected, (state) => {
       state.isItemLoading = false;

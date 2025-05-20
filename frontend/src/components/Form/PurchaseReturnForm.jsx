@@ -24,10 +24,6 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
     (state) => state.purchaseReturn
   );
 
-  // useEffect(()=>{
-    console.log('initialFormValues' , initialFormValues)
-  // })
-
   const POType = Form.useWatch('type', form);
   const isBillable = POType === 'Billable';
 
@@ -91,33 +87,35 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
 
   useEffect(() => {
     if (mode === 'edit' && initialFormValues) {
-      const salesmanId = initialFormValues?.salesman_id || '';
+      const salesmanId = initialFormValues?.supplier || '';
       const quantity = initialFormValues?.totalQuantity || '';
       const amount = initialFormValues?.totalAmount || '';
       const customerPoNo = initialFormValues?.customer_po_no || '';
-      const eventName = initialFormValues?.event_id || '';
+      const shipVia = initialFormValues?.ship_via || '';
+      const contactPerson = initialFormValues?.contact_person || '';
       const vesselName = initialFormValues?.vessel_id || '';
-      const customerName = initialFormValues?.customer_id || '';
       const portName = initialFormValues?.port_id || '';
-      const refDocumentIdentity = initialFormValues?.ref_document_identity || '';
-      const chargeOrderNo = initialFormValues?.charger_order_id || '';
+      const supplierCode = initialFormValues?.supplier_code || '';
+      const contactOne = initialFormValues?.contact1 || '';
+      const contactTwo = initialFormValues?.contact2 || '';
       // const billingAddress = initialFormValues?.vessel || '';
       const billingAddress = initialFormValues?.vessel_billing_address ? initialFormValues?.vessel_billing_address : initialFormValues?.vessel?.billing_address || '';
 
       setTotalQuantity(quantity);
       setTotalAmount(amount);
       form.setFieldsValue({
-        salesman_id: salesmanId,
+        supplier: salesmanId,
         totalQuantity: quantity,
         totalAmount: amount,
         customer_po_no: customerPoNo,
-        event_id: eventName,
+        ship_via: shipVia,
+        contact_person: contactPerson,
         vessel_id: vesselName,
-        customer_id: customerName,
-        charger_order_id: chargeOrderNo,
+        contact1: contactOne,
+        contact2: contactTwo,
         port_id: portName,
         vessel_billing_address: billingAddress,
-        ref_document_identity: refDocumentIdentity,
+        supplier_code: supplierCode,
         document_date: initialFormValues.document_date
           ? dayjs(initialFormValues.document_date)
           : null,
@@ -137,6 +135,26 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
         return <>{index + 1}.</>;
       },
       width: 50
+    },
+    {
+      title: 'Product Type',
+      dataIndex: 'product_type',
+      key: 'product_type',
+      render: (_, record, { product_type }, index) => {
+        return (
+          <AsyncSelect
+            endpoint="/product"
+            valueKey="product_type"
+            labelKey="product_type"
+            labelInValue
+            className="w-full"
+            disabled
+            value={record.product_type}
+            onChange={(selected) => onProductChange(index, selected)}
+          />
+        );
+      },
+      width: 180
     },
     {
       title: 'Product Name',
@@ -187,6 +205,20 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
           <DebounceInput
             disabled
             value={description}
+          />
+        );
+      },
+      width: 240
+    },
+    {
+      title: 'Vendor Notes',
+      dataIndex: 'vendor_notes',
+      key: 'vendor_notes',
+      render: (_, { vendor_notes }, index) => {
+        return (
+          <DebounceInput
+            disabled
+            value={vendor_notes}
           />
         );
       },
@@ -261,6 +293,33 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
       ),
       width: 120
     },
+    {
+      title: 'Sale Price',
+      dataIndex: 'sale_price',
+      key: 'sale_price',
+      render: (_, { sale_price }) => (
+        <DebouncedCommaSeparatedInput value={sale_price ? sale_price + '' : ''} disabled />
+      ),
+      width: 120
+    },
+    {
+      title: 'Cost Price',
+      dataIndex: 'cost_price',
+      key: 'cost_price',
+      render: (_, { cost_price }) => (
+        <DebouncedCommaSeparatedInput value={cost_price ? cost_price + '' : ''} disabled />
+      ),
+      width: 120
+    },
+    {
+      title: 'Short Code',
+      dataIndex: 'short_code',
+      key: 'short_code',
+      render: (_, { short_code }) => (
+        <DebouncedCommaSeparatedInput value={short_code ? short_code + '' : ''} disabled />
+      ),
+      width: 120
+    },
   ];
 
   return (
@@ -270,13 +329,6 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
       autoComplete="off"
       form={form}
       onFinish={onFinish}
-      // initialValues={
-      //   mode === 'edit'
-      //     ? {
-      //       ...initialFormValues
-      //     }
-      //     : { document_date: dayjs() }
-      // }
       scrollToFirstError>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
@@ -303,92 +355,51 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
             <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={5} lg={5}>
-          <Form.Item name="customer_po_no" label="Customer PO No">
+        <Col span={24} sm={12} md={6} lg={6}>
+          <Form.Item name="supplier_code" label="Supplier Code">
             <Input disabled />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={5} lg={5}>
-          <Form.Item name="ref_document_identity" label="Quote No">
+        <Col span={24} sm={12} md={10} lg={10}>
+          <Form.Item
+            name="supplier"
+            label="Supplier"
+          >
             <Input disabled />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={5} lg={5}>
-          <Form.Item
-            name="salesman_id"
-            label="Salesman"
-            rules={[{ required: true, message: 'Salesman is required' }]}>
-            <AsyncSelect
-              endpoint="/salesman"
-              valueKey="salesman_id"
-              labelKey="name"
-              disabled
-              labelInValue
-            />
+        <Col span={24} sm={12} md={6} lg={6}>
+          <Form.Item name="ship_via" label="Ship Via">
+            <Input disabled />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item name="event_id" label="Event">
-            <AsyncSelect
-              endpoint="/event"
-              valueKey="event_id"
-              disabled
-              labelKey="event_name"
-              labelInValue
-            />
+          <Form.Item name="contact_person" label="Contact Person">
+            <Input disabled />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item name="vessel_id" label="Vessel">
-            <Select labelInValue disabled />
+          <Form.Item name="contact1" label="Conact No 1">
+            <Input disabled />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item name="charger_order_id" label="Charge Order No">
-            <Select labelInValue disabled />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item name="customer_id" label="Customer">
-            <Select labelInValue disabled />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item
-            name="port_id"
-            label="Port"
-            initialValue={
-              initialFormValues?.port_id && initialFormValues?.name
-                ? { value: initialFormValues.port_id, label: initialFormValues.name }
-                : null
-            }
-            >
-            <AsyncSelect
-              endpoint="/port"
-              valueKey="port_id"
-              labelKey="name"
-              labelInValue
-              disabled
-            />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="vessel_billing_address" label="Vessel Billing Address">
-            <Input />
+          <Form.Item name="contact2" label="Contact No 2">
+            <Input disabled />
           </Form.Item>
         </Col>
       </Row>
-      {/* <Table
+      <Table
         columns={columns}
-        dataSource={saleInvoiceDetail}
-        rowKey={'charge_order_detail_id'}
+        dataSource={purchaseReturnDetail}
+        rowKey={'id'}
         size="small"
         scroll={{ x: 'calc(100% - 200px)' }}
         pagination={false}
         sticky={{
           offsetHeader: 56
         }}
-      /> */}
+      />
 
       <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
         <Row gutter={[12, 12]}>
@@ -409,7 +420,7 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
         <Link to="/sale-invoice">
           <Button className="w-28">Exit</Button>
         </Link>
-        <Button
+        {/* <Button
           type="primary"
           className="w-28"
           loading={isFormSubmitting && submitAction === 'save'}
@@ -428,7 +439,7 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
             form.submit();
           }}>
           Save & Exit
-        </Button>
+        </Button> */}
       </div>
     </Form>
   );

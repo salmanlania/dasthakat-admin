@@ -198,13 +198,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
           <Form.Item
             className="m-0"
             name={`quantity-${index}`}
-            initialValue={quantity}
-            rules={[
-              {
-                required: true,
-                message: 'Quantity is required'
-              }
-            ]}>
+            initialValue={quantity}>
             <DebouncedCommaSeparatedInput
               disabled
               decimalPlaces={2}
@@ -266,13 +260,6 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
       autoComplete="off"
       form={form}
       onFinish={onFinish}
-      initialValues={
-        mode === 'edit'
-          ? {
-            ...initialFormValues
-          }
-          : { document_date: dayjs() }
-      }
       scrollToFirstError>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
@@ -294,8 +281,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
           <Form.Item
             name="document_date"
             label="Sale Invoice Date"
-            disabled
-            rules={[{ required: true, message: 'charge order date is required' }]}>
+            disabled>
             <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
         </Col>
@@ -312,8 +298,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
         <Col span={24} sm={12} md={5} lg={5}>
           <Form.Item
             name="salesman_id"
-            label="Salesman"
-            rules={[{ required: true, message: 'Salesman is required' }]}>
+            label="Salesman">
             <AsyncSelect
               endpoint="/salesman"
               valueKey="salesman_id"
@@ -376,7 +361,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
       <Table
         columns={columns}
         dataSource={saleReturnDetail}
-        rowKey={'charge_order_detail_id'}
+        rowKey={'id'}
         size="small"
         scroll={{ x: 'calc(100% - 200px)' }}
         pagination={false}
