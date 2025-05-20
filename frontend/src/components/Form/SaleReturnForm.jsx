@@ -280,9 +280,9 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
             name="document_date"
-            label="Sale Invoice Date"
+            label="Sale Return Date"
             disabled>
-            <DatePicker format="MM-DD-YYYY" className="w-full" />
+            <DatePicker format="MM-DD-YYYY" className="w-full" disabled />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={5} lg={5}>

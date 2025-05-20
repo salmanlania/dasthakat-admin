@@ -234,13 +234,7 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
           <Form.Item
             className="m-0"
             name={`quantity-${index}`}
-            initialValue={quantity}
-            rules={[
-              {
-                required: true,
-                message: 'Quantity is required'
-              }
-            ]}>
+            initialValue={quantity}>
             <DebouncedCommaSeparatedInput
               disabled
               decimalPlaces={2}
@@ -349,10 +343,9 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
             name="document_date"
-            label="Sale Invoice Date"
-            disabled
-            rules={[{ required: true, message: 'charge order date is required' }]}>
-            <DatePicker format="MM-DD-YYYY" className="w-full" />
+            label="Purchase Return Date"
+            disabled>
+            <DatePicker format="MM-DD-YYYY" className="w-full" disabled />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={6} lg={6}>
