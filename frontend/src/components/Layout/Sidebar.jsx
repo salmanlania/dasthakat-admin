@@ -321,6 +321,16 @@ const Sidebar = () => {
           label: <Link to="/shipment">Shipment</Link>,
           disabled: !permissions?.shipment?.list
         },
+        {
+          key: 'sale-return',
+          label: <Link to="/sale-return">Sale Return</Link>,
+          disabled: !permissions?.sale_return?.list
+        },
+        {
+          key: 'purchase-return',
+          label: <Link to="/purchase-return">Purchase Return</Link>,
+          disabled: !permissions?.purchase_return?.list
+        },
       ]
     },
     {

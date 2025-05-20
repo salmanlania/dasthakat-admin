@@ -120,13 +120,6 @@ const ReturnModal = ({ visible, onClose, data }) => {
                         className="w-full"
                         value={warehouse_id}
                         onChange={(selected) => {
-                            //     dispatch(
-                            //         changePickListDetailValue({
-                            //             index,
-                            //             key: 'warehouse_id',
-                            //             value: selected
-                            //         })
-                            //     );
                             setTableData((prev) => {
                                 const updated = [...prev];
                                 updated[index] = {

@@ -81,8 +81,14 @@ const CreatePurchaseInvoice = lazy(() => import('./pages/PurchaseInvoice/CreateP
 const EditPurchaseInvoice = lazy(() => import('./pages/PurchaseInvoice/EditPurchaseInvoice'));
 
 const SaleInvoice = lazy(() => import('./pages/SaleInvoice'));
-const CreateSaleInvoice = lazy(() => import('./pages/SaleInvoice/CreateSaleInvoice'));
 const EditSaleInvoice = lazy(() => import('./pages/SaleInvoice/EditSaleInvoice'));
+
+const SaleReturn = lazy(() => import('./pages/SaleReturn'));
+const EditSaleReturn = lazy(() => import('./pages/SaleReturn/EditSaleReturn'));
+
+
+const PurchaseReturn = lazy(() => import('./pages/PurchaseReturn'));
+const EditPurchaseReturn = lazy(() => import('./pages/PurchaseReturn/EditPurchaseReturn'));
 
 const GoodsReceivedNote = lazy(() => import('./pages/GoodsReceivedNote'));
 const CreateGoodsReceivedNote = lazy(
@@ -566,18 +572,42 @@ function Routes() {
             )
           },
           {
-            path: '/sale-invoice/create',
-            element: (
-              <Suspense fallback={<PageLoader />}>
-                <CreateSaleInvoice />
-              </Suspense>
-            )
-          },
-          {
             path: '/sale-invoice/edit/:id',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditSaleInvoice />
+              </Suspense>
+            )
+          },
+          {
+            path: '/sale-return',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <SaleReturn />
+              </Suspense>
+            )
+          },
+          {
+            path: '/sale-return/edit/:id',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditSaleReturn />
+              </Suspense>
+            )
+          },
+          {
+            path: '/purchase-return',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <PurchaseReturn />
+              </Suspense>
+            )
+          },
+          {
+            path: '/purchase-return/edit/:id',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditPurchaseReturn />
               </Suspense>
             )
           },

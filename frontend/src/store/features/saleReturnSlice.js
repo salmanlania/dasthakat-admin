@@ -1,11 +1,11 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import api from '../../axiosInstance';
 
-export const getPickListList = createAsyncThunk(
-  'picklist/list',
+export const getSaleReturnList = createAsyncThunk(
+  'saleReturn/list',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get('/picklist', {
+      const res = await api.get('/sale-return', {
         params
       });
       return res.data;
@@ -15,12 +15,11 @@ export const getPickListList = createAsyncThunk(
   }
 );
 
-export const getPickListListDetail = createAsyncThunk(
-  'picklist/detail',
+export const saleReturnDelete = createAsyncThunk(
+  'saleReturn/delete',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/picklist/${id}`);
-      return res.data.data;
+      await api.delete(`/sale-return/${id}`);
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -28,7 +27,7 @@ export const getPickListListDetail = createAsyncThunk(
 );
 
 export const returnSaleInvoice = createAsyncThunk(
-  'return/saleInvoice',
+  'saleReturn/detailPost',
   async (data, { rejectWithValue }) => {
     try {
       const res = await api.post('/sale-return', data);
@@ -39,11 +38,24 @@ export const returnSaleInvoice = createAsyncThunk(
   }
 );
 
-export const getPickListListReceives = createAsyncThunk(
-  'picklist/getReceives',
+export const bulkDeleteSaleReturn = createAsyncThunk(
+  'saleReturn/bulkDelete',
+  async (ids, { rejectWithValue }) => {
+    try {
+      await api.post('/sale-return/bulk-delete', {
+        sale_return_ids: ids
+      });
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
+export const getSaleReturn = createAsyncThunk(
+  'saleReturn/get',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/picklist-received/${id}`);
+      const res = await api.get(`/sale-return/${id}`);
       return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);
@@ -51,24 +63,12 @@ export const getPickListListReceives = createAsyncThunk(
   }
 );
 
-
-export const getPickListForPrint = createAsyncThunk(
-  'picklist/getById',
+export const getSaleReturnInvoice = createAsyncThunk(
+  'saleReturn/get',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/picklist/${id}`);
+      const res = await api.get(`/sale-return/${id}`);
       return res.data.data;
-    } catch (err) {
-      throw rejectWithValue(err);
-    }
-  }
-);
-
-export const updatePickListListReceives = createAsyncThunk(
-  'picklist/updateReceives',
-  async ({ id, data }, { rejectWithValue }) => {
-    try {
-      const res = await api.put(`/picklist-received/${id}`, data);
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -77,10 +77,12 @@ export const updatePickListListReceives = createAsyncThunk(
 
 const initialState = {
   isListLoading: false,
+  isItemLoading: false,
   list: [],
   pickListOpenModalId: null,
   initialFormValues: null,
   pickListDetail: [],
+  saleReturnDetail: [],
   pickListReceives: null,
   isPickListReceivesLoading: false,
   isPickListReceivesSaving: false,
@@ -97,15 +99,19 @@ const initialState = {
   }
 };
 
-export const pickListSlice = createSlice({
+export const saleReturnListSlice = createSlice({
   name: 'saleReturn',
   initialState,
   reducers: {
-    setPickListListParams: (state, action) => {
+    setSaleReturnListParams: (state, action) => {
       state.params = {
         ...state.params,
         ...action.payload
       };
+    },
+
+    setSaleReturnDeleteIDs: (state, action) => {
+      state.deleteIDs = action.payload;
     },
 
     setPickListOpenModalId: (state, action) => {
@@ -117,10 +123,10 @@ export const pickListSlice = createSlice({
     }
   },
   extraReducers: ({ addCase }) => {
-    addCase(getPickListList.pending, (state) => {
+    addCase(getSaleReturnList.pending, (state) => {
       state.isListLoading = true;
     });
-    addCase(getPickListList.fulfilled, (state, action) => {
+    addCase(getSaleReturnList.fulfilled, (state, action) => {
       state.isListLoading = false;
       const { data, ...rest } = action.payload;
       state.list = data;
@@ -129,69 +135,72 @@ export const pickListSlice = createSlice({
         total_pages: rest.last_page
       };
     });
-    addCase(getPickListList.rejected, (state) => {
+    addCase(getSaleReturnList.rejected, (state) => {
       state.isListLoading = false;
     });
 
-    addCase(getPickListListReceives.pending, (state) => {
-      state.isPickListReceivesLoading = true;
-    });
-    addCase(getPickListListReceives.fulfilled, (state, action) => {
-      state.isPickListReceivesLoading = false;
-      state.pickListReceives = action.payload;
-    });
-    addCase(getPickListListReceives.rejected, (state) => {
-      state.isPickListReceivesLoading = false;
-    });
+    // get sale return
 
-    addCase(updatePickListListReceives.pending, (state) => {
-      state.isPickListReceivesSaving = true;
+    addCase(getSaleReturn.pending, (state) => {
+      state.isItemLoading = true;
     });
-    addCase(updatePickListListReceives.fulfilled, (state, action) => {
-      state.isPickListReceivesSaving = false;
-      state.pickListReceives = null;
-    });
-    addCase(updatePickListListReceives.rejected, (state) => {
-      state.isPickListReceivesSaving = false;
-    });
-
-    addCase(getPickListListDetail.pending, (state) => {
-      state.isListLoading = true;
-    });
-    addCase(getPickListListDetail.fulfilled, (state, action) => {
-      state.isListLoading = false;
+    addCase(getSaleReturn.fulfilled, (state, action) => {
+      state.isItemLoading = false;
       const data = action.payload;
-      console.log('data', data)
       state.initialFormValues = {
-        document_date: data?.document_date,
+        document_identity: data.document_identity || '',
+        document_date: data.document_date || '',
+        totalQuantity: data.total_quantity || '',
+        totalAmount: data.total_amount || '',
+        salesman_id: data?.charge_order?.salesman?.name,
         customer_po_no: data?.charge_order?.customer_po_no,
-        ref_document_identity: data?.charge_order?.ref_document_identity,
-        salesman: data?.charge_order?.salesman?.name,
-        event_id: data?.charge_order?.event?.event_name ? data?.charge_order?.event?.event_name : data?.charge_order?.event?.event_code ? data?.charge_order?.event?.event_code : null,
+        vessel: data?.charge_order?.vessel,
+        vessel_billing_address: data?.vessel_billing_address,
+        event_id: data?.charge_order?.event?.event_name,
         vessel_id: data?.charge_order?.vessel?.name,
+        customer_id: data?.charge_order?.customer?.name,
         charger_order_id: data?.charge_order?.document_identity,
-        customer: data?.charge_order?.customer?.name,
         port_id: data?.charge_order?.port?.name,
-        billing_address: data?.charge_order?.vessel?.billing_address,
-      }
-
-      state.pickListDetail = data.picklist_detail.map((detail) => ({
-        id: detail?.picklist_detail_id,
-        picklist_id: detail?.picklist_id,
-        sr: detail?.sort_order + 1,
-        product_type: detail?.product?.product_type?.name,
-        product_name: detail?.product?.name,
-        product_description: detail?.product?.name,
-        quantity: detail?.quantity,
-        cost_price: detail?.product?.cost_price,
-        sale_price: detail?.product?.sale_price,
-      }))
+        ref_document_identity: data?.charge_order?.ref_document_identity
+      };
+      state.saleReturnDetail = data.sale_return_detail.map((detail) => ({
+        id: detail.charge_order_detail_id,
+        product_code: detail.product ? detail.product.product_code : null,
+        product_id: detail.product
+          ? { value: detail.product.product_id, label: detail.product.product_name }
+          : null,
+        product_type_id: detail.product_type
+          ? {
+            value: detail.product_type.product_type_id,
+            label: detail.product_type.name
+          }
+          : null,
+        product_name:
+          detail.charge_order_detail.product_type_id == '4'
+            ? detail.product_name || detail.charge_order_detail.product_name
+            : detail?.product?.name,
+        product_description: detail.product_description,
+        charge_order_detail_id: detail.charge_order_detail_id,
+        description: detail.description,
+        charge_order_detail_id: detail.charge_order_detail_id,
+        vpart: detail.vpart,
+        quantity: detail.quantity ? parseFloat(detail.quantity) : null,
+        unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
+        rate: detail.rate,
+        vendor_notes: detail.vendor_notes,
+        amount: detail.amount,
+        editable: detail.editable,
+        received_quantity: detail.received_quantity ? parseFloat(detail.received_quantity) : null,
+        row_status: 'U',
+        isDeleted: false
+      }));
     });
-    addCase(getPickListListDetail.rejected, (state) => {
-      state.isListLoading = false;
+    addCase(getSaleReturn.rejected, (state) => {
+      state.isItemLoading = false;
+      state.initialFormValues = null;
     });
   }
 });
 
-export const { setPickListListParams, setPickListOpenModalId } = pickListSlice.actions;
-export default pickListSlice.reducer;
+export const { setSaleReturnListParams, setPickListOpenModalId, setSaleReturnDeleteIDs } = saleReturnListSlice.actions;
+export default saleReturnListSlice.reducer;

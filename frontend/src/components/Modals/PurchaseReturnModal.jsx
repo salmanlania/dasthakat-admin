@@ -33,6 +33,8 @@ const PurchaseReturnModal = ({ visible, onClose, data }) => {
                 const detail = {
                     purchase_order_detail_id: item.id,
                     quantity: item.return_quantity,
+                    // warehouse_id: item.warehouse_id?.value ? item.warehouse_id?.value : null
+                    warehouse_id: item?.product_type_id?.value === 2 ? item.warehouse_id?.value ? item.warehouse_id?.value : null : null
                 };
 
                 return detail;
@@ -41,12 +43,12 @@ const PurchaseReturnModal = ({ visible, onClose, data }) => {
                 purchase_order_id,
                 purchase_return_detail
             }
-            console.log('dispatch' , data)
+            console.log('dispatch', data)
             await dispatch(returnPurchaseOrder(data)).unwrap();
             toast.success('Return created successfully');
             onClose();
         } catch (error) {
-            console.log('error new' , error)
+            console.log('error new', error)
             handleError(error)
         }
     };
@@ -107,6 +109,40 @@ const PurchaseReturnModal = ({ visible, onClose, data }) => {
                     />
                 );
             }
+        },
+        {
+            title: 'Warehouse',
+            dataIndex: 'warehouse_id',
+            key: 'warehouse_id',
+            render: (_, { warehouse_id, product_type_id }, index) => {
+                console.log('product_type_id', product_type_id)
+                return (
+                    <AsyncSelect
+                        endpoint="/warehouse"
+                        valueKey="warehouse_id"
+                        labelKey="name"
+                        labelInValue
+                        disabled={product_type_id?.value !== 2}
+                        className="w-full"
+                        value={warehouse_id}
+                        onChange={(selected) => {
+                            setTableData((prev) => {
+                                const updated = [...prev];
+                                updated[index] = {
+                                    ...updated[index],
+                                    warehouse_id: selected
+                                };
+                                return updated;
+                            });
+                        }
+                        }
+                        addNewLink={
+                            permissions.warehouse.list && permissions.warehouse.add ? '/warehouse' : null
+                        }
+                    />
+                );
+            },
+            width: 200
         },
     ];
 

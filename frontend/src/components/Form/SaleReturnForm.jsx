@@ -15,13 +15,13 @@ import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput'
 import DebounceInput from '../Input/DebounceInput';
 import { DetailSummaryInfo } from './QuotationForm';
 
-const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
+const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const handleError = useError();
   const dispatch = useDispatch();
   const { id } = useParams();
-  const { isFormSubmitting, initialFormValues, saleInvoiceDetail, list } = useSelector(
-    (state) => state.saleInvoice
+  const { isFormSubmitting, initialFormValues, saleReturnDetail, list } = useSelector(
+    (state) => state.saleReturn
   );
 
   const POType = Form.useWatch('type', form);
@@ -261,7 +261,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
 
   return (
     <Form
-      name="saleInvoice"
+      name="saleReturn"
       layout="vertical"
       autoComplete="off"
       form={form}
@@ -369,13 +369,13 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="vessel_billing_address" label="Vessel Billing Address">
-            <Input />
+            <Input disabled />
           </Form.Item>
         </Col>
       </Row>
       <Table
         columns={columns}
-        dataSource={saleInvoiceDetail}
+        dataSource={saleReturnDetail}
         rowKey={'charge_order_detail_id'}
         size="small"
         scroll={{ x: 'calc(100% - 200px)' }}
@@ -404,7 +404,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
         <Link to="/sale-invoice">
           <Button className="w-28">Exit</Button>
         </Link>
-        <Button
+        {/* <Button
           type="primary"
           className="w-28"
           loading={isFormSubmitting && submitAction === 'save'}
@@ -423,10 +423,10 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
             form.submit();
           }}>
           Save & Exit
-        </Button>
+        </Button> */}
       </div>
     </Form>
   );
 };
 
-export default SaleInvoiceForm;
+export default SaleReturnForm;

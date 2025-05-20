@@ -77,7 +77,7 @@ const rootReducer = combineReducers({
   purchaseOrder: purchaseOrderReducer,
   purchaseInvoice: purchaseInvoiceReducer,
   saleInvoice: saleInvoiceReducer,
-  SaleReturn: SaleReturnReducer,
+  saleReturn: SaleReturnReducer,
   PurchaseReturn: PurchaseReturnReducer,
   goodsReceivedNote: goodsReceivedNoteReducer,
   quotation: quotationReducer,
