@@ -270,13 +270,13 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
       autoComplete="off"
       form={form}
       onFinish={onFinish}
-      initialValues={
-        mode === 'edit'
-          ? {
-            ...initialFormValues
-          }
-          : { document_date: dayjs() }
-      }
+      // initialValues={
+      //   mode === 'edit'
+      //     ? {
+      //       ...initialFormValues
+      //     }
+      //     : { document_date: dayjs() }
+      // }
       scrollToFirstError>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
@@ -361,7 +361,8 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
               initialFormValues?.port_id && initialFormValues?.name
                 ? { value: initialFormValues.port_id, label: initialFormValues.name }
                 : null
-            }>
+            }
+            >
             <AsyncSelect
               endpoint="/port"
               valueKey="port_id"
