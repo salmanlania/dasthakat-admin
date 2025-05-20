@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import GMSLogo from '../../assets/logo-with-title.png';
-import useError from '../../hooks/useError';
+import toast from 'react-hot-toast';
 
 const getImageBuffer = async (image) => {
   const img = await fetch(image);
@@ -14,7 +14,6 @@ const getImageBuffer = async (image) => {
 
 const generateSchedulingExcel = async (datas) => {
 
-  const handleError = useError()
   try {
     const data = datas?.data
     const workbook = new ExcelJS.Workbook();
@@ -367,7 +366,8 @@ const generateSchedulingExcel = async (datas) => {
     saveAs(new Blob([buffer]), `Scheduling-${datas?.data[0]?.company_id ? datas?.data[0]?.company_id : datas?.data[0]?.created_at}.xlsx`);
 
   } catch (error) {
-    handleError(error)
+    console.log('error' , error)
+    toast.error(error)
   }
 
 };

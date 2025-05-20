@@ -181,14 +181,12 @@ const Scheduling = () => {
 
       generateSchedulingExcel(data, true);
 
-      await dispatch(setDispatchListParams(originalParams)).unwrap();
-      await dispatch(getDispatchList(originalParams)).unwrap();
+      dispatch(setDispatchListParams(originalParams));
+      dispatch(getDispatchList(originalParams));
 
       setTableKey((prevKey) => prevKey + 1);
     } catch (error) {
-      await dispatch(setDispatchListParams(originalParams)).unwrap();
-      await dispatch(getDispatchList(originalParams)).unwrap();
-      handleError(error);
+      handleError(error)
     } finally {
       toast.dismiss(loadingToast);
     }
@@ -220,13 +218,11 @@ const Scheduling = () => {
 
       createSchedulingListPrint(Array.isArray(data) ? data : [data], true);
 
-      await dispatch(setDispatchListParams(originalParams)).unwrap();
-      await dispatch(getDispatchList(originalParams)).unwrap();
+      dispatch(setDispatchListParams(originalParams));
+      dispatch(getDispatchList(originalParams));
 
       setTableKey((prevKey) => prevKey + 1);
     } catch (error) {
-      await dispatch(setDispatchListParams(originalParams)).unwrap();
-      await dispatch(getDispatchList(originalParams)).unwrap();
       handleError(error);
     } finally {
       toast.dismiss(loadingToast);
@@ -251,7 +247,7 @@ const Scheduling = () => {
 
     try {
       const data = await dispatch(getEventServiceOrder(id)).unwrap();
-      createServiceOrderPrint(data , true);
+      createServiceOrderPrint(data, true);
     } catch (error) {
       handleError(error);
     } finally {
