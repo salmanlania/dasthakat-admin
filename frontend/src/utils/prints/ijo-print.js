@@ -1,4 +1,5 @@
 import jsPDF from 'jspdf';
+import dayjs from 'dayjs';
 import 'jspdf-autotable';
 import GMSLogo from '../../assets/logo-with-title.png';
 
@@ -55,17 +56,6 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
   doc.setDrawColor(32, 50, 114);
   doc.setLineWidth(0.5);
   doc.line(x - textWidth / 2, underlineY, x + textWidth / 2, underlineY);
-
-  // doc.setFillColor(235, 241, 222);
-  // doc.setDrawColor(196, 189, 151);
-  // doc.setLineWidth(0.1);
-  // doc.rect(153, 32, 56, 9, 'FD');
-
-  // Add text inside the box
-  // doc.setTextColor(200, 0, 0); // Red color
-  // doc.setFont('times', 'bold');
-  // doc.setFontSize(14);
-  // doc.text('V.1', 181, 39, { align: 'center' })
 
   // Table 1
   const table1Row = [
@@ -264,7 +254,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
         }
       },
       {
-        content: schedulingDate,
+        content: dayjs(schedulingDate).format('MM-DD-YYYY'),
         styles: {
           fontSize: 9
         }
@@ -365,23 +355,6 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
     let lastDocumentIdService = '';
     let lastSO_DO = '';
     let lastPO = '';
-
-    // Sort function to sort by showDocumentId, showSO_DO, and showPO in order
-    // const sortedDetails = [...data.job_order_detail].sort((a, b) => {
-    //   const docIdA = a?.charge_order?.document_identity || '';
-    //   const docIdB = b?.charge_order?.document_identity || '';
-
-    //   const soDoA = a?.shipment?.document_identity || '';
-    //   const soDoB = b?.shipment?.document_identity || '';
-
-    //   const poA = a?.charge_order?.customer_po_no || '';
-    //   const poB = b?.charge_order?.customer_po_no || '';
-
-    //   // Sorting logic (you can adjust the order of sorting or make it ascending/descending)
-    //   if (docIdA !== docIdB) return docIdA.localeCompare(docIdB);
-    //   if (soDoA !== soDoB) return soDoA.localeCompare(soDoB);
-    //   return poA.localeCompare(poB);
-    // });
 
     const sortedDetails = [...data.job_order_detail];
 
@@ -512,15 +485,6 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
     ]
   ];
 
-  // const techNotes = data?.job_order_detail?.flatMap(item => {
-  //   const chargeOrder = item?.charge_order;
-  //   if (Array.isArray(chargeOrder)) {
-  //     return chargeOrder.map(c => c?.technician_notes);
-  //   } else if (chargeOrder) {
-  //     return chargeOrder.technician_notes;
-  //   }
-  //   return [];
-  // }).filter(Boolean);
   const techNotes = data?.job_order_detail
     ? data?.job_order_detail[0]?.charge_order?.technician_notes
     : '';
@@ -580,22 +544,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
       }
     ]);
   }
-  // table4Row.push([
-  //   {
-  //     content: 'Technician Notes',
-  //     styles: {
-  //       fillColor: 'ebf1de',
-  //       textColor: '#244062',
-  //     }
-  //   },
-  //   {
-  //     content: techNotes ? techNotes : "",
-  //     styles: {
-  //       halign: 'left',
-  //       colSpan : 3
-  //     }
-  //   }
-  // ])
+ 
   doc.autoTable({
     startY: doc.previousAutoTable.finalY,
     body: table4Row,
@@ -627,9 +576,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
 };
 
 export const createIJOPrint = (data, multiple = false) => {
-  console.log('data', data)
   const schedulingDate = data?.scheduling?.event_date ? data?.scheduling?.event_date : data[0]?.scheduling?.event_date ? data[0]?.scheduling?.event_date : null
-  console.log('schedulingDate' , schedulingDate)
   const doc = new jsPDF();
 
   const sideMargin = 1;
