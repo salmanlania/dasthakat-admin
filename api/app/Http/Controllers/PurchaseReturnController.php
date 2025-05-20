@@ -178,7 +178,7 @@ class PurchaseReturnController extends Controller
 					$Warehouse = Warehouse::find($detail["warehouse_id"]);
 				}
 
-	
+
 				$amount = $PurchaseOrderDetail->rate * $detail['quantity'];
 				$totalQuantity += $detail['quantity'];
 				$totalAmount += $amount;
@@ -236,9 +236,12 @@ class PurchaseReturnController extends Controller
 					], 'O');
 				}
 			}
+			$PR = PurchaseReturn::find($uuid);
 
-			// $data['total_quantity'] = $totalQuantity;
-			// $data['total_amount']   = $totalAmount;
+			$PR->total_quantity = $totalQuantity;
+			$PR->total_amount   = $totalAmount;
+
+			$PR->save();
 		}
 
 		if ($totalQuantity > 0) {
