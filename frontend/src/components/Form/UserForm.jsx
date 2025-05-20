@@ -106,7 +106,6 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
             <Form.Item
               name="phone_no"
               label="Phone Number"
-              // rules={[{ required: true, message: 'Phone number is required!' }]}
             >
               <PhoneInput country={'us'} enableSearch inputStyle={{ width: '100%' }} />
             </Form.Item>

@@ -98,7 +98,6 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
       const supplierCode = initialFormValues?.supplier_code || '';
       const contactOne = initialFormValues?.contact1 || '';
       const contactTwo = initialFormValues?.contact2 || '';
-      // const billingAddress = initialFormValues?.vessel || '';
       const billingAddress = initialFormValues?.vessel_billing_address ? initialFormValues?.vessel_billing_address : initialFormValues?.vessel?.billing_address || '';
 
       setTotalQuantity(quantity);

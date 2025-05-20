@@ -144,7 +144,6 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
       is_event_changed: isEventChanged
     };
 
-    // await onSubmit(data, additionalRequest);
     submitAction === 'save' ? onSubmit(data, additionalRequest) : submitAction === 'saveAndExit' ? onSave(data, additionalRequest) : null;
 
     if (additionalRequest === 'CREATE_PO') {
@@ -665,19 +664,6 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
       key: 'description',
       render: (_, { description, editable }, index) => {
         return (
-          // <DebounceInput
-          //   value={description}
-          //   disabled={editable === false}
-          //   onChange={(value) =>
-          //     dispatch(
-          //       changeChargeOrderDetailValue({
-          //         index,
-          //         key: 'description',
-          //         value: value
-          //       })
-          //     )
-          //   }
-          // />
           <div className="relative">
             <p>{description}</p>
             <div
@@ -706,18 +692,6 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
       key: 'internal_notes',
       render: (_, { internal_notes }, index) => {
         return (
-          // <DebounceInput
-          //   value={internal_notes}
-          //   onChange={(value) =>
-          //     dispatch(
-          //       changeChargeOrderDetailValue({
-          //         index,
-          //         key: 'internal_notes',
-          //         value: value
-          //       })
-          //     )
-          //   }
-          // />
           <div className="relative">
             <p>{internal_notes}</p>
             <div

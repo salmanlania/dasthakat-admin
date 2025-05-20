@@ -332,16 +332,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       dispatch(
         changeQuotationDetailValue({
           index,
-          // key: [
-          //   'product_id',
-          //   'product_description',
-          //   'product_code',
-          //   'product_type_id',
-          //   'unit_id',
-          //   'cost_price',
-          //   'rate'
-          // ],
-          // value: [null, null, null, null, null, null, null]
           key: 'product_code',
           value: null
         })
@@ -410,29 +400,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       dispatch(
         changeQuotationDetailValue({
           index,
-          // key: [
-          //   'product_code',
-          //   'product_type_id',
-          //   'product_description',
-          //   'unit_id',
-          //   'stock_quantity',
-          //   'cost_price',
-          //   'rate'
-          // ],
-          // value: [
-          //   product.product_code,
-          //   product.product_type_id
-          //     ? {
-          //         value: product.product_type_id,
-          //         label: product.product_type_name
-          //       }
-          //     : null,
-          //   selected?.label || '', // product_description
-          //   { value: product.unit_id, label: product.unit_name },
-          //   stockQuantity,
-          //   product.cost_price,
-          //   product.sale_price
-          // ]
           key: 'product_code',
           value: product.product_code
         })
@@ -687,7 +654,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           <Form.Item
             className="m-0"
             name={`product_name-${index}`}
-            // value={product_id}
             value={product_id ? { value: product_id, label: product_name } : null}
             rules={[
               {
@@ -701,9 +667,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
               labelKey="product_name"
               labelInValue
               className="w-full"
-              // value={product_id}
               value={product_id ? { value: product_id, label: product_name } : null}
-              // value={{ label: product_name, value: product_id }}
               onChange={(selected) => onProductChange(index, selected)}
               addNewLink={permissions.product.add ? '/product/create' : null}
               dropdownStyle={{ backgroundColor: '#a2e1eb' }}
@@ -1204,9 +1168,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       ),
       key: 'action',
       render: (record, { id }, index) => {
-        // if (record.isDeleted) {
-        //   return null;
-        // }
         return (
           <Dropdown
             trigger={['click']}
