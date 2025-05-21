@@ -93,11 +93,7 @@ class QuotationController extends Controller
 	{
 
 		$data = Quotation::with(
-			"quotation_detail",
-			"quotation_detail.product",
-			"quotation_detail.product_type",
-			"quotation_detail.unit",
-			"quotation_detail.supplier",
+			
 			"salesman",
 			"event",
 			"vessel",
@@ -111,6 +107,9 @@ class QuotationController extends Controller
 			"person_incharge"
 		)
 			->where('quotation_id', $id)->first();
+			
+$data->quotation_detail = QuotationDetail::with(['supplier','unit','product_type'])->where('quotation_id',$data->quotation_id)->get();
+
 
 		if ($data) {
 			foreach ($data->quotation_detail as $detail) {
@@ -133,7 +132,7 @@ class QuotationController extends Controller
 			}
 		}
 		$data['term_id'] = $terms;
-
+		
 		if (isset($request->hasAvailableQty) && $request->hasAvailableQty == true) {
 			$quotationDetails = $data->quotation_detail->toArray();
 			$filteredDetails = array_filter($quotationDetails, function ($detail) {
@@ -143,6 +142,8 @@ class QuotationController extends Controller
 			$data->quotation_detail = array_values($filteredDetails);
 		}
 
+
+	
 		return $this->jsonResponse($data, 200, "Quotation Data");
 	}
 
