@@ -273,14 +273,14 @@ class PurchaseReturnController extends Controller
 			return $this->jsonResponse('Purchase Order not found.', 404);
 		}
 
-		$chargeOrder = ChargeOrder::with('charge_order_detail')->find($PurchaseOrder->charge_order_id);
-		if (!$chargeOrder) {
-			return $this->jsonResponse('Charge Order not found.', 404);
-		}
+		// $chargeOrder = ChargeOrder::with('charge_order_detail')->find($PurchaseOrder->charge_order_id);
+		// if (!$chargeOrder) {
+		// 	return $this->jsonResponse('Charge Order not found.', 404);
+		// }
 
-		$purchaseReturn->vpart = $request->vpart ?? $purchaseReturn->vpart;
+		// $purchaseReturn->vpart = $request->vpart ?? $purchaseReturn->vpart;
 		$purchaseReturn->document_date = $request->document_date ?? $purchaseReturn->document_date;
-		$purchaseReturn->vendor_notes = $request->vendor_notes ?? $purchaseReturn->vendor_notes;
+		// $purchaseReturn->vendor_notes = $request->vendor_notes ?? $purchaseReturn->vendor_notes;
 		$purchaseReturn->updated_at = Carbon::now();
 		$purchaseReturn->updated_by = $request->login_user_id;
 		$purchaseReturn->save();
@@ -292,21 +292,21 @@ class PurchaseReturnController extends Controller
 		if ($request->purchase_return_detail) {
 
 			foreach ($request->purchase_return_detail as $detail) {
-				$PurchaseOrderDetail = PurchaseOrderDetail::find($detail['purchase_order_detail_id']);
-				$ChargeOrderDetail = ChargeOrderDetail::where('product_type_id', "!=", 1)->find($PurchaseOrderDetail->charge_order_detail_id);
-				if (!empty($ChargeOrderDetail->product_id)) {
-					$Product = Product::with('unit')->find($ChargeOrderDetail->product_id);
+				// $PurchaseOrderDetail = PurchaseOrderDetail::find($detail['purchase_order_detail_id']);
+				// $ChargeOrderDetail = ChargeOrderDetail::where('product_type_id', "!=", 1)->find($PurchaseOrderDetail->charge_order_detail_id);
+				if (!empty($detail['product_id'])) {
+					$Product = Product::with('unit')->find($detail['product_id']);
 				}
 				if (!empty($detail["warehouse_id"])) {
 					$Warehouse = Warehouse::find($detail["warehouse_id"]);
 				}
 
 				$index++;
-				if ($detail->row_status == 'I') {
+				if ($detail['row_status'] == 'I') {
 
-					if (empty($ChargeOrderDetail)) continue;
+					// if (empty($ChargeOrderDetail)) continue;
 
-					$amount = $ChargeOrderDetail->rate * $detail['quantity'];
+					$amount = $detail['rate'] * $detail['quantity'];
 					$totalQuantity += $detail['quantity'];
 					$totalAmount += $amount;
 
@@ -314,30 +314,32 @@ class PurchaseReturnController extends Controller
 					purchaseReturnDetail::create([
 						'purchase_return_detail_id' => $detail_uuid,
 						'purchase_return_id'       => $id,
-						'charge_order_detail_id'   => $ChargeOrderDetail->charge_order_detail_id,
-						'purchase_order_detail_id' => $detail['purchase_order_detail_id'],
+						'charge_order_detail_id'   => $detail['charge_order_detail_id'] ?? "",
+						'purchase_order_detail_id' => $detail['purchase_order_detail_id'] ?? "",
 						'sort_order'               => $index,
-						'product_id'               => $ChargeOrderDetail->product_id,
-						'product_name'             => $ChargeOrderDetail->product_name,
-						'product_description'      => $ChargeOrderDetail->product_description,
-						'description'              => $ChargeOrderDetail->description,
-						'unit_id'                  => $ChargeOrderDetail->unit_id,
-						'quantity'                 => $detail['quantity'],
-						'rate'                     => $ChargeOrderDetail->rate,
+						'product_id'               => $detail['product_id'] ?? "",
+						'product_name'             => $detail['product_name'] ?? "",
+						'product_description'      => $detail['product_description'] ?? "",
+						'description'              => $detail['description'] ?? "",
+						'unit_id'                  => $detail['unit_id'] ?? "",
+						'quantity'                 => $detail['quantity'] ?? "",
+						'rate'                     => $detail['rate'] ?? "",
+						'vendor_notes'             => $detail['vendor_notes'] ?? "",
+						'vpart'                    => $detail['vpart'] ?? "",
 						'amount'                   => $amount,
 						'created_at'               => Carbon::now(),
 						'created_by'               => $request->login_user_id,
 					]);
-					if ($ChargeOrderDetail->product_type_id == 2 && !empty($detail["warehouse_id"]) && ($detail["quantity"] > 0)) {
+					if ($detail['product_type_id'] == 2 && !empty($detail["warehouse_id"]) && ($detail["quantity"] > 0)) {
 
 						$stockEntry = [
 							'sort_order' => $index,
-							'product_id' => $ChargeOrderDetail->product_id,
+							'product_id' => $detail['product_id'],
 							'warehouse_id' => $detail["warehouse_id"] ?? "",
 							'unit_id' => $Product->unit_id ?? null,
 							'unit_name' =>  $Product->unit->name ?? null,
 							'quantity' => $detail["quantity"],
-							'rate' => $ChargeOrderDetail->rate,
+							'rate' => $detail['rate'],
 							'amount' => $amount,
 							'remarks'      => sprintf(
 								"%d %s of %s (Code: %s) returned in %s warehouse under Purchase Return document %s. Original rate: %s. Total amount: %s.",
@@ -347,7 +349,7 @@ class PurchaseReturnController extends Controller
 								$Product->impa_code ?? 'N/A',
 								$Warehouse->name ?? 'Unknown Warehouse',
 								$PurchaseOrder->document_identity ?? 'N/A',
-								$chargeOrderDetail->rate ?? 'N/A',
+								$detail['rate'] ?? 'N/A',
 								$amount ?? '0.00'
 							),
 						];
@@ -360,33 +362,37 @@ class PurchaseReturnController extends Controller
 						], 'O');
 					}
 				}
-				if ($detail->row_status == 'U') {
+				if ($detail['row_status'] == 'U') {
+						$totalQuantity += $detail['quantity'];
+					$totalAmount += $detail['amount'];
 					$row = [
-						'sort_order' => $detail->sort_order ?? "",
-						'product_id' => $detail->product_id ?? "",
-						'product_name' => $detail->product_name ?? "",
-						'product_description' => $detail->product_description ?? "",
-						'description' => $detail->description ?? "",
-						'unit_id' => $detail->unit_id ?? "",
+						'sort_order' => $detail['sort_order'] ?? "",
+						'product_id' => $detail['product_id'] ?? "",
+						'product_name' => $detail['product_name'] ?? "",
+						'product_description' => $detail['product_description'] ?? "",
+						'description' => $detail['description'] ?? "",
+						'unit_id' => $detail['unit_id'] ?? "",
 						'quantity' => $detail['quantity'] ?? "",
-						'rate' => $detail->rate ?? "",
-						'amount' => $detail->amount ?? "",
+						'vpart' => $detail['vpart'],
+						'vendor_notes' => $detail['vendor_notes'],
+						'rate' => $detail['rate'] ?? "",
+						'amount' => $detail['amount'] ?? "",
 						'updated_at' => Carbon::now(),
 						'updated_by' => $request->login_user_id,
 					];
-					purchaseReturnDetail::where('purchase_return_detail_id', $detail->purchase_return_detail_id)->update($row);
-					StockLedger::where('document_detail_id', $detail->purchase_return_detail_id)->delete();
-					if ($ChargeOrderDetail->product_type_id == 2 && !empty($detail["warehouse_id"]) && ($detail["quantity"] > 0)) {
+					purchaseReturnDetail::where('purchase_return_detail_id', $detail['purchase_return_detail_id'])->update($row);
+					StockLedger::where('document_detail_id', $detail['purchase_return_detail_id'])->delete();
+					if ($detail['product_type_id'] == 2 && !empty($detail["warehouse_id"]) && ($detail["quantity"] > 0)) {
 
 						$stockEntry = [
 							'sort_order' => $index,
-							'product_id' => $ChargeOrderDetail->product_id,
+							'product_id' => $detail['product_id'],
 							'warehouse_id' => $detail["warehouse_id"] ?? "",
-							'unit_id' => $Product->unit_id ?? null,
-							'unit_name' =>  $Product->unit->name ?? null,
+							'unit_id' => $Product?->unit_id ?? null,
+							'unit_name' =>  $Product?->unit?->name ?? null,
 							'quantity' => $detail["quantity"],
-							'rate' => $ChargeOrderDetail->rate,
-							'amount' => $amount,
+							'rate' => $detail['rate'],
+							'amount' => $detail['amount'],
 							'remarks'      => sprintf(
 								"%d %s of %s (Code: %s) returned in %s warehouse under Purchase Return document %s. Original rate: %s. Total amount: %s.",
 								$detail["quantity"] ?? 0,
@@ -395,8 +401,8 @@ class PurchaseReturnController extends Controller
 								$Product->impa_code ?? 'N/A',
 								$Warehouse->name ?? 'Unknown Warehouse',
 								$PurchaseOrder->document_identity ?? 'N/A',
-								$chargeOrderDetail->rate ?? 'N/A',
-								$amount ?? '0.00'
+								$detail['rate'] ?? 'N/A',
+								$detail['amount'] ?? '0.00'
 							),
 						];
 						StockLedger::handleStockMovement([
