@@ -347,6 +347,8 @@ class SaleReturnController extends Controller
 					}
 				}
 				if ($detail['row_status'] == 'U') {
+					$totalQuantity += $detail['quantity'];
+					$totalAmount += $detail['amount'];
 					$row = [
 						'sort_order' => $detail['sort_order'] ?? "",
 						'product_id' => $detail['product_id'] ?? "",
