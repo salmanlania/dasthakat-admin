@@ -283,18 +283,18 @@ class SaleReturnController extends Controller
 		if ($request->sale_return_detail) {
 
 			foreach ($request->sale_return_detail as $detail) {
-				$PicklistDetail = PicklistDetail::find($detail->picklist_detail_id);
+				$PicklistDetail = PicklistDetail::find($detail['picklist_detail_id']);
 				$Picklist = Picklist::find($PicklistDetail->picklist_id);
 				$chargeOrderDetail = ChargeOrderDetail::where('product_type_id', "!=", 1)->find($PicklistDetail->charge_order_detail_id);
 				$Product = Product::with('unit')->find($chargeOrderDetail->product_id);
-				$Warehouse = Warehouse::find($detail->warehouse_id);
+				$Warehouse = Warehouse::find($detail['warehouse_id']);
 				$index++;
-				if ($detail->row_status == 'I') {
+				if ($detail['row_status'] == 'I') {
 
 					if (empty($chargeOrderDetail)) continue;
 
-					$amount = $chargeOrderDetail->rate * $detail->quantity;
-					$totalQuantity += $detail->quantity;
+					$amount = $chargeOrderDetail->rate * $detail['quantity'];
+					$totalQuantity += $detail['quantity'];
 					$totalAmount += $amount;
 
 					$detail_uuid = $this->get_uuid();
@@ -302,7 +302,7 @@ class SaleReturnController extends Controller
 						'sale_return_detail_id'   => $detail_uuid,
 						'sale_return_id'          => $id,
 						'charge_order_detail_id'   => $PicklistDetail->charge_order_detail_id,
-						'picklist_detail_id'       => $detail->picklist_detail_id,
+						'picklist_detail_id'       => $detail['picklist_detail_id'],
 						'sort_order'               => $index,
 						'product_id'               => $chargeOrderDetail->product_id,
 						'product_name'             => $chargeOrderDetail->product_name,
@@ -310,26 +310,26 @@ class SaleReturnController extends Controller
 						'description'              => $chargeOrderDetail->description,
 						'unit_id'                  => $chargeOrderDetail->unit_id,
 						'warehouse_id'             => $chargeOrderDetail->warehouse_id,
-						'quantity'                 => $detail->quantity,
+						'quantity'                 => $detail['quantity'],
 						'rate'                     => $chargeOrderDetail->rate,
 						'amount'                   => $amount,
 						'created_at'               => Carbon::now(),
 						'created_by'               => $request->login_user_id,
 					]);
-					if ($Product->product_type_id == 2 && !empty($detail->warehouse_id) && ($detail->quantity > 0)) {
+					if ($Product->product_type_id == 2 && !empty($detail['warehouse_id']) && ($detail['quantity'] > 0)) {
 
 						$stockEntry = [
 							'sort_order' => $index,
 							'product_id' => $chargeOrderDetail->product_id,
-							'warehouse_id' => $detail->warehouse_id,
+							'warehouse_id' => $detail['warehouse_id'],
 							'unit_id' => $Product->unit_id ?? null,
 							'unit_name' =>  $Product->unit->name ?? null,
-							'quantity' => $detail->quantity,
+							'quantity' => $detail['quantity'],
 							'rate' => $chargeOrderDetail->rate,
 							'amount' => $amount,
 							'remarks' => sprintf(
 								"%d %s of %s (Code: %s) deducted from %s - Document: %s",
-								$detail->quantity ?? 0,
+								$detail['quantity'] ?? 0,
 								$Product->unit->name ?? '',
 								$Product->name ?? 'Unknown Product',
 								$Product->impa_code ?? 'N/A',
@@ -346,37 +346,37 @@ class SaleReturnController extends Controller
 						], 'I');
 					}
 				}
-				if ($detail->row_status == 'U') {
+				if ($detail['row_status'] == 'U') {
 					$row = [
-						'sort_order' => $detail->sort_order ?? "",
-						'product_id' => $detail->product_id ?? "",
-						'product_name' => $detail->product_name ?? "",
-						'product_description' => $detail->product_description ?? "",
-						'description' => $detail->description ?? "",
-						'unit_id' => $detail->unit_id ?? "",
-						'warehouse_id' => $detail->warehouse_id ?? "",
-						'quantity' => $detail->quantity ?? "",
-						'rate' => $detail->rate ?? "",
-						'amount' => $detail->amount ?? "",
+						'sort_order' => $detail['sort_order'] ?? "",
+						'product_id' => $detail['product_id'] ?? "",
+						'product_name' => $detail['product_name'] ?? "",
+						'product_description' => $detail['product_description'] ?? "",
+						'description' => $detail['description'] ?? "",
+						'unit_id' => $detail['unit_id'] ?? "",
+						'warehouse_id' => $detail['warehouse_id'] ?? "",
+						'quantity' => $detail['quantity'] ?? "",
+						'rate' => $detail['rate'] ?? "",
+						'amount' => $detail['amount'] ?? "",
 						'updated_at' => Carbon::now(),
 						'updated_by' => $request->login_user_id,
 					];
-					SaleReturnDetail::where('sale_return_detail_id', $detail->sale_return_detail_id)->update($row);
-					StockLedger::where('document_detail_id', $detail->sale_return_detail_id)->delete();
-					if ($Product->product_type_id == 2 && !empty($detail->warehouse_id) && ($detail->quantity > 0)) {
+					SaleReturnDetail::where('sale_return_detail_id', $detail['sale_return_detail_id'])->update($row);
+					StockLedger::where('document_detail_id', $detail['sale_return_detail_id'])->delete();
+					if ($Product->product_type_id == 2 && !empty($detail['warehouse_id']) && ($detail['quantity'] > 0)) {
 
 						$stockEntry = [
 							'sort_order' => $index,
 							'product_id' => $chargeOrderDetail->product_id,
-							'warehouse_id' => $detail->warehouse_id,
+							'warehouse_id' => $detail['warehouse_id'],
 							'unit_id' => $Product->unit_id ?? null,
 							'unit_name' =>  $Product->unit->name ?? null,
-							'quantity' => $detail->quantity,
+							'quantity' => $detail['quantity'],
 							'rate' => $chargeOrderDetail->rate,
 							'amount' => $amount,
 							'remarks'      => sprintf(
 								"%d %s of %s (Code: %s) returned from %s warehouse under Sale Return document %s. Original rate: %s. Total amount: %s.",
-								$detail->quantity ?? 0,
+								$detail['quantity'] ?? 0,
 								$Product->unit->name ?? '',
 								$Product->name ?? 'Unknown Product',
 								$Product->impa_code ?? 'N/A',
@@ -390,14 +390,14 @@ class SaleReturnController extends Controller
 							'sort_order' => $index,
 							'master_model' => new SaleReturn,
 							'document_id' => $id,
-							'document_detail_id' => $detail->sale_return_detail_id,
+							'document_detail_id' => $detail['sale_return_detail_id'],
 							'row' => $stockEntry,
 						], 'I');
 					}
 				}
-				if ($detail->row_status == 'D') {
-					SaleReturnDetail::where('sale_return_detail_id', $detail->sale_return_detail_id)->delete();
-					StockLedger::where('document_detail_id', $detail->sale_return_detail_id)->delete();
+				if ($detail['row_status'] == 'D') {
+					SaleReturnDetail::where('sale_return_detail_id', $detail['sale_return_detail_id'])->delete();
+					StockLedger::where('document_detail_id', $detail['sale_return_detail_id'])->delete();
 				}
 			}
 
