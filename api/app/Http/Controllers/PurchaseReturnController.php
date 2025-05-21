@@ -414,7 +414,7 @@ class PurchaseReturnController extends Controller
 						], 'O');
 					}
 				}
-				if ($detail->row_status == 'D') {
+				if ($detail['row_status'] == 'D') {
 					purchaseReturnDetail::where('purchase_return_detail_id', $detail->purchase_return_detail_id)->delete();
 					StockLedger::where('document_detail_id', $detail->purchase_return_detail_id)->delete();
 				}
