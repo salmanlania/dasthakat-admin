@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom'
 import useError from '../../hooks/useError';
 import { getProduct } from '../../store/features/productSlice';
+import { changeSaleReturnDetailValue } from '../../store/features/saleReturnSlice';
 import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
@@ -31,6 +32,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
   const permissions = user.permission;
 
   const [totalQuantity, setTotalQuantity] = useState('');
+  const [newAmount, setNewAmount] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
   const [submitAction, setSubmitAction] = useState(null);
 
@@ -39,7 +41,12 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
 
     const data = {
       ...values,
-      vessel_billing_address: values?.vessel_billing_address ? values?.vessel_billing_address : null
+      picklist_id: initialFormValues?.picklist_id ? initialFormValues?.picklist_id : null,
+      sale_return_detail: saleReturnDetail.map(({ id, ...detail }) => ({
+        ...detail,
+        amount: newAmount ? newAmount : detail.quantity ? detail.quantity : null,
+        quantity: detail.quantity ? detail.quantity : null,
+      })),
     };
 
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
@@ -200,9 +207,17 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
             name={`quantity-${index}`}
             initialValue={quantity}>
             <DebouncedCommaSeparatedInput
-              disabled
               decimalPlaces={2}
               value={quantity}
+              onChange={(value) =>
+                dispatch(
+                  changeSaleReturnDetailValue({
+                    index,
+                    key: 'quantity',
+                    value: value
+                  })
+                )
+              }
             />
           </Form.Item>
         );
@@ -246,9 +261,13 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
       title: 'Ext. Cost',
       dataIndex: 'amount',
       key: 'amount',
-      render: (_, { amount }) => (
-        <DebouncedCommaSeparatedInput value={amount ? amount + '' : ''} disabled />
-      ),
+      render: (_, { amount, rate, quantity }) => {
+        const calAmount = rate * quantity
+        setNewAmount(calAmount)
+        return (
+          <DebouncedCommaSeparatedInput value={newAmount ? newAmount + '' : ''} disabled />
+        )
+      },
       width: 120
     },
   ];
@@ -389,7 +408,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
         <Link to="/sale-return">
           <Button className="w-28">Exit</Button>
         </Link>
-        {/* <Button
+        <Button
           type="primary"
           className="w-28"
           loading={isFormSubmitting && submitAction === 'save'}
@@ -408,7 +427,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
             form.submit();
           }}>
           Save & Exit
-        </Button> */}
+        </Button>
       </div>
     </Form>
   );

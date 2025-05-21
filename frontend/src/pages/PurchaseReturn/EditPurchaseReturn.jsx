@@ -6,8 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import PurchaseReturnForm from '../../components/Form/PurchaseReturnForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
-// import { getSaleInvoice, updateSaleInvoiceForm } from '../../store/features/saleInvoiceSlice';
-import { getPurchaseReturn } from '../../store/features/purchaseReturnSlice';
+import { getPurchaseReturn , updatePurchaseReturn} from '../../store/features/purchaseReturnSlice';
 
 const EditPurchaseReturn = () => {
   const dispatch = useDispatch();
@@ -15,6 +14,25 @@ const EditPurchaseReturn = () => {
   const handleError = useError();
   const { id } = useParams();
   const { isItemLoading, initialFormValues } = useSelector((state) => state.purchaseReturn);
+
+  const PurchaseReturnUpdate = async (data) => {
+    try {
+      await dispatch(updatePurchaseReturn({ id, data })).unwrap();
+      toast.success('Purchase Return updated successfully');
+      dispatch(getPurchaseReturn(id)).unwrap().catch(handleError);
+    } catch (error) {
+      handleError(error);
+    }
+  };
+  const PurchaseReturnUpdates = async (data) => {
+    try {
+      await dispatch(updatePurchaseReturn({ id, data })).unwrap();
+      toast.success('Purchase Return updated successfully');
+      navigate('/purchase-return');
+    } catch (error) {
+      handleError(error);
+    }
+  };
 
   useEffect(() => {
     dispatch(getPurchaseReturn(id)).unwrap().catch(handleError);
@@ -35,7 +53,7 @@ const EditPurchaseReturn = () => {
 
       {!isItemLoading && initialFormValues ? (
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <PurchaseReturnForm mode="edit" />
+          <PurchaseReturnForm mode="edit" onSubmit={PurchaseReturnUpdate} onSave={PurchaseReturnUpdates} />
         </div>
       ) : null}
     </>

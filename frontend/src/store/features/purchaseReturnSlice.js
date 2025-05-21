@@ -38,6 +38,17 @@ export const returnPurchaseOrder = createAsyncThunk(
   }
 );
 
+export const updatePurchaseReturn = createAsyncThunk(
+  'purchase-return/update',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      await api.put(`/purchase-return/${id}`, data);
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const bulkDeletePurchaseReturn = createAsyncThunk(
   'purchaseReturn/bulkDelete',
   async (ids, { rejectWithValue }) => {
@@ -83,7 +94,7 @@ const initialState = {
   pickListOpenModalId: null,
   initialFormValues: null,
   pickListDetail: [],
-  // purchaseReturnDetail: [],yyy
+  purchaseReturnDetail: [],
   pickListReceives: null,
   isPickListReceivesLoading: false,
   isPickListReceivesSaving: false,
@@ -121,7 +132,14 @@ export const purchaseReturnListSlice = createSlice({
       if (!action.payload) {
         state.pickListReceives = null;
       }
-    }
+    },
+
+    changePurchaseReturnDetailValue: (state, action) => {
+      const { index, key, value } = action.payload;
+      const detail = state.purchaseReturnDetail[index];
+      detail[key] = value;
+    },
+
   },
   extraReducers: ({ addCase }) => {
     addCase(getPurchaseReturnList.pending, (state) => {
@@ -153,6 +171,7 @@ export const purchaseReturnListSlice = createSlice({
         document_date: data.document_date || '',
         totalQuantity: data.total_quantity || '',
         totalAmount: data.total_amount || '',
+        purchase_order_id: data.purchase_order_id,
         supplier: data?.purchase_order?.supplier?.name,
         customer_po_no: data?.charge_order?.customer_po_no,
         vessel: data?.charge_order?.vessel,
@@ -168,6 +187,7 @@ export const purchaseReturnListSlice = createSlice({
       };
       state.purchaseReturnDetail = data.purchase_return_detail.map((detail) => ({
         id: detail.purchase_return_detail_id,
+        purchase_return_detail_id: detail.purchase_return_detail_id,
         product_code: detail.product ? detail.product.product_code : null,
         product_id: detail.product
           ? { value: detail.product.product_id, label: detail.product.product_name }
@@ -183,6 +203,7 @@ export const purchaseReturnListSlice = createSlice({
         charge_order_detail_id: detail.charge_order_detail_id,
         description: detail.description,
         charge_order_detail_id: detail.charge_order_detail_id,
+        purchase_order_detail_id: detail.purchase_order_detail_id,
         vpart: detail.vpart,
         quantity: detail.quantity ? parseFloat(detail.quantity) : null,
         unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
@@ -193,6 +214,7 @@ export const purchaseReturnListSlice = createSlice({
         short_code: detail?.product ? detail?.product?.short_code : null,
         amount: detail.amount,
         editable: detail.editable,
+        warehouse_id: detail.warehouse_id,
         received_quantity: detail.received_quantity ? parseFloat(detail.received_quantity) : null,
         row_status: 'U',
         isDeleted: false
@@ -201,6 +223,16 @@ export const purchaseReturnListSlice = createSlice({
     addCase(getPurchaseReturn.rejected, (state) => {
       state.isItemLoading = false;
       state.initialFormValues = null;
+    });
+
+    addCase(updatePurchaseReturn.pending, (state) => {
+      state.isItemLoading = true;
+    });
+    addCase(updatePurchaseReturn.fulfilled, (state) => {
+      state.initialFormValues = null;
+    });
+    addCase(updatePurchaseReturn.rejected, (state) => {
+      state.isItemLoading = false;
     });
 
     // start bulk delete
@@ -221,5 +253,5 @@ export const purchaseReturnListSlice = createSlice({
   }
 });
 
-export const { setPurchaseReturnListParams, setPickListOpenModalId, setPurchaseReturnDeleteIDs } = purchaseReturnListSlice.actions;
+export const { setPurchaseReturnListParams, setPickListOpenModalId, setPurchaseReturnDeleteIDs, changePurchaseReturnDetailValue } = purchaseReturnListSlice.actions;
 export default purchaseReturnListSlice.reducer;

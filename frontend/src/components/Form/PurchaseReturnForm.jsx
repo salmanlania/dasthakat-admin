@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom'
 import useError from '../../hooks/useError';
 import { getProduct } from '../../store/features/productSlice';
+import { changePurchaseReturnDetailValue } from '../../store/features/purchaseReturnSlice';
 import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
@@ -36,10 +37,15 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
 
   const onFinish = (values) => {
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
-
+// return console.log('purchaseReturnDetail' , purchaseReturnDetail)
     const data = {
       ...values,
-      vessel_billing_address: values?.vessel_billing_address ? values?.vessel_billing_address : null
+      purchase_order_id: initialFormValues?.purchase_order_id,
+      purchase_return_detail: purchaseReturnDetail.map(({ id, ...detail }) => ({
+        ...detail,
+        quantity: detail.quantity ? detail.quantity : null,
+        product_type_id: detail.product_type?.value ? detail.product_type?.value : null,
+      })),
     };
 
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
@@ -235,9 +241,17 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
             name={`quantity-${index}`}
             initialValue={quantity}>
             <DebouncedCommaSeparatedInput
-              disabled
               decimalPlaces={2}
               value={quantity}
+              onChange={(value) =>
+                dispatch(
+                  changePurchaseReturnDetailValue({
+                    index,
+                    key: 'quantity',
+                    value: value
+                  })
+                )
+              }
             />
           </Form.Item>
         );
@@ -412,7 +426,7 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
         <Link to="/purchase-return">
           <Button className="w-28">Exit</Button>
         </Link>
-        {/* <Button
+        <Button
           type="primary"
           className="w-28"
           loading={isFormSubmitting && submitAction === 'save'}
@@ -431,7 +445,7 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
             form.submit();
           }}>
           Save & Exit
-        </Button> */}
+        </Button>
       </div>
     </Form>
   );

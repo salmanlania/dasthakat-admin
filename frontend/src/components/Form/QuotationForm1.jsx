@@ -13,7 +13,7 @@ import {
   Tooltip
 } from 'antd';
 import dayjs from 'dayjs';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useMemo, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { BiPlus } from 'react-icons/bi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
@@ -23,6 +23,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import NotesModal from '../../components/Modals/NotesModal.jsx';
 import useError from '../../hooks/useError';
+import { CloseOutlined } from '@ant-design/icons';
 import { getEvent } from '../../store/features/eventSlice';
 import { getProduct } from '../../store/features/productSlice';
 import {
@@ -52,6 +53,15 @@ export const DetailSummaryInfo = ({ title, value }) => {
     <div className="flex items-center gap-1">
       <span className="ml-1 text-sm text-gray-500">{title}</span>
       {value}
+    </div>
+  );
+};
+
+export const DetailSummary = ({ title, value }) => {
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <span className="ml-4 text-sm font-bold" style={{ color: 'black !important' }}>{title}</span>
+      <span className="ml-4 text-sm text-gray-500">{value}</span>
     </div>
   );
 };
@@ -93,6 +103,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
   } = useSelector((state) => state.quotation);
   const [prevEvent, setPrevEvent] = useState(initialFormValues?.event_id);
   const [searchQuery, setSearchQuery] = useState('');
+  const [tableKey, setTableKey] = useState(0);
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
   const [notesModalIsOpen, setNotesModalIsOpen] = useState({
@@ -114,21 +125,32 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
   let typeId = 0;
 
   const handleSearchChange = (event) => {
-    setSearchQuery(event.target.value);
+    const newValue = event.target.value;
+    if (newValue === '' && searchQuery !== '') {
+      setSearchQuery('');
+      setTimeout(() => {
+        setTableKey(prevKey => prevKey + 1);
+      }, 0);
+    } else {
+      setSearchQuery(newValue);
+    }
   };
 
-  const filteredRows = quotationDetails
-    .filter((row) => !row.isDeleted)
-    .filter((row, index) => {
-      const productName = row.product_name?.toLowerCase() || '';
-      const productDescription = row.product_description?.toLowerCase() || '';
-      const rowIndex = (index + 1).toString();
+  const filteredRows = useMemo(() => {
+    return quotationDetails.filter((row) => !row.isDeleted).filter((row) => {
+      if (!searchQuery) return true;
+      const query = searchQuery.toLowerCase();
+      const productName = (row.product_name || '')?.toLowerCase();
+      const productDescription = (row.product_description || '')?.toLowerCase();
+      const sortOrder = typeof row.sort_order === 'number' ? String(row.sort_order + 1) : '';
+
       return (
-        productName.includes(searchQuery.toLowerCase()) ||
-        productDescription.includes(searchQuery.toLowerCase()) ||
-        rowIndex.includes(searchQuery.toLowerCase())
+        productName.includes(query) ||
+        productDescription.includes(query) ||
+        sortOrder.includes(query)
       );
     });
+  }, [quotationDetails, searchQuery]);
 
   quotationDetails.forEach((detail) => {
     typeId = detail?.product_type_id?.value;
@@ -170,61 +192,108 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     );
 
     const mappingSource = edit === 'edit' ? quotationDetails : deletedDetails;
-    // return console.log('mappingSource', mappingSource);
 
-    const data = {
-      attn: values.attn,
-      delivery: values.delivery,
-      customer_ref: values.customer_ref,
-      imo: values.imo,
-      internal_notes: values.internal_notes,
-      term_desc: values.term_desc,
-      class1_id: values.class1_id ? values.class1_id.value : null,
-      port_id: values.port_id ? values.port_id.value : null,
-      class2_id: values.class2_id ? values.class2_id.value : null,
-      customer_id: values.customer_id ? values.customer_id.value : null,
-      event_id: values.event_id ? values.event_id.value : null,
-      flag_id: values.flag_id ? values.flag_id.value : null,
-      person_incharge_id: values.person_incharge_id ? values.person_incharge_id.value : null,
-      payment_id: values.payment_id ? values.payment_id.value : null,
-      salesman_id: values.salesman_id ? values.salesman_id.value : null,
-      validity_id: values.validity_id ? values.validity_id.value : null,
-      vessel_id: values.vessel_id ? values.vessel_id.value : null,
-      document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
-      service_date: values.service_date ? dayjs(values.service_date).format('YYYY-MM-DD') : '',
-      due_date: values.due_date ? dayjs(values.due_date).format('YYYY-MM-DD') : '',
-      term_id: values.term_id && values.term_id.length ? values.term_id.map((v) => v.value) : null,
-      status: values.status,
-      remarks: values.remarks,
-      quotation_detail: mappingSource.map(
-        ({ id, row_status, isDeleted, product_type, ...detail }, index) => {
-          return {
-            ...detail,
-            product_id: detail.product_type_id?.value == 4 ? null : detail?.product_id?.value,
-            product_name: detail.product_type_id?.value == 4 ? detail?.product_name : null,
-            supplier_id: detail.supplier_id ? detail?.supplier_id?.value : null,
-            product_type_id: detail?.product_type_id ? detail?.product_type_id?.value : null,
-            unit_id: detail?.unit_id ? detail?.unit_id?.value : null,
-            markup: detail.product_type_id?.value === 1 ? 0 : detail.markup,
-            cost_price: detail.product_type_id?.value === 1 ? 0 : detail.cost_price,
-            sort_order: index,
-            quotation_detail_id: id ? id : null,
-            ...(edit === 'edit' ? { row_status } : {})
-          };
+    const missingProductRows = [];
+
+    for (let i = 0; i < mappingSource.length; i++) {
+      const detail = mappingSource[i];
+      const productTypeId = detail?.product_type_id?.value;
+      const name = detail?.product_id?.value;
+      const otherName = detail?.product_name;
+      const productDescription = detail?.product_description;
+      const productQuantity = detail?.quantity;
+      const receivedQty = quotationDetails[i]?.picked_quantity || 0;
+      const sellingPrice = detail?.rate;
+      const discountPercent = detail?.discount_percent;
+
+      const rowNumber = detail?.sort_order != null ? detail.sort_order + 1 : i + 1;
+
+      if (productTypeId === 4) {
+        if (!otherName || otherName.trim() === '') {
+          missingProductRows.push(rowNumber);
         }
-      ),
-      total_quantity: totalQuantity,
-      total_Cost: totalCost,
-      total_discount: discountAmount,
-      total_amount: totalAmount,
-      net_amount: totalNet,
-      rebate_percent: rebatePercentage,
-      salesman_percent: salesmanPercentage,
-      rebate_amount: rebateAmount,
-      salesman_amount: salesmanAmount
-    };
+      } else if (productTypeId !== 4) {
+        if (!name || name.trim() === '') {
+          missingProductRows.push(rowNumber);
+        }
+      }
+      if (!productDescription || productDescription.trim() === '') {
+        missingProductRows.push(rowNumber);
+      }
+      if (!productQuantity || productQuantity === '' || productQuantity < receivedQty) {
+        missingProductRows.push(rowNumber);
+      }
+      if (!sellingPrice || sellingPrice === '') {
+        missingProductRows.push(rowNumber);
+      }
+      if (discountPercent > 100) {
+        missingProductRows.push(rowNumber);
+      }
+    }
 
-    submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
+    if (missingProductRows.length > 0) {
+      const uniqueRows = [...new Set(missingProductRows)];
+      toast.error(
+        `Please fill or correct all rows: ${uniqueRows.join(', ')}`,
+        { duration: 3000 }
+      );
+      return;
+    } else {
+
+      const data = {
+        attn: values.attn,
+        delivery: values.delivery,
+        customer_ref: values.customer_ref,
+        imo: values.imo,
+        internal_notes: values.internal_notes,
+        term_desc: values.term_desc,
+        class1_id: values.class1_id ? values.class1_id.value : null,
+        port_id: values.port_id ? values.port_id.value : null,
+        class2_id: values.class2_id ? values.class2_id.value : null,
+        customer_id: values.customer_id ? values.customer_id.value : null,
+        event_id: values.event_id ? values.event_id.value : null,
+        flag_id: values.flag_id ? values.flag_id.value : null,
+        person_incharge_id: values.person_incharge_id ? values.person_incharge_id.value : null,
+        payment_id: values.payment_id ? values.payment_id.value : null,
+        salesman_id: values.salesman_id ? values.salesman_id.value : null,
+        validity_id: values.validity_id ? values.validity_id.value : null,
+        vessel_id: values.vessel_id ? values.vessel_id.value : null,
+        document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
+        service_date: values.service_date ? dayjs(values.service_date).format('YYYY-MM-DD') : '',
+        due_date: values.due_date ? dayjs(values.due_date).format('YYYY-MM-DD') : '',
+        term_id: values.term_id && values.term_id.length ? values.term_id.map((v) => v.value) : null,
+        status: values.status,
+        remarks: values.remarks,
+        quotation_detail: mappingSource.map(
+          ({ id, row_status, isDeleted, product_type, ...detail }, index) => {
+            return {
+              ...detail,
+              product_id: detail.product_type_id?.value == 4 ? null : detail?.product_id?.value,
+              product_name: detail.product_type_id?.value == 4 ? detail?.product_name : null,
+              supplier_id: detail.supplier_id ? detail?.supplier_id?.value : null,
+              product_type_id: detail?.product_type_id ? detail?.product_type_id?.value : null,
+              unit_id: detail?.unit_id ? detail?.unit_id?.value : null,
+              markup: detail.product_type_id?.value === 1 ? 0 : detail.markup,
+              cost_price: detail.product_type_id?.value === 1 ? 0 : detail.cost_price,
+              sort_order: index,
+              quotation_detail_id: id ? id : null,
+              ...(edit === 'edit' ? { row_status } : {})
+            };
+          }
+        ),
+        total_quantity: totalQuantity,
+        total_Cost: totalCost,
+        total_discount: discountAmount,
+        total_amount: totalAmount,
+        net_amount: totalNet,
+        rebate_percent: rebatePercentage,
+        salesman_percent: salesmanPercentage,
+        rebate_amount: rebateAmount,
+        salesman_amount: salesmanAmount
+      };
+
+      submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
+    }
   };
 
   const closeNotesModal = () => {
@@ -245,94 +314,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
 
     closeNotesModal();
   };
-
-  // const onProductCodeChange = async (index, value) => {
-  //   if (!value.trim()) return;
-  //   try {
-  //     const res = await dispatch(getProductList({ product_code: value, stock: true })).unwrap();
-
-  //     if (!res.data.length) return;
-
-  //     const product = res.data[0];
-  //     const stockQuantity = product?.stock?.quantity || 0;
-
-  //     form.setFieldsValue({
-  //       [`product_id-${index}`]: product?.product_id
-  //         ? {
-  //             value: product.product_id,
-  //             label: product.product_name
-  //           }
-  //         : null,
-  //       [`product_description-${index}`]: product?.product_name || ''
-  //     });
-
-  //     dispatch(
-  //       changeQuotationDetailValue({
-  //         index,
-  //         key: 'product_id',
-  //         value: {
-  //           value: product.product_id,
-  //           label: product.product_name
-  //         }
-  //       })
-  //     );
-
-  //     dispatch(
-  //       changeQuotationDetailValue({
-  //         index,
-  //         key: 'product_description',
-  //         value: product?.product_name || ''
-  //       })
-  //     );
-
-  //     dispatch(
-  //       changeQuotationDetailValue({
-  //         index,
-  //         key: 'product_type_id',
-  //         value: product.product_type_id
-  //           ? {
-  //               value: product.product_type_id,
-  //               label: product.product_type_name
-  //             }
-  //           : null
-  //       })
-  //     );
-
-  //     dispatch(
-  //       changeQuotationDetailValue({
-  //         index,
-  //         key: 'unit_id',
-  //         value: { value: product.unit_id, label: product.unit_name }
-  //       })
-  //     );
-
-  //     dispatch(
-  //       changeQuotationDetailValue({
-  //         index,
-  //         key: 'stock_quantity',
-  //         value: stockQuantity
-  //       })
-  //     );
-
-  //     dispatch(
-  //       changeQuotationDetailValue({
-  //         index,
-  //         key: 'cost_price',
-  //         value: product.cost_price
-  //       })
-  //     );
-
-  //     dispatch(
-  //       changeQuotationDetailValue({
-  //         index,
-  //         key: 'rate',
-  //         value: product.sale_price
-  //       })
-  //     );
-  //   } catch (error) {
-  //     handleError(error);
-  //   }
-  // };
 
   const onProductChange = useCallback(async (index, selected) => {
     if (!selected) {
@@ -386,11 +367,11 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
             product.product_code,
             product.product_type_id
               ? {
-                  value: product.product_type_id,
-                  label: product.product_type_name
-                }
+                value: product.product_type_id,
+                label: product.product_type_name
+              }
               : null,
-            selected?.label || '', // product_description
+            selected?.label || '',
             { value: product.unit_id, label: product.unit_name },
             stockQuantity,
             product.cost_price,
@@ -519,8 +500,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       title: 'Sr.',
       dataIndex: 'sr',
       key: 'sr',
-      render: (_, record, index) => {
-        return <>{record?.sort_order + 1}.</>;
+      render: (_, record, sort_order, index) => {
+        return <>{record.sort_order ? record.sort_order + 1 : sort_order + 1}.</>;
       },
       width: 50,
       fixed: 'left'
@@ -540,9 +521,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
             value={
               product_type_id?.value
                 ? {
-                    value: product_type_id.value,
-                    label: product_type_id.label?.slice(0, 2) || ''
-                  }
+                  value: product_type_id.value,
+                  label: product_type_id.label?.slice(0, 2) || ''
+                }
                 : product_type_id
             }
             getOptionLabel={(item) => item.name?.slice(0, 2)}
@@ -647,7 +628,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       title: 'Customer Notes',
       dataIndex: 'description',
       key: 'description',
-      render: (_, { event_id, description }, index) => {
+      render: (_, { event_id, description, sort_order }, index) => {
         const trimmed = description?.trim() || '';
         const isLong = trimmed.length > 30;
         const displayText = isLong ? trimmed.slice(0, 30) + '...' : trimmed;
@@ -664,7 +645,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                 onClick={() =>
                   setNotesModalIsOpen({
                     open: true,
-                    id: index,
+                    id: sort_order,
                     column: 'description',
                     notes: description
                   })
@@ -680,7 +661,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       title: 'Internal Notes',
       dataIndex: 'internal_notes',
       key: 'internal_notes',
-      render: (_, { internal_notes }, index) => {
+      render: (_, { internal_notes, sort_order }, index) => {
         const trimmed = internal_notes?.trim() || '';
         const isLong = trimmed.length > 30;
         const displayText = isLong ? trimmed.slice(0, 30) + '...' : trimmed;
@@ -697,7 +678,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                 onClick={() =>
                   setNotesModalIsOpen({
                     open: true,
-                    id: index,
+                    id: sort_order,
                     column: 'internal_notes',
                     notes: internal_notes
                   })
@@ -1116,35 +1097,34 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         initialValues={
           mode === 'edit'
             ? {
-                ...initialFormValues,
-                document_date: initialFormValues.document_date
-                  ? dayjs(initialFormValues.document_date)
-                  : null,
-                service_date:
-                  initialFormValues?.service_date === '0000-00-00' ||
+              ...initialFormValues,
+              document_date: initialFormValues.document_date
+                ? dayjs(initialFormValues.document_date)
+                : null,
+              service_date:
+                initialFormValues?.service_date === '0000-00-00' ||
                   initialFormValues?.service_date === '1899-30-11'
-                    ? null
-                    : dayjs(initialFormValues?.service_date),
-                due_date:
-                  initialFormValues?.due_date === '0000-00-00' ||
+                  ? null
+                  : dayjs(initialFormValues?.service_date),
+              due_date:
+                initialFormValues?.due_date === '0000-00-00' ||
                   initialFormValues?.due_date === '1899-30-11'
-                    ? null
-                    : dayjs(initialFormValues?.due_date)
-              }
+                  ? null
+                  : dayjs(initialFormValues?.due_date)
+            }
             : {
-                document_date: dayjs(),
-                due_date: dayjs(),
-                status: 'In Progress'
-              }
+              document_date: dayjs(),
+              due_date: dayjs(),
+              status: 'In Progress'
+            }
         }
         scrollToFirstError>
         {/* Make this sticky */}
         <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-base font-semibold">
           <span className="text-sm text-gray-500">Quotation No:</span>
           <span
-            className={`ml-4 text-amber-600 ${
-              mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
-            } rounded px-1`}
+            className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
+              } rounded px-1`}
             onClick={() => {
               if (mode !== 'edit') return;
               navigator.clipboard.writeText(initialFormValues.document_identity);
@@ -1366,18 +1346,28 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         <div className="mb-4 w-1/2">
           <Input
             type="text"
-            allowClear
             placeholder="Search by Row No, Product Name, or Description"
             value={searchQuery}
             onChange={handleSearchChange}
             className="rounded border p-2"
+            suffix={
+              <CloseOutlined
+                onClick={() => setSearchQuery('')}
+                style={{
+                  cursor: 'pointer',
+                  visibility: searchQuery ? 'visible' : 'hidden'
+                }}
+              />
+            }
           />
         </div>
 
         <Table
+          key={tableKey}
           columns={columns}
           dataSource={filteredRows}
-          rowKey={'id'}
+          // rowKey={'id'}
+          rowKey={(record, index) => record.id ?? `temp-${index}`}
           virtual
           size="small"
           scroll={{ x: 1400, y: 500 }}
@@ -1407,52 +1397,78 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                 value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
               />
             </Col>
-            <div className="flex flex-col gap-2">
-              <DetailSummaryInfo
+            <div className="flex flex-col gap-2 text-right">
+              <DetailSummary
                 title="Total Quantity:"
                 value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
               />
-              <DetailSummaryInfo
+              <DetailSummary
                 title="Total Profit:"
                 value={formatThreeDigitCommas(roundUpto(totalProfit)) || 0}
               />
             </div>
           </Row>
-          <h4 className="ml-1 mt-2 font-medium text-gray-800">Rebate:</h4>
-          <div className="flex flex-col gap-4">
-            <DetailSummaryInfo
-              title="Percentage:"
-              value={
-                <DebouncedNumberInput
-                  type="decimal"
-                  size="small"
-                  className="w-20"
-                  value={rebatePercentage}
-                  disabled
-                  onChange={(value) => dispatch(setRebatePercentage(value))}
-                />
-              }
-            />
-            <DetailSummaryInfo title="Amount:" value={rebateAmount} />
-          </div>
-          <h4 className="ml-1 mt-2 font-medium text-gray-800">Salesman:</h4>
-          <div className="flex flex-col gap-4">
-            <DetailSummaryInfo
-              title="Percentage:"
-              value={
-                <DebouncedNumberInput
-                  type="decimal"
-                  size="small"
-                  className="w-20"
-                  value={salesmanPercentage}
-                  disabled
-                  onChange={(value) => dispatch(setSalesmanPercentage(value))}
-                />
-              }
-            />
-            <DetailSummaryInfo title="Amount:" value={salesmanAmount} />
-          </div>
-          <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
+          <Row gutter={[12, 12]}>
+            <Col span={24} sm={12} md={6} lg={6}>
+              <DetailSummaryInfo
+                title="Rebate:"
+                value={
+                  <div className="item-center flex flex-row-reverse gap-12">
+                    {rebateAmount || 0}
+                    <DebouncedNumberInput
+                      type="decimal"
+                      size="small"
+                      className="w-[3.8rem] text-right"
+                      value={
+                        rebatePercentage === 0
+                          ? '0%'
+                          : rebatePercentage
+                            ? rebatePercentage.toString().endsWith('%')
+                              ? rebatePercentage
+                              : `${rebatePercentage}%`
+                            : ''
+                      }
+                      disabled
+                      onChange={(value) => dispatch(setRebatePercentage(value))}
+                    />
+                  </div>
+                }
+              />
+            </Col>
+          </Row>
+          <Row gutter={[12, 12]}>
+            <Col span={24} sm={12} md={6} lg={6}>
+              <DetailSummaryInfo
+                title="Salesman:"
+                value={
+                  <div className="item-center flex flex-row-reverse gap-12 mt-2">
+                    {salesmanAmount || 0}
+                    <DebouncedNumberInput
+                      type="decimal"
+                      size="small"
+                      className="w-[3.8rem] text-right"
+                      value={
+                        salesmanPercentage === 0
+                          ? '0%'
+                          : salesmanPercentage
+                            ? salesmanPercentage.toString().endsWith('%')
+                              ? salesmanPercentage
+                              : `${salesmanPercentage}%`
+                            : ''
+                      }
+                      disabled
+                      onChange={(value) => dispatch(setSalesmanPercentage(value))}
+                    />
+                  </div>
+                }
+              />
+            </Col>
+          </Row>
+          <Row gutter={[12, 12]}>
+            <Col span={24} sm={12} md={6} lg={6}>
+              <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
+            </Col>
+          </Row>
         </div>
 
         <div className="mt-4 flex items-center justify-end gap-2">

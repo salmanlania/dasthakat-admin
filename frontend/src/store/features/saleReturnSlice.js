@@ -38,6 +38,17 @@ export const returnSaleInvoice = createAsyncThunk(
   }
 );
 
+export const updateSaleReturn = createAsyncThunk(
+  'sale-return/update',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      await api.put(`/sale-return/${id}`, data);
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const bulkDeleteSaleReturn = createAsyncThunk(
   'saleReturn/bulkDelete',
   async (ids, { rejectWithValue }) => {
@@ -121,7 +132,13 @@ export const saleReturnListSlice = createSlice({
       if (!action.payload) {
         state.pickListReceives = null;
       }
-    }
+    },
+
+    changeSaleReturnDetailValue: (state, action) => {
+      const { index, key, value } = action.payload;
+      const detail = state.saleReturnDetail[index];
+      detail[key] = value;
+    },
   },
   extraReducers: ({ addCase }) => {
     addCase(getSaleReturnList.pending, (state) => {
@@ -162,10 +179,14 @@ export const saleReturnListSlice = createSlice({
         customer_id: data?.charge_order?.customer?.name,
         charger_order_id: data?.charge_order?.document_identity,
         port_id: data?.charge_order?.port?.name,
-        ref_document_identity: data?.charge_order?.ref_document_identity
+        ref_document_identity: data?.charge_order?.ref_document_identity,
+        picklist_id: data?.picklist_id ? data?.picklist_id : null,
       };
       state.saleReturnDetail = data.sale_return_detail.map((detail) => ({
         id: detail.sale_return_detail_id,
+        sale_return_detail_id: detail.sale_return_detail_id,
+        picklist_detail_id: detail?.picklist_detail_id ? detail?.picklist_detail_id : null,
+        warehouse_id: detail?.warehouse_id ? detail?.warehouse_id : null,
         product_code: detail.product ? detail.product.product_code : null,
         product_id: detail.product
           ? { value: detail.product.product_id, label: detail.product.product_name }
@@ -201,6 +222,16 @@ export const saleReturnListSlice = createSlice({
       state.initialFormValues = null;
     });
 
+    addCase(updateSaleReturn.pending, (state) => {
+      state.isItemLoading = true;
+    });
+    addCase(updateSaleReturn.fulfilled, (state) => {
+      state.initialFormValues = null;
+    });
+    addCase(updateSaleReturn.rejected, (state) => {
+      state.isItemLoading = false;
+    });
+
     // start bulk delete
 
     addCase(bulkDeleteSaleReturn.pending, (state) => {
@@ -219,5 +250,5 @@ export const saleReturnListSlice = createSlice({
   }
 });
 
-export const { setSaleReturnListParams, setPickListOpenModalId, setSaleReturnDeleteIDs } = saleReturnListSlice.actions;
+export const { setSaleReturnListParams, setPickListOpenModalId, setSaleReturnDeleteIDs, changeSaleReturnDetailValue } = saleReturnListSlice.actions;
 export default saleReturnListSlice.reducer;
