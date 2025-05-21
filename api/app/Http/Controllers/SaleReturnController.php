@@ -266,10 +266,10 @@ class SaleReturnController extends Controller
 			return $this->jsonResponse('Picklist not found.', 404);
 		}
 
-		$chargeOrder = ChargeOrder::with('charge_order_detail')->find($Picklist->charge_order_id);
-		if (!$chargeOrder) {
-			return $this->jsonResponse('Charge Order not found.', 404);
-		}
+		// $chargeOrder = ChargeOrder::with('charge_order_detail')->find($Picklist->charge_order_id);
+		// if (!$chargeOrder) {
+		// 	return $this->jsonResponse('Charge Order not found.', 404);
+		// }
 
 		$saleReturn->document_date = $request->document_date ?? $saleReturn->document_date;
 		$saleReturn->updated_at = Carbon::now();
@@ -373,7 +373,7 @@ class SaleReturnController extends Controller
 							'unit_name' =>  $Product->unit->name ?? null,
 							'quantity' => $detail['quantity'],
 							'rate' => $chargeOrderDetail->rate,
-							'amount' => $amount,
+							'amount' => $detail['amount'],
 							'remarks'      => sprintf(
 								"%d %s of %s (Code: %s) returned from %s warehouse under Sale Return document %s. Original rate: %s. Total amount: %s.",
 								$detail['quantity'] ?? 0,
@@ -383,7 +383,7 @@ class SaleReturnController extends Controller
 								$Warehouse->name ?? 'Unknown Warehouse',
 								$Picklist->document_identity ?? 'N/A',
 								$chargeOrderDetail->rate ?? 'N/A',
-								$amount ?? '0.00'
+								$detail['amount'] ?? '0.00'
 							),
 						];
 						StockLedger::handleStockMovement([
