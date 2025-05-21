@@ -245,7 +245,7 @@ class SaleReturnController extends Controller
 		}
 	}
 
-	public function update(Request $request, $saleReturnId)
+	public function update(Request $request, $id)
 	{
 		if (!isPermission('edit', 'sale_return', $request->permission_list)) {
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
@@ -256,7 +256,7 @@ class SaleReturnController extends Controller
 			return $this->jsonResponse($validationError, 400, "Request Failed!");
 		}
 
-		$saleReturn = SaleReturn::find($saleReturnId);
+		$saleReturn = SaleReturn::find($id);
 		if (!$saleReturn) {
 			return $this->jsonResponse('Sale Return not found.', 404);
 		}
@@ -300,7 +300,7 @@ class SaleReturnController extends Controller
 					$detail_uuid = $this->get_uuid();
 					SaleReturnDetail::create([
 						'sale_return_detail_id'   => $detail_uuid,
-						'sale_return_id'          => $saleReturnId,
+						'sale_return_id'          => $id,
 						'charge_order_detail_id'   => $PicklistDetail->charge_order_detail_id,
 						'picklist_detail_id'       => $detail->picklist_detail_id,
 						'sort_order'               => $index,
@@ -340,7 +340,7 @@ class SaleReturnController extends Controller
 						StockLedger::handleStockMovement([
 							'sort_order' => $index,
 							'master_model' => new SaleReturn,
-							'document_id' => $saleReturnId,
+							'document_id' => $id,
 							'document_detail_id' => $detail_uuid,
 							'row' => $stockEntry,
 						], 'I');
@@ -389,7 +389,7 @@ class SaleReturnController extends Controller
 						StockLedger::handleStockMovement([
 							'sort_order' => $index,
 							'master_model' => new SaleReturn,
-							'document_id' => $saleReturnId,
+							'document_id' => $id,
 							'document_detail_id' => $detail->sale_return_detail_id,
 							'row' => $stockEntry,
 						], 'I');
@@ -406,7 +406,7 @@ class SaleReturnController extends Controller
 			$saleReturn->save();
 		}
 
-		return $this->jsonResponse(['sale_return_id' => $saleReturnId], 200, "Sale Return Updated Successfully!");
+		return $this->jsonResponse(['sale_return_id' => $id], 200, "Sale Return Updated Successfully!");
 	}
 
 
