@@ -252,7 +252,7 @@ class PurchaseReturnController extends Controller
 		}
 	}
 
-	public function update(Request $request, $purchaseReturnId)
+	public function update(Request $request, $id)
 	{
 		if (!isPermission('edit', 'purchase_return', $request->permission_list)) {
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
@@ -263,7 +263,7 @@ class PurchaseReturnController extends Controller
 			return $this->jsonResponse($validationError, 400, "Request Failed!");
 		}
 
-		$purchaseReturn = PurchaseReturn::find($purchaseReturnId);
+		$purchaseReturn = PurchaseReturn::find($id);
 		if (!$purchaseReturn) {
 			return $this->jsonResponse('Purchase Return not found.', 404);
 		}
@@ -313,7 +313,7 @@ class PurchaseReturnController extends Controller
 					$detail_uuid = $this->get_uuid();
 					purchaseReturnDetail::create([
 						'purchase_return_detail_id' => $detail_uuid,
-						'purchase_return_id'       => $purchaseReturnId,
+						'purchase_return_id'       => $id,
 						'charge_order_detail_id'   => $ChargeOrderDetail->charge_order_detail_id,
 						'purchase_order_detail_id' => $detail['purchase_order_detail_id'],
 						'sort_order'               => $index,
@@ -354,7 +354,7 @@ class PurchaseReturnController extends Controller
 						StockLedger::handleStockMovement([
 							'sort_order' => $index,
 							'master_model' => new PurchaseReturn,
-							'document_id' => $purchaseReturnId,
+							'document_id' => $id,
 							'document_detail_id' => $detail_uuid,
 							'row' => $stockEntry,
 						], 'O');
@@ -402,7 +402,7 @@ class PurchaseReturnController extends Controller
 						StockLedger::handleStockMovement([
 							'sort_order' => $index,
 							'master_model' => new PurchaseReturn,
-							'document_id' => $purchaseReturnId,
+							'document_id' => $id,
 							'document_detail_id' => $detail->purchase_return_detail_id,
 							'row' => $stockEntry,
 						], 'O');
@@ -419,7 +419,7 @@ class PurchaseReturnController extends Controller
 			$purchaseReturn->save();
 		}
 
-		return $this->jsonResponse(['purchase_return_id' => $purchaseReturnId], 200, "Purchase Return Updated Successfully!");
+		return $this->jsonResponse(['purchase_return_id' => $id], 200, "Purchase Return Updated Successfully!");
 	}
 
 
@@ -447,12 +447,12 @@ class PurchaseReturnController extends Controller
 		}
 
 		try {
-			$purchaseReturnIds = $request->purchase_return_ids ?? [];
-			if (empty($purchaseReturnIds)) {
+			$ids = $request->purchase_return_ids ?? [];
+			if (empty($ids)) {
 				return $this->jsonResponse('No Purchase Return IDs provided', 400);
 			}
 
-			$purchaseReturns = PurchaseReturn::whereIn('purchase_return_id', $purchaseReturnIds)->get();
+			$purchaseReturns = PurchaseReturn::whereIn('purchase_return_id', $ids)->get();
 			$deletedCount = 0;
 
 			foreach ($purchaseReturns as $purchaseReturn) {

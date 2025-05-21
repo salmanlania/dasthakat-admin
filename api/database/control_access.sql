@@ -159,11 +159,6 @@
   ('Sale Management', 'Sale Invoice', 'sale_invoice', 'edit', 'Edit', 1.103),
   ('Sale Management', 'Sale Invoice', 'sale_invoice', 'delete', 'Delete', 1.104),
   
-  ('Sale Management', 'Sale Return', 'sale_return', 'list', 'List', 1.101),
-  ('Sale Management', 'Sale Return', 'sale_return', 'add', 'Add', 1.102),
-  ('Sale Management', 'Sale Return', 'sale_return', 'edit', 'Edit', 1.103),
-  ('Sale Management', 'Sale Return', 'sale_return', 'delete', 'Delete', 1.104),
-  
   ('Warehousing', 'Picklist', 'picklist', 'list', 'List', 1.101),
   ('Warehousing', 'Picklist', 'picklist', 'add', 'Add', 1.102),
   ('Warehousing', 'Picklist', 'picklist', 'receive', 'Receive', 1.103),
@@ -177,6 +172,16 @@
   ('Warehousing', 'Goods Received Note', 'good_received_note', 'edit', 'Edit', 1.103),
   ('Warehousing', 'Goods Received Note', 'good_received_note', 'delete', 'Delete', 1.104),
 
+  ('Warehousing', 'Purchase Return', 'purchase_return', 'list', 'List', 1.101),
+  ('Warehousing', 'Purchase Return', 'purchase_return', 'add', 'Add', 1.102),
+  ('Warehousing', 'Purchase Return', 'purchase_return', 'edit', 'Edit', 1.103),
+  ('Warehousing', 'Purchase Return', 'purchase_return', 'delete', 'Delete', 1.104),
+  
+  ('Warehousing', 'Sale Return', 'sale_return', 'list', 'List', 1.101),
+  ('Warehousing', 'Sale Return', 'sale_return', 'add', 'Add', 1.102),
+  ('Warehousing', 'Sale Return', 'sale_return', 'edit', 'Edit', 1.103),
+  ('Warehousing', 'Sale Return', 'sale_return', 'delete', 'Delete', 1.104),
+
   ('Logistics', 'Scheduling', 'dispatch', 'list', 'List', 1.101),
   ('Logistics', 'Scheduling', 'dispatch', 'update', 'Update', 1.102),
 
@@ -184,11 +189,6 @@
   ('Accounting', 'Purchase Invoice', 'purchase_invoice', 'add', 'Add', 1.102),
   ('Accounting', 'Purchase Invoice', 'purchase_invoice', 'edit', 'Edit', 1.103),
   ('Accounting', 'Purchase Invoice', 'purchase_invoice', 'delete', 'Delete', 1.104),
-
-  ('Accounting', 'Purchase Return', 'purchase_return', 'list', 'List', 1.101),
-  ('Accounting', 'Purchase Return', 'purchase_return', 'add', 'Add', 1.102),
-  ('Accounting', 'Purchase Return', 'purchase_return', 'edit', 'Edit', 1.103),
-  ('Accounting', 'Purchase Return', 'purchase_return', 'delete', 'Delete', 1.104),
 
   ('System', 'Audit', 'audit', 'list', 'List', 1.101),
   ('System', 'Audit', 'audit', 'view', 'View', 1.103); 
