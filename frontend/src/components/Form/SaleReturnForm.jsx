@@ -386,7 +386,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
       </div>
 
       <div className="mt-4 flex items-center justify-end gap-2">
-        <Link to="/sale-invoice">
+        <Link to="/sale-return">
           <Button className="w-28">Exit</Button>
         </Link>
         {/* <Button

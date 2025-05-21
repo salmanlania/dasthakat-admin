@@ -134,9 +134,6 @@ const PickListForm = ({ mode, onSubmit, onSave }) => {
             title: 'Sr.',
             dataIndex: 'sr',
             key: 'sr',
-            //   render: (_, record, index) => {
-            //     return <>{index + 1}.</>;
-            //   },
             width: 50
         },
         {
@@ -332,7 +329,6 @@ const PickListForm = ({ mode, onSubmit, onSave }) => {
                             ? pickListDetail.filter((item) => !item.isDeleted)
                             : pickListDetail
                     }
-                    // rowKey={'id'}
                     rowKey={(record) => record.id}
                     size="small"
                     scroll={{ x: 'calc(100% - 200px)' }}
