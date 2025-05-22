@@ -34,8 +34,6 @@ const AnalysisModalChargeOrder = () => {
   const newAnalysisChargeDetails = analysisChargeDetails.charge_order_detail 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
-  console.log('newAnalysisChargeDetails' , newAnalysisChargeDetails)
-
   const closeModal = () => {
     dispatch(setAnalysisChargeOrderID(null));
     setSelectedRowKeys([]);
