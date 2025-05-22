@@ -34,6 +34,8 @@ const AnalysisModalChargeOrder = () => {
   const newAnalysisChargeDetails = analysisChargeDetails.charge_order_detail 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
+  console.log('newAnalysisChargeDetails' , newAnalysisChargeDetails)
+
   const closeModal = () => {
     dispatch(setAnalysisChargeOrderID(null));
     setSelectedRowKeys([]);
@@ -78,6 +80,12 @@ const AnalysisModalChargeOrder = () => {
       key: 'invoiced_quantity',
       width: 100
     },
+    {
+      title: 'Returned Quantity',
+      dataIndex: 'returned_quantity',
+      key: 'returned_quantity',
+      width: 100
+    },
   ];
 
   useEffect(() => {
@@ -90,7 +98,7 @@ const AnalysisModalChargeOrder = () => {
   }, [analysisChargeOrderID])
 
   return (
-    <Modal open={analysisChargeOrderID !== null} footer={null} onCancel={closeModal} width={840} closeIcon={<HiOutlineX className="text-gray-600 text-2xl" />}>
+    <Modal open={analysisChargeOrderID !== null} footer={null} onCancel={closeModal} width={940} closeIcon={<HiOutlineX className="text-gray-600 text-2xl" />}>
       <div className="mb-3 flex items-center justify-between text-gray-600">
         <p className="text-base font-medium">Product Status.</p>
       </div>
