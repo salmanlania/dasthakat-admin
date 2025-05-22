@@ -67,6 +67,12 @@ const AnalysisModalChargeOrder = () => {
       width: 100
     },
     {
+      title: 'Returned Quantity',
+      dataIndex: 'returned_quantity',
+      key: 'returned_quantity',
+      width: 100
+    },
+    {
       title: 'Shipped Quantity',
       dataIndex: 'shipped_quantity',
       key: 'shipped_quantity',
@@ -76,12 +82,6 @@ const AnalysisModalChargeOrder = () => {
       title: 'Invoiced Quantity',
       dataIndex: 'invoiced_quantity',
       key: 'invoiced_quantity',
-      width: 100
-    },
-    {
-      title: 'Returned Quantity',
-      dataIndex: 'returned_quantity',
-      key: 'returned_quantity',
       width: 100
     },
   ];
