@@ -108,7 +108,7 @@ class QuotationController extends Controller
 		)
 			->where('quotation_id', $id)->first();
 			
-$data->quotation_detail = QuotationDetail::with(['supplier','unit','product_type'])->where('quotation_id',$data->quotation_id)->get();
+$data->quotation_detail = QuotationDetail::with(['supplier','unit','product_type'])->where('quotation_id',$data->quotation_id)->orderBy('sort_order')->get();
 
 
 		if ($data) {
