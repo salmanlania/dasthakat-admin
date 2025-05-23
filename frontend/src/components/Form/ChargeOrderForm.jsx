@@ -85,7 +85,8 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
     totalNet += +detail.gross_amount || 0;
   });
 
-  const onFinish = async (additionalRequest = null) => {
+  const onFinish = async (submitType = null, additionalRequest = null) => {
+    setSubmitAction(submitType);
     const isValidFields = await form.validateFields();
     if (!isValidFields) return;
     const values = form.getFieldsValue();
@@ -144,8 +145,15 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
       is_event_changed: isEventChanged
     };
 
-    submitAction === 'save' ? onSubmit(data, additionalRequest) : submitAction === 'saveAndExit' ? onSave(data, additionalRequest) : null;
+    submitType === 'save' ? onSubmit(data, additionalRequest) : submitType === 'saveAndExit' ? onSave(data, additionalRequest) : null;
 
+    // if (submitAction === 'save') {
+    //   onSubmit(data, additionalRequest)
+    // }
+
+    // if (submitAction === 'saveAndExit') {
+    //   onSave(data, additionalRequest)
+    // }
     if (additionalRequest === 'CREATE_PO') {
       dispatch(setChargePoID(id));
     }
@@ -964,9 +972,9 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
       render: (_, { markup, product_type_id, product_type }, index) => {
         // console.log('markup', markup)
         const newMarkup = Number(markup)
-        .toString()
-        .replace(/(\.\d*?)0+$/, '$1')
-        .replace(/\.$/, '');
+          .toString()
+          .replace(/(\.\d*?)0+$/, '$1')
+          .replace(/\.$/, '');
         // form.setFieldsValue({ [`markup-${index}`]: markup });
         // console.log('new markup', newMarkup)
         return (
@@ -1418,8 +1426,9 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
             className="w-28"
             loading={isFormSubmitting && submitAction === 'save'}
             onClick={() => {
-              setSubmitAction('save');
-              (isFormSubmitting ? null : onFinish())
+              onFinish('save');
+              // setSubmitAction('save');
+              // (isFormSubmitting ? null : isFormSubmitting)
             }}>
             Save
           </Button>
@@ -1428,8 +1437,9 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
             className="w-28 bg-green-600 hover:!bg-green-500"
             loading={isFormSubmitting && submitAction === 'saveAndExit'}
             onClick={() => {
-              setSubmitAction('saveAndExit');
-              (isFormSubmitting ? null : onFinish())
+              onFinish('saveAndExit');
+              // setSubmitAction('saveAndExit');
+              // (isFormSubmitting ? null : onFinish())
             }}>
             Save & Exit
           </Button>
