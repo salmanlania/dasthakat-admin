@@ -42,4 +42,8 @@ class EventDispatch extends Model
     {
         return $this->hasOne(Agent::class, 'agent_id', 'agent_id')->select('*');
     }
+    public function port()
+    {
+        return $this->hasOne(Port::class, 'port_id', 'port_id')->select('*');
+    }
 }

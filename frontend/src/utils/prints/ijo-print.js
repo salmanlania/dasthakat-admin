@@ -242,7 +242,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
         }
       },
       {
-        content: 'HOUSTON',
+        content: data?.scheduling?.port?.name || '',
         styles: {
           fontSize: 9
         }

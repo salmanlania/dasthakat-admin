@@ -174,6 +174,7 @@ class EventController extends Controller
 			"job_order_detail.supplier",
 			"event",
 			"scheduling",
+			"scheduling.port",
 			"vessel",
 			"customer",
 			"flag",
