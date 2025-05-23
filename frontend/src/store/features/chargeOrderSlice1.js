@@ -19,7 +19,7 @@ export const getChargeOrderList = createAsyncThunk(
 );
 
 export const deleteChargeOrder = createAsyncThunk(
-  'chargeOrder/delete'  ,
+  'chargeOrder/delete',
   async (id, { rejectWithValue }) => {
     try {
       await api.delete(`/charge-order/${id}`);
@@ -478,62 +478,62 @@ export const chargeOrderSlice = createSlice({
         technician_id:
           data.technicians && data.technicians.length
             ? data.technicians.map((technician) => ({
-                value: technician.user_id,
-                label: technician.user_name
-              }))
+              value: technician.user_id,
+              label: technician.user_name
+            }))
             : null,
         agent_notes: data.agent_notes,
         technician_notes: data.technician_notes,
         agent_id: data.agent
           ? {
-              value: data.agent.agent_id,
-              label: data.agent.name
-            }
+            value: data.agent.agent_id,
+            label: data.agent.name
+          }
           : null,
         salesman_id: data.salesman
           ? {
-              value: data.salesman.salesman_id,
-              label: data.salesman.name
-            }
+            value: data.salesman.salesman_id,
+            label: data.salesman.name
+          }
           : null,
         event_id: data.event
           ? {
-              value: data.event.event_id,
-              label: data.event.event_name
-            }
+            value: data.event.event_id,
+            label: data.event.event_name
+          }
           : null,
         vessel_id: data.vessel
           ? {
-              value: data.vessel.vessel_id,
-              label: data.vessel.name
-            }
+            value: data.vessel.vessel_id,
+            label: data.vessel.name
+          }
           : null,
         customer_id: data.customer
           ? {
-              value: data.customer.customer_id,
-              label: data.customer.name
-            }
+            value: data.customer.customer_id,
+            label: data.customer.name
+          }
           : null,
         class1_id: data.class1
           ? {
-              value: data.class1.class_id,
-              label: data.class1.name
-            }
+            value: data.class1.class_id,
+            label: data.class1.name
+          }
           : null,
         class2_id: data.class2
           ? {
-              value: data.class2.class_id,
-              label: data.class2.name
-            }
+            value: data.class2.class_id,
+            label: data.class2.name
+          }
           : null,
         port_id: data?.port
           ? { value: data?.port?.port_id, label: data?.port?.name }
           : data?.port_id || null,
         flag_id: data.flag
           ? {
-              value: data.flag.flag_id,
-              label: data.flag.name
-            }
+            value: data.flag.flag_id,
+            label: data.flag.name
+          }
           : null
       };
 
@@ -548,9 +548,9 @@ export const chargeOrderSlice = createSlice({
           : null,
         product_type_id: detail.product_type
           ? {
-              value: detail.product_type.product_type_id,
-              label: detail.product_type.name
-            }
+            value: detail.product_type.product_type_id,
+            label: detail.product_type.name
+          }
           : null,
         product_name: detail.product_name,
         product_description: detail.product_description,

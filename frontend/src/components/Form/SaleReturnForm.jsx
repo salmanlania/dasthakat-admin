@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Select, Table } from 'antd';
 import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
@@ -35,6 +35,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
   const [newAmount, setNewAmount] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
   const [submitAction, setSubmitAction] = useState(null);
+  const [tempTotalAmount, setTempTotalAmount] = useState(0);
 
   const onFinish = (values) => {
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
@@ -129,7 +130,21 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
           : null
       });
     }
-  }, [initialFormValues, form, mode]);
+    if (saleReturnDetail?.length > 0) {
+      const total = saleReturnDetail.reduce((acc, item) => {
+        const amount = (item.quantity || 0) * (item.rate || 0);
+        return acc + amount;
+      }, 0);
+      setTempTotalAmount(total);
+    }
+  }, [initialFormValues, form, mode], saleReturnDetail);
+
+  const TotalAmountTemp = useMemo(() => {
+    return saleReturnDetail.reduce((acc, item) => {
+      const rowAmount = (item.quantity || 0) * (item.rate || 0);
+      return acc + rowAmount;
+    }, 0);
+  }, [saleReturnDetail]);
 
   const columns = [
     {
@@ -262,10 +277,11 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'amount',
       key: 'amount',
       render: (_, { amount, rate, quantity }) => {
-        const calAmount = rate * quantity
-        setNewAmount(calAmount)
+        // const calAmount = rate * quantity
+        const calAmount = (rate || 0) * (quantity || 0);
+        // setNewAmount(calAmount)
         return (
-          <DebouncedCommaSeparatedInput value={newAmount ? newAmount + '' : ''} disabled />
+          <DebouncedCommaSeparatedInput value={calAmount ? calAmount + '' : ''} disabled />
         )
       },
       width: 120
@@ -398,7 +414,8 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
             />
             <DetailSummaryInfo
               title="Total Amount:"
-              value={totalAmount || 0}
+              // value={totalAmount || 0}
+              value={mode === 'edit' && totalAmount ? totalAmount : TotalAmountTemp}
             />
           </Col>
         </Row>

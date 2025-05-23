@@ -72,3 +72,7 @@
   white-space: normal !important;
   word-break: break-word !important;
 }
+
+.hidden-row {
+  display: none;
+}

@@ -183,9 +183,9 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
       form.setFieldsValue({
         [`product_id-${index}`]: product?.product_id
           ? {
-              value: product.product_id,
-              label: product.product_name
-            }
+            value: product.product_id,
+            label: product.product_name
+          }
           : null,
         [`product_description-${index}`]: product?.product_name || ''
       });
@@ -215,9 +215,9 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
           key: 'product_type_id',
           value: product.product_type_id
             ? {
-                value: product.product_type_id,
-                label: product.product_type_name
-              }
+              value: product.product_type_id,
+              label: product.product_type_name
+            }
             : null
         })
       );
@@ -341,9 +341,9 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
           key: 'product_type_id',
           value: product.product_type_id
             ? {
-                value: product.product_type_id,
-                label: product.product_type_name
-              }
+              value: product.product_type_id,
+              label: product.product_type_name
+            }
             : null
         })
       );
@@ -414,30 +414,58 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
     }
   };
 
+  // const applyGlobalMarkup = (inputValue) => {
+  //   const trimmed = inputValue.trim();
+  //   if (trimmed === '' && trimmed !== '0') {
+  //     return;
+  //   }
+  //   const value = Number(trimmed);
+  //   // console.log('markup value' , value)
+  //   if (!isNaN(value)) {
+  //     chargeOrderDetails.forEach((row, index) => {
+  //       if (row.isDeleted) return;
+  //       if (row.product_type_id?.value === 1) {
+  //         dispatch(
+  //           changeChargeOrderDetailValue({
+  //             index,
+  //             key: 'markup',
+  //             value: 0
+  //           })
+  //         );
+  //       } else if (row.product_type_id?.value !== 1) {
+  //         dispatch(
+  //           changeChargeOrderDetailValue({
+  //             index,
+  //             key: 'markup',
+  //             value: value
+  //           })
+  //         );
+  //       }
+  //     });
+  //   }
+  // };
+
   const applyGlobalMarkup = (inputValue) => {
     const trimmed = inputValue.trim();
-    if (trimmed === '' && trimmed !== '0') {
-      return;
-    }
+    if (trimmed === '' && trimmed !== '0') return;
+
     const value = Number(trimmed);
     if (!isNaN(value)) {
-      chargeOrderDetails.forEach((row, index) => {
+      const filteredDetails = chargeOrderDetails.filter(item => !item.isDeleted);
+      filteredDetails.forEach((row, filteredIndex) => {
+        const index = chargeOrderDetails.findIndex(item => item.id === row.id);
         if (row.product_type_id?.value === 1) {
-          dispatch(
-            changeChargeOrderDetailValue({
-              index,
-              key: 'markup',
-              value: 0
-            })
-          );
-        } else if (row.product_type_id?.value !== 1) {
-          dispatch(
-            changeChargeOrderDetailValue({
-              index,
-              key: 'markup',
-              value: value
-            })
-          );
+          dispatch(changeChargeOrderDetailValue({
+            index,
+            key: 'markup',
+            value: 0
+          }));
+        } else {
+          dispatch(changeChargeOrderDetailValue({
+            index,
+            key: 'markup',
+            value
+          }));
         }
       });
     }
@@ -508,9 +536,9 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
             value={
               product_type_id?.value
                 ? {
-                    value: product_type_id.value,
-                    label: product_type_id.label?.slice(0, 2) || ''
-                  }
+                  value: product_type_id.value,
+                  label: product_type_id.label?.slice(0, 2) || ''
+                }
                 : product_type_id
             }
             getOptionLabel={(item) => item.name?.slice(0, 2)}
@@ -934,6 +962,13 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'markup',
       key: 'markup',
       render: (_, { markup, product_type_id, product_type }, index) => {
+        // console.log('markup', markup)
+        const newMarkup = Number(markup)
+        .toString()
+        .replace(/(\.\d*?)0+$/, '$1')
+        .replace(/\.$/, '');
+        // form.setFieldsValue({ [`markup-${index}`]: markup });
+        // console.log('new markup', newMarkup)
         return (
           <DebouncedNumberInput
             value={product_type_id?.value == 1 ? 0 : markup}
@@ -1171,16 +1206,15 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
           mode === 'edit' || chargeOrder_id
             ? initialFormValues
             : {
-                document_date: dayjs()
-              }
+              document_date: dayjs()
+            }
         }>
         {/* Make this sticky */}
         <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-base font-semibold">
           <span className="text-gray-500">Charge order No:</span>
           <span
-            className={`ml-4 text-amber-600 ${
-              mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : 'select-none'
-            } rounded px-1`}
+            className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : 'select-none'
+              } rounded px-1`}
             onClick={() => {
               if (mode !== 'edit') return;
               navigator.clipboard.writeText(initialFormValues.document_identity);
@@ -1326,7 +1360,9 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
 
         <Table
           columns={columns}
-          dataSource={chargeOrderDetails.filter((item) => !item.isDeleted)}
+          // dataSource={chargeOrderDetails.filter((item) => !item.isDeleted)}
+          dataSource={chargeOrderDetails}
+          rowClassName={(record) => (record.isDeleted ? 'hidden-row' : '')}
           rowKey="id"
           size="small"
           scroll={{ x: 'calc(100% - 200px)' }}

@@ -103,6 +103,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
   } = useSelector((state) => state.quotation);
   const [prevEvent, setPrevEvent] = useState(initialFormValues?.event_id);
   const [searchQuery, setSearchQuery] = useState('');
+  const [error, setError] = useState(null);
   const [tableKey, setTableKey] = useState(0);
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
@@ -194,6 +195,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     const mappingSource = edit === 'edit' ? quotationDetails : deletedDetails;
 
     const missingProductRows = [];
+    let errorMessages = [];
 
     for (let i = 0; i < mappingSource.length; i++) {
       const detail = mappingSource[i];
@@ -208,38 +210,100 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
 
       const rowNumber = detail?.sort_order != null ? detail.sort_order + 1 : i + 1;
 
+      //   if (productTypeId === 4) {
+      //     if (!otherName || otherName.trim() === '') {
+      //       missingProductRows.push(rowNumber);
+      //       localError.push('Product name missing for type 4');
+      //     }
+      //   } else if (productTypeId !== 4) {
+      //     if (!name || name.trim() === '') {
+      //       missingProductRows.push(rowNumber);
+      //       localError = 'Product name missing';
+      //     }
+      //   }
+      //   if (!productDescription || productDescription.trim() === '') {
+      //     missingProductRows.push(rowNumber);
+      //     localError = 'product description missing'
+      //   }
+      //   if (!productQuantity || productQuantity === '' || productQuantity < receivedQty) {
+      //     missingProductRows.push(rowNumber);
+      //     localError = 'product quantity missing'
+      //   }
+      //   if (!sellingPrice || sellingPrice === '') {
+      //     missingProductRows.push(rowNumber);
+      //     localError = 'selling price missing'
+      //   }
+      //   if (discountPercent > 100) {
+      //     missingProductRows.push(rowNumber);
+      //     localError = 'discound percentage is greater than 100'
+      //   }
+      // }
+
+      // if (missingProductRows.length > 0) {
+      //   const uniqueRows = [...new Set(missingProductRows)];
+      //   setError(localError);
+      //   console.log('error', localError)
+      //   toast.error(
+      //     `Please fill or correct all rows: ${uniqueRows.join(', ')}`,
+      //     { duration: 3000 }
+      //   );
+      //   return;
+      // }
+
       if (productTypeId === 4) {
         if (!otherName || otherName.trim() === '') {
           missingProductRows.push(rowNumber);
+          errorMessages.push(`Row ${rowNumber}: Product name missing for type 4`);
         }
-      } else if (productTypeId !== 4) {
+      } else {
         if (!name || name.trim() === '') {
           missingProductRows.push(rowNumber);
+          errorMessages.push(`Row ${rowNumber}: Product name missing`);
         }
       }
+
       if (!productDescription || productDescription.trim() === '') {
         missingProductRows.push(rowNumber);
+        errorMessages.push(`Row ${rowNumber}: Product description missing`);
       }
+
       if (!productQuantity || productQuantity === '' || productQuantity < receivedQty) {
         missingProductRows.push(rowNumber);
+        errorMessages.push(`Row ${rowNumber}: Invalid quantity`);
       }
+
       if (!sellingPrice || sellingPrice === '') {
         missingProductRows.push(rowNumber);
+        errorMessages.push(`Row ${rowNumber}: Selling price missing`);
       }
+
       if (discountPercent > 100) {
         missingProductRows.push(rowNumber);
+        errorMessages.push(`Row ${rowNumber}: Discount percentage > 100`);
       }
     }
 
     if (missingProductRows.length > 0) {
       const uniqueRows = [...new Set(missingProductRows)];
-      toast.error(
-        `Please fill or correct all rows: ${uniqueRows.join(', ')}`,
-        { duration: 3000 }
-      );
-      return;
-    } else {
+      setError(errorMessages.join('\n'));
+      console.log('errors:', errorMessages);
 
+      toast.error(
+        <>
+          <div>Please fix the following issues:</div>
+          <ul style={{ margin: 0, paddingLeft: 16 }}>
+            {errorMessages.map((msg, idx) => (
+              <li key={idx}>{msg}</li>
+            ))}
+          </ul>
+        </>,
+        { duration: 5000 }
+      );
+
+      return;
+    }
+    else {
+      return
       const data = {
         attn: values.attn,
         delivery: values.delivery,
