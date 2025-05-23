@@ -74,5 +74,5 @@
 }
 
 .hidden-row {
-  display: none;
+  display: none !important;
 }
