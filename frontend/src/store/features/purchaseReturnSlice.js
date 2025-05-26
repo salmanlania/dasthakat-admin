@@ -169,6 +169,7 @@ export const purchaseReturnListSlice = createSlice({
       state.initialFormValues = {
         document_identity: data.document_identity || '',
         document_date: data.document_date || '',
+        status: data.status || '',
         totalQuantity: data.total_quantity || '',
         totalAmount: data.total_amount || '',
         purchase_order_id: data.purchase_order_id,

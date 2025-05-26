@@ -8,7 +8,7 @@ import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
 import { getSaleReturn , updateSaleReturn} from '../../store/features/saleReturnSlice';
 
-const EditSaleReturn = () => {
+const EditStockReturn = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();
@@ -18,7 +18,7 @@ const EditSaleReturn = () => {
   const onSaleReturnUpdate = async (data) => {
     try {
       await dispatch(updateSaleReturn({ id, data })).unwrap();
-      toast.success('Sale Return updated successfully');
+      toast.success('Stock Return updated successfully');
       dispatch(getSaleReturn(id)).unwrap().catch(handleError);
     } catch (error) {
       handleError(error);
@@ -27,7 +27,7 @@ const EditSaleReturn = () => {
   const onSaleReturnUpdates = async (data) => {
     try {
       await dispatch(updateSaleReturn({ id, data })).unwrap();
-      toast.success('Sale Return updated successfully');
+      toast.success('Stock Return updated successfully');
       navigate('/sale-return');
     } catch (error) {
       handleError(error);
@@ -41,8 +41,8 @@ const EditSaleReturn = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>EDIT SALE RETURN</PageHeading>
-        <Breadcrumb items={[{ title: 'Sale Return' }, { title: 'Edit' }]} separator=">" />
+        <PageHeading>EDIT STOCK RETURN</PageHeading>
+        <Breadcrumb items={[{ title: 'Stock Return' }, { title: 'Edit' }]} separator=">" />
       </div>
 
       {isItemLoading && (
@@ -60,4 +60,4 @@ const EditSaleReturn = () => {
   );
 };
 
-export default EditSaleReturn;
+export default EditStockReturn;

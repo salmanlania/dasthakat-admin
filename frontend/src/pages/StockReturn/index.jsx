@@ -25,7 +25,7 @@ import {
 
 import { createSaleInvoicePrint } from '../../utils/prints/sale-invoice-print';
 
-const SaleReturn = () => {
+const StockReturn = () => {
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs, listID } = useSelector(
@@ -50,7 +50,7 @@ const SaleReturn = () => {
   const onSaleReturnDelete = async (id) => {
     try {
       await dispatch(saleReturnDelete(id)).unwrap();
-      toast.success('Sale Return deleted successfully');
+      toast.success('Stock Return deleted successfully');
       dispatch(getSaleReturnList(formattedParams)).unwrap();
     } catch (error) {
       console.log('error', error)
@@ -63,7 +63,7 @@ const SaleReturn = () => {
     closeDeleteModal();
     try {
       await dispatch(bulkDeleteSaleReturn(deleteIDs)).unwrap();
-      toast.success('Sale Return deleted successfully');
+      toast.success('Stock Return deleted successfully');
       closeDeleteModal();
       await dispatch(getSaleReturnList(formattedParams)).unwrap();
     } catch (error) {
@@ -110,7 +110,7 @@ const SaleReturn = () => {
     {
       title: (
         <div>
-          <p>Sale Return No</p>
+          <p>Stock Return No</p>
           <Input
             className="font-normal"
             size="small"
@@ -219,7 +219,7 @@ const SaleReturn = () => {
           {permissions.edit ? (
             <>
               <Tooltip title="Edit">
-                <Link to={`/sale-return/edit/${sale_return_id}`}>
+                <Link to={`/stock-return/edit/${sale_return_id}`}>
                   <Button
                     size="small"
                     type="primary"
@@ -276,8 +276,8 @@ const SaleReturn = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>SALE RETURN</PageHeading>
-        <Breadcrumb items={[{ title: 'Sale Return' }, { title: 'List' }]} separator=">" />
+        <PageHeading>STOCK RETURN</PageHeading>
+        <Breadcrumb items={[{ title: 'Stock Return' }, { title: 'List' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
@@ -323,7 +323,7 @@ const SaleReturn = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} sale invoice`
+            showTotal: (total) => `Total ${total} Stock invoice`
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -356,4 +356,4 @@ const SaleReturn = () => {
   );
 };
 
-export default SaleReturn;
+export default StockReturn;

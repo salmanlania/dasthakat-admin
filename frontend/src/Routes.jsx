@@ -83,8 +83,8 @@ const EditPurchaseInvoice = lazy(() => import('./pages/PurchaseInvoice/EditPurch
 const SaleInvoice = lazy(() => import('./pages/SaleInvoice'));
 const EditSaleInvoice = lazy(() => import('./pages/SaleInvoice/EditSaleInvoice'));
 
-const SaleReturn = lazy(() => import('./pages/SaleReturn'));
-const EditSaleReturn = lazy(() => import('./pages/SaleReturn/EditSaleReturn'));
+const StockReturn = lazy(() => import('./pages/StockReturn'));
+const EditStockReturn = lazy(() => import('./pages/StockReturn/EditStockReturn'));
 
 
 const PurchaseReturn = lazy(() => import('./pages/PurchaseReturn'));
@@ -580,18 +580,18 @@ function Routes() {
             )
           },
           {
-            path: '/sale-return',
+            path: '/stock-return',
             element: (
               <Suspense fallback={<PageLoader />}>
-                <SaleReturn />
+                <StockReturn />
               </Suspense>
             )
           },
           {
-            path: '/sale-return/edit/:id',
+            path: '/stock-return/edit/:id',
             element: (
               <Suspense fallback={<PageLoader />}>
-                <EditSaleReturn />
+                <EditStockReturn />
               </Suspense>
             )
           },

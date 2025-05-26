@@ -349,26 +349,6 @@ const PickListForm = ({ mode, onSubmit, onSave }) => {
                     <Link to="/pick-list">
                         <Button className="w-28">Exit</Button>
                     </Link>
-                    {/* <Button
-            type="primary"
-            className="w-28"
-            loading={isFormSubmitting && submitAction === 'save'}
-            onClick={() => {
-              setSubmitAction('save');
-              form.submit();
-            }}>
-            Save
-          </Button> */}
-                    {/* <Button
-            type="primary"
-            className="w-28 bg-green-600 hover:!bg-green-500"
-            loading={isFormSubmitting && submitAction === 'saveAndExit'}
-            onClick={() => {
-              setSubmitAction('saveAndExit');
-              form.submit();
-            }}>
-            Save & Exit
-          </Button> */}
                     <Button
                         className="w-28 bg-amber-500 text-white hover:!bg-amber-400"
                         type="primary"

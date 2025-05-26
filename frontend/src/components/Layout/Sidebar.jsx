@@ -322,8 +322,8 @@ const Sidebar = () => {
           disabled: !permissions?.shipment?.list
         },
         {
-          key: 'sale-return',
-          label: <Link to="/sale-return">Sale Return</Link>,
+          key: 'stock-return',
+          label: <Link to="/stock-return">Stock Return</Link>,
           disabled: !permissions?.sale_return?.list
         },
         {

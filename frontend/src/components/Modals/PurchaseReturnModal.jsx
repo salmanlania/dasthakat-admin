@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Modal, Table, Input, Button } from 'antd';
+import { Modal, Table, Input, Button, Select } from 'antd';
 import toast from 'react-hot-toast';
 import AsyncSelect from '../AsyncSelect';
 import { useSelector, useDispatch } from 'react-redux';
@@ -7,7 +7,6 @@ import { returnPurchaseOrder } from '../../store/features/purchaseReturnSlice'
 import useError from '../../hooks/useError';
 
 const PurchaseReturnModal = ({ visible, onClose, data }) => {
-    console.log('data', data)
     const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
     const permissions = user.permission;
@@ -21,6 +20,7 @@ const PurchaseReturnModal = ({ visible, onClose, data }) => {
                 ...row,
                 quantity: row.quantity || 0,
                 return_quantity: row.quantity || 0,
+                status: row.status || 'created'
             }))
         );
     }, [data]);
@@ -28,27 +28,26 @@ const PurchaseReturnModal = ({ visible, onClose, data }) => {
     const handleReturn = async () => {
         try {
             const purchase_order_id = tableData[0]?.purchase_order_id || null;
+            const status = 'created'
 
             const purchase_return_detail = tableData.map((item) => {
                 const detail = {
                     purchase_order_detail_id: item.id,
                     quantity: item.return_quantity,
-                    // warehouse_id: item.warehouse_id?.value ? item.warehouse_id?.value : null
-                    warehouse_id: item?.product_type_id?.value === 2 ? item.warehouse_id?.value ? item.warehouse_id?.value : null : null
+                    warehouse_id: item?.product_type_id?.value === 2 ? item.warehouse_id?.value ? item.warehouse_id?.value : null : null,
                 };
 
                 return detail;
             });
             const data = {
                 purchase_order_id,
+                status,
                 purchase_return_detail
             }
-            console.log('dispatch', data)
             await dispatch(returnPurchaseOrder(data)).unwrap();
             toast.success('Return created successfully');
             onClose();
         } catch (error) {
-            console.log('error new', error)
             handleError(error)
         }
     };
@@ -115,7 +114,6 @@ const PurchaseReturnModal = ({ visible, onClose, data }) => {
             dataIndex: 'warehouse_id',
             key: 'warehouse_id',
             render: (_, { warehouse_id, product_type_id }, index) => {
-                console.log('product_type_id', product_type_id)
                 return (
                     <AsyncSelect
                         endpoint="/warehouse"

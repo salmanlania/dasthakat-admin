@@ -422,37 +422,6 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
     }
   };
 
-  // const applyGlobalMarkup = (inputValue) => {
-  //   const trimmed = inputValue.trim();
-  //   if (trimmed === '' && trimmed !== '0') {
-  //     return;
-  //   }
-  //   const value = Number(trimmed);
-  //   // console.log('markup value' , value)
-  //   if (!isNaN(value)) {
-  //     chargeOrderDetails.forEach((row, index) => {
-  //       if (row.isDeleted) return;
-  //       if (row.product_type_id?.value === 1) {
-  //         dispatch(
-  //           changeChargeOrderDetailValue({
-  //             index,
-  //             key: 'markup',
-  //             value: 0
-  //           })
-  //         );
-  //       } else if (row.product_type_id?.value !== 1) {
-  //         dispatch(
-  //           changeChargeOrderDetailValue({
-  //             index,
-  //             key: 'markup',
-  //             value: value
-  //           })
-  //         );
-  //       }
-  //     });
-  //   }
-  // };
-
   const applyGlobalMarkup = (inputValue) => {
     const trimmed = inputValue.trim();
     if (trimmed === '' && trimmed !== '0') return;
@@ -970,13 +939,10 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'markup',
       key: 'markup',
       render: (_, { markup, product_type_id, product_type }, index) => {
-        // console.log('markup', markup)
         const newMarkup = Number(markup)
           .toString()
           .replace(/(\.\d*?)0+$/, '$1')
           .replace(/\.$/, '');
-        // form.setFieldsValue({ [`markup-${index}`]: markup });
-        // console.log('new markup', newMarkup)
         return (
           <DebouncedNumberInput
             value={product_type_id?.value == 1 ? 0 : markup}

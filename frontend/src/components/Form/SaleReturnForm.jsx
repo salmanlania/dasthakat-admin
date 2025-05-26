@@ -105,7 +105,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
       const portName = initialFormValues?.port_id || '';
       const refDocumentIdentity = initialFormValues?.ref_document_identity || '';
       const chargeOrderNo = initialFormValues?.charger_order_id || '';
-      // const billingAddress = initialFormValues?.vessel || '';
+      const status = initialFormValues?.status || '';
       const billingAddress = initialFormValues?.vessel_billing_address ? initialFormValues?.vessel_billing_address : initialFormValues?.vessel?.billing_address || '';
 
       setTotalQuantity(quantity);
@@ -113,6 +113,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
       form.setFieldsValue({
         salesman_id: salesmanId,
         totalQuantity: quantity,
+        status,
         totalAmount: amount,
         customer_po_no: customerPoNo,
         event_id: eventName,
@@ -130,21 +131,19 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
           : null
       });
     }
+    setTotalQuantity(initialFormValues?.totalQuantity || '');
+    setTotalAmount(initialFormValues?.totalAmount || '');
     if (saleReturnDetail?.length > 0) {
-      const total = saleReturnDetail.reduce((acc, item) => {
-        const amount = (item.quantity || 0) * (item.rate || 0);
-        return acc + amount;
+      const totalAmt = saleReturnDetail.reduce((acc, item) => {
+        return acc + (item.quantity || 0) * (item.rate || 0);
       }, 0);
-      setTempTotalAmount(total);
+      const totalQty = saleReturnDetail.reduce((acc, item) => {
+        return acc + (parseFloat(item.quantity) || 0);
+      }, 0);
+      setTotalQuantity(totalQty);
+      setTotalAmount(totalAmt);
     }
-  }, [initialFormValues, form, mode], saleReturnDetail);
-
-  const TotalAmountTemp = useMemo(() => {
-    return saleReturnDetail.reduce((acc, item) => {
-      const rowAmount = (item.quantity || 0) * (item.rate || 0);
-      return acc + rowAmount;
-    }, 0);
-  }, [saleReturnDetail]);
+  }, [initialFormValues, form, mode, saleReturnDetail]);
 
   const columns = [
     {
@@ -277,9 +276,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'amount',
       key: 'amount',
       render: (_, { amount, rate, quantity }) => {
-        // const calAmount = rate * quantity
         const calAmount = (rate || 0) * (quantity || 0);
-        // setNewAmount(calAmount)
         return (
           <DebouncedCommaSeparatedInput value={calAmount ? calAmount + '' : ''} disabled />
         )
@@ -392,6 +389,19 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
             <Input disabled />
           </Form.Item>
         </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="status" label="Status">
+            <Select
+              size="small"
+              className="w-full"
+              allowClear
+              options={[
+                { label: 'Created', value: 'created' },
+                { label: 'Return', value: 'return' },
+              ]}
+            />
+          </Form.Item>
+        </Col>
       </Row>
       <Table
         columns={columns}
@@ -414,15 +424,14 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
             />
             <DetailSummaryInfo
               title="Total Amount:"
-              // value={totalAmount || 0}
-              value={mode === 'edit' && totalAmount ? totalAmount : TotalAmountTemp}
+              value={mode === 'edit' && totalAmount ? totalAmount : totalAmount}
             />
           </Col>
         </Row>
       </div>
 
       <div className="mt-4 flex items-center justify-end gap-2">
-        <Link to="/sale-return">
+        <Link to="/stock-return">
           <Button className="w-28">Exit</Button>
         </Link>
         <Button

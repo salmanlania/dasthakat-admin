@@ -165,8 +165,10 @@ export const saleReturnListSlice = createSlice({
     addCase(getSaleReturn.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
+      console.log('data' , data)
       state.initialFormValues = {
         document_identity: data.document_identity || '',
+        status: data.status || '',
         document_date: data.document_date || '',
         totalQuantity: data.total_quantity || '',
         totalAmount: data.total_amount || '',

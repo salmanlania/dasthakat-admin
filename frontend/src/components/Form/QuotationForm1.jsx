@@ -210,46 +210,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
 
       const rowNumber = detail?.sort_order != null ? detail.sort_order + 1 : i + 1;
 
-      //   if (productTypeId === 4) {
-      //     if (!otherName || otherName.trim() === '') {
-      //       missingProductRows.push(rowNumber);
-      //       localError.push('Product name missing for type 4');
-      //     }
-      //   } else if (productTypeId !== 4) {
-      //     if (!name || name.trim() === '') {
-      //       missingProductRows.push(rowNumber);
-      //       localError = 'Product name missing';
-      //     }
-      //   }
-      //   if (!productDescription || productDescription.trim() === '') {
-      //     missingProductRows.push(rowNumber);
-      //     localError = 'product description missing'
-      //   }
-      //   if (!productQuantity || productQuantity === '' || productQuantity < receivedQty) {
-      //     missingProductRows.push(rowNumber);
-      //     localError = 'product quantity missing'
-      //   }
-      //   if (!sellingPrice || sellingPrice === '') {
-      //     missingProductRows.push(rowNumber);
-      //     localError = 'selling price missing'
-      //   }
-      //   if (discountPercent > 100) {
-      //     missingProductRows.push(rowNumber);
-      //     localError = 'discound percentage is greater than 100'
-      //   }
-      // }
-
-      // if (missingProductRows.length > 0) {
-      //   const uniqueRows = [...new Set(missingProductRows)];
-      //   setError(localError);
-      //   console.log('error', localError)
-      //   toast.error(
-      //     `Please fill or correct all rows: ${uniqueRows.join(', ')}`,
-      //     { duration: 3000 }
-      //   );
-      //   return;
-      // }
-
       if (productTypeId === 4) {
         if (!otherName || otherName.trim() === '') {
           missingProductRows.push(rowNumber);
@@ -286,7 +246,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     if (missingProductRows.length > 0) {
       const uniqueRows = [...new Set(missingProductRows)];
       setError(errorMessages.join('\n'));
-      console.log('errors:', errorMessages);
 
       toast.error(
         <>

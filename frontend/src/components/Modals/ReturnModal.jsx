@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Modal, Table, Input, Button } from 'antd';
+import { Modal, Table, Input, Button, Select, Form } from 'antd';
 import toast from 'react-hot-toast';
 import AsyncSelect from '../AsyncSelect';
 import { useSelector, useDispatch } from 'react-redux';
@@ -8,6 +8,7 @@ import useError from '../../hooks/useError';
 
 const ReturnModal = ({ visible, onClose, data }) => {
     const dispatch = useDispatch();
+    const [form] = Form.useForm();
     const { user } = useSelector((state) => state.auth);
     const permissions = user.permission;
     const handleError = useError();
@@ -15,36 +16,48 @@ const ReturnModal = ({ visible, onClose, data }) => {
     const [tableData, setTableData] = useState([]);
 
     useEffect(() => {
-        setTableData(
-            data.map((row) => ({
-                ...row,
-                quantity: row.quantity || 0,
-                return_quantity: row.quantity || 0,
-            }))
-        );
-    }, [data]);
+        if (visible) {
+            setTableData(
+                data.map((row) => ({
+                    ...row,
+                    quantity: row.quantity || 0,
+                    return_quantity: row.quantity || 0,
+                    warehouse_id: null
+                }))
+            );
+            form.resetFields();
+        } else {
+            form.resetFields();
+            setTableData([]);
+        }
+    }, [visible, data]);
 
     const handleReturn = async () => {
         try {
+            await form.validateFields();
             const picklist_id = tableData[0]?.picklist_id || null;
-
+            const status = 'created'
             const sale_return_detail = tableData.map((item, index) => {
                 const detail = {
                     picklist_detail_id: item.id,
                     quantity: item.return_quantity,
-                    warehouse_id: item.warehouse_id?.value ? item.warehouse_id?.value : null
+                    warehouse_id: item.warehouse_id?.value ? item.warehouse_id?.value : null,
                 };
 
                 return detail;
             });
             const data = {
                 picklist_id,
+                status,
                 sale_return_detail
             }
             await dispatch(returnSaleInvoice(data)).unwrap();
             toast.success('Sale Return created successfully');
             onClose();
         } catch (error) {
+            // if (error?.errorFields) {
+            //     return;
+            // }
             handleError(error)
         }
     };
@@ -64,7 +77,8 @@ const ReturnModal = ({ visible, onClose, data }) => {
             key: 'product_name',
             render: (text, record) => {
                 return text || record.product_id?.label || 'N/A';
-            }
+            },
+            width: 120
         },
         {
             title: 'Description',
@@ -112,28 +126,38 @@ const ReturnModal = ({ visible, onClose, data }) => {
             key: 'warehouse_id',
             render: (_, { warehouse_id }, index) => {
                 return (
-                    <AsyncSelect
-                        endpoint="/warehouse"
-                        valueKey="warehouse_id"
-                        labelKey="name"
-                        labelInValue
-                        className="w-full"
-                        value={warehouse_id}
-                        onChange={(selected) => {
-                            setTableData((prev) => {
-                                const updated = [...prev];
-                                updated[index] = {
-                                    ...updated[index],
-                                    warehouse_id: selected
-                                };
-                                return updated;
-                            });
-                        }
-                        }
-                        addNewLink={
-                            permissions.warehouse.list && permissions.warehouse.add ? '/warehouse' : null
-                        }
-                    />
+                    <Form.Item
+                        className="m-0"
+                        name={`warehouse_id_${index}`}
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Warehouse is required'
+                            }
+                        ]}>
+                        <AsyncSelect
+                            endpoint="/warehouse"
+                            valueKey="warehouse_id"
+                            labelKey="name"
+                            labelInValue
+                            className="w-full"
+                            value={warehouse_id}
+                            onChange={(selected) => {
+                                setTableData((prev) => {
+                                    const updated = [...prev];
+                                    updated[index] = {
+                                        ...updated[index],
+                                        warehouse_id: selected
+                                    };
+                                    return updated;
+                                });
+                            }
+                            }
+                            addNewLink={
+                                permissions.warehouse.list && permissions.warehouse.add ? '/warehouse' : null
+                            }
+                        />
+                    </Form.Item>
                 );
             },
             width: 200
@@ -147,7 +171,7 @@ const ReturnModal = ({ visible, onClose, data }) => {
             onCancel={onClose}
             width={800}
             footer={[
-                <Button key="cancel" onClick={onClose}>
+                <Button key="cancel" onClick={() => onClose()}>
                     Cancel
                 </Button>,
                 <Button key="return" type="primary" onClick={handleReturn}>
@@ -155,13 +179,15 @@ const ReturnModal = ({ visible, onClose, data }) => {
                 </Button>
             ]}
         >
-            <Table
-                dataSource={tableData}
-                columns={columns}
-                rowKey="id"
-                pagination={false}
-                size="small"
-            />
+            <Form form={form}>
+                <Table
+                    dataSource={tableData}
+                    columns={columns}
+                    rowKey="id"
+                    pagination={false}
+                    size="small"
+                />
+            </Form>
         </Modal>
     );
 };

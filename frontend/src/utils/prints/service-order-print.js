@@ -22,7 +22,6 @@ const fillEmptyRows = (rows, rowsPerPage) => {
 };
 
 const pdfContent = (doc, data, sideMargin, pageWidth, eventDate) => {
-  console.log('data' , data)
   const schedulingDate = data?.scheduling?.event_date ? data?.scheduling?.event_date : data?.scheduling?.event_date ? data?.scheduling?.event_date : null
   doc.setTextColor(32, 50, 114);
   doc.setFontSize(20);

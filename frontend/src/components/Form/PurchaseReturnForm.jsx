@@ -34,15 +34,17 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
   const [totalQuantity, setTotalQuantity] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
   const [submitAction, setSubmitAction] = useState(null);
+  const [newAmount, setNewAmount] = useState('');
+  const [tempTotalAmount, setTempTotalAmount] = useState(0);
 
   const onFinish = (values) => {
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
-// return console.log('purchaseReturnDetail' , purchaseReturnDetail)
     const data = {
       ...values,
       purchase_order_id: initialFormValues?.purchase_order_id,
       purchase_return_detail: purchaseReturnDetail.map(({ id, ...detail }) => ({
         ...detail,
+        amount: newAmount ? newAmount : detail.quantity ? detail.quantity : null,
         quantity: detail.quantity ? detail.quantity : null,
         product_type_id: detail.product_type?.value ? detail.product_type?.value : null,
       })),
@@ -53,7 +55,7 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
 
   const onProductChange = async (index, selected) => {
     dispatch(
-      changePurchaseInvoiceDetailValue({
+      changePurchaseReturnDetailValue({
         index,
         key: 'product_id',
         value: selected
@@ -64,7 +66,7 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
       const product = await dispatch(getProduct(selected.value)).unwrap();
 
       dispatch(
-        changePurchaseInvoiceDetailValue({
+        changePurchaseReturnDetailValue({
           index,
           key: 'product_code',
           value: product.product_code
@@ -72,7 +74,7 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
       );
 
       dispatch(
-        changePurchaseInvoiceDetailValue({
+        changePurchaseReturnDetailValue({
           index,
           key: 'unit_id',
           value: { value: product.unit_id, label: product.unit_name }
@@ -80,7 +82,7 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
       );
 
       dispatch(
-        changePurchaseInvoiceDetailValue({
+        changePurchaseReturnDetailValue({
           index,
           key: 'rate',
           value: product.cost_price
@@ -104,6 +106,7 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
       const supplierCode = initialFormValues?.supplier_code || '';
       const contactOne = initialFormValues?.contact1 || '';
       const contactTwo = initialFormValues?.contact2 || '';
+      const status = initialFormValues?.status || '';
       const billingAddress = initialFormValues?.vessel_billing_address ? initialFormValues?.vessel_billing_address : initialFormValues?.vessel?.billing_address || '';
 
       setTotalQuantity(quantity);
@@ -112,6 +115,7 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
         supplier: salesmanId,
         totalQuantity: quantity,
         totalAmount: amount,
+        status,
         customer_po_no: customerPoNo,
         ship_via: shipVia,
         contact_person: contactPerson,
@@ -129,7 +133,20 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
           : null
       });
     }
-  }, [initialFormValues, form, mode]);
+    setTotalQuantity(initialFormValues?.totalQuantity || '');
+    setTotalAmount(initialFormValues?.totalAmount || '');
+
+    if (purchaseReturnDetail?.length > 0) {
+      const totalAmt = purchaseReturnDetail.reduce((acc, item) => {
+        return acc + (item.quantity || 0) * (item.rate || 0);
+      }, 0);
+      const totalQty = purchaseReturnDetail.reduce((acc, item) => {
+        return acc + (parseFloat(item.quantity) || 0);
+      }, 0);
+      setTotalQuantity(totalQty);
+      setTotalAmount(totalAmt);
+    }
+  }, [initialFormValues, form, mode, purchaseReturnDetail]);
 
   const columns = [
     {
@@ -295,9 +312,12 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
       title: 'Ext. Cost',
       dataIndex: 'amount',
       key: 'amount',
-      render: (_, { amount }) => (
-        <DebouncedCommaSeparatedInput value={amount ? amount + '' : ''} disabled />
-      ),
+      render: (_, { amount, rate, quantity }) => {
+        const calAmount = (rate || 0) * (quantity || 0);
+        return (
+          <DebouncedCommaSeparatedInput value={calAmount ? calAmount + '' : ''} disabled />
+        )
+      },
       width: 120
     },
     {
@@ -353,7 +373,7 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
       </p>
 
       <Row gutter={12}>
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={24} sm={12} md={6} lg={6}>
           <Form.Item
             name="document_date"
             label="Purchase Return Date"
@@ -366,7 +386,7 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
             <Input disabled />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={10} lg={10}>
+        <Col span={24} sm={12} md={6} lg={6}>
           <Form.Item
             name="supplier"
             label="Supplier"
@@ -394,6 +414,19 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
             <Input disabled />
           </Form.Item>
         </Col>
+        <Col span={24} sm={12} md={6} lg={6}>
+          <Form.Item name="status" label="Status">
+            <Select
+              size="small"
+              className="w-full"
+              allowClear
+              options={[
+                { label: 'Created', value: 'created' },
+                { label: 'Return', value: 'return' },
+              ]}
+            />
+          </Form.Item>
+        </Col>
       </Row>
       <Table
         columns={columns}
@@ -412,7 +445,8 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
           <Col span={24} sm={12} md={6} lg={6}>
             <DetailSummaryInfo
               title="Total Quantity:"
-              value={totalQuantity || 0}
+              // value={totalQuantity || 0}
+              value={mode === 'edit' && totalQuantity ? totalQuantity : totalQuantity}
             />
             <DetailSummaryInfo
               title="Total Amount:"

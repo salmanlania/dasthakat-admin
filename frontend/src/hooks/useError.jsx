@@ -7,7 +7,6 @@ const useError = () => {
   const location = useLocation();
 
   const handleError = (error, showMessage = true) => {
-    console.log('error' , error)
     // if:  if user unauthorize then logout and redirect to login page
     // else if: if network error then show error message
     // else: show error message
