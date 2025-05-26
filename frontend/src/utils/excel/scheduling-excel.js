@@ -366,7 +366,6 @@ const generateSchedulingExcel = async (datas) => {
     saveAs(new Blob([buffer]), `Scheduling-${datas?.data[0]?.company_id ? datas?.data[0]?.company_id : datas?.data[0]?.created_at}.xlsx`);
 
   } catch (error) {
-    console.log('error' , error)
     toast.error(error)
   }
 

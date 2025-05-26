@@ -53,7 +53,6 @@ const StockReturn = () => {
       toast.success('Stock Return deleted successfully');
       dispatch(getSaleReturnList(formattedParams)).unwrap();
     } catch (error) {
-      console.log('error', error)
       handleError(error);
     }
   };
