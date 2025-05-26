@@ -339,7 +339,6 @@ const PickListForm = ({ mode, onSubmit, onSave }) => {
                     rowSelection={{
                         selectedRowKeys,
                         onChange: (newSelectedRowKeys, newSelectedRows) => {
-                            console.log('newSelectedRows', newSelectedRows)
                             setSelectedRowKeys(newSelectedRowKeys);
                             setSelectedRows(newSelectedRows);
                         }

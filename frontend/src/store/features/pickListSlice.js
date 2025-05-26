@@ -149,7 +149,6 @@ export const pickListSlice = createSlice({
     addCase(getPickListListDetail.fulfilled, (state, action) => {
       state.isListLoading = false;
       const data = action.payload;
-      console.log('data', data)
       state.initialFormValues = {
         document_date: data?.document_date,
         customer_po_no: data?.charge_order?.customer_po_no,

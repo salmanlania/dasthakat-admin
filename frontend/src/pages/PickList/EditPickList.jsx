@@ -14,7 +14,6 @@ const EditPickList = () => {
   const navigate = useNavigate();
   const handleError = useError();
   const { id } = useParams();
-  console.log('id', id)
   const { isListLoading, initialFormValues } = useSelector((state) => state.pickList);
 
   useEffect(() => {

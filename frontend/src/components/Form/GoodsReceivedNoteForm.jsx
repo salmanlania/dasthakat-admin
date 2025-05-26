@@ -680,7 +680,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
             rules={[
               {
                 required: true,
-                message: 'Quantity is required'
+                message: 'Warehouse is required'
               }
             ]}>
             <AsyncSelect
