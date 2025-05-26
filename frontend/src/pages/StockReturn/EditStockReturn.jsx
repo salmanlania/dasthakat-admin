@@ -28,7 +28,7 @@ const EditStockReturn = () => {
     try {
       await dispatch(updateSaleReturn({ id, data })).unwrap();
       toast.success('Stock Return updated successfully');
-      navigate('/sale-return');
+      navigate('/stock-return');
     } catch (error) {
       handleError(error);
     }
