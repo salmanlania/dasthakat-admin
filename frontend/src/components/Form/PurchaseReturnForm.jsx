@@ -21,7 +21,7 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
   const handleError = useError();
   const dispatch = useDispatch();
   const { id } = useParams();
-  const { isFormSubmitting, initialFormValues, purchaseReturnDetail, list } = useSelector(
+  const { isFormSubmitting, initialFormValues, purchaseReturnDetail } = useSelector(
     (state) => state.purchaseReturn
   );
 

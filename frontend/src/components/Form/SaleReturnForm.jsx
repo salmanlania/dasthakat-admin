@@ -21,7 +21,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
   const handleError = useError();
   const dispatch = useDispatch();
   const { id } = useParams();
-  const { isFormSubmitting, initialFormValues, saleReturnDetail, list } = useSelector(
+  const { isFormSubmitting, initialFormValues, saleReturnDetail } = useSelector(
     (state) => state.saleReturn
   );
 

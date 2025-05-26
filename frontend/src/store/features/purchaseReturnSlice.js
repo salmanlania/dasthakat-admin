@@ -193,12 +193,15 @@ export const purchaseReturnListSlice = createSlice({
         product_id: detail.product
           ? { value: detail.product.product_id, label: detail.product.product_name }
           : null,
-        product_type: detail.product
+        product_type: detail.product && detail.product.product_type
           ? {
-            value: detail.product?.product_type.product_type_id,
-            label: detail.product?.product_type.name
+            value: detail.product.product_type.product_type_id,
+            label: detail.product.product_type.name
           }
-          : null,
+          : {
+            value: 'other',
+            label: 'Other'
+          },
         product_name: detail?.product ? detail?.product?.name : detail?.product_name ? detail?.product_name : null,
         product_description: detail.product_description,
         charge_order_detail_id: detail.charge_order_detail_id,
