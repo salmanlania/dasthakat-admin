@@ -114,9 +114,9 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       form.setFieldsValue({
         [`product_id-${index}`]: product?.product_id
           ? {
-              value: product.product_id,
-              label: product.product_name
-            }
+            value: product.product_id,
+            label: product.product_name
+          }
           : null,
         [`product_description-${index}`]: product?.product_name || ''
       });
@@ -146,9 +146,9 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
           key: 'product_type_id',
           value: product.product_type_id
             ? {
-                value: product.product_type_id,
-                label: product.product_type_name
-              }
+              value: product.product_type_id,
+              label: product.product_type_name
+            }
             : null
         })
       );
@@ -246,9 +246,9 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
           key: 'product_type_id',
           value: product.product_type_id
             ? {
-                value: product.product_type_id,
-                label: product.product_type_name
-              }
+              value: product.product_type_id,
+              label: product.product_type_name
+            }
             : null
         })
       );
@@ -297,21 +297,21 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
           quotation_id: values.quotation_id || null,
           event_id: values?.charge_order?.event
             ? {
-                value: values?.charge_order?.event.event_id,
-                label: values?.charge_order?.event.event_name
-              }
+              value: values?.charge_order?.event.event_id,
+              label: values?.charge_order?.event.event_name
+            }
             : null,
           customer_id: values?.charge_order?.customer
             ? {
-                value: values?.charge_order?.customer.customer_id,
-                label: values?.charge_order?.customer.name
-              }
+              value: values?.charge_order?.customer.customer_id,
+              label: values?.charge_order?.customer.name
+            }
             : null,
           supplier_id: values?.supplier
             ? {
-                value: values?.supplier.supplier_id,
-                label: values?.supplier.name
-              }
+              value: values?.supplier.supplier_id,
+              label: values?.supplier.name
+            }
             : null,
           charge_no: values?.charge_order?.document_identity || null,
           purchase_order_no: values?.charge_order?.customer_po_no || null
@@ -321,9 +321,9 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
           type: values.type,
           supplier_id: values?.supplier
             ? {
-                value: values?.supplier.supplier_id,
-                label: values?.supplier.name
-              }
+              value: values?.supplier.supplier_id,
+              label: values?.supplier.name
+            }
             : null
         });
       }
@@ -336,9 +336,9 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
           purchase_order_detail_id: detail.purchase_order_detail_id,
           product_type_id: detail.product_type
             ? {
-                value: detail.product_type.product_type_id,
-                label: detail.product_type.name
-              }
+              value: detail.product_type.product_type_id,
+              label: detail.product_type.name
+            }
             : null,
           product_code: detail.product ? detail.product.product_code : null,
           product_id: detail.product
@@ -673,26 +673,38 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       key: 'warehouse_id',
       render: (_, { warehouse_id }, index) => {
         return (
-          <AsyncSelect
-            endpoint="/warehouse"
-            valueKey="warehouse_id"
-            labelKey="name"
-            labelInValue
-            className="w-full"
-            value={warehouse_id}
-            onChange={(selected) =>
-              dispatch(
-                changeGoodsReceivedNoteDetailValue({
-                  index,
-                  key: 'warehouse_id',
-                  value: selected
-                })
-              )
-            }
-            addNewLink={
-              permissions.warehouse.list && permissions.warehouse.add ? '/warehouse' : null
-            }
-          />
+          <Form.Item
+            className="m-0"
+            name={`warehouse_id`}
+            initialValue={warehouse_id}
+            rules={[
+              {
+                required: true,
+                message: 'Quantity is required'
+              }
+            ]}>
+            <AsyncSelect
+              endpoint="/warehouse"
+              required
+              valueKey="warehouse_id"
+              labelKey="name"
+              labelInValue
+              className="w-full"
+              value={warehouse_id}
+              onChange={(selected) =>
+                dispatch(
+                  changeGoodsReceivedNoteDetailValue({
+                    index,
+                    key: 'warehouse_id',
+                    value: selected
+                  })
+                )
+              }
+              addNewLink={
+                permissions.warehouse.list && permissions.warehouse.add ? '/warehouse' : null
+              }
+            />
+          </Form.Item>
         );
       },
       width: 200
@@ -758,17 +770,16 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
         mode === 'edit'
           ? initialFormValues
           : {
-              document_date: dayjs()
-            }
+            document_date: dayjs()
+          }
       }
       scrollToFirstError>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-base font-semibold">
         <span className="text-gray-500">GRN No:</span>
         <span
-          className={`ml-4 text-amber-600 ${
-            mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
-          } rounded px-1`}
+          className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
+            } rounded px-1`}
           onClick={() => {
             if (mode !== 'edit') return;
             navigator.clipboard.writeText(initialFormValues?.document_identity);
