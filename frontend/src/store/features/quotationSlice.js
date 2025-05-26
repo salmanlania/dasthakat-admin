@@ -287,6 +287,59 @@ export const quotationSlice = createSlice({
 
     setSalesmanPercentage: (state, action) => {
       state.salesmanPercentage = action.payload;
+    },
+    splitQuotationQuantity: (state, action) => {
+      const index = action.payload;
+      const detail = state.quotationDetails[index];
+      const splittedQuantity = parseFloat(detail.quantity) - parseFloat(detail.stock_quantity);
+
+      const row = {
+        ...detail,
+        quantity: detail.stock_quantity,
+        rate: detail.rate,
+        amount: detail.rate * detail.stock_quantity,
+        discount_percent: detail.discount_percent,
+        discount_amount: detail.discount_percent
+          ? detail.rate * detail.stock_quantity * (detail.discount_percent / 100)
+          : '',
+        gross_amount:
+          detail.rate * detail.stock_quantity -
+          (detail.discount_percent
+            ? detail.rate * detail.stock_quantity * (detail.discount_percent / 100)
+            : 0)
+      };
+
+      const splittedRow = {
+        product_type_id: {
+          value: 4,
+          label: 'Others'
+        },
+        product_name: detail.product_id?.label,
+        product_description: detail.product_description,
+        description: detail.description,
+        internal_notes: detail.internal_notes,
+        stock_quantity: detail.stock_quantity,
+        supplier_id: detail.supplier_id,
+        unit_id: detail.unit_id,
+        vendor_part_no: detail.vendor_part_no,
+        cost_price: detail.cost_price,
+        markup: detail.markup,
+        quantity: splittedQuantity,
+        rate: detail.rate,
+        amount: detail.rate * splittedQuantity,
+        discount_percent: detail.discount_percent,
+        discount_amount: detail.discount_percent
+          ? detail.rate * splittedQuantity * (detail.discount_percent / 100)
+          : '',
+        gross_amount:
+          detail.rate * splittedQuantity -
+          (detail.discount_percent
+            ? detail.rate * splittedQuantity * (detail.discount_percent / 100)
+            : 0),
+        id: uuidv4()
+      };
+
+      state.quotationDetails.splice(index, 1, row, splittedRow);
     }
   },
   extraReducers: ({ addCase }) => {
@@ -652,6 +705,7 @@ export const {
   resetQuotationDetail,
   setRebatePercentage,
   setSalesmanPercentage,
-  resetQuotationState
+  resetQuotationState,
+  splitQuotationQuantity
 } = quotationSlice.actions;
 export default quotationSlice.reducer;

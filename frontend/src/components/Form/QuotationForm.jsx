@@ -35,7 +35,8 @@ import {
   removeQuotationDetail,
   resetQuotationDetail,
   setRebatePercentage,
-  setSalesmanPercentage
+  setSalesmanPercentage,
+  splitQuotationQuantity
 } from '../../store/features/quotationSlice';
 import { getSalesman } from '../../store/features/salesmanSlice';
 import generateQuotationExcel from '../../utils/excel/quotation-excel.js';
@@ -826,6 +827,11 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                   validator: (_, value, callback, source) => {
                     const parsed = parseFloat(value?.toString().replace(/,/g, ''));
                     const receivedQty = quotationDetails[index]?.picked_quantity || 0;
+
+                    if (isNaN(parsed)) {
+                      return Promise.reject('Invalid number');
+                    }
+
                     if (parsed < receivedQty) {
                       return Promise.reject(`Less Than Received Quantity (${receivedQty})`);
                     }
@@ -858,7 +864,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                       <Button
                         type="primary"
                         size="small"
-                        onClick={() => dispatch(splitChargeOrderQuantity(index))}>
+                        onClick={() => dispatch(splitQuotationQuantity(index))}>
                         Yes
                       </Button>
                     </div>
