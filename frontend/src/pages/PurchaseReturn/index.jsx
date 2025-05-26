@@ -113,6 +113,7 @@ const PurchaseReturn = () => {
           <Input
             className="font-normal"
             size="small"
+            allowClear
             onClick={(e) => e.stopPropagation()}
             value={params.document_identity}
             onChange={(e) =>
@@ -159,6 +160,7 @@ const PurchaseReturn = () => {
           <Input
             className="font-normal"
             size="small"
+            allowClear
             onClick={(e) => e.stopPropagation()}
             value={params.charge_no}
             onChange={(e) =>
