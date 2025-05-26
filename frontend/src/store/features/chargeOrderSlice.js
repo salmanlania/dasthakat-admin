@@ -392,6 +392,7 @@ export const chargeOrderSlice = createSlice({
           label: 'Others'
         },
         product_name: detail.product_id?.label,
+        product_description: detail.product_description,
         description: detail.description,
         unit_id: detail.unit_id,
         supplier_id: detail.supplier_id,
@@ -407,7 +408,8 @@ export const chargeOrderSlice = createSlice({
           (detail.discount_percent
             ? detail.rate * splittedQuantity * (detail.discount_percent / 100)
             : 0),
-        id: uuidv4()
+        id: uuidv4(),
+        row_status: 'U'
       };
 
       state.chargeOrderDetails.splice(index, 1, row, splittedRow);
