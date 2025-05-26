@@ -25,6 +25,7 @@ class SaleReturnController extends Controller
 
 		$document_identity = $request->input('document_identity', '');
 		$document_date = $request->input('document_date', '');
+		$status = $request->input('status', '');
 		$charge_order_id = $request->input('charge_order_id', '');
 		$picklist_id = $request->input('picklist_id', '');
 		$customer_id = $request->input('customer_id', '');
@@ -49,6 +50,7 @@ class SaleReturnController extends Controller
 		if (!empty($picklist_id)) $data = $data->where('sale_return.picklist_id', '=',  $picklist_id);
 		if (!empty($charge_order_id)) $data = $data->where('sale_return.charge_order_id', '=',  $charge_order_id);
 		if (!empty($event_id)) $data = $data->where('co.event_id', '=',  $event_id);
+		if (!empty($status)) $data = $data->where('sale_return.status', '=',  $status);
 		if (!empty($vessel_id)) $data = $data->where('co.vessel_id', '=',  $vessel_id);
 		if (!empty($customer_id)) $data = $data->where('co.customer_id', '=',  $customer_id);
 		if (!empty($document_identity)) $data = $data->where('sale_return.document_identity', 'like', '%' . $document_identity . '%');
@@ -61,6 +63,7 @@ class SaleReturnController extends Controller
 
 					->Where('co.document_identity', 'like', '%' . $search . '%')
 					->OrWhere('p.document_identity', 'like', '%' . $search . '%')
+					->OrWhere('sale_return.status', 'like', '%' . $search . '%')
 					->OrWhere('v.name', 'like', '%' . $search . '%')
 					->OrWhere('c.name', 'like', '%' . $search . '%')
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
@@ -160,6 +163,7 @@ class SaleReturnController extends Controller
 			'picklist_id'       => $request->picklist_id,
 			'created_at'        => Carbon::now(),
 			'created_by'        => $request->login_user_id,
+			'status'            => $request->status,
 		];
 
 		$totalQuantity = 0;
@@ -274,6 +278,7 @@ class SaleReturnController extends Controller
 		$saleReturn->document_date = $request->document_date ?? $saleReturn->document_date;
 		$saleReturn->updated_at = Carbon::now();
 		$saleReturn->updated_by = $request->login_user_id;
+		$saleReturn->status = $request->status;
 		$saleReturn->save();
 
 

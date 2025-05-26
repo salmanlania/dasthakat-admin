@@ -25,6 +25,7 @@ class PurchaseReturn extends Model
         "purchase_order_id",
         "total_quantity",
         "total_amount",
+        "status",
         "created_by",
         "updated_by"
     ];

@@ -25,24 +25,24 @@ class SaleReturn extends Model
         "picklist_id",
         "total_quantity",
         "total_amount",
+        "status",
         "created_by",
         "updated_by"
     ];
-  
+
     public function sale_return_detail()
     {
-        return $this->hasMany(SaleReturnDetail::class, 'sale_return_id','sale_return_id')->orderBy('sort_order');
+        return $this->hasMany(SaleReturnDetail::class, 'sale_return_id', 'sale_return_id')->orderBy('sort_order');
     }
-   
-   
+
+
     public function charge_order()
     {
-        return $this->hasOne(ChargeOrder::class, 'charge_order_id','charge_order_id')->select('*');
+        return $this->hasOne(ChargeOrder::class, 'charge_order_id', 'charge_order_id')->select('*');
     }
 
     public function picklist()
     {
-        return $this->hasOne(Picklist::class, 'picklist_id','picklist_id')->select('*');
+        return $this->hasOne(Picklist::class, 'picklist_id', 'picklist_id')->select('*');
     }
-   
 }

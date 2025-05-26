@@ -107,3 +107,6 @@ CREATE TABLE purchase_return_detail (
 ALTER TABLE `sale_invoice` ADD COLUMN `vessel_billing_address` VARCHAR(255) AFTER `document_date`;
 
 ALTER TABLE `purchase_return_detail` ADD COLUMN `warehouse_id` CHAR(36) AFTER `unit_id`;
+
+ALTER TABLE `sale_return` ADD COLUMN `status` VARCHAR(255) AFTER `total_amount`;
+ALTER TABLE `purchase_return` ADD COLUMN `status` VARCHAR(255) AFTER `total_amount`;

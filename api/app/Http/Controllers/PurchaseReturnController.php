@@ -24,6 +24,7 @@ class PurchaseReturnController extends Controller
 	{
 
 		$document_identity = $request->input('document_identity', '');
+		$status = $request->input('status', '');
 		$document_date = $request->input('document_date', '');
 		$charge_order_id = $request->input('charge_order_id', '');
 		$purchase_order_id = $request->input('purchase_order_id', '');
@@ -49,6 +50,7 @@ class PurchaseReturnController extends Controller
 		if (!empty($purchase_order_id)) $data = $data->where('purchase_return.purchase_order_id', '=',  $purchase_order_id);
 		if (!empty($charge_order_id)) $data = $data->where('purchase_return.charge_order_id', '=',  $charge_order_id);
 		if (!empty($event_id)) $data = $data->where('co.event_id', '=',  $event_id);
+		if (!empty($status)) $data = $data->where('purchase_return.status', '=',  $status);
 		if (!empty($vessel_id)) $data = $data->where('co.vessel_id', '=',  $vessel_id);
 		if (!empty($supplier_id)) $data = $data->where('po.supplier_id', '=',  $supplier_id);
 		if (!empty($document_identity)) $data = $data->where('purchase_return.document_identity', 'like', '%' . $document_identity . '%');
@@ -61,6 +63,7 @@ class PurchaseReturnController extends Controller
 
 					->Where('co.document_identity', 'like', '%' . $search . '%')
 					->OrWhere('po.document_identity', 'like', '%' . $search . '%')
+					->OrWhere('purchase_return.status', 'like', '%' . $search . '%')
 					->OrWhere('v.name', 'like', '%' . $search . '%')
 					->OrWhere('s.name', 'like', '%' . $search . '%')
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
@@ -161,6 +164,7 @@ class PurchaseReturnController extends Controller
 			'purchase_order_id' => $request->purchase_order_id,
 			'created_at'        => Carbon::now(),
 			'created_by'        => $request->login_user_id,
+			'status'            => $request->status,
 		];
 
 		$totalQuantity = 0;
@@ -283,6 +287,7 @@ class PurchaseReturnController extends Controller
 		// $purchaseReturn->vendor_notes = $request->vendor_notes ?? $purchaseReturn->vendor_notes;
 		$purchaseReturn->updated_at = Carbon::now();
 		$purchaseReturn->updated_by = $request->login_user_id;
+		$purchaseReturn->status = $request->status;
 		$purchaseReturn->save();
 
 
@@ -363,7 +368,7 @@ class PurchaseReturnController extends Controller
 					}
 				}
 				if ($detail['row_status'] == 'U') {
-						$totalQuantity += $detail['quantity'];
+					$totalQuantity += $detail['quantity'];
 					$totalAmount += $detail['amount'];
 					$row = [
 						'sort_order' => $detail['sort_order'] ?? "",
