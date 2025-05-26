@@ -201,7 +201,7 @@ class ShipmentController extends Controller
 				->filter(function ($item) {
 					$shippedQty = ShipmentDetail::where('charge_order_detail_id', $item->charge_order_detail_id)->sum('quantity');
 
-					return ($this->getPickedQuantity($item) - $shippedQty) > 0;
+					return ($this->getPickedQuantity($item, ['addReturnQty' => true]) - $shippedQty) > 0;
 				})
 				->groupBy('charge_order_id')
 				->map(function ($group, $key) {
@@ -222,7 +222,7 @@ class ShipmentController extends Controller
 								'product_description' => $item->product_description,
 								'description' => $item->description,
 								'internal_notes' => $item->internal_notes,
-								'available_quantity' => $this->getPickedQuantity($item) - $shippedQty,
+								'available_quantity' => $this->getPickedQuantity($item, ['addReturnQty' => true]) - $shippedQty,
 								'quantity' => $remainingQty,
 								'unit_id' => $item->unit_id,
 								'unit_name' => $item->unit?->name,
@@ -306,7 +306,7 @@ class ShipmentController extends Controller
 		foreach ($chargeOrderDetails as $index => $detail) {
 			$shippedQty = ShipmentDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->sum('quantity');
 
-			if (($this->getPickedQuantity($detail) - $shippedQty) > 0) {
+			if (($this->getPickedQuantity($detail, ['addReturnQty' => true]) - $shippedQty) > 0) {
 				$shipmentDetails[] = [
 					'shipment_id'           => $uuid,
 					'shipment_detail_id'    => $this->get_uuid(),
@@ -319,7 +319,7 @@ class ShipmentController extends Controller
 					'product_description'   => $detail->product_description,
 					'description'           => $detail->description,
 					'internal_notes'        => $detail->internal_notes,
-					'quantity'              => $this->getPickedQuantity($detail) - $shippedQty,
+					'quantity'              => $this->getPickedQuantity($detail, ['addReturnQty' => true]) - $shippedQty,
 					'unit_id'               => $detail->unit_id,
 					'supplier_id'           => $detail->supplier_id,
 					'created_at'            => Carbon::now(),

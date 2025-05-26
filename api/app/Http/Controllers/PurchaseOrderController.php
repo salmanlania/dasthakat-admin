@@ -6,10 +6,12 @@ use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
 use App\Models\DocumentType;
 use App\Models\GRN;
+use App\Models\GRNDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
+use App\Models\PurchaseReturnDetail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -78,17 +80,23 @@ class PurchaseOrderController extends Controller
 
 		// **Filter Available POs where at least one product is not fully received**
 		if ($request->has('available_po') && $request->available_po == 1) {
+
 			$data->whereExists(function ($query) {
 				$query->select(DB::raw(1))
 					->from('purchase_order_detail as pod')
 					->leftJoin('good_received_note as grn', 'grn.purchase_order_id', '=', 'pod.purchase_order_id')
 					->leftJoin('good_received_note_detail as grnd', function ($join) {
 						$join->on('grnd.good_received_note_id', '=', 'grn.good_received_note_id')
-							->on('grnd.product_id', '=', 'pod.product_id'); // Match product
+							->on('grnd.purchase_order_detail_id', '=', 'pod.purchase_order_detail_id'); // Match product
+					})
+					->leftJoin('purchase_return as pr', 'pr.purchase_order_id', '=', 'pod.purchase_order_id')
+					->leftJoin('purchase_return_detail as prd', function ($join) {
+						$join->on('prd.purchase_return_id', '=', 'pr.purchase_return_id')
+							->on('prd.purchase_order_detail_id', '=', 'pod.purchase_order_detail_id');
 					})
 					->whereRaw('pod.purchase_order_id = purchase_order.purchase_order_id')
 					->groupBy('pod.product_id', 'pod.quantity')
-					->havingRaw("SUM(IFNULL(grnd.quantity, 0)) < pod.quantity"); // At least one product is not fully received
+					->havingRaw("SUM(IFNULL(grnd.quantity, 0)) - SUM(IFNULL(prd.quantity, 0)) < pod.quantity");
 			});
 		}
 
@@ -197,22 +205,12 @@ class PurchaseOrderController extends Controller
 			return $this->jsonResponse(null, 404, "Purchase Order not found");
 		}
 
-		// Fetch all GRNs related to this PO
-		$grns = GRN::with("grn_detail")->where('purchase_order_id', $id)->get();
-
 		foreach ($data->purchase_order_detail as &$detail) {
-			$receivedQty = 0;
 
-			// Check if this product has received any GRN quantities
-			foreach ($grns as $grn) {
-				foreach ($grn->grn_detail as $grnDetail) {
-					if ($detail->purchase_order_detail_id == $grnDetail->purchase_order_detail_id) {
-						$receivedQty += $grnDetail->quantity;
-					}
-				}
-			}
+			$GRN = GRNDetail::where('purchase_order_detail_id', $detail->purchase_order_detail_id);
+			$PRD = PurchaseReturnDetail::where('purchase_order_detail_id', $detail->purchase_order_detail_id);
 
-			// Calculate the remaining quantity
+			$receivedQty = $GRN->sum('quantity') - $PRD->sum('quantity');
 			$remainingQty = max($detail->quantity - $receivedQty, 0);
 
 			$detail->available_quantity = $remainingQty;

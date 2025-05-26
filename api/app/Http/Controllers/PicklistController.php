@@ -166,13 +166,17 @@ class PicklistController extends Controller
 
 			$warehouseNames = $receivedDetails->pluck('warehouse.name')->filter()->unique()->implode(', ');
 			$remarks = $receivedDetails->pluck('remarks')->filter()->unique()->implode(', ');
-
+			$row = (object)[
+				"charge_order_detail_id" => $detail->charge_order_detail_id,
+				"product_type_id" => 2
+			];
 			$items[] = [
 				"picklist_detail_id" => $picklistDetailId,
 				"charge_order_detail_id" => $detail->charge_order_detail_id ?? null,
 				"product" => $detail->product ?? null,
 				"original_quantity" => $detail->quantity,
-				"total_received_quantity" => $totalReceivedQty,
+				"returned_quantity" => $this->getReturnedQuantity($row),
+				"total_received_quantity" => $totalReceivedQty -  $this->getReturnedQuantity($row),
 				"remarks" => $remarks ?: null, // Show null if empty
 				"warehouse" => ["name" => $warehouseNames ?: null], // Show null if empty
 			];

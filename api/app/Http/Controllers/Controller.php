@@ -410,7 +410,7 @@ class Controller extends BaseController
 
 
 
-    static public function getPickedQuantity($row)
+    static public function getPickedQuantity($row, array $options = ["addReturnQty" => false])
     {
         if ($row->product_type_id == 1) {
             $quantity = ServicelistReceivedDetail::query()
@@ -421,11 +421,24 @@ class Controller extends BaseController
             $quantity = PicklistReceivedDetail::query()
                 ->where('charge_order_detail_id', $row->charge_order_detail_id)
                 ->sum('quantity');
+
+            if ($options["addReturnQty"]) {
+                $returnQuantity = SaleReturnDetail::query()
+                    ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                    ->sum('quantity');
+                $quantity = $quantity - $returnQuantity;
+            }
         } else
 		if ($row->product_type_id == 3 || $row->product_type_id == 4) {
             $quantity = GRNDetail::query()
                 ->where('charge_order_detail_id', $row->charge_order_detail_id)
                 ->sum('quantity');
+            if ($options["addReturnQty"]) {
+                $returnQuantity = PurchaseReturnDetail::query()
+                    ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                    ->sum('quantity');
+                $quantity = $quantity - $returnQuantity;
+            }
         } else {
             $quantity = 0;
         }
@@ -469,7 +482,7 @@ class Controller extends BaseController
         } else {
             $quantity = 0;
         }
-        return $quantity;
+        return $quantity ?? 0;
     }
 
 
