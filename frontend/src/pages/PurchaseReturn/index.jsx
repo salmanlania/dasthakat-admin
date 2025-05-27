@@ -86,7 +86,7 @@ const PurchaseReturn = () => {
     {
       title: (
         <div>
-          <p>Sale Invoice Date</p>
+          <p>Purchase Invoice Date</p>
           <div onClick={(e) => e.stopPropagation()}>
             <DatePicker
               size="small"
@@ -134,6 +134,32 @@ const PurchaseReturn = () => {
     },
     {
       title: (
+        <div>
+          <p>Purchase Order No</p>
+          <Input
+            className="font-normal"
+            size="small"
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.purchase_order_no}
+            onChange={(e) =>
+              dispatch(
+                setPurchaseReturnListParams({
+                  purchase_order_no: e.target.value
+                })
+              )
+            }
+          />
+        </div>
+      ),
+      dataIndex: 'purhcase_order_no',
+      key: 'purhcase_order_no',
+      sorter: true,
+      width: 180,
+      ellipsis: true
+    },
+    {
+      title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Vessel</p>
           <AsyncSelect
@@ -166,7 +192,7 @@ const PurchaseReturn = () => {
             onChange={(e) =>
               dispatch(
                 setPurchaseReturnListParams({
-                  charge_no: e.target.value
+                  charge_order_no: e.target.value
                 })
               )
             }

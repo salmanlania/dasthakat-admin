@@ -86,7 +86,7 @@ const StockReturn = () => {
     {
       title: (
         <div>
-          <p>Sale Invoice Date</p>
+          <p>Stock Invoice Date</p>
           <div onClick={(e) => e.stopPropagation()}>
             <DatePicker
               size="small"
@@ -166,7 +166,7 @@ const StockReturn = () => {
             onChange={(e) =>
               dispatch(
                 setSaleReturnListParams({
-                  charge_no: e.target.value
+                  charge_order_no: e.target.value
                 })
               )
             }
