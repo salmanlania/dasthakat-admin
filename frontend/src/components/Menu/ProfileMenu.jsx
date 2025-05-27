@@ -174,7 +174,7 @@ const ProfileMenu = () => {
       }}
       arrow
     >
-      <Avatar src={user.image_url} icon={<FaRegUser />} size={40} />
+      <Avatar src={user.image_url} className='cursor-pointer' icon={<FaRegUser />} size={40} />
     </Dropdown>
   );
 };
