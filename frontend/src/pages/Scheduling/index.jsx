@@ -121,7 +121,6 @@ const Scheduling = () => {
           data: { [key]: value }
         })
       ).unwrap();
-      // dispatch(getDispatchList(params)).unwrap();
       dispatch(getDispatchList(getFilteredParams())).unwrap();
 
       setTableKey((prev) => prev + 1);
@@ -133,7 +132,6 @@ const Scheduling = () => {
   const onNotesSave = async ({ notes }) => {
     try {
       await updateValue(notesModalIsOpen.id, notesModalIsOpen.column, notes);
-      // dispatch(getDispatchList(params)).unwrap();
       dispatch(getDispatchList(getFilteredParams())).unwrap();
 
       closeNotesModal();
@@ -166,14 +164,6 @@ const Scheduling = () => {
         ...params,
         start_date: newDate,
         end_date: null,
-        // event_date: null,
-        // search: null,
-        // technician_notes: null,
-        // agent_notes: null,
-        // technician_id: null,
-        // vessel_id: null,
-        // agent_id: null,
-        // event_id: null,
         sort_direction: 'ascend'
       };
 
@@ -203,14 +193,6 @@ const Scheduling = () => {
         ...params,
         start_date: newDate,
         end_date: null,
-        // event_date: null,
-        // search: null,
-        // technician_notes: null,
-        // agent_notes: null,
-        // technician_id: null,
-        // vessel_id: null,
-        // agent_id: null,
-        // event_id: null
         sort_direction: 'ascend'
       };
 
@@ -831,7 +813,6 @@ const Scheduling = () => {
       start_date: !isOldChecked ? today : params.start_date,
       end_date: !isOldChecked ? null : params.end_date
     };
-    // dispatch(getDispatchList(modifiedParams)).unwrap().catch(handleError);
     dispatch(getDispatchList(getFilteredParams())).unwrap().catch(handleError);
   }, [
     isOldChecked,
@@ -975,15 +956,6 @@ const Scheduling = () => {
                     dateValue && dayjs(dateValue).isValid()
                       ? dayjs(dateValue).format('MM-DD-YYYY')
                       : '';
-                  // if (formattedDate) {
-                  //   setFormatDate((prevDates) => {
-                  //     if (!prevDates.includes(formattedDate)) {
-                  //       return [...prevDates, formattedDate];
-                  //     }
-                  //     return prevDates;
-                  //   });
-                  // }
-
                   return (
                     <tr {...restProps} className="date-header-row bg-[#fafafa] font-bold">
                       <td colSpan={columns.length} className="text-md px-4 py-2 text-[#285198]">
