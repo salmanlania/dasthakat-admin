@@ -26,8 +26,8 @@ class PurchaseReturnController extends Controller
 		$document_identity = $request->input('document_identity', '');
 		$status = $request->input('status', '');
 		$document_date = $request->input('document_date', '');
-		$charge_order_id = $request->input('charge_order_id', '');
-		$purchase_order_id = $request->input('purchase_order_id', '');
+		$charge_order_no = $request->input('charge_order_no', '');
+		$purchase_order_no = $request->input('purchase_order_no', '');
 		$supplier_id = $request->input('supplier_id', '');
 		$event_id = $request->input('event_id', '');
 		$vessel_id = $request->input('vessel_id', '');
@@ -47,8 +47,8 @@ class PurchaseReturnController extends Controller
 		$data = $data->where('purchase_return.company_id', '=', $request->company_id);
 		$data = $data->where('purchase_return.company_branch_id', '=', $request->company_branch_id);
 
-		if (!empty($purchase_order_id)) $data = $data->where('purchase_return.purchase_order_id', '=',  $purchase_order_id);
-		if (!empty($charge_order_id)) $data = $data->where('purchase_return.charge_order_id', '=',  $charge_order_id);
+		if (!empty($purchase_order_no)) $data = $data->where('po.document_identity', 'like', "%" . $purchase_order_no . "%");
+		if (!empty($charge_order_no)) $data = $data->where('co.document_identity', 'like', "%" . $charge_order_no . "%");
 		if (!empty($event_id)) $data = $data->where('co.event_id', '=',  $event_id);
 		if (!empty($status)) $data = $data->where('purchase_return.status', '=',  $status);
 		if (!empty($vessel_id)) $data = $data->where('co.vessel_id', '=',  $vessel_id);
