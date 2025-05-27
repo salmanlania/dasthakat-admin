@@ -336,43 +336,6 @@ const GoodsReceivedNote = () => {
           <div className="ml-auto flex flex-wrap items-center gap-2">
             {permissions.add ? (
               <>
-                {/* <AsyncSelect
-                  endpoint="/purchase-order"
-                  valueKey="purchase_order_id"
-                  labelKey="document_identity"
-                  
-                  className="min-w-40"
-                  placeholder="Purchase Order"
-                  params={{
-                    available_po: 1
-                  }}
-                  value={selectedPO}
-                  onChange={(selected) => setSelectedPO(selected)}
-                  addNewLink={otherPermissions.purchase_order.add ? '/purchase-order/create' : null}
-                /> */}
-                {/* <AsyncSelect
-                  endpoint="/purchase-order"
-                  valueKey="purchase_order_id"
-                  labelKey="document_identity"
-                  getOptionLabel={(option) => {
-                    return option.purchase_order_no || option.document_identity;
-                  }}
-                  className="min-w-40"
-                  placeholder="Purchase Order"
-                  params={{
-                    available_po: 1
-                  }}
-                  value={selectedPO}
-                  onChange={(selected) => setSelectedPO(selected)}
-                  addNewLink={otherPermissions.purchase_order.add ? '/purchase-order/create' : null}
-                /> */}
-                {/* <Button
-                  type="primary"
-                  onClick={onGRNCreate}
-                  disabled={!selectedPO}
-                  loading={isGRNCreating}>
-                  Create GRN
-                </Button> */}
               </>
             ) : null}
             {permissions.delete ? (

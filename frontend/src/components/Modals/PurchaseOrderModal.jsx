@@ -175,12 +175,6 @@ const PurchaseOrderModal = () => {
                   />
                 </Form.Item>
               </Col>
-              {/* <Col span={24} sm={8} lg={8}>
-                <Form.Item name={`ship_via_${detail.supplier_id}`} label="Ship Via">
-                  <DebounceInput
-                    onChange={(value) => onValuesChange(detail.supplier_id, 'ship_via', value)}
-                  />
-                </Form.Item>
               </Col> */}
               <Col span={24} sm={8} lg={8}>
                 <Form.Item name={`ship_via_${detail.supplier_id}`} label="Ship Via">

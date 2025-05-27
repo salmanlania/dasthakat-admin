@@ -634,20 +634,8 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'product_description',
       key: 'product_description',
       render: (_, { product_description, product_type_id }, index) => {
-        // form.setFieldsValue({ [`product_description-${index}`]: product_description });
         return (
           <Tooltip title={product_description || ''}>
-            {/* <Form.Item
-              className="m-0"
-              name={`product_description-${index}`}
-              initialValue={product_description}
-              rules={[
-                {
-                  required: true,
-                  whitespace: true,
-                  message: 'Description is required'
-                }
-              ]}> */}
               <DebounceInput
                 value={product_description}
                 onChange={(value) => {
@@ -674,7 +662,6 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
                   }
                 }}
               />
-            {/* </Form.Item> */}
           </Tooltip>
         );
       },
@@ -770,29 +757,8 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
           .toString()
           .replace(/(\.\d*?)0+$/, '$1')
           .replace(/\.$/, '');
-        // form.setFieldsValue({ [`quantity-${index}`]: newQuantity });
         return (
           <div className="relative">
-            {/* <Form.Item
-              className="m-0"
-              name={`quantity-${index}`}
-              initialValue={newQuantity}
-              rules={[
-                {
-                  required: true,
-                  message: 'Quantity is required'
-                },
-                {
-                  validator: (_, value, callback, source) => {
-                    const parsed = parseFloat(value?.toString().replace(/,/g, ''));
-                    const receivedQty = chargeOrderDetails[index]?.picked_quantity || 0;
-                    if (parsed < receivedQty) {
-                      return Promise.reject(`Less Than Received Quantity (${receivedQty})`);
-                    }
-                    return Promise.resolve();
-                  }
-                }
-              ]}> */}
               <DebouncedCommaSeparatedInput
                 decimalPlaces={2}
                 value={newQuantity}
@@ -807,7 +773,6 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
                   )
                 }
               />
-            {/* </Form.Item> */}
             {isQuantityExceedsStock && (
               <Popover
                 content={

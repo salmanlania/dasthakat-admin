@@ -268,15 +268,6 @@ const PurchaseInvoice = () => {
         <div className="flex justify-end items-center gap-2">
           {permissions.edit ? (
             <>
-              {/* <Tooltip title="Print">
-                <Button
-                  size="small"
-                  type="primary"
-                  className="bg-rose-600 hover:!bg-rose-500"
-                  icon={<FaRegFilePdf size={14} />}
-                  // onClick={() => printPurchaseInvoice(purchase_invoice_id)}
-                />
-              </Tooltip> */}
               <Tooltip title="Edit">
                 <Link to={`/purchase-invoice/edit/${purchase_invoice_id}`}>
                   <Button

@@ -55,9 +55,6 @@ const ReturnModal = ({ visible, onClose, data }) => {
             toast.success('Sale Return created successfully');
             onClose();
         } catch (error) {
-            // if (error?.errorFields) {
-            //     return;
-            // }
             handleError(error)
         }
     };
