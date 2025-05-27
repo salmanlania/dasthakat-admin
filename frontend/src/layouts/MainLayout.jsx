@@ -14,9 +14,7 @@ const MainLayout = () => {
   const href = removeTrailingSlashes(useHref());
   const { user } = useSelector((state) => state.auth);
   const permissions = user?.permission;
-  console.log('permissions', permissions)
-  console.log('permissions return sale', permissions.sale_return.edit)
-
+  
   if (
     !localStorage.getItem('token') ||
     !localStorage.getItem('user') ||
