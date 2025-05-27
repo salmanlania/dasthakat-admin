@@ -175,7 +175,6 @@ const PurchaseOrderModal = () => {
                   />
                 </Form.Item>
               </Col>
-              </Col> */}
               <Col span={24} sm={8} lg={8}>
                 <Form.Item name={`ship_via_${detail.supplier_id}`} label="Ship Via">
                   <Select
