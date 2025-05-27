@@ -26,7 +26,7 @@ class SaleReturnController extends Controller
 		$document_identity = $request->input('document_identity', '');
 		$document_date = $request->input('document_date', '');
 		$status = $request->input('status', '');
-		$charge_order_id = $request->input('charge_order_id', '');
+		$charge_order_no = $request->input('charge_order_no', '');
 		$picklist_id = $request->input('picklist_id', '');
 		$customer_id = $request->input('customer_id', '');
 		$event_id = $request->input('event_id', '');
@@ -48,7 +48,7 @@ class SaleReturnController extends Controller
 		$data = $data->where('sale_return.company_branch_id', '=', $request->company_branch_id);
 
 		if (!empty($picklist_id)) $data = $data->where('sale_return.picklist_id', '=',  $picklist_id);
-		if (!empty($charge_order_id)) $data = $data->where('sale_return.charge_order_id', '=',  $charge_order_id);
+		if (!empty($charge_order_no)) $data = $data->where('co.document_identity', 'like', "%" . $charge_order_no . "%");
 		if (!empty($event_id)) $data = $data->where('co.event_id', '=',  $event_id);
 		if (!empty($status)) $data = $data->where('sale_return.status', '=',  $status);
 		if (!empty($vessel_id)) $data = $data->where('co.vessel_id', '=',  $vessel_id);
