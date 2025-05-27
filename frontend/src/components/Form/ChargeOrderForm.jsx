@@ -147,14 +147,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
 
     submitType === 'save' ? onSubmit(data, additionalRequest) : submitType === 'saveAndExit' ? onSave(data, additionalRequest) : null;
 
-    // if (submitAction === 'save') {
-    //   onSubmit(data, additionalRequest)
-    // }
-
-    // if (submitAction === 'saveAndExit') {
-    //   onSave(data, additionalRequest)
-    // }
-    if (additionalRequest === 'CREATE_PO') {
+    if (submitType === 'CREATE_PO') {
       dispatch(setChargePoID(id));
     }
   };
