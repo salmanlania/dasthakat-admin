@@ -14,6 +14,8 @@ const MainLayout = () => {
   const href = removeTrailingSlashes(useHref());
   const { user } = useSelector((state) => state.auth);
   const permissions = user?.permission;
+  console.log('permissions', permissions)
+  console.log('permissions return sale', permissions.sale_return.edit)
 
   if (
     !localStorage.getItem('token') ||
@@ -122,12 +124,17 @@ const MainLayout = () => {
 
   if (href === '/scheduling' && !permissions.dispatch.list) return <NotFound />;
 
-  // if (href === '/sale-invoice' && !permissions.shipment.list) return <NotFound />;
-  // if (href === '/sale-invoice/create' && !permissions.shipment.add) return <NotFound />;
-  // if (href.startsWith('/sale-invoice/edit') && !permissions.shipment.edit) return <NotFound />;
-  // if (href === '/sale-invoice') return <NotFound />;
-  // if (href === '/sale-invoice/create') return <NotFound />;
-  // if (href.startsWith('/sale-invoice/edit')) return <NotFound />;
+  if (href === '/sale-invoice' && !permissions.sale_invoice.list) return <NotFound />;
+  if (href.startsWith('/sale-invoice/edit') && !permissions.sale_invoice.edit) return <NotFound />;
+
+  if (href === '/stock-return' && !permissions.sale_return.list) return <NotFound />;
+  if (href.startsWith('/stock-return/edit') && !permissions.sale_return.edit) return <NotFound />;
+
+  if (href === '/purchase-invoice' && !permissions.purchase_invoice.list) return <NotFound />;
+  if (href.startsWith('/purchase-invoice/edit') && !permissions.purchase_invoice.edit) return <NotFound />;
+
+  if (href === '/purchase-return' && !permissions.purchase_return.list) return <NotFound />;
+  if (href.startsWith('/purchase-return/edit') && !permissions.purchase_return.edit) return <NotFound />;
 
   return (
     <Layout className="min-h-screen">

@@ -409,7 +409,7 @@ export const chargeOrderSlice = createSlice({
             ? detail.rate * splittedQuantity * (detail.discount_percent / 100)
             : 0),
         id: uuidv4(),
-        row_status: 'U'
+        row_status: 'I'
       };
 
       state.chargeOrderDetails.splice(index, 1, row, splittedRow);
