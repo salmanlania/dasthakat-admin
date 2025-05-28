@@ -786,7 +786,10 @@ class ChargeOrderController extends Controller
 			'created_by' => $request->login_user_id,
 		];
 		$chargeOrder = ChargeOrder::create($insertArr);
+		if ($request->port_id) {
 
+			EventDispatch::where('event_id', $request->event_id)->update(['port_id' => $request->port_id]);
+		}
 		if ($request->charge_order_detail) {
 			foreach ($request->charge_order_detail as $key => $value) {
 				$detail_uuid = $this->get_uuid();
