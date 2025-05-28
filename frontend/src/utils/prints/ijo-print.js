@@ -423,7 +423,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
     });
   }
 
-  const filledRows = fillEmptyRows(table3Row, 15);
+  const filledRows = fillEmptyRows(table3Row, 20);
   doc.autoTable({
     startY: doc.previousAutoTable.finalY,
     // body: filledRows
