@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
 use App\Models\GRNDetail;
+use App\Models\Picklist;
+use App\Models\PicklistDetail;
 use App\Models\PicklistReceived;
 use App\Models\PicklistReceivedDetail;
 use App\Models\PurchaseOrder;
@@ -121,6 +123,13 @@ class ShipmentController extends Controller
 		$Ports = [];
 
 		foreach ($data->shipment_detail as $detail) {
+			if ($detail->product_type_id == 2) {
+				$detail->picklist_detail = PicklistDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->first() ?? null;
+				$detail->picklist = Picklist::where('picklist_id', $detail->picklist_detail->picklist_id)->first() ?? null;
+			} else if ($detail->product_type_id == 3 || $detail->product_type_id == 4) {
+				$detail->purchase_order_detail = PurchaseOrderDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->first() ?? null;
+				$detail->purchase_order = PurchaseOrder::where('purchase_order_id', $detail->purchase_order_detail->purchase_order_id)->first() ?? null;
+			}
 			$documentIdentity = $detail->charge_order->document_identity ?? null;
 			$customerNo = $detail->charge_order->customer_po_no ?? null;
 			$port = $detail->charge_order->port->name ?? null;
