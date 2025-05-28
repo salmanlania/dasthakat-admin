@@ -875,7 +875,10 @@ class ChargeOrderController extends Controller
 			'updated_by' => $request->login_user_id,
 		])->save();
 
+if ($request->port_id) {
 
+			EventDispatch::where('event_id', $request->event_id)->update(['port_id' => $request->port_id]);
+		}
 		if ($request->charge_order_detail) {
 			foreach ($request->charge_order_detail as $value) {
 				try {
