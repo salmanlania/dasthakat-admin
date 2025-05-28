@@ -227,7 +227,7 @@ class JobOrderController extends Controller
 				$this->prepareJobOrderDetailData($request, $jobOrderId, $detailId, $chargeOrderDetail)
 			);
 
-			if ($chargeOrderDetail['product_type']['product_type_id'] == 1) {
+			if ($chargeOrderDetail['product_type']['product_type_id'] == 1 || $chargeOrderDetail['product_type']['product_type_id'] == 3 ) {
 				$this->createCertificate($jobOrderId, $detailId, $chargeOrderDetail, $request->login_user_id);
 			}
 

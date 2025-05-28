@@ -687,7 +687,7 @@ class ChargeOrderController extends Controller
 					'created_at' => Carbon::now(),
 					'created_by' => $request->login_user_id
 				];
-				if ($item['product_type_id'] == 1) {
+				if ($item['product_type_id'] == 1 || $item['product_type_id'] == 3) {
 					$this->createCertificate($JO->job_order_id, $detail_id, $item, $request->login_user_id);
 				}
 			}
