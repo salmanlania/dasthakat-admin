@@ -97,6 +97,8 @@ class SaleReturnController extends Controller
 			"charge_order.port",
 			"charge_order.quotation",
 			"charge_order.quotation.payment",
+			"created_by_user",
+			"updated_by_user",
 		)
 			->where('sale_return_id', $id)->first();
 

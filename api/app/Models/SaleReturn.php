@@ -45,4 +45,12 @@ class SaleReturn extends Model
     {
         return $this->hasOne(Picklist::class, 'picklist_id', 'picklist_id')->select('*');
     }
+    public function created_by_user()
+    {
+        return $this->hasOne(User::class, 'user_id', 'created_by')->select('user_id', 'user_name','email');
+    }
+    public function updated_by_user()
+    {
+        return $this->hasOne(User::class, 'user_id', 'updated_by')->select('user_id', 'user_name','email');
+    }
 }
