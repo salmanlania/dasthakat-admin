@@ -90,6 +90,10 @@ class Quotation extends Model
     {
         return $this->hasOne(Flag::class, 'flag_id', 'flag_id')->select('flag_id', 'name');
     }
+    public function term()
+    {
+        return $this->hasOne(Terms::class, 'term_id', 'term_id')->select('*');
+    }
     public function class1()
     {
         return $this->hasOne(SetupClass::class, 'class_id', 'class1_id')->select('class_id', 'name');
