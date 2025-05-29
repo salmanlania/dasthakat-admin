@@ -23,7 +23,7 @@ import {
   getSaleReturnInvoice
 } from '../../store/features/saleReturnSlice';
 
-import { createSaleInvoicePrint } from '../../utils/prints/sale-invoice-print';
+import { createStockReturnPrint } from '../../utils/prints/stock-return-print';
 
 const StockReturn = () => {
   const dispatch = useDispatch();
@@ -47,6 +47,18 @@ const StockReturn = () => {
     document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null
   };
 
+  const printStockReturn = async (id) => {
+    const loadingToast = toast.loading('Loading print...');
+
+    try {
+      const data = await dispatch(getSaleReturnInvoice(id)).unwrap();
+      toast.dismiss(loadingToast);
+      createStockReturnPrint(data);
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
   const onSaleReturnDelete = async (id) => {
     try {
       await dispatch(saleReturnDelete(id)).unwrap();
@@ -65,18 +77,6 @@ const StockReturn = () => {
       toast.success('Stock Return deleted successfully');
       closeDeleteModal();
       await dispatch(getSaleReturnList(formattedParams)).unwrap();
-    } catch (error) {
-      handleError(error);
-    }
-  };
-
-  const printSaleInvoice = async (id) => {
-    const loadingToast = toast.loading('Loading print...');
-
-    try {
-      const data = await dispatch(getSaleReturnInvoice(id)).unwrap();
-      toast.dismiss(loadingToast);
-      createSaleInvoicePrint(data);
     } catch (error) {
       handleError(error);
     }
@@ -205,6 +205,32 @@ const StockReturn = () => {
       }
     },
     {
+      title: (
+        <div>
+          <p>Status</p>
+          <Input
+            className="font-normal"
+            size="small"
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.status}
+            onChange={(e) =>
+              dispatch(
+                setSaleReturnListParams({
+                  status: e.target.value
+                })
+              )
+            }
+          />
+        </div>
+      ),
+      dataIndex: 'status',
+      key: 'status',
+      sorter: true,
+      width: 180,
+      ellipsis: true
+    },
+    {
       title: 'Created At',
       dataIndex: 'created_at',
       key: 'created_at',
@@ -243,6 +269,15 @@ const StockReturn = () => {
                   </Popconfirm>
                 </Tooltip>
               ) : null}
+              {/* <Tooltip title="Print">
+                <Button
+                  size="small"
+                  type="primary"
+                  className="bg-rose-600 hover:!bg-rose-500"
+                  icon={<FaRegFilePdf size={14} />}
+                  onClick={() => printStockReturn(sale_return_id)}
+                />
+              </Tooltip> */}
             </>
           ) : null}
         </div>
