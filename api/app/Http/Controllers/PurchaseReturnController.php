@@ -99,6 +99,7 @@ class PurchaseReturnController extends Controller
 			"charge_order.agent",
 			"charge_order.port",
 			"charge_order.quotation",
+			"charge_order.quotation.term",
 			"charge_order.quotation.payment",
 		)
 			->where('purchase_return_id', $id)->first();
