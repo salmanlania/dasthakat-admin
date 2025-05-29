@@ -86,6 +86,18 @@ export const getPurchaseReturnInvoice = createAsyncThunk(
   }
 );
 
+export const purchaseReturn = createAsyncThunk(
+  'purchaseReturn/detailPost',
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await api.post('/purchase-return/bulk-store', data);
+      return res.data.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 const initialState = {
   isListLoading: false,
   isItemLoading: false,

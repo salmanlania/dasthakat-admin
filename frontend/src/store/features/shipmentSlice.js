@@ -230,7 +230,8 @@ export const shipmentSlice = createSlice({
             label: event?.class2.name
           }
           : null,
-        charge_order_id: charge_orders ? charge_orders.map((item) => item).join(', ')
+        charge_order_id: Array.isArray(charge_orders)
+          ? charge_orders.map((item) => item).join(', ')
           : charge_order
             ? {
               value: charge_order?.charge_order_id,
@@ -246,6 +247,8 @@ export const shipmentSlice = createSlice({
       state.chargeOrderDetails = shipment_detail.map((detail) => ({
         id: detail.shipment_detail_id,
         charge_order_no: detail?.charge_order?.document_identity || null,
+        charge_order_id: detail?.charge_order?.charge_order_id || null,
+        product_type_id: detail?.product_type_id ? detail?.product_type_id : detail?.product ? detail?.product?.product_type_id : null,
         product_type: detail?.product_type?.name || null,
         product_code: detail?.product?.product_code || null,
         product_name: detail.product?.name ? detail.product.name : detail.product_name,
@@ -253,8 +256,15 @@ export const shipmentSlice = createSlice({
         customer_notes: detail?.charge_order_detail?.description || null,
         internal_notes: detail?.charge_order_detail?.internal_notes || null,
         quantity: parseFloat(detail?.quantity || 0),
-        unit: detail?.unit ? detail.unit.name : null
+        unit: detail?.unit ? detail.unit.name : null,
+        purchase_order_id: detail?.purchase_order_detail ? detail?.purchase_order_detail?.purchase_order_id : null,
+        purchase_order_detail_id: detail?.purchase_order_detail ? detail?.purchase_order_detail?.purchase_order_detail_id : null,
+        picklist_id: detail?.picklist_detail ? detail?.picklist_detail?.picklist_id : null,
+        picklist_detail_id: detail?.picklist_detail ? detail?.picklist_detail?.picklist_detail_id : null,
       }));
+
+      // console.log("Charge Order Details:", state.chargeOrderDetails);
+      console.log("shipment_detail:", shipment_detail);
     });
     addCase(getShipment.rejected, (state) => {
       state.isItemLoading = false;

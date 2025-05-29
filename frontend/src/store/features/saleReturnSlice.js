@@ -86,6 +86,20 @@ export const getSaleReturnInvoice = createAsyncThunk(
   }
 );
 
+// return start
+
+export const saleReturn = createAsyncThunk(
+  'saleReturn/detailPost',
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await api.post('/sale-return/bulk-store', data);
+      return res.data.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 const initialState = {
   isListLoading: false,
   isItemLoading: false,

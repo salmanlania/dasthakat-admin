@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Button, Col, Form, Input, Row, Select, Table } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -6,14 +7,25 @@ import { getChargeOrder } from '../../store/features/chargeOrderSlice';
 import { getEventChargeOrders, setChargeOrderDetails } from '../../store/features/shipmentSlice';
 import AsyncSelect from '../AsyncSelect';
 import toast from 'react-hot-toast';
+import SaleReturnModal from '../Modals/ShipmentReturnModal'
+import PurchaseReturnModal from '../Modals/ShipmentPurchaseReturnModal'
 
 const ShipmentForm = ({ mode = 'create', onSubmit }) => {
   const dispatch = useDispatch();
   const handleError = useError();
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [returnModalVisible, setReturnModalVisible] = useState(false);
+  const [purchaseReturnModalVisible, setPurchaseReturnModalVisible] = useState(false);
   const [form] = Form.useForm();
   const { isFormSubmitting, initialFormValues, chargeOrderDetails } = useSelector(
     (state) => state.shipment
   );
+
+  // useEffect(() => {
+  //   console.log('chargeOrderDetails', chargeOrderDetails)
+  // }, [])
+
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
 
@@ -152,6 +164,7 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
       charge_orders.forEach(({ document_identity, charge_order_detail }) => {
         const chargeOrderNo = document_identity;
         charge_order_detail.forEach((detail) => {
+          console.log('detail')
           if (detail.job_order_detail_id || detail.shipment_detail_id) return;
           eventChargeDetails.push({
             id: detail.charge_order_detail_id,
@@ -229,134 +242,199 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
     }
   };
 
+  const saleReturnRows = selectedRows.filter(row =>
+    row.product_type_id === '2' || row.product_type_id === 2
+  );
+
+  const purchaseReturnRows = selectedRows.filter(row =>
+    row.product_type_id === '3' || row.product_type_id === 3 ||
+    row.product_type_id === '4' || row.product_type_id === 4
+  );
+
   return (
-    <Form
-      name="shipment"
-      layout="vertical"
-      form={form}
-      scrollToFirstError={{
-        behavior: 'smooth',
-        block: 'center',
-        scrollMode: 'always'
-      }}
-      autoComplete="off"
-      initialValues={mode === 'edit' ? initialFormValues : null}>
-      <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-base font-semibold">
-        <span className="text-gray-500">
-          {initialFormValues?.document_type_id === "49" ? "SO No:" : initialFormValues?.document_type_id === "48" ? "DO No:" : "SO/DO No:"}
-        </span>
-        <span
-          className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : 'select-none'
-            } rounded px-1`}
-          onClick={() => {
-            if (mode !== 'edit') return;
-            navigator.clipboard.writeText(initialFormValues?.document_identity);
-            toast.success('Copied');
-          }}>
-          {mode === 'edit' ? initialFormValues?.document_identity : 'AUTO'}
-        </span>
-      </p>
-      <Row gutter={[12, 12]}>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item
-            name="event_id"
-            label="Event"
-            rules={[{ required: true, message: 'Event is required!' }]}>
-            <AsyncSelect
-              endpoint="/event"
-              valueKey="event_id"
-              labelKey="event_code"
-              disabled={mode === 'edit'}
-              labelInValue
-              allowClear={false}
-              addNewLink={permissions.event.add ? '/event/create' : null}
-              onChange={onEventChange}
-            />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="charge_order_id" label="Charge Order">
-            {/* <AsyncSelect
-              endpoint="/charge-order"
-              valueKey="charge_order_id"
-              labelKey="document_identity"
-              disabled={mode === 'edit'}
-              labelInValue
-              onChange={onChargeOrderChange}
-              addNewLink={permissions.charge_order.add ? '/charge-order/create' : null}
-            /> */}
-            <Input disabled />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="salesman_id" label="Sales Person">
-            <Select disabled />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="vessel_id" label="Vessel">
-            <Select disabled />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="imo" label="IMO">
-            <Input disabled />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="flag_id" label="Flag">
-            <Select disabled />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="class1_id" label="Class 1">
-            <Select disabled />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="class2_id" label="Class 2">
-            <Select disabled />
-          </Form.Item>
-        </Col>
-      </Row>
-
-      <Table
-        columns={columns}
-        dataSource={chargeOrderDetails}
-        rowKey="id"
-        size="small"
-        scroll={{ x: 'calc(100% - 200px)' }}
-        pagination={false}
-        sticky={{
-          offsetHeader: 56
+    <>
+      <Form
+        name="shipment"
+        layout="vertical"
+        form={form}
+        scrollToFirstError={{
+          behavior: 'smooth',
+          block: 'center',
+          scrollMode: 'always'
         }}
+        autoComplete="off"
+        initialValues={mode === 'edit' ? initialFormValues : null}>
+        <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-base font-semibold">
+          <span className="text-gray-500">
+            {initialFormValues?.document_type_id === "49" ? "SO No:" : initialFormValues?.document_type_id === "48" ? "DO No:" : "SO/DO No:"}
+          </span>
+          <span
+            className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : 'select-none'
+              } rounded px-1`}
+            onClick={() => {
+              if (mode !== 'edit') return;
+              navigator.clipboard.writeText(initialFormValues?.document_identity);
+              toast.success('Copied');
+            }}>
+            {mode === 'edit' ? initialFormValues?.document_identity : 'AUTO'}
+          </span>
+        </p>
+        <Row gutter={[12, 12]}>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item
+              name="event_id"
+              label="Event"
+              rules={[{ required: true, message: 'Event is required!' }]}>
+              <AsyncSelect
+                endpoint="/event"
+                valueKey="event_id"
+                labelKey="event_code"
+                disabled={mode === 'edit'}
+                labelInValue
+                allowClear={false}
+                addNewLink={permissions.event.add ? '/event/create' : null}
+                onChange={onEventChange}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="charge_order_id" label="Charge Order">
+              <Input disabled />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="salesman_id" label="Sales Person">
+              <Select disabled />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="vessel_id" label="Vessel">
+              <Select disabled />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="imo" label="IMO">
+              <Input disabled />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="flag_id" label="Flag">
+              <Select disabled />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="class1_id" label="Class 1">
+              <Select disabled />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="class2_id" label="Class 2">
+              <Select disabled />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Table
+          columns={columns}
+          dataSource={chargeOrderDetails}
+          rowKey="id"
+          size="small"
+          scroll={{ x: 'calc(100% - 200px)' }}
+          pagination={false}
+          sticky={{
+            offsetHeader: 56
+          }}
+          rowSelection={{
+            selectedRowKeys,
+            onChange: (newSelectedRowKeys, newSelectedRows) => {
+              setSelectedRowKeys(newSelectedRowKeys);
+              setSelectedRows(newSelectedRows);
+            }
+          }}
+        />
+
+        <div className="mt-4 flex items-center justify-end gap-2">
+          <Link to="/shipment">
+            <Button className="w-28">Cancel</Button>
+          </Link>
+          {
+            initialFormValues?.document_type_id === "48" ?
+              <>
+                <Button
+                  className="w-32 bg-amber-500 text-white hover:!bg-amber-400"
+                  type="primary"
+                  disabled={saleReturnRows.length === 0}
+                  onClick={() => {
+                    const hasRestrictedProduct = selectedRows.some(
+                      row => row.product_type_id === '1' || row.product_type_id === 1
+                    );
+
+                    if (hasRestrictedProduct) {
+                      toast.error(`Service Product Can't be return`)
+                      return
+                    }
+                    setReturnModalVisible(true);
+                  }}
+                >
+                  Sale Return
+                </Button>
+                <Button
+                  className="w-32 bg-amber-500 text-white hover:!bg-amber-400"
+                  type="primary"
+                  disabled={purchaseReturnRows.length === 0}
+                  onClick={() => {
+                    const hasRestrictedProduct = selectedRows.some(
+                      row => row.product_type_id === '1' || row.product_type_id === 1
+                    );
+
+                    if (hasRestrictedProduct) {
+                      toast.error(`Service Product Can't be return`)
+                      return
+                    }
+                    setPurchaseReturnModalVisible(true);
+                  }}
+                >
+                  Purchase Return
+                </Button>
+              </>
+              : null
+          }
+
+          {mode === 'create' && (
+            <>
+              <Button
+                type="primary"
+                className="w-28"
+                loading={isFormSubmitting === 'SO'}
+                onClick={() => onFinish('SO')}>
+                Create SO
+              </Button>
+              <Button
+                type="primary"
+                className="w-28"
+                loading={isFormSubmitting === 'DO'}
+                onClick={() => onFinish('DO')}>
+                Create DO
+              </Button>
+            </>
+          )}
+        </div>
+      </Form>
+      <SaleReturnModal
+        visible={returnModalVisible}
+        onClose={() => {
+          setReturnModalVisible(false)
+        }}
+        data={saleReturnRows}
       />
-
-      <div className="mt-4 flex items-center justify-end gap-2">
-        <Link to="/shipment">
-          <Button className="w-28">Cancel</Button>
-        </Link>
-
-        {mode === 'create' && (
-          <>
-            <Button
-              type="primary"
-              className="w-28"
-              loading={isFormSubmitting === 'SO'}
-              onClick={() => onFinish('SO')}>
-              Create SO
-            </Button>
-            <Button
-              type="primary"
-              className="w-28"
-              loading={isFormSubmitting === 'DO'}
-              onClick={() => onFinish('DO')}>
-              Create DO
-            </Button>
-          </>
-        )}
-      </div>
-    </Form>
+      <PurchaseReturnModal
+        visible={purchaseReturnModalVisible}
+        onClose={() => {
+          setPurchaseReturnModalVisible(false)
+        }}
+        data={purchaseReturnRows}
+      />
+    </>
   );
 };
 
