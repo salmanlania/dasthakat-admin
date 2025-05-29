@@ -872,7 +872,8 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
 
       <Table
         columns={columns}
-        dataSource={goodsReceivedNoteDetails.filter((item) => !item.isDeleted)}
+        dataSource={goodsReceivedNoteDetails}
+        rowClassName={(record) => (record.isDeleted ? 'hidden-row' : '')}
         rowKey={'id'}
         size="small"
         scroll={{ x: 'calc(100% - 200px)' }}

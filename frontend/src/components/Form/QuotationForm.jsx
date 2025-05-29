@@ -1532,7 +1532,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
 
         <Table
           columns={columns}
-          dataSource={quotationDetails.filter((item) => !item.isDeleted)}
+          dataSource={quotationDetails}
+          rowClassName={(record) => (record.isDeleted ? 'hidden-row' : '')}
           rowKey={'id'}
           size="small"
           scroll={{ x: 'calc(100% - 200px)' }}

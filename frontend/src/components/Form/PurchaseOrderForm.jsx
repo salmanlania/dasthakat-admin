@@ -922,11 +922,13 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
 
         <Table
           columns={columns}
-          dataSource={
-            mode === 'edit'
-              ? purchaseOrderDetails.filter((item) => !item.isDeleted)
-              : purchaseOrderDetails
-          }
+          // dataSource={
+          //   mode === 'edit'
+          //     ? purchaseOrderDetails.filter((item) => !item.isDeleted)
+          //     : purchaseOrderDetails
+          // }
+          dataSource={purchaseOrderDetails}
+          rowClassName={(record) => (record.isDeleted ? 'hidden-row' : '')}
           rowKey={'id'}
           size="small"
           scroll={{ x: 'calc(100% - 200px)' }}
