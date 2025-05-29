@@ -22,7 +22,7 @@ import { createPickListPrint } from '../../utils/prints/pick-list-print';
 
 const pickListStatus = {
   1: 'Complete',
-  2: 'In Complete',
+  2: 'Partial',
   3: 'In Progress'
 };
 
