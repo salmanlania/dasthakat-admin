@@ -127,6 +127,124 @@ class PurchaseReturnController extends Controller
 
 
 
+
+	public function bulkStore(Request $request)
+	{
+		if (!isPermission('add', 'purchase_return', $request->permission_list)) {
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+		}
+
+		foreach ($request->purchase_returns as $key => $newObj) {
+
+
+			$PurchaseOrder = PurchaseOrder::find($newObj['purchase_order_id']);
+			if (!$PurchaseOrder) {
+				return $this->jsonResponse('Purchase Order not found.', 404);
+			}
+
+			$uuid = $this->get_uuid();
+			$document = DocumentType::getNextDocument($this->document_type_id, $request);
+
+			$data = [
+				'purchase_return_id'   => $uuid,
+				'company_id'        => $request->company_id ?? "",
+				'company_branch_id' => $request->company_branch_id ?? "",
+				'document_type_id'  => $document['document_type_id'] ?? "",
+				'document_no'       => $document['document_no'] ?? "",
+				'document_prefix'   => $document['document_prefix'] ?? "",
+				'document_identity' => $document['document_identity'] ?? "",
+				'document_date'     => $newObj['document_date'] ?? Carbon::now(),
+				'charge_order_id'   => $PurchaseOrder->charge_order_id ?? "",
+				'purchase_order_id' => $newObj['purchase_order_id'],
+				'created_at'        => Carbon::now(),
+				'created_by'        => $request->login_user_id,
+				'status'            => $newObj['status'],
+			];
+
+			$totalQuantity = 0;
+			$totalAmount = 0;
+			$index = 0;
+			if ($newObj['purchase_return_detail']) {
+				PurchaseReturn::create($data);
+
+				foreach ($newObj['purchase_return_detail'] as $detail) {
+
+					$PurchaseOrderDetail = PurchaseOrderDetail::find($detail['purchase_order_detail_id']);
+					if (!empty($PurchaseOrderDetail->product_id)) {
+						$Product = Product::with('unit')->find($PurchaseOrderDetail->product_id);
+					}
+					if (!empty($detail["warehouse_id"])) {
+						$Warehouse = Warehouse::find($detail["warehouse_id"]);
+					}
+
+
+					$amount = $PurchaseOrderDetail->rate * $detail['quantity'];
+					$totalQuantity += $detail['quantity'];
+					$totalAmount += $amount;
+					$detail_uuid = $this->get_uuid();
+					PurchaseReturnDetail::create([
+						'purchase_return_detail_id' => $detail_uuid,
+						'purchase_return_id'       => $uuid,
+						'charge_order_detail_id'   => $PurchaseOrderDetail->charge_order_detail_id ?? "",
+						'purchase_order_detail_id' => $detail['purchase_order_detail_id'],
+						'sort_order'               => $index++,
+						'product_id'               => $PurchaseOrderDetail->product_id ?? "",
+						'product_name'             => $PurchaseOrderDetail->product_name ?? "",
+						'product_description'      => $PurchaseOrderDetail->product_description,
+						'description'              => $PurchaseOrderDetail->description,
+						'unit_id'                  => $PurchaseOrderDetail->unit_id,
+						'vpart'                    => $PurchaseOrderDetail->vpart,
+						'quantity'                 => $detail['quantity'],
+						'warehouse_id'             => $detail['warehouse_id'] ?? "",
+						'rate'                     => $PurchaseOrderDetail->rate,
+						'amount'                   => $amount,
+						'vendor_notes'             => $PurchaseOrderDetail->vendor_notes,
+						'created_at'               => Carbon::now(),
+						'created_by'               => $request->login_user_id,
+					]);
+
+					if ($PurchaseOrderDetail->product_type_id == 2 && !empty($detail["warehouse_id"]) && ($detail["quantity"] > 0)) {
+
+						$stockEntry = [
+							'sort_order' => $index,
+							'product_id' => $PurchaseOrderDetail->product_id,
+							'warehouse_id' => $detail["warehouse_id"] ?? "",
+							'unit_id' => $Product->unit_id ?? null,
+							'unit_name' =>  $Product->unit->name ?? null,
+							'quantity' => $detail["quantity"],
+							'rate' => $PurchaseOrderDetail->rate,
+							'amount' => $amount,
+							'remarks'      => sprintf(
+								"%d %s of %s (Code: %s) returned in %s warehouse under Purchase Return document %s. Original rate: %s. Total amount: %s.",
+								$detail["quantity"] ?? 0,
+								$Product->unit->name ?? '',
+								$Product->name ?? 'Unknown Product',
+								$Product->impa_code ?? 'N/A',
+								$Warehouse->name ?? 'Unknown Warehouse',
+								$PurchaseOrder->document_identity ?? 'N/A',
+								$chargeOrderDetail->rate ?? 'N/A',
+								$amount ?? '0.00'
+							),
+						];
+						StockLedger::handleStockMovement([
+							'sort_order' => $index,
+							'master_model' => new PurchaseReturn,
+							'document_id' => $uuid,
+							'document_detail_id' => $detail_uuid,
+							'row' => $stockEntry,
+						], 'O');
+					}
+				}
+				$PR = PurchaseReturn::find($uuid);
+
+				$PR->total_quantity = $totalQuantity;
+				$PR->total_amount   = $totalAmount;
+
+				$PR->save();
+			}
+		}
+		return $this->jsonResponse(['purchase_return_id' => $uuid], 200, "Create Bulk Purchase Returns Successfully!");
+	}
 	public function store(Request $request)
 	{
 		if (!isPermission('add', 'purchase_return', $request->permission_list)) {

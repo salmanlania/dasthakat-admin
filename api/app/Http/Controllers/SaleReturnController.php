@@ -126,6 +126,120 @@ class SaleReturnController extends Controller
 
 
 
+	public function bulkStore(Request $request)
+	{
+		if (!isPermission('add', 'sale_return', $request->permission_list)) {
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+		}
+		foreach ($request->sale_returns as $key => $newObj) {
+
+		$Picklist = Picklist::find($newObj['picklist_id']);
+		if (!$Picklist) {
+			return $this->jsonResponse('Picklist not found.', 404);
+		}
+
+		$chargeOrder = ChargeOrder::with('charge_order_detail')->find($Picklist->charge_order_id);
+		if (!$chargeOrder) {
+			return $this->jsonResponse('Charge Order not found.', 404);
+		}
+
+		$uuid = $this->get_uuid();
+		$document = DocumentType::getNextDocument($this->document_type_id, $request);
+
+		$data = [
+			'sale_return_id'   => $uuid,
+			'company_id'        => $request->company_id ?? "",
+			'company_branch_id' => $request->company_branch_id ?? "",
+			'document_type_id'  => $document['document_type_id'] ?? "",
+			'document_no'       => $document['document_no'] ?? "",
+			'document_prefix'   => $document['document_prefix'] ?? "",
+			'document_identity' => $document['document_identity'] ?? "",
+			'document_date'     => $newObj['document_date'] ?? Carbon::now(),
+			'charge_order_id'   => $Picklist->charge_order_id,
+			'picklist_id'       => $newObj['picklist_id'],
+			'created_at'        => Carbon::now(),
+			'created_by'        => $request->login_user_id,
+			'status'            => $newObj['status'],
+		];
+
+		$totalQuantity = 0;
+		$totalAmount = 0;
+		$index = 0;
+		if ($newObj['sale_return_detail']) {
+			SaleReturn::create($data);
+
+			foreach ($newObj['sale_return_detail'] as $detail) {
+
+				$PicklistDetail = PicklistDetail::find($detail["picklist_detail_id"]);
+				$Picklist = Picklist::find($PicklistDetail->picklist_id);
+				$chargeOrderDetail = ChargeOrderDetail::where('product_type_id', "!=", 1)->find($PicklistDetail->charge_order_detail_id);
+				$Product = Product::with('unit')->find($chargeOrderDetail->product_id);
+				$Warehouse = Warehouse::find($detail["warehouse_id"]);
+
+				if (empty($chargeOrderDetail)) continue;
+
+				$amount = $chargeOrderDetail->rate * $detail["quantity"];
+				$totalQuantity += $detail["quantity"];
+				$totalAmount += $amount;
+				$detail_uuid = $this->get_uuid();
+				SaleReturnDetail::create([
+					'sale_return_detail_id'   => $detail_uuid,
+					'sale_return_id'          => $uuid,
+					'charge_order_detail_id'   => $PicklistDetail->charge_order_detail_id,
+					'picklist_detail_id'       => $detail["picklist_detail_id"],
+					'sort_order'               => $index++,
+					'product_id'               => $chargeOrderDetail->product_id,
+					'product_name'             => $chargeOrderDetail->product_name,
+					'product_description'      => $chargeOrderDetail->product_description,
+					'description'              => $chargeOrderDetail->description,
+					'unit_id'                  => $chargeOrderDetail->unit_id,
+					'quantity'                 => $detail["quantity"],
+					'warehouse_id'             => $detail['warehouse_id'],
+					'rate'                     => $chargeOrderDetail->rate,
+					'amount'                   => $amount,
+					'created_at'               => Carbon::now(),
+					'created_by'               => $request->login_user_id,
+				]);
+
+				if ($Product->product_type_id == 2 && !empty($detail["warehouse_id"]) && ($detail["quantity"] > 0)) {
+
+					$stockEntry = [
+						'sort_order' => $index,
+						'product_id' => $chargeOrderDetail->product_id,
+						'warehouse_id' => $detail["warehouse_id"],
+						'unit_id' => $Product->unit_id ?? null,
+						'unit_name' =>  $Product->unit->name ?? null,
+						'quantity' => $detail["quantity"],
+						'rate' => $chargeOrderDetail->rate,
+						'amount' => $amount,
+						'remarks'      => sprintf(
+							"%d %s of %s (Code: %s) returned in %s warehouse under Sale Return document %s. Original rate: %s. Total amount: %s.",
+							$detail["quantity"] ?? 0,
+							$Product->unit->name ?? '',
+							$Product->name ?? 'Unknown Product',
+							$Product->impa_code ?? 'N/A',
+							$Warehouse->name ?? 'Unknown Warehouse',
+							$Picklist->document_identity ?? 'N/A',
+							$chargeOrderDetail->rate ?? 'N/A',
+							$amount ?? '0.00'
+						),
+					];
+					StockLedger::handleStockMovement([
+						'sort_order' => $index,
+						'master_model' => new SaleReturn,
+						'document_id' => $uuid,
+						'document_detail_id' => $detail_uuid,
+						'row' => $stockEntry,
+					], 'I');
+				}
+			}
+
+			$data['total_quantity'] = $totalQuantity;
+			$data['total_amount']   = $totalAmount;
+		}
+	}
+		return $this->jsonResponse(['sale_return_id' => $uuid], 500, "Cannot generate Return: No items with available quantity.");
+	}
 	public function store(Request $request)
 	{
 		if (!isPermission('add', 'sale_return', $request->permission_list)) {

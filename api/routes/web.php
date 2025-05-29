@@ -328,6 +328,7 @@ $router->group(['prefix' => 'sale-return'], function ($router) {
    $router->get('/', 'SaleReturnController@index');
    $router->get('/{id}', 'SaleReturnController@show');
    $router->post('/', 'SaleReturnController@store');
+   $router->post('/bulk-store', 'SaleReturnController@bulkStore');
    $router->put('/{id}', 'SaleReturnController@update');
    $router->delete('/{id}', 'SaleReturnController@delete');
    $router->post('/bulk-delete', 'SaleReturnController@bulkDelete');
@@ -336,6 +337,7 @@ $router->group(['prefix' => 'purchase-return'], function ($router) {
    $router->get('/', 'PurchaseReturnController@index');
    $router->get('/{id}', 'PurchaseReturnController@show');
    $router->post('/', 'PurchaseReturnController@store');
+   $router->post('/bulk-store', 'PurchaseReturnController@bulkStore');
    $router->put('/{id}', 'PurchaseReturnController@update');
    $router->delete('/{id}', 'PurchaseReturnController@delete');
    $router->post('/bulk-delete', 'PurchaseReturnController@bulkDelete');
