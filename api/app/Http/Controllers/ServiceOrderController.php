@@ -24,6 +24,7 @@ class ServiceOrderController extends Controller
 	{
 		$document_identity = $request->input('document_identity', '');
 		$quotation_no = $request->input('quotation_no', '');
+		$charge_order_no = $request->input('charge_order_no', '');
 		$event_id = $request->input('event_id', '');
 		$vessel_id = $request->input('vessel_id', '');
 		$customer_id = $request->input('customer_id', '');
@@ -60,6 +61,7 @@ class ServiceOrderController extends Controller
 		if (!empty($customer_id)) $data = $data->where('c.customer_id', '=',  $customer_id);
 		if (!empty($imo)) $data = $data->where('v.imo', 'like',  "%" . $imo . "%");
 		if (!empty($quotation_no)) $data = $data->where('q.document_identity', 'like',  "%" . $quotation_no . "%");
+		if (!empty($charge_order_no)) $data = $data->where('co.document_identity', 'like',  "%" . $charge_order_no . "%");
 		if (!empty($class1_id)) $data = $data->where('v.class1_id', '=',  $class1_id);
 		if (!empty($class2_id)) $data = $data->where('v.class2_id', '=',  $class2_id);
 		if (!empty($document_date)) $data = $data->where('service_order.document_date', '=',  $document_date);
@@ -73,6 +75,7 @@ class ServiceOrderController extends Controller
 					->OrWhere('f.name', 'like', '%' . $search . '%')
 					->OrWhere('c1.name', 'like', '%' . $search . '%')
 					->OrWhere('q.document_identity', 'like', '%' . $search . '%')
+					->OrWhere('co.document_identity', 'like', '%' . $search . '%')
 					->OrWhere('c2.name', 'like', '%' . $search . '%')
 					->OrWhere('c.name', 'like', '%' . $search . '%')
 					->OrWhere('a.name', 'like', '%' . $search . '%')

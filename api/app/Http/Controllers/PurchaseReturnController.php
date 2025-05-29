@@ -87,6 +87,7 @@ class PurchaseReturnController extends Controller
 			"purchase_return_detail.product.product_type",
 			"purchase_return_detail.unit",
 			"purchase_order",
+			"purchase_order.user",
 			"purchase_order.supplier",
 			"charge_order",
 			"charge_order.salesman",
