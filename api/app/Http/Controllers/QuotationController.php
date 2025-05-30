@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Log;
 use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
 use App\Models\DocumentType;
@@ -344,8 +345,27 @@ $data->quotation_detail = QuotationDetail::with(['supplier','unit','product_type
 
 		if ($request->quotation_detail) {
 			foreach ($request->quotation_detail as $value) {
+
+				
 				try {
 					if ($value['row_status'] == 'I') {
+						$DetailExist = QuotationDetail::where([
+							'quotation_id'=>$id,
+							'product_id'=>$value['product_id'] ?? "",
+							'product_type_id'=>$value['product_type_id'] ?? "",
+							'product_name'=>$value['product_name'] ?? "",
+							'product_description'=>$value['product_description'] ?? "",
+							'description'=>$value['description'] ?? "",
+							'supplier_id'=>$value['supplier_id'] ?? "",
+							'vendor_part_no'=>$value['vendor_part_no'] ?? "",
+							'internal_notes'=>$value['internal_notes'] ?? "",
+							'cost_price'=>$value['cost_price'] ?? "",
+							'quantity'=>$value['quantity'] ?? "",
+							'markup'=>$value['markup'] ?? "",
+							'rate'=>$value['rate'] ?? "",
+							'amount'=>$value['amount'] ?? "",
+						])->exists();
+						if($DetailExist) continue;
 						$detail_uuid = $this->get_uuid();
 						$insertArr = [
 							'quotation_id' => $id,
@@ -372,6 +392,13 @@ $data->quotation_detail = QuotationDetail::with(['supplier','unit','product_type
 							'created_by' => $request->login_user_id,
 						];
 						QuotationDetail::create($insertArr);
+						 // ✅ Lumen Log: Insert action
+						Log::info('QuotationDetail inserted', [
+							'quotation_detail_id' => $detail_uuid,
+							'user_id' => $request->login_user_id,
+							'backend_data' => $insertArr,
+							'frontend_data' => $value
+						]);
 					}
 					if ($value['row_status'] == 'U') {
 						$update = [
