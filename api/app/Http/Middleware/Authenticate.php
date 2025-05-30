@@ -20,17 +20,19 @@ class Authenticate
      */
     protected $auth;
     
-      protected $except = [
-       'test',
-       '/',
-        'auth/login',
-        'auth/session',
-        'auth/verify',
-        'auth/refresh',
-        'auth/logout',
-        'auth/verify-email',
-        // 'reset-password'
-    ];
+        protected $except = [
+            'test',
+            '/',
+            'deploy/migrations',
+            'deploy/seeders',
+            'auth/login',
+            'auth/session',
+            'auth/verify',
+            'auth/refresh',
+            'auth/logout',
+            'auth/verify-email',
+            // 'reset-password'
+        ];
 
 
     /**

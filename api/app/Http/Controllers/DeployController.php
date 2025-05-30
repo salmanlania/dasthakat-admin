@@ -10,7 +10,7 @@ class DeployController extends Controller
     {
         try {
             $deployToken = request()->header('X-DEPLOY-TOKEN');
-            if ($deployToken !== env('DEPLOY_TOKEN')) {
+            if ($deployToken !== env('APP_KEY')) {
                 return response()->json(['message' => 'Unauthorized'], 401);
             }
             Artisan::call('migrate --force');
