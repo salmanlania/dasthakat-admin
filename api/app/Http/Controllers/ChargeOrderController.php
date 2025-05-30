@@ -93,12 +93,8 @@ class ChargeOrderController extends Controller
 	public function show($id, Request $request)
 	{
 
+
 		$data = ChargeOrder::with(
-			"charge_order_detail",
-			"charge_order_detail.product",
-			"charge_order_detail.product_type",
-			"charge_order_detail.unit",
-			"charge_order_detail.supplier",
 			"salesman",
 			"event",
 			"vessel",
@@ -110,6 +106,9 @@ class ChargeOrderController extends Controller
 			"agent",
 		)
 			->where('charge_order_id', $id)->first();
+			$data->charge_order_detail = ChargeOrderDetail::with(['supplier','unit','product_type'])->where('charge_order_id',$data->charge_order_id)->orderBy('sort_order')->get();
+
+
 
 		$technicianIds = $data->technician_id;
 		if (!is_array($technicianIds) || empty($technicianIds)) {
