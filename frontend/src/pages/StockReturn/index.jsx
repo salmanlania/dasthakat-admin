@@ -23,7 +23,7 @@ import {
   getSaleReturnInvoice
 } from '../../store/features/saleReturnSlice';
 
-import { createStockReturnPrint } from '../../utils/prints/stock-return-print';
+// import { createStockReturnPrint } from '../../utils/prints/stock-return-print';
 
 const StockReturn = () => {
   const dispatch = useDispatch();
@@ -47,17 +47,17 @@ const StockReturn = () => {
     document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null
   };
 
-  const printStockReturn = async (id) => {
-    const loadingToast = toast.loading('Loading print...');
+  // const printStockReturn = async (id) => {
+  //   const loadingToast = toast.loading('Loading print...');
 
-    try {
-      const data = await dispatch(getSaleReturnInvoice(id)).unwrap();
-      toast.dismiss(loadingToast);
-      createStockReturnPrint(data);
-    } catch (error) {
-      handleError(error);
-    }
-  };
+  //   try {
+  //     const data = await dispatch(getSaleReturnInvoice(id)).unwrap();
+  //     toast.dismiss(loadingToast);
+  //     createStockReturnPrint(data);
+  //   } catch (error) {
+  //     handleError(error);
+  //   }
+  // };
 
   const onSaleReturnDelete = async (id) => {
     try {
@@ -265,7 +265,7 @@ const StockReturn = () => {
                     cancelText="No"
                     onConfirm={() => onSaleReturnDelete(sale_return_id)}
                   >
-                    <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
+                    <Button size="small" type="primary" danger icon={<GoTrash size={16} />} />
                   </Popconfirm>
                 </Tooltip>
               ) : null}
@@ -274,7 +274,7 @@ const StockReturn = () => {
                   size="small"
                   type="primary"
                   className="bg-rose-600 hover:!bg-rose-500"
-                  icon={<FaRegFilePdf size={14} />}
+                  icon={<FaRegFilePdf size={16} />}
                   onClick={() => printStockReturn(sale_return_id)}
                 />
               </Tooltip> */}

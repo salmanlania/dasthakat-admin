@@ -23,7 +23,7 @@ import {
   getPurchaseReturnInvoice
 } from '../../store/features/purchaseReturnSlice';
 
-import { createSaleInvoicePrint } from '../../utils/prints/sale-invoice-print';
+// import { createPurchaseReturnPrint } from '../../utils/prints/purchase-return-print';
 
 const PurchaseReturn = () => {
   const dispatch = useDispatch();
@@ -57,7 +57,6 @@ const PurchaseReturn = () => {
     }
   };
 
-
   const onBulkDelete = async () => {
     closeDeleteModal();
     try {
@@ -70,17 +69,17 @@ const PurchaseReturn = () => {
     }
   };
 
-  const printSaleInvoice = async (id) => {
-    const loadingToast = toast.loading('Loading print...');
+  // const printPurchaseReturn = async (id) => {
+  //   const loadingToast = toast.loading('Loading print...');
 
-    try {
-      const data = await dispatch(getPurchaseReturnInvoice(id)).unwrap();
-      toast.dismiss(loadingToast);
-      createSaleInvoicePrint(data);
-    } catch (error) {
-      handleError(error);
-    }
-  };
+  //   try {
+  //     const data = await dispatch(getPurchaseReturnInvoice(id)).unwrap();
+  //     toast.dismiss(loadingToast);
+  //     createPurchaseReturnPrint(data);
+  //   } catch (error) {
+  //     handleError(error);
+  //   }
+  // };
 
   const columns = [
     {
@@ -269,6 +268,15 @@ const PurchaseReturn = () => {
                   </Popconfirm>
                 </Tooltip>
               ) : null}
+              {/* <Tooltip title="Print">
+                <Button
+                  size="small"
+                  type="primary"
+                  className="bg-rose-600 hover:!bg-rose-500"
+                  icon={<FaRegFilePdf size={14} />}
+                  onClick={() => printPurchaseReturn(purchase_return_id)}
+                />
+              </Tooltip> */}
             </>
           ) : null}
         </div>
