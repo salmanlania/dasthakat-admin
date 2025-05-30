@@ -294,7 +294,7 @@ export const createQuotationPrint = async (data) => {
     });
   }
 
-  const filledRows = fillEmptyRows(table2Rows, 12, descriptions.length + 1);
+  const filledRows = fillEmptyRows(table2Rows, 10, descriptions.length + 1);
 
   // Adding Table
   doc.autoTable({

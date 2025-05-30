@@ -32,10 +32,8 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
   const permissions = user.permission;
 
   const [totalQuantity, setTotalQuantity] = useState('');
-  const [newAmount, setNewAmount] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
   const [submitAction, setSubmitAction] = useState(null);
-  const [tempTotalAmount, setTempTotalAmount] = useState(0);
 
   const onFinish = (values) => {
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
@@ -45,7 +43,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
       picklist_id: initialFormValues?.picklist_id ? initialFormValues?.picklist_id : null,
       sale_return_detail: saleReturnDetail.map(({ id, ...detail }) => ({
         ...detail,
-        amount: newAmount ? newAmount : detail.quantity ? detail.quantity : null,
+        amount: detail.amount ? detail.amount : null,
         quantity: detail.quantity ? detail.quantity : null,
       })),
     };
@@ -275,10 +273,21 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
       title: 'Ext. Cost',
       dataIndex: 'amount',
       key: 'amount',
-      render: (_, { amount, rate, quantity }) => {
+      render: (_, { amount, rate, quantity }, index) => {
         const calAmount = (rate || 0) * (quantity || 0);
         return (
-          <DebouncedCommaSeparatedInput value={calAmount ? calAmount + '' : ''} disabled />
+          <DebouncedCommaSeparatedInput value={calAmount ? calAmount + '' : ''}
+            disabled
+            onChange={(value) =>
+              dispatch(
+                changeSaleReturnDetailValue({
+                  index,
+                  key: 'amount',
+                  value: value
+                })
+              )
+            }
+          />
         )
       },
       width: 120

@@ -34,8 +34,6 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
   const [totalQuantity, setTotalQuantity] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
   const [submitAction, setSubmitAction] = useState(null);
-  const [newAmount, setNewAmount] = useState('');
-  const [tempTotalAmount, setTempTotalAmount] = useState(0);
 
   const onFinish = (values) => {
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
@@ -44,7 +42,7 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
       purchase_order_id: initialFormValues?.purchase_order_id,
       purchase_return_detail: purchaseReturnDetail.map(({ id, ...detail }) => ({
         ...detail,
-        amount: newAmount ? newAmount : detail.quantity ? detail.quantity : null,
+        amount: detail.amount ? detail.amount : null,
         quantity: detail.quantity ? detail.quantity : null,
         product_type_id: detail.product_type?.value ? detail.product_type?.value : null,
       })),
@@ -312,10 +310,21 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
       title: 'Ext. Cost',
       dataIndex: 'amount',
       key: 'amount',
-      render: (_, { amount, rate, quantity }) => {
+      render: (_, { amount, rate, quantity }, index) => {
         const calAmount = (rate || 0) * (quantity || 0);
         return (
-          <DebouncedCommaSeparatedInput value={calAmount ? calAmount + '' : ''} disabled />
+          <DebouncedCommaSeparatedInput value={calAmount ? calAmount + '' : ''}
+            disabled
+            onChange={(value) =>
+              dispatch(
+                changePurchaseReturnDetailValue({
+                  index,
+                  key: 'amount',
+                  value: value
+                })
+              )
+            }
+          />
         )
       },
       width: 120

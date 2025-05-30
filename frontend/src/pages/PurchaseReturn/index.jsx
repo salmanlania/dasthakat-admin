@@ -23,7 +23,7 @@ import {
   getPurchaseReturnInvoice
 } from '../../store/features/purchaseReturnSlice';
 
-// import { createPurchaseReturnPrint } from '../../utils/prints/purchase-return-print';
+import { createPurchaseReturnPrint } from '../../utils/prints/purchase-return-print';
 
 const PurchaseReturn = () => {
   const dispatch = useDispatch();
@@ -69,17 +69,17 @@ const PurchaseReturn = () => {
     }
   };
 
-  // const printPurchaseReturn = async (id) => {
-  //   const loadingToast = toast.loading('Loading print...');
+  const printPurchaseReturn = async (id) => {
+    const loadingToast = toast.loading('Loading print...');
 
-  //   try {
-  //     const data = await dispatch(getPurchaseReturnInvoice(id)).unwrap();
-  //     toast.dismiss(loadingToast);
-  //     createPurchaseReturnPrint(data);
-  //   } catch (error) {
-  //     handleError(error);
-  //   }
-  // };
+    try {
+      const data = await dispatch(getPurchaseReturnInvoice(id)).unwrap();
+      toast.dismiss(loadingToast);
+      createPurchaseReturnPrint(data);
+    } catch (error) {
+      handleError(error);
+    }
+  };
 
   const columns = [
     {
@@ -268,7 +268,7 @@ const PurchaseReturn = () => {
                   </Popconfirm>
                 </Tooltip>
               ) : null}
-              {/* <Tooltip title="Print">
+              <Tooltip title="Print">
                 <Button
                   size="small"
                   type="primary"
@@ -276,7 +276,7 @@ const PurchaseReturn = () => {
                   icon={<FaRegFilePdf size={14} />}
                   onClick={() => printPurchaseReturn(purchase_return_id)}
                 />
-              </Tooltip> */}
+              </Tooltip>
             </>
           ) : null}
         </div>

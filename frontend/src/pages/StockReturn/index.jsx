@@ -23,7 +23,7 @@ import {
   getSaleReturnInvoice
 } from '../../store/features/saleReturnSlice';
 
-// import { createStockReturnPrint } from '../../utils/prints/stock-return-print';
+import { createStockReturnPrint } from '../../utils/prints/stock-return-print';
 
 const StockReturn = () => {
   const dispatch = useDispatch();
@@ -47,17 +47,17 @@ const StockReturn = () => {
     document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null
   };
 
-  // const printStockReturn = async (id) => {
-  //   const loadingToast = toast.loading('Loading print...');
+  const printStockReturn = async (id) => {
+    const loadingToast = toast.loading('Loading print...');
 
-  //   try {
-  //     const data = await dispatch(getSaleReturnInvoice(id)).unwrap();
-  //     toast.dismiss(loadingToast);
-  //     createStockReturnPrint(data);
-  //   } catch (error) {
-  //     handleError(error);
-  //   }
-  // };
+    try {
+      const data = await dispatch(getSaleReturnInvoice(id)).unwrap();
+      toast.dismiss(loadingToast);
+      createStockReturnPrint(data);
+    } catch (error) {
+      handleError(error);
+    }
+  };
 
   const onSaleReturnDelete = async (id) => {
     try {
@@ -269,7 +269,7 @@ const StockReturn = () => {
                   </Popconfirm>
                 </Tooltip>
               ) : null}
-              {/* <Tooltip title="Print">
+              <Tooltip title="Print">
                 <Button
                   size="small"
                   type="primary"
@@ -277,7 +277,7 @@ const StockReturn = () => {
                   icon={<FaRegFilePdf size={16} />}
                   onClick={() => printStockReturn(sale_return_id)}
                 />
-              </Tooltip> */}
+              </Tooltip>
             </>
           ) : null}
         </div>

@@ -31,10 +31,10 @@ const addHeader = (doc, data, sideMargin) => {
   doc.setFont('times', 'normal');
   doc.text('9145 Wallisville Rd, Houston TX 77029, USA', 105, 18, { align: 'center' });
   doc.text('Tel: 1 713-518-1715, Fax: 1 713-518-1760, Email: tech1@gms-america.com', 110, 22, { align: 'center' });
-  
+
   // Logo
 
-  // Purchase Order Box
+  // Stock Return Box
   // Draw the rectangle (outer border)
   doc.setDrawColor(0, 0, 0);
   doc.setLineWidth(1); // Set border thickness
@@ -44,7 +44,7 @@ const addHeader = (doc, data, sideMargin) => {
   // Add the text inside the box
   doc.setFontSize(15); // Set font size
   doc.setFont('times', 'bolditalic'); // Set font style (italic and bold)
-  doc.text('Purchase Order', 26, 39); // Centered text
+  doc.text('Stock Return', 26, 39); // Centered text
 
   // *** Right side boxes ***
   let startX = 126;
@@ -56,18 +56,18 @@ const addHeader = (doc, data, sideMargin) => {
   const totalPages = doc.internal.getNumberOfPages();
 
   const rows = [
-    { label: 'PO No.', value: data.document_identity },
+    { label: 'SR No.', value: data.document_identity },
     {
-      label: 'P.O.Date.',
+      label: 'S.R.Date.',
       value: data.document_date ? dayjs(data.document_date).format('MM-DD-YYYY') : ''
     },
     {
       label: 'Required Date.',
       value: data.required_date ? dayjs(data.required_date).format('MM-DD-YYYY') : ''
     },
-    { label: 'Terms', value: data.payment ? data.payment.name : '' },
+    { label: 'Terms', value: data?.charge_order?.quotation?.payment?.name ? data?.charge_order?.quotation?.payment?.name : '' },
     { label: 'Charge No.', value: data?.charge_order?.document_identity || '' },
-    { label: 'Quotation No.', value: data?.quotation?.document_identity || '' },
+    { label: 'Quotation No.', value: data?.charge_order?.quotation?.document_identity || '' },
     { label: 'Page', value: `Page ${currentPage} of ${totalPages}` }
   ];
 
@@ -102,13 +102,13 @@ const addHeader = (doc, data, sideMargin) => {
   doc.setFontSize(8);
   doc.setFont('times', 'normal');
   doc.setFont('times', 'bold');
-  doc.text(data?.supplier?.name || '', startSendToX + 4, startSendToY + 16);
+  doc.text(data?.supplier?.name || '', startSendToX + 4, startSendToY + 10);
   doc.setFont('times', 'normal');
   const billToAddress = doc.splitTextToSize(data?.supplier?.address || '', 88);
-  doc.text(billToAddress, startSendToX + 4, startSendToY + 20);
-  doc.text(`Tel : ${data?.supplier?.contact1 || ''}`, startSendToX + 4, startSendToY + 30);
-  doc.text('Fax :', startSendToX + 4, startSendToY + 34);
-  doc.text(`Email : ${data?.supplier?.email || ''}`, startSendToX + 4, startSendToY + 38);
+  doc.text(billToAddress, startSendToX + 4, startSendToY + 16);
+  doc.text(`Tel : ${data?.supplier?.contact1 || ''}`, startSendToX + 4, startSendToY + 20);
+  doc.text('Fax :', startSendToX + 4, startSendToY + 24);
+  doc.text(`Email : ${data?.supplier?.email || ''}`, startSendToX + 4, startSendToY + 28);
 
   // Ship To box
   // Draw the main box
@@ -128,7 +128,8 @@ const addHeader = (doc, data, sideMargin) => {
   doc.setFontSize(8);
   doc.setFont('times', 'normal');
 
-  const shipToContent = data.ship_to || '';
+  const shipToContent = data.ship_to || `Global Marine Safety 9145 Wallisville Road Houston TX 77029 Tel: 1
+713-518-1715`;
   const shipToLines = shipToContent.split(',');
   let currentYPosition = startShipToY + 16;
 
@@ -145,15 +146,17 @@ const addHeader = (doc, data, sideMargin) => {
 
   // Buyer's Info Table
   const table1Column = ["Buyer's Name", "Buyer's Email", 'Required Date', 'Ship via'];
+
   const table1Rows = [
     [
-      data.user ? data.user.user_name : '',
+      data.created_by_user ? data.created_by_user.user_name : '',
       // data.user ? data.user.email : '',
       'tech1@gms-america.com',
       data.required_date ? dayjs(data.required_date).format('MM-DD-YYYY') : '',
       data.ship_via || ''
     ]
   ];
+
   doc.autoTable({
     startY: 135,
     head: [table1Column],
@@ -206,43 +209,43 @@ const addFooter = (doc, data, sideMargin, pageHeight) => {
   doc.text(`Page ${currentPage}`, 190, pageHeight + 10);
 };
 
-export const createPurchaseOrderPrint = (data) => {
+export const createStockReturnPrint = (data) => {
   const doc = new jsPDF();
   const sideMargin = 4;
 
-  // Purchase Order Items Table
+  // Stock Return Items Table
   const table2Column = [
     'S#',
     'IMPA',
     'Qty',
     'Unit',
-    'V.Part#',
     'Description',
     'Unit Price',
     'Ext. Cos',
-    'Vend Notes'
   ];
-  const table2Rows = data.purchase_order_detail
-    ? data.purchase_order_detail.map((detail, index) => [
-        index + 1,
-        detail?.product?.impa_code || '',
-        detail.quantity ? parseFloat(detail.quantity) : '',
-        detail.unit ? detail.unit.name : '',
-        detail.vpart || '',
-        {
-          content: detail?.product_description || '',
-          styles: { halign: 'left' }
-        },
-        {
-          content: detail.rate ? formatThreeDigitCommas(detail.rate) : '',
-          styles: { halign: 'right' }
-        },
-        {
-          content: detail.amount ? formatThreeDigitCommas(detail.amount) : '',
-          styles: { halign: 'right' }
-        },
-        detail.vendor_notes || ''
-      ])
+
+  const table2Rows = data.sale_return_detail
+    ? data.sale_return_detail.map((detail, index) => [
+      index + 1,
+      detail?.product?.impa_code || '',
+      {
+        content: detail.quantity ? parseFloat(detail.quantity) : '',
+        styles: { halign: 'right' }
+      },
+      detail.unit ? detail?.unit?.name : '',
+      {
+        content: detail?.product_description || '',
+        styles: { halign: 'left' }
+      },
+      {
+        content: detail.rate ? formatThreeDigitCommas(detail.rate) : '',
+        styles: { halign: 'right' }
+      },
+      {
+        content: detail.amount ? formatThreeDigitCommas(detail.amount) : '',
+        styles: { halign: 'right' }
+      },
+    ])
     : [];
 
   const filledRows = fillEmptyRows(table2Rows, 9);
@@ -278,14 +281,12 @@ export const createPurchaseOrderPrint = (data) => {
     rowPageBreak: 'avoid',
     columnStyles: {
       0: { cellWidth: 9 },
-      1: { cellWidth: 15 },
-      2: { cellWidth: 12 },
-      3: { cellWidth: 10 },
-      4: { cellWidth: 12 },
-      5: { cellWidth: 88 },
-      6: { cellWidth: 16 },
-      7: { cellWidth: 16 },
-      8: { cellWidth: 24 }
+      1: { cellWidth: 20 },
+      2: { cellWidth: 18 },
+      3: { cellWidth: 18 },
+      4: { cellWidth: 97 },
+      5: { cellWidth: 20 },
+      6: { cellWidth: 20 },
     },
     didParseCell: function (data) {
       data.cell.styles.minCellHeight = 11;
@@ -314,7 +315,7 @@ export const createPurchaseOrderPrint = (data) => {
   }
 
   doc.setProperties({
-    title: `PO - ${data.document_identity}`
+    title: `SR - ${data.document_identity}`
   });
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob, {});
