@@ -297,6 +297,8 @@ export const quotationSlice = createSlice({
         ...detail,
         quantity: detail.stock_quantity,
         rate: detail.rate,
+        cost_price: detail.cost_price,
+        markup: detail.markup,
         amount: detail.rate * detail.stock_quantity,
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_percent
@@ -332,7 +334,9 @@ export const quotationSlice = createSlice({
             ? detail.rate * splittedQuantity * (detail.discount_percent / 100)
             : 0),
         id: uuidv4(),
-        row_status: 'I'
+        row_status: 'I',
+        cost_price: detail.cost_price,
+        markup: detail.markup,
       };
 
       state.quotationDetails.splice(index, 1, row, splittedRow);
