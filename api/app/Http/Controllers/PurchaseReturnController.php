@@ -70,7 +70,7 @@ class PurchaseReturnController extends Controller
             });
         }
 
-        $data = $data->select("purchase_return.*", "coドラッグして選択してください.document_identity as charge_no", "e.event_code", "v.name as vessel_name", "s.name as supplier_name", "po.document_identity as purhcase_order_no");
+        $data = $data->select("purchase_return.*", "co.document_identity as charge_no", "e.event_code", "v.name as vessel_name", "s.name as supplier_name", "po.document_identity as purhcase_order_no");
         $data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json($data);
