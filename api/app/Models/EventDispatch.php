@@ -23,6 +23,7 @@ class EventDispatch extends Model
         'event_id',
         'technician_id',
         'technician_notes',
+        'port_id',
         'agent_id',
         'agent_notes',
         'status',
