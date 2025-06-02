@@ -21,6 +21,7 @@ class SaleReturn extends Model
         "document_prefix",
         "document_identity",
         "document_date",
+        "ship_via",
         "ship_to",
         "charge_order_id",
         "picklist_id",

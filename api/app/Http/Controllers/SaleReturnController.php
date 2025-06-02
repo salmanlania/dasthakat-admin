@@ -32,6 +32,7 @@ class SaleReturnController extends Controller
 		$event_id = $request->input('event_id', '');
 		$vessel_id = $request->input('vessel_id', '');
 		$ship_to = $request->input('ship_to', '');
+		$ship_via = $request->input('ship_via', '');
 
 		$search = $request->input('search', '');
 		$page = $request->input('page', 1);
@@ -54,6 +55,8 @@ class SaleReturnController extends Controller
 			$data = $data->where('co.document_identity', 'like', '%' . $charge_order_no . '%');
 		if (!empty($event_id))
 			$data = $data->where('co.event_id', '=', $event_id);
+		if (!empty($ship_via))
+			$data = $data->where('sale_return.ship_via', 'like', '%'. $ship_via. '%');
 		if (!empty($ship_to))
 			$data = $data->where('sale_return.ship_to', 'like', '%' . $ship_to . '%');
 		if (!empty($status))
@@ -77,6 +80,7 @@ class SaleReturnController extends Controller
 					->OrWhere('v.name', 'like', '%' . $search . '%')
 					->OrWhere('c.name', 'like', '%' . $search . '%')
 					->OrWhere('sale_return.ship_to', 'like', '%' . $search . '%')
+					->OrWhere('sale_return.ship_via', 'like', '%' . $search . '%')
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
 					->OrWhere('sale_return.document_identity', 'like', '%' . $search . '%');
 			});
@@ -168,6 +172,7 @@ class SaleReturnController extends Controller
 					'document_identity' => $document['document_identity'] ?? '',
 					'document_date' => $newObj['document_date'] ?? Carbon::now(),
 					'ship_to' => $newObj['ship_to'] ?? '',
+					'ship_via' => $newObj['ship_via'] ?? '',
 					'charge_order_id' => $Picklist->charge_order_id,
 					'picklist_id' => $newObj['picklist_id'],
 					'created_at' => Carbon::now(),
@@ -300,6 +305,7 @@ class SaleReturnController extends Controller
 				'document_identity' => $document['document_identity'] ?? '',
 				'document_date' => $request->document_date ?? Carbon::now(),
 				'ship_to' => $request->ship_to ?? '',
+				'ship_via' => $request->ship_via ?? '',
 				'charge_order_id' => $Picklist->charge_order_id,
 				'picklist_id' => $request->picklist_id,
 				'created_at' => Carbon::now(),
@@ -425,7 +431,8 @@ class SaleReturnController extends Controller
 			$saleReturn->document_date = $request->document_date ?? $saleReturn->document_date;
 			$saleReturn->updated_at = Carbon::now();
 			$saleReturn->updated_by = $request->login_user_id;
-			$saleReturn->ship_to = $request->ship_to ?? $saleReturn->ship_to;
+			$saleReturn->ship_to = $request->ship_to ?? "";
+			$saleReturn->ship_via = $request->ship_via ?? "";
 			$saleReturn->status = $request->status;
 			$saleReturn->save();
 
