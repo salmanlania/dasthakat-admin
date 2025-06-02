@@ -262,9 +262,6 @@ export const shipmentSlice = createSlice({
         picklist_id: detail?.picklist_detail ? detail?.picklist_detail?.picklist_id : null,
         picklist_detail_id: detail?.picklist_detail ? detail?.picklist_detail?.picklist_detail_id : null,
       }));
-
-      // console.log("Charge Order Details:", state.chargeOrderDetails);
-      console.log("shipment_detail:", shipment_detail);
     });
     addCase(getShipment.rejected, (state) => {
       state.isItemLoading = false;

@@ -94,8 +94,8 @@ const ShipmentReturnModal = ({ visible, onClose, data }) => {
         },
         {
             title: 'Description',
-            dataIndex: 'product_description',
-            key: 'product_description'
+            dataIndex: 'description',
+            key: 'description'
         },
         {
             title: 'PO Quantity',

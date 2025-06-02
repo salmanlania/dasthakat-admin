@@ -31,7 +31,6 @@ const ShipmentPurchaseReturnModal = ({ visible, onClose, data }) => {
             const multiple = true;
             const groupedData = {};
             tableData.forEach((item) => {
-                console.log('order', item)
                 const id = item.purchase_order_id;
                 if (!groupedData[id]) {
                     groupedData[id] = [];
@@ -83,8 +82,8 @@ const ShipmentPurchaseReturnModal = ({ visible, onClose, data }) => {
         },
         {
             title: 'Description',
-            dataIndex: 'product_description',
-            key: 'product_description'
+            dataIndex: 'description',
+            key: 'description'
         },
         {
             title: 'PO Quantity',
