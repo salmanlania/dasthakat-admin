@@ -65,7 +65,7 @@ const addHeader = (doc, data, sideMargin) => {
       label: 'Required Date.',
       value: data.required_date ? dayjs(data.required_date).format('MM-DD-YYYY') : data?.purchase_order?.required_date ? dayjs(data?.purchase_order?.required_date).format('MM-DD-YYYY') : null,
     },
-    { label: 'Terms', value: data?.charge_order?.quotation?.payment?.name ? data?.charge_order?.quotation?.payment?.name : ''  },
+    { label: 'Terms', value: data?.charge_order?.quotation?.payment?.name ? data?.charge_order?.quotation?.payment?.name : '' },
     { label: 'Charge No.', value: data?.charge_order?.document_identity || '' },
     { label: 'Quotation No.', value: data?.charge_order?.quotation?.document_identity || '' },
     { label: 'Page', value: `Page ${currentPage} of ${totalPages}` }
@@ -135,13 +135,13 @@ const addHeader = (doc, data, sideMargin) => {
   doc.setFontSize(8);
   doc.setFont('times', 'normal');
   doc.setFont('times', 'bold');
-  doc.text(data?.supplier?.name || '', startSendToX + 4, startSendToY + 16);
   doc.setFont('times', 'bold');
   const billToAddress = doc.splitTextToSize(data?.supplier?.address || `MARINE INTELLIGENCE SERVICE PTE.LTD`, 88);
-  doc.text(billToAddress, startSendToX + 4, startSendToY + 20);
-  doc.text(`Tel : ${data?.supplier?.contact1 || ''}`, startSendToX + 4, startSendToY + 30);
-  doc.text('Fax :', startSendToX + 4, startSendToY + 34);
-  doc.text(`Email : ${data?.supplier?.email || ''}`, startSendToX + 4, startSendToY + 38);
+  doc.text(billToAddress, startSendToX + 4, startSendToY + 16);
+  doc.text(`Name: ${data?.purchase_order?.supplier?.name || ''}`, startSendToX + 4, startSendToY + 21);
+  doc.text(`Tel : ${data?.purchase_order?.supplier?.contact1 || ''}`, startSendToX + 4, startSendToY + 26);
+  doc.text(`Fax : ${data?.purchase_order?.supplier?.contact2 || ''}`, startSendToX + 4, startSendToY + 31);
+  doc.text(`Email : ${data?.purchase_order?.supplier?.email || ''}`, startSendToX + 4, startSendToY + 36);
 
   // Buyer's Info Table
   const table1Column = ["Buyer's Name", "Buyer's Email", 'Required Date', 'Ship via'];
@@ -289,11 +289,13 @@ export const createPurchaseReturnPrint = (data) => {
 
   doc.setFontSize(12);
   doc.setFont('times', 'bold');
-  doc.text(
-    `Total Value = ${formatThreeDigitCommas(data.total_amount) || ''}`,
-    142,
-    doc.previousAutoTable.finalY + 5
-  );
+  if (data?.purchase_return_detail.length > 0) {
+    doc.text(
+      `Total Value = ${formatThreeDigitCommas(data.total_amount) || ''}`,
+      142,
+      doc.previousAutoTable.finalY + 5
+    );
+  }
 
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {

@@ -196,6 +196,7 @@ export const saleReturnListSlice = createSlice({
         port_id: data?.charge_order?.port?.name,
         ref_document_identity: data?.charge_order?.ref_document_identity,
         picklist_id: data?.picklist_id ? data?.picklist_id : null,
+        ship_to: data?.ship_to ? data?.ship_to : null
       };
       state.saleReturnDetail = data.sale_return_detail.map((detail) => ({
         id: detail.sale_return_detail_id,

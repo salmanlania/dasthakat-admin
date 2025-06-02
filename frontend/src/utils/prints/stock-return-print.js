@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { GMS_ADDRESS } from '../../constants';
 
 import dayjs from 'dayjs';
 import GMSLogo from '../../assets/logo-with-title.png';
@@ -19,6 +20,7 @@ const fillEmptyRows = (rows, rowsPerPage) => {
 };
 
 const addHeader = (doc, data, sideMargin) => {
+  console.log('data' , data.charge_order.customer)
 
   // doc.addImage(GMSLogo, 'PNG', 88, 5, 32, 26); // Centered logo
   doc.addImage(GMSLogo, 'PNG', 20, 1, 35, 26);
@@ -63,7 +65,7 @@ const addHeader = (doc, data, sideMargin) => {
     },
     {
       label: 'Required Date.',
-      value: data.required_date ? dayjs(data.required_date).format('MM-DD-YYYY') : ''
+      value: dayjs().format('MM-DD-YYYY')
     },
     { label: 'Terms', value: data?.charge_order?.quotation?.payment?.name ? data?.charge_order?.quotation?.payment?.name : '' },
     { label: 'Charge No.', value: data?.charge_order?.document_identity || '' },
@@ -102,13 +104,13 @@ const addHeader = (doc, data, sideMargin) => {
   doc.setFontSize(8);
   doc.setFont('times', 'normal');
   doc.setFont('times', 'bold');
-  doc.text(data?.supplier?.name || '', startSendToX + 4, startSendToY + 10);
-  doc.setFont('times', 'normal');
-  const billToAddress = doc.splitTextToSize(data?.supplier?.address || '', 88);
+  const billToAddress = doc.splitTextToSize(data?.charge_order?.customer?.billing_address || '', 88);
   doc.text(billToAddress, startSendToX + 4, startSendToY + 16);
-  doc.text(`Tel : ${data?.supplier?.contact1 || ''}`, startSendToX + 4, startSendToY + 20);
-  doc.text('Fax :', startSendToX + 4, startSendToY + 24);
-  doc.text(`Email : ${data?.supplier?.email || ''}`, startSendToX + 4, startSendToY + 28);
+  doc.setFont('times', 'normal');
+  doc.text(`Name: ${data?.charge_order?.customer?.name || ''}`, startSendToX + 4, startSendToY + 23);
+  doc.text(`Tel : ${data?.charge_order?.customer?.phone_no || ''}`, startSendToX + 4, startSendToY + 27);
+  doc.text('Fax :', startSendToX + 4, startSendToY + 31);
+  doc.text(`Email : ${data?.charge_order?.customer?.email || ''}`, startSendToX + 4, startSendToY + 35);
 
   // Ship To box
   // Draw the main box
@@ -128,8 +130,7 @@ const addHeader = (doc, data, sideMargin) => {
   doc.setFontSize(8);
   doc.setFont('times', 'normal');
 
-  const shipToContent = data.ship_to || `Global Marine Safety 9145 Wallisville Road Houston TX 77029 Tel: 1
-713-518-1715`;
+  const shipToContent = data.ship_to || GMS_ADDRESS;
   const shipToLines = shipToContent.split(',');
   let currentYPosition = startShipToY + 16;
 
@@ -152,7 +153,7 @@ const addHeader = (doc, data, sideMargin) => {
       data.created_by_user ? data.created_by_user.user_name : '',
       // data.user ? data.user.email : '',
       'tech1@gms-america.com',
-      data.required_date ? dayjs(data.required_date).format('MM-DD-YYYY') : '',
+      dayjs().format('MM-DD-YYYY'),
       data.ship_via || ''
     ]
   ];

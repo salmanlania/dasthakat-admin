@@ -3,9 +3,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Select, Table } from 'antd';
 import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
-import { BiPlus } from 'react-icons/bi';
-import { BsThreeDotsVertical } from 'react-icons/bs';
-import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
+import { GMS_ADDRESS } from '../../constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom'
 import useError from '../../hooks/useError';
@@ -47,7 +45,6 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
         quantity: detail.quantity ? detail.quantity : null,
       })),
     };
-
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 
@@ -105,6 +102,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
       const chargeOrderNo = initialFormValues?.charger_order_id || '';
       const status = initialFormValues?.status || '';
       const billingAddress = initialFormValues?.vessel_billing_address ? initialFormValues?.vessel_billing_address : initialFormValues?.vessel?.billing_address || '';
+      const shipTo = initialFormValues?.ship_to ? initialFormValues?.ship_to : GMS_ADDRESS || null;
 
       setTotalQuantity(quantity);
       setTotalAmount(amount);
@@ -119,6 +117,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
         customer_id: customerName,
         charger_order_id: chargeOrderNo,
         port_id: portName,
+        ship_to: shipTo,
         vessel_billing_address: billingAddress,
         ref_document_identity: refDocumentIdentity,
         document_date: initialFormValues.document_date
@@ -409,6 +408,11 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
                 { label: 'Return', value: 'return' },
               ]}
             />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="ship_to" label="Ship To">
+            <Input.TextArea rows={1} />
           </Form.Item>
         </Col>
       </Row>
