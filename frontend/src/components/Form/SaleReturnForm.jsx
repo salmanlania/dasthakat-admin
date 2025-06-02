@@ -103,6 +103,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
       const status = initialFormValues?.status || '';
       const billingAddress = initialFormValues?.vessel_billing_address ? initialFormValues?.vessel_billing_address : initialFormValues?.vessel?.billing_address || '';
       const shipTo = initialFormValues?.ship_to ? initialFormValues?.ship_to : GMS_ADDRESS || null;
+      const shipVia = initialFormValues?.ship_via || '';
 
       setTotalQuantity(quantity);
       setTotalAmount(amount);
@@ -118,6 +119,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
         charger_order_id: chargeOrderNo,
         port_id: portName,
         ship_to: shipTo,
+        ship_via: shipVia,
         vessel_billing_address: billingAddress,
         ref_document_identity: refDocumentIdentity,
         document_date: initialFormValues.document_date
@@ -413,6 +415,27 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="ship_to" label="Ship To">
             <Input.TextArea rows={1} />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="ship_via" label="Ship Via">
+            <Select
+              options={[
+                {
+                  value: 'Courier',
+                  label: 'Courier'
+                },
+                {
+                  value: 'Pickup',
+                  label: 'Pickup'
+                },
+                {
+                  value: 'Delivery',
+                  label: 'Delivery'
+                }
+              ]}
+              allowClear
+            />
           </Form.Item>
         </Col>
       </Row>

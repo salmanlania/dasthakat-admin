@@ -20,7 +20,6 @@ const fillEmptyRows = (rows, rowsPerPage) => {
 };
 
 const addHeader = (doc, data, sideMargin) => {
-  console.log('data' , data.charge_order.customer)
 
   // doc.addImage(GMSLogo, 'PNG', 88, 5, 32, 26); // Centered logo
   doc.addImage(GMSLogo, 'PNG', 20, 1, 35, 26);
@@ -107,10 +106,10 @@ const addHeader = (doc, data, sideMargin) => {
   const billToAddress = doc.splitTextToSize(data?.charge_order?.customer?.billing_address || '', 88);
   doc.text(billToAddress, startSendToX + 4, startSendToY + 16);
   doc.setFont('times', 'normal');
-  doc.text(`Name: ${data?.charge_order?.customer?.name || ''}`, startSendToX + 4, startSendToY + 23);
-  doc.text(`Tel : ${data?.charge_order?.customer?.phone_no || ''}`, startSendToX + 4, startSendToY + 27);
-  doc.text('Fax :', startSendToX + 4, startSendToY + 31);
-  doc.text(`Email : ${data?.charge_order?.customer?.email || ''}`, startSendToX + 4, startSendToY + 35);
+  doc.text(`Name: ${data?.charge_order?.customer?.name || ''}`, startSendToX + 4, startSendToY + 26);
+  doc.text(`Tel : ${data?.charge_order?.customer?.phone_no || ''}`, startSendToX + 4, startSendToY + 30);
+  doc.text('Fax :', startSendToX + 4, startSendToY + 34);
+  doc.text(`Email : ${data?.charge_order?.customer?.email_sales || ''}`, startSendToX + 4, startSendToY + 38);
 
   // Ship To box
   // Draw the main box

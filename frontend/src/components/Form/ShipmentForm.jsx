@@ -22,10 +22,6 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
     (state) => state.shipment
   );
 
-  // useEffect(() => {
-  //   console.log('chargeOrderDetails', chargeOrderDetails)
-  // }, [])
-
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
 
@@ -164,7 +160,6 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
       charge_orders.forEach(({ document_identity, charge_order_detail }) => {
         const chargeOrderNo = document_identity;
         charge_order_detail.forEach((detail) => {
-          console.log('detail')
           if (detail.job_order_detail_id || detail.shipment_detail_id) return;
           eventChargeDetails.push({
             id: detail.charge_order_detail_id,

@@ -30,7 +30,6 @@ const EditShipment = () => {
     try {
       dispatch(getShipment(id)).unwrap()
     } catch (error) {
-      console.log('error', error)
       handleError(error)
     }
   }, []);
