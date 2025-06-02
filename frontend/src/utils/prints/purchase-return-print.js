@@ -89,7 +89,7 @@ const addHeader = (doc, data, sideMargin) => {
   let startShipToX = 107;
   let startShipToY = 87;
   let shipToWidth = 99;
-  let shipToHeight = 42;
+  let shipToHeight = 52;
   doc.rect(startShipToX, startShipToY, shipToWidth, shipToHeight); // x, y, width, height
 
   // Add "Ship To :" text
@@ -122,7 +122,7 @@ const addHeader = (doc, data, sideMargin) => {
   let startSendToX = sideMargin;
   let startSendToY = 87;
   let sentToWidth = 99;
-  let sentToHeight = 42;
+  let sentToHeight = 52;
   doc.rect(startSendToX, startSendToY, sentToWidth, sentToHeight); // x, y, width, height
 
   // Add "Send To :" text
@@ -155,7 +155,7 @@ const addHeader = (doc, data, sideMargin) => {
     ]
   ];
   doc.autoTable({
-    startY: 135,
+    startY: 145,
     head: [table1Column],
     body: table1Rows,
     margin: { left: sideMargin },
@@ -244,7 +244,7 @@ export const createPurchaseReturnPrint = (data) => {
 
   const filledRows = fillEmptyRows(table2Rows, 9);
   doc.autoTable({
-    startY: 155,
+    startY: 165,
     head: [table2Column],
     body: filledRows,
     margin: { left: 4, top: 150, bottom: 22 },

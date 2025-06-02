@@ -90,7 +90,7 @@ const addHeader = (doc, data, sideMargin) => {
   let startSendToX = sideMargin;
   let startSendToY = 87;
   let sentToWidth = 99;
-  let sentToHeight = 42;
+  let sentToHeight = 52;
   doc.rect(startSendToX, startSendToY, sentToWidth, sentToHeight); // x, y, width, height
 
   // Add "Send To :" text
@@ -106,17 +106,17 @@ const addHeader = (doc, data, sideMargin) => {
   const billToAddress = doc.splitTextToSize(data?.charge_order?.customer?.billing_address || '', 88);
   doc.text(billToAddress, startSendToX + 4, startSendToY + 16);
   doc.setFont('times', 'normal');
-  doc.text(`Name: ${data?.charge_order?.customer?.name || ''}`, startSendToX + 4, startSendToY + 26);
-  doc.text(`Tel : ${data?.charge_order?.customer?.phone_no || ''}`, startSendToX + 4, startSendToY + 30);
-  doc.text('Fax :', startSendToX + 4, startSendToY + 34);
-  doc.text(`Email : ${data?.charge_order?.customer?.email_sales || ''}`, startSendToX + 4, startSendToY + 38);
+  doc.text(doc.splitTextToSize(`Name: ${data?.charge_order?.customer?.name || ''}` , 88), startSendToX + 4, startSendToY + 26);
+  doc.text(doc.splitTextToSize(`Tel : ${data?.charge_order?.customer?.phone_no || ''}` , 88), startSendToX + 4, startSendToY + 30);
+  doc.text(doc.splitTextToSize('Fax :' , 88), startSendToX + 4, startSendToY + 34);
+  doc.text(doc.splitTextToSize(`Email : ${data?.charge_order?.customer?.email_sales || ''}` , 88), startSendToX + 4, startSendToY + 38);
 
   // Ship To box
   // Draw the main box
   let startShipToX = 107;
   let startShipToY = 87;
   let shipToWidth = 99;
-  let shipToHeight = 42;
+  let shipToHeight = 52;
   doc.rect(startShipToX, startShipToY, shipToWidth, shipToHeight); // x, y, width, height
 
   // Add "Ship To :" text
@@ -158,7 +158,7 @@ const addHeader = (doc, data, sideMargin) => {
   ];
 
   doc.autoTable({
-    startY: 135,
+    startY: 145,
     head: [table1Column],
     body: table1Rows,
     margin: { left: sideMargin },
@@ -250,7 +250,7 @@ export const createStockReturnPrint = (data) => {
 
   const filledRows = fillEmptyRows(table2Rows, 9);
   doc.autoTable({
-    startY: 155,
+    startY: 165,
     head: [table2Column],
     body: filledRows,
     margin: { left: 4, top: 150, bottom: 22 },
