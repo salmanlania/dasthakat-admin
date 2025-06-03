@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { GoTrash } from 'react-icons/go';
-import { MdOutlineEdit } from 'react-icons/md';
+import { MdOutlineEdit, MdWorkspacePremium } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect';
@@ -261,7 +261,7 @@ const IJO = () => {
       title: 'Action',
       key: 'action',
       render: (_, { job_order_id }) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Tooltip title="Print">
             <Button
               size="small"
@@ -296,9 +296,22 @@ const IJO = () => {
               </Popconfirm>
             </Tooltip>
           ) : null}
+          {permissions.edit ? (
+            <Tooltip title="Add Certificate">
+              {/* <Link to={`/ijo/edit/${job_order_id}`}> */}
+              <Button
+                size="small"
+                type="primary"
+                // onClick={() => toast.success('Coming Soon')}
+                className="bg-emerald-600 hover:!bg-emerald-500"
+                icon={<MdWorkspacePremium size={14} />}
+              />
+              {/* </Link> */}
+            </Tooltip>
+          ) : null}
         </div>
       ),
-      width: 110,
+      width: 100,
       fixed: 'right'
     }
   ];
@@ -366,10 +379,10 @@ const IJO = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: 'checkbox',
-                  selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setIJODeleteIDs(selectedRowKeys))
-                }
+                type: 'checkbox',
+                selectedRowKeys: deleteIDs,
+                onChange: (selectedRowKeys) => dispatch(setIJODeleteIDs(selectedRowKeys))
+              }
               : null
           }
           loading={isListLoading}

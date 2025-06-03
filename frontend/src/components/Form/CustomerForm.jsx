@@ -151,6 +151,18 @@ const CustomerForm = ({ mode = 'create', onSubmit }) => {
             />
           </Form.Item>
         </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="block_status" label="Block Status">
+            <Select
+              className="w-full"
+              allowClear
+              options={[
+                { label: 'Yes', value: 'yes' },
+                { label: 'No', value: 'no' },
+              ]}
+            />
+          </Form.Item>
+        </Col>
       </Row>
 
       <div className="mt-4 flex items-center justify-end gap-2">

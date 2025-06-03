@@ -1,4 +1,4 @@
-import { Button, Col, Form, Input, Row } from 'antd';
+import { Button, Col, Form, Input, Row, Select } from 'antd';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import AsyncSelect from '../AsyncSelect';
@@ -17,7 +17,7 @@ const VesselForm = ({ mode, onSubmit }) => {
       class1_id: values.class1_id ? values.class1_id.value : null,
       class2_id: values.class2_id ? values.class2_id.value : null
     };
-    
+
     onSubmit(data);
   };
 
@@ -71,7 +71,7 @@ const VesselForm = ({ mode, onSubmit }) => {
             />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={24} sm={12} md={6} lg={6}>
           <Form.Item
             name="flag_id"
             label="Flag"
@@ -85,7 +85,7 @@ const VesselForm = ({ mode, onSubmit }) => {
             />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={24} sm={12} md={6} lg={6}>
           <Form.Item
             name="class1_id"
             label="Class 1"
@@ -99,7 +99,7 @@ const VesselForm = ({ mode, onSubmit }) => {
             />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={24} sm={12} md={6} lg={6}>
           <Form.Item name="class2_id" label="Class 2">
             <AsyncSelect
               endpoint="/class"
@@ -107,6 +107,18 @@ const VesselForm = ({ mode, onSubmit }) => {
               labelKey="name"
               labelInValue
               addNewLink={permissions.class.list && permissions.class.add ? '/class' : null}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={6} lg={6}>
+          <Form.Item name="block_status" label="Block Status">
+            <Select
+              className="w-full"
+              allowClear
+              options={[
+                { label: 'Yes', value: 'yes' },
+                { label: 'No', value: 'no' },
+              ]}
             />
           </Form.Item>
         </Col>
