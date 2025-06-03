@@ -138,6 +138,10 @@ class PicklistController extends Controller
 			"picklist_detail.product.product_type",
 		])->where('picklist_id', $id)->first();
 
+		foreach ($picklist->picklist_detail as &$detail) {
+			$detail->returned_quantity = $this->getReturnedQuantity((object) ['product_type_id' => 2, 'charge_order_detail_id' => $detail['charge_order_detail_id']]);
+		}
+
 		if (!$picklist) {
 			return $this->jsonResponse(null, 404, "Picklist not found");
 		}
