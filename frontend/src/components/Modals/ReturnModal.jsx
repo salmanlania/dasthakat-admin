@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { returnSaleInvoice } from '../../store/features/saleReturnSlice'
 import useError from '../../hooks/useError';
 
-const ReturnModal = ({ visible, onClose, data }) => {
+const ReturnModal = ({ visible, onClose, data, onRefresh }) => {
     const dispatch = useDispatch();
     const [form] = Form.useForm();
     const { user } = useSelector((state) => state.auth);
@@ -54,6 +54,7 @@ const ReturnModal = ({ visible, onClose, data }) => {
             await dispatch(returnSaleInvoice(data)).unwrap();
             toast.success('Sale Return created successfully');
             onClose();
+            onRefresh?.();
         } catch (error) {
             handleError(error)
         }

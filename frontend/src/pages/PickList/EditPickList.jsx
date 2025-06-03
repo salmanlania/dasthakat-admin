@@ -16,8 +16,12 @@ const EditPickList = () => {
   const { id } = useParams();
   const { isListLoading, initialFormValues } = useSelector((state) => state.pickList);
 
-  useEffect(() => {
+  const refreshPickList = () => {
     dispatch(getPickListListDetail(id)).unwrap().catch(handleError);
+  };
+
+  useEffect(() => {
+    refreshPickList()
   }, []);
 
   return (
@@ -35,7 +39,7 @@ const EditPickList = () => {
 
       {!isListLoading && initialFormValues ? (
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <PickListForm mode="edit" initialValues={initialFormValues} />
+          <PickListForm mode="edit" initialValues={initialFormValues} onRefresh={refreshPickList} />
         </div>
       ) : null}
     </>

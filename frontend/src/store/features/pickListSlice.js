@@ -170,6 +170,7 @@ export const pickListSlice = createSlice({
         product_name: detail?.product?.name,
         product_description: detail?.product?.name,
         quantity: detail?.quantity,
+        returned_quantity: detail?.returned_quantity,
         cost_price: detail?.product?.cost_price,
         sale_price: detail?.product?.sale_price,
       }))

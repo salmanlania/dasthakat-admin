@@ -197,7 +197,8 @@ export const saleReturnListSlice = createSlice({
         ref_document_identity: data?.charge_order?.ref_document_identity,
         picklist_id: data?.picklist_id ? data?.picklist_id : null,
         ship_to: data?.ship_to ? data?.ship_to : null,
-        ship_via: data?.ship_via ? data?.ship_via : null
+        ship_via: data?.ship_via ? data?.ship_via : null,
+        return_date: data?.return_date ? data?.return_date : null,
       };
       state.saleReturnDetail = data.sale_return_detail.map((detail) => ({
         id: detail.sale_return_detail_id,

@@ -6,7 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import SaleReturnForm from '../../components/Form/SaleReturnForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
-import { getSaleReturn , updateSaleReturn} from '../../store/features/saleReturnSlice';
+import { getSaleReturn, updateSaleReturn } from '../../store/features/saleReturnSlice';
 
 const EditStockReturn = () => {
   const dispatch = useDispatch();
@@ -33,7 +33,7 @@ const EditStockReturn = () => {
       handleError(error);
     }
   };
-
+  
   useEffect(() => {
     dispatch(getSaleReturn(id)).unwrap().catch(handleError);
   }, []);

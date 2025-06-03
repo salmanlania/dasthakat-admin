@@ -12,11 +12,9 @@ import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput'
 import DebounceInput from '../Input/DebounceInput';
 import { DetailSummaryInfo } from './QuotationForm';
 
-const PickListForm = ({ mode, onSubmit, onSave }) => {
+const PickListForm = ({ mode, onSubmit, onSave, onRefresh }) => {
     const [form] = Form.useForm();
     const handleError = useError();
-    const dispatch = useDispatch();
-    const { id } = useParams();
     const { initialFormValues, pickListDetail } = useSelector(
         (state) => state.pickList
     );
@@ -198,6 +196,25 @@ const PickListForm = ({ mode, onSubmit, onSave }) => {
             width: 100
         },
         {
+            title: 'Return Quantity',
+            dataIndex: 'returned_quantity',
+            key: 'returned_quantity',
+            render: (_, { returned_quantity }, index) => {
+                const newQuantity = Number(returned_quantity)
+                    .toString()
+                    .replace(/(\.\d*?)0+$/, '$1')
+                    .replace(/\.$/, '');
+                return (
+                    <DebouncedCommaSeparatedInput
+                        decimalPlaces={2}
+                        value={newQuantity}
+                        disabled={true}
+                    />
+                );
+            },
+            width: 100
+        },
+        {
             title: 'Unit Price',
             dataIndex: 'sale_price',
             key: 'sale_price',
@@ -365,6 +382,7 @@ const PickListForm = ({ mode, onSubmit, onSave }) => {
                     setReturnModalVisible(false)
                 }}
                 data={selectedRows}
+                onRefresh={onRefresh}
             />
         </>
     );

@@ -104,6 +104,10 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
       const billingAddress = initialFormValues?.vessel_billing_address ? initialFormValues?.vessel_billing_address : initialFormValues?.vessel?.billing_address || '';
       const shipTo = initialFormValues?.ship_to ? initialFormValues?.ship_to : GMS_ADDRESS || null;
       const shipVia = initialFormValues?.ship_via || '';
+      const returnDate = initialFormValues?.return_date === '0000-00-00 00:00:00' ||
+        initialFormValues?.return_date === '1899-30-11 00:00:00'
+        ? null
+        : dayjs(initialFormValues?.return_date);
 
       setTotalQuantity(quantity);
       setTotalAmount(amount);
@@ -119,6 +123,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
         charger_order_id: chargeOrderNo,
         port_id: portName,
         ship_to: shipTo,
+        return_date: returnDate ? dayjs(returnDate) : null,
         ship_via: shipVia,
         vessel_billing_address: billingAddress,
         ref_document_identity: refDocumentIdentity,
@@ -394,12 +399,12 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
             />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={24} sm={12} md={6} lg={6}>
           <Form.Item name="vessel_billing_address" label="Vessel Billing Address">
             <Input disabled />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
+        <Col span={24} sm={12} md={6} lg={6}>
           <Form.Item name="status" label="Status">
             <Select
               size="small"
@@ -410,6 +415,11 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
                 { label: 'Return', value: 'return' },
               ]}
             />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={6} lg={6}>
+          <Form.Item name="return_date" label="Return Date">
+            <DatePicker format="MM-DD-YYYY : HH:mm:ss" showTime className="w-full" />
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>

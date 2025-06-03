@@ -136,12 +136,12 @@ const addHeader = (doc, data, sideMargin) => {
   doc.setFont('times', 'normal');
   doc.setFont('times', 'bold');
   doc.setFont('times', 'bold');
-  const billToAddress = doc.splitTextToSize(data?.supplier?.address || `MARINE INTELLIGENCE SERVICE PTE.LTD`, 88);
+  const billToAddress = doc.splitTextToSize(data?.purchase_order?.supplier?.address, 88);
   doc.text(billToAddress, startSendToX + 4, startSendToY + 16);
-  doc.text(`Name: ${data?.purchase_order?.supplier?.name || ''}`, startSendToX + 4, startSendToY + 21);
-  doc.text(`Tel : ${data?.purchase_order?.supplier?.contact1 || ''}`, startSendToX + 4, startSendToY + 26);
-  doc.text(`Fax : ${data?.purchase_order?.supplier?.contact2 || ''}`, startSendToX + 4, startSendToY + 31);
-  doc.text(`Email : ${data?.purchase_order?.supplier?.email || ''}`, startSendToX + 4, startSendToY + 36);
+  doc.text(doc.splitTextToSize(`Name: ${data?.purchase_order?.supplier?.name || ''}` , 88), startSendToX + 4, startSendToY + 21);
+  doc.text(doc.splitTextToSize(`Tel : ${data?.purchase_order?.supplier?.contact1 || ''}` , 88), startSendToX + 4, startSendToY + 26);
+  doc.text(doc.splitTextToSize(`Fax : ${data?.purchase_order?.supplier?.contact2 || ''}` , 88), startSendToX + 4, startSendToY + 31);
+  doc.text(doc.splitTextToSize(`Email : ${data?.purchase_order?.supplier?.email || ''}` , 88), startSendToX + 4, startSendToY + 36);
 
   // Buyer's Info Table
   const table1Column = ["Buyer's Name", "Buyer's Email", 'Required Date', 'Ship via'];
