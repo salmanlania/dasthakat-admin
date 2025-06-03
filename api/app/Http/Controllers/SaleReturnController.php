@@ -173,6 +173,7 @@ class SaleReturnController extends Controller
 					'document_date' => $newObj['document_date'] ?? Carbon::now(),
 					'ship_to' => $newObj['ship_to'] ?? '',
 					'ship_via' => $newObj['ship_via'] ?? '',
+					'return_date' => $newObj['return_date'] ?? '',
 					'charge_order_id' => $Picklist->charge_order_id,
 					'picklist_id' => $newObj['picklist_id'],
 					'created_at' => Carbon::now(),
@@ -306,6 +307,7 @@ class SaleReturnController extends Controller
 				'document_date' => $request->document_date ?? Carbon::now(),
 				'ship_to' => $request->ship_to ?? '',
 				'ship_via' => $request->ship_via ?? '',
+				'return_date' => $request->return_date ?? '',
 				'charge_order_id' => $Picklist->charge_order_id,
 				'picklist_id' => $request->picklist_id,
 				'created_at' => Carbon::now(),
@@ -433,6 +435,7 @@ class SaleReturnController extends Controller
 			$saleReturn->updated_by = $request->login_user_id;
 			$saleReturn->ship_to = $request->ship_to ?? "";
 			$saleReturn->ship_via = $request->ship_via ?? "";
+			$saleReturn->return_date = $request->return_date ?? "";
 			$saleReturn->status = $request->status;
 			$saleReturn->save();
 

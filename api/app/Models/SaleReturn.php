@@ -23,6 +23,7 @@ class SaleReturn extends Model
         "document_date",
         "ship_via",
         "ship_to",
+        "return_date",
         "charge_order_id",
         "picklist_id",
         "total_quantity",
