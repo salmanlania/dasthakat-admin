@@ -119,15 +119,6 @@ class SaleReturnController extends Controller
 			->where('sale_return_id', $id)
 			->first();
 
-
-			foreach ($data->sale_return_detail as &$detail) {
-				if (!empty($detail->picklist_detail)) {
-					$detail->picklist_detail->returned_quantity = $this->getReturnedQuantity((object) [
-						'product_type_id' => 2,
-						'charge_order_detail_id' => $detail->charge_order_detail_id
-					]) ?? null;
-				}
-			}
 			
 		return $this->jsonResponse($data, 200, 'View Api Data');
 	}
