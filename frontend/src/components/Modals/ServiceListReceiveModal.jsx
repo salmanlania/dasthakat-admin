@@ -212,7 +212,7 @@ const NewReceivesTab = ({ details }) => {
         updateServiceListListReceives({ id: serviceListOpenModalId, data: payload })
       ).unwrap();
       dispatch(setServiceListOpenModalId(null));
-      toast.success('Servicelist receives updated successfully');
+      toast.success('Service list receives updated successfully');
       dispatch(getServiceListList(params)).unwrap().catch(handleError);
     } catch (error) {
       handleError(error);
