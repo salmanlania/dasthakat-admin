@@ -37,6 +37,7 @@ class Customer extends Model implements AuthenticatableContract, AuthorizableCon
         'address',
         'billing_address',
         'phone_no',
+        'block_status',
         'email_sales',
         'email_accounting',
         'vessel_id',

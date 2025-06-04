@@ -25,6 +25,7 @@ class VesselController extends Controller
 		$class2_id = $request->input('class2_id', '');
 		$customer_id = $request->input('customer_id', '');
 		$billing_address = $request->input('billing_address', '');
+		$block_status = $request->input('block_status', '');
 
 		$search = $request->input('search', '');
 		$page =  $request->input('page', 1);
@@ -45,6 +46,7 @@ class VesselController extends Controller
 		if (!empty($imo)) $data = $data->where('vessel.imo', 'like', '%' . $imo . '%');
 		if (!empty($billing_address)) $data = $data->where('vessel.billing_address', 'like', '%' . $billing_address . '%');
 		if (!empty($flag_id)) $data = $data->where('vessel.flag_id', '=',  $flag_id);
+		if (!empty($block_status)) $data = $data->where('vessel.block_status', '=',  $block_status);
 		if (!empty($class1_id)) $data = $data->where('vessel.class1_id', '=',  $class1_id);
 		if (!empty($class2_id)) $data = $data->where('vessel.class2_id', '=',  $class2_id);
 		if (!empty($customer_id)) $data = $data->where('vessel.customer_id', '=',  $customer_id);
@@ -58,6 +60,7 @@ class VesselController extends Controller
 					->orWhere('c.name', 'like', '%' . $search . '%')
 					->orWhere('f.name', 'like', '%' . $search . '%')
 					->orWhere('c1.name', 'like', '%' . $search . '%')
+					->orWhere('vessel.block_status', 'like', '%' . $search . '%')
 					->orWhere('c2.name', 'like', '%' . $search . '%')
 					->orWhere('vessel.billing_address', 'like', '%' . $search . '%');
 			});
@@ -126,6 +129,7 @@ class VesselController extends Controller
 			'name' => $request->name ?? "",
 			'vessel_id' => $uuid,
 			'flag_id' => $request->flag_id ?? "",
+			'block_status' => $request->block_status ?? "",
 			'customer_id' => $request->customer_id ?? "",
 			'class1_id' => $request->class1_id ?? "",
 			'class2_id' => $request->class2_id ?? "",
@@ -179,6 +183,7 @@ class VesselController extends Controller
 		$data->imo  = $request->imo ?? "";
 		$data->name  = $request->name ?? "";
 		$data->flag_id  = $request->flag_id ?? "";
+		$data->block_status  = $request->block_status ?? "";
 		$data->customer_id  = $request->customer_id ?? "";
 		$data->class1_id  = $request->class1_id ?? "";
 		$data->class2_id  = $request->class2_id ?? "";

@@ -32,6 +32,7 @@ class CustomerController extends Controller
 		$payment_id =  $request->input('payment_id', '');
 		$vessel_id =  $request->input('vessel_id', []);
 		$phone_no =  $request->input('phone_no', '');
+		$block_status =  $request->input('block_status', []);
 		$email_sales =  $request->input('email_sales', '');
 		$email_accounting =  $request->input('email_accounting', '');
 		$billing_address =  $request->input('billing_address', '');
@@ -53,6 +54,7 @@ class CustomerController extends Controller
 		if (!empty($name)) $data = $data->where('customer.name', 'like', '%' . $name . '%');
 		if (!empty($salesman_id)) $data = $data->where('customer.salesman_id', "=", $salesman_id);
 		if (!empty($payment_id)) $data = $data->where('customer.payment_id', "=", $payment_id);
+		if (!empty($block_status)) $data = $data->where('customer.block_status', "=", $block_status);
 		if (!empty($country)) $data = $data->where('customer.country', 'like', '%' . $country . '%');
 		if (!empty($address)) $data = $data->where('customer.address', 'like', '%' . $address . '%');
 		if (!empty($phone_no)) $data = $data->where('customer.phone_no', 'like', '%' . $phone_no . '%');
@@ -77,6 +79,7 @@ class CustomerController extends Controller
 					->orWhere('customer.country', 'like', '%' . $search . '%')
 					->orWhere('customer.address', 'like', '%' . $search . '%')
 					->orWhere('customer.billing_address', 'like', '%' . $search . '%')
+					->orWhere('customer.block_status', 'like', '%' . $search . '%')
 					->orWhere('customer.phone_no', 'like', '%' . $search . '%')
 					->orWhere('customer.email_sales', 'like', '%' . $search . '%')
 					->orWhere('customer.email_accounting', 'like', '%' . $search . '%')
@@ -157,6 +160,7 @@ class CustomerController extends Controller
 			'customer_code' => intval($maxCode) + 1 ?? "",
 			'salesman_id' => $request->salesman_id ?? "",
 			'country' => $request->country ?? "",
+			'block_status' => $request->block_status ?? "",
 			'address' => $request->address ?? "",
 			'billing_address' => $request->billing_address ?? "",
 			'phone_no' => $request->phone_no ?? "",
@@ -205,6 +209,7 @@ class CustomerController extends Controller
 		$data->address = $request->address ?? "";
 		$data->billing_address = $request->billing_address ?? "";
 		$data->phone_no = $request->phone_no ?? "";
+		$data->block_status = $request->block_status ?? "";
 		$data->email_sales = $request->email_sales ?? "";
 		$data->email_accounting = $request->email_accounting ?? "";
 		$data->payment_id = $request->payment_id ?? "";
