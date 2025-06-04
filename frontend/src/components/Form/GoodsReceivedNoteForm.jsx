@@ -98,7 +98,6 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       ),
       total_quantity: totalQuantity
     };
-
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 
@@ -349,7 +348,9 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
           charge_order_detail_id: detail.charge_order_detail_id,
           quantity: detail?.available_quantity ? parseFloat(detail?.available_quantity) : null,
           unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
-          warehouse_id: null
+          warehouse_id: null,
+          row_status: 'I',
+          isDeleted: false
         }))
         .filter((item) => item.quantity > 0);
 
