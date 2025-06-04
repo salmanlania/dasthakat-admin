@@ -610,7 +610,9 @@ export const quotationSlice = createSlice({
           : null,
         term_id: data.term_id || null,
         term_desc: data.term_desc,
-        status: data.status
+        status: data.status,
+        customer_block_status: data?.customer?.block_status ? data?.customer?.block_status : null,
+        vessel_block_status: data?.vessel?.block_status ? data?.vessel?.block_status : null,
       };
 
       if (!data.quotation_detail) return;
@@ -648,7 +650,7 @@ export const quotationSlice = createSlice({
         discount_amount: detail.discount_amount,
         gross_amount: detail.gross_amount,
         row_status: 'U',
-        isDeleted: false
+        isDeleted: false,
       }));
 
       state.rebatePercentage = data?.rebate_percent ? data?.rebate_percent : 0;
