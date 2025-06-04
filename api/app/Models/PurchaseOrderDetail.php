@@ -34,19 +34,19 @@ class PurchaseOrderDetail extends Model
     ];
     public function purchase_order()
     {
-        return $this->hasOne(PurchaseOrder::class, 'purchase_order_id', 'purchase_order_id');
+        return $this->belongsTo(PurchaseOrder::class, 'purchase_order_id', 'purchase_order_id')->select('*');
     }
     public function product()
     {
-        return $this->hasOne(Product::class, 'product_id', 'product_id')->select('*',DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
+        return $this->belongsTo(Product::class, 'product_id', 'product_id')->select('*',DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
     }
     public function product_type()
     {
-        return $this->hasOne(ProductType::class, 'product_type_id','product_type_id');
+        return $this->belongsTo(ProductType::class, 'product_type_id','product_type_id')->select('*');
     }
     public function unit()
     {
-        return $this->hasOne(Unit::class, 'unit_id', 'unit_id');
+        return $this->belongsTo(Unit::class, 'unit_id', 'unit_id')->select('*');
     }
   
 }

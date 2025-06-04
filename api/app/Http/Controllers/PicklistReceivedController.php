@@ -11,6 +11,8 @@ use App\Models\Product;
 use App\Models\StockLedger;
 use App\Models\Warehouse;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PicklistReceivedController extends Controller
 {
@@ -20,12 +22,12 @@ class PicklistReceivedController extends Controller
 	public function show($id, Request $request)
 	{
 		// Fetch the original picklist
-		$picklist = Picklist::with("picklist_detail", "picklist_detail.product")
+		$picklist = Picklist::with("picklist_detail.product")
 			->where('picklist_id', $id)
 			->first();
 
 		// Fetch received picklist history
-		$receivedData = PicklistReceived::with("picklist_received_detail", "picklist_received_detail.product", "picklist_received_detail.warehouse")
+		$receivedData = PicklistReceived::with("picklist_received_detail.product", "picklist_received_detail.warehouse")
 			->where('picklist_id', $id)
 			->orderBy('created_at', 'asc')
 			->get();
@@ -114,7 +116,8 @@ class PicklistReceivedController extends Controller
 		$isError = $this->Validator($request->all());
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
-
+		DB::beginTransaction();
+		try{
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument($this->documentTypeId, $request);
 
@@ -179,7 +182,13 @@ class PicklistReceivedController extends Controller
 		}
 		PicklistReceivedDetail::insert($picklistReceivedDetails);
 
-
+		DB::commit();
+		
 		return $this->jsonResponse([], 200, "Picklist Items Successfully Received.");
+		} catch (\Exception $e) {
+			DB::rollBack(); // Rollback on error
+			Log::error('Picklist Received Error: ' . $e->getMessage());
+			return $this->jsonResponse("Something went wrong while receiving Picklist.", 500, "Transaction Failed");
+		}
 	}
 }

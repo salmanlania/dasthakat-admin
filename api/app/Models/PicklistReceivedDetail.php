@@ -25,23 +25,23 @@ class PicklistReceivedDetail extends Model
     ];
     public function picklist_detail()
     {
-        return $this->hasOne(PicklistDetail::class, 'picklist_detail_id', 'picklist_detail_id');
+        return $this->belongsTo(PicklistDetail::class, 'picklist_detail_id', 'picklist_detail_id')->select('*');
     }
     public function charge_order_detail()
     {
-        return $this->hasOne(ChargeOrderDetail::class, 'charge_order_detail_id', 'charge_order_detail_id');
+        return $this->belongsTo(ChargeOrderDetail::class, 'charge_order_detail_id', 'charge_order_detail_id')->select('*');
     }
     public function product()
     {
-        return $this->hasOne(Product::class, 'product_id', 'product_id');
+        return $this->belongsTo(Product::class, 'product_id', 'product_id')->select('*');
     }
     public function pulled_by()
     {
-        return $this->hasOne(User::class, 'user_id', 'created_by')->select('user_id', 'user_name','email');
+        return $this->belongsTo(User::class, 'user_id', 'created_by')->select('user_id', 'user_name','email')->select('*');
     }
     public function warehouse()
     {
-        return $this->hasOne(Warehouse::class, 'warehouse_id', 'warehouse_id');
+        return $this->belongsTo(Warehouse::class, 'warehouse_id', 'warehouse_id')->select('*');
     }
    
    

@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::table('vessel', function (Blueprint $table) {
             //
             Schema::table('vessel', function (Blueprint $table) {
-                $table->char('block_status', 36)->nullable()->after('flag_id');
+                $table->char('block_status', 36)->default('no')->after('flag_id');
             });
         });
     }

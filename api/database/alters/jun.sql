@@ -4,3 +4,68 @@ ALTER TABLE `sale_return` ADD COLUMN `return_date` DATETIME AFTER `ship_via`;
 
 ALTER TABLE `vessel` ADD COLUMN `block_status` CHAR(36) NOT NULL DEFAULT 'no' AFTER `flag_id`;
 ALTER TABLE `customer` ADD COLUMN `block_status` CHAR(36) NOT NULL DEFAULT 'no' AFTER `phone_no`;
+
+INSERT INTO
+    `const_document_type` (
+        `document_type_id`,
+        `document_name`,
+        `document_prefix`,
+        `table_name`,
+        `primary_key`
+    )
+VALUES
+    (
+        54,
+        'Stock Return',
+        '{BC}/STR-',
+        'stock_return',
+        'stock_return_id'
+    );
+
+    
+CREATE TABLE `stock_return` (
+  `stock_return_id` char(36) NOT NULL,
+  `company_id` char(36) NOT NULL,
+  `company_branch_id` char(36) NOT NULL,
+  `document_type_id` int NOT NULL,
+  `document_no` int NOT NULL,
+  `document_prefix` varchar(255) NOT NULL,
+  `document_identity` varchar(255) NOT NULL,
+  `document_date` date NOT NULL,
+  `ship_to` varchar(255) DEFAULT NULL,
+  `ship_via` varchar(255) DEFAULT NULL,
+  `return_date` datetime DEFAULT NULL,
+  `charge_order_id` char(36) DEFAULT NULL,
+  `picklist_id` char(36) DEFAULT NULL,
+  `total_quantity` decimal(10,2) NOT NULL,
+  `total_amount` decimal(10,2) NOT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `created_by` char(36) DEFAULT NULL,
+  `updated_by` char(36) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`stock_return_id`)
+);
+
+
+CREATE TABLE `stock_return_detail` (
+  `stock_return_detail_id` char(36) NOT NULL,
+  `stock_return_id` char(36) NOT NULL,
+  `charge_order_detail_id` char(36) DEFAULT NULL,
+  `picklist_detail_id` char(36) DEFAULT NULL,
+  `sort_order` int NOT NULL,
+  `product_id` char(36) NOT NULL,
+  `product_name` varchar(255) NOT NULL,
+  `product_description` text,
+  `description` text,
+  `unit_id` char(36) NOT NULL,
+  `warehouse_id` char(36) NOT NULL,
+  `quantity` decimal(10,2) NOT NULL,
+  `rate` decimal(10,2) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `created_by` char(36) DEFAULT NULL,
+  `updated_by` char(36) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`stock_return_detail_id`)
+);

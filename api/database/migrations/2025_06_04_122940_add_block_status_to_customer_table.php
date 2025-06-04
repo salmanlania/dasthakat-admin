@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::table('customer', function (Blueprint $table) {
             //
             Schema::table('customer', function (Blueprint $table) {
-                $table->char('block_status', 36)->nullable()->after('phone_no');
+                $table->char('block_status', 36)->default('no')->after('phone_no');
             });
         });
     }

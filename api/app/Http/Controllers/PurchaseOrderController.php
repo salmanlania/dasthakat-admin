@@ -14,6 +14,7 @@ use App\Models\PurchaseOrderDetail;
 use App\Models\PurchaseReturnDetail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PurchaseOrderController extends Controller
 {
@@ -180,17 +181,10 @@ class PurchaseOrderController extends Controller
 	}
 
 
-
-
-
 	public function show($id, Request $request)
 	{
-		// Fetch the Purchase Order with related details
+		// Main query with all eager loading
 		$data = PurchaseOrder::with([
-			"purchase_order_detail",
-			"purchase_order_detail.product",
-			"purchase_order_detail.product_type",
-			"purchase_order_detail.unit",
 			"user",
 			"payment",
 			"supplier",
@@ -199,6 +193,9 @@ class PurchaseOrderController extends Controller
 			"charge_order.event",
 			"charge_order.vessel",
 			"charge_order.customer",
+			"purchase_order_detail.product",
+			"purchase_order_detail.product_type",
+			"purchase_order_detail.unit",
 		])->where('purchase_order_id', $id)->first();
 
 		if (!$data) {
@@ -252,7 +249,9 @@ class PurchaseOrderController extends Controller
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
 
-
+		DB::beginTransaction();
+		try {
+		
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument($this->document_type_id, $request);
 		$insertArr = [
@@ -309,8 +308,13 @@ class PurchaseOrderController extends Controller
 			}
 		}
 
-
+		DB::commit();
 		return $this->jsonResponse(['purchase_order_id' => $uuid], 200, "Add Purchase Order Successfully!");
+		} catch (\Exception $e) {
+			DB::rollBack(); // Rollback on error
+			Log::error('Purchase Order Store Error: ' . $e->getMessage());
+			return $this->jsonResponse("Something went wrong while saving Purchase Order.", 500, "Transaction Failed");
+		}
 	}
 
 	public function update(Request $request, $id)
@@ -323,7 +327,8 @@ class PurchaseOrderController extends Controller
 		$isError = $this->validateRequest($request->all(), $id);
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
-
+		DB::beginTransaction();
+		try {
 		$data  = PurchaseOrder::where('purchase_order_id', $id)->first();
 		$data->company_id = $request->company_id;
 		$data->company_branch_id = $request->company_branch_id;
@@ -425,7 +430,14 @@ class PurchaseOrderController extends Controller
 				$data->update();
 			}
 		}
+		DB::commit();
+
 		return $this->jsonResponse(['purchase_order_id' => $id], 200, "Update Purchase Order Successfully!");
+	} catch (\Exception $e) {
+		DB::rollBack(); // Rollback on error
+		Log::error('Purchase Order Updating Error: ' . $e->getMessage());
+		return $this->jsonResponse("Something went wrong while updating Purchase Order.", 500, "Transaction Failed");
+	}
 	}
 	public function delete($id, Request $request)
 	{

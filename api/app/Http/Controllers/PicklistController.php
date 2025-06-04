@@ -10,6 +10,8 @@ use App\Models\Picklist;
 use App\Models\PicklistDetail;
 use App\Models\PicklistReceived;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class PicklistController extends Controller
@@ -133,7 +135,6 @@ class PicklistController extends Controller
 			"charge_order.class1",
 			"charge_order.class2",
 			"charge_order.port",
-			"picklist_detail",
 			"picklist_detail.product",
 			"picklist_detail.product.product_type",
 		])->where('picklist_id', $id)->first();
@@ -148,7 +149,6 @@ class PicklistController extends Controller
 
 		// Fetch received picklist history
 		$receivedData = PicklistReceived::with([
-			"picklist_received_detail",
 			"picklist_received_detail.pulled_by",
 			"picklist_received_detail.product",
 			"picklist_received_detail.warehouse"
@@ -215,7 +215,8 @@ class PicklistController extends Controller
 		if ($errors = $this->validateRequest($request->all())) {
 			return $this->jsonResponse($errors, 400, "Request Failed!");
 		}
-
+		DB::beginTransaction();
+		try{
 		$chargeOrder = ChargeOrder::with('charge_order_detail')
 			->findOrFail($request->charge_order_id);
 
@@ -265,10 +266,18 @@ class PicklistController extends Controller
 					]);
 			}
 			PicklistDetail::insert($picklistDetails);
-
+			DB::commit();
 			return $this->jsonResponse([], 200, "Charge Order ({$chargeOrder->document_identity}) Picklist Created Successfully!");
+		}else{
+			DB::rollBack();
+			return $this->jsonResponse([], 200, "No inventory products available for picklist creation.");
 		}
-		return $this->jsonResponse([], 200, "No inventory products available for picklist creation.");
+	} catch (\Exception $e) {
+		DB::rollBack(); // Rollback on error
+		Log::error('Picklist Store Error: ' . $e->getMessage());
+		return $this->jsonResponse("Something went wrong while saving Picklist.", 500, "Transaction Failed");
+	}
+	
 	}
 
 	public function delete($id, Request $request)

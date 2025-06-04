@@ -14,6 +14,7 @@ use App\Models\Product;
 use App\Models\ShipmentDetail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class JobOrderController extends Controller
 {
@@ -94,7 +95,6 @@ class JobOrderController extends Controller
 	public function show($id, Request $request)
 	{
 		$data = JobOrder::with(
-			"job_order_detail",
 			"job_order_detail.charge_order",
 			"job_order_detail.charge_order_detail",
 			"job_order_detail.service_order",
@@ -159,17 +159,18 @@ class JobOrderController extends Controller
 
 	public function store(Request $request)
 	{
+		// Check permissions
+		if (!isPermission('add', 'job_order', $request->permission_list)) {
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+		}
+		
+		$isError = $this->Validator($request->all());
+		if (!empty($isError)) {
+			return $this->jsonResponse($isError, 400, "Request Failed!");
+		}
+		
+		DB::beginTransaction(); // Start transaction
 		try {
-			// Check permissions
-			if (!isPermission('add', 'job_order', $request->permission_list)) {
-				return $this->jsonResponse('Permission Denied!', 403, "No Permission");
-			}
-
-			$isError = $this->Validator($request->all());
-			if (!empty($isError)) {
-				return $this->jsonResponse($isError, 400, "Request Failed!");
-			}
-
 			// Generate UUID and document data
 			$jobOrderId = $this->get_uuid();
 			$document = DocumentType::getNextDocument($this->document_type_id, $request);
@@ -182,10 +183,12 @@ class JobOrderController extends Controller
 
 			$this->createJobOrder($request, $jobOrderId, $document);
 			$this->createJobOrderDetails($request, $jobOrderId, $details);
-
+			DB::commit();
 			return $this->jsonResponse(['job_order_id' => $jobOrderId], 200, 'Job Order Created Successfully!');
 		} catch (\Exception $e) {
-			return $this->jsonResponse('An error occurred', 500, $e->getMessage());
+			DB::rollBack(); // Rollback on error
+			Log::error('Internal Job Order Store Error: ' . $e->getMessage());
+			return $this->jsonResponse("Something went wrong while saving Internal Job Order.", 500, "Transaction Failed");
 		}
 	}
 
@@ -330,8 +333,9 @@ class JobOrderController extends Controller
 		// Validation Rules
 		$isError = $this->Validator($request->all(), $id);
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
+		DB::beginTransaction();
 
-
+		try{
 		$data  = JobOrder::where('job_order_id', $id)->first();
 		$data->company_id = $request->company_id;
 		$data->company_branch_id = $request->company_branch_id;
@@ -352,15 +356,15 @@ class JobOrderController extends Controller
 
 		foreach ($request->details as $detail) {
 			$detail = JobOrderDetail::where('job_order_detail_id', $detail['job_order_detail_id'])->first();
-			// JobOrderDetail::where('job_order_detail_id', $detail['job_order_detail_id'])
-			// 	->update([
-			// 		'status' => $detail['status'] ?? 0,
-			// 		'updated_at' => Carbon::now()
-			// 	]);
 			$this->createCertificate($id, $detail['job_order_detail_id'], $detail, $request->login_user_id);
 		}
-
+		DB::commit();
 		return $this->jsonResponse(['job_order_id' => $id], 200, "Update Job Order Successfully!");
+	} catch (\Exception $e) {
+		DB::rollBack(); // Rollback on error
+		Log::error('Internal Job Order Update Error: ' . $e->getMessage());
+		return $this->jsonResponse("Something went wrong while updating Internal Job Order.", 500, "Transaction Failed");
+	}
 	}
 	public function delete($id, Request $request)
 	{

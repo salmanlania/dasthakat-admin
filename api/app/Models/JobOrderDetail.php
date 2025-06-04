@@ -36,40 +36,40 @@ class JobOrderDetail extends Model
 
     public function charge_order_detail()
     {
-        return $this->hasOne(ChargeOrderDetail::class, 'charge_order_detail_id', 'charge_order_detail_id')->select('*');
+        return $this->belongsTo(ChargeOrderDetail::class, 'charge_order_detail_id', 'charge_order_detail_id')->select('*');
     }
 
     public function charge_order()
     {
-        return $this->hasOne(ChargeOrder::class, 'charge_order_id', 'charge_order_id')->select('*');
+        return $this->belongsTo(ChargeOrder::class, 'charge_order_id', 'charge_order_id')->select('*');
     }
     public function service_order()
     {
-        return $this->hasOne(ServiceOrder::class, 'charge_order_id', 'charge_order_id')->select('*');
+        return $this->belongsTo(ServiceOrder::class, 'charge_order_id', 'charge_order_id')->select('*');
     }
     public function shipment_detail()
     {
-        return $this->hasOne(ShipmentDetail::class, 'product_id', 'product_id')
+        return $this->belongsTo(ShipmentDetail::class, 'product_id', 'product_id')
             ->whereColumn('shipment_detail.charge_order_id', 'charge_order_id')->select('*');
     }
     public function job_order()
     {
-        return $this->hasOne(JobOrder::class, 'job_order_id', 'job_order_id')->select('*');
+        return $this->belongsTo(JobOrder::class, 'job_order_id', 'job_order_id')->select('*');
     }
     public function product()
     {
-        return $this->hasOne(Product::class, 'product_id', 'product_id')->select('*', DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
+        return $this->belongsTo(Product::class, 'product_id', 'product_id')->select('*', DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
     }
     public function product_type()
     {
-        return $this->hasOne(ProductType::class, 'product_type_id', 'product_type_id');
+        return $this->belongsTo(ProductType::class, 'product_type_id', 'product_type_id')->select('*');
     }
     public function unit()
     {
-        return $this->hasOne(Unit::class, 'unit_id', 'unit_id');
+        return $this->belongsTo(Unit::class, 'unit_id', 'unit_id')->select('*');
     }
     public function supplier()
     {
-        return $this->hasOne(Supplier::class, 'supplier_id', 'supplier_id');
+        return $this->belongsTo(Supplier::class, 'supplier_id', 'supplier_id')->select('*');
     }
 }

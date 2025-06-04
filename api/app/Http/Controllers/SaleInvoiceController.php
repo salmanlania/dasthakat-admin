@@ -124,6 +124,7 @@ class SaleInvoiceController extends Controller
 			return $this->jsonResponse($validationError, 400, "Request Failed!");
 		}
 
+		try{
 		// 3. Fetch Reference Data
 		$chargeOrder = ChargeOrder::with('charge_order_detail', 'vessel')->find($request->charge_order_id);
 		if (!$chargeOrder) {

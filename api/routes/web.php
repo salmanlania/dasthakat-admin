@@ -333,6 +333,15 @@ $router->group(['prefix' => 'sale-return'], function ($router) {
    $router->delete('/{id}', 'SaleReturnController@delete');
    $router->post('/bulk-delete', 'SaleReturnController@bulkDelete');
 });
+$router->group(['prefix' => 'stock-return'], function ($router) {
+   $router->get('/', 'StockReturnController@index');
+   $router->get('/{id}', 'StockReturnController@show');
+   $router->post('/', 'StockReturnController@store');
+   $router->post('/bulk-store', 'StockReturnController@bulkStore');
+   $router->put('/{id}', 'StockReturnController@update');
+   $router->delete('/{id}', 'StockReturnController@delete');
+   $router->post('/bulk-delete', 'StockReturnController@bulkDelete');
+});
 $router->group(['prefix' => 'purchase-return'], function ($router) {
    $router->get('/', 'PurchaseReturnController@index');
    $router->get('/{id}', 'PurchaseReturnController@show');

@@ -13,6 +13,8 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
 use App\Models\Supplier;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use PDO;
 
 class PurchaseInvoiceController extends Controller
@@ -87,7 +89,6 @@ class PurchaseInvoiceController extends Controller
 	{
 
 		$data = PurchaseInvoice::with(
-			"purchase_invoice_detail",
 			"purchase_invoice_detail.product",
 			"purchase_invoice_detail.unit",
 			"user",
@@ -150,7 +151,8 @@ class PurchaseInvoiceController extends Controller
 		if (!empty($validationError)) {
 			return $this->jsonResponse($validationError, 400, "Request Failed!");
 		}
-
+		DB::beginTransaction();
+		try{
 		// 3. Fetch Related Purchase Order
 		$purchaseOrder = PurchaseOrder::with('purchase_order_detail')
 			->find($request->purchase_order_id);
@@ -233,10 +235,17 @@ class PurchaseInvoiceController extends Controller
 		$invoiceData['net_amount'] = $totalAmount;
 		if ($totalQuantity > 0) {
 			PurchaseInvoice::create($invoiceData);
+			DB::commit(); // Rollback on error
 			return $this->jsonResponse(['purchase_invoice_id' => $uuid], 200, "Add Purchase Invoice Successfully!");
 		} else {
+			DB::rollBack(); // Rollback on error
 			return $this->jsonResponse(['purchase_invoice_id' => $uuid], 500, "Cannot generate invoice: No items with available quantity.");
 		}
+	} catch (\Exception $e) {
+		DB::rollBack(); // Rollback on error
+		Log::error('Purchase Invoice Store Error: ' . $e->getMessage());
+		return $this->jsonResponse("Something went wrong while saving Purchase Invoice.", 500, "Transaction Failed");
+	}
 	}
 
 
@@ -249,8 +258,8 @@ class PurchaseInvoiceController extends Controller
 		// Validation Rules
 		$isError = $this->validateRequest($request->all(), $id);
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
-
-
+		DB::beginTransaction();
+		try{
 		$data  = PurchaseInvoice::where('purchase_invoice_id', $id)->first();
 		$data->company_id = $request->company_id;
 		$data->company_branch_id = $request->company_branch_id;
@@ -324,8 +333,14 @@ class PurchaseInvoiceController extends Controller
 				}
 			}
 		}
-
+		DB::commit();
+		
 		return $this->jsonResponse(['purchase_invoice_id' => $id], 200, "Update Purchase Invoice Successfully!");
+		} catch (\Exception $e) {
+			DB::rollBack(); // Rollback on error
+			Log::error('Purchase Invoice Updated Error: ' . $e->getMessage());
+			return $this->jsonResponse("Something went wrong while updating Purchase Invoice.", 500, "Transaction Failed");
+		}
 	}
 	public function delete($id, Request $request)
 	{

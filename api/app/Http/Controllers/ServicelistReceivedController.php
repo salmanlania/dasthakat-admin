@@ -8,6 +8,8 @@ use App\Models\Servicelist;
 use App\Models\ServicelistReceived;
 use App\Models\ServicelistReceivedDetail;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class ServicelistReceivedController extends Controller
@@ -18,12 +20,12 @@ class ServicelistReceivedController extends Controller
 	public function show($id, Request $request)
 	{
 		// Fetch the original servicelist
-		$servicelist = Servicelist::with("servicelist_detail", "servicelist_detail.product")
+		$servicelist = Servicelist::with("servicelist_detail.product")
 			->where('servicelist_id', $id)
 			->first();
 
 		// Fetch received servicelist history
-		$receivedData = ServicelistReceived::with("servicelist_received_detail", "servicelist_received_detail.product", "servicelist_received_detail.warehouse")
+		$receivedData = ServicelistReceived::with("servicelist_received_detail.product", "servicelist_received_detail.warehouse")
 			->where('servicelist_id', $id)
 			->orderBy('created_at', 'asc')
 			->get();
@@ -109,8 +111,9 @@ class ServicelistReceivedController extends Controller
 
 		$isError = $this->Validator($request->all());
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
-
-
+		DB::beginTransaction();
+		try{
+	
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument($this->documentTypeId, $request);
 
@@ -150,7 +153,12 @@ class ServicelistReceivedController extends Controller
 		}
 		ServicelistReceivedDetail::insert($servicelistReceivedDetails);
 
-
+		DB::commit();
 		return $this->jsonResponse([], 200, "Servicelist Items Successfully Received.");
+		} catch (\Exception $e) {
+			DB::rollBack(); // Rollback on error
+			Log::error('Servicelist Received Error: ' . $e->getMessage());
+			return $this->jsonResponse("Something went wrong while receiving Servicelist.", 500, "Transaction Failed");
+		}
 	}
 }
