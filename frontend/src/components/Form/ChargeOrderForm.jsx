@@ -146,7 +146,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
       is_event_changed: isEventChanged
     };
 
-    submitType === 'save' ? onSubmit(data, additionalRequest) : submitType === 'saveAndExit' ? onSave(data, additionalRequest) : submitType === 'savePo' ? onSavePo(data, additionalRequest) : null;
+    submitType === 'save' ? await onSubmit(data, additionalRequest) : submitType === 'saveAndExit' ? await onSave(data, additionalRequest) : submitType === 'savePo' ? await onSavePo(data, additionalRequest) : null;
 
     if (additionalRequest === 'CREATE_PO' || submitType === 'CREATE_PO') {
       dispatch(setChargePoID(id));
