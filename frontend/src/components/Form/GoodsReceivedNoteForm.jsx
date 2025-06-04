@@ -675,7 +675,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
         return (
           <Form.Item
             className="m-0"
-            name={`warehouse_id`}
+            name={`warehouse_id-${index}`}
             initialValue={warehouse_id}
             rules={[
               {
@@ -874,7 +874,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
         columns={columns}
         dataSource={goodsReceivedNoteDetails}
         rowClassName={(record) => (record.isDeleted ? 'hidden-row' : '')}
-        rowKey={'id'}
+        rowKey="id"
         size="small"
         scroll={{ x: 'calc(100% - 200px)' }}
         pagination={false}
