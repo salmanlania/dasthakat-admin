@@ -45,7 +45,7 @@ import { DetailSummaryInfo } from './QuotationForm';
 import { AiOutlineConsoleSql } from 'react-icons/ai';
 
 // eslint-disable-next-line react/prop-types
-const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
+const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
   const [form] = Form.useForm();
   const handleError = useError();
   const { id } = useParams();
@@ -146,9 +146,9 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
       is_event_changed: isEventChanged
     };
 
-    submitType === 'save' ? onSubmit(data, additionalRequest) : submitType === 'saveAndExit' ? onSave(data, additionalRequest) : null;
+    submitType === 'save' ? onSubmit(data, additionalRequest) : submitType === 'saveAndExit' ? onSave(data, additionalRequest) : submitType === 'savePo' ? onSavePo(data, additionalRequest) : null;
 
-    if (submitType === 'CREATE_PO') {
+    if (additionalRequest === 'CREATE_PO' || submitType === 'CREATE_PO') {
       dispatch(setChargePoID(id));
     }
   };
@@ -1368,7 +1368,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave }) => {
                 <Button
                   type="primary"
                   loading={isFormSubmitting === 'CREATE_PO' && !poChargeID}
-                  onClick={() => (isFormSubmitting ? null : onFinish('CREATE_PO'))}>
+                  onClick={() => (isFormSubmitting ? null : onFinish('savePo', 'CREATE_PO'))}>
                   Save & Create PO
                 </Button>
               ) : null}

@@ -52,6 +52,7 @@ const EditChargeOrder = () => {
       handleError(error);
     }
   };
+
   const onChargeOrderUpdates = async (data, additionalRequest = null) => {
     try {
       await dispatch(updateChargeOrder({ id, data, additionalRequest })).unwrap();
@@ -82,6 +83,36 @@ const EditChargeOrder = () => {
     }
   };
 
+  const onChargeOrderUpdatePo = async (data, additionalRequest = null) => {
+    try {
+      await dispatch(updateChargeOrder({ id, data, additionalRequest })).unwrap();
+
+      if (additionalRequest === 'CREATE_PICK_LIST') {
+        await dispatch(
+          createChargeOrderPickList({
+            charge_order_id: id
+          })
+        ).unwrap();
+      }
+
+      if (additionalRequest === 'CREATE_SERVICE_LIST') {
+        await dispatch(
+          createChargeOrderServiceList({
+            charge_order_id: id
+          })
+        ).unwrap();
+      }
+
+      // toast.success('Charge Order updated successfully');
+
+      if (additionalRequest !== 'CREATE_PO') {
+        navigate('/charge-order')
+      }
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
   useEffect(() => {
     dispatch(getChargeOrder(id)).unwrap().catch(handleError);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -102,7 +133,7 @@ const EditChargeOrder = () => {
 
       {!isItemLoading && initialFormValues ? (
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <ChargeOrderForm mode="edit" onSubmit={onChargeOrderUpdate} onSave={onChargeOrderUpdates} />
+          <ChargeOrderForm mode="edit" onSubmit={onChargeOrderUpdate} onSave={onChargeOrderUpdates} onSavePo={onChargeOrderUpdatePo} />
         </div>
       ) : null}
 
