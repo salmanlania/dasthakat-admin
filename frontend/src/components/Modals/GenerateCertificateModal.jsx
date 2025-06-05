@@ -124,4 +124,4 @@ const GenerateCertificateModal = ({ open, onClose, jobOrderId }) => {
     );
 };
 
-export default GenerateCertificateModal;
+export default GenerateCertificateModal

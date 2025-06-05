@@ -24,7 +24,7 @@ import { createPickListPrint } from '../../utils/prints/pick-list-print.js';
 import { createIJOPrint } from '../../utils/prints/ijo-print.js';
 import { getPurchaseOrderForPrint } from '../../store/features/purchaseOrderSlice.js';
 import { createPurchaseOrderPrint } from '../../utils/prints/purchase-order-print.js';
-import GenerateCertificateModal from '../../components/Modals/GenerateCertificateModalTable.jsx';
+import GenerateCertificateModal from '../../components/Modals/GenerateCertificateModal.jsx';
 
 const IJO = () => {
   const dispatch = useDispatch();
