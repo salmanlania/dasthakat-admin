@@ -16,13 +16,15 @@ import {
   deleteIJO, getIJOForPrint,
   getIJOList,
   setIJODeleteIDs,
-  setIJOListParams
+  setIJOListParams,
+  getIJO
 } from '../../store/features/ijoSlice';
 import { FaRegFilePdf } from 'react-icons/fa';
 import { createPickListPrint } from '../../utils/prints/pick-list-print.js';
 import { createIJOPrint } from '../../utils/prints/ijo-print.js';
 import { getPurchaseOrderForPrint } from '../../store/features/purchaseOrderSlice.js';
 import { createPurchaseOrderPrint } from '../../utils/prints/purchase-order-print.js';
+import GenerateCertificateModal from '../../components/Modals/GenerateCertificateModalTable.jsx';
 
 const IJO = () => {
   const dispatch = useDispatch();
@@ -34,6 +36,14 @@ const IJO = () => {
   const permissions = user.permission.job_order;
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
+  const [certificateModalOpen, setCertificateModalOpen] = useState(false);
+  const [selectedJobOrderId, setSelectedJobOrderId] = useState(null);
+
+  const openCertificateModal = (id) => {
+    setSelectedJobOrderId(id);
+    setCertificateModalOpen(true);
+  };
+  
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
@@ -72,6 +82,10 @@ const IJO = () => {
       handleError(error);
     }
   };
+
+  // const generateCertificate = (id) => {
+  //   dispatch(getIJO(id)).unwrap().catch(handleError);
+  // }
 
   const columns = [
     {
@@ -302,7 +316,8 @@ const IJO = () => {
               <Button
                 size="small"
                 type="primary"
-                // onClick={() => toast.success('Coming Soon')}
+                // onClick={() => generateCertificate(job_order_id)}
+                onClick={() => openCertificateModal(job_order_id)}
                 className="bg-emerald-600 hover:!bg-emerald-500"
                 icon={<MdWorkspacePremium size={14} />}
               />
@@ -413,6 +428,12 @@ const IJO = () => {
           }}
         />
       </div>
+
+      <GenerateCertificateModal
+        open={certificateModalOpen}
+        onClose={() => setCertificateModalOpen(false)}
+        jobOrderId={selectedJobOrderId}
+      />
 
       <DeleteConfirmModal
         open={deleteModalIsOpen ? true : false}

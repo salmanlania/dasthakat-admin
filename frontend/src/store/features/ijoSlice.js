@@ -43,6 +43,24 @@ export const getIJO = createAsyncThunk('job-order/get', async (id, { rejectWithV
   }
 });
 
+export const putIJOCertificate = createAsyncThunk(
+  'job-order-certificate/put',
+  async ({ id, data }, { rejectWithValue }) => {
+    console.log('id' , id)
+    console.log('id' , {
+      id: id,
+      data: data
+    })
+    try {
+      const res = await api.put(`/job-order/${id}/certificate`, data);
+      console.log('res', res);
+      return res;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const getIJOForPrint = createAsyncThunk(
   'job-order/getForPrint',
   async (id, { rejectWithValue }) => {
