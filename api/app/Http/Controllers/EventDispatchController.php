@@ -10,8 +10,10 @@ use App\Models\EventDispatch;
 use App\Models\Port;
 use App\Models\Product;
 use App\Models\Quotation;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class EventDispatchController extends Controller
 {
@@ -295,6 +297,8 @@ class EventDispatchController extends Controller
 			return $this->jsonResponse('No Charge Order found!', 400, "Not Found");
 		}
 
+		$oldTechnicianIds = !empty($dispatch->technician_id) ? $dispatch->technician_id : [];
+
 		foreach ($chargeOrders as $chargeOrder) {
 			if ($request->has('event_date')) {
 				$chargeOrder->document_date = $request->event_date;
@@ -343,6 +347,52 @@ class EventDispatchController extends Controller
 		}
 		$dispatch->save();
 
+			$newTechnicianIds =  !empty($request->technician_id)? $request->technician_id : [];
+
+			$removed = array_diff($oldTechnicianIds, $newTechnicianIds);
+			$added = array_diff($newTechnicianIds, $oldTechnicianIds);
+			$unchanged = array_intersect($newTechnicianIds, $oldTechnicianIds);
+						
+			// Send messages to removed technicians
+			if (!empty($removed)) {
+				$removedTechs = User::whereIn('user_id', $removed)->get();
+				foreach ($removedTechs as $tech) {
+					$this->sendWhatsAppMessage($tech->phone_no, "You have been removed from the scheduled event.");
+				}
+			}
+
+			// Send messages to added technicians
+			if (!empty($added)) {
+				$addedTechs = User::whereIn('user_id', $added)->get();
+				foreach ($addedTechs as $tech) {
+					$this->sendWhatsAppMessage($tech->phone_no, "You have been added to a scheduled event. Please check!");
+				}
+			}
+		
+			// Notify unchanged technicians of schedule update
+			if (!empty($unchanged)) {
+				$unchangedTechs = User::whereIn('user_id', $unchanged)->get();
+				foreach ($unchangedTechs as $tech) {
+					$this->sendWhatsAppMessage($tech->phone_no, "Scheduling has changed. Please check!");
+				}
+			}
+		
+
 		return $this->jsonResponse(['event' => $id], 200, "Event and Charge Orders Updated Successfully!");
 	}
+	private function sendWhatsAppMessage($number, $message)
+	{  
+		 $config = Setting::where('module', 'whatsapp')->pluck('value', 'field');
+		$setting = [
+			'url' => @$config['whatsapp_api_url'] ? @$config['whatsapp_api_url'] : env('WHATSAPP_API_URL'),
+			'token' => @$config['whatsapp_token'] ? @$config['whatsapp_token'] : env('WHATSAPP_TOKEN'),
+		];
+
+		$data = [
+			'chatId' => $number . "@c.us",
+			'message' => $message,
+		];
+		$this->whatsAppAPI($data, $setting);
+	}
+
 }
