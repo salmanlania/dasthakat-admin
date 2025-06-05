@@ -353,30 +353,31 @@ class EventDispatchController extends Controller
 			$added = array_diff($newTechnicianIds, $oldTechnicianIds);
 			$unchanged = array_intersect($newTechnicianIds, $oldTechnicianIds);
 						
-			// Send messages to removed technicians
-			if (!empty($removed)) {
-				$removedTechs = User::whereIn('user_id', $removed)->get();
-				foreach ($removedTechs as $tech) {
-					$this->sendWhatsAppMessage($tech->phone_no, "Scheduling has changed. Please check!");
+			if(env("WHATSAPP_SERVICES","false") == true){
+				// Send messages to removed technicians
+				if (!empty($removed)) {
+					$removedTechs = User::whereIn('user_id', $removed)->get();
+					foreach ($removedTechs as $tech) {
+						$this->sendWhatsAppMessage($tech->phone_no, "Scheduling has changed. Please check!");
+					}
 				}
-			}
 
-			// Send messages to added technicians
-			if (!empty($added)) {
-				$addedTechs = User::whereIn('user_id', $added)->get();
-				foreach ($addedTechs as $tech) {
-					$this->sendWhatsAppMessage($tech->phone_no, "Scheduling has changed. Please check!");
+				// Send messages to added technicians
+				if (!empty($added)) {
+					$addedTechs = User::whereIn('user_id', $added)->get();
+					foreach ($addedTechs as $tech) {
+						$this->sendWhatsAppMessage($tech->phone_no, "Scheduling has changed. Please check!");
+					}
+				}
+			
+				// Notify unchanged technicians of schedule update
+				if (!empty($unchanged)) {
+					$unchangedTechs = User::whereIn('user_id', $unchanged)->get();
+					foreach ($unchangedTechs as $tech) {
+						$this->sendWhatsAppMessage($tech->phone_no, "Scheduling has changed. Please check!");
+					}
 				}
 			}
-		
-			// Notify unchanged technicians of schedule update
-			if (!empty($unchanged)) {
-				$unchangedTechs = User::whereIn('user_id', $unchanged)->get();
-				foreach ($unchangedTechs as $tech) {
-					$this->sendWhatsAppMessage($tech->phone_no, "Scheduling has changed. Please check!");
-				}
-			}
-		
 
 		return $this->jsonResponse(['event' => $id], 200, "Event and Charge Orders Updated Successfully!");
 	}
