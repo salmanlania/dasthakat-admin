@@ -317,7 +317,7 @@ class JobOrderController extends Controller
 			'type' => $value['type'],
 			'certificate_date' => Carbon::now(),
 			'created_at' => Carbon::now(),
-			'created_by' => $userId,
+			'created_by' => $request->login_user_id,
 		];
 
 		$certificateConfig = [
