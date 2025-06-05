@@ -1,13 +1,15 @@
-import { Modal, Checkbox, Spin, Table } from 'antd';
+import { Modal, Checkbox, Spin, Table, Button } from 'antd';
 import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getIJO, putIJOCertificate } from '../../store/features/ijoSlice';
 import useError from '../../hooks/useError';
 import toast from 'react-hot-toast';
 
 const GenerateCertificateModal = ({ open, onClose, jobOrderId }) => {
+    const { isFormSubmitting, isItemLoading } = useSelector(
+        (state) => state.ijo
+    );
     const [certificates, setCertificates] = useState([]);
-    const [loading, setLoading] = useState(false);
     const [selectedCerts, setSelectedCerts] = useState([]);
     const dispatch = useDispatch();
     const handleError = useError();
@@ -18,7 +20,6 @@ const GenerateCertificateModal = ({ open, onClose, jobOrderId }) => {
         if (!jobOrderId || !open) return;
 
         (async () => {
-            setLoading(true);
             try {
                 const res = await dispatch(getIJO(jobOrderId)).unwrap();
 
@@ -34,8 +35,6 @@ const GenerateCertificateModal = ({ open, onClose, jobOrderId }) => {
 
             } catch (error) {
                 handleError(error);
-            } finally {
-                setLoading(false);
             }
         })();
     }, [jobOrderId, open]);
@@ -52,15 +51,12 @@ const GenerateCertificateModal = ({ open, onClose, jobOrderId }) => {
         };
 
         try {
-            setLoading(true);
             await dispatch(putIJOCertificate({ id: jobOrderId, data })).unwrap();
             setSelectedCerts([]);
             toast.success('Job Order Certificates Generated');
             onClose();
         } catch (error) {
             handleError(error);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -98,10 +94,28 @@ const GenerateCertificateModal = ({ open, onClose, jobOrderId }) => {
             open={open}
             onOk={handleOk}
             onCancel={handleCancel}
-            okText="Generate"
-            okButtonProps={{ disabled: certificates.length === 0 }}
+            footer={[
+                <Button
+                    key="cancel"
+                    onClick={handleCancel}
+                    style={{ marginRight: '8px' }}
+                    className="ant-btn"
+                >
+                    Cancel
+                </Button>,
+                <Button
+                    key="submit"
+                    type="primary"
+                    loading={isFormSubmitting}
+                    onClick={handleOk}
+                    className="ant-btn ant-btn-primary"
+                    disabled={certificates.length === 0}
+                >
+                    Generate
+                </Button>,
+            ]}
         >
-            {loading ? (
+            {isItemLoading ? (
                 <div
                     style={{
                         display: 'flex',
