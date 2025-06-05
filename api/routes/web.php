@@ -168,6 +168,7 @@ $router->group(['prefix' => 'event'], function ($router) {
    $router->get('/{id}/picklists', 'EventController@EventChargeOrdersWithPicklists');
    $router->post('/', 'EventController@store');
    $router->put('/{id}', 'EventController@update');
+   $router->put('/{id}/certificate/', 'EventController@generateCertificate');
    $router->delete('/{id}', 'EventController@delete');
    $router->post('/bulk-delete', 'EventController@bulkDelete');
 });
