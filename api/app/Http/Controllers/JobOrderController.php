@@ -304,7 +304,7 @@ class JobOrderController extends Controller
 			}
 		}
 	}
-	public function generateCertificate(Request $request,$jobOrderId)
+	public function generateCertificate(Request $request,$id)
 	{
 		DB::beginTransaction();
 		try{
@@ -312,7 +312,7 @@ class JobOrderController extends Controller
 		foreach ($Certificate as $key => $value) {
 		$certificateData = [
 			'certificate_id' => $this->get_uuid(),
-			'job_order_id' => $jobOrderId,
+			'job_order_id' => $id,
 			'job_order_detail_id' => "",
 			'type' => $value['type'],
 			'certificate_date' => Carbon::now(),
@@ -339,7 +339,7 @@ class JobOrderController extends Controller
 				$certificateData['sort_order'],
 				Carbon::now()->format('m/Y')
 			);
-			if (!JobOrderDetailCertificate::where('job_order_id', $jobOrderId)->where('type', $value['type'])->exists()) {
+			if (!JobOrderDetailCertificate::where('job_order_id', $id)->where('type', $value['type'])->exists()) {
 				JobOrderDetailCertificate::create($certificateData);
 			}
 		}
