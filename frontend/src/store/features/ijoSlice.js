@@ -48,7 +48,6 @@ export const putIJOCertificate = createAsyncThunk(
   async ({ id, data }, { rejectWithValue }) => {
     try {
       const res = await api.put(`/job-order/${id}/certificate`, data);
-      console.log('res', res);
       return res;
     } catch (err) {
       throw rejectWithValue(err);
