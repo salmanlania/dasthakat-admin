@@ -168,7 +168,6 @@ $router->group(['prefix' => 'event'], function ($router) {
    $router->get('/{id}/picklists', 'EventController@EventChargeOrdersWithPicklists');
    $router->post('/', 'EventController@store');
    $router->put('/{id}', 'EventController@update');
-   $router->put('/{id}/certificate/', 'EventController@generateCertificate');
    $router->delete('/{id}', 'EventController@delete');
    $router->post('/bulk-delete', 'EventController@bulkDelete');
 });
@@ -320,6 +319,7 @@ $router->group(['prefix' => 'job-order'], function ($router) {
    $router->get('/', 'JobOrderController@index');
    $router->get('/{id}', 'JobOrderController@show');
    $router->post('/', 'JobOrderController@store');
+   $router->put('/{id}/certificate', 'EventController@generateCertificate');
    $router->put('/{id}', 'JobOrderController@update');
    $router->delete('/{id}', 'JobOrderController@delete');
    $router->post('/bulk-delete', 'JobOrderController@bulkDelete');
