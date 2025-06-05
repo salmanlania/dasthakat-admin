@@ -357,7 +357,7 @@ class EventDispatchController extends Controller
 			if (!empty($removed)) {
 				$removedTechs = User::whereIn('user_id', $removed)->get();
 				foreach ($removedTechs as $tech) {
-					$this->sendWhatsAppMessage($tech->phone_no, "You have been removed from the scheduled event.");
+					$this->sendWhatsAppMessage($tech->phone_no, "Scheduling has changed. Please check!");
 				}
 			}
 
@@ -365,7 +365,7 @@ class EventDispatchController extends Controller
 			if (!empty($added)) {
 				$addedTechs = User::whereIn('user_id', $added)->get();
 				foreach ($addedTechs as $tech) {
-					$this->sendWhatsAppMessage($tech->phone_no, "You have been added to a scheduled event. Please check!");
+					$this->sendWhatsAppMessage($tech->phone_no, "Scheduling has changed. Please check!");
 				}
 			}
 		
