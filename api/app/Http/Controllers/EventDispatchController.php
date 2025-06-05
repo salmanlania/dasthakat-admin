@@ -382,17 +382,20 @@ class EventDispatchController extends Controller
 	}
 	private function sendWhatsAppMessage($number, $message)
 	{  
-		 $config = Setting::where('module', 'whatsapp')->pluck('value', 'field');
-		$setting = [
+		if(!empty($number)){
+
+			$config = Setting::where('module', 'whatsapp')->pluck('value', 'field');
+			$setting = [
 			'url' => @$config['whatsapp_api_url'] ? @$config['whatsapp_api_url'] : env('WHATSAPP_API_URL'),
 			'token' => @$config['whatsapp_token'] ? @$config['whatsapp_token'] : env('WHATSAPP_TOKEN'),
-		];
-
-		$data = [
-			'chatId' => $number . "@c.us",
-			'message' => $message,
-		];
-		$this->whatsAppAPI($data, $setting);
+			];
+		
+			$data = [
+				'chatId' => $number . "@c.us",
+				'message' => $message,
+			];
+			$this->whatsAppAPI($data, $setting);
+		}
 	}
 
 }
