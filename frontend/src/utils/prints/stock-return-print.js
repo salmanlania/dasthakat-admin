@@ -311,7 +311,7 @@ export const createStockReturnPrint = (data) => {
     addHeader(doc, data, sideMargin);
 
     // Footer
-    addFooter(doc, data, sideMargin, pageHeight - 25);
+    addFooter(doc, data, sideMargin, pageHeight - 18);
   }
 
   doc.setProperties({
