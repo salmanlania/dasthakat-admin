@@ -146,7 +146,6 @@ export const customerSlice = createSlice({
     addCase(getCustomer.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
-
       state.initialFormValues = {
         name: data.name,
         customer_code: data.customer_code,
@@ -172,7 +171,8 @@ export const customerSlice = createSlice({
         email_sales: data.email_sales,
         email_accounting: data.email_accounting,
         rebate_percent: data.rebate_percent,
-        status: data.status
+        status: data.status,
+        block_status: data.block_status
       };
     });
     addCase(getCustomer.rejected, (state) => {

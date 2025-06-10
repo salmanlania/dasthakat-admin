@@ -3,32 +3,32 @@ import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import StockReturnForm from '../../components/Form/stockReturnForm';
+import SaleReturnForm from '../../components/Form/SaleReturnForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
-import { getSaleReturn, updateSaleReturn } from '../../store/features/stockReturnSlice';
+import { getSaleReturn, updateSaleReturn } from '../../store/features/saleReturnSlice';
 
-const EditStockReturn = () => {
+const EditSaleReturn = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();
   const { id } = useParams();
-  const { isItemLoading, initialFormValues } = useSelector((state) => state.stockReturn);
+  const { isItemLoading, initialFormValues } = useSelector((state) => state.saleReturn);
 
-  const onStockReturnUpdate = async (data) => {
+  const onSaleReturnUpdate = async (data) => {
     try {
       await dispatch(updateSaleReturn({ id, data })).unwrap();
-      toast.success('Stock Return updated successfully');
+      toast.success('Sale Return updated successfully');
       dispatch(getSaleReturn(id)).unwrap().catch(handleError);
     } catch (error) {
       handleError(error);
     }
   };
-  const onStockReturnUpdates = async (data) => {
+  const onSaleReturnUpdates = async (data) => {
     try {
       await dispatch(updateSaleReturn({ id, data })).unwrap();
-      toast.success('Stock Return updated successfully');
-      navigate('/stock-return');
+      toast.success('Sale Return updated successfully');
+      navigate('/sale-return');
     } catch (error) {
       handleError(error);
     }
@@ -41,8 +41,8 @@ const EditStockReturn = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>EDIT STOCK RETURN</PageHeading>
-        <Breadcrumb items={[{ title: 'Stock Return' }, { title: 'Edit' }]} separator=">" />
+        <PageHeading>EDIT SALE RETURN</PageHeading>
+        <Breadcrumb items={[{ title: 'Sale Return' }, { title: 'Edit' }]} separator=">" />
       </div>
 
       {isItemLoading && (
@@ -53,11 +53,11 @@ const EditStockReturn = () => {
 
       {!isItemLoading && initialFormValues ? (
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <StockReturnForm mode="edit" onSubmit={onStockReturnUpdate} onSave={onStockReturnUpdates} />
+          <SaleReturnForm mode="edit" onSubmit={onSaleReturnUpdate} onSave={onSaleReturnUpdates} />
         </div>
       ) : null}
     </>
   );
 };
 
-export default EditStockReturn;
+export default EditSaleReturn;

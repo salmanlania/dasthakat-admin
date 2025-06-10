@@ -306,6 +306,55 @@ class JobOrderController extends Controller
 			}
 		}
 	}
+	public function generateCertificate(Request $request,$id)
+	{
+		DB::beginTransaction();
+		try{
+		$Certificate = $request->input('certificate', []);
+		foreach ($Certificate as $key => $value) {
+		$certificateData = [
+			'certificate_id' => $this->get_uuid(),
+			'job_order_id' => $id,
+			'job_order_detail_id' => "",
+			'type' => $value['type'],
+			'certificate_date' => Carbon::now(),
+			'created_at' => Carbon::now(),
+			'created_by' => $request->login_user_id,
+		];
+
+		$certificateConfig = [
+			'LSA/FFE' => ['prefix' => 'GMSH', 'type' => 'LSA/FFE'],
+			'Calibration' => ['prefix' => 'GMSHC', 'type' => 'Calibration'],
+			'LB' => ['prefix' => 'GMSHL', 'type' => 'LB'],
+		];
+
+		if (isset($certificateConfig[$value['type']])) {
+			$config = $certificateConfig[$value['type']];
+			$lastCertificate = JobOrderDetailCertificate::where('type', $config['type'])
+				->orderBy('sort_order', 'desc')
+				->first();
+
+			$certificateData['sort_order'] = ($lastCertificate->sort_order ?? 0) + 1;
+			$certificateData['certificate_number'] = sprintf(
+				'%s/%d/%s',
+				$config['prefix'],
+				$certificateData['sort_order'],
+				Carbon::now()->format('m/Y')
+			);
+			if (!JobOrderDetailCertificate::where('job_order_id', $id)->where('type', $value['type'])->exists()) {
+				JobOrderDetailCertificate::create($certificateData);
+			}
+		}
+	}
+
+		DB::commit();
+		return $this->jsonResponse(['job_order_id' => $id], 200, "Update Job Order Successfully!");
+		}catch (\Exception $e) {
+			DB::rollBack(); // Rollback on error
+			Log::error('Internal Job Order Create Certificate Error: ' . $e->getMessage());
+			return $this->jsonResponse("Something went wrong while creating Internal Job Order Certificate.", 500, "Transaction Failed");
+		}
+	}
 
 	/**
 	 * Update charge order detail with job order references

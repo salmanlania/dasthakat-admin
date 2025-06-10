@@ -41,6 +41,7 @@ import warehouseReducer from './features/warehouseSlice';
 import auditReducer from './features/auditSlice';
 import CompanySettingReducer from './features/companySetting';
 import SaleReturnReducer from './features/saleReturnSlice';
+import StockReturnReducer from './features/stockReturnSlice';
 import PurchaseReturnReducer from './features/purchaseReturnSlice';
 
 const rootReducer = combineReducers({
@@ -78,6 +79,7 @@ const rootReducer = combineReducers({
   purchaseInvoice: purchaseInvoiceReducer,
   saleInvoice: saleInvoiceReducer,
   saleReturn: SaleReturnReducer,
+  stockReturn: StockReturnReducer,
   purchaseReturn: PurchaseReturnReducer,
   goodsReceivedNote: goodsReceivedNoteReducer,
   quotation: quotationReducer,

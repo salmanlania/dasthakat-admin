@@ -43,6 +43,18 @@ export const getIJO = createAsyncThunk('job-order/get', async (id, { rejectWithV
   }
 });
 
+export const putIJOCertificate = createAsyncThunk(
+  'job-order-certificate/put',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const res = await api.put(`/job-order/${id}/certificate`, data);
+      return res;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const getIJOForPrint = createAsyncThunk(
   'job-order/getForPrint',
   async (id, { rejectWithValue }) => {
@@ -161,6 +173,16 @@ export const ijoSlice = createSlice({
       state.isFormSubmitting = false;
     });
     addCase(createIJO.rejected, (state) => {
+      state.isFormSubmitting = false;
+    });
+
+    addCase(putIJOCertificate.pending, (state) => {
+      state.isFormSubmitting = true;
+    });
+    addCase(putIJOCertificate.fulfilled, (state) => {
+      state.isFormSubmitting = false;
+    });
+    addCase(putIJOCertificate.rejected, (state) => {
       state.isFormSubmitting = false;
     });
 

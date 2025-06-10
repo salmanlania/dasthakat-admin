@@ -29,7 +29,7 @@ import {
   setTempChargeOrderID,
   setAnalysisChargeOrderID
 } from '../../store/features/chargeOrderSlice';
-import { getEventJobOrders , getEventServiceOrder} from '../../store/features/dispatchSlice.js';
+import { getEventJobOrders, getEventServiceOrder } from '../../store/features/dispatchSlice.js';
 import { setChargePoID } from '../../store/features/purchaseOrderSlice';
 import { createIJOPrint } from '../../utils/prints/ijo-print.js';
 import { createServiceOrderPrint } from '../../utils/prints/service-order-print.js';
@@ -111,13 +111,13 @@ const ChargeOrder = () => {
   const onCreateChargePO = async (id) => {
     const loadingToast = toast.loading('PO is being processed...');
     try {
-      await dispatch(createChargeOrderPO(id)).unwrap();
+      // await dispatch(createChargeOrderPO(id)).unwrap();
+      dispatch(setChargePoID(id));
       toast.custom(
         (t) => (
           <div
-            className={`${
-              t.visible ? 'animate-enter' : 'animate-leave'
-            } pointer-events-auto flex w-full max-w-md rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5`}>
+            className={`${t.visible ? 'animate-enter' : 'animate-leave'
+              } pointer-events-auto flex w-full max-w-md rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5`}>
             <div className="w-0 flex-1 p-4">
               <div className="flex items-start">
                 <div className="flex-shrink-0 pt-0.5">
@@ -154,7 +154,8 @@ const ChargeOrder = () => {
         }
       );
     } catch (error) {
-      handleError(error);
+      console.log('error', error)
+      // handleError(error);
     } finally {
       toast.dismiss(loadingToast);
     }
@@ -339,6 +340,7 @@ const ChargeOrder = () => {
                 type="primary"
                 icon={<LuClipboardList size={14} />}
                 onClick={() => dispatch(setChargePoID(charge_order_id))}
+                // onClick={() => onCreateChargePO(charge_order_id)}
               />
             </Tooltip>
 
@@ -482,14 +484,14 @@ const ChargeOrder = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: 'checkbox',
-                  selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setChargeOrderDeleteIDs(selectedRowKeys)),
-                  getCheckboxProps: (record) => ({
-                    disabled: record.isEventHeader,
-                    name: record.charge_order_id
-                  })
-                }
+                type: 'checkbox',
+                selectedRowKeys: deleteIDs,
+                onChange: (selectedRowKeys) => dispatch(setChargeOrderDeleteIDs(selectedRowKeys)),
+                getCheckboxProps: (record) => ({
+                  disabled: record.isEventHeader,
+                  name: record.charge_order_id
+                })
+              }
               : null
           }
           loading={isListLoading}

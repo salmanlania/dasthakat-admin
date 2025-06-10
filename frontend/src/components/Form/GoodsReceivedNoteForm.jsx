@@ -98,7 +98,6 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       ),
       total_quantity: totalQuantity
     };
-
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 
@@ -289,7 +288,6 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       const { purchase_order_detail, ...values } = await dispatch(
         getPurchaseOrder(selected.value)
       ).unwrap();
-
       if (values.type === 'Buyout') {
         form.setFieldsValue({
           type: values.type,
@@ -349,11 +347,20 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
           description: detail.description,
           charge_order_detail_id: detail.charge_order_detail_id,
           quantity: detail?.available_quantity ? parseFloat(detail?.available_quantity) : null,
-          unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null
+          unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
+          warehouse_id: null,
+          row_status: 'I',
+          isDeleted: false
         }))
         .filter((item) => item.quantity > 0);
 
       dispatch(setGoodsReceivedNoteDetails(details));
+
+      details.forEach((_, index) => {
+        form.setFieldsValue({
+          [`warehouse_id-${index}`]: null
+        });
+      });
     } catch (error) {
       handleError(error);
     }

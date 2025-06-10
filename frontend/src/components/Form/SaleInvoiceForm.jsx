@@ -1,11 +1,8 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from 'react';
-import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Select, Table } from 'antd';
+import { Button, Col, DatePicker, Form, Input, Row, Select, Table } from 'antd';
 import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
-import { BiPlus } from 'react-icons/bi';
-import { BsThreeDotsVertical } from 'react-icons/bs';
-import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom'
 import useError from '../../hooks/useError';
@@ -14,6 +11,7 @@ import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
 import { DetailSummaryInfo } from './QuotationForm';
+import SaleReturnModal from '../Modals/ReturnModal'
 
 const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
@@ -33,6 +31,9 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
   const [totalQuantity, setTotalQuantity] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
   const [submitAction, setSubmitAction] = useState(null);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [returnModalVisible, setReturnModalVisible] = useState(false);
 
   const onFinish = (values) => {
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
@@ -258,173 +259,217 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
     },
   ];
 
+  const saleReturnRows = selectedRows.filter(row =>
+    row.product_type_no === '2' || row.product_type_no === 2
+  );
+
   return (
-    <Form
-      name="saleInvoice"
-      layout="vertical"
-      autoComplete="off"
-      form={form}
-      onFinish={onFinish}
-      initialValues={
-        mode === 'edit'
-          ? {
-            ...initialFormValues
-          }
-          : { document_date: dayjs() }
-      }
-      scrollToFirstError>
-      {/* Make this sticky */}
-      <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
-        <span className="text-gray-500">Sale Invoice No:</span>
-        <span
-          className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
-            } rounded px-1`}
-          onClick={() => {
-            if (mode !== 'edit') return;
-            navigator.clipboard.writeText(initialFormValues?.document_identity);
-            toast.success('Copied');
-          }}>
-          {mode === 'edit' ? initialFormValues?.document_identity : 'AUTO'}
-        </span>
-      </p>
+    <>
+      <Form
+        name="saleInvoice"
+        layout="vertical"
+        autoComplete="off"
+        form={form}
+        onFinish={onFinish}
+        initialValues={
+          mode === 'edit'
+            ? {
+              ...initialFormValues
+            }
+            : { document_date: dayjs() }
+        }
+        scrollToFirstError>
+        {/* Make this sticky */}
+        <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
+          <span className="text-gray-500">Sale Invoice No:</span>
+          <span
+            className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
+              } rounded px-1`}
+            onClick={() => {
+              if (mode !== 'edit') return;
+              navigator.clipboard.writeText(initialFormValues?.document_identity);
+              toast.success('Copied');
+            }}>
+            {mode === 'edit' ? initialFormValues?.document_identity : 'AUTO'}
+          </span>
+        </p>
 
-      <Row gutter={12}>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item
-            name="document_date"
-            label="Sale Invoice Date"
-            disabled
-            rules={[{ required: true, message: 'charge order date is required' }]}>
-            <DatePicker format="MM-DD-YYYY" className="w-full" />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={5} lg={5}>
-          <Form.Item name="customer_po_no" label="Customer PO No">
-            <Input disabled />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={5} lg={5}>
-          <Form.Item name="ref_document_identity" label="Quote No">
-            <Input disabled />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={5} lg={5}>
-          <Form.Item
-            name="salesman_id"
-            label="Salesman"
-            rules={[{ required: true, message: 'Salesman is required' }]}>
-            <AsyncSelect
-              endpoint="/salesman"
-              valueKey="salesman_id"
-              labelKey="name"
+        <Row gutter={12}>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item
+              name="document_date"
+              label="Sale Invoice Date"
               disabled
-              labelInValue
-            />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item name="event_id" label="Event">
-            <AsyncSelect
-              endpoint="/event"
-              valueKey="event_id"
-              disabled
-              labelKey="event_name"
-              labelInValue
-            />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item name="vessel_id" label="Vessel">
-            <Select labelInValue disabled />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item name="charger_order_id" label="Charge Order No">
-            <Select labelInValue disabled />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item name="customer_id" label="Customer">
-            <Select labelInValue disabled />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item
-            name="port_id"
-            label="Port"
-            initialValue={
-              initialFormValues?.port_id && initialFormValues?.name
-                ? { value: initialFormValues.port_id, label: initialFormValues.name }
-                : null
-            }>
-            <AsyncSelect
-              endpoint="/port"
-              valueKey="port_id"
-              labelKey="name"
-              labelInValue
-              disabled
-            />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="vessel_billing_address" label="Vessel Billing Address">
-            <Input />
-          </Form.Item>
-        </Col>
-      </Row>
-      <Table
-        columns={columns}
-        dataSource={saleInvoiceDetail}
-        rowKey={'charge_order_detail_id'}
-        size="small"
-        scroll={{ x: 'calc(100% - 200px)' }}
-        pagination={false}
-        sticky={{
-          offsetHeader: 56
-        }}
-      />
-
-      <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
-        <Row gutter={[12, 12]}>
+              rules={[{ required: true, message: 'charge order date is required' }]}>
+              <DatePicker format="MM-DD-YYYY" className="w-full" />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={5} lg={5}>
+            <Form.Item name="customer_po_no" label="Customer PO No">
+              <Input disabled />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={5} lg={5}>
+            <Form.Item name="ref_document_identity" label="Quote No">
+              <Input disabled />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={5} lg={5}>
+            <Form.Item
+              name="salesman_id"
+              label="Salesman"
+              rules={[{ required: true, message: 'Salesman is required' }]}>
+              <AsyncSelect
+                endpoint="/salesman"
+                valueKey="salesman_id"
+                labelKey="name"
+                disabled
+                labelInValue
+              />
+            </Form.Item>
+          </Col>
           <Col span={24} sm={12} md={6} lg={6}>
-            <DetailSummaryInfo
-              title="Total Quantity:"
-              value={totalQuantity || 0}
-            />
-            <DetailSummaryInfo
-              title="Total Amount:"
-              value={totalAmount || 0}
-            />
+            <Form.Item name="event_id" label="Event">
+              <AsyncSelect
+                endpoint="/event"
+                valueKey="event_id"
+                disabled
+                labelKey="event_name"
+                labelInValue
+              />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={6} lg={6}>
+            <Form.Item name="vessel_id" label="Vessel">
+              <Select labelInValue disabled />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={6} lg={6}>
+            <Form.Item name="charger_order_id" label="Charge Order No">
+              <Select labelInValue disabled />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={6} lg={6}>
+            <Form.Item name="customer_id" label="Customer">
+              <Select labelInValue disabled />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={6} lg={6}>
+            <Form.Item
+              name="port_id"
+              label="Port"
+              initialValue={
+                initialFormValues?.port_id && initialFormValues?.name
+                  ? { value: initialFormValues.port_id, label: initialFormValues.name }
+                  : null
+              }>
+              <AsyncSelect
+                endpoint="/port"
+                valueKey="port_id"
+                labelKey="name"
+                labelInValue
+                disabled
+              />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="vessel_billing_address" label="Vessel Billing Address">
+              <Input />
+            </Form.Item>
           </Col>
         </Row>
-      </div>
+        <Table
+          columns={columns}
+          dataSource={saleInvoiceDetail}
+          rowKey={'charge_order_detail_id'}
+          size="small"
+          scroll={{ x: 'calc(100% - 200px)' }}
+          pagination={false}
+          sticky={{
+            offsetHeader: 56
+          }}
+          rowSelection={{
+            selectedRowKeys,
+            onChange: (newSelectedRowKeys, newSelectedRows) => {
+              setSelectedRowKeys(newSelectedRowKeys);
+              setSelectedRows(newSelectedRows);
+            }
+          }}
+        />
 
-      <div className="mt-4 flex items-center justify-end gap-2">
-        <Link to="/sale-invoice">
-          <Button className="w-28">Exit</Button>
-        </Link>
-        <Button
-          type="primary"
-          className="w-28"
-          loading={isFormSubmitting && submitAction === 'save'}
-          onClick={() => {
-            setSubmitAction('save');
-            form.submit()
-          }}>
-          Save
-        </Button>
-        <Button
-          type="primary"
-          className="w-28 bg-green-600 hover:!bg-green-500"
-          loading={isFormSubmitting && submitAction === 'saveAndExit'}
-          onClick={() => {
-            setSubmitAction('saveAndExit');
-            form.submit();
-          }}>
-          Save & Exit
-        </Button>
-      </div>
-    </Form>
+        <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
+          <Row gutter={[12, 12]}>
+            <Col span={24} sm={12} md={6} lg={6}>
+              <DetailSummaryInfo
+                title="Total Quantity:"
+                value={totalQuantity || 0}
+              />
+              <DetailSummaryInfo
+                title="Total Amount:"
+                value={totalAmount || 0}
+              />
+            </Col>
+          </Row>
+        </div>
+
+        <div className="mt-4 flex items-center justify-end gap-2">
+          <Link to="/sale-invoice">
+            <Button className="w-28">Exit</Button>
+          </Link>
+          <Button
+            type="primary"
+            className="w-28"
+            loading={isFormSubmitting && submitAction === 'save'}
+            onClick={() => {
+              setSubmitAction('save');
+              form.submit()
+            }}>
+            Save
+          </Button>
+          <Button
+            type="primary"
+            className="w-28 bg-green-600 hover:!bg-green-500"
+            loading={isFormSubmitting && submitAction === 'saveAndExit'}
+            onClick={() => {
+              setSubmitAction('saveAndExit');
+              form.submit();
+            }}>
+            Save & Exit
+          </Button>
+          {
+            saleInvoiceDetail?.some(i => i?.product_type_no !== 1) ?
+              <>
+                <Button
+                  className="w-32 bg-amber-500 text-white hover:!bg-amber-400"
+                  type="primary"
+                  disabled={saleReturnRows.length === 0}
+                  onClick={() => {
+                    const hasRestrictedProduct = selectedRows.some(
+                      row => row.product_type_no === '1' || row.product_type_no === 1
+                    );
+
+                    if (hasRestrictedProduct) {
+                      toast.error(`Service Product Can't be return`)
+                      return
+                    }
+                    setReturnModalVisible(true);
+                  }}
+                >
+                  Sale Return
+                </Button>
+              </>
+              : null
+          }
+        </div>
+      </Form>
+      <SaleReturnModal
+        visible={returnModalVisible}
+        onClose={() => {
+          setReturnModalVisible(false)
+        }}
+        data={saleReturnRows}
+      />
+    </>
   );
 };
 

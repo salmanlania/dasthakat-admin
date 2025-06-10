@@ -142,6 +142,7 @@ export const vesselSlice = createSlice({
         imo: data.imo,
         name: data.name,
         billing_address: data.billing_address,
+        block_status: data.block_status,
         customer_id: data.customer_id
           ? {
               value: data.customer_id,

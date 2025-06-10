@@ -319,6 +319,7 @@ $router->group(['prefix' => 'job-order'], function ($router) {
    $router->get('/', 'JobOrderController@index');
    $router->get('/{id}', 'JobOrderController@show');
    $router->post('/', 'JobOrderController@store');
+   $router->put('/{id}/certificate', 'JobOrderController@generateCertificate');
    $router->put('/{id}', 'JobOrderController@update');
    $router->delete('/{id}', 'JobOrderController@delete');
    $router->post('/bulk-delete', 'JobOrderController@bulkDelete');

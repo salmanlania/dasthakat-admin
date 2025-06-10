@@ -15,21 +15,21 @@ import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
 
 import {
-  getStockReturnList,
-  setStockReturnListParams,
-  stockReturnDelete,
-  setStockReturnDeleteIDs,
-  bulkDeleteStockReturn,
-  getStockReturnInvoice
-} from '../../store/features/stockReturnSlice';
+  getSaleReturnList,
+  setSaleReturnListParams,
+  saleReturnDelete,
+  setSaleReturnDeleteIDs,
+  bulkDeleteSaleReturn,
+  getSaleReturnInvoice
+} from '../../store/features/saleReturnSlice';
 
-import { createStockReturnPrint } from '../../utils/prints/stock-return-print';
+import { createSaleReturnPrint } from '../../utils/prints/sale-return-print';
 
-const StockReturn = () => {
+const SaleReturn = () => {
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs, listID } = useSelector(
-    (state) => state.stockReturn
+    (state) => state.saleReturn
   );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.sale_return;
@@ -47,13 +47,13 @@ const StockReturn = () => {
     document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null
   };
 
-  const printStockReturn = async (id) => {
+  const printSaleReturn = async (id) => {
     const loadingToast = toast.loading('Loading print...');
 
     try {
-      const data = await dispatch(getStockReturnInvoice(id)).unwrap();
+      const data = await dispatch(getSaleReturnInvoice(id)).unwrap();
       toast.dismiss(loadingToast);
-      createStockReturnPrint(data);
+      createSaleReturnPrint(data);
     } catch (error) {
       handleError(error);
     }
@@ -61,9 +61,9 @@ const StockReturn = () => {
 
   const onSaleReturnDelete = async (id) => {
     try {
-      await dispatch(stockReturnDelete(id)).unwrap();
-      toast.success('Stock Return deleted successfully');
-      dispatch(getStockReturnList(formattedParams)).unwrap();
+      await dispatch(saleReturnDelete(id)).unwrap();
+      toast.success('Sale Return deleted successfully');
+      dispatch(getSaleReturnList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -73,10 +73,10 @@ const StockReturn = () => {
   const onBulkDelete = async () => {
     closeDeleteModal();
     try {
-      await dispatch(bulkDeleteStockReturn(deleteIDs)).unwrap();
-      toast.success('Stock Return deleted successfully');
+      await dispatch(bulkDeleteSaleReturn(deleteIDs)).unwrap();
+      toast.success('Sale Return deleted successfully');
       closeDeleteModal();
-      await dispatch(getStockReturnList(formattedParams)).unwrap();
+      await dispatch(getSaleReturnList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -86,13 +86,13 @@ const StockReturn = () => {
     {
       title: (
         <div>
-          <p>Stock Invoice Date</p>
+          <p>Sale Invoice Date</p>
           <div onClick={(e) => e.stopPropagation()}>
             <DatePicker
               size="small"
               value={params.document_date}
               className="font-normal"
-              onChange={(date) => dispatch(setStockReturnListParams({ document_date: date }))}
+              onChange={(date) => dispatch(setSaleReturnListParams({ document_date: date }))}
               format="MM-DD-YYYY"
             />
           </div>
@@ -109,7 +109,7 @@ const StockReturn = () => {
     {
       title: (
         <div>
-          <p>Stock Return No</p>
+          <p>Sale Return No</p>
           <Input
             className="font-normal"
             size="small"
@@ -118,7 +118,7 @@ const StockReturn = () => {
             value={params.document_identity}
             onChange={(e) =>
               dispatch(
-                setStockReturnListParams({
+                setSaleReturnListParams({
                   document_identity: e.target.value
                 })
               )
@@ -143,7 +143,7 @@ const StockReturn = () => {
             valueKey="vessel_id"
             labelKey="name"
             value={params.vessel_id}
-            onChange={(value) => dispatch(setStockReturnListParams({ vessel_id: value }))}
+            onChange={(value) => dispatch(setSaleReturnListParams({ vessel_id: value }))}
           />
         </div>
       ),
@@ -165,7 +165,7 @@ const StockReturn = () => {
             value={params.charge_no}
             onChange={(e) =>
               dispatch(
-                setStockReturnListParams({
+                setSaleReturnListParams({
                   charge_order_no: e.target.value
                 })
               )
@@ -190,7 +190,7 @@ const StockReturn = () => {
             valueKey="event_id"
             labelKey="event_code"
             value={params.event_id}
-            onChange={(value) => dispatch(setStockReturnListParams({ event_id: value }))}
+            onChange={(value) => dispatch(setSaleReturnListParams({ event_id: value }))}
           />
         </div>
       ),
@@ -216,7 +216,7 @@ const StockReturn = () => {
             value={params.status}
             onChange={(e) =>
               dispatch(
-                setStockReturnListParams({
+                setSaleReturnListParams({
                   status: e.target.value
                 })
               )
@@ -246,7 +246,7 @@ const StockReturn = () => {
           {permissions.edit ? (
             <>
               <Tooltip title="Edit">
-                <Link to={`/stock-return/edit/${sale_return_id}`}>
+                <Link to={`/sale-return/edit/${sale_return_id}`}>
                   <Button
                     size="small"
                     type="primary"
@@ -275,7 +275,7 @@ const StockReturn = () => {
                   type="primary"
                   className="bg-rose-600 hover:!bg-rose-500"
                   icon={<FaRegFilePdf size={16} />}
-                  onClick={() => printStockReturn(sale_return_id)}
+                  onClick={() => printSaleReturn(sale_return_id)}
                 />
               </Tooltip>
             </>
@@ -293,7 +293,7 @@ const StockReturn = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    dispatch(getStockReturnList(formattedParams)).unwrap().catch(handleError);
+    dispatch(getSaleReturnList(formattedParams)).unwrap().catch(handleError);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params.page,
@@ -312,8 +312,8 @@ const StockReturn = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>STOCK RETURN</PageHeading>
-        <Breadcrumb items={[{ title: 'Stock Return' }, { title: 'List' }]} separator=">" />
+        <PageHeading>SALE RETURN</PageHeading>
+        <Breadcrumb items={[{ title: 'Sale Return' }, { title: 'List' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
@@ -322,7 +322,7 @@ const StockReturn = () => {
             placeholder="Search..." allowClear
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) => dispatch(setStockReturnListParams({ search: e.target.value }))}
+            onChange={(e) => dispatch(setSaleReturnListParams({ search: e.target.value }))}
           />
 
           <div className="flex items-center gap-2">
@@ -347,7 +347,7 @@ const StockReturn = () => {
                 type: 'checkbox',
                 selectedRowKeys: deleteIDs,
                 onChange: (selectedRowKeys) =>
-                  dispatch(setStockReturnDeleteIDs(selectedRowKeys))
+                  dispatch(setSaleReturnDeleteIDs(selectedRowKeys))
               }
               : null
           }
@@ -359,11 +359,11 @@ const StockReturn = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} Stock invoice`
+            showTotal: (total) => `Total ${total} Sale invoice`
           }}
           onChange={(page, _, sorting) => {
             dispatch(
-              setStockReturnListParams({
+              setSaleReturnListParams({
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
@@ -392,4 +392,4 @@ const StockReturn = () => {
   );
 };
 
-export default StockReturn;
+export default SaleReturn;

@@ -168,6 +168,28 @@ const ChargeOrderModal = () => {
       return;
     }
 
+    const { vessel_block_status, customer_block_status } = initialFormValues;
+
+    let message = ''
+
+    if (vessel_block_status === 'yes' && customer_block_status === 'yes') {
+      message += `Charge order can't be processed because the vessel and customer are on the block list.`;
+      toast.error(message);
+      return;
+    }
+
+    if (vessel_block_status === 'yes') {
+      message += `Charge order can't be processed because the vessel is on the block list.`;
+      toast.error(message);
+      return;
+    }
+
+    if (customer_block_status === 'yes') {
+      message += `Charge order can't be processed because the customer is on the block list.`;
+      toast.error(message);
+      return;
+    }
+
     const selectedDetails = quotationDetails.filter((detail) =>
       selectedRowKeys.includes(detail.id)
     );

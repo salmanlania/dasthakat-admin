@@ -35,7 +35,7 @@ const addHeader = (doc, data, sideMargin) => {
 
   // Logo
 
-  // Stock Return Box
+  // Sale Return Box
   // Draw the rectangle (outer border)
   doc.setDrawColor(0, 0, 0);
   doc.setLineWidth(1); // Set border thickness
@@ -45,7 +45,7 @@ const addHeader = (doc, data, sideMargin) => {
   // Add the text inside the box
   doc.setFontSize(15); // Set font size
   doc.setFont('times', 'bolditalic'); // Set font style (italic and bold)
-  doc.text('Stock Return', 26, 39); // Centered text
+  doc.text('Sale Return', 26, 39); // Centered text
 
   // *** Right side boxes ***
   let startX = 126;
@@ -209,11 +209,11 @@ const addFooter = (doc, data, sideMargin, pageHeight) => {
   doc.text(`Page ${currentPage}`, 190, pageHeight + 10);
 };
 
-export const createStockReturnPrint = (data) => {
+export const createSaleReturnPrint = (data) => {
   const doc = new jsPDF();
   const sideMargin = 4;
 
-  // Stock Return Items Table
+  // Sale Return Items Table
   const table2Column = [
     'S#',
     'IMPA',

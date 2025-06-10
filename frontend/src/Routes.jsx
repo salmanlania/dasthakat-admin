@@ -86,6 +86,8 @@ const EditSaleInvoice = lazy(() => import('./pages/SaleInvoice/EditSaleInvoice')
 const StockReturn = lazy(() => import('./pages/StockReturn'));
 const EditStockReturn = lazy(() => import('./pages/StockReturn/EditStockReturn'));
 
+const SaleReturn = lazy(() => import('./pages/SaleReturn'));
+const EditSaleReturn = lazy(() => import('./pages/SaleReturn/EditSaleReturn'));
 
 const PurchaseReturn = lazy(() => import('./pages/PurchaseReturn'));
 const EditPurchaseReturn = lazy(() => import('./pages/PurchaseReturn/EditPurchaseReturn'));
@@ -120,7 +122,7 @@ const EditShipment = lazy(() => import('./pages/Shipment/EditShipment'));
 
 const ServiceOrder = lazy(() => import('./pages/ServiceOrder'));
 
-const Scheduling = lazy(() => import('./pages/Scheduling/'));
+const Scheduling = lazy(() => import('./pages/Scheduling'));
 
 function Routes() {
   const router = createBrowserRouter(
@@ -592,6 +594,22 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditStockReturn />
+              </Suspense>
+            )
+          },
+          {
+            path: '/sale-return',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <SaleReturn />
+              </Suspense>
+            )
+          },
+          {
+            path: '/sale-return/edit/:id',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditSaleReturn />
               </Suspense>
             )
           },
