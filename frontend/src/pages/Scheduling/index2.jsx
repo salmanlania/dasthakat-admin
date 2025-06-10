@@ -12,7 +12,7 @@ import {
   message
 } from 'antd';
 import dayjs from 'dayjs';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef, useLayoutEffect } from 'react';
 import toast from 'react-hot-toast';
 import { FaRegFilePdf } from 'react-icons/fa';
 import { TbEdit } from 'react-icons/tb';
@@ -40,6 +40,7 @@ import { FaRegFileExcel } from 'react-icons/fa6';
 import { CopyOutlined } from '@ant-design/icons';
 
 const Scheduling = () => {
+  const scrollXRef = useRef(0);
   const { RangePicker } = DatePicker;
   const dispatch = useDispatch();
   const handleError = useError();
@@ -51,7 +52,19 @@ const Scheduling = () => {
   const permissions = user.permission.dispatch;
   const [tableKey, setTableKey] = useState(0);
   const [isOldChecked, setIsOldChecked] = useState(false);
+  const [shouldRestoreScroll, setShouldRestoreScroll] = useState(false);
   const [formatDate, setFormatDate] = useState([])
+
+  useLayoutEffect(() => {
+    if (!shouldRestoreScroll) return;
+
+    const scrollContainer = document.querySelector('.ant-table-body');
+    if (scrollContainer) {
+      scrollContainer.scrollLeft = scrollXRef.current;
+    }
+
+    setShouldRestoreScroll(false);
+  }, [shouldRestoreScroll, tableKey]);
 
   const [notesModalIsOpen, setNotesModalIsOpen] = useState({
     open: false,
@@ -115,15 +128,23 @@ const Scheduling = () => {
 
   const updateValue = async (id, key, value) => {
     try {
+
+      const scrollContainer = document.querySelector('.ant-table-body');
+      if (scrollContainer) {
+        scrollXRef.current = scrollContainer.scrollLeft;
+      }
+
       await dispatch(
         updateDispatch({
           id,
           data: { [key]: value }
         })
       ).unwrap();
-      dispatch(getDispatchList(getFilteredParams())).unwrap();
+      await dispatch(getDispatchList(getFilteredParams())).unwrap();
 
       setTableKey((prev) => prev + 1);
+
+      setShouldRestoreScroll(true);
     } catch (error) {
       handleError(error);
     }
@@ -253,7 +274,9 @@ const Scheduling = () => {
     { label: 'Partial', value: 'Partial' },
     { label: 'PPW Pending', value: 'PPW Pending' },
     { label: 'Samples pending', value: 'Samples pending' },
-    { label: 'Completed', value: 'Completed' }
+    { label: 'Completed', value: 'Completed' },
+    { label: 'On Hold', value: 'On Hold' },
+    { label: 'Cancelled', value: 'Cancelled' },
   ];
 
   const columns = [

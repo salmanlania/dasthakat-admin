@@ -61,7 +61,7 @@ const PurchaseOrderModal = () => {
           data: { charge_order_id: poChargeID, vendors: payload }
         })
       );
-      toast.success('Purchase Order created successfully');
+      // toast.success('Purchase Order created successfully');
       dispatch(setChargePoID(null));
       setDetails([]);
       if (initialFormValues) {

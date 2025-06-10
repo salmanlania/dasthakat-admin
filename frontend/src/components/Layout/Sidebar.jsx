@@ -4,7 +4,7 @@ import { BiChevronLeft } from 'react-icons/bi';
 import { FaRegUser } from 'react-icons/fa';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import { IoSearchSharp } from 'react-icons/io5';
-import { LuCalculator, LuClipboardList, LuWarehouse , LuPackage, LuServer } from 'react-icons/lu';
+import { LuCalculator, LuClipboardList, LuWarehouse, LuPackage, LuServer } from 'react-icons/lu';
 import { MdOutlineAdminPanelSettings, MdOutlineDashboard } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -70,7 +70,7 @@ const Sidebar = () => {
     !permissions?.port?.list &&
     !permissions?.vessel?.list &&
     !permissions?.event?.list;
-    !permissions?.setting?.update;
+  !permissions?.setting?.update;
 
   const userManagementPermission = !permissions?.user?.list && !permissions?.user_permission?.list;
 
@@ -89,7 +89,7 @@ const Sidebar = () => {
     !permissions?.charge_order?.list &&
     !permissions?.purchase_order?.list &&
     !permissions?.job_order?.list;
-    !permissions?.service_order?.list;
+  !permissions?.service_order?.list;
 
   const warehousingPermission =
     !permissions?.good_received_note?.list &&
@@ -97,7 +97,7 @@ const Sidebar = () => {
     !permissions?.shipment?.list &&
     !permissions?.servicelist?.list;
 
-  const accountingPermission = !permissions?.purchase_invoice?.list;
+  const accountingPermission = !permissions?.purchase_invoice?.list ;
 
   const LogisticsPermission = !permissions?.dispatch?.list;
   const systemPermission = !permissions?.audit?.list;
@@ -348,13 +348,18 @@ const Sidebar = () => {
           key: 'sale-invoice',
           label: <Link to="/sale-invoice">Sale Invoice</Link>,
           disabled: !permissions?.sale_invoice?.list
-        }
+        },
+        {
+          key: 'sale-return',
+          label: <Link to="/sale-return">Sale Return</Link>,
+          disabled: !permissions?.sale_return?.list
+        },
       ]
     },
     {
       key: 'logistics',
       label: 'Logistics',
-      icon: <LuPackage  size={18} />,
+      icon: <LuPackage size={18} />,
       disabled: LogisticsPermission,
       children: [
         {
@@ -367,7 +372,7 @@ const Sidebar = () => {
     {
       key: 'system',
       label: 'System',
-      icon: <LuServer  size={18} />,
+      icon: <LuServer size={18} />,
       disabled: systemPermission,
       children: [
         {
@@ -435,7 +440,7 @@ const Sidebar = () => {
       if (e.ctrlKey && e.key === 'k') {
         e.preventDefault();
         if (isCollapsed) dispatch(toggleSidebar(false));
-        searchRef.current?.focus(); 
+        searchRef.current?.focus();
       }
     };
 
@@ -454,9 +459,8 @@ const Sidebar = () => {
       collapsedWidth="0"
       theme="light"
       collapsed={isCollapsed}
-      className={`${isSmallScreen ? '!fixed' : '!sticky'} ${
-        isCollapsed ? '' : 'border-r'
-      } scrollbar !left-0 !top-0 z-50 h-screen overflow-y-auto`}
+      className={`${isSmallScreen ? '!fixed' : '!sticky'} ${isCollapsed ? '' : 'border-r'
+        } scrollbar !left-0 !top-0 z-50 h-screen overflow-y-auto`}
       width={240}>
       <div className="m-2 flex flex-col items-center justify-center gap-2 rounded-xl bg-slate-200 p-4 px-2">
         {isSmallScreen && (

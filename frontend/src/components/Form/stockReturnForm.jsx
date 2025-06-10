@@ -8,19 +8,19 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom'
 import useError from '../../hooks/useError';
 import { getProduct } from '../../store/features/productSlice';
-import { changeSaleReturnDetailValue } from '../../store/features/saleReturnSlice';
+import { changeStockReturnDetailValue } from '../../store/features/stockReturnSlice';
 import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
 import { DetailSummaryInfo } from './QuotationForm';
 
-const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
+const stockReturnForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const handleError = useError();
   const dispatch = useDispatch();
   const { id } = useParams();
-  const { isFormSubmitting, initialFormValues, saleReturnDetail } = useSelector(
-    (state) => state.saleReturn
+  const { isFormSubmitting, initialFormValues, stockReturnDetail } = useSelector(
+    (state) => state.stockReturn
   );
 
   const POType = Form.useWatch('type', form);
@@ -39,7 +39,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
     const data = {
       ...values,
       picklist_id: initialFormValues?.picklist_id ? initialFormValues?.picklist_id : null,
-      sale_return_detail: saleReturnDetail.map(({ id, ...detail }) => ({
+      sale_return_detail: stockReturnDetail.map(({ id, ...detail }) => ({
         ...detail,
         amount: detail.amount ? detail.amount : null,
         quantity: detail.quantity ? detail.quantity : null,
@@ -137,17 +137,17 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
     }
     setTotalQuantity(initialFormValues?.totalQuantity || '');
     setTotalAmount(initialFormValues?.totalAmount || '');
-    if (saleReturnDetail?.length > 0) {
-      const totalAmt = saleReturnDetail.reduce((acc, item) => {
+    if (stockReturnDetail?.length > 0) {
+      const totalAmt = stockReturnDetail.reduce((acc, item) => {
         return acc + (item.quantity || 0) * (item.rate || 0);
       }, 0);
-      const totalQty = saleReturnDetail.reduce((acc, item) => {
+      const totalQty = stockReturnDetail.reduce((acc, item) => {
         return acc + (parseFloat(item.quantity) || 0);
       }, 0);
       setTotalQuantity(totalQty);
       setTotalAmount(totalAmt);
     }
-  }, [initialFormValues, form, mode, saleReturnDetail]);
+  }, [initialFormValues, form, mode, stockReturnDetail]);
 
   const columns = [
     {
@@ -229,7 +229,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
               value={quantity}
               onChange={(value) =>
                 dispatch(
-                  changeSaleReturnDetailValue({
+                  changeStockReturnDetailValue({
                     index,
                     key: 'quantity',
                     value: value
@@ -286,7 +286,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
             disabled
             onChange={(value) =>
               dispatch(
-                changeSaleReturnDetailValue({
+                changeStockReturnDetailValue({
                   index,
                   key: 'amount',
                   value: value
@@ -302,7 +302,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
 
   return (
     <Form
-      name="saleReturn"
+      name="stockReturn"
       layout="vertical"
       autoComplete="off"
       form={form}
@@ -451,7 +451,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
       </Row>
       <Table
         columns={columns}
-        dataSource={saleReturnDetail}
+        dataSource={stockReturnDetail}
         rowKey={'id'}
         size="small"
         scroll={{ x: 'calc(100% - 200px)' }}
@@ -477,7 +477,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
       </div>
 
       <div className="mt-4 flex items-center justify-end gap-2">
-        <Link to="/sale-return">
+        <Link to="/stock-return">
           <Button className="w-28">Exit</Button>
         </Link>
         <Button
@@ -505,4 +505,4 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
   );
 };
 
-export default SaleReturnForm;
+export default stockReturnForm;

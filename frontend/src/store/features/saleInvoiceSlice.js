@@ -188,10 +188,11 @@ export const saleInvoiceSlice = createSlice({
         product_id: detail.product
           ? { value: detail.product.product_id, label: detail.product.product_name }
           : null,
-        product_type_id: detail.product_type
+        product_type_no: detail?.product ? detail?.product?.product_type_id : 4,
+        product_type_id: detail?.product
           ? {
-            value: detail.product_type.product_type_id,
-            label: detail.product_type.name
+            value: detail?.product?.product_type_id,
+            label: detail?.product?.product_type_id.name
           }
           : null,
         product_name:
