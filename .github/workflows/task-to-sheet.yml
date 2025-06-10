@@ -3,8 +3,7 @@ name: Log commit to Google Sheet
 on:
 
   push:
-    branches:
-      - development
+
 
 jobs:
   log-commit:
