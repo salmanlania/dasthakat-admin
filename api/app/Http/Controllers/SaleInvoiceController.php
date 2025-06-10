@@ -12,6 +12,8 @@ use App\Models\SaleInvoice;
 use App\Models\SaleInvoiceDetail;
 use App\Models\Shipment;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SaleInvoiceController extends Controller
 {
