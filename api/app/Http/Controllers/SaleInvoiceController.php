@@ -6,6 +6,7 @@ use App\Models\ChargeOrder;
 use App\Models\DocumentType;
 use App\Models\GRN;
 use App\Models\GRNDetail;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\SaleInvoice;
