@@ -64,39 +64,48 @@ class SaleInvoiceController extends Controller
 	}
 
 	public function show($id, Request $request)
-	{
+{
+    $data = SaleInvoice::with(
+        "sale_invoice_detail",
+        "sale_invoice_detail.charge_order_detail",
+        "sale_invoice_detail.product",
+        "sale_invoice_detail.unit",
+        "charge_order",
+        "charge_order.salesman",
+        "charge_order.service_order",
+        "charge_order.event",
+        "charge_order.vessel",
+        "charge_order.customer",
+        "charge_order.flag",
+        "charge_order.agent",
+        "charge_order.port",
+        "charge_order.quotation",
+        "charge_order.quotation.payment"
+    )->where('sale_invoice_id', $id)->first();
 
-		$data = SaleInvoice::with(
-			"sale_invoice_detail",
-			"sale_invoice_detail.charge_order_detail",
-			"sale_invoice_detail.product",
-			"sale_invoice_detail.unit",
-			"charge_order",
-			"charge_order.salesman",
-			"charge_order.service_order",
-			"charge_order.event",
-			"charge_order.vessel",
-			"charge_order.customer",
-			"charge_order.flag",
-			"charge_order.agent",
-			"charge_order.port",
-			"charge_order.quotation",
-			"charge_order.quotation.payment",
-		)
-			->where('sale_invoice_id', $id)->first();
+    if (!$data) {
+        return $this->jsonResponse(null, 404, "Sale Invoice not found");
+    }
 
-		$data->shipment = Shipment::where('charge_order_id', $data->charge_order_id)->orderby('created_at', 'desc')->first();
+    $data->shipment = Shipment::where('charge_order_id', $data->charge_order_id)
+        ->orderBy('created_at', 'desc')
+        ->first();
 
-		foreach($data as &$detail){
-			if(!empty($detail['product_id'])){
-			$Product = Product::with("product_type")->find($detail['product_id']);
-				$detail->product_type = $Product->product_type;
-			}else{
-				$detail->product_type = ['product_type_id'=>4,"name"=>"Others"];
-			}
-		}
-		return $this->jsonResponse($data, 200, "Sale Invoice Data");
-	}
+    foreach ($data->sale_invoice_detail as &$detail) {
+        if (!empty($detail->product_id)) {
+            $product = Product::with('product_type')->where('product_id', $detail->product_id)->first();
+            $detail->product_type = $product->product_type ?? null;
+        } else {
+            $detail->product_type = (object)[
+                'product_type_id' => 4,
+                'name' => "Others"
+            ];
+        }
+    }
+
+    return $this->jsonResponse($data, 200, "Sale Invoice Data");
+}
+
 
 	public function validateRequest($request, $id = null)
 	{
