@@ -8,9 +8,6 @@ use App\Models\GRN;
 use App\Models\GRNDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Models\PurchaseInvoice;
-use App\Models\PurchaseInvoiceDetail;
-use App\Models\PurchaseOrder;
 use App\Models\SaleInvoice;
 use App\Models\SaleInvoiceDetail;
 use App\Models\Shipment;
@@ -123,6 +120,7 @@ class SaleInvoiceController extends Controller
 		if (!empty($validationError)) {
 			return $this->jsonResponse($validationError, 400, "Request Failed!");
 		}
+		DB::beginTransaction();
 
 		try{
 		// 3. Fetch Reference Data
@@ -196,10 +194,19 @@ class SaleInvoiceController extends Controller
 
 		if ($totalQuantity > 0) {
 			SaleInvoice::create($invoiceData);
+			DB::commit();
+
 			return $this->jsonResponse(['sale_invoice_id' => $uuid], 200, "Add Sale Invoice Successfully!");
 		} else {
+			DB::rollBack(); // Rollback on error
+
 			return $this->jsonResponse(['sale_invoice_id' => $uuid], 500, "Cannot generate invoice: No items with available quantity.");
 		}
+	} catch (\Exception $e) {
+		DB::rollBack(); // Rollback on error
+		Log::error('Sale Invoice Store Error: ' . $e->getMessage());
+		return $this->jsonResponse("Something went wrong while saving Sale Invoice.", 500, "Transaction Failed");
+	}
 	}
 
 
