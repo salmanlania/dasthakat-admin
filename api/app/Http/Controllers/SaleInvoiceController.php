@@ -87,6 +87,14 @@ class SaleInvoiceController extends Controller
 
 		$data->shipment = Shipment::where('charge_order_id', $data->charge_order_id)->orderby('created_at', 'desc')->first();
 
+		foreach($data as &$detail){
+			if(!empty($detail['product_id'])){
+			$Product = Product::with("product_type")->find($detail['product_id']);
+				$detail->product_type = $Product->product_type;
+			}else{
+				$detail->product_type = ['product_type_id'=>4,"name"=>"Others"];
+			}
+		}
 		return $this->jsonResponse($data, 200, "Sale Invoice Data");
 	}
 
