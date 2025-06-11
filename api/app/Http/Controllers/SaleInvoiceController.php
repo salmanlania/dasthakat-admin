@@ -6,7 +6,11 @@ use App\Models\ChargeOrder;
 use App\Models\DocumentType;
 use App\Models\GRN;
 use App\Models\GRNDetail;
+use App\Models\Picklist;
+use App\Models\PicklistDetail;
 use App\Models\Product;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\SaleInvoice;
@@ -92,17 +96,32 @@ class SaleInvoiceController extends Controller
         ->orderBy('created_at', 'desc')
         ->first();
 
-    foreach ($data->sale_invoice_detail as &$detail) {
-        if (!empty($detail->product_id)) {
-            $product = Product::with('product_type')->where('product_id', $detail->product_id)->first();
-            $detail->product_type = $product->product_type ?? null;
-        } else {
-            $detail->product_type = (object)[
-                'product_type_id' => 4,
-                'name' => "Others"
-            ];
-        }
-    }
+    // foreach ($data->sale_invoice_detail as &$detail) {
+    //     if (!empty($detail->product_id)) {
+    //         $product = Product::with('product_type')->where('product_id', $detail->product_id)->first();
+    //         $detail->product_type = $product->product_type ?? null;
+    //     } else {
+    //         $detail->product_type = (object)[
+    //             'product_type_id' => 4,
+    //             'name' => "Others"
+    //         ];
+    //     }
+    // }
+	foreach ($data->sale_invoice_detail as $detail) {
+	$Product = Product::with('product_type')->where('product_id', $detail->product_id)->first();
+		if ($Product->product_type_id == 2) {
+			$detail->picklist_detail = PicklistDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->first() ?? null;
+			$detail->picklist = Picklist::where('picklist_id', $detail->picklist_detail->picklist_id)->first() ?? null;
+		} else if ($detail->product_type_id == 3 || $detail->product_type_id != 1) {
+			$detail->purchase_order_detail = PurchaseOrderDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->first() ?? null;
+			$detail->purchase_order = PurchaseOrder::where('purchase_order_id', $detail->purchase_order_detail->purchase_order_id)->first() ?? null;
+		}
+		$detail->product_type = $Product->product_type ?? 
+		(object)[
+	        'product_type_id' => 4,
+	        'name' => "Others"
+		];
+	}
 
     return $this->jsonResponse($data, 200, "Sale Invoice Data");
 }
