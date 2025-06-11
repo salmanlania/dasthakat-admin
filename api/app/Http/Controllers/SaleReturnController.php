@@ -28,9 +28,9 @@ class SaleReturnController extends Controller
 	{
 		$document_identity = $request->input('document_identity', '');
 		$document_date = $request->input('document_date', '');
-		$status = $request->input('status', '');
 		$charge_order_no = $request->input('charge_order_no', '');
 		$sale_invoice_no = $request->input('sale_invoice_no', '');
+		$quotation_no = $request->input('quotation_no', '');
 		$event_id = $request->input('event_id', '');
 		$vessel_id = $request->input('vessel_id', '');
 		
@@ -40,14 +40,18 @@ class SaleReturnController extends Controller
 		$sort_column = $request->input('sort_column', 'sale_return.created_at');
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
-		$data = SaleReturn::LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'sale_return.charge_order_id')
-			->LeftJoin('event as e', 'e.event_id', '=', 'co.event_id')
+		$data = SaleReturn::
+		LeftJoin('quotation as q', 'q.document_identity', '=', 'co.ref_document_identity')
+		->LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'sale_return.charge_order_id')
+		->LeftJoin('event as e', 'e.event_id', '=', 'co.event_id')
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'co.vessel_id')
 			->LeftJoin('sale_invoice as si', 'si.sale_invoice_id', '=', 'sale_return.sale_invoice_id');
 
 		$data = $data->where('sale_return.company_id', '=', $request->company_id);
 		$data = $data->where('sale_return.company_branch_id', '=', $request->company_branch_id);
 
+		if (!empty($quotation_no))
+			$data = $data->where('q.document_identity', 'like', "%" . $quotation_no. '%');
 		if (!empty($sale_invoice_no))
 			$data = $data->where('si.document_identity', 'like', "%" . $sale_invoice_no. '%');
 		if (!empty($charge_order_no))
@@ -68,13 +72,14 @@ class SaleReturnController extends Controller
 				$query
 					->Where('co.document_identity', 'like', '%' . $search . '%')
 					->OrWhere('si.document_identity', 'like', '%' . $search . '%')
+					->OrWhere('q.document_identity', 'like', '%' . $search . '%')
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
 					->OrWhere('v.name', 'like', '%' . $search . '%')
 					->OrWhere('sale_return.document_identity', 'like', '%' . $search . '%');
 			});
 		}
 
-		$data = $data->select('sale_return.*', 'co.document_identity as charge_no', 'e.event_code', 'v.name as vessel_name', 'si.document_identity as sale_invoice_no');
+		$data = $data->select('sale_return.*', 'q.document_identity as quotation_no', 'co.document_identity as charge_no', 'e.event_code', 'v.name as vessel_name', 'si.document_identity as sale_invoice_no');
 		$data = $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
