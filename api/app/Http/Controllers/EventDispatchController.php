@@ -353,7 +353,7 @@ class EventDispatchController extends Controller
 			$added = array_diff($newTechnicianIds, $oldTechnicianIds);
 			$unchanged = array_intersect($newTechnicianIds, $oldTechnicianIds);
 						
-			if(env("WHATSAPP_SERVICES","false") == true && $dispatch->event_date >= date('Y-m-d')){
+			if(env("WHATSAPP_SERVICES","false") == true && ( $dispatch->event_date == date('Y-m-d') || $dispatch->event_date == date('Y-m-d', strtotime('+1 day'))) ){
 				// Send messages to removed technicians
 				if (!empty($removed)) {
 					$removedTechs = User::whereIn('user_id', $removed)->get();
