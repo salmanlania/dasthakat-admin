@@ -54,7 +54,7 @@ class SaleReturnController extends Controller
 			$data = $data->where('co.document_identity', 'like', '%' . $charge_order_no . '%');
 		if (!empty($event_id))
 			$data = $data->where('co.event_id', '=', $event_id);
-		if (!empty($ship_via))
+		
 		if (!empty($vessel_id))
 			$data = $data->where('co.vessel_id', '=', $vessel_id);
 		if (!empty($document_identity))
@@ -101,7 +101,7 @@ class SaleReturnController extends Controller
 			'charge_order.quotation.term',
 			'charge_order.quotation.payment',
 			'created_by_user',
-			'updated_by_user',
+			'updated_by_user'
 		)
 			->where('sale_return_id', $id)
 			->first();
@@ -285,7 +285,7 @@ class SaleReturnController extends Controller
 				$saleReturn->total_quantity = $SaleInvoiceDetailIns->sum('quantity');
 				$saleReturn->total_amount = $SaleInvoiceDetailIns->sum('amount');
 				$saleReturn->save();
-			}
+			
 
 			DB::commit();
 			return $this->jsonResponse(['sale_return_id' => $id], 200, 'Sale Return Updated Successfully!');
