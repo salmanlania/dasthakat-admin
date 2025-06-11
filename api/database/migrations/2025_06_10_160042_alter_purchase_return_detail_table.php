@@ -10,7 +10,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('purhcase_return_detail', function (Blueprint $table) {
+        Schema::table('purchase_return_detail', function (Blueprint $table) {
             $table->char('warehouse_id', 36)->nullable()->after('description');
         });
    
@@ -20,7 +20,7 @@ return new class extends Migration
     public function down(): void
     {
         
-        Schema::table('purhcase_return_detail', function (Blueprint $table) {
+        Schema::table('purchase_return_detail', function (Blueprint $table) {
             $table->dropColumn('warehouse_id');
         });
 
