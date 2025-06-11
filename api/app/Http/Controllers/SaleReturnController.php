@@ -114,9 +114,9 @@ class SaleReturnController extends Controller
 	{
 		$rules = [
 			'sale_invoice_id' => ['required'],
-			'sale_invoice_detail' => 'required|array',
-			'sale_invoice_detail.*.sale_invoice_detail_id' => 'required',
-			'sale_invoice_detail.*.quantity' => 'required|numeric|min:1',
+			'sale_return_detail' => 'required|array',
+			'sale_return_detail.*.sale_invoice_detail_id' => 'required',
+			'sale_return_detail.*.quantity' => 'required|numeric|min:1',
 		];
 
 		$validator = Validator::make($request, $rules);
@@ -173,9 +173,9 @@ class SaleReturnController extends Controller
 			$totalAmount = 0;
 			$index = 0;
 
-			if ($request->sale_invoice_detail) {
+			if ($request->sale_return_detail) {
 
-				foreach ($request->sale_invoice_detail as $detail) {
+				foreach ($request->sale_return_detail as $detail) {
 					$SaleInvoiceDetail = SaleInvoiceDetail::find($detail['sale_invoice_detail_id']);
 
 					$amount = ($SaleInvoiceDetail->rate ?? 0) * $detail['quantity'];
