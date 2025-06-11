@@ -109,14 +109,14 @@ class SaleInvoiceController extends Controller
     // }
 	foreach ($data->sale_invoice_detail as $detail) {
 	$Product = Product::with('product_type')->where('product_id', $detail->product_id)->first();
-		if ($Product->product_type_id == 2) {
+		if ($Product?->product_type_id == 2) {
 			$detail->picklist_detail = PicklistDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->first() ?? null;
 			$detail->picklist = Picklist::where('picklist_id', $detail->picklist_detail->picklist_id)->first() ?? null;
-		} else if ($detail->product_type_id == 3 || $detail->product_type_id != 1) {
+		} else if ($Product?->product_type_id == 3 || $Product?->product_type_id != 1) {
 			$detail->purchase_order_detail = PurchaseOrderDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->first() ?? null;
 			$detail->purchase_order = PurchaseOrder::where('purchase_order_id', $detail->purchase_order_detail->purchase_order_id)->first() ?? null;
 		}
-		$detail->product_type = $Product->product_type ?? 
+		$detail->product_type = $Product?->product_type ?? 
 		(object)[
 	        'product_type_id' => 4,
 	        'name' => "Others"
