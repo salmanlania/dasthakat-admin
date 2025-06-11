@@ -41,8 +41,8 @@ class SaleReturnController extends Controller
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
 		$data = SaleReturn::
-		LeftJoin('quotation as q', 'q.document_identity', '=', 'co.ref_document_identity')
-		->LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'sale_return.charge_order_id')
+		LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'sale_return.charge_order_id')
+		->LeftJoin('quotation as q', 'q.document_identity', '=', 'co.ref_document_identity')
 		->LeftJoin('event as e', 'e.event_id', '=', 'co.event_id')
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'co.vessel_id')
 			->LeftJoin('sale_invoice as si', 'si.sale_invoice_id', '=', 'sale_return.sale_invoice_id');
