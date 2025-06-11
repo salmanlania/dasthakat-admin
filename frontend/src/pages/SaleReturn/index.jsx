@@ -28,7 +28,7 @@ import { createSaleReturnPrint } from '../../utils/prints/sale-return-print';
 const SaleReturn = () => {
   const dispatch = useDispatch();
   const handleError = useError();
-  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs, listID } = useSelector(
+  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
     (state) => state.saleReturn
   );
   const { user } = useSelector((state) => state.auth);
@@ -134,23 +134,27 @@ const SaleReturn = () => {
     },
     {
       title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Vessel</p>
-          <AsyncSelect
-            endpoint="/vessel"
+        <div>
+          <p>Quoation No</p>
+          <Input
+            className="font-normal"
             size="small"
-            className="w-full font-normal"
-            valueKey="vessel_id"
-            labelKey="name"
-            value={params.vessel_id}
-            onChange={(value) => dispatch(setSaleReturnListParams({ vessel_id: value }))}
+            onClick={(e) => e.stopPropagation()}
+            value={params.quotation_no}
+            onChange={(e) =>
+              dispatch(
+                setSaleReturnListParams({
+                  quotation_no: e.target.value
+                })
+              )
+            }
           />
         </div>
       ),
-      dataIndex: 'vessel_name',
-      key: 'vessel_name',
+      dataIndex: 'quotation_no',
+      key: 'quotation_no',
       sorter: true,
-      width: 200,
+      width: 180,
       ellipsis: true
     },
     {
@@ -175,57 +179,6 @@ const SaleReturn = () => {
       ),
       dataIndex: 'charge_no',
       key: 'charge_no',
-      sorter: true,
-      width: 180,
-      ellipsis: true
-    },
-    {
-      title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Event</p>
-          <AsyncSelect
-            endpoint="/event"
-            size="small"
-            className="w-full font-normal"
-            valueKey="event_id"
-            labelKey="event_code"
-            value={params.event_id}
-            onChange={(value) => dispatch(setSaleReturnListParams({ event_id: value }))}
-          />
-        </div>
-      ),
-      dataIndex: 'event_code',
-      key: 'event_code',
-      sorter: true,
-      width: 200,
-      ellipsis: true,
-      render: (text, record) => {
-        if (record.isEventHeader) return null;
-        return text;
-      }
-    },
-    {
-      title: (
-        <div>
-          <p>Status</p>
-          <Input
-            className="font-normal"
-            size="small"
-            allowClear
-            onClick={(e) => e.stopPropagation()}
-            value={params.status}
-            onChange={(e) =>
-              dispatch(
-                setSaleReturnListParams({
-                  status: e.target.value
-                })
-              )
-            }
-          />
-        </div>
-      ),
-      dataIndex: 'status',
-      key: 'status',
       sorter: true,
       width: 180,
       ellipsis: true

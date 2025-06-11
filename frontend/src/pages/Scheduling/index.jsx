@@ -253,7 +253,9 @@ const Scheduling = () => {
     { label: 'Partial', value: 'Partial' },
     { label: 'PPW Pending', value: 'PPW Pending' },
     { label: 'Samples pending', value: 'Samples pending' },
-    { label: 'Completed', value: 'Completed' }
+    { label: 'Completed', value: 'Completed' },
+    { label: 'On Hold', value: 'On Hold' },
+    { label: 'Cancelled', value: 'Cancelled' },
   ];
 
   const columns = [

@@ -195,7 +195,7 @@ export const saleReturnListSlice = createSlice({
         charger_order_id: data?.charge_order?.document_identity,
         port_id: data?.charge_order?.port?.name,
         ref_document_identity: data?.charge_order?.ref_document_identity,
-        picklist_id: data?.picklist_id ? data?.picklist_id : null,
+        sale_invoice_id: data?.sale_invoice_id ? data?.sale_invoice_id : null,
         ship_to: data?.ship_to ? data?.ship_to : null,
         ship_via: data?.ship_via ? data?.ship_via : null,
         return_date: data?.return_date ? data?.return_date : null,
@@ -203,7 +203,7 @@ export const saleReturnListSlice = createSlice({
       state.saleReturnDetail = data.sale_return_detail.map((detail) => ({
         id: detail.sale_return_detail_id,
         sale_return_detail_id: detail.sale_return_detail_id,
-        picklist_detail_id: detail?.picklist_detail_id ? detail?.picklist_detail_id : null,
+        sale_invoice_detail_id: detail?.sale_invoice_detail_id ? detail?.sale_invoice_detail_id : null,
         warehouse_id: detail?.warehouse_id ? detail?.warehouse_id : null,
         product_code: detail.product ? detail.product.product_code : null,
         product_id: detail.product
@@ -216,9 +216,9 @@ export const saleReturnListSlice = createSlice({
           }
           : null,
         product_name:
-          detail.charge_order_detail.product_type_id == '4'
-            ? detail.product_name || detail.charge_order_detail.product_name
-            : detail?.product?.name,
+          detail.charge_order_detail
+            ? detail?.product?.name
+            : detail.product_name || detail.charge_order_detail.product_name,
         product_description: detail.product_description,
         charge_order_detail_id: detail.charge_order_detail_id,
         description: detail.description,

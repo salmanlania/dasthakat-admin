@@ -6,7 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import StockReturnForm from '../../components/Form/stockReturnForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
-import { getSaleReturn, updateSaleReturn } from '../../store/features/stockReturnSlice';
+import { getStockReturn, updateStockReturn } from '../../store/features/stockReturnSlice';
 
 const EditStockReturn = () => {
   const dispatch = useDispatch();
@@ -17,16 +17,16 @@ const EditStockReturn = () => {
 
   const onStockReturnUpdate = async (data) => {
     try {
-      await dispatch(updateSaleReturn({ id, data })).unwrap();
+      await dispatch(updateStockReturn({ id, data })).unwrap();
       toast.success('Stock Return updated successfully');
-      dispatch(getSaleReturn(id)).unwrap().catch(handleError);
+      dispatch(getStockReturn(id)).unwrap().catch(handleError);
     } catch (error) {
       handleError(error);
     }
   };
   const onStockReturnUpdates = async (data) => {
     try {
-      await dispatch(updateSaleReturn({ id, data })).unwrap();
+      await dispatch(updateStockReturn({ id, data })).unwrap();
       toast.success('Stock Return updated successfully');
       navigate('/stock-return');
     } catch (error) {
@@ -35,7 +35,7 @@ const EditStockReturn = () => {
   };
   
   useEffect(() => {
-    dispatch(getSaleReturn(id)).unwrap().catch(handleError);
+    dispatch(getStockReturn(id)).unwrap().catch(handleError);
   }, []);
 
   return (

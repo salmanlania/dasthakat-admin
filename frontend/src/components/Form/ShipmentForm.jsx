@@ -7,7 +7,7 @@ import { getChargeOrder } from '../../store/features/chargeOrderSlice';
 import { getEventChargeOrders, setChargeOrderDetails } from '../../store/features/shipmentSlice';
 import AsyncSelect from '../AsyncSelect';
 import toast from 'react-hot-toast';
-import SaleReturnModal from '../Modals/ShipmentReturnModal'
+import StockReturnModal from '../Modals/ShipmentReturnModal'
 import PurchaseReturnModal from '../Modals/ShipmentPurchaseReturnModal'
 
 const ShipmentForm = ({ mode = 'create', onSubmit }) => {
@@ -350,7 +350,7 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
 
         <div className="mt-4 flex items-center justify-end gap-2">
           <Link to="/shipment">
-            <Button className="w-28">Cancel</Button>
+            <Button className="w-28">Exit</Button>
           </Link>
           {
             initialFormValues?.document_type_id === "48" ?
@@ -371,7 +371,7 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
                     setReturnModalVisible(true);
                   }}
                 >
-                  Sale Return
+                  Stock Return
                 </Button>
                 <Button
                   className="w-32 bg-amber-500 text-white hover:!bg-amber-400"
@@ -415,7 +415,7 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
           )}
         </div>
       </Form>
-      <SaleReturnModal
+      <StockReturnModal
         visible={returnModalVisible}
         onClose={() => {
           setReturnModalVisible(false)

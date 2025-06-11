@@ -3,10 +3,10 @@ import { Modal, Table, Input, Button, Select, Form } from 'antd';
 import toast from 'react-hot-toast';
 import AsyncSelect from '../AsyncSelect';
 import { useSelector, useDispatch } from 'react-redux';
-import { stockReturn } from '../../store/features/stockReturnSlice'
+import { returnStockReturn } from '../../store/features/stockReturnSlice'
 import useError from '../../hooks/useError';
 
-const ShipmentReturnModal = ({ visible, onClose, data }) => {
+const PickListReturnModal = ({ visible, onClose, data, onRefresh }) => {
     const dispatch = useDispatch();
     const [form] = Form.useForm();
     const { user } = useSelector((state) => state.auth);
@@ -14,7 +14,7 @@ const ShipmentReturnModal = ({ visible, onClose, data }) => {
     const handleError = useError();
 
     const [tableData, setTableData] = useState([]);
-
+    
     useEffect(() => {
         if (visible) {
             setTableData(
@@ -31,44 +31,29 @@ const ShipmentReturnModal = ({ visible, onClose, data }) => {
             setTableData([]);
         }
     }, [visible, data]);
-
+    
     const handleReturn = async () => {
         try {
             await form.validateFields();
+            const picklist_id = tableData[0]?.picklist_id || null;
             const status = 'created'
-            const multiple = true;
-            const groupedData = {};
-            tableData.forEach((item) => {
-                const id = item.picklist_id;
-                if (!groupedData[id]) {
-                    groupedData[id] = [];
-                }
-                groupedData[id].push(item);
-            });
-
-            const finalData = Object.entries(groupedData).map(([picklist_id, items]) => {
-                const stock_return_detail = items.map((item) => ({
-                    picklist_detail_id: item.picklist_detail_id,
+            const stock_return_detail = tableData.map((item) => {
+                const detail = {
+                    picklist_detail_id: item.id,
                     quantity: item.return_quantity,
-                    warehouse_id: item.warehouse_id?.value || null
-                }));
-
-                return {
-                    picklist_id,
-                    status,
-                    multiple,
-                    stock_return_detail
+                    warehouse_id: item.warehouse_id?.value ? item.warehouse_id?.value : null,
                 };
+                return detail;
             });
-
-            const payload = {
-                stock_returns: [...finalData]
+            const data = {
+                picklist_id,
+                status,
+                stock_return_detail
             }
-
-            await dispatch(stockReturn(payload)).unwrap();
-
+            await dispatch(returnStockReturn(data)).unwrap();
             toast.success('Stock Return created successfully');
             onClose();
+            onRefresh?.();
         } catch (error) {
             handleError(error)
         }
@@ -94,8 +79,8 @@ const ShipmentReturnModal = ({ visible, onClose, data }) => {
         },
         {
             title: 'Description',
-            dataIndex: 'description',
-            key: 'description'
+            dataIndex: 'product_description',
+            key: 'product_description'
         },
         {
             title: 'PO Quantity',
@@ -181,17 +166,7 @@ const ShipmentReturnModal = ({ visible, onClose, data }) => {
             title="Return Selected Items"
             open={visible}
             onCancel={onClose}
-            // width={800}
-            width="95%"
-            style={{
-                maxWidth: '1200px',
-                top: 20
-            }}
-            bodyStyle={{
-                padding: '16px 8px',
-                maxHeight: '70vh',
-                overflow: 'auto'
-            }}
+            width={800}
             footer={[
                 <Button key="cancel" onClick={() => onClose()}>
                     Cancel
@@ -201,20 +176,17 @@ const ShipmentReturnModal = ({ visible, onClose, data }) => {
                 </Button>
             ]}
         >
-            <div style={{ overflowX: 'auto',overflowY: 'auto', maxHeight: 400 }}>
-                <Form form={form}>
-                    <Table
-                        dataSource={tableData}
-                        columns={columns}
-                        rowKey="id"
-                        pagination={false}
-                        size="small"
-                        style={{ minWidth: '600px' }}
-                    />
-                </Form>
-            </div>
+            <Form form={form}>
+                <Table
+                    dataSource={tableData}
+                    columns={columns}
+                    rowKey="id"
+                    pagination={false}
+                    size="small"
+                />
+            </Form>
         </Modal>
     );
 };
 
-export default ShipmentReturnModal;
+export default PickListReturnModal;

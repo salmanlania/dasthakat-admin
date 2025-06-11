@@ -4,6 +4,8 @@ import toast from 'react-hot-toast';
 import AsyncSelect from '../AsyncSelect';
 import { useSelector, useDispatch } from 'react-redux';
 import { returnSaleInvoice } from '../../store/features/saleReturnSlice'
+import { returnStockReturn } from '../../store/features/stockReturnSlice'
+import { returnPurchaseOrder } from '../../store/features/purchaseReturnSlice'
 import useError from '../../hooks/useError';
 
 const ReturnModal = ({ visible, onClose, data, onRefresh }) => {
@@ -35,24 +37,63 @@ const ReturnModal = ({ visible, onClose, data, onRefresh }) => {
     const handleReturn = async () => {
         try {
             await form.validateFields();
-            const picklist_id = tableData[0]?.picklist_id || null;
-            const status = 'created'
-            const sale_return_detail = tableData.map((item, index) => {
+            const type_id = tableData.map(item => item?.product_type_id?.value ?? null)[0];
+            const sale_invoice_id = tableData[0]?.sale_invoice_id || null;
+            const sale_return_detail = tableData.map((item) => {
                 const detail = {
-                    picklist_detail_id: item.id,
+                    sale_invoice_detail_id: item.sale_invoice_detail_id,
                     quantity: item.return_quantity,
                     warehouse_id: item.warehouse_id?.value ? item.warehouse_id?.value : null,
+                };
+                return detail;
+            });
+
+            const picklist_id = tableData[0]?.picklist_id || null;
+            const status = 'created'
+            // stock
+            const stock_return_detail = tableData.map((item) => {
+                const detail = {
+                    picklist_detail_id: item.picklist_detail_id,
+                    quantity: item.return_quantity,
+                    warehouse_id: item.warehouse_id?.value ? item.warehouse_id?.value : null,
+                };
+                return detail;
+            });
+
+            // purchase
+            const purchase_order_id = tableData[0]?.purchase_order_id || null;
+            const purchase_return_detail = tableData.map((item) => {
+                const detail = {
+                    purchase_order_detail_id: item.purchase_order_detail_id,
+                    quantity: item.return_quantity,
+                    warehouse_id: item?.product_type_id?.value === 2 ? item.warehouse_id?.value ? item.warehouse_id?.value : null : null,
                 };
 
                 return detail;
             });
-            const data = {
-                picklist_id,
+
+            const purchaseReturnData = {
+                purchase_order_id,
                 status,
+                purchase_return_detail
+            }
+
+
+            const saleReturnData = {
+                sale_invoice_id,
                 sale_return_detail
             }
-            await dispatch(returnSaleInvoice(data)).unwrap();
-            toast.success('Sale Return created successfully');
+
+            const stockReturnData = {
+                picklist_id,
+                status,
+                stock_return_detail
+            }
+
+            await dispatch(returnSaleInvoice(saleReturnData)).unwrap();
+            type_id == 2 && await dispatch(returnStockReturn(stockReturnData)).unwrap()
+            type_id == 3 || type_id == 4 && await dispatch(returnPurchaseOrder(purchaseReturnData)).unwrap()
+            toast.success('Return created successfully');
             onClose();
             onRefresh?.();
         } catch (error) {

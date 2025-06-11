@@ -4,7 +4,7 @@ import { Button, Col, DatePicker, Form, Input, Row, Select, Table } from 'antd';
 import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import useError from '../../hooks/useError';
 import { getProduct } from '../../store/features/productSlice';
 import AsyncSelect from '../AsyncSelect';
@@ -17,16 +17,9 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const handleError = useError();
   const dispatch = useDispatch();
-  const { id } = useParams();
-  const { isFormSubmitting, initialFormValues, saleInvoiceDetail, list } = useSelector(
+  const { isFormSubmitting, initialFormValues, saleInvoiceDetail } = useSelector(
     (state) => state.saleInvoice
   );
-
-  const POType = Form.useWatch('type', form);
-  const isBillable = POType === 'Billable';
-
-  const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission;
 
   const [totalQuantity, setTotalQuantity] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
@@ -260,7 +253,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
   ];
 
   const saleReturnRows = selectedRows.filter(row =>
-    row.product_type_no === '2' || row.product_type_no === 2
+    row.product_type_no !== '1' || row.product_type_no !== 1
   );
 
   return (
@@ -455,13 +448,14 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
                     setReturnModalVisible(true);
                   }}
                 >
-                  Sale Return
+                  Return
                 </Button>
               </>
               : null
           }
         </div>
       </Form>
+
       <SaleReturnModal
         visible={returnModalVisible}
         onClose={() => {

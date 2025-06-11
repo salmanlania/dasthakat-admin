@@ -95,9 +95,14 @@ const Sidebar = () => {
     !permissions?.good_received_note?.list &&
     !permissions?.picklist?.list &&
     !permissions?.shipment?.list &&
+    !permissions?.purchase_return?.list &&
+    !permissions?.stock_return?.list &&
     !permissions?.servicelist?.list;
 
-  const accountingPermission = !permissions?.purchase_invoice?.list ;
+  const accountingPermission =
+    !permissions?.purchase_invoice?.list &&
+    !permissions?.sale_invoice?.list &&
+    !permissions?.sale_return?.list;
 
   const LogisticsPermission = !permissions?.dispatch?.list;
   const systemPermission = !permissions?.audit?.list;
@@ -324,7 +329,7 @@ const Sidebar = () => {
         {
           key: 'stock-return',
           label: <Link to="/stock-return">Stock Return</Link>,
-          disabled: !permissions?.sale_return?.list
+          disabled: !permissions?.stock_return?.list
         },
         {
           key: 'purchase-return',

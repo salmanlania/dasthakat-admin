@@ -241,12 +241,12 @@ const StockReturn = () => {
     {
       title: <div style={{ textAlign: 'center', width: '100%' }}>Action</div>,
       key: 'action',
-      render: (_, { sale_return_id }) => (
+      render: (_, { stock_return_id }) => (
         <div className="flex justify-center items-center gap-2">
           {permissions.edit ? (
             <>
               <Tooltip title="Edit">
-                <Link to={`/stock-return/edit/${sale_return_id}`}>
+                <Link to={`/stock-return/edit/${stock_return_id}`}>
                   <Button
                     size="small"
                     type="primary"
@@ -263,7 +263,7 @@ const StockReturn = () => {
                     okButtonProps={{ danger: true }}
                     okText="Yes"
                     cancelText="No"
-                    onConfirm={() => onSaleReturnDelete(sale_return_id)}
+                    onConfirm={() => onSaleReturnDelete(stock_return_id)}
                   >
                     <Button size="small" type="primary" danger icon={<GoTrash size={16} />} />
                   </Popconfirm>
@@ -275,7 +275,7 @@ const StockReturn = () => {
                   type="primary"
                   className="bg-rose-600 hover:!bg-rose-500"
                   icon={<FaRegFilePdf size={16} />}
-                  onClick={() => printStockReturn(sale_return_id)}
+                  onClick={() => printStockReturn(stock_return_id)}
                 />
               </Tooltip>
             </>
@@ -353,7 +353,7 @@ const StockReturn = () => {
           }
           loading={isListLoading}
           className="mt-2"
-          rowKey="sale_return_id"
+          rowKey="stock_return_id"
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
@@ -385,7 +385,7 @@ const StockReturn = () => {
         onCancel={closeDeleteModal}
         isDeleting={isBulkDeleting}
         onDelete={onBulkDelete}
-        title="Are you sure you want to delete these Sale Return?"
+        title="Are you sure you want to delete these Stock Return?"
         description="After deleting, you will not be able to recover."
       />
     </>

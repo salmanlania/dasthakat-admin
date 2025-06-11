@@ -36,7 +36,13 @@ const EditSaleInvoice = () => {
   };
 
   useEffect(() => {
-    dispatch(getSaleInvoice(id)).unwrap().catch(handleError);
+    // dispatch(getSaleInvoice(id)).unwrap().catch(handleError);
+    try {
+      dispatch(getSaleInvoice(id)).unwrap()
+    } catch (error) {
+      console.log('error' , error)
+      handleError()
+    }
   }, []);
 
   return (
@@ -45,6 +51,7 @@ const EditSaleInvoice = () => {
         <PageHeading>EDIT SALE INVOICE</PageHeading>
         <Breadcrumb items={[{ title: 'Sale Invoice' }, { title: 'Edit' }]} separator=">" />
       </div>
+      
       <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
         <SaleInvoiceForm mode="edit" onSubmit={onSaleInvoiceUpdate} onSave={onSaleInvoiceUpdates} />
       </div>

@@ -23,6 +23,8 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
     (state) => state.saleReturn
   );
 
+  console.log('initialFormValues', initialFormValues)
+
   const POType = Form.useWatch('type', form);
   const isBillable = POType === 'Billable';
 
@@ -38,13 +40,17 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
 
     const data = {
       ...values,
-      picklist_id: initialFormValues?.picklist_id ? initialFormValues?.picklist_id : null,
+      sale_invoice_id: initialFormValues?.sale_invoice_id ? initialFormValues?.sale_invoice_id : null,
       sale_return_detail: saleReturnDetail.map(({ id, ...detail }) => ({
         ...detail,
         amount: detail.amount ? detail.amount : null,
         quantity: detail.quantity ? detail.quantity : null,
+        product_id: detail?.product_id?.value ? detail?.product_id?.value : null,
+        unit_id: detail?.unit_id?.value ? detail?.unit_id?.value : null,
       })),
     };
+
+    // return console.log('data' , data)
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 
@@ -310,7 +316,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
       scrollToFirstError>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
-        <span className="text-gray-500">Sale Invoice No:</span>
+        <span className="text-gray-500">Sale Return No:</span>
         <span
           className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
             } rounded px-1`}
@@ -404,7 +410,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
             <Input disabled />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={6} lg={6}>
+        {/* <Col span={24} sm={12} md={6} lg={6}>
           <Form.Item name="status" label="Status">
             <Select
               size="small"
@@ -447,7 +453,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
               allowClear
             />
           </Form.Item>
-        </Col>
+        </Col> */}
       </Row>
       <Table
         columns={columns}
