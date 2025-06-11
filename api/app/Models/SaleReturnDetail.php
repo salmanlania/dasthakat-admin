@@ -17,7 +17,7 @@ class SaleReturnDetail extends Model
         "sale_return_id",
         "sale_return_detail_id",
         "charge_order_detail_id",
-        "picklist_detail_id",
+        "sale_invoice_detail_id",
         "sort_order",
         "product_id",
         "product_name",
@@ -40,9 +40,9 @@ class SaleReturnDetail extends Model
         return $this->belongsTo(ChargeOrderDetail::class, 'charge_order_detail_id', 'charge_order_detail_id')->select('*');
     }
 
-    public function picklist_detail()
+    public function sale_invoice_detail()
     {
-        return $this->belongsTo(PicklistDetail::class, 'picklist_detail_id', 'picklist_detail_id')->select('*');
+        return $this->belongsTo(SaleInvoiceDetail::class, 'sale_invoice_detail_id', 'sale_invoice_detail_id')->select('*');
     }
     public function unit()
     {

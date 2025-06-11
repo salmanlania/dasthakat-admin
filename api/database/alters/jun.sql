@@ -69,3 +69,14 @@ CREATE TABLE `stock_return_detail` (
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`stock_return_detail_id`)
 );
+
+
+ALTER TABLE `sale_return`   
+  DROP COLUMN `ship_to`, 
+  DROP COLUMN `ship_via`, 
+  DROP COLUMN `return_date`, 
+  DROP COLUMN `status`, 
+  CHANGE `picklist_id` `sale_invoice_id` CHAR(36) NULL;
+
+ALTER TABLE `sale_return_detail`   
+  CHANGE `picklist_detail_id` `sale_invoice_detail_id` CHAR(36)  NULL;

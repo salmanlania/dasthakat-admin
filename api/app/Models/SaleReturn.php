@@ -13,7 +13,7 @@ class SaleReturn extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        "company_id",
+       "company_id",
         "company_branch_id",
         "sale_return_id",
         "document_type_id",
@@ -21,14 +21,10 @@ class SaleReturn extends Model
         "document_prefix",
         "document_identity",
         "document_date",
-        "ship_via",
-        "ship_to",
-        "return_date",
         "charge_order_id",
-        "picklist_id",
+        "sale_invoice_id",
         "total_quantity",
         "total_amount",
-        "status",
         "created_by",
         "updated_by"
     ];
@@ -44,10 +40,11 @@ class SaleReturn extends Model
         return $this->hasOne(ChargeOrder::class, 'charge_order_id', 'charge_order_id')->select('*');
     }
 
-    public function picklist()
+    public function sale_invoice()
     {
-        return $this->hasOne(Picklist::class, 'picklist_id', 'picklist_id')->select('*');
+        return $this->belongsTo(SaleInvoice::class, 'sale_invoice_id', 'sale_invoice_id')->select('*');
     }
+
     public function created_by_user()
     {
         return $this->hasOne(User::class, 'user_id', 'created_by')->select('user_id', 'user_name','email');
