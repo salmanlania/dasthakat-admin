@@ -472,11 +472,11 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
           <Col span={24} sm={12} md={6} lg={6}>
             <DetailSummaryInfo
               title="Total Quantity:"
-              value={totalQuantity || 0}
+              value={`- ${totalQuantity || 0}`}
             />
             <DetailSummaryInfo
               title="Total Amount:"
-              value={mode === 'edit' && totalAmount ? totalAmount : totalAmount}
+              value={`- ${mode === 'edit' && totalAmount ? totalAmount : totalAmount}`}
             />
           </Col>
         </Row>
