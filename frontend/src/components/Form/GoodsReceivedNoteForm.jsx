@@ -607,7 +607,33 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       width: 240
     },
     {
-      title: 'Quantity',
+      title: 'PO Quantity',
+      dataIndex: 'poQuantity',
+      key: 'poQuantity',
+      render: (_, { poQuantity }, index) => {
+        const newQuantity = Number(poQuantity)
+          .toString()
+          .replace(/(\.\d*?)0+$/, '$1')
+          .replace(/\.$/, '');
+        form.setFieldsValue({ [`quantity-${index}`]: newQuantity });
+        return (
+          <Form.Item
+            className="m-0"
+            name={`poQuantity-${index}`}
+            initialValue={newQuantity}
+          >
+            <DebouncedCommaSeparatedInput
+              decimalPlaces={2}
+              disabled
+              value={newQuantity}
+            />
+          </Form.Item>
+        );
+      },
+      width: 100
+    },
+    {
+      title: 'Received Quantity',
       dataIndex: 'quantity',
       key: 'quantity',
       render: (_, { quantity }, index) => {
