@@ -37,7 +37,7 @@ const ReturnModal = ({ visible, onClose, data, onRefresh }) => {
     const handleReturn = async () => {
         try {
             await form.validateFields();
-            const type_id = tableData.map(item => item?.product_type_id?.value ?? null)[0];
+            const type_id = tableData.map(item => item?.product_type_id?.value ?? null);
             const sale_invoice_id = tableData[0]?.sale_invoice_id || null;
             const sale_return_detail = tableData.map((item) => {
                 const detail = {
@@ -48,7 +48,8 @@ const ReturnModal = ({ visible, onClose, data, onRefresh }) => {
                 return detail;
             });
 
-            const picklist_id = tableData[0]?.picklist_id || null;
+            const picklistItem = tableData.find(item => item.picklist_id);
+            const picklist_id = picklistItem?.picklist_id || null;
             const status = 'created'
             // stock
             const stock_return_detail = tableData.map((item) => {
@@ -91,8 +92,47 @@ const ReturnModal = ({ visible, onClose, data, onRefresh }) => {
             }
 
             await dispatch(returnSaleInvoice(saleReturnData)).unwrap();
-            type_id == 2 && await dispatch(returnStockReturn(stockReturnData)).unwrap()
-            type_id == 3 || type_id == 4 && await dispatch(returnPurchaseOrder(purchaseReturnData)).unwrap()
+
+            const uniqueTypes = [...new Set(type_id)];
+
+            if (uniqueTypes.includes(2) && !uniqueTypes.includes(3) && !uniqueTypes.includes(4)) {
+                dispatch(returnStockReturn(stockReturnData)).unwrap().catch(handleError)
+            }
+            else if (!uniqueTypes.includes(2) && (uniqueTypes.includes(3) || uniqueTypes.includes(4))) {
+                dispatch(returnPurchaseOrder(purchaseReturnData)).unwrap().catch(handleError)
+            }
+            else if (uniqueTypes.includes(2) && (uniqueTypes.includes(3) || uniqueTypes.includes(4))) {
+                const filteredStock = tableData.filter(item => item?.product_type_id?.value === 2);
+                const filteredPurchase = tableData.filter(item => item?.product_type_id?.value === 3 || item?.product_type_id?.value === 4);
+
+                if (filteredStock.length > 0) {
+                    const stockDetails = filteredStock.map(item => ({
+                        picklist_detail_id: item.picklist_detail_id,
+                        quantity: item.return_quantity,
+                        warehouse_id: item.warehouse_id?.value ? item.warehouse_id?.value : null,
+                    }));
+
+                    dispatch(returnStockReturn({
+                        picklist_id,
+                        status,
+                        stock_return_detail: stockDetails
+                    })).unwrap().catch(handleError);
+                }
+
+                if (filteredPurchase.length > 0) {
+                    const purchaseDetails = filteredPurchase.map(item => ({
+                        purchase_order_detail_id: item.purchase_order_detail_id,
+                        quantity: item.return_quantity,
+                        warehouse_id: null,
+                    }));
+
+                    dispatch(returnPurchaseOrder({
+                        purchase_order_id,
+                        status,
+                        purchase_return_detail: purchaseDetails
+                    })).unwrap().catch(handleError);
+                }
+            }
             toast.success('Return created successfully');
             onClose();
             onRefresh?.();
