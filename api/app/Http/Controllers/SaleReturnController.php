@@ -159,9 +159,21 @@ class SaleReturnController extends Controller
 				)
 					->where('sale_return_id', $id)
 					->first();
-					
+
 				$data->purchase_return = $purchase_return;
 				$data->stock_return = $stock_return;
+
+				foreach ($data->sale_return_detail as &$detail) {
+					if (!empty($detail->product_id)) {
+						$product = Product::with('product_type')->where('product_id', $detail->product_id)->first();
+						$detail->product_type = $product->product_type ?? null;
+					} else {
+						$detail->product_type = (object)[
+							'product_type_id' => 4,
+							'name' => "Others"
+						];
+					}
+				}
 			
 		return $this->jsonResponse($data, 200, 'View Api Data');
 	}
