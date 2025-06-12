@@ -23,8 +23,6 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
     (state) => state.saleReturn
   );
 
-  console.log('initialFormValues', initialFormValues)
-
   const POType = Form.useWatch('type', form);
   const isBillable = POType === 'Billable';
 
@@ -49,8 +47,6 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
         unit_id: detail?.unit_id?.value ? detail?.unit_id?.value : null,
       })),
     };
-
-    // return console.log('data' , data)
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 

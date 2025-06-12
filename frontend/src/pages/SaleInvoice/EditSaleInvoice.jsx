@@ -40,7 +40,6 @@ const EditSaleInvoice = () => {
     try {
       dispatch(getSaleInvoice(id)).unwrap()
     } catch (error) {
-      console.log('error' , error)
       handleError()
     }
   }, []);

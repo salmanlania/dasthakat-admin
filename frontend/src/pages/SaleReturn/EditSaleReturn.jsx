@@ -39,7 +39,6 @@ const EditSaleReturn = () => {
     try {
       dispatch(getSaleReturn(id)).unwrap()
     } catch (error) {
-      console.log('error' , error)
       handleError()
     }
   }, []);
