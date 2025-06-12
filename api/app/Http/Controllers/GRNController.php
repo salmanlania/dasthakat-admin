@@ -77,6 +77,7 @@ class GRNController extends Controller
 
 		$data = GRN::with(
 			"grn_detail",
+			"grn_detail.purchase_order_detail",
 			"grn_detail.product",
 			"grn_detail.product_type",
 			"grn_detail.warehouse",
