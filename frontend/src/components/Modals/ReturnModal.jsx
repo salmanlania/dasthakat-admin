@@ -203,17 +203,20 @@ const ReturnModal = ({ visible, onClose, data, onRefresh }) => {
             title: 'Warehouse',
             dataIndex: 'warehouse_id',
             key: 'warehouse_id',
-            render: (_, { warehouse_id }, index) => {
+            render: (_, { warehouse_id, product_type_id }, index) => {
+                const isRequired = product_type_id?.value === 2;
                 return (
                     <Form.Item
                         className="m-0"
                         name={`warehouse_id_${index}`}
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Warehouse is required'
-                            }
-                        ]}>
+                        rules={
+                            isRequired
+                                ? [{
+                                    required: true,
+                                    message: 'Warehouse is required'
+                                }]
+                                : []
+                        }>
                         <AsyncSelect
                             endpoint="/warehouse"
                             valueKey="warehouse_id"
