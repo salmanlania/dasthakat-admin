@@ -80,3 +80,8 @@ ALTER TABLE `sale_return`
 
 ALTER TABLE `sale_return_detail`   
   CHANGE `picklist_detail_id` `sale_invoice_detail_id` CHAR(36)  NULL;
+
+ALTER TABLE `purchase_return`   
+  ADD COLUMN `sale_return_id` CHAR(36) NULL;
+ALTER TABLE `stock_return`   
+  ADD COLUMN `sale_return_id` CHAR(36) NULL;

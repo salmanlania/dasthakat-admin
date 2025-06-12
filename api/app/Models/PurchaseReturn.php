@@ -16,6 +16,7 @@ class PurchaseReturn extends Model
         "company_id",
         "company_branch_id",
         "purchase_return_id",
+        "sale_return_id",
         "document_type_id",
         "document_no",
         "document_prefix",

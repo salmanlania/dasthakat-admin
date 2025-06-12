@@ -8,11 +8,13 @@ use App\Models\DocumentType;
 use App\Models\Picklist;
 use App\Models\PicklistDetail;
 use App\Models\Product;
+use App\Models\PurchaseReturn;
 use App\Models\SaleInvoice;
 use App\Models\SaleInvoiceDetail;
 use App\Models\SaleReturn;
 use App\Models\SaleReturnDetail;
 use App\Models\StockLedger;
+use App\Models\StockReturn;
 use App\Models\Warehouse;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -110,7 +112,56 @@ class SaleReturnController extends Controller
 		)
 			->where('sale_return_id', $id)
 			->first();
+			
+			$purchase_return = PurchaseReturn::with(
+				"purchase_return_detail.charge_order_detail",
+				"purchase_return_detail.product",
+				"purchase_return_detail.product.product_type",
+				"purchase_return_detail.unit",
+				"purchase_order",
+				"purchase_order.user",
+				"purchase_order.supplier",
+				"charge_order",
+				"charge_order.salesman",
+				"charge_order.service_order",
+				"charge_order.event",
+				"charge_order.vessel",
+				"charge_order.customer",
+				"charge_order.flag",
+				"charge_order.agent",
+				"charge_order.port",
+				"charge_order.quotation",
+				"charge_order.quotation.term",
+				"charge_order.quotation.payment",
+			)
+				->where('sale_return_id', $id)->first();
 
+				$stock_return = StockReturn::with(
+					'stock_return_detail.charge_order_detail',
+					'stock_return_detail.picklist_detail',
+					'stock_return_detail.product',
+					'stock_return_detail.unit',
+					'picklist',
+					'charge_order',
+					'charge_order.salesman',
+					'charge_order.service_order',
+					'charge_order.event',
+					'charge_order.vessel',
+					'charge_order.customer',
+					'charge_order.flag',
+					'charge_order.agent',
+					'charge_order.port',
+					'charge_order.quotation',
+					'charge_order.quotation.term',
+					'charge_order.quotation.payment',
+					'created_by_user',
+					'updated_by_user',
+				)
+					->where('sale_return_id', $id)
+					->first();
+					
+				$data->purchase_return = $purchase_return;
+				$data->stock_return = $stock_return;
 			
 		return $this->jsonResponse($data, 200, 'View Api Data');
 	}
