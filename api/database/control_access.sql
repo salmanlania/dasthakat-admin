@@ -154,10 +154,10 @@
   ('Sale Management', 'Shipment', 'shipment', 'edit', 'Edit', 1.103),
   ('Sale Management', 'Shipment', 'shipment', 'delete', 'Delete', 1.104),
   
-  ('Sale Management', 'Sale Invoice', 'sale_invoice', 'list', 'List', 1.101),
-  ('Sale Management', 'Sale Invoice', 'sale_invoice', 'add', 'Add', 1.102),
-  ('Sale Management', 'Sale Invoice', 'sale_invoice', 'edit', 'Edit', 1.103),
-  ('Sale Management', 'Sale Invoice', 'sale_invoice', 'delete', 'Delete', 1.104),
+  ('Accounting', 'Sale Invoice', 'sale_invoice', 'list', 'List', 1.101),
+  ('Accounting', 'Sale Invoice', 'sale_invoice', 'add', 'Add', 1.102),
+  ('Accounting', 'Sale Invoice', 'sale_invoice', 'edit', 'Edit', 1.103),
+  ('Accounting', 'Sale Invoice', 'sale_invoice', 'delete', 'Delete', 1.104),
   
   ('Warehousing', 'Picklist', 'picklist', 'list', 'List', 1.101),
   ('Warehousing', 'Picklist', 'picklist', 'add', 'Add', 1.102),
@@ -177,10 +177,10 @@
   ('Warehousing', 'Purchase Return', 'purchase_return', 'edit', 'Edit', 1.103),
   ('Warehousing', 'Purchase Return', 'purchase_return', 'delete', 'Delete', 1.104),
   
-  ('Warehousing', 'Sale Return', 'sale_return', 'list', 'List', 1.101),
-  ('Warehousing', 'Sale Return', 'sale_return', 'add', 'Add', 1.102),
-  ('Warehousing', 'Sale Return', 'sale_return', 'edit', 'Edit', 1.103),
-  ('Warehousing', 'Sale Return', 'sale_return', 'delete', 'Delete', 1.104),
+  ('Accounting', 'Sale Return', 'sale_return', 'list', 'List', 1.101),
+  ('Accounting', 'Sale Return', 'sale_return', 'add', 'Add', 1.102),
+  ('Accounting', 'Sale Return', 'sale_return', 'edit', 'Edit', 1.103),
+  ('Accounting', 'Sale Return', 'sale_return', 'delete', 'Delete', 1.104),
   
   ('Warehousing', 'Stock Return', 'stock_return', 'list', 'List', 1.101),
   ('Warehousing', 'Stock Return', 'stock_return', 'add', 'Add', 1.102),
