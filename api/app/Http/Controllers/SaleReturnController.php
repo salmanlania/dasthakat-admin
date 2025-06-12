@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Validator;
 
 class SaleReturnController extends Controller
 {
-	protected $document_type_id = 54;
+	protected $document_type_id = 53;
 
 	public function index(Request $request)
 	{
