@@ -340,7 +340,7 @@ const ChargeOrder = () => {
                 type="primary"
                 icon={<LuClipboardList size={14} />}
                 onClick={() => dispatch(setChargePoID(charge_order_id))}
-                // onClick={() => onCreateChargePO(charge_order_id)}
+              // onClick={() => onCreateChargePO(charge_order_id)}
               />
             </Tooltip>
 
@@ -430,6 +430,10 @@ const ChargeOrder = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     dispatch(getChargeOrderList(formattedParams)).unwrap().catch(handleError);
+    const savedLimit = sessionStorage.getItem('quotationLimit');
+    if (savedLimit && +savedLimit !== params.limit) {
+      dispatch(setChargeOrderListParams({ limit: +savedLimit }));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params.page,
@@ -507,6 +511,7 @@ const ChargeOrder = () => {
             showTotal: (total) => `Total ${total} charge orders`
           }}
           onChange={(page, _, sorting) => {
+            sessionStorage.setItem('chargeOrderLimit', page.pageSize);
             dispatch(
               setChargeOrderListParams({
                 page: page.current,

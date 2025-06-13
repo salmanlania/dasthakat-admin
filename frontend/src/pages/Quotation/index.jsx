@@ -364,6 +364,10 @@ const Quotation = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     dispatch(getQuotationList(formattedParams)).unwrap().catch(handleError);
+    const savedLimit = sessionStorage.getItem('quotationLimit');
+    if (savedLimit && +savedLimit !== params.limit) {
+      dispatch(setQuotationListParams({ limit: +savedLimit }));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params.page,
@@ -469,6 +473,7 @@ const Quotation = () => {
             showTotal: (total) => `Total ${total} quotations`
           }}
           onChange={(page, _, sorting) => {
+            sessionStorage.setItem('quotationLimit', page.pageSize);
             dispatch(
               setQuotationListParams({
                 page: page.current,
