@@ -73,25 +73,27 @@ const ReturnModal = ({ visible, onClose, data, onRefresh }) => {
                 return detail;
             });
 
-            const purchaseReturnData = {
-                purchase_order_id,
-                status,
-                purchase_return_detail
-            }
-
-
             const saleReturnData = {
                 sale_invoice_id,
                 sale_return_detail
             }
 
+            const res = await dispatch(returnSaleInvoice(saleReturnData)).unwrap();
+            const sale_return_id = res?.sale_return_id
+
+            const purchaseReturnData = {
+                purchase_order_id,
+                status,
+                purchase_return_detail,
+                sale_return_id
+            }
+
             const stockReturnData = {
                 picklist_id,
                 status,
-                stock_return_detail
+                stock_return_detail,
+                sale_return_id
             }
-
-            await dispatch(returnSaleInvoice(saleReturnData)).unwrap();
 
             const uniqueTypes = [...new Set(type_id)];
 
@@ -115,7 +117,8 @@ const ReturnModal = ({ visible, onClose, data, onRefresh }) => {
                     dispatch(returnStockReturn({
                         picklist_id,
                         status,
-                        stock_return_detail: stockDetails
+                        stock_return_detail: stockDetails,
+                        sale_return_id
                     })).unwrap().catch(handleError);
                 }
 
@@ -128,6 +131,7 @@ const ReturnModal = ({ visible, onClose, data, onRefresh }) => {
 
                     dispatch(returnPurchaseOrder({
                         purchase_order_id,
+                        sale_return_id,
                         status,
                         purchase_return_detail: purchaseDetails
                     })).unwrap().catch(handleError);

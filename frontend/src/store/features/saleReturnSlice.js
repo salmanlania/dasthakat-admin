@@ -109,6 +109,8 @@ const initialState = {
   initialFormValues: null,
   pickListDetail: [],
   saleReturnDetail: [],
+  stockReturnDetail: [],
+  purchaseReturnDetail: [],
   pickListReceives: null,
   isPickListReceivesLoading: false,
   isPickListReceivesSaving: false,
@@ -148,11 +150,38 @@ export const saleReturnListSlice = createSlice({
       }
     },
 
+    // changeSaleReturnDetailValue: (state, action) => {
+    //   const { index, key, value } = action.payload;
+    //   const detail = state.saleReturnDetail[index];
+    //   detail[key] = value;
+    // },
+
     changeSaleReturnDetailValue: (state, action) => {
       const { index, key, value } = action.payload;
       const detail = state.saleReturnDetail[index];
       detail[key] = value;
+
+      // const productTypeIdStock = detail.product_type_id?.value ? detail.product_type_id?.value : detail.product?.product_type_id;
+      const productTypeId = detail.product_type_id.value;
+      const productId = detail.charge_order_detail_id;
+
+      if (key === 'quantity') {
+        if (productTypeId === 2) {
+          const stockDetail = state.stockReturnDetail?.stock_return?.stock_return_detail?.find(item => item?.charge_order_detail_id === productId);
+          if (stockDetail) {
+            stockDetail.quantity = value;
+          }
+        }
+
+        if (productTypeId === 3 || productTypeId === 4) {
+          const purchaseDetail = state.purchaseReturnDetail?.purchase_return?.purchase_return_detail?.find(item => item?.charge_order_detail_id === productId);
+          if (purchaseDetail) {
+            purchaseDetail.quantity = value;
+          }
+        }
+      }
     },
+
   },
   extraReducers: ({ addCase }) => {
     addCase(getSaleReturnList.pending, (state) => {
@@ -217,7 +246,7 @@ export const saleReturnListSlice = createSlice({
           : null,
         product_name:
           detail.charge_order_detail
-            ? detail?.product?.name
+            ? detail?.product?.name || detail?.product_name
             : detail.product_name || detail.charge_order_detail.product_name,
         product_description: detail.product_description,
         charge_order_detail_id: detail.charge_order_detail_id,
@@ -234,6 +263,9 @@ export const saleReturnListSlice = createSlice({
         row_status: 'U',
         isDeleted: false
       }));
+      state.purchaseReturnDetail = data
+      state.stockReturnDetail = data
+
     });
     addCase(getSaleReturn.rejected, (state) => {
       state.isItemLoading = false;
