@@ -38,13 +38,18 @@ class QuotationController extends Controller
 		$sort_column = $request->input('sort_column', 'quotation.created_at');
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
-		$latestStatusSubquery = DB::table('quotation_status as qs1')
-			->select('qs1.quotation_id', 'qs1.status', 'qs1.created_by')
-			->whereRaw('qs1.id = (
-        SELECT qs2.id
-        FROM quotation_status as qs2
-        WHERE qs2.quotation_id = qs1.quotation_id order by qs2.created_at desc  limit 1
-    )');
+	// 	$latestStatusSubquery = DB::table('quotation_status as qs1')
+	// 		->select('qs1.quotation_id', 'qs1.status', 'qs1.created_by')
+	// 		->whereRaw('qs1.id = (
+    //     SELECT qs2.id
+    //     FROM quotation_status as qs2
+    //     WHERE qs2.quotation_id = qs1.quotation_id order by qs2.created_at desc  limit 1
+    // )');
+		$latestStatusSubquery = DB::table(DB::raw("(
+			SELECT *, ROW_NUMBER() OVER (PARTITION BY quotation_id ORDER BY created_at DESC) as rn
+			FROM quotation_status
+		) as qs1"))
+		->where('qs1.rn', 1);
 
 
 		$data = Quotation::LeftJoin('customer as c', 'c.customer_id', '=', 'quotation.customer_id')
@@ -66,26 +71,54 @@ class QuotationController extends Controller
 		if (!empty($document_identity)) $data = $data->where('quotation.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($document_date)) $data = $data->where('quotation.document_date', '=',  $document_date);
 
+		// if (!empty($search)) {
+		// 	$search = strtolower($search);
+		// 	$data = $data->where(function ($query) use ($search) {
+		// 		$query
+		// 			->where('c.name', 'like', '%' . $search . '%')
+		// 			->OrWhere('quotation.customer_ref', 'like', '%' . $search . '%')
+		// 			->OrWhere('p.name', 'like', '%' . $search . '%')
+		// 			->OrWhere('u.user_name', 'like', '%' . $search . '%')
+		// 			->OrWhere('v.name', 'like', '%' . $search . '%')
+		// 			->OrWhere('quotation.status', 'like', '%' . $search . '%')
+		// 			->OrWhere('e.event_code', 'like', '%' . $search . '%')
+		// 			->OrWhere('quotation.document_identity', 'like', '%' . $search . '%');
+		// 	});
+		// }
 		if (!empty($search)) {
 			$search = strtolower($search);
-			$data = $data->where(function ($query) use ($search) {
-				$query
-					->where('c.name', 'like', '%' . $search . '%')
-					->OrWhere('quotation.customer_ref', 'like', '%' . $search . '%')
-					->OrWhere('p.name', 'like', '%' . $search . '%')
-					->OrWhere('u.user_name', 'like', '%' . $search . '%')
-					->OrWhere('v.name', 'like', '%' . $search . '%')
-					->OrWhere('quotation.status', 'like', '%' . $search . '%')
-					->OrWhere('e.event_code', 'like', '%' . $search . '%')
-					->OrWhere('quotation.document_identity', 'like', '%' . $search . '%');
+			$data->where(function ($query) use ($search) {
+				$query->whereRaw('LOWER(c.name) LIKE ?', ["%$search%"])
+					->orWhereRaw('LOWER(quotation.customer_ref) LIKE ?', ["%$search%"])
+					->orWhereRaw('LOWER(p.name) LIKE ?', ["%$search%"])
+					->orWhereRaw('LOWER(u.user_name) LIKE ?', ["%$search%"])
+					->orWhereRaw('LOWER(v.name) LIKE ?', ["%$search%"])
+					->orWhereRaw('LOWER(quotation.status) LIKE ?', ["%$search%"])
+					->orWhereRaw('LOWER(e.event_code) LIKE ?', ["%$search%"])
+					->orWhereRaw('LOWER(quotation.document_identity) LIKE ?', ["%$search%"]);
 			});
 		}
 
-		$data = $data->select("quotation.*", DB::raw("CONCAT(e.event_code, ' (', CASE 
-		WHEN e.status = 1 THEN 'Active' 
-		ELSE 'Inactive' 
-	END, ')') AS event_code"), 'u.user_name as status_updated_by', "c.name as customer_name", "v.name as vessel_name", "p.name as port_name");
-		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
+	// 	$data = $data->select("quotation.*", DB::raw("CONCAT(e.event_code, ' (', CASE 
+	// 	WHEN e.status = 1 THEN 'Active' 
+	// 	ELSE 'Inactive' 
+	// END, ')') AS event_code"), 'u.user_name as status_updated_by', "c.name as customer_name", "v.name as vessel_name", "p.name as port_name");
+	
+	$data->select([
+        'quotation.quotation_id',
+        'quotation.customer_ref',
+        'quotation.status',
+        'quotation.document_identity',
+        'quotation.document_date',
+        'quotation.created_at',
+        DB::raw("CONCAT(e.event_code, ' (', IF(e.status = 1, 'Active', 'Inactive'), ')') as event_code"),
+        'u.user_name as status_updated_by',
+        'c.name as customer_name',
+        'v.name as vessel_name',
+        'p.name as port_name'
+    ]);
+	
+	$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
 	}
