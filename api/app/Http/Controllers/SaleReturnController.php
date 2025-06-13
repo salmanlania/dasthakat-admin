@@ -136,6 +136,21 @@ class SaleReturnController extends Controller
 			)
 				->where('sale_return_id', $id)->first();
 
+				   foreach ($purchase_return->purchase_return_detail as &$detail) {
+						if (!empty($detail->product_id)) {
+							$product = Product::with('product_type')->where('product_id', $detail->product_id)->first();
+							$detail->product_type = $product->product_type ?? null;
+							$detail->product_type_id = $product->product_type->product_type_id ?? null;
+						} else {
+							$detail->product_type = (object)[
+								'product_type_id' => 4,
+								'name' => "Others"
+							];
+							$detail->product_type_id = 4;
+
+						}
+					}
+
 				$stock_return = StockReturn::with(
 					'stock_return_detail.charge_order_detail',
 					'stock_return_detail.picklist_detail',
@@ -167,11 +182,13 @@ class SaleReturnController extends Controller
 					if (!empty($detail->product_id)) {
 						$product = Product::with('product_type')->where('product_id', $detail->product_id)->first();
 						$detail->product_type = $product->product_type ?? null;
+						$detail->product_type_id = $product->product_type->product_type_id ?? null;
 					} else {
 						$detail->product_type = (object)[
 							'product_type_id' => 4,
 							'name' => "Others"
 						];
+						$detail->product_type_id = 4;	
 					}
 				}
 			
