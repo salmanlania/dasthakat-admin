@@ -3,7 +3,7 @@ import { Button, Col, DatePicker, Form, Input, Row, Select, Table } from 'antd';
 import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
-import ReturnModal from '../Modals/ReturnModal'
+import ReturnModal from '../Modals/PickListReturnModal'
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import useError from '../../hooks/useError';

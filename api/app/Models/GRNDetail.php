@@ -39,30 +39,30 @@ class GRNDetail extends Model
     ];
     public function grn()
     {
-        return $this->belongsTo(GRN::class, 'good_received_note_id');
+        return $this->belongsTo(GRN::class, 'good_received_note_id')->select('*');
     }
     public function charge_order_detail()
     {
-        return $this->hasOne(ChargeOrderDetail::class, 'charge_order_detail_id', 'charge_order_detail_id');
+        return $this->belongsTo(ChargeOrderDetail::class, 'charge_order_detail_id', 'charge_order_detail_id')->select('*');
     }
     public function purchase_order_detail()
     {
-        return $this->hasOne(PurchaseOrderDetail::class, 'purchase_order_detail_id');
+        return $this->belongsTo(PurchaseOrderDetail::class, 'purchase_order_detail_id')->select('*');
     }
     public function warehouse()
     {
-        return $this->hasOne(Warehouse::class, 'warehouse_id', 'warehouse_id');
+        return $this->belongsTo(Warehouse::class, 'warehouse_id', 'warehouse_id')->select('*');
     }
     public function product()
     {
-        return $this->hasOne(Product::class, 'product_id', 'product_id')->select('*', DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
+        return $this->belongsTo(Product::class, 'product_id', 'product_id')->select('*', DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
     }
     public function product_type()
     {
-        return $this->hasOne(ProductType::class, 'product_type_id', 'product_type_id');
+        return $this->belongsTo(ProductType::class, 'product_type_id', 'product_type_id')->select('*');
     }
     public function unit()
     {
-        return $this->hasOne(Unit::class, 'unit_id', 'unit_id');
+        return $this->belongsTo(Unit::class, 'unit_id', 'unit_id')->select('*');
     }
 }

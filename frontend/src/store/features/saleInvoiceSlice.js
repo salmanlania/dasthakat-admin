@@ -146,7 +146,7 @@ export const saleInvoiceSlice = createSlice({
     });
 
     // start bulk delete
-    
+
     addCase(bulkDeleteSaleInvoice.pending, (state) => {
       state.isBulkDeleting = true;
     });
@@ -184,21 +184,27 @@ export const saleInvoiceSlice = createSlice({
       };
       state.saleInvoiceDetail = data.sale_invoice_detail.map((detail) => ({
         id: detail.charge_order_detail_id,
+        sale_invoice_id: detail.sale_invoice_id,
+        sale_invoice_detail_id: detail.sale_invoice_detail_id,
+        picklist_id: detail?.picklist ? detail?.picklist?.picklist_id : detail?.picklist_detail ? detail?.picklist_detail?.picklist_id : null,
+        purchase_order_id: detail?.purchase_order?.purchase_order_id ? detail?.purchase_order?.purchase_order_id : detail?.purchase_order_detail?.purchase_order_id ? detail?.purchase_order_detail?.purchase_order_id : null,
+        purchase_order_detail_id: detail?.purchase_order_detail?.purchase_order_detail_id ? detail?.purchase_order_detail?.purchase_order_detail_id : null,
+        picklist_detail_id: detail?.picklist_detail ? detail?.picklist_detail?.picklist_detail_id : null,
         product_code: detail.product ? detail.product.product_code : null,
         product_id: detail.product
           ? { value: detail.product.product_id, label: detail.product.product_name }
           : null,
         product_type_no: detail?.product ? detail?.product?.product_type_id : 4,
-        product_type_id: detail?.product
+        product_type_id: detail?.product_type
           ? {
-            value: detail?.product?.product_type_id,
-            label: detail?.product?.product_type_id.name
+            value: detail?.product_type?.product_type_id,
+            label: detail?.product_type?.name
           }
-          : null,
+          : 'Other',
         product_name:
-          detail.charge_order_detail.product_type_id == '4'
-            ? detail.product_name || detail.charge_order_detail.product_name
-            : detail?.product?.name,
+          detail.charge_order_detail
+            ? detail?.product?.name || detail?.product_name
+            : detail.product_name || detail.charge_order_detail.product_name,
         product_description: detail.product_description,
         charge_order_detail_id: detail.charge_order_detail_id,
         description: detail.description,

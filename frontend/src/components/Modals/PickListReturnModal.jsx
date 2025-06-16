@@ -3,12 +3,10 @@ import { Modal, Table, Input, Button, Select, Form } from 'antd';
 import toast from 'react-hot-toast';
 import AsyncSelect from '../AsyncSelect';
 import { useSelector, useDispatch } from 'react-redux';
-import { returnSaleInvoice } from '../../store/features/saleReturnSlice'
 import { returnStockReturn } from '../../store/features/stockReturnSlice'
-import { returnPurchaseOrder } from '../../store/features/purchaseReturnSlice'
 import useError from '../../hooks/useError';
 
-const ReturnModal = ({ visible, onClose, data, onRefresh }) => {
+const PickListReturnModal = ({ visible, onClose, data, onRefresh }) => {
     const dispatch = useDispatch();
     const [form] = Form.useForm();
     const { user } = useSelector((state) => state.auth);
@@ -16,7 +14,7 @@ const ReturnModal = ({ visible, onClose, data, onRefresh }) => {
     const handleError = useError();
 
     const [tableData, setTableData] = useState([]);
-
+    
     useEffect(() => {
         if (visible) {
             setTableData(
@@ -33,111 +31,27 @@ const ReturnModal = ({ visible, onClose, data, onRefresh }) => {
             setTableData([]);
         }
     }, [visible, data]);
-
+    
     const handleReturn = async () => {
         try {
             await form.validateFields();
-            const type_id = tableData.map(item => item?.product_type_id?.value ?? null);
-            const sale_invoice_id = tableData[0]?.sale_invoice_id || null;
-            const sale_return_detail = tableData.map((item) => {
-                const detail = {
-                    sale_invoice_detail_id: item.sale_invoice_detail_id,
-                    quantity: item.return_quantity,
-                    warehouse_id: item.warehouse_id?.value ? item.warehouse_id?.value : null,
-                };
-                return detail;
-            });
-
-            const picklistItem = tableData.find(item => item.picklist_id);
-            const picklist_id = picklistItem?.picklist_id || null;
+            const picklist_id = tableData[0]?.picklist_id || null;
             const status = 'created'
-            // stock
             const stock_return_detail = tableData.map((item) => {
                 const detail = {
-                    picklist_detail_id: item.picklist_detail_id,
+                    picklist_detail_id: item.id,
                     quantity: item.return_quantity,
                     warehouse_id: item.warehouse_id?.value ? item.warehouse_id?.value : null,
                 };
                 return detail;
             });
-
-            // purchase
-            const purchase_order_id = tableData[0]?.purchase_order_id || null;
-            const purchase_return_detail = tableData.map((item) => {
-                const detail = {
-                    purchase_order_detail_id: item.purchase_order_detail_id,
-                    quantity: item.return_quantity,
-                    warehouse_id: item?.product_type_id?.value === 2 ? item.warehouse_id?.value ? item.warehouse_id?.value : null : null,
-                };
-
-                return detail;
-            });
-
-            const saleReturnData = {
-                sale_invoice_id,
-                sale_return_detail
-            }
-
-            const res = await dispatch(returnSaleInvoice(saleReturnData)).unwrap();
-            const sale_return_id = res?.sale_return_id ? res?.sale_return_id : null
-
-            const purchaseReturnData = {
-                purchase_order_id,
-                status,
-                purchase_return_detail,
-                sale_return_id
-            }
-
-            const stockReturnData = {
+            const data = {
                 picklist_id,
                 status,
-                stock_return_detail,
-                sale_return_id
+                stock_return_detail
             }
-
-            const uniqueTypes = [...new Set(type_id)];
-
-            if (uniqueTypes.includes(2) && !uniqueTypes.includes(3) && !uniqueTypes.includes(4)) {
-                dispatch(returnStockReturn(stockReturnData)).unwrap().catch(handleError)
-            }
-            else if (!uniqueTypes.includes(2) && (uniqueTypes.includes(3) || uniqueTypes.includes(4))) {
-                dispatch(returnPurchaseOrder(purchaseReturnData)).unwrap().catch(handleError)
-            }
-            else if (uniqueTypes.includes(2) && (uniqueTypes.includes(3) || uniqueTypes.includes(4))) {
-                const filteredStock = tableData.filter(item => item?.product_type_id?.value === 2);
-                const filteredPurchase = tableData.filter(item => item?.product_type_id?.value === 3 || item?.product_type_id?.value === 4);
-
-                if (filteredStock.length > 0) {
-                    const stockDetails = filteredStock.map(item => ({
-                        picklist_detail_id: item.picklist_detail_id,
-                        quantity: item.return_quantity,
-                        warehouse_id: item.warehouse_id?.value ? item.warehouse_id?.value : null,
-                    }));
-
-                    dispatch(returnStockReturn({
-                        picklist_id,
-                        status,
-                        stock_return_detail: stockDetails,
-                        sale_return_id
-                    })).unwrap().catch(handleError);
-                }
-
-                if (filteredPurchase.length > 0) {
-                    const purchaseDetails = filteredPurchase.map(item => ({
-                        purchase_order_detail_id: item.purchase_order_detail_id,
-                        quantity: item.return_quantity,
-                        warehouse_id: null,
-                    }));
-
-                    dispatch(returnPurchaseOrder({
-                        purchase_order_id,
-                        sale_return_id,
-                        status,
-                        purchase_return_detail: purchaseDetails
-                    })).unwrap().catch(handleError);
-                }
-            }
-            toast.success('Return created successfully');
+            await dispatch(returnStockReturn(data)).unwrap();
+            toast.success('Stock Return created successfully');
             onClose();
             onRefresh?.();
         } catch (error) {
@@ -207,20 +121,17 @@ const ReturnModal = ({ visible, onClose, data, onRefresh }) => {
             title: 'Warehouse',
             dataIndex: 'warehouse_id',
             key: 'warehouse_id',
-            render: (_, { warehouse_id, product_type_id }, index) => {
-                const isRequired = product_type_id?.value === 2;
+            render: (_, { warehouse_id }, index) => {
                 return (
                     <Form.Item
                         className="m-0"
                         name={`warehouse_id_${index}`}
-                        rules={
-                            isRequired
-                                ? [{
-                                    required: true,
-                                    message: 'Warehouse is required'
-                                }]
-                                : []
-                        }>
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Warehouse is required'
+                            }
+                        ]}>
                         <AsyncSelect
                             endpoint="/warehouse"
                             valueKey="warehouse_id"
@@ -278,4 +189,4 @@ const ReturnModal = ({ visible, onClose, data, onRefresh }) => {
     );
 };
 
-export default ReturnModal;
+export default PickListReturnModal;

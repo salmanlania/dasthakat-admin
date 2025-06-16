@@ -3,7 +3,7 @@ import { Modal, Table, Input, Button, Select, Form } from 'antd';
 import toast from 'react-hot-toast';
 import AsyncSelect from '../AsyncSelect';
 import { useSelector, useDispatch } from 'react-redux';
-import { saleReturn } from '../../store/features/saleReturnSlice'
+import { stockReturn } from '../../store/features/stockReturnSlice'
 import useError from '../../hooks/useError';
 
 const ShipmentReturnModal = ({ visible, onClose, data }) => {
@@ -47,7 +47,7 @@ const ShipmentReturnModal = ({ visible, onClose, data }) => {
             });
 
             const finalData = Object.entries(groupedData).map(([picklist_id, items]) => {
-                const sale_return_detail = items.map((item) => ({
+                const stock_return_detail = items.map((item) => ({
                     picklist_detail_id: item.picklist_detail_id,
                     quantity: item.return_quantity,
                     warehouse_id: item.warehouse_id?.value || null
@@ -57,17 +57,17 @@ const ShipmentReturnModal = ({ visible, onClose, data }) => {
                     picklist_id,
                     status,
                     multiple,
-                    sale_return_detail
+                    stock_return_detail
                 };
             });
 
             const payload = {
-                sale_returns: [...finalData]
+                stock_returns: [...finalData]
             }
 
-            await dispatch(saleReturn(payload)).unwrap();
+            await dispatch(stockReturn(payload)).unwrap();
 
-            toast.success('Sale Return created successfully');
+            toast.success('Stock Return created successfully');
             onClose();
         } catch (error) {
             handleError(error)

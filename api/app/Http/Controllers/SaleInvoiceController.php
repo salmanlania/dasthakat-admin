@@ -6,15 +6,19 @@ use App\Models\ChargeOrder;
 use App\Models\DocumentType;
 use App\Models\GRN;
 use App\Models\GRNDetail;
+use App\Models\Picklist;
+use App\Models\PicklistDetail;
+use App\Models\Product;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Models\PurchaseInvoice;
-use App\Models\PurchaseInvoiceDetail;
-use App\Models\PurchaseOrder;
 use App\Models\SaleInvoice;
 use App\Models\SaleInvoiceDetail;
 use App\Models\Shipment;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SaleInvoiceController extends Controller
 {
@@ -65,31 +69,63 @@ class SaleInvoiceController extends Controller
 	}
 
 	public function show($id, Request $request)
-	{
+{
+    $data = SaleInvoice::with(
+        "sale_invoice_detail",
+        "sale_invoice_detail.charge_order_detail",
+        "sale_invoice_detail.product",
+        "sale_invoice_detail.unit",
+        "charge_order",
+        "charge_order.salesman",
+        "charge_order.service_order",
+        "charge_order.event",
+        "charge_order.vessel",
+        "charge_order.customer",
+        "charge_order.flag",
+        "charge_order.agent",
+        "charge_order.port",
+        "charge_order.quotation",
+        "charge_order.quotation.payment"
+    )->where('sale_invoice_id', $id)->first();
 
-		$data = SaleInvoice::with(
-			"sale_invoice_detail",
-			"sale_invoice_detail.charge_order_detail",
-			"sale_invoice_detail.product",
-			"sale_invoice_detail.unit",
-			"charge_order",
-			"charge_order.salesman",
-			"charge_order.service_order",
-			"charge_order.event",
-			"charge_order.vessel",
-			"charge_order.customer",
-			"charge_order.flag",
-			"charge_order.agent",
-			"charge_order.port",
-			"charge_order.quotation",
-			"charge_order.quotation.payment",
-		)
-			->where('sale_invoice_id', $id)->first();
+    if (!$data) {
+        return $this->jsonResponse(null, 404, "Sale Invoice not found");
+    }
 
-		$data->shipment = Shipment::where('charge_order_id', $data->charge_order_id)->orderby('created_at', 'desc')->first();
+    $data->shipment = Shipment::where('charge_order_id', $data->charge_order_id)
+        ->orderBy('created_at', 'desc')
+        ->first();
 
-		return $this->jsonResponse($data, 200, "Sale Invoice Data");
+    // foreach ($data->sale_invoice_detail as &$detail) {
+    //     if (!empty($detail->product_id)) {
+    //         $product = Product::with('product_type')->where('product_id', $detail->product_id)->first();
+    //         $detail->product_type = $product->product_type ?? null;
+    //     } else {
+    //         $detail->product_type = (object)[
+    //             'product_type_id' => 4,
+    //             'name' => "Others"
+    //         ];
+    //     }
+    // }
+	foreach ($data->sale_invoice_detail as $detail) {
+	$Product = Product::with('product_type')->where('product_id', $detail->product_id)->first();
+		if ($Product?->product_type_id == 2) {
+			$detail->picklist_detail = PicklistDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->first() ?? null;
+			$detail->picklist = Picklist::where('picklist_id', $detail->picklist_detail->picklist_id)->first() ?? null;
+		} else if ($Product?->product_type_id == 3 || $Product?->product_type_id != 1) {
+			$detail->purchase_order_detail = PurchaseOrderDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->first() ?? null;
+			$detail->purchase_order = PurchaseOrder::where('purchase_order_id', $detail->purchase_order_detail->purchase_order_id)->first() ?? null;
+		}
+		$detail->product_type = $Product?->product_type ?? 
+		(object)[
+	        'product_type_id' => 4,
+	        'name' => "Others"
+		];
 	}
+
+    return $this->jsonResponse($data, 200, "Sale Invoice Data");
+}
+
 
 	public function validateRequest($request, $id = null)
 	{
@@ -123,7 +159,9 @@ class SaleInvoiceController extends Controller
 		if (!empty($validationError)) {
 			return $this->jsonResponse($validationError, 400, "Request Failed!");
 		}
+		DB::beginTransaction();
 
+		try{
 		// 3. Fetch Reference Data
 		$chargeOrder = ChargeOrder::with('charge_order_detail', 'vessel')->find($request->charge_order_id);
 		if (!$chargeOrder) {
@@ -195,10 +233,19 @@ class SaleInvoiceController extends Controller
 
 		if ($totalQuantity > 0) {
 			SaleInvoice::create($invoiceData);
+			DB::commit();
+
 			return $this->jsonResponse(['sale_invoice_id' => $uuid], 200, "Add Sale Invoice Successfully!");
 		} else {
+			DB::rollBack(); // Rollback on error
+
 			return $this->jsonResponse(['sale_invoice_id' => $uuid], 500, "Cannot generate invoice: No items with available quantity.");
 		}
+	} catch (\Exception $e) {
+		DB::rollBack(); // Rollback on error
+		Log::error('Sale Invoice Store Error: ' . $e->getMessage());
+		return $this->jsonResponse("Something went wrong while saving Sale Invoice.", 500, "Transaction Failed");
+	}
 	}
 
 

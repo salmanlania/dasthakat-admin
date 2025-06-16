@@ -5,19 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-class SaleReturnDetail extends Model
+class StockReturnDetail extends Model
 {
 
-    protected $table = 'sale_return_detail';
-    protected $primaryKey = 'sale_return_detail_id';
+    protected $table = 'stock_return_detail';
+    protected $primaryKey = 'stock_return_detail_id';
     public $incrementing = false;
 
 
     protected $fillable = [
-        "sale_return_id",
-        "sale_return_detail_id",
+        "stock_return_id",
+        "stock_return_detail_id",
         "charge_order_detail_id",
-        "sale_invoice_detail_id",
+        "picklist_detail_id",
         "sort_order",
         "product_id",
         "product_name",
@@ -40,9 +40,9 @@ class SaleReturnDetail extends Model
         return $this->belongsTo(ChargeOrderDetail::class, 'charge_order_detail_id', 'charge_order_detail_id')->select('*');
     }
 
-    public function sale_invoice_detail()
+    public function picklist_detail()
     {
-        return $this->belongsTo(SaleInvoiceDetail::class, 'sale_invoice_detail_id', 'sale_invoice_detail_id')->select('*');
+        return $this->belongsTo(PicklistDetail::class, 'picklist_detail_id', 'picklist_detail_id')->select('*');
     }
     public function unit()
     {

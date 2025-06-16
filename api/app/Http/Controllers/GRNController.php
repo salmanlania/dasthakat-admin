@@ -14,6 +14,7 @@ use App\Models\Warehouse;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class GRNController extends Controller
@@ -76,6 +77,7 @@ class GRNController extends Controller
 
 		$data = GRN::with(
 			"grn_detail",
+			"grn_detail.purchase_order_detail",
 			"grn_detail.product",
 			"grn_detail.product_type",
 			"grn_detail.warehouse",
@@ -125,7 +127,8 @@ class GRNController extends Controller
 		$po_ref = PurchaseOrder::where('purchase_order_id', $request->purchase_order_id)->first();
 
 		$base_currency_id = Company::where('company_id', $request->company_id)->pluck('base_currency_id')->first();
-
+		DB::beginTransaction();
+		try{
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument($this->document_type_id, $request);
 		$insertArr = [
@@ -205,8 +208,13 @@ class GRNController extends Controller
 			}
 		}
 
-
+		DB::commit();
 		return $this->jsonResponse(['good_received_note_id' => $uuid], 200, "Add Good Received Note Successfully!");
+	} catch (\Exception $e) {
+		DB::rollBack(); // Rollback on error
+		Log::error('Good Received Note Store Error: ' . $e->getMessage());
+		return $this->jsonResponse("Something went wrong while saving Good Received Note.", 500, "Transaction Failed");
+	}
 	}
 
 	public function update(Request $request, $id)
@@ -222,7 +230,9 @@ class GRNController extends Controller
 
 		$po_ref = PurchaseOrder::where('purchase_order_id', $request->purchase_order_id)->first();
 		$base_currency_id = Company::where('company_id', $request->company_id)->pluck('base_currency_id')->first();
-
+		DB::beginTransaction();
+		try{
+	
 		$data  = GRN::where('good_received_note_id', $id)->first();
 		$data->company_id = $request->company_id;
 		$data->company_branch_id = $request->company_branch_id;
@@ -321,8 +331,13 @@ class GRNController extends Controller
 			}
 		}
 
-
+		DB::commit();
 		return $this->jsonResponse(['good_received_note_id' => $id], 200, "Update Good Received Note Successfully!");
+		} catch (\Exception $e) {
+			DB::rollBack(); // Rollback on error
+			Log::error('Good Received Note Updated Error: ' . $e->getMessage());
+			return $this->jsonResponse("Something went wrong while updating Good Received Note.", 500, "Transaction Failed");
+		}
 	}
 	public function delete($id, Request $request)
 	{

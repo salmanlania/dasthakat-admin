@@ -10,6 +10,8 @@ use App\Models\Servicelist;
 use App\Models\ServicelistDetail;
 use App\Models\ServicelistReceived;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ServicelistController extends Controller
@@ -126,7 +128,7 @@ class ServicelistController extends Controller
 			"charge_order",
 			"charge_order.vessel",
 			"charge_order.event",
-			"servicelist_detail",
+
 			"servicelist_detail.product"
 		])->where('servicelist_id', $id)->first();
 
@@ -136,7 +138,6 @@ class ServicelistController extends Controller
 
 		// Fetch received servicelist history
 		$receivedData = ServicelistReceived::with([
-			"servicelist_received_detail",
 			"servicelist_received_detail.product",
 			"servicelist_received_detail.warehouse"
 		])->where('servicelist_id', $id)->get();
@@ -197,6 +198,8 @@ class ServicelistController extends Controller
 			return $this->jsonResponse($errors, 400, "Request Failed!");
 		}
 
+		DB::beginTransaction();
+		try{
 		$chargeOrder = ChargeOrder::with('charge_order_detail')
 			->findOrFail($request->charge_order_id);
 
@@ -245,10 +248,17 @@ class ServicelistController extends Controller
 					]);
 			}
 			ServicelistDetail::insert($servicelistDetails);
-
+			DB::commit();
 			return $this->jsonResponse([], 200, "Charge Order ({$chargeOrder->document_identity}) Servicelist Created Successfully!");
-		}
+		}else{
+		DB::rollBack();
 		return $this->jsonResponse([], 200, "No inventory products available for servicelist creation.");
+		}
+	} catch (\Exception $e) {
+		DB::rollBack(); // Rollback on error
+		Log::error('Servicelist Store Error: ' . $e->getMessage());
+		return $this->jsonResponse("Something went wrong while saving Servicelist.", 500, "Transaction Failed");
+	}
 	}
 
 	public function delete($id, Request $request)

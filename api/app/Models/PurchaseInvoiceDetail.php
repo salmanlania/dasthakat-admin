@@ -35,15 +35,15 @@ class PurchaseInvoiceDetail extends Model
     ];
     public function product()
     {
-        return $this->hasOne(Product::class, 'product_id', 'product_id')->select('*',DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
+        return $this->belongsTo(Product::class, 'product_id', 'product_id')->select('*',DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
     }
     public function charge_order_detail()
     {
-        return $this->hasOne(ChargeOrderDetail::class, 'charge_order_detail_id', 'charge_order_detail_id');
+        return $this->belongsTo(ChargeOrderDetail::class, 'charge_order_detail_id', 'charge_order_detail_id')->select('*');
     }
     public function unit()
     {
-        return $this->hasOne(Unit::class, 'unit_id', 'unit_id');
+        return $this->belongsTo(Unit::class, 'unit_id', 'unit_id')->select('*');
     }
   
 }

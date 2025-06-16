@@ -154,8 +154,7 @@ const ChargeOrder = () => {
         }
       );
     } catch (error) {
-      console.log('error', error)
-      // handleError(error);
+      handleError(error);
     } finally {
       toast.dismiss(loadingToast);
     }

@@ -32,31 +32,31 @@ class ServiceOrderDetail extends Model
 
     public function service_order()
     {
-        return $this->hasOne(ServiceOrder::class, 'service_order_id', 'service_order_id')->select('*');
+        return $this->belongsTo(ServiceOrder::class, 'service_order_id', 'service_order_id')->select('*');
     }
     public function charge_order()
     {
-        return $this->hasOne(ChargeOrder::class, 'charge_order_id', 'charge_order_id')->select('*');
+        return $this->belongsTo(ChargeOrder::class, 'charge_order_id', 'charge_order_id')->select('*');
     }
 
     public function charge_order_detail()
     {
-        return $this->hasOne(ChargeOrderDetail::class, 'charge_order_detail_id', 'charge_order_detail_id')->select('*');
+        return $this->belongsTo(ChargeOrderDetail::class, 'charge_order_detail_id', 'charge_order_detail_id')->select('*');
     }
     public function product()
     {
-        return $this->hasOne(Product::class, 'product_id', 'product_id')->select('*');
+        return $this->belongsTo(Product::class, 'product_id', 'product_id')->select('*');
     }
     public function product_type()
     {
-        return $this->hasOne(ProductType::class, 'product_type_id', 'product_type_id')->select('*');
+        return $this->belongsTo(ProductType::class, 'product_type_id', 'product_type_id')->select('*');
     }
     public function unit()
     {
-        return $this->hasOne(Unit::class, 'unit_id', 'unit_id')->select('*');
+        return $this->belongsTo(Unit::class, 'unit_id', 'unit_id')->select('*');
     }
     public function supplier()
     {
-        return $this->hasOne(Supplier::class, 'supplier_id', 'supplier_id')->select('*');
+        return $this->belongsTo(Supplier::class, 'supplier_id', 'supplier_id')->select('*');
     }
 }

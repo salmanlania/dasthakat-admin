@@ -22,6 +22,7 @@ use App\Models\Supplier;
 use App\Models\Technician;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use PDO;
 
 class ShipmentController extends Controller
@@ -98,7 +99,6 @@ class ShipmentController extends Controller
 	{
 
 		$data = Shipment::with(
-			"shipment_detail",
 			"shipment_detail.charge_order",
 			"shipment_detail.charge_order.agent",
 			"shipment_detail.charge_order.port",
@@ -263,7 +263,8 @@ class ShipmentController extends Controller
 		if (!empty($isError)) {
 			return $this->jsonResponse($isError, 400, "Request Failed!");
 		}
-
+		DB::beginTransaction();
+		try{
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument(
 			$request->type == "DO" ? $this->DO_document_type_id : $this->SO_document_type_id,
@@ -351,8 +352,13 @@ class ShipmentController extends Controller
 				'shipment_id' => $uuid,
 				'shipment_detail_id' => $this->get_uuid()
 			]);
-
+			DB::commit();
 		return $this->jsonResponse(['shipment_id' => $uuid], 200, "Create Shipment Order Successfully!");
+	} catch (\Exception $e) {
+		DB::rollBack(); // Rollback on error
+		Log::error('Shipment Store Error: ' . $e->getMessage());
+		return $this->jsonResponse("Something went wrong while saving Shipment.", 500, "Transaction Failed");
+	}
 	}
 
 

@@ -5,7 +5,7 @@ export const getStockReturnList = createAsyncThunk(
   'stockReturn/list',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get('/sale-return', {
+      const res = await api.get('/stock-return', {
         params
       });
       return res.data;
@@ -19,18 +19,18 @@ export const stockReturnDelete = createAsyncThunk(
   'stockReturn/delete',
   async (id, { rejectWithValue }) => {
     try {
-      await api.delete(`/sale-return/${id}`);
+      await api.delete(`/stock-return/${id}`);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const returnSaleInvoice = createAsyncThunk(
+export const returnStockReturn = createAsyncThunk(
   'stockReturn/detailPost',
   async (data, { rejectWithValue }) => {
     try {
-      const res = await api.post('/sale-return', data);
+      const res = await api.post('/stock-return', data);
       return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);
@@ -38,11 +38,11 @@ export const returnSaleInvoice = createAsyncThunk(
   }
 );
 
-export const updateSaleReturn = createAsyncThunk(
+export const updateStockReturn = createAsyncThunk(
   'stock-return/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      await api.put(`/sale-return/${id}`, data);
+      await api.put(`/stock-return/${id}`, data);
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -53,8 +53,8 @@ export const bulkDeleteStockReturn = createAsyncThunk(
   'stockReturn/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post('/sale-return/bulk-delete', {
-        sale_return_ids: ids
+      await api.post('/stock-return/bulk-delete', {
+        stock_return_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -62,11 +62,11 @@ export const bulkDeleteStockReturn = createAsyncThunk(
   }
 );
 
-export const getSaleReturn = createAsyncThunk(
+export const getStockReturn = createAsyncThunk(
   'stockReturn/get',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/sale-return/${id}`);
+      const res = await api.get(`/stock-return/${id}`);
       return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);
@@ -78,7 +78,7 @@ export const getStockReturnInvoice = createAsyncThunk(
   'stockReturn/get',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/sale-return/${id}`);
+      const res = await api.get(`/stock-return/${id}`);
       return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);
@@ -92,7 +92,7 @@ export const stockReturn = createAsyncThunk(
   'stockReturn/detailPost',
   async (data, { rejectWithValue }) => {
     try {
-      const res = await api.post('/sale-return/bulk-store', data);
+      const res = await api.post('/stock-return/bulk-store', data);
       return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);
@@ -173,10 +173,10 @@ export const stockReturnListSlice = createSlice({
 
     // get stock return
 
-    addCase(getSaleReturn.pending, (state) => {
+    addCase(getStockReturn.pending, (state) => {
       state.isItemLoading = true;
     });
-    addCase(getSaleReturn.fulfilled, (state, action) => {
+    addCase(getStockReturn.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
       state.initialFormValues = {
@@ -200,15 +200,15 @@ export const stockReturnListSlice = createSlice({
         ship_via: data?.ship_via ? data?.ship_via : null,
         return_date: data?.return_date ? data?.return_date : null,
       };
-      state.stockReturnDetail = data.sale_return_detail.map((detail) => ({
-        id: detail.sale_return_detail_id,
-        sale_return_detail_id: detail.sale_return_detail_id,
+      state.stockReturnDetail = data.stock_return_detail.map((detail) => ({
+        id: detail.stock_return_detail_id,
+        stock_return_detail_id: detail.stock_return_detail_id,
         picklist_detail_id: detail?.picklist_detail_id ? detail?.picklist_detail_id : null,
         warehouse_id: detail?.warehouse_id ? detail?.warehouse_id : null,
         product_code: detail.product ? detail.product.product_code : null,
         product_id: detail.product
           ? { value: detail.product.product_id, label: detail.product.product_name }
-          : null,
+          : { value: detail?.product_id, label: detail?.product_name } || null,
         product_type_id: detail.product_type
           ? {
             value: detail.product_type.product_type_id,
@@ -217,8 +217,8 @@ export const stockReturnListSlice = createSlice({
           : null,
         product_name:
           detail.charge_order_detail.product_type_id == '4'
-            ? detail.product_name || detail.charge_order_detail.product_name
-            : detail?.product?.name,
+            ? detail?.product_name || detail.charge_order_detail.product_name
+            : detail?.product?.name || detail?.product_name,
         product_description: detail.product_description,
         charge_order_detail_id: detail.charge_order_detail_id,
         description: detail.description,
@@ -235,18 +235,18 @@ export const stockReturnListSlice = createSlice({
         isDeleted: false
       }));
     });
-    addCase(getSaleReturn.rejected, (state) => {
+    addCase(getStockReturn.rejected, (state) => {
       state.isItemLoading = false;
       state.initialFormValues = null;
     });
 
-    addCase(updateSaleReturn.pending, (state) => {
+    addCase(updateStockReturn.pending, (state) => {
       state.isItemLoading = true;
     });
-    addCase(updateSaleReturn.fulfilled, (state) => {
+    addCase(updateStockReturn.fulfilled, (state) => {
       state.initialFormValues = null;
     });
-    addCase(updateSaleReturn.rejected, (state) => {
+    addCase(updateStockReturn.rejected, (state) => {
       state.isItemLoading = false;
     });
 

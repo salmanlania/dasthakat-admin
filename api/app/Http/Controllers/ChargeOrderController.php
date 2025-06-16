@@ -32,6 +32,7 @@ use App\Models\Technician;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ChargeOrderController extends Controller
 {
@@ -89,12 +90,11 @@ class ChargeOrderController extends Controller
 
 		return response()->json($data);
 	}
-
+	
 	public function show($id, Request $request)
 	{
-
-
-		$data = ChargeOrder::with(
+		// Main query with eager loading
+		$data = ChargeOrder::with([
 			"salesman",
 			"event",
 			"vessel",
@@ -104,26 +104,30 @@ class ChargeOrderController extends Controller
 			"class1",
 			"class2",
 			"agent",
-		)
-			->where('charge_order_id', $id)->first();
-			$data->charge_order_detail = ChargeOrderDetail::with(['supplier','unit','product_type'])->where('charge_order_id',$data->charge_order_id)->orderBy('sort_order')->get();
-
-
-
-		$technicianIds = $data->technician_id;
-		if (!is_array($technicianIds) || empty($technicianIds)) {
-			$data->technicians = null;
-		} else {
-			$data->technicians = User::whereIn('user_id', $technicianIds)->get(); // user_id used in technician_id
+			"charge_order_detail.product",
+			"charge_order_detail.supplier",
+			"charge_order_detail.unit",
+			"charge_order_detail.product_type"
+		])->where('charge_order_id', $id)->first();
+	
+		if (!$data) {
+			return $this->jsonResponse(null, 404, "Charge Order not found");
 		}
-		if ($data) {
-			foreach ($data->charge_order_detail as &$detail) {
-				$detail->picked_quantity = 	$this->getPickedQuantity($detail);
-				if ($detail->product) {
-					$detail->product->stock = StockLedger::Check($detail->product, $request->all());
-				}
+	
+		// Load technicians (assuming technician_id stores JSON array)
+		$technicianIds = is_array($data->technician_id) ? $data->technician_id : [];
+		$data->technicians = !empty($technicianIds) 
+			? User::whereIn('user_id', $technicianIds)->get()
+			: null;
+	
+		// Process charge order details
+		$data->charge_order_detail->each(function ($detail) use ($request) {
+			$detail->picked_quantity = $this->getPickedQuantity($detail);
+			if ($detail->product) {
+				$detail->product->stock = StockLedger::Check($detail->product, $request->all());
 			}
-		}
+		});
+	
 		return $this->jsonResponse($data, 200, "Charge Order Data");
 	}
 
@@ -205,7 +209,8 @@ class ChargeOrderController extends Controller
 
 		$chargeOrder = ChargeOrder::where('charge_order_id', $chargeOrderId)->first();
 		$Quotation = Quotation::where('document_identity', $chargeOrder->ref_document_identity)->first();
-
+	
+		try{
 		foreach ($data['vendors'] as $vendor) {
 			$supplierId = $vendor['supplier_id'] ?? null;
 			$requiredDate = $vendor['required_date'] ?? null;
@@ -286,8 +291,14 @@ class ChargeOrderController extends Controller
 				// 	]);
 			}
 		}
-
+		
+		DB::commit();
 		return $this->jsonResponse(null, 200, "Purchase Orders Created Successfully.");
+		} catch (\Exception $e) {
+			DB::rollBack(); // Rollback on error
+			Log::error('Purchase Orders Store Error: ' . $e->getMessage());
+			return $this->jsonResponse("Something went wrong while saving Purchase Orders Vendor wise.", 500, "Transaction Failed");
+		}
 	}
 
 	public function updatePicklist($request, $chargeOrder)
@@ -699,6 +710,7 @@ class ChargeOrderController extends Controller
 
 	private function createCertificate(string $jobOrderId, string $detailId, $detail, string $userId): void
 	{
+		
 		$Product = Product::with('category')->where('product_id', $detail['product_id'])->first();
 		$Category = $Product->category->name ?? '';
 		$certificateData = [
@@ -749,6 +761,8 @@ class ChargeOrderController extends Controller
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
 
+		DB::beginTransaction();
+		try {
 
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument($this->document_type_id, $request);
@@ -832,8 +846,13 @@ class ChargeOrderController extends Controller
 		$this->updateJobOrder($request, $chargeOrder);
 		$this->updateServiceOrder($request, $chargeOrder);
 
-
+		DB::commit(); // Success
 		return $this->jsonResponse(['charge_order_id' => $uuid], 200, "Add Charge Order Successfully!");
+		} catch (\Exception $e) {
+			DB::rollBack(); // Rollback on error
+			Log::error('Charge Order Store Error: ' . $e->getMessage());
+			return $this->jsonResponse("Something went wrong while saving Charge Order.", 500, "Transaction Failed");
+		}
 	}
 
 	public function update(Request $request, $id)
@@ -846,7 +865,8 @@ class ChargeOrderController extends Controller
 		$isError = $this->Validator($request->all(), $id);
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
-
+		DB::beginTransaction();
+		try {
 		$chargeOrder = ChargeOrder::findOrFail($id);
 		$oldChargeOrder = clone $chargeOrder;
 		$chargeOrder->fill([
@@ -874,13 +894,12 @@ class ChargeOrderController extends Controller
 			'updated_by' => $request->login_user_id,
 		])->save();
 
-if ($request->port_id) {
+		if ($request->port_id) {
 
 			EventDispatch::where('event_id', $request->event_id)->update(['port_id' => $request->port_id]);
 		}
 		if ($request->charge_order_detail) {
 			foreach ($request->charge_order_detail as $value) {
-				try {
 					if ($value['row_status'] == 'I') {
 						$detail_uuid = $this->get_uuid();
 						$insertArr = [
@@ -995,9 +1014,7 @@ if ($request->port_id) {
 					if ($value['row_status'] == 'D') {
 						ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id'])->delete();
 					}
-				} catch (\Exception $e) {
-					return $this->jsonResponse($e->getMessage(), 500, 'Error');
-				}
+				
 			}
 		}
 
@@ -1014,8 +1031,13 @@ if ($request->port_id) {
 		$this->updateJobOrder($request, $chargeOrder);
 		$this->updateServiceOrder($request, $chargeOrder);
 
-
+		DB::commit();
 		return $this->jsonResponse(['charge_order_id' => $id], 200, "Update Charge Order Successfully!");
+		} catch (\Exception $e) {
+			DB::rollBack(); // Rollback on error
+			Log::error('Charge Order Update Error: ' . $e->getMessage());
+			return $this->jsonResponse("Something went wrong while updating Charge Order.", 500, "Transaction Failed");
+		}
 	}
 
 

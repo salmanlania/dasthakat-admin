@@ -1,323 +1,463 @@
+import dayjs from 'dayjs';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { GMS_ADDRESS } from '../../constants';
+import { PDFDocument } from 'pdf-lib';
 
-import dayjs from 'dayjs';
 import GMSLogo from '../../assets/logo-with-title.png';
-import { formatThreeDigitCommas } from '../number';
+import Logo1 from '../../assets/quotation/logo1.png';
+import Logo2 from '../../assets/quotation/logo2.png';
+import Logo3 from '../../assets/quotation/logo3.png';
+import Logo4 from '../../assets/quotation/logo4.png';
+import Logo5 from '../../assets/quotation/logo5.png';
+import Logo6 from '../../assets/quotation/logo6.png';
+import Logo7 from '../../assets/quotation/logo7.png';
 
-const fillEmptyRows = (rows, rowsPerPage) => {
+import { formatThreeDigitCommas, roundUpto } from '../number';
+import { AiOutlineConsoleSql } from 'react-icons/ai';
+
+const mergePDFs = async (quotationPDFBlob) => {
+  const quotationPDFBytes = await quotationPDFBlob.arrayBuffer();
+  const quotationPDF = await PDFDocument.load(quotationPDFBytes);
+
+  // const termsPDFBytes = await fetch(QuotationTerms).then((res) => res.arrayBuffer());
+  // const termsPDF = await PDFDocument.load(termsPDFBytes);
+
+  const mergedPDF = await PDFDocument.create();
+  const quotationPages = await mergedPDF.copyPages(quotationPDF, quotationPDF.getPageIndices());
+  // const termsPages = await mergedPDF.copyPages(termsPDF, termsPDF.getPageIndices());
+
+  // Add quotation pages first
+  quotationPages.forEach((page) => mergedPDF.addPage(page));
+
+  // Add terms pages at the end
+  // termsPages.forEach((page) => mergedPDF.addPage(page));
+
+  const finalPDFBytes = await mergedPDF.save();
+  const finalBlob = new Blob([finalPDFBytes], { type: 'application/pdf' });
+  const finalUrl = URL.createObjectURL(finalBlob);
+  window.open(finalUrl, '_blank');
+};
+
+const fillEmptyRows = (rows, rowsPerPage, notesLength = 1) => {
   // Calculate how many rows are required to fill the current page
   const rowsOnLastPage = rows.length % rowsPerPage;
   const emptyRowsNeeded = rowsOnLastPage ? rowsPerPage - rowsOnLastPage : 0;
 
+  // Adjust for notes if they exceed the available space
+  const totalRowsToAdd =
+    emptyRowsNeeded < notesLength
+      ? emptyRowsNeeded + rowsPerPage - notesLength
+      : emptyRowsNeeded - notesLength;
+
   // Add empty rows to the table
-  for (let i = 0; i < emptyRowsNeeded; i++) {
-    rows.push(['', '', '', '', '', '', '', '', '', '']);
+  for (let i = 0; i < totalRowsToAdd; i++) {
+    rows.push(['', '', '', '', '', '']);
   }
 
   return rows;
 };
 
-const addHeader = (doc, data, sideMargin) => {
-
-  // doc.addImage(GMSLogo, 'PNG', 88, 5, 32, 26); // Centered logo
-  doc.addImage(GMSLogo, 'PNG', 20, 1, 35, 26);
-  doc.setFontSize(18);
+const addHeader = (doc, data, pageWidth, sideMargin) => {
+  doc.setFontSize(23);
   doc.setFont('times', 'bold');
-  doc.text('Global Marine Safety - America', 110, 10, { align: 'center' });
-
-  // Company Info
-  doc.setFontSize(10);
-  doc.setFont('times', 'normal');
-  doc.text('9145 Wallisville Rd, Houston TX 77029, USA', 105, 18, { align: 'center' });
-  doc.text('Tel: 1 713-518-1715, Fax: 1 713-518-1760, Email: tech1@gms-america.com', 110, 22, { align: 'center' });
-
-  // Logo
-
-  // Sale Return Box
-  // Draw the rectangle (outer border)
-  doc.setDrawColor(0, 0, 0);
-  doc.setLineWidth(1); // Set border thickness
-  doc.rect(sideMargin, 32, 80, 10); // x, y, width, height
-  doc.setLineWidth(0.3);
-
-  // Add the text inside the box
-  doc.setFontSize(15); // Set font size
-  doc.setFont('times', 'bolditalic'); // Set font style (italic and bold)
-  doc.text('Sale Return', 26, 39); // Centered text
-
-  // *** Right side boxes ***
-  let startX = 126;
-  let startY = 30;
-  let boxWidth = 40;
-  let boxHeight = 7;
-
-  const currentPage = doc.internal.getCurrentPageInfo().pageNumber;
-  const totalPages = doc.internal.getNumberOfPages();
-
-  const rows = [
-    { label: 'SR No.', value: data.document_identity },
-    {
-      label: 'S.R.Date.',
-      value: data.document_date ? dayjs(data.document_date).format('MM-DD-YYYY') : ''
-    },
-    {
-      label: 'Required Date.',
-      value: dayjs().format('MM-DD-YYYY')
-    },
-    { label: 'Terms', value: data?.charge_order?.quotation?.payment?.name ? data?.charge_order?.quotation?.payment?.name : '' },
-    { label: 'Charge No.', value: data?.charge_order?.document_identity || '' },
-    { label: 'Quotation No.', value: data?.charge_order?.quotation?.document_identity || '' },
-    { label: 'Page', value: `Page ${currentPage} of ${totalPages}` }
-  ];
-
-  // Draw boxes with content
-  doc.setFontSize(8);
-  doc.setFont('times', 'normal');
-  rows.forEach((row, index) => {
-    // Draw label box
-    doc.rect(startX, startY + index * boxHeight, boxWidth, boxHeight);
-    doc.text(row.label, startX + 2, startY + index * boxHeight + 4.5);
-
-    // Draw value box
-    doc.rect(startX + boxWidth, startY + index * boxHeight, boxWidth, boxHeight);
-    doc.text(row.value, startX + boxWidth + 2, startY + index * boxHeight + 4.5);
+  doc.text('Global Marine Safety - America', pageWidth / 2, 12, {
+    align: 'center'
   });
-
-  // Send To box
-  // Draw the main box
-  let startSendToX = sideMargin;
-  let startSendToY = 87;
-  let sentToWidth = 99;
-  let sentToHeight = 52;
-  doc.rect(startSendToX, startSendToY, sentToWidth, sentToHeight); // x, y, width, height
-
-  // Add "Send To :" text
+  doc.setFont('times', 'normal');
   doc.setFontSize(10);
-  doc.setFont('times', 'bold');
-  doc.text('Send To :', startSendToX + 4, startSendToY + 6); // x, y
-  doc.rect(startSendToX, startSendToY + 10, sentToWidth, 0);
-
-  // Add the content
-  doc.setFontSize(8);
-  doc.setFont('times', 'normal');
-  doc.setFont('times', 'bold');
-  const billToAddress = doc.splitTextToSize(data?.charge_order?.customer?.billing_address || '', 88);
-  doc.text(billToAddress, startSendToX + 4, startSendToY + 16);
-  doc.setFont('times', 'normal');
-  doc.text(doc.splitTextToSize(`Name: ${data?.charge_order?.customer?.name || ''}` , 88), startSendToX + 4, startSendToY + 26);
-  doc.text(doc.splitTextToSize(`Tel : ${data?.charge_order?.customer?.phone_no || ''}` , 88), startSendToX + 4, startSendToY + 30);
-  doc.text(doc.splitTextToSize('Fax :' , 88), startSendToX + 4, startSendToY + 34);
-  doc.text(doc.splitTextToSize(`Email : ${data?.charge_order?.customer?.email_sales || ''}` , 88), startSendToX + 4, startSendToY + 38);
-
-  // Ship To box
-  // Draw the main box
-  let startShipToX = 107;
-  let startShipToY = 87;
-  let shipToWidth = 99;
-  let shipToHeight = 52;
-  doc.rect(startShipToX, startShipToY, shipToWidth, shipToHeight); // x, y, width, height
-
-  // Add "Ship To :" text
-  doc.setFontSize(10);
-  doc.setFont('times', 'bold');
-  doc.text('Ship To :', startShipToX + 4, startShipToY + 6); // x, y
-  doc.rect(startShipToX, startShipToY + 10, shipToWidth, 0);
-
-  // Add the content
-  doc.setFontSize(8);
-  doc.setFont('times', 'normal');
-
-  const shipToContent = data.ship_to || GMS_ADDRESS;
-  const shipToLines = shipToContent.split(',');
-  let currentYPosition = startShipToY + 16;
-
-  shipToLines.forEach((line) => {
-    if (line.includes('Global Marine Safety 9145 Wallisville Road Houston TX 77029')) {
-      doc.setFont('times', 'bold');
-    } else {
-      doc.setFont('times', 'normal');
+  doc.text('9145 Wallisville Rd, Houston TX 77029, USA', pageWidth / 2, 18, {
+    align: 'center'
+  });
+  doc.text(
+    'Tel: 1 713-518-1715, Fax: 1 713-518-1760, Email: sales@gms-america.com',
+    pageWidth / 2,
+    22,
+    {
+      align: 'center'
     }
-    const splitLine = doc.splitTextToSize(line.trim(), shipToWidth);
-    doc.text(splitLine, startShipToX + 4, currentYPosition);
-    currentYPosition += splitLine.length * 6; // Adjust the vertical spacing as needed
+  );
+
+  // Header LOGO
+  doc.addImage(GMSLogo, 'PNG', 8, 1, 35, 26);
+
+  doc.setFontSize(10);
+  doc.setFont('times', 'bold');
+
+  // Define common box width
+  const boxWidth = 94;
+  const headerHeight = 7;
+  const boxX1 = sideMargin;
+  const boxX2 = sideMargin + boxWidth + 10; // Add spacing between the boxes if needed
+
+  // Header labels
+  doc.rect(boxX1 - 2, 35, boxWidth + 4, headerHeight);
+  doc.text('Bill To', boxX1, 40);
+  doc.rect(boxX2 - 2, 35, boxWidth + 4, headerHeight);
+  doc.text('Ship To', boxX2, 40);
+
+  doc.setFont('times', 'normal');
+
+  // Bill To content
+  const customerInfo = [
+    data?.charge_order?.customer?.name,
+    data?.charge_order?.customer?.address,
+    data?.charge_order?.vessel?.billing_address
+  ].filter(Boolean);
+
+  const billTo = doc.splitTextToSize(customerInfo.join('\n'), boxWidth);
+  const billToHeight = billTo.length * 5;
+
+  // Ship To content
+  const vesselInfo = [
+    data?.charge_order?.vessel?.name,
+    data?.charge_order?.vessel?.billing_address
+  ].filter(Boolean).join('\n');
+
+  const shipTo = doc.splitTextToSize(vesselInfo, boxWidth);
+  const shipToHeight = shipTo.length * 5;
+
+  // Determine max height to equalize box height
+  const contentY = 42;
+  const maxBoxHeight = Math.max(billToHeight, shipToHeight);
+
+  // Draw content boxes
+  doc.rect(boxX1 - 2, contentY, boxWidth + 4, maxBoxHeight + 4);
+  doc.text(billTo, boxX1, contentY + 4);
+
+  doc.rect(boxX2 - 2, contentY, boxWidth + 4, maxBoxHeight + 4);
+  doc.text(shipTo, boxX2, contentY + 4);
+
+  // ESTIMATE
+  doc.setFontSize(26);
+  doc.setFont('times', 'bold');
+  doc.text('SALE RETURN', pageWidth / 2, 76, {
+    align: 'center'
   });
+  doc.setDrawColor(32, 50, 114);
+  doc.setLineWidth(0.6);
+  // doc.line(pageWidth / 2 + 16, 64, 89, 64);
+  doc.line(pageWidth / 2 - doc.getTextWidth('SALE RETURN') / 2, 78, pageWidth / 2 + doc.getTextWidth('SALE RETURN') / 2, 78);
 
-  // Buyer's Info Table
-  const table1Column = ["Buyer's Name", "Buyer's Email", 'Required Date', 'Ship via'];
+  doc.setFont('times', 'normal');
+  doc.setFontSize(10);
 
+  // Table 1
+  const table1Column = [
+    'Date',
+    'Invoice #',
+    "Customer's Reference",
+    'Payment Terms',
+    'Delivery Location',
+    'S.O No.',
+    'Event No.',
+    'Sales Rep',
+    'Ship Date'
+  ];
   const table1Rows = [
     [
-      data.created_by_user ? data.created_by_user.user_name : '',
-      // data.user ? data.user.email : '',
-      'tech1@gms-america.com',
-      dayjs().format('MM-DD-YYYY'),
-      data.ship_via || ''
+      data.document_date ? dayjs(data.document_date).format('MM-DD-YYYY') : '',
+      data.document_identity,
+      data?.charge_order?.event.event_code,
+      data?.charge_order?.quotation?.payment.name ? data?.charge_order?.quotation?.payment.name : '',
+      data?.charge_order ? data?.charge_order?.quotation?.delivery : '',
+      data?.charge_order ? data.charge_order?.salesman?.name : '',
+      data?.charge_order ? data.charge_order?.event?.event_code : '',
+      data?.charge_order ? data.charge_order?.service_order?.document_identity : '',
+      data.service_date
+        ? (data.service_date === "1989-11-30"
+          ? dayjs(data.service_date).format('MM-DD-YYYY')
+          : data.service_date === "0000-00-00"
+            ? 'TBA'
+            : dayjs(data.service_date).format("MM-DD-YYYY"))
+        : '',
     ]
   ];
 
   doc.autoTable({
-    startY: 145,
+    startY: 82,
     head: [table1Column],
     body: table1Rows,
-    margin: { left: sideMargin },
+    margin: { left: sideMargin, right: sideMargin, bottom: 27 },
     headStyles: {
       halign: 'center',
       valign: 'middle',
-      fontSize: 9,
+      fontSize: 8,
       fontStyle: 'bold',
-      textColor: [0, 0, 0],
-      fillColor: [255, 255, 255]
+      textColor: [32, 50, 114],
+      fillColor: [221, 217, 196]
     },
     styles: {
+      font: 'times',
       halign: 'center',
       valign: 'middle',
       lineWidth: 0.1,
-      font: 'times',
-      lineColor: [0, 0, 0],
-      cellPadding: 2
+      lineColor: [116, 116, 116]
     },
     bodyStyles: {
-      fontSize: 8,
-      textColor: [0, 0, 0],
+      fontSize: 7,
+      textColor: [32, 50, 114],
       fillColor: [255, 255, 255]
     },
     alternateRowStyles: {
       fillColor: [255, 255, 255]
     },
     columnStyles: {
-      0: { cellWidth: 69 },
-      1: { cellWidth: 81 },
-      2: { cellWidth: 26 },
-      3: { cellWidth: 26 },
-      4: { cellWidth: 28 }
+      0: { cellWidth: 19 },
+      1: { cellWidth: 24 },
+      2: { cellWidth: 22 },
+      3: { cellWidth: 37 },
+      4: { cellWidth: 25 },
+      5: { cellWidth: 19 },
+      6: { cellWidth: 19 },
+      7: { cellWidth: 15 },
+      8: { cellWidth: 22 },
+      9: { cellWidth: 21 },
+    },
+    didParseCell: function (data) {
+      data.cell.styles.minCellHeight = 9;
     }
   });
 };
 
-const addFooter = (doc, data, sideMargin, pageHeight) => {
-  const vesselName = data?.charge_order?.vessel?.name || '';
-  doc.setFont('times', 'bold');
-  doc.text(vesselName, sideMargin, pageHeight + 1);
-  doc.setFont('times', 'normal');
-
-  doc.text('Global Marine Safety - America All Rights Reserved', sideMargin, pageHeight + 8);
-  doc.text('gms-america.com', sideMargin, pageHeight + 12);
+const addFooter = (doc, pageWidth, pageHeight) => {
+  doc.addImage(Logo1, 'PNG', 8, pageHeight, 26, 22);
+  doc.addImage(Logo2, 'PNG', 38, pageHeight + 6, 26, 10);
+  doc.addImage(Logo3, 'PNG', 70, pageHeight + 2, 26, 16);
+  doc.addImage(Logo4, 'PNG', 102, pageHeight + 4, 26, 16);
+  doc.addImage(Logo5, 'PNG', 130, pageHeight, 32, 16);
+  doc.addImage(Logo6, 'PNG', 164, pageHeight + 2, 14, 16);
+  doc.addImage(Logo7, 'PNG', 182, pageHeight + 2, 14, 16);
 
   const currentPage = doc.internal.getCurrentPageInfo().pageNumber;
-  doc.text(`Page ${currentPage}`, 190, pageHeight + 10);
+  const totalPages = doc.internal.getNumberOfPages();
+
+  doc.setFont('times', 'bolditalic');
+  doc.text(
+    currentPage === totalPages ? `Last page` : `Continue to page ${currentPage + 1}`,
+    pageWidth / 2,
+    pageHeight - 9.2,
+    {
+      align: 'center'
+    }
+  );
+
+  doc.setFont('times', 'normal');
 };
 
-export const createSaleReturnPrint = (data) => {
+export const createSaleReturnPrint = async (data) => {
   const doc = new jsPDF();
+  doc.setTextColor(32, 50, 114);
+
   const sideMargin = 4;
 
-  // Sale Return Items Table
+  const descriptions = data.term_desc ? data.term_desc.split('\n') : [];
+  const rowSpan = descriptions.length + 1;
+
+  // Table 2
   const table2Column = [
-    'S#',
-    'IMPA',
-    'Qty',
-    'Unit',
+    'S. No',
     'Description',
+    'Quantity',
+    'UOM',
     'Unit Price',
-    'Ext. Cos',
+    'Amount'
   ];
 
-  const table2Rows = data.sale_return_detail
-    ? data.sale_return_detail.map((detail, index) => [
-      index + 1,
-      detail?.product?.impa_code || '',
-      {
-        content: detail.quantity ? parseFloat(detail.quantity) : '',
-        styles: { halign: 'right' }
-      },
-      detail.unit ? detail?.unit?.name : '',
-      {
-        content: detail?.product_description || '',
-        styles: { halign: 'left' }
-      },
-      {
-        content: detail.rate ? formatThreeDigitCommas(detail.rate) : '',
-        styles: { halign: 'right' }
-      },
-      {
-        content: detail.amount ? formatThreeDigitCommas(detail.amount) : '',
-        styles: { halign: 'right' }
-      },
-    ])
-    : [];
+  const table2Rows = [];
+  if (data.sale_return_detail) {
+    data.sale_return_detail.forEach((detail) => {
+      const sr = detail.sort_order + 1;
+      const description = `${detail?.product_description || ''}${detail?.description ? `\n \n${detail.description}` : ''}`;
+      const quantity = detail.quantity ? formatThreeDigitCommas(parseFloat(detail.quantity)) : '';
+      const uom = detail.unit ? detail.unit.name : '';
+      const pricePerUnit = detail.rate ? `$${formatThreeDigitCommas(detail.rate)}` : '';
+      const netAmount = detail.amount
+        ? `$${formatThreeDigitCommas(detail.amount)}`
+        : '';
 
-  const filledRows = fillEmptyRows(table2Rows, 9);
+      const row = [
+        sr,
+        {
+          content: description,
+          styles: { halign: 'left', valign: detail?.description?.trim() ? 'top' : 'middle' }
+        },
+        quantity,
+        uom,
+        { content: pricePerUnit, styles: { halign: 'right' } },
+        { content: netAmount, styles: { halign: 'right' } }
+      ];
+
+      table2Rows.push(row);
+    });
+  }
+
+  const filledRows = fillEmptyRows(table2Rows, 11, descriptions.length + 1);
+
+  // Adding Table
   doc.autoTable({
-    startY: 165,
+    startY: 101,
     head: [table2Column],
     body: filledRows,
-    margin: { left: 4, top: 150, bottom: 22 },
+    margin: { left: sideMargin, right: sideMargin, bottom: 32, top: 84 },
     headStyles: {
-      halign: 'center',
-      valign: 'middle',
       fontSize: 8,
       fontStyle: 'bold',
-      textColor: [0, 0, 0],
-      fillColor: [255, 255, 255]
+      halign: 'center',
+      valign: 'middle',
+      textColor: [32, 50, 114],
+      fillColor: [221, 217, 196]
     },
     styles: {
       halign: 'center',
       valign: 'middle',
       font: 'times',
+      fontSize: 8,
       lineWidth: 0.1,
-      lineColor: [0, 0, 0],
-      cellPadding: 1
+      lineColor: [116, 116, 116]
     },
     bodyStyles: {
-      fontSize: 7,
-      textColor: [0, 0, 0],
+      textColor: [32, 50, 114],
       fillColor: [255, 255, 255]
     },
     alternateRowStyles: {
       fillColor: [255, 255, 255]
     },
     rowPageBreak: 'avoid',
+
     columnStyles: {
-      0: { cellWidth: 9 },
-      1: { cellWidth: 20 },
-      2: { cellWidth: 18 },
-      3: { cellWidth: 18 },
-      4: { cellWidth: 97 },
+      0: { cellWidth: 12 },
+      1: { cellWidth: 110 },
+      2: { cellWidth: 20 },
+      3: { cellWidth: 20 },
+      4: { cellWidth: 20 },
       5: { cellWidth: 20 },
-      6: { cellWidth: 20 },
+      6: { cellWidth: 20 }
     },
     didParseCell: function (data) {
-      data.cell.styles.minCellHeight = 11;
+      data.cell.styles.minCellHeight = 13;
     }
   });
 
-  doc.setFontSize(12);
-  doc.setFont('times', 'bold');
-  doc.text(
-    `Total Value = ${formatThreeDigitCommas(data.total_amount) || ''}`,
-    142,
-    doc.previousAutoTable.finalY + 5
-  );
+  // Total Amounts
+  const totalGrossAmount = data.total_amount ? `$${formatThreeDigitCommas(data.total_amount)}` : '';
+
+  let notes = [
+    [
+      {
+        content: 'Remit Payment to: Global Marine Safety Service Inc\nFrost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44',
+        colSpan: 6,
+        styles: {
+          fontStyle: 'bold',
+          fontSize: 9,
+          halign: 'left',
+        }
+      },
+      {
+        content: 'USD Total:',
+        colSpan: 2,
+        styles: {
+          fontStyle: 'bold',
+          halign: 'right',
+          fontSize: 13
+        }
+      },
+      {
+        content: totalGrossAmount,
+        styles: {
+          fontStyle: 'bold',
+          halign: 'right',
+          fontSize: 9
+        }
+      }
+    ],
+    [
+    {
+      content: 'Note: Any invoice discrepancies must be reported prior to invoice due date. Also please arrange payment in full by due date in order to avoid any late fee or additional charges. Appropriate wire fee must be included in order to avoid short payment resulting in additional charges.',
+      colSpan: 9,
+      styles: {
+        fontStyle: 'italic',
+        fontSize: 8,
+        halign: 'center'
+      }
+    }
+  ]
+  ];
+
+  // notes.push([
+  //   {
+  //     content: 'Notes:',
+  //     rowSpan: rowSpan,
+  //     styles: {
+  //       fontSize: 9,
+  //       fontStyle: 'bold'
+  //     }
+  //   },
+  //   {
+  //     content: 'Note: Any invoice discrepancies must be reported prior to invoice due date. Also please arrange payment in full by due date in order to avoid any late fee or additional charges. Appropriate wire fee must be included in order to avoid short payment resulting in additional charges.',
+  //     colSpan: 8,
+  //     styles: {
+  //       halign: 'left',
+  //       fontStyle: 'italic',
+  //       fontSize: 8
+  //     }
+  //   }
+  // ]);
+
+  doc.autoTable({
+    startY: doc.previousAutoTable.finalY,
+    head: [],
+    body: notes,
+    margin: { left: sideMargin, right: sideMargin, bottom: 27, top: 84 },
+    styles: {
+      lineWidth: 0.1,
+      lineColor: [116, 116, 116],
+      valign: 'middle',
+      halign: 'center',
+      font: 'times'
+    },
+    bodyStyles: {
+      fontSize: 8,
+      textColor: [32, 50, 114],
+      fillColor: [255, 255, 255],
+      valign: 'middle',
+      halign: 'center'
+    },
+    alternateRowStyles: {
+      fillColor: [255, 255, 255]
+    },
+    columnStyles: {
+      0: { cellWidth: 25 },
+      1: { cellWidth: 66 },
+      2: { cellWidth: 10 },
+      3: { cellWidth: 10 },
+      4: { cellWidth: 17 },
+      5: { cellWidth: 19 },
+      6: { cellWidth: 14 },
+      7: { cellWidth: 14 },
+      8: { cellWidth: 27 }
+    },
+    didParseCell: (data) => {
+      data.cell.styles.minCellHeight = 9;
+    }
+  });
 
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     const pageSize = doc.internal.pageSize;
+    const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
     const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
 
     // Header
-    addHeader(doc, data, sideMargin);
+    addHeader(doc, data, pageWidth, sideMargin);
 
     // Footer
-    addFooter(doc, data, sideMargin, pageHeight - 18);
+    // addFooter(doc, pageWidth, pageHeight - 25);
   }
 
   doc.setProperties({
-    title: `SR - ${data.document_identity}`
+    title: `Quotation - ${data.document_identity}`
   });
   const pdfBlob = doc.output('blob');
-  const pdfUrl = URL.createObjectURL(pdfBlob, {});
-  window.open(pdfUrl, '_blank');
+  await mergePDFs(pdfBlob);
 };

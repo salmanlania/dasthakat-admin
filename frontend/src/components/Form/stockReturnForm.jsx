@@ -39,7 +39,7 @@ const stockReturnForm = ({ mode, onSubmit, onSave }) => {
     const data = {
       ...values,
       picklist_id: initialFormValues?.picklist_id ? initialFormValues?.picklist_id : null,
-      sale_return_detail: stockReturnDetail.map(({ id, ...detail }) => ({
+      stock_return_detail: stockReturnDetail.map(({ id, ...detail }) => ({
         ...detail,
         amount: detail.amount ? detail.amount : null,
         quantity: detail.quantity ? detail.quantity : null,

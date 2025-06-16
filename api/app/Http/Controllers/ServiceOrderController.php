@@ -6,14 +6,11 @@ use App\Models\ChargeOrder;
 use App\Models\DocumentType;
 use Illuminate\Http\Request;
 use App\Models\ChargeOrderDetail;
-use App\Models\GRNDetail;
-use App\Models\PicklistReceivedDetail;
-use App\Models\ServicelistReceivedDetail;
 use App\Models\ServiceOrder;
 use App\Models\ServiceOrderDetail;
-use App\Models\Shipment;
-use App\Models\ShipmentDetail;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ServiceOrderController extends Controller
 {
@@ -100,7 +97,6 @@ class ServiceOrderController extends Controller
 	{
 
 		$data = ServiceOrder::with(
-			"service_order_detail",
 			"service_order_detail.charge_order",
 			"service_order_detail.charge_order_detail",
 			"service_order_detail.product",
@@ -186,6 +182,9 @@ class ServiceOrderController extends Controller
 			return $this->jsonResponse($isError, 400, "Request Failed!");
 		}
 
+		DB::beginTransaction();
+		try {
+
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument($this->document_type_id, $request);
 		$chargeOrder = ChargeOrder::find($request->service_order[0]['charge_order_id']);
@@ -260,8 +259,14 @@ class ServiceOrderController extends Controller
 				'service_order_id' => $uuid,
 				'service_order_detail_id' => $this->get_uuid()
 			]);
+  	  	DB::commit();
 
 		return $this->jsonResponse(['service_order_id' => $uuid], 200, "Create Service Order Successfully!");
+		} catch (\Exception $e) {
+			DB::rollBack(); // Rollback on error
+			Log::error('Service Order Store Error: ' . $e->getMessage());
+			return $this->jsonResponse("Something went wrong while saving Service Order.", 500, "Transaction Failed");
+		}
 	}
 
 	public function delete($id, Request $request)

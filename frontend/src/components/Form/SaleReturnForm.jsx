@@ -13,13 +13,14 @@ import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
 import { DetailSummaryInfo } from './QuotationForm';
+import { returnPurchaseOrder } from '../../store/features/purchaseReturnSlice';
 
 const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const handleError = useError();
   const dispatch = useDispatch();
   const { id } = useParams();
-  const { isFormSubmitting, initialFormValues, saleReturnDetail } = useSelector(
+  const { isFormSubmitting, initialFormValues, saleReturnDetail, stockReturnDetail, purchaseReturnDetail } = useSelector(
     (state) => state.saleReturn
   );
 
@@ -36,15 +37,44 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
   const onFinish = (values) => {
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
 
+    const updatedStockReturnDetail = {
+      ...stockReturnDetail,
+      stock_return: {
+        ...stockReturnDetail.stock_return,
+        stock_return_detail: stockReturnDetail?.stock_return?.stock_return_detail?.map(item => ({
+          ...item,
+          row_status: item.row_status ? item.row_status : 'U',
+          isDeleted: item.isDeleted !== undefined ? item.isDeleted : false
+        })) || []
+      }
+    };
+
+    const updatedPurchaseReturnDetail = {
+      ...purchaseReturnDetail,
+      purchase_return: {
+        ...purchaseReturnDetail.purchase_return,
+        purchase_return_detail: purchaseReturnDetail?.purchase_return?.purchase_return_detail?.map(item => ({
+          ...item,
+          row_status: item.row_status ? item.row_status : 'U',
+          isDeleted: item.isDeleted !== undefined ? item.isDeleted : false
+        })) || []
+      }
+    };
+
     const data = {
       ...values,
-      picklist_id: initialFormValues?.picklist_id ? initialFormValues?.picklist_id : null,
+      stockReturnDetail: updatedStockReturnDetail,
+      purchaseReturnDetail: updatedPurchaseReturnDetail,
+      sale_invoice_id: initialFormValues?.sale_invoice_id ? initialFormValues?.sale_invoice_id : null,
       sale_return_detail: saleReturnDetail.map(({ id, ...detail }) => ({
         ...detail,
         amount: detail.amount ? detail.amount : null,
         quantity: detail.quantity ? detail.quantity : null,
+        product_id: detail?.product_id?.value ? detail?.product_id?.value : null,
+        unit_id: detail?.unit_id?.value ? detail?.unit_id?.value : null,
       })),
     };
+
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 
@@ -310,7 +340,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
       scrollToFirstError>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
-        <span className="text-gray-500">Sale Invoice No:</span>
+        <span className="text-gray-500">Sale Return No:</span>
         <span
           className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
             } rounded px-1`}
@@ -404,50 +434,6 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
             <Input disabled />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item name="status" label="Status">
-            <Select
-              size="small"
-              className="w-full"
-              allowClear
-              options={[
-                { label: 'Created', value: 'created' },
-                { label: 'Return', value: 'return' },
-              ]}
-            />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={6} lg={6}>
-          <Form.Item name="return_date" label="Return Date">
-            <DatePicker format="MM-DD-YYYY : HH:mm:ss" showTime className="w-full" />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="ship_to" label="Ship To">
-            <Input.TextArea rows={1} />
-          </Form.Item>
-        </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="ship_via" label="Ship Via">
-            <Select
-              options={[
-                {
-                  value: 'Courier',
-                  label: 'Courier'
-                },
-                {
-                  value: 'Pickup',
-                  label: 'Pickup'
-                },
-                {
-                  value: 'Delivery',
-                  label: 'Delivery'
-                }
-              ]}
-              allowClear
-            />
-          </Form.Item>
-        </Col>
       </Row>
       <Table
         columns={columns}
@@ -466,11 +452,11 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
           <Col span={24} sm={12} md={6} lg={6}>
             <DetailSummaryInfo
               title="Total Quantity:"
-              value={totalQuantity || 0}
+              value={`-${totalQuantity || 0}`}
             />
             <DetailSummaryInfo
               title="Total Amount:"
-              value={mode === 'edit' && totalAmount ? totalAmount : totalAmount}
+              value={`-${mode === 'edit' && totalAmount ? totalAmount : totalAmount}`}
             />
           </Col>
         </Row>

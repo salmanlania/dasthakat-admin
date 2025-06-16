@@ -16,6 +16,7 @@ use App\Models\StockLedger;
 use App\Models\Warehouse;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PurchaseReturnController extends Controller
 {
@@ -79,7 +80,6 @@ class PurchaseReturnController extends Controller
     public function show($id, Request $request)
     {
         $data = PurchaseReturn::with(
-            "purchase_return_detail",
             "purchase_return_detail.charge_order_detail",
             "purchase_return_detail.product",
             "purchase_return_detail.product.product_type",
@@ -130,8 +130,8 @@ class PurchaseReturnController extends Controller
             return $this->jsonResponse('Permission Denied!', 403, "No Permission");
         }
 
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
 
             foreach ($request->purchase_returns as $key => $newObj) {
                 $PurchaseOrder = PurchaseOrder::find($newObj['purchase_order_id']);
@@ -241,8 +241,9 @@ class PurchaseReturnController extends Controller
             DB::commit();
             return $this->jsonResponse(['purchase_return_id' => $uuid], 200, "Create Bulk Purchase Returns Successfully!");
         } catch (\Exception $e) {
-            DB::rollBack();
-            return $this->jsonResponse('Error creating purchase returns: ' . $e->getMessage(), 500);
+            DB::rollBack(); // Rollback on error
+            Log::error('Purchase Return Store Error: ' . $e->getMessage());
+            return $this->jsonResponse("Something went wrong while saving Purchase Return.", 500, "Transaction Failed");
         }
     }
 
@@ -257,8 +258,8 @@ class PurchaseReturnController extends Controller
             return $this->jsonResponse($validationError, 400, "Request Failed!");
         }
 
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
 
             $PurchaseOrder = PurchaseOrder::find($request->purchase_order_id);
             if (!$PurchaseOrder) {
@@ -272,6 +273,7 @@ class PurchaseReturnController extends Controller
                 'purchase_return_id'   => $uuid,
                 'company_id'        => $request->company_id ?? "",
                 'company_branch_id' => $request->company_branch_id ?? "",
+                'sale_return_id' => $request->sale_return_id ?? "",
                 'document_type_id'  => $document['document_type_id'] ?? "",
                 'document_no'       => $document['document_no'] ?? "",
                 'document_prefix'   => $document['document_prefix'] ?? "",
@@ -371,8 +373,9 @@ class PurchaseReturnController extends Controller
                 return $this->jsonResponse(['purchase_return_id' => $uuid], 500, "Cannot generate Return: No items with available quantity.");
             }
         } catch (\Exception $e) {
-            DB::rollBack();
-            return $this->jsonResponse('Error creating purchase return: ' . $e->getMessage(), 500);
+            DB::rollBack(); // Rollback on error
+            Log::error('Purchase Return Store Error: ' . $e->getMessage());
+            return $this->jsonResponse("Something went wrong while saving Purchase Return.", 500, "Transaction Failed");
         }
     }
 
@@ -387,8 +390,8 @@ class PurchaseReturnController extends Controller
             return $this->jsonResponse($validationError, 400, "Request Failed!");
         }
 
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
 
             $purchaseReturn = PurchaseReturn::find($id);
             if (!$purchaseReturn) {
@@ -543,8 +546,9 @@ class PurchaseReturnController extends Controller
             DB::commit();
             return $this->jsonResponse(['purchase_return_id' => $id], 200, "Purchase Return Updated Successfully!");
         } catch (\Exception $e) {
-            DB::rollBack();
-            return $this->jsonResponse('Error updating purchase return: ' . $e->getMessage(), 500);
+            DB::rollBack(); // Rollback on error
+            Log::error('Purchase Return Updated Error: ' . $e->getMessage());
+            return $this->jsonResponse("Something went wrong while updating Purchase Return.", 500, "Transaction Failed");
         }
     }
 
@@ -554,8 +558,8 @@ class PurchaseReturnController extends Controller
             return $this->jsonResponse('Permission Denied!', 403);
         }
 
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
 
             $data = PurchaseReturn::find($id);
             if (!$data) {
