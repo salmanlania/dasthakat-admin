@@ -159,17 +159,18 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       data.document_identity,
       data?.charge_order?.event.event_code,
       data?.charge_order?.quotation?.payment.name ? data?.charge_order?.quotation?.payment.name : '',
-      data?.charge_order ? data?.charge_order?.quotation?.delivery : '',
-      data?.charge_order ? data.charge_order?.salesman?.name : '',
+      data?.charge_order ? data?.charge_order?.event?.event_name : '',
+      data?.charge_order ? data.charge_order?.document_identity : '',
       data?.charge_order ? data.charge_order?.event?.event_code : '',
-      data?.charge_order ? data.charge_order?.service_order?.document_identity : '',
-      data.service_date
-        ? (data.service_date === "1989-11-30"
-          ? dayjs(data.service_date).format('MM-DD-YYYY')
-          : data.service_date === "0000-00-00"
+      data?.charge_order ? data.charge_order?.salesman?.name : '',
+      data?.shipment
+        ? (data?.shipment?.document_date === "1989-11-30"
+          ? dayjs(data?.shipment?.document_date).format('MM-DD-YYYY')
+          : data.shipment?.document_date === "0000-00-00"
             ? 'TBA'
-            : dayjs(data.service_date).format("MM-DD-YYYY"))
+            : dayjs(data?.shipment?.document_date).format("MM-DD-YYYY"))
         : '',
+      // dayjs(data?.shipment?.document_date).format("MM-DD-YYYY")
     ]
   ];
 
@@ -371,16 +372,16 @@ export const createSaleInvoicePrint = async (data) => {
       }
     ],
     [
-    {
-      content: 'Note: Any invoice discrepancies must be reported prior to invoice due date. Also please arrange payment in full by due date in order to avoid any late fee or additional charges. Appropriate wire fee must be included in order to avoid short payment resulting in additional charges.',
-      colSpan: 9,
-      styles: {
-        fontStyle: 'italic',
-        fontSize: 8,
-        halign: 'center'
+      {
+        content: 'Note: Any invoice discrepancies must be reported prior to invoice due date. Also please arrange payment in full by due date in order to avoid any late fee or additional charges. Appropriate wire fee must be included in order to avoid short payment resulting in additional charges.',
+        colSpan: 9,
+        styles: {
+          fontStyle: 'italic',
+          fontSize: 8,
+          halign: 'center'
+        }
       }
-    }
-  ]
+    ]
   ];
 
   // notes.push([

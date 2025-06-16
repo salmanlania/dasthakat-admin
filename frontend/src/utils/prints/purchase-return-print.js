@@ -95,27 +95,24 @@ const addHeader = (doc, data, sideMargin) => {
   // Add "Ship To :" text
   doc.setFontSize(10);
   doc.setFont('times', 'bold');
-  doc.text('Send To :', startShipToX + 4, startShipToY + 6); // x, y
+  doc.text('Ship From :', startShipToX + 4, startShipToY + 6); // x, y
   doc.rect(startShipToX, startShipToY + 10, shipToWidth, 0);
 
   // Add the content
   doc.setFontSize(8);
-  doc.setFont('times', 'normal');
+  doc.setFont('times', 'bold');
 
-  const shipToContent = data.ship_to || 'Global Marine Safety 9145 Wallisville Road Houston TX 77029';
-  const shipToLines = shipToContent.split(',');
-  let currentYPosition = startShipToY + 16;
+  const shipFromAddress = data?.charge_order?.customer?.billing_address || "";
+  const shipFromTel = data?.charge_order?.vessel?.name || "";
+  const shipFromFax = data?.charge_order?.vessel?.billing_address || "";
+  const customerFromTel = data?.charge_order?.customer?.phone_no || "";
+  const customerFromEmail = data?.charge_order?.customer?.email_sales || "";
 
-  shipToLines.forEach((line) => {
-    if (line.includes('Global Marine Safety 9145 Wallisville Road Houston TX 77029')) {
-      doc.setFont('times', 'bold');
-    } else {
-      doc.setFont('times', 'normal');
-    }
-    const splitLine = doc.splitTextToSize(line.trim(), shipToWidth);
-    doc.text(splitLine, startShipToX + 4, currentYPosition);
-    currentYPosition += splitLine.length * 6; // Adjust the vertical spacing as needed
-  });
+  doc.text(doc.splitTextToSize(shipFromAddress, 88), startShipToX + 4, startShipToY + 16);
+  doc.text(doc.splitTextToSize(`Vessel Name : ${shipFromTel}`, 88), startShipToX + 4, startShipToY + 24);
+  doc.text(doc.splitTextToSize(`Vessel Address : ${shipFromFax}`, 88), startShipToX + 4, startShipToY + 29);
+  doc.text(doc.splitTextToSize(`Tel : ${customerFromTel}`, 88), startShipToX + 4, startShipToY + 34);
+  doc.text(doc.splitTextToSize(`Email : ${customerFromEmail}`, 88), startShipToX + 4, startShipToY + 39);
 
   // Send To box
   // Draw the main box
@@ -128,21 +125,21 @@ const addHeader = (doc, data, sideMargin) => {
   // Add "Send To :" text
   doc.setFontSize(10);
   doc.setFont('times', 'bold');
-  doc.text('Ship To :', startSendToX + 4, startSendToY + 6); // x, y
+  doc.text('Send To :', startSendToX + 4, startSendToY + 6); // x, y
   doc.rect(startSendToX, startSendToY + 10, sentToWidth, 0);
 
   // Add the content
   doc.setFontSize(8);
-  doc.setFont('times', 'normal');
-  doc.setFont('times', 'bold');
   doc.setFont('times', 'bold');
   const billToAddress = doc.splitTextToSize(data?.purchase_order?.supplier?.address, 88);
   doc.text(billToAddress, startSendToX + 4, startSendToY + 16);
-  doc.text(doc.splitTextToSize(`Name: ${data?.purchase_order?.supplier?.name || ''}` , 88), startSendToX + 4, startSendToY + 21);
-  doc.text(doc.splitTextToSize(`Tel : ${data?.purchase_order?.supplier?.contact1 || ''}` , 88), startSendToX + 4, startSendToY + 26);
-  doc.text(doc.splitTextToSize(`Fax : ${data?.purchase_order?.supplier?.contact2 || ''}` , 88), startSendToX + 4, startSendToY + 31);
-  doc.text(doc.splitTextToSize(`Email : ${data?.purchase_order?.supplier?.email || ''}` , 88), startSendToX + 4, startSendToY + 36);
+  doc.text(doc.splitTextToSize(`Name: ${data?.purchase_order?.supplier?.name || ''}`, 88), startSendToX + 4, startSendToY + 21);
+  doc.text(doc.splitTextToSize(`Tel : ${data?.purchase_order?.supplier?.contact1 || ''}`, 88), startSendToX + 4, startSendToY + 26);
+  doc.text(doc.splitTextToSize(`Fax : ${data?.purchase_order?.supplier?.contact2 || ''}`, 88), startSendToX + 4, startSendToY + 31);
+  doc.text(doc.splitTextToSize(`Email : ${data?.purchase_order?.supplier?.email || ''}`, 88), startSendToX + 4, startSendToY + 36);
 
+  doc.setDrawColor(32, 50, 114);
+  doc.setLineWidth(0.6);
   // Buyer's Info Table
   const table1Column = ["Buyer's Name", "Buyer's Email", 'Required Date', 'Ship via'];
   const table1Rows = [

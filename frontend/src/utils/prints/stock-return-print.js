@@ -90,8 +90,14 @@ const addHeader = (doc, data, sideMargin) => {
   let startSendToX = sideMargin;
   let startSendToY = 87;
   let sentToWidth = 99;
-  let sentToHeight = 52;
+  let sentToHeight = 58;
   doc.rect(startSendToX, startSendToY, sentToWidth, sentToHeight); // x, y, width, height
+
+  let startShipToX = 107;
+  let startShipToY = 87;
+  let shipToWidth = 99;
+  let shipToHeight = 58;
+  doc.rect(startShipToX, startShipToY, shipToWidth, shipToHeight); // x, y, width, height
 
   // Add "Send To :" text
   doc.setFontSize(10);
@@ -102,47 +108,45 @@ const addHeader = (doc, data, sideMargin) => {
   // Add the content
   doc.setFontSize(8);
   doc.setFont('times', 'normal');
-  doc.setFont('times', 'bold');
-  const billToAddress = doc.splitTextToSize(data?.charge_order?.customer?.billing_address || '', 88);
-  doc.text(billToAddress, startSendToX + 4, startSendToY + 16);
   doc.setFont('times', 'normal');
-  doc.text(doc.splitTextToSize(`Name: ${data?.charge_order?.customer?.name || ''}` , 88), startSendToX + 4, startSendToY + 26);
-  doc.text(doc.splitTextToSize(`Tel : ${data?.charge_order?.customer?.phone_no || ''}` , 88), startSendToX + 4, startSendToY + 30);
-  doc.text(doc.splitTextToSize('Fax :' , 88), startSendToX + 4, startSendToY + 34);
-  doc.text(doc.splitTextToSize(`Email : ${data?.charge_order?.customer?.email_sales || ''}` , 88), startSendToX + 4, startSendToY + 38);
-
-  // Ship To box
-  // Draw the main box
-  let startShipToX = 107;
-  let startShipToY = 87;
-  let shipToWidth = 99;
-  let shipToHeight = 52;
-  doc.rect(startShipToX, startShipToY, shipToWidth, shipToHeight); // x, y, width, height
-
-  // Add "Ship To :" text
-  doc.setFontSize(10);
-  doc.setFont('times', 'bold');
-  doc.text('Ship To :', startShipToX + 4, startShipToY + 6); // x, y
-  doc.rect(startShipToX, startShipToY + 10, shipToWidth, 0);
-
-  // Add the content
-  doc.setFontSize(8);
-  doc.setFont('times', 'normal');
-
-  const shipToContent = data.ship_to || GMS_ADDRESS;
+  // const shipToContent = data.ship_to || GMS_ADDRESS;
+  const shipToContent = 'Global Marine Safety - America, Address: Global Marine Safety 9145 Wallisville Road Houston TX 77029, Tel: 1 713-518-1715, Fax: 1 713-518-1760, Email: tech1@gms-america.com'
+  doc.setFont('times', 'n');
   const shipToLines = shipToContent.split(',');
-  let currentYPosition = startShipToY + 16;
+  let currentYPosition = startSendToY + 16;
 
   shipToLines.forEach((line) => {
-    if (line.includes('Global Marine Safety 9145 Wallisville Road Houston TX 77029')) {
+    if (line.includes('Global Marine Safety - America')) {
       doc.setFont('times', 'bold');
     } else {
       doc.setFont('times', 'normal');
     }
     const splitLine = doc.splitTextToSize(line.trim(), shipToWidth);
-    doc.text(splitLine, startShipToX + 4, currentYPosition);
+    doc.text(splitLine, startSendToX + 4, currentYPosition);
     currentYPosition += splitLine.length * 6; // Adjust the vertical spacing as needed
   });
+
+  // Ship From box
+  // Draw the main box
+
+  // Add "Ship From :" text
+  doc.setFontSize(10);
+  doc.setFont('times', 'bold');
+  doc.text('Ship From :', startShipToX + 4, startShipToY + 6); // x, y
+  doc.rect(startShipToX, startShipToY + 10, shipToWidth, 0);
+
+  // Add the content
+  doc.setFontSize(8);
+  const billToAddress = doc.splitTextToSize(data?.charge_order?.customer?.billing_address || '', 88);
+  doc.text(billToAddress, startShipToX + 4, startShipToY + 16);
+  doc.setFont('times', 'normal');
+  doc.text(doc.splitTextToSize(`Name: ${data?.charge_order?.vessel?.name || ''}`, 88), startShipToX + 4, startShipToY + 26);
+  doc.text(doc.splitTextToSize(`Vessel Name: ${data?.charge_order?.vessel?.billing_address || ''}`, 88), startShipToX + 4, startShipToY + 30);
+  doc.text(doc.splitTextToSize(`Vessel Address: ${data?.charge_order?.customer?.name || ''}`, 88), startShipToX + 4, startShipToY + 34);
+  doc.text(doc.splitTextToSize(`Address : ${data?.charge_order?.customer?.billing_address || ''}`, 88), startShipToX + 4, startShipToY + 38);
+  doc.text(doc.splitTextToSize(`Tel : ${data?.charge_order?.customer?.phone_no || ''}`, 88), startShipToX + 4, startShipToY + 46);
+  doc.text(doc.splitTextToSize('Fax :', 88), startShipToX + 4, startShipToY + 50);
+  doc.text(doc.splitTextToSize(`Email : ${data?.charge_order?.customer?.email_sales || ''}`, 88), startShipToX + 4, startShipToY + 54);
 
   // Buyer's Info Table
   const table1Column = ["Buyer's Name", "Buyer's Email", 'Required Date', 'Ship via'];
@@ -158,7 +162,7 @@ const addHeader = (doc, data, sideMargin) => {
   ];
 
   doc.autoTable({
-    startY: 145,
+    startY: 155,
     head: [table1Column],
     body: table1Rows,
     margin: { left: sideMargin },
@@ -224,8 +228,8 @@ export const createStockReturnPrint = (data) => {
     'Ext. Cos',
   ];
 
-  const table2Rows = data.sale_return_detail
-    ? data.sale_return_detail.map((detail, index) => [
+  const table2Rows = data.stock_return_detail
+    ? data.stock_return_detail.map((detail, index) => [
       index + 1,
       detail?.product?.impa_code || '',
       {
@@ -248,9 +252,9 @@ export const createStockReturnPrint = (data) => {
     ])
     : [];
 
-  const filledRows = fillEmptyRows(table2Rows, 9);
+  const filledRows = fillEmptyRows(table2Rows, 7);
   doc.autoTable({
-    startY: 165,
+    startY: 175,
     head: [table2Column],
     body: filledRows,
     margin: { left: 4, top: 150, bottom: 22 },
