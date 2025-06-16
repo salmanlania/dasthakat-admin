@@ -79,7 +79,7 @@ const ReturnModal = ({ visible, onClose, data, onRefresh }) => {
             }
 
             const res = await dispatch(returnSaleInvoice(saleReturnData)).unwrap();
-            const sale_return_id = res?.sale_return_id
+            const sale_return_id = res?.sale_return_id ? res?.sale_return_id : null
 
             const purchaseReturnData = {
                 purchase_order_id,

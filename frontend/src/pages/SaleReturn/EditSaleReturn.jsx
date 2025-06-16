@@ -46,9 +46,30 @@ const EditSaleReturn = () => {
       handleError(error);
     }
   };
+  
   const onSaleReturnUpdates = async (data) => {
     try {
+      const stock_return_id = data?.stockReturnDetail?.stock_return?.stock_return_id
+      const purchase_return_id = data?.purchaseReturnDetail?.purchase_return?.purchase_return_id
+      const type_ids = data?.sale_return_detail.map(i => i.product_type_id?.value) || []
       await dispatch(updateSaleReturn({ id, data })).unwrap();
+
+      if (type_ids.some(id => id === 3 || id === 4)) {
+        try {
+          await dispatch(updatePurchaseReturn({ id: purchase_return_id, data: data?.purchaseReturnDetail?.purchase_return })).unwrap();
+        } catch (error) {
+          handleError(error);
+        }
+      }
+
+      if (type_ids.includes(2)) {
+        try {
+          await dispatch(updateStockReturn({ id: stock_return_id, data: data?.stockReturnDetail?.stock_return })).unwrap();
+        } catch (error) {
+          handleError(error);
+        }
+      }
+
       toast.success('Sale Return updated successfully');
       navigate('/sale-return');
     } catch (error) {
