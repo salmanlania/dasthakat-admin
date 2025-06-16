@@ -13,6 +13,7 @@ use App\Models\SaleInvoice;
 use App\Models\SaleInvoiceDetail;
 use App\Models\SaleReturn;
 use App\Models\SaleReturnDetail;
+use App\Models\Shipment;
 use App\Models\StockLedger;
 use App\Models\StockReturn;
 use App\Models\Warehouse;
@@ -111,6 +112,10 @@ class SaleReturnController extends Controller
 			'updated_by_user'
 		)
 			->where('sale_return_id', $id)
+			->first();
+
+			$data->shipment = Shipment::where('charge_order_id', $data->charge_order_id)
+			->orderBy('created_at', 'desc')
 			->first();
 			
 			$purchase_return = PurchaseReturn::with(
