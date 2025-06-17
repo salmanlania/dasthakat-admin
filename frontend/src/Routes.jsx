@@ -124,6 +124,10 @@ const ServiceOrder = lazy(() => import('./pages/ServiceOrder'));
 
 const Scheduling = lazy(() => import('./pages/Scheduling'));
 
+// Reports
+
+const QuotationReport = lazy(() => import('./pages/QuotationReport'));
+
 function Routes() {
   const router = createBrowserRouter(
     [
@@ -786,6 +790,15 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Scheduling />
+              </Suspense>
+            )
+          },
+          // Reports
+          {
+            path: '/quotation-report',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <QuotationReport />
               </Suspense>
             )
           },
