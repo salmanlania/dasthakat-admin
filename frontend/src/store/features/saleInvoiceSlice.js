@@ -192,7 +192,7 @@ export const saleInvoiceSlice = createSlice({
         picklist_detail_id: detail?.picklist_detail ? detail?.picklist_detail?.picklist_detail_id : null,
         product_code: detail.product ? detail.product.product_code : null,
         product_id: detail.product
-          ? { value: detail.product.product_id, label: detail.product.product_name }
+          ? { value: detail.product.product_id, label: detail.product.product_name || '' }
           : null,
         product_type_no: detail?.product ? detail?.product?.product_type_id : 4,
         product_type_id: detail?.product_type
@@ -202,9 +202,9 @@ export const saleInvoiceSlice = createSlice({
           }
           : 'Other',
         product_name:
-          detail.charge_order_detail
-            ? detail?.product?.name || detail?.product_name
-            : detail.product_name || detail.charge_order_detail.product_name,
+          detail.product?.name
+            ? detail?.product?.name || detail?.product_name || ''
+            : detail.product_name || detail.charge_order_detail.product_name || '',
         product_description: detail.product_description,
         charge_order_detail_id: detail.charge_order_detail_id,
         description: detail.description,
