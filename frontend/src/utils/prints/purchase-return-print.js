@@ -102,17 +102,17 @@ const addHeader = (doc, data, sideMargin) => {
   doc.setFontSize(8);
   doc.setFont('times', 'bold');
 
-  const shipFromAddress = data?.charge_order?.customer?.billing_address || "";
-  const shipFromTel = data?.charge_order?.vessel?.name || "";
-  const shipFromFax = data?.charge_order?.vessel?.billing_address || "";
+  const shipCustomerName = data?.charge_order?.customer?.name || "";
+  const shipVesselName = data?.charge_order?.vessel?.name || "";
+  const shipVesselAddress = data?.charge_order?.vessel?.billing_address || "";
   const customerFromTel = data?.charge_order?.customer?.phone_no || "";
   const customerFromEmail = data?.charge_order?.customer?.email_sales || "";
 
-  doc.text(doc.splitTextToSize(shipFromAddress, 88), startShipToX + 4, startShipToY + 16);
-  doc.text(doc.splitTextToSize(`Vessel Name : ${shipFromTel}`, 88), startShipToX + 4, startShipToY + 24);
-  doc.text(doc.splitTextToSize(`Vessel Address : ${shipFromFax}`, 88), startShipToX + 4, startShipToY + 29);
-  doc.text(doc.splitTextToSize(`Tel : ${customerFromTel}`, 88), startShipToX + 4, startShipToY + 34);
-  doc.text(doc.splitTextToSize(`Email : ${customerFromEmail}`, 88), startShipToX + 4, startShipToY + 39);
+  doc.text(doc.splitTextToSize(shipCustomerName || '', 88), startShipToX + 4, startShipToY + 16);
+  doc.text(doc.splitTextToSize(shipVesselName || '', 88), startShipToX + 4, startShipToY + 24);
+  doc.text(doc.splitTextToSize(shipVesselAddress || '', 88), startShipToX + 4, startShipToY + 29);
+  doc.text(doc.splitTextToSize(`Tel : ${customerFromTel || ''}`, 88), startShipToX + 4, startShipToY + 38);
+  doc.text(doc.splitTextToSize(`Email : ${customerFromEmail || ''}`, 88), startShipToX + 4, startShipToY + 42);
 
   // Send To box
   // Draw the main box

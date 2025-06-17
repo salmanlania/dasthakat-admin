@@ -137,16 +137,15 @@ const addHeader = (doc, data, sideMargin) => {
 
   // Add the content
   doc.setFontSize(8);
-  const billToAddress = doc.splitTextToSize(data?.charge_order?.customer?.billing_address || '', 88);
-  doc.text(billToAddress, startShipToX + 4, startShipToY + 16);
+  // const billToAddress = doc.splitTextToSize(data?.charge_order?.customer?.billing_address || '', 88);
+  // doc.text(billToAddress, startShipToX + 4, startShipToY + 16);
   doc.setFont('times', 'normal');
-  doc.text(doc.splitTextToSize(`Name: ${data?.charge_order?.vessel?.name || ''}`, 88), startShipToX + 4, startShipToY + 26);
-  doc.text(doc.splitTextToSize(`Vessel Name: ${data?.charge_order?.vessel?.billing_address || ''}`, 88), startShipToX + 4, startShipToY + 30);
-  doc.text(doc.splitTextToSize(`Vessel Address: ${data?.charge_order?.customer?.name || ''}`, 88), startShipToX + 4, startShipToY + 34);
-  doc.text(doc.splitTextToSize(`Address : ${data?.charge_order?.customer?.billing_address || ''}`, 88), startShipToX + 4, startShipToY + 38);
-  doc.text(doc.splitTextToSize(`Tel : ${data?.charge_order?.customer?.phone_no || ''}`, 88), startShipToX + 4, startShipToY + 46);
-  doc.text(doc.splitTextToSize('Fax :', 88), startShipToX + 4, startShipToY + 50);
-  doc.text(doc.splitTextToSize(`Email : ${data?.charge_order?.customer?.email_sales || ''}`, 88), startShipToX + 4, startShipToY + 54);
+  doc.text(doc.splitTextToSize(data?.charge_order?.customer?.name || '', 88), startShipToX + 4, startShipToY + 16);
+  doc.text(doc.splitTextToSize(data?.charge_order?.vessel?.name || '', 88), startShipToX + 4, startShipToY + 20);
+  doc.text(doc.splitTextToSize(data?.charge_order?.vessel?.billing_address || '', 88), startShipToX + 4, startShipToY + 24);
+  doc.text(doc.splitTextToSize(`Tel : ${data?.charge_order?.customer?.phone_no || ''}`, 88), startShipToX + 4, startShipToY + 32);
+  doc.text(doc.splitTextToSize('Fax :', 88), startShipToX + 4, startShipToY + 36);
+  doc.text(doc.splitTextToSize(`Email : ${data?.charge_order?.customer?.email_sales || ''}`, 88), startShipToX + 4, startShipToY + 40);
 
   // Buyer's Info Table
   const table1Column = ["Buyer's Name", "Buyer's Email", 'Required Date', 'Ship via'];
