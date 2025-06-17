@@ -1,6 +1,7 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 
 import agentReducer from './features/agentSlice';
+import commissionAgentReducer from './features/commissionAgentSlice';
 import authReducer from './features/authSlice';
 import brandReducer from './features/brandSlice';
 import categoryReducer from './features/categorySlice';
@@ -60,6 +61,7 @@ const rootReducer = combineReducers({
   terms: termsReducer,
   flag: flagReducer,
   agent: agentReducer,
+  commissionAgent: commissionAgentReducer,
   dispatch: dispatchReducer,
   class: classReducer,
   port: portReducer,
@@ -87,7 +89,7 @@ const rootReducer = combineReducers({
   ijo: ijoReducer,
   shipment: shipmentReducer,
   serviceOrder: serviceOrderReducer,
-  CompanySetting : CompanySettingReducer
+  CompanySetting: CompanySettingReducer
 });
 
 export const store = configureStore({

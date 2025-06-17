@@ -45,6 +45,10 @@ const Agent = lazy(() => import('./pages/Agent'));
 const CreateAgent = lazy(() => import('./pages/Agent/CreateAgent'));
 const EditAgent = lazy(() => import('./pages/Agent/EditAgent'));
 
+const CommissionAgent = lazy(() => import('./pages/CommissionAgent'));
+const CreateCommissionAgent = lazy(() => import('./pages/CommissionAgent/CreateCommissionAgent'));
+const EditCommissionAgent = lazy(() => import('./pages/CommissionAgent/EditCommissionAgent'));
+
 const Technician = lazy(() => import('./pages/Technician'));
 const Notes = lazy(() => import('./pages/Notes'));
 const Flag = lazy(() => import('./pages/Flag'));
@@ -349,6 +353,30 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditAgent />
+              </Suspense>
+            )
+          },
+          {
+            path: '/commission-agent',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CommissionAgent />
+              </Suspense>
+            )
+          },
+          {
+            path: '/commission-agent/create',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreateCommissionAgent />
+              </Suspense>
+            )
+          },
+          {
+            path: '/commission-agent/edit/:id',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditCommissionAgent />
               </Suspense>
             )
           },
@@ -842,8 +870,8 @@ function Routes() {
       }
     ],
     {
-      basename: `${import.meta.env.VITE_BASE_URL}`,
-    },
+      basename: `${import.meta.env.VITE_BASE_URL}`
+    }
   );
 
   return <RouterProvider router={router} />;

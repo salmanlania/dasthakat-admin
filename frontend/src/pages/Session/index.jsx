@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import useError from '../../hooks/useError';
 import { postSession } from '../../store/features/authSlice';
 
-
 export const sessionSubmit = async (values, dispatch, sessionData, handleError, navigate) => {
   const companyId = values.company_id || '';
   const companyBranchId = values.company_branch_id || '';
@@ -20,6 +19,8 @@ export const sessionSubmit = async (values, dispatch, sessionData, handleError, 
         password: sessionData.password
       })
     ).unwrap();
+
+    console.log(response);
 
     if (response && typeof response === 'object' && !Array.isArray(response)) {
       if (response?.is_exempted === 1) {
@@ -62,8 +63,7 @@ const Session = () => {
   const onSubmit = async (values) => {
     try {
       await sessionSubmit(values, dispatch, sessionData, handleError, navigate);
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const initialFormValues = {

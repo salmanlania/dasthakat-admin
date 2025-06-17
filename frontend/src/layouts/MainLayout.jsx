@@ -59,6 +59,8 @@ const MainLayout = () => {
   if (href === '/agent/create' && !permissions.agent.add) return <NotFound />;
   if (href.startsWith('/agent/edit') && !permissions.agent.edit) return <NotFound />;
 
+  // TODO:Add permission for commission agent
+
   if (href === '/technician' && !permissions.technician.list) return <NotFound />;
   if (href === '/notes' && !permissions.terms.list) return <NotFound />;
   if (href === '/flag' && !permissions.flag.list) return <NotFound />;
@@ -132,10 +134,12 @@ const MainLayout = () => {
   if (href.startsWith('/sale-return/edit') && !permissions.sale_return.edit) return <NotFound />;
 
   if (href === '/purchase-invoice' && !permissions.purchase_invoice.list) return <NotFound />;
-  if (href.startsWith('/purchase-invoice/edit') && !permissions.purchase_invoice.edit) return <NotFound />;
+  if (href.startsWith('/purchase-invoice/edit') && !permissions.purchase_invoice.edit)
+    return <NotFound />;
 
   if (href === '/purchase-return' && !permissions.purchase_return.list) return <NotFound />;
-  if (href.startsWith('/purchase-return/edit') && !permissions.purchase_return.edit) return <NotFound />;
+  if (href.startsWith('/purchase-return/edit') && !permissions.purchase_return.edit)
+    return <NotFound />;
 
   return (
     <Layout className="min-h-screen">

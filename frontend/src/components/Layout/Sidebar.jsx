@@ -65,6 +65,7 @@ const Sidebar = () => {
     !permissions?.customer?.list &&
     !permissions?.supplier?.list &&
     !permissions?.agent?.list &&
+    // TODO:Add commission agent permission here
     !permissions?.technician?.list &&
     !permissions?.flag?.list &&
     !permissions?.class?.list &&
@@ -164,6 +165,12 @@ const Sidebar = () => {
               key: 'agent',
               label: <Link to="/agent">Agent</Link>,
               disabled: !permissions?.agent?.list
+            },
+            {
+              key: 'commission-agent',
+              label: <Link to="/commission-agent">Commission Agent</Link>
+              // TODO:Add permission for this route
+              // disabled: !permissions?.agent?.list
             },
             {
               key: 'technician',
@@ -298,7 +305,7 @@ const Sidebar = () => {
           key: 'service-order',
           label: <Link to="/service-order">Service Order</Link>,
           disabled: !permissions?.service_order?.list
-        },
+        }
       ]
     },
     {
@@ -336,7 +343,7 @@ const Sidebar = () => {
           key: 'purchase-return',
           label: <Link to="/purchase-return">Purchase Return</Link>,
           disabled: !permissions?.purchase_return?.list
-        },
+        }
       ]
     },
     {
@@ -359,7 +366,7 @@ const Sidebar = () => {
           key: 'sale-return',
           label: <Link to="/sale-return">Sale Return</Link>,
           disabled: !permissions?.sale_return?.list
-        },
+        }
       ]
     },
     {
@@ -400,7 +407,7 @@ const Sidebar = () => {
           disabled: !permissions?.audit?.list
         }
       ]
-    },
+    }
   ];
   const levelKeys = getLevelKeys(items);
 
@@ -411,10 +418,8 @@ const Sidebar = () => {
       items.forEach((item) => {
         if (!item.disabled) {
           if (item.children && item.children.length > 0) {
-
             traverse(item.children);
           } else {
-
             const label = typeof item.label === 'string' ? item.label : item.label?.props?.children;
             if (label && item.key) {
               result.push({ label, value: item.key });
@@ -478,8 +483,9 @@ const Sidebar = () => {
       collapsedWidth="0"
       theme="light"
       collapsed={isCollapsed}
-      className={`${isSmallScreen ? '!fixed' : '!sticky'} ${isCollapsed ? '' : 'border-r'
-        } scrollbar !left-0 !top-0 z-50 h-screen overflow-y-auto`}
+      className={`${isSmallScreen ? '!fixed' : '!sticky'} ${
+        isCollapsed ? '' : 'border-r'
+      } scrollbar !left-0 !top-0 z-50 h-screen overflow-y-auto`}
       width={240}>
       <div className="m-2 flex flex-col items-center justify-center gap-2 rounded-xl bg-slate-200 p-4 px-2">
         {isSmallScreen && (
