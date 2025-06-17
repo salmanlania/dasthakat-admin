@@ -598,7 +598,7 @@ function Routes() {
             )
           },
           {
-            path: '/sale-return',
+            path: '/credit-note',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <SaleReturn />
@@ -606,7 +606,7 @@ function Routes() {
             )
           },
           {
-            path: '/sale-return/edit/:id',
+            path: '/credit-note/edit/:id',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditSaleReturn />

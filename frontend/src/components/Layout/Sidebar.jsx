@@ -355,8 +355,8 @@ const Sidebar = () => {
           disabled: !permissions?.sale_invoice?.list
         },
         {
-          key: 'sale-return',
-          label: <Link to="/sale-return">Sale Return</Link>,
+          key: 'credit-note',
+          label: <Link to="/credit-note">Credit Note</Link>,
           disabled: !permissions?.sale_return?.list
         },
       ]

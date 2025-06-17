@@ -40,7 +40,7 @@ const EditSaleReturn = () => {
         }
       }
 
-      toast.success('Sale Return updated successfully');
+      toast.success('Credit Note updated successfully');
       dispatch(getSaleReturn(id)).unwrap().catch(handleError);
     } catch (error) {
       handleError(error);
@@ -70,8 +70,8 @@ const EditSaleReturn = () => {
         }
       }
 
-      toast.success('Sale Return updated successfully');
-      navigate('/sale-return');
+      toast.success('Credit Note updated successfully');
+      navigate('/credit-note');
     } catch (error) {
       handleError(error);
     }
@@ -89,8 +89,8 @@ const EditSaleReturn = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>EDIT SALE RETURN</PageHeading>
-        <Breadcrumb items={[{ title: 'Sale Return' }, { title: 'Edit' }]} separator=">" />
+        <PageHeading>EDIT CREDIT NOTE</PageHeading>
+        <Breadcrumb items={[{ title: 'Credit Note' }, { title: 'Edit' }]} separator=">" />
       </div>
 
       {isItemLoading && (

@@ -62,7 +62,7 @@ const SaleReturn = () => {
   const onSaleReturnDelete = async (id) => {
     try {
       await dispatch(saleReturnDelete(id)).unwrap();
-      toast.success('Sale Return deleted successfully');
+      toast.success('Credit Note deleted successfully');
       dispatch(getSaleReturnList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
@@ -74,7 +74,7 @@ const SaleReturn = () => {
     closeDeleteModal();
     try {
       await dispatch(bulkDeleteSaleReturn(deleteIDs)).unwrap();
-      toast.success('Sale Return deleted successfully');
+      toast.success('Credit Note deleted successfully');
       closeDeleteModal();
       await dispatch(getSaleReturnList(formattedParams)).unwrap();
     } catch (error) {
@@ -86,7 +86,7 @@ const SaleReturn = () => {
     {
       title: (
         <div>
-          <p>Sale Invoice Date</p>
+          <p>Credit Note Date</p>
           <div onClick={(e) => e.stopPropagation()}>
             <DatePicker
               size="small"
@@ -109,7 +109,7 @@ const SaleReturn = () => {
     {
       title: (
         <div>
-          <p>Sale Return No</p>
+          <p>Credit Note No</p>
           <Input
             className="font-normal"
             size="small"
@@ -199,7 +199,7 @@ const SaleReturn = () => {
           {permissions.edit ? (
             <>
               <Tooltip title="Edit">
-                <Link to={`/sale-return/edit/${sale_return_id}`}>
+                <Link to={`/credit-note/edit/${sale_return_id}`}>
                   <Button
                     size="small"
                     type="primary"
@@ -265,8 +265,8 @@ const SaleReturn = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>SALE RETURN</PageHeading>
-        <Breadcrumb items={[{ title: 'Sale Return' }, { title: 'List' }]} separator=">" />
+        <PageHeading>CREDIT NOTE</PageHeading>
+        <Breadcrumb items={[{ title: 'Credit Note' }, { title: 'List' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
@@ -312,7 +312,7 @@ const SaleReturn = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} Sale invoice`
+            showTotal: (total) => `Total ${total} Credit Note`
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -338,7 +338,7 @@ const SaleReturn = () => {
         onCancel={closeDeleteModal}
         isDeleting={isBulkDeleting}
         onDelete={onBulkDelete}
-        title="Are you sure you want to delete these Sale Return?"
+        title="Are you sure you want to delete these Credit Note?"
         description="After deleting, you will not be able to recover."
       />
     </>
