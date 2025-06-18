@@ -77,7 +77,7 @@ class VesselController extends Controller
 	public function show($id, $jsonResponse = true)
 	{
 
-		$data =  Vessel::with("company", "company_branch", "created_user", "updated_user")->LeftJoin('flag as f', 'vessel.flag_id', 'f.flag_id')
+		$data =  Vessel::with("vessel_commission_agent","vessel_commission_agent.commission_agent","company", "company_branch", "created_user", "updated_user")->LeftJoin('flag as f', 'vessel.flag_id', 'f.flag_id')
 			->LeftJoin('customer as c', 'c.customer_id', 'vessel.customer_id')
 			->LeftJoin('class as c1', 'vessel.class1_id', 'c1.class_id')
 			->LeftJoin('class as c2', 'vessel.class2_id', 'c2.class_id')
