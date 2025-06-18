@@ -327,7 +327,7 @@ const stockReturnForm = ({ mode, onSubmit, onSave }) => {
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
             name="document_date"
-            label="Sale Return Date"
+            label="Stock Return Date"
             disabled>
             <DatePicker format="MM-DD-YYYY" className="w-full" disabled />
           </Form.Item>

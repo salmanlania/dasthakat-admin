@@ -114,6 +114,15 @@ $router->group(['prefix' => 'agent'], function ($router) {
    $router->post('/bulk-delete', 'AgentController@bulkDelete');
 });
 
+$router->group(['prefix' => 'commission-agent'], function ($router) {
+   $router->get('/', 'CommissionAgentController@index');
+   $router->get('/{id}', 'CommissionAgentController@show');
+   $router->post('/', 'CommissionAgentController@store');
+   $router->put('/{id}', 'CommissionAgentController@update');
+   $router->delete('/{id}', 'CommissionAgentController@delete');
+   $router->post('/bulk-delete', 'CommissionAgentController@bulkDelete');
+});
+
 $router->group(['prefix' => 'technician'], function ($router) {
    $router->get('/', 'TechnicianController@index');
    $router->get('/{id}', 'TechnicianController@show');
@@ -420,4 +429,14 @@ $router->group(['prefix' => 'good-received-note'], function ($router) {
    $router->put('/{id}', 'GRNController@update');
    $router->delete('/{id}', 'GRNController@delete');
    $router->post('/bulk-delete', 'GRNController@bulkDelete');
+});
+
+$router->group(['prefix' => 'opening-stock'], function ($router) {
+   $router->get('/', 'OpeningStockController@index');
+   $router->get('/{id}', 'OpeningStockController@show');
+   $router->post('upload/excel', 'OpeningStockController@storeExcel');
+   $router->post('/', 'OpeningStockController@store');
+   $router->put('/{id}', 'OpeningStockController@update');
+   $router->delete('/{id}', 'OpeningStockController@delete');
+   $router->post('/bulk-delete', 'OpeningStockController@bulkDelete');
 });

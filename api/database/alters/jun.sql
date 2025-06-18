@@ -85,3 +85,68 @@ ALTER TABLE `purchase_return`
   ADD COLUMN `sale_return_id` CHAR(36) NULL;
 ALTER TABLE `stock_return`   
   ADD COLUMN `sale_return_id` CHAR(36) NULL;
+
+
+INSERT INTO
+    `const_document_type` (
+        `document_type_id`,
+        `document_name`,
+        `document_prefix`,
+        `table_name`,
+        `primary_key`
+    )
+VALUES
+    (
+        55,
+        'Opening Stock',
+        '{BC}/OS-',
+        'opening_stock',
+        'opening_stock_id'
+    );
+
+-- Opening Stock Table
+CREATE TABLE `opening_stock` (
+  `opening_stock_id` char(36) NOT NULL,
+  `company_id` char(36) NOT NULL,
+  `company_branch_id` char(36) NOT NULL,
+  `document_type_id` int NOT NULL,
+  `document_no` int NOT NULL,
+  `category_id` CHAR(36) NOT NULL,
+  `document_prefix` varchar(255) NOT NULL,
+  `document_identity` varchar(255) NOT NULL,
+  `document_date` date NOT NULL,
+  `total_quantity` decimal(10,2) NOT NULL,
+  `total_amount` decimal(10,2) NOT NULL,
+  `remarks` varchar(255) DEFAULT NULL,
+  `created_by` char(36) DEFAULT NULL,
+  `updated_by` char(36) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`opening_stock_id`)
+);
+  
+-- Opening Stock Detail Table
+CREATE TABLE `opening_stock_detail` (
+  `opening_stock_detail_id` char(36) NOT NULL,
+  `opening_stock_id` char(36) NOT NULL,
+  `sort_order` INT(11) DEFAULT 0,
+  `product_type_id` char(36) NOT NULL,
+  `product_id` char(36) NOT NULL,
+  `product_name` varchar(255) NOT NULL,
+  `product_description` text,
+  `description` text,
+  `unit_id` char(36) NOT NULL,
+  `warehouse_id` char(36) NOT NULL,
+  `document_currency_id` INT(11) NOT NULL,
+  `base_currency_id` INT(11) NOT NULL,
+  `unit_conversion` decimal(10,2) NOT NULL,
+  `currency_conversion` decimal(10,2) NOT NULL,
+  `quantity` decimal(10,2) NOT NULL,
+  `rate` decimal(10,2) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `created_by` char(36) DEFAULT NULL,
+  `updated_by` char(36) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`opening_stock_detail_id`)
+);

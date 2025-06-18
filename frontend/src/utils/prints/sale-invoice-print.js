@@ -159,7 +159,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       data.document_identity,
       data?.charge_order?.event.event_code,
       data?.charge_order?.quotation?.payment.name ? data?.charge_order?.quotation?.payment.name : '',
-      data?.charge_order ? data?.charge_order?.event?.event_name : '',
+      data?.charge_order ? data?.charge_order?.port?.name : '',
       data?.charge_order ? data.charge_order?.document_identity : '',
       data?.charge_order ? data.charge_order?.event?.event_code : '',
       data?.charge_order ? data.charge_order?.salesman?.name : '',

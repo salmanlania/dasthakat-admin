@@ -130,13 +130,13 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   // ESTIMATE
   doc.setFontSize(26);
   doc.setFont('times', 'bold');
-  doc.text('SALE RETURN', pageWidth / 2, 76, {
+  doc.text('CREDIT NOTE', pageWidth / 2, 76, {
     align: 'center'
   });
   doc.setDrawColor(32, 50, 114);
   doc.setLineWidth(0.6);
   // doc.line(pageWidth / 2 + 16, 64, 89, 64);
-  doc.line(pageWidth / 2 - doc.getTextWidth('SALE RETURN') / 2, 78, pageWidth / 2 + doc.getTextWidth('SALE RETURN') / 2, 78);
+  doc.line(pageWidth / 2 - doc.getTextWidth('CREDIT NOTE') / 2, 78, pageWidth / 2 + doc.getTextWidth('CREDIT NOTE') / 2, 78);
 
   doc.setFont('times', 'normal');
   doc.setFontSize(10);
@@ -159,7 +159,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       data.document_identity,
       data?.charge_order?.event.event_code,
       data?.charge_order?.quotation?.payment.name ? data?.charge_order?.quotation?.payment.name : '',
-      data?.charge_order?.event?.event_name ? data?.charge_order?.event?.event_name : '',
+      data?.charge_order?.port?.name ? data?.charge_order?.port?.name : '',
       data?.charge_order ? data.charge_order?.document_identity : '',
       data?.charge_order ? data.charge_order?.event?.event_code : '',
       data?.charge_order ? data.charge_order?.salesman?.name : '',

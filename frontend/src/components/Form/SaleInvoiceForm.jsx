@@ -128,6 +128,22 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
       width: 50
     },
     {
+      title: 'P. Type',
+      dataIndex: 'product_type_id',
+      key: 'product_type_id',
+      render: (_, record, index) => {
+        const fullValue = record.product_type_id?.label.toString() || '';
+        const shortKey = fullValue.substring(0, 2);
+        return (
+          <DebounceInput
+            disabled
+            value={shortKey}
+          />
+        );
+      },
+      width: 70
+    },
+    {
       title: 'Product Name',
       dataIndex: 'product_name',
       key: 'product_name',
