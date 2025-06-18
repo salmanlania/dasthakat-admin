@@ -71,7 +71,7 @@ class OpeningStockController extends Controller
 	public function validateRequest($request, $id = null)
 	{
 		$rules = [
-			'document_date' => ['required'],
+			
 		];
 
 
@@ -123,7 +123,7 @@ class OpeningStockController extends Controller
 		if ($request->opening_stock_detail) {
 			foreach ($request->opening_stock_detail as $value) {
 				$product = Product::with('unit')->where('product_id', $value['product_id'])->first();
-				$warehouse = Warehouse::where('warehouse_id', $value['warehouse_id'])->first();
+				$warehouse = Warehouse::where('warehouse_id', $request['warehouse_id'])->first();
 				$detail_uuid = $this->get_uuid();
 				$insert = [
 					'opening_stock_id' => $insertArr['opening_stock_id'],
@@ -134,7 +134,7 @@ class OpeningStockController extends Controller
 					'product_name' => $value['product_name'] ?? "",
 					'product_description' => $value['product_description'] ?? "",
 					'description' => $value['description'] ?? "",
-					'warehouse_id' => $value['warehouse_id'] ?? "",
+					'warehouse_id' => $request['warehouse_id'] ?? "",
 					'unit_id' => $value['unit_id'] ?? "",
 					"document_currency_id" => $value['document_currency_id'] ?? "",
 					"base_currency_id" => $base_currency_id ?? "",
@@ -146,7 +146,7 @@ class OpeningStockController extends Controller
 					'created_at' => Carbon::now(),
 					'created_by' => $request->login_user_id,
 				];
-				if ($value['product_type_id'] == 2 && !empty($value['warehouse_id'])) {
+				if ($value['product_type_id'] == 2 && !empty($request['warehouse_id'])) {
 
 					$value['unit_id'] = $product->unit_id ?? null;
 					$value['unit_name'] = $product->unit->name ?? null;
@@ -179,6 +179,151 @@ class OpeningStockController extends Controller
 		return $this->jsonResponse("Something went wrong while saving Opening Stock.", 500, "Transaction Failed");
 	}
 	}
+
+	public function storeExcel(Request $request)
+	{
+		$isError = $this->validateRequest($request->all());
+		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
+
+		$base_currency_id = Company::where('company_id', $request->company_id ?? "")->pluck('base_currency_id')->first();
+
+		DB::beginTransaction();
+		try {
+			$inputFile = $request->file('excel_file'); // 'excel_file' is the name of the uploaded field
+			$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($inputFile->getPathname());
+
+			$worksheet = $spreadsheet->getActiveSheet();
+
+			$row = 4;
+			$productsByCategory = [];
+
+			// Group products by category_id
+			while ($worksheet->getCell('B' . $row)->getValue() != '') {
+				$product_code = $worksheet->getCell('B' . $row)->getValue();
+				$quantity = $worksheet->getCell('C' . $row)->getValue();
+				$rate = $worksheet->getCell('D' . $row)->getValue();
+
+				$product = Product::with('unit')
+					->where('product_code', $product_code)
+					->where('product_type_id', 2)
+					->first();
+
+				if ($product) {
+					$category_id = $product->category_id ?? 0;
+
+					$productsByCategory[$category_id][] = [
+						'product' => $product,
+						'product_code' => $product_code,
+						'quantity' => $quantity,
+						'rate' => $rate,
+						'amount' => $quantity * $rate,
+					];
+				}
+
+				$row++;
+			}
+
+			$openings = [];
+
+			foreach ($productsByCategory as $category_id => $items) {
+				$uuid = $this->get_uuid();
+				$document = DocumentType::getNextDocument($this->document_type_id, $request);
+
+				$openingData = [
+					'company_id' => $request->company_id ?? "",
+					'company_branch_id' => $request->company_branch_id ?? "",
+					'opening_stock_id' => $uuid,
+					'document_type_id' => $document['document_type_id'] ?? "",
+					'document_no' => $document['document_no'] ?? "",
+					'document_prefix' => $document['document_prefix'] ?? "",
+					'document_identity' => $document['document_identity'] ?? "",
+					'document_date' => $request->document_date ?? Carbon::now(),
+					'remarks' => 'Opening Stock for Category ID: ' . $category_id,
+					'created_at' => Carbon::now(),
+					'created_by' => $request->login_user_id ?? "",
+				];
+
+				OpeningStock::create($openingData);
+
+				$total_quantity = 0;
+				$total_amount = 0;
+				$sort_order = 1;
+
+				foreach ($items as $item) {
+					$product = $item['product'];
+					$detail_uuid = $this->get_uuid();
+
+					$detail = [
+						'opening_stock_id' => $uuid,
+						'opening_stock_detail_id' => $detail_uuid,
+						'sort_order' => $sort_order++,
+						'product_type_id' => $product->product_type_id,
+						'product_id' => $product->product_id,
+						'product_name' => $product->name,
+						'product_description' => $product->name,
+						'warehouse_id' => $request->warehouse_id ?? "",
+						'unit_id' => $product->unit_id,
+						'document_currency_id' => $base_currency_id,
+						'base_currency_id' => $base_currency_id,
+						'unit_conversion' => 1,
+						'currency_conversion' => 1,
+						'quantity' => $item['quantity'],
+						'rate' => $item['rate'],
+						'amount' => $item['amount'],
+						'created_at' => Carbon::now(),
+						'created_by' => $request->login_user_id ?? "",
+					];
+
+					OpeningStockDetail::create($detail);
+
+					$total_quantity += $item['quantity'];
+					$total_amount += $item['amount'];
+
+					if ($product->product_type_id == 2 && !empty($request->warehouse_id ?? "")) {
+						StockLedger::handleStockMovement([
+							'master_model' => new OpeningStock,
+							'document_id' => $uuid,
+							'document_detail_id' => $detail_uuid,
+							'row' => array_merge($detail, [
+								'unit_name' => $product->unit->name ?? null,
+								'remarks' => sprintf(
+									"%d %s of %s (Code: %s) added in warehouse under Opening Stock Document: %s",
+									$item['quantity'],
+									$product->unit->name ?? '',
+									$product->name,
+									$item['product_code'],
+									$document['document_identity'] ?? ''
+								)
+							]),
+						], 'I');
+					}
+				}
+
+				// Update totals
+				OpeningStock::where('opening_stock_id', $uuid)->update([
+					'total_quantity' => $total_quantity,
+					'total_amount' => $total_amount,
+				]);
+
+				$openings[] = [
+					'category_id' => $category_id,
+					'opening_stock_id' => $uuid,
+					'document_identity' => $document['document_identity'] ?? '',
+					'total_quantity' => $total_quantity,
+					'total_amount' => $total_amount,
+				];
+			}
+
+			DB::commit();
+
+			return $this->jsonResponse(['openings' => $openings], 200, "Opening Stock Imported by Category Successfully!");
+		} catch (\Exception $e) {
+			DB::rollBack();
+			Log::error('Opening Stock Excel Import Error: ' . $e->getMessage());
+			return $this->jsonResponse("Error: " . $e->getMessage(), 500, "Transaction Failed");
+		}
+	}
+
 
 	public function update(Request $request, $id)
 	{
@@ -222,7 +367,7 @@ class OpeningStockController extends Controller
 						'product_name' => $value['product_name'] ?? "",
 						'product_description' => $value['product_description'] ?? "",
 						'description' => $value['description'] ?? "",
-						'warehouse_id' => $value['warehouse_id'] ?? "",
+						'warehouse_id' => $request['warehouse_id'] ?? "",
 						'unit_id' => $value['unit_id'] ?? "",
 						"document_currency_id" => $value['document_currency_id'] ?? "",
 						"base_currency_id" => $base_currency_id ?? "",
@@ -234,7 +379,7 @@ class OpeningStockController extends Controller
 						'created_at' => Carbon::now(),
 						'created_by' => $request->login_user_id,
 					];
-					if ($value['product_type_id'] == 2 && !empty($value['warehouse_id'])) {
+					if ($value['product_type_id'] == 2 && !empty($request['warehouse_id'])) {
 						StockLedger::handleStockMovement([
 							'master_model' => new OpeningStock,
 							'document_id' => $id,
@@ -254,7 +399,7 @@ class OpeningStockController extends Controller
 						'product_name' => $value['product_name'] ?? "",
 						'product_description' => $value['product_description'] ?? "",
 						'description' => $value['description'] ?? "",
-						'warehouse_id' => $value['warehouse_id'] ?? "",
+						'warehouse_id' => $request['warehouse_id'] ?? "",
 						'unit_id' => $value['unit_id'] ?? "",
 						"document_currency_id" => $value['document_currency_id'] ?? "",
 						"base_currency_id" => $base_currency_id ?? "",
@@ -266,7 +411,7 @@ class OpeningStockController extends Controller
 						'created_at' => Carbon::now(),
 						'created_by' => $request->login_user_id,
 					];
-					if ($value['product_type_id'] == 2 && !empty($value['warehouse_id'])) {
+					if ($value['product_type_id'] == 2 && !empty($request['warehouse_id'])) {
 						StockLedger::where('document_detail_id', $value['opening_stock_detail_id'])->delete();
 						StockLedger::handleStockMovement([
 							'master_model' => new OpeningStock,

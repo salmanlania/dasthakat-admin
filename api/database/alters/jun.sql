@@ -111,6 +111,7 @@ CREATE TABLE `opening_stock` (
   `company_branch_id` char(36) NOT NULL,
   `document_type_id` int NOT NULL,
   `document_no` int NOT NULL,
+  `category_id` CHAR(36) NOT NULL,
   `document_prefix` varchar(255) NOT NULL,
   `document_identity` varchar(255) NOT NULL,
   `document_date` date NOT NULL,
@@ -149,22 +150,3 @@ CREATE TABLE `opening_stock_detail` (
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`opening_stock_detail_id`)
 );
-
--- Opening Stock Detail Indexes
-CREATE INDEX idx_opening_stock_detail_opening_stock_id ON opening_stock_detail(opening_stock_id);
-CREATE INDEX idx_opening_stock_detail_product_type_id ON opening_stock_detail(product_type_id);
-CREATE INDEX idx_opening_stock_detail_product_id ON opening_stock_detail(product_id);
-CREATE INDEX idx_opening_stock_detail_base_currency_id ON opening_stock_detail(base_currency_id);
-CREATE INDEX idx_opening_stock_detail_unit_id ON opening_stock_detail(unit_id);
-CREATE INDEX idx_opening_stock_detail_warehouse_id ON opening_stock_detail(warehouse_id);
-
--- Opening Stock Indexes
-CREATE INDEX idx_opening_stock_company_id ON opening_stock(company_id);
-CREATE INDEX idx_opening_stock_company_branch_id ON opening_stock(company_branch_id);
-CREATE INDEX idx_opening_stock_document_type_id ON opening_stock(document_type_id);
-CREATE INDEX idx_opening_stock_document_no ON opening_stock(document_no);
-CREATE INDEX idx_opening_stock_document_identity ON opening_stock(document_identity);
-CREATE INDEX idx_opening_stock_created_by ON opening_stock(created_by);
-CREATE INDEX idx_opening_stock_updated_by ON opening_stock(updated_by);
-
-

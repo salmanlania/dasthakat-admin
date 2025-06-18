@@ -425,6 +425,7 @@ $router->group(['prefix' => 'good-received-note'], function ($router) {
 $router->group(['prefix' => 'opening-stock'], function ($router) {
    $router->get('/', 'OpeningStockController@index');
    $router->get('/{id}', 'OpeningStockController@show');
+   $router->post('upload/excel', 'OpeningStockController@storeExcel');
    $router->post('/', 'OpeningStockController@store');
    $router->put('/{id}', 'OpeningStockController@update');
    $router->delete('/{id}', 'OpeningStockController@delete');
