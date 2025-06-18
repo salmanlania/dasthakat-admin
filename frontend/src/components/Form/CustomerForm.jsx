@@ -27,12 +27,19 @@ const CustomerForm = ({ mode = 'create', onSubmit }) => {
   const permissions = user.permission;
 
   const onFinish = (values) => {
-    onSubmit({
+    const payload = {
       ...values,
       salesman_id: values.salesman_id ? values.salesman_id.value : null,
       payment_id: values.payment_id ? values.payment_id.value : null,
-      vessel_id: values.vessel_id ? values.vessel_id.map((v) => v.value) : null
-    });
+      vessel_id: values.vessel_id ? values.vessel_id.map((v) => v.value) : null,
+      customer_commission_agent: commissionDetails.map((detail) => ({
+        ...detail,
+        customer_commission_agent_id: mode === 'edit' ? detail.id : null,
+        commission_agent_id: detail?.commission_agent_id?.value || null
+      }))
+    };
+
+    onSubmit(payload);
   };
 
   const columns = [
@@ -87,9 +94,9 @@ const CustomerForm = ({ mode = 'create', onSubmit }) => {
     },
     {
       title: 'Commission Type',
-      dataIndex: 'commission_type',
-      key: 'commission_type',
-      render: (_, { commission_type }, index) => {
+      dataIndex: 'type',
+      key: 'type',
+      render: (_, { type }, index) => {
         return (
           <Select
             className="w-full"
@@ -99,12 +106,12 @@ const CustomerForm = ({ mode = 'create', onSubmit }) => {
                 label: 'Other'
               }
             ]}
-            value={commission_type}
+            value={type}
             onChange={(selected) =>
               dispatch(
                 changeCommissionDetailValue({
                   index,
-                  key: 'commission_type',
+                  key: 'type',
                   value: selected
                 })
               )
@@ -116,24 +123,27 @@ const CustomerForm = ({ mode = 'create', onSubmit }) => {
     },
     {
       title: 'Commission Agent',
-      dataIndex: 'commission_agent',
-      key: 'commission_agent',
-      render: (_, { commission_agent }, index) => {
-        // TODO:Change this select to AsyncSelect and options will be fetch from commission agent master list
+      dataIndex: 'commission_agent_id',
+      key: 'commission_agent_id',
+      render: (_, { commission_agent_id }, index) => {
         return (
-          <Select
+          <AsyncSelect
+            endpoint="/commission-agent"
+            valueKey="commission_agent_id"
+            labelKey="name"
+            labelInValue
             className="w-full"
-            options={[]}
-            value={commission_agent}
+            value={commission_agent_id}
             onChange={(selected) =>
               dispatch(
                 changeCommissionDetailValue({
                   index,
-                  key: 'commission_agent',
+                  key: 'commission_agent_id',
                   value: selected
                 })
               )
             }
+            addNewLink={permissions.commission_agent.add ? '/commission-agent/create' : null}
           />
         );
       },
@@ -172,11 +182,11 @@ const CustomerForm = ({ mode = 'create', onSubmit }) => {
             className="w-full"
             options={[
               {
-                value: 1,
+                value: 'Active',
                 label: 'Active'
               },
               {
-                value: 0,
+                value: 'Inactive',
                 label: 'Inactive'
               }
             ]}

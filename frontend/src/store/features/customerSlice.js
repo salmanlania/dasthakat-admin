@@ -116,12 +116,10 @@ export const customerSlice = createSlice({
 
     addCommissionDetail: (state, action) => {
       const index = action.payload;
-
-      console.log(index);
       const newDetail = {
         id: uuidv4(),
-        commission_type: null,
-        commission_agent: null,
+        type: null,
+        commission_agent_id: null,
         commission_percentage: null,
         status: null,
         row_status: 'I'
@@ -188,6 +186,7 @@ export const customerSlice = createSlice({
     addCase(getCustomerList.pending, (state) => {
       state.isListLoading = true;
       state.initialFormValues = null;
+      state.commissionDetails = [];
     });
     addCase(getCustomerList.fulfilled, (state, action) => {
       state.isListLoading = false;
@@ -246,6 +245,22 @@ export const customerSlice = createSlice({
         status: data.status,
         block_status: data.block_status
       };
+
+      if (!data.customer_commission_agent) return;
+      state.commissionDetails = data.customer_commission_agent.map((detail) => ({
+        id: detail.customer_commission_agent_id,
+        commission_agent_id: detail.commission_agent
+          ? {
+              value: detail.commission_agent.commission_agent_id,
+              label: detail.commission_agent.name
+            }
+          : null,
+        type: detail.type,
+        commission_percentage: detail.commission_percentage,
+        status: detail.status,
+        row_status: 'U',
+        isDeleted: false
+      }));
     });
     addCase(getCustomer.rejected, (state) => {
       state.isItemLoading = false;

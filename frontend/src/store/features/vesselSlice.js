@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import api from '../../axiosInstance';
+import { v4 as uuidv4 } from 'uuid';
 
 export const getVesselList = createAsyncThunk(
   'vessel/list',
@@ -72,6 +73,7 @@ const initialState = {
   isItemLoading: false,
   list: [],
   deleteIDs: [],
+  commissionDetails: [],
   params: {
     page: 1,
     limit: 50,
@@ -101,12 +103,81 @@ export const vesselSlice = createSlice({
 
     setVesselDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
+    },
+
+    addCommissionDetail: (state, action) => {
+      const index = action.payload;
+      const newDetail = {
+        id: uuidv4(),
+        commission_type: null,
+        commission_agent: null,
+        commission_percentage: null,
+        status: null,
+        row_status: 'I'
+      };
+
+      // If index is provided, insert the new detail after that index, otherwise push it to the end
+      if (index || index === 0) {
+        state.commissionDetails.splice(index + 1, 0, newDetail);
+      } else {
+        state.commissionDetails.push(newDetail);
+      }
+    },
+
+    copyCommissionDetail: (state, action) => {
+      const index = action.payload;
+
+      const detail = state.commissionDetails[index];
+      const newDetail = {
+        ...detail,
+        id: uuidv4(),
+        row_status: 'I',
+        isDeleted: false
+      };
+
+      state.commissionDetails.splice(index + 1, 0, newDetail);
+    },
+
+    removeCommissionDetail: (state, action) => {
+      const itemIndex = state.commissionDetails.findIndex((item) => item.id === action.payload);
+
+      if (itemIndex !== -1) {
+        if (state.commissionDetails[itemIndex].row_status === 'I') {
+          state.commissionDetails = state.commissionDetails.filter(
+            (item) => item.id !== action.payload
+          );
+        } else {
+          state.commissionDetails[itemIndex].row_status = 'D';
+          state.commissionDetails[itemIndex].isDeleted = true;
+        }
+      }
+    },
+
+    // Change the order of quotation details, from is the index of the item to be moved, to is the index of the item to be moved to
+    changeCommissionDetailOrder: (state, action) => {
+      const { from, to } = action.payload;
+      const temp = state.commissionDetails[from];
+      state.commissionDetails[from] = state.commissionDetails[to];
+      state.commissionDetails[to] = temp;
+    },
+
+    changeCommissionDetailValue: (state, action) => {
+      const { index, key, value } = action.payload;
+
+      const detail = state.commissionDetails[index];
+
+      if (detail.row_status === 'U' && detail[key] !== value) {
+        detail.row_status = 'U';
+      }
+
+      detail[key] = value;
     }
   },
   extraReducers: ({ addCase }) => {
     addCase(getVesselList.pending, (state) => {
       state.isListLoading = true;
       state.initialFormValues = null;
+      state.commissionDetails = [];
     });
     addCase(getVesselList.fulfilled, (state, action) => {
       state.isListLoading = false;
@@ -168,6 +239,22 @@ export const vesselSlice = createSlice({
             }
           : null
       };
+
+      if (!data.vessel_commission_agent_id) return;
+      state.commissionDetails = data.vessel_commission_agent.map((detail) => ({
+        id: detail.vessel_commission_agent_id,
+        commission_agent_id: detail.commission_agent
+          ? {
+              value: detail.commission_agent.commission_agent_id,
+              label: detail.commission_agent.name
+            }
+          : null,
+        type: detail.type,
+        commission_percentage: detail.commission_percentage,
+        status: detail.status,
+        row_status: 'U',
+        isDeleted: false
+      }));
     });
     addCase(getVessel.rejected, (state) => {
       state.isItemLoading = false;
@@ -198,5 +285,13 @@ export const vesselSlice = createSlice({
   }
 });
 
-export const { setVesselListParams, setVesselDeleteIDs } = vesselSlice.actions;
+export const {
+  setVesselListParams,
+  setVesselDeleteIDs,
+  addCommissionDetail,
+  copyCommissionDetail,
+  removeCommissionDetail,
+  changeCommissionDetailOrder,
+  changeCommissionDetailValue
+} = vesselSlice.actions;
 export default vesselSlice.reducer;
