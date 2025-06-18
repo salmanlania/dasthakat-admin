@@ -111,7 +111,6 @@ CREATE TABLE `opening_stock` (
   `company_branch_id` char(36) NOT NULL,
   `document_type_id` int NOT NULL,
   `document_no` int NOT NULL,
-  `category_id` CHAR(36) NOT NULL,
   `document_prefix` varchar(255) NOT NULL,
   `document_identity` varchar(255) NOT NULL,
   `document_date` date NOT NULL,
@@ -150,3 +149,19 @@ CREATE TABLE `opening_stock_detail` (
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`opening_stock_detail_id`)
 );
+
+CREATE TABLE commission_agent (
+  `company_id` char(36) NOT NULL,
+  `commission_agent_type_id` int NOT NULL,
+  `commission_agent_id` char(36) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `phone` varchar(255) NOT NULL,
+  `address` text,
+  `created_by` char(36) DEFAULT NULL,
+  `updated_by` char(36) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`commission_agent_id`)
+);
+
+
