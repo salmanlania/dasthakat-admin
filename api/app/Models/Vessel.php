@@ -28,7 +28,9 @@ class Vessel extends Model
     {
         return $this->belongsTo(User::class, 'updated_by', 'user_id')->select('user_id', 'email', 'user_name');
     }
-    
+    public function vessel_commission_agent(){
+        return $this->hasMany(VesselCommissionAgent::class, 'vessel_id', 'vessel_id')->select('*');
+    }
     public function flag()
     {
         return $this->hasOne(Flag::class, 'flag_id', 'flag_id')->select('*');

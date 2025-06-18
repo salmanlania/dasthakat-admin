@@ -171,10 +171,10 @@ class VesselController extends Controller
 				$insert = [
 					'vessel_commission_agent_id' => $this->get_uuid(),
 					'vessel_id' => $uuid,
-					'type' => $row->type ?? "",
-					'commission_agent_id' => $row->commission_agent_id ?? "",
-					'commission_percentage' => $row->commission_percentage ?? 0,
-					'status' => $row->status,
+					'type' => $row['type'] ?? "",
+					'commission_agent_id' => $row['commission_agent_id'] ?? "",
+					'commission_percentage' => $row['commission_percentage'] ?? 0,
+					'status' => $row['status'],
 					'created_at' => Carbon::now(),
 					'created_by' => $request->login_user_id,
 				];
@@ -245,10 +245,10 @@ class VesselController extends Controller
 					$insert = [
 						'vessel_commission_agent_id' => $this->get_uuid(),
 						'vessel_id' => $id,
-						'type' => $row->type ?? "",
-						'commission_agent_id' => $row->commission_agent_id ?? "",
-						'commission_percentage' => $row->commission_percentage ?? 0,
-						'status' => $row->status,
+						'type' => $row['type'] ?? "",
+						'commission_agent_id' => $row['commission_agent_id'] ?? "",
+						'commission_percentage' => $row['commission_percentage'] ?? 0,
+						'status' => $row['status'],
 						'created_at' => Carbon::now(),
 						'created_by' => $request->login_user_id,
 					];
@@ -256,9 +256,9 @@ class VesselController extends Controller
 				}
 				if($row['row_status'] == "U"){
 					$update = [
-						'type' => $row->type ?? "",
-						'commission_percentage' => $row->commission_percentage ?? 0,
-						'status' => $row->status,
+						'type' => $row['type'] ?? "",
+						'commission_percentage' => $row['commission_percentage'] ?? 0,
+						'status' => $row['status'],
 						'updated_at' => Carbon::now(),
 						'updated_by' => $request->login_user_id,
 					];
