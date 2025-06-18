@@ -63,6 +63,9 @@ class Customer extends Model implements AuthenticatableContract, AuthorizableCon
     {
         return $this->hasOne(Payment::class, 'payment_id', 'payment_id')->select('payment_id', 'name');
     }
+    public function customer_commission_agent(){
+        return $this->hasMany(CustomerCommissionAgent::class, 'customer_id', 'customer_id')->select('*');
+    }
     public function salesman()
     {
         return $this->hasOne(Salesman::class, 'salesman_id', 'salesman_id')->select('salesman_id', 'name');

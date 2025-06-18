@@ -107,7 +107,7 @@ class CustomerController extends Controller
 	public function show($id, Request $request)
 	{
 
-		$data = Customer::with("payment")
+		$data = Customer::with("customer_commission_agent","customer_commission_agent.commission_agent","payment")
 			->LeftJoin('salesman as s', 's.salesman_id', '=', 'customer.salesman_id')
 			->where('customer_id', $id)
 			->select("customer.*", "s.name as salesman_name")->first();

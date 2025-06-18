@@ -27,7 +27,7 @@ class CustomerCommissionAgent extends Model
         return $this->belongsTo(Customer::class, 'customer_id', 'customer_id');
     }
 
-    public function commissionAgent()
+    public function commission_agent()
     {
         return $this->belongsTo(CommissionAgent::class, 'commission_agent_id', 'commission_agent_id');
     }

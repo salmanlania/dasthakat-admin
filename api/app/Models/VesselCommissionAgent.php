@@ -27,7 +27,7 @@ class VesselCommissionAgent extends Model
         return $this->belongsTo(Vessel::class, 'vessel_id', 'vessel_id');
     }
 
-    public function commissionAgent()
+    public function commission_agent()
     {
         return $this->belongsTo(CommissionAgent::class, 'commission_agent_id', 'commission_agent_id');
     }
