@@ -32,7 +32,8 @@ export const sessionSubmit = async (values, dispatch, sessionData, handleError, 
         }
       }
     }
-    if (!response) {
+
+    if (!response || response?.is_exempted === 0) {
       if (navigate) {
         navigate('/otp-verification');
       }

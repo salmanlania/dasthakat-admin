@@ -144,26 +144,6 @@ const CommissionAgent = () => {
       width: 200,
       ellipsis: true
     },
-
-    {
-      title: (
-        <div>
-          <p>Telephone</p>
-          <Input
-            className="font-normal"
-            size="small"
-            onClick={(e) => e.stopPropagation()}
-            value={params.telephone}
-            onChange={(e) => dispatch(setCommissionAgentListParams({ telephone: e.target.value }))}
-          />
-        </div>
-      ),
-      dataIndex: 'telephone',
-      key: 'telephone',
-      sorter: true,
-      width: 200,
-      ellipsis: true
-    },
     {
       title: 'Created At',
       dataIndex: 'created_at',
