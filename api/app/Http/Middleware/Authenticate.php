@@ -24,7 +24,6 @@ class Authenticate
             'test',
             '/',
             'deploy/migrations',
-            'opening-stock/upload/excel',
             'deploy/seeders',
             'auth/login',
             'auth/session',
