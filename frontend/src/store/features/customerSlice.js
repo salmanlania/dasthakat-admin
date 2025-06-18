@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import api from '../../axiosInstance';
+import { v4 as uuidv4 } from 'uuid';
 
 export const getCustomerList = createAsyncThunk(
   'customer/list',
@@ -81,6 +82,7 @@ const initialState = {
   isItemLoading: false,
   list: [],
   deleteIDs: [],
+  commissionDetails: [],
   params: {
     page: 1,
     limit: 50,
@@ -110,6 +112,76 @@ export const customerSlice = createSlice({
 
     setCustomerDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
+    },
+
+    addCommissionDetail: (state, action) => {
+      const index = action.payload;
+
+      console.log(index);
+      const newDetail = {
+        id: uuidv4(),
+        commission_type: null,
+        commission_agent: null,
+        commission_percentage: null,
+        status: null,
+        row_status: 'I'
+      };
+
+      // If index is provided, insert the new detail after that index, otherwise push it to the end
+      if (index || index === 0) {
+        state.commissionDetails.splice(index + 1, 0, newDetail);
+      } else {
+        state.commissionDetails.push(newDetail);
+      }
+    },
+
+    copyCommissionDetail: (state, action) => {
+      const index = action.payload;
+
+      const detail = state.commissionDetails[index];
+      const newDetail = {
+        ...detail,
+        id: uuidv4(),
+        row_status: 'I',
+        isDeleted: false
+      };
+
+      state.commissionDetails.splice(index + 1, 0, newDetail);
+    },
+
+    removeCommissionDetail: (state, action) => {
+      const itemIndex = state.commissionDetails.findIndex((item) => item.id === action.payload);
+
+      if (itemIndex !== -1) {
+        if (state.commissionDetails[itemIndex].row_status === 'I') {
+          state.commissionDetails = state.commissionDetails.filter(
+            (item) => item.id !== action.payload
+          );
+        } else {
+          state.commissionDetails[itemIndex].row_status = 'D';
+          state.commissionDetails[itemIndex].isDeleted = true;
+        }
+      }
+    },
+
+    // Change the order of quotation details, from is the index of the item to be moved, to is the index of the item to be moved to
+    changeCommissionDetailOrder: (state, action) => {
+      const { from, to } = action.payload;
+      const temp = state.commissionDetails[from];
+      state.commissionDetails[from] = state.commissionDetails[to];
+      state.commissionDetails[to] = temp;
+    },
+
+    changeCommissionDetailValue: (state, action) => {
+      const { index, key, value } = action.payload;
+
+      const detail = state.commissionDetails[index];
+
+      if (detail.row_status === 'U' && detail[key] !== value) {
+        detail.row_status = 'U';
+      }
+
+      detail[key] = value;
     }
   },
   extraReducers: ({ addCase }) => {
@@ -204,5 +276,13 @@ export const customerSlice = createSlice({
   }
 });
 
-export const { setCustomerListParams, setCustomerDeleteIDs } = customerSlice.actions;
+export const {
+  setCustomerListParams,
+  setCustomerDeleteIDs,
+  addCommissionDetail,
+  copyCommissionDetail,
+  removeCommissionDetail,
+  changeCommissionDetailOrder,
+  changeCommissionDetailValue
+} = customerSlice.actions;
 export default customerSlice.reducer;

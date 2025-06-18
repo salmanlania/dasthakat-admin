@@ -1,14 +1,28 @@
-import { Button, Col, Form, Input, Row, Select } from 'antd';
-import { useSelector } from 'react-redux';
+import { Button, Col, Divider, Dropdown, Form, Input, Row, Select, Table } from 'antd';
+import { BiPlus } from 'react-icons/bi';
+import { BsThreeDotsVertical } from 'react-icons/bs';
+import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
+import {
+  addCommissionDetail,
+  changeCommissionDetailOrder,
+  changeCommissionDetailValue,
+  copyCommissionDetail,
+  removeCommissionDetail
+} from '../../store/features/customerSlice';
 import AsyncSelect from '../AsyncSelect';
+import DebouncedNumberInput from '../Input/DebouncedNumberInput';
 import NumberInput from '../Input/NumberInput';
 import CountrySelect from '../Select/CountrySelect';
 
 // eslint-disable-next-line react/prop-types
 const CustomerForm = ({ mode = 'create', onSubmit }) => {
+  const dispatch = useDispatch();
   const { id } = useParams();
-  const { isFormSubmitting, initialFormValues } = useSelector((state) => state.customer);
+  const { isFormSubmitting, initialFormValues, commissionDetails } = useSelector(
+    (state) => state.customer
+  );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
 
@@ -20,6 +34,213 @@ const CustomerForm = ({ mode = 'create', onSubmit }) => {
       vessel_id: values.vessel_id ? values.vessel_id.map((v) => v.value) : null
     });
   };
+
+  const columns = [
+    {
+      title: (
+        <Button
+          size="small"
+          type="primary"
+          className="!w-8"
+          icon={<BiPlus size={14} />}
+          onClick={() => dispatch(addCommissionDetail())}
+        />
+      ),
+      key: 'order',
+      dataIndex: 'order',
+      render: (_, record, index) => {
+        return (
+          <div className="flex flex-col gap-1">
+            <Button
+              className="h-4"
+              size="small"
+              icon={<IoMdArrowDropup size={16} />}
+              disabled={index === 0}
+              onClick={() => {
+                dispatch(changeCommissionDetailOrder({ from: index, to: index - 1 }));
+              }}
+            />
+            <Button
+              className="h-4"
+              size="small"
+              icon={<IoMdArrowDropdown size={16} />}
+              disabled={index === commissionDetails.length - 1}
+              onClick={() => {
+                dispatch(changeCommissionDetailOrder({ from: index, to: index + 1 }));
+              }}
+            />
+          </div>
+        );
+      },
+      width: 50,
+      fixed: 'left'
+    },
+    {
+      title: 'Sr.',
+      dataIndex: 'sr',
+      key: 'sr',
+      render: (_, record, index) => {
+        return <>{index + 1}.</>;
+      },
+      width: 50,
+      fixed: 'left'
+    },
+    {
+      title: 'Commission Type',
+      dataIndex: 'commission_type',
+      key: 'commission_type',
+      render: (_, { commission_type }, index) => {
+        return (
+          <Select
+            className="w-full"
+            options={[
+              {
+                value: 'Other',
+                label: 'Other'
+              }
+            ]}
+            value={commission_type}
+            onChange={(selected) =>
+              dispatch(
+                changeCommissionDetailValue({
+                  index,
+                  key: 'commission_type',
+                  value: selected
+                })
+              )
+            }
+          />
+        );
+      },
+      width: 120
+    },
+    {
+      title: 'Commission Agent',
+      dataIndex: 'commission_agent',
+      key: 'commission_agent',
+      render: (_, { commission_agent }, index) => {
+        // TODO:Change this select to AsyncSelect and options will be fetch from commission agent master list
+        return (
+          <Select
+            className="w-full"
+            options={[]}
+            value={commission_agent}
+            onChange={(selected) =>
+              dispatch(
+                changeCommissionDetailValue({
+                  index,
+                  key: 'commission_agent',
+                  value: selected
+                })
+              )
+            }
+          />
+        );
+      },
+      width: 240
+    },
+    {
+      title: 'Commission %',
+      dataIndex: 'commission_percentage',
+      key: 'commission_percentage',
+      render: (_, { commission_percentage }, index) => {
+        return (
+          <DebouncedNumberInput
+            value={commission_percentage}
+            type="decimal"
+            onChange={(value) =>
+              dispatch(
+                changeCommissionDetailValue({
+                  index,
+                  key: 'commission_percentage',
+                  value: value
+                })
+              )
+            }
+          />
+        );
+      },
+      width: 140
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (_, { status }, index) => {
+        return (
+          <Select
+            className="w-full"
+            options={[
+              {
+                value: 1,
+                label: 'Active'
+              },
+              {
+                value: 0,
+                label: 'Inactive'
+              }
+            ]}
+            value={status}
+            onChange={(selected) =>
+              dispatch(
+                changeCommissionDetailValue({
+                  index,
+                  key: 'status',
+                  value: selected
+                })
+              )
+            }
+          />
+        );
+      },
+      width: 120
+    },
+    {
+      title: (
+        <Button
+          size="small"
+          type="primary"
+          className="!w-8"
+          icon={<BiPlus size={14} />}
+          onClick={() => dispatch(addCommissionDetail())}
+        />
+      ),
+      key: 'action',
+      render: (record, { id }, index) => {
+        return (
+          <Dropdown
+            trigger={['click']}
+            arrow
+            menu={{
+              items: [
+                {
+                  key: '1',
+                  label: 'Add',
+                  onClick: () => dispatch(addCommissionDetail(index))
+                },
+                {
+                  key: '2',
+                  label: 'Copy',
+                  onClick: () => dispatch(copyCommissionDetail(index))
+                },
+                {
+                  key: '3',
+                  label: 'Delete',
+                  danger: true,
+                  onClick: () => dispatch(removeCommissionDetail(id))
+                }
+              ]
+            }}>
+            <Button size="small">
+              <BsThreeDotsVertical />
+            </Button>
+          </Dropdown>
+        );
+      },
+      width: 50,
+      fixed: 'right'
+    }
+  ];
 
   return (
     <Form
@@ -158,12 +379,29 @@ const CustomerForm = ({ mode = 'create', onSubmit }) => {
               allowClear
               options={[
                 { label: 'Yes', value: 'yes' },
-                { label: 'No', value: 'no' },
+                { label: 'No', value: 'no' }
               ]}
             />
           </Form.Item>
         </Col>
       </Row>
+
+      <Divider orientation="left" className="!border-gray-300">
+        Commission Details
+      </Divider>
+
+      <Table
+        columns={columns}
+        dataSource={commissionDetails}
+        rowClassName={(record) => (record.isDeleted ? 'hidden-row' : '')}
+        rowKey={'id'}
+        size="small"
+        scroll={{ x: 'calc(100% - 200px)' }}
+        pagination={false}
+        sticky={{
+          offsetHeader: 56
+        }}
+      />
 
       <div className="mt-4 flex items-center justify-end gap-2">
         <Link to="/customer">
