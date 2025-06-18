@@ -204,6 +204,27 @@ const QuotationReport = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
+          <p>Total Quantity</p>
+          <AsyncSelect
+            endpoint="/customer"
+            size="small"
+            className="w-full font-normal"
+            valueKey="customer_id"
+            labelKey="name"
+            value={params.customer_id}
+            onChange={(value) => dispatch(setQuotationListParams({ customer_id: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'customer_name',
+      key: 'customer_name',
+      sorter: true,
+      width: 200,
+      ellipsis: true
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Total Amount</p>
           <AsyncSelect
             endpoint="/customer"
@@ -232,19 +253,32 @@ const QuotationReport = () => {
     },
     {
       title: 'Sent to Customer',
-      dataIndex: 'status_updated_by',
-      key: 'status_updated_by',
+      dataIndex: 'created_at',
+      key: 'created_at',
       sorter: true,
       width: 140,
       ellipsis: true
     },
     {
-      title: 'Response Rate',
-      dataIndex: 'status_updated_by',
-      key: 'status_updated_by',
-      sorter: true,
-      width: 140,
-      ellipsis: true
+      title: 'Response Time',
+      key: 'response_time',
+      width: 160,
+      render: (_, record) => {
+        const { created_at } = record;
+
+        if (!created_at) return '';
+
+        const created = dayjs(created_at);
+        const sent = dayjs(created_at);
+        const diffInMinutes = sent.diff(created, 'minute');
+
+        if (diffInMinutes < 1) return '< 1 min';
+
+        const hours = Math.floor(diffInMinutes / 60);
+        const minutes = diffInMinutes % 60;
+
+        return `${hours ? `${hours}h ` : ''}${minutes}m`;
+      }
     },
   ];
 
@@ -423,28 +457,28 @@ const QuotationReport = () => {
               className: record.isEventHeader ? 'event-header-row' : ''
             };
           }}
-          components={{
-            body: {
-              row: (props) => {
-                const { children, className, ...restProps } = props;
+        // components={{
+        //   body: {
+        //     row: (props) => {
+        //       const { children, className, ...restProps } = props;
 
-                if (className && className.includes('event-header-row')) {
-                  const eventCode = props['data-row-key'].replace('header-', '');
-                  return (
-                    <tr {...restProps} className="event-header-row bg-[#fafafa] font-bold">
-                      <td
-                        colSpan={columns.length + (permissions.delete ? 1 : 0)}
-                        className="text-md px-4 py-2 text-[#285198]">
-                        {eventCode !== 'No Event' ? `Event: ${eventCode}` : 'No Event Assigned'}
-                      </td>
-                    </tr>
-                  );
-                }
+        //       if (className && className.includes('event-header-row')) {
+        //         const eventCode = props['data-row-key'].replace('header-', '');
+        //         return (
+        //           <tr {...restProps} className="event-header-row bg-[#fafafa] font-bold">
+        //             <td
+        //               colSpan={columns.length + (permissions.delete ? 1 : 0)}
+        //               className="text-md px-4 py-2 text-[#285198]">
+        //               {eventCode !== 'No Event' ? `Event: ${eventCode}` : 'No Event Assigned'}
+        //             </td>
+        //           </tr>
+        //         );
+        //       }
 
-                return <tr {...props} />;
-              }
-            }
-          }}
+        //       return <tr {...props} />;
+        //     }
+        //   }
+        // }}
         />
       </div>
 

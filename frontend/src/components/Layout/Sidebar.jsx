@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { BiChevronLeft } from 'react-icons/bi';
 import { FaRegUser } from 'react-icons/fa';
 import { IoIosArrowRoundForward } from 'react-icons/io';
-import { FaFileAlt } from 'react-icons/fa';
+import { TbReportAnalytics } from "react-icons/tb";
 import { IoSearchSharp } from 'react-icons/io5';
 import { LuCalculator, LuClipboardList, LuWarehouse, LuPackage, LuServer } from 'react-icons/lu';
 import { MdOutlineAdminPanelSettings, MdOutlineDashboard } from 'react-icons/md';
@@ -398,7 +398,7 @@ const Sidebar = () => {
     {
       key: 'reports',
       label: 'Reports',
-      icon: <FaFileAlt size={18} />,
+      icon: <TbReportAnalytics size={18} />,
       disabled: systemPermission,
       children: [
         {
