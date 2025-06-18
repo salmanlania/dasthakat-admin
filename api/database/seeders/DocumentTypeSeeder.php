@@ -31,6 +31,7 @@ class DocumentTypeSeeder extends Seeder
             ['document_type_id' => 52, 'document_name' => 'Purchase Return', 'document_prefix' => '{BC}/PR-', 'table_name' => 'purchase_return', 'primary_key' => 'purchase_return_id'],
             ['document_type_id' => 53, 'document_name' => 'Sale Return', 'document_prefix' => '{BC}/SR-', 'table_name' => 'sale_return', 'primary_key' => 'sale_return_id'],
             ['document_type_id' => 54, 'document_name' => 'Stock Return', 'document_prefix' => '{BC}/STR-', 'table_name' => 'stock_return', 'primary_key' => 'stock_return_id'],
+            ['document_type_id' => 55, 'document_name' => 'Opening Stock', 'document_prefix' => '{BC}/OS-', 'table_name' => 'opening_stock', 'primary_key' => 'opening_stock_id'],
         ];
         DocumentType::insert($data);
     }

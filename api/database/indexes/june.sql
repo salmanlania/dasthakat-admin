@@ -27,3 +27,22 @@ CREATE INDEX idx_event_id ON event(event_id);
 CREATE INDEX idx_event_status ON event(STATUS);
 CREATE INDEX idx_vessel_id ON vessel(vessel_id);
 CREATE INDEX idx_user_id ON user(user_id);
+
+
+
+-- Opening Stock Detail Indexes
+CREATE INDEX idx_opening_stock_detail_opening_stock_id ON opening_stock_detail(opening_stock_id);
+CREATE INDEX idx_opening_stock_detail_product_type_id ON opening_stock_detail(product_type_id);
+CREATE INDEX idx_opening_stock_detail_product_id ON opening_stock_detail(product_id);
+CREATE INDEX idx_opening_stock_detail_base_currency_id ON opening_stock_detail(base_currency_id);
+CREATE INDEX idx_opening_stock_detail_unit_id ON opening_stock_detail(unit_id);
+CREATE INDEX idx_opening_stock_detail_warehouse_id ON opening_stock_detail(warehouse_id);
+
+-- Opening Stock Indexes
+CREATE INDEX idx_opening_stock_company_id ON opening_stock(company_id);
+CREATE INDEX idx_opening_stock_company_branch_id ON opening_stock(company_branch_id);
+CREATE INDEX idx_opening_stock_document_type_id ON opening_stock(document_type_id);
+CREATE INDEX idx_opening_stock_document_no ON opening_stock(document_no);
+CREATE INDEX idx_opening_stock_document_identity ON opening_stock(document_identity);
+CREATE INDEX idx_opening_stock_created_by ON opening_stock(created_by);
+CREATE INDEX idx_opening_stock_updated_by ON opening_stock(updated_by);

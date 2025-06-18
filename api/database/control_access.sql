@@ -167,6 +167,11 @@
   ('Warehousing', 'Servicelist', 'servicelist', 'add', 'Add', 1.102),
   ('Warehousing', 'Servicelist', 'servicelist', 'receive', 'Receive', 1.103),
 
+  ('Warehousing', 'Opening Stock', 'opening_stock', 'list', 'List', 1.101),
+  ('Warehousing', 'Opening Stock', 'opening_stock', 'add', 'Add', 1.102),
+  ('Warehousing', 'Opening Stock', 'opening_stock', 'edit', 'Edit', 1.103),
+  ('Warehousing', 'Opening Stock', 'opening_stock', 'delete', 'Delete', 1.104),
+
   ('Warehousing', 'Goods Received Note', 'good_received_note', 'list', 'List', 1.101),
   ('Warehousing', 'Goods Received Note', 'good_received_note', 'add', 'Add', 1.102),
   ('Warehousing', 'Goods Received Note', 'good_received_note', 'edit', 'Edit', 1.103),
