@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Setting;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 
 class SettingController extends Controller
 {
@@ -44,6 +48,68 @@ class SettingController extends Controller
 
 		return $this->jsonResponse($result, 200, "Setting Data");
 	}
+
+	public function DBBackup()
+    {
+        ini_set('max_execution_time', 0);
+        ini_set('memory_limit', -1);
+
+        $fileName = 'backup_database_' . date('Y_m_d_H_i_s') . '.sql';
+        $backupPath = database_path('backups');
+
+        // Ensure directory exists
+        if (!File::exists($backupPath)) {
+            File::makeDirectory($backupPath, 0755, true);
+        }
+
+        $fileFullPath = $backupPath . '/' . $fileName;
+
+        $database = env('DB_DATABASE');
+        $excludedTables = [];
+
+        $sqlContent = '';
+
+        // Get all tables
+        $tables = DB::select("SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'");
+        $tableKey = 'Tables_in_' . $database;
+
+        foreach ($tables as $tableObj) {
+            $table = $tableObj->$tableKey;
+
+            if (str_starts_with($table, 'vw_') || in_array($table, $excludedTables)) {
+                continue;
+            }
+
+            $sqlContent .= "DROP TABLE IF EXISTS `$table`;\n";
+
+            $create = DB::select("SHOW CREATE TABLE `$table`");
+            $sqlContent .= $create[0]->{'Create Table'} . ";\n\n";
+
+            $rows = DB::table($table)->get();
+            foreach ($rows as $row) {
+                $columns = array_map(fn($col) => "`$col`", array_keys((array)$row));
+                $values = array_map(function ($val) {
+                    if (is_null($val)) return 'NULL';
+                    return "'" . str_replace("'", "''", $val) . "'";
+                }, array_values((array)$row));
+
+                $sqlContent .= "INSERT INTO `$table` (" . implode(", ", $columns) . ") VALUES (" . implode(", ", $values) . ");\n";
+            }
+
+            $sqlContent .= "\n\n";
+        }
+
+        // Write content to file
+        File::put($fileFullPath, $sqlContent);
+
+        return $this->jsonResponse([
+            'status' => 'success',
+            'message' => 'Database backup created successfully.',
+            'file_path' => $fileFullPath,
+        ]);
+    }
+
+
 	public function EmailDubugging(Request $request)
 	{
 		$setting = Setting::where('module', 'mail')->pluck('value', 'field');

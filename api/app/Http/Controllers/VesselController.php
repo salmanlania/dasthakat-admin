@@ -9,6 +9,8 @@ use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Vessel;
+use App\Models\VesselCommissionAgent;
+use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 
 class VesselController extends Controller
@@ -162,6 +164,26 @@ class VesselController extends Controller
 		);
 
 
+
+		if(!empty($request->vessel_commission_agent)){
+			foreach($request->vessel_commission_agent as $row){
+
+				$insert = [
+					'vessel_commission_agent_id' => $this->get_uuid(),
+					'vessel_id' => $uuid,
+					'type' => $row->type ?? "",
+					'commission_agent_id' => $row->commission_agent_id ?? "",
+					'commission_percentage' => $row->commission_percentage ?? 0,
+					'status' => $row->status,
+					'created_at' => Carbon::now(),
+					'created_by' => $request->login_user_id,
+				];
+				VesselCommissionAgent::insert($insert);
+
+			}
+		}
+				
+
 		return $this->jsonResponse(['vessel_id' => $uuid], 200, "Add Vessel Successfully!");
 	}
 
@@ -212,6 +234,39 @@ class VesselController extends Controller
 				"json_data" => json_encode($this->show($id, false))
 			]
 		);
+
+
+		if(!empty($request->vessel_commission_agent)){
+			foreach($request->vessel_commission_agent as $row){
+				if($row['row_status'] == "D"){
+
+				}
+				if($row['row_status'] == "I"){
+					$insert = [
+						'vessel_commission_agent_id' => $this->get_uuid(),
+						'vessel_id' => $id,
+						'type' => $row->type ?? "",
+						'commission_agent_id' => $row->commission_agent_id ?? "",
+						'commission_percentage' => $row->commission_percentage ?? 0,
+						'status' => $row->status,
+						'created_at' => Carbon::now(),
+						'created_by' => $request->login_user_id,
+					];
+					VesselCommissionAgent::insert($insert);
+				}
+				if($row['row_status'] == "U"){
+					$update = [
+						'type' => $row->type ?? "",
+						'commission_percentage' => $row->commission_percentage ?? 0,
+						'status' => $row->status,
+						'updated_at' => Carbon::now(),
+						'updated_by' => $request->login_user_id,
+					];
+					VesselCommissionAgent::where('vessel_commission_agent_id',$row['vessel_commission_agent_id'])->update($update);
+				}
+			}
+		}
+				
 
 		return $this->jsonResponse(['vessel_id' => $id], 200, "Update Vessel Successfully!");
 	}

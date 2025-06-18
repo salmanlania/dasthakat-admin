@@ -123,7 +123,7 @@ class OpeningStockController extends Controller
 		if ($request->opening_stock_detail) {
 			foreach ($request->opening_stock_detail as $value) {
 				$product = Product::with('unit')->where('product_id', $value['product_id'])->first();
-				$warehouse = Warehouse::where('warehouse_id', $request['warehouse_id'])->first();
+				$warehouse = Warehouse::where('warehouse_id', $value['warehouse_id'])->first();
 				$detail_uuid = $this->get_uuid();
 				$insert = [
 					'opening_stock_id' => $insertArr['opening_stock_id'],
@@ -134,7 +134,7 @@ class OpeningStockController extends Controller
 					'product_name' => $value['product_name'] ?? "",
 					'product_description' => $value['product_description'] ?? "",
 					'description' => $value['description'] ?? "",
-					'warehouse_id' => $request['warehouse_id'] ?? "",
+					'warehouse_id' => $value['warehouse_id'] ?? "",
 					'unit_id' => $value['unit_id'] ?? "",
 					"document_currency_id" => $value['document_currency_id'] ?? "",
 					"base_currency_id" => $base_currency_id ?? "",
@@ -146,7 +146,7 @@ class OpeningStockController extends Controller
 					'created_at' => Carbon::now(),
 					'created_by' => $request->login_user_id,
 				];
-				if ($value['product_type_id'] == 2 && !empty($request['warehouse_id'])) {
+				if ($value['product_type_id'] == 2 && !empty($value['warehouse_id'])) {
 
 					$value['unit_id'] = $product->unit_id ?? null;
 					$value['unit_name'] = $product->unit->name ?? null;
@@ -367,7 +367,7 @@ class OpeningStockController extends Controller
 						'product_name' => $value['product_name'] ?? "",
 						'product_description' => $value['product_description'] ?? "",
 						'description' => $value['description'] ?? "",
-						'warehouse_id' => $request['warehouse_id'] ?? "",
+						'warehouse_id' => $value['warehouse_id'] ?? "",
 						'unit_id' => $value['unit_id'] ?? "",
 						"document_currency_id" => $value['document_currency_id'] ?? "",
 						"base_currency_id" => $base_currency_id ?? "",
@@ -379,7 +379,7 @@ class OpeningStockController extends Controller
 						'created_at' => Carbon::now(),
 						'created_by' => $request->login_user_id,
 					];
-					if ($value['product_type_id'] == 2 && !empty($request['warehouse_id'])) {
+					if ($value['product_type_id'] == 2 && !empty($value['warehouse_id'])) {
 						StockLedger::handleStockMovement([
 							'master_model' => new OpeningStock,
 							'document_id' => $id,
@@ -399,7 +399,7 @@ class OpeningStockController extends Controller
 						'product_name' => $value['product_name'] ?? "",
 						'product_description' => $value['product_description'] ?? "",
 						'description' => $value['description'] ?? "",
-						'warehouse_id' => $request['warehouse_id'] ?? "",
+						'warehouse_id' => $value['warehouse_id'] ?? "",
 						'unit_id' => $value['unit_id'] ?? "",
 						"document_currency_id" => $value['document_currency_id'] ?? "",
 						"base_currency_id" => $base_currency_id ?? "",
@@ -411,7 +411,7 @@ class OpeningStockController extends Controller
 						'created_at' => Carbon::now(),
 						'created_by' => $request->login_user_id,
 					];
-					if ($value['product_type_id'] == 2 && !empty($request['warehouse_id'])) {
+					if ($value['product_type_id'] == 2 && !empty($value['warehouse_id'])) {
 						StockLedger::where('document_detail_id', $value['opening_stock_detail_id'])->delete();
 						StockLedger::handleStockMovement([
 							'master_model' => new OpeningStock,

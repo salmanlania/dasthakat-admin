@@ -10,9 +10,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use App\Mail\GenerateMail;
 use App\Models\Customer;
+use App\Models\CustomerCommissionAgent;
 use App\Models\CustomerVessel;
 use App\Models\Quotation;
 use App\Models\Vessel;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
@@ -186,6 +188,26 @@ class CustomerController extends Controller
 				CustomerVessel::insert($insert);
 			}
 		}
+	
+		if(!empty($request->customer_commission_agent)){
+			foreach($request->customer_commission_agent as $row){
+
+				$insert = [
+					'customer_commission_agent_id' => $this->get_uuid(),
+					'customer_id' => $uuid,
+					'type' => $row->type ?? "",
+					'commission_agent_id' => $row->commission_agent_id ?? "",
+					'commission_percentage' => $row->commission_percentage ?? 0,
+					'status' => $row->status,
+					'created_at' => Carbon::now(),
+					'created_by' => $request->login_user_id,
+				];
+				CustomerCommissionAgent::insert($insert);
+
+			}
+		}
+		
+	
 		return $this->jsonResponse(['customer_id' => $uuid], 200, "Add Customer Successfully!");
 	}
 
@@ -230,6 +252,37 @@ class CustomerController extends Controller
 					'created_by' => $request->login_user_id,
 				];
 				CustomerVessel::insert($insert);
+			}
+		}
+
+		if(!empty($request->customer_commission_agent)){
+			foreach($request->customer_commission_agent as $row){
+				if($row['row_status'] == "D"){
+
+				}
+				if($row['row_status'] == "I"){
+					$insert = [
+						'customer_commission_agent_id' => $this->get_uuid(),
+						'customer_id' => $id,
+						'type' => $row->type ?? "",
+						'commission_agent_id' => $row->commission_agent_id ?? "",
+						'commission_percentage' => $row->commission_percentage ?? 0,
+						'status' => $row->status,
+						'created_at' => Carbon::now(),
+						'created_by' => $request->login_user_id,
+					];
+					CustomerCommissionAgent::insert($insert);
+				}
+				if($row['row_status'] == "U"){
+					$update = [
+						'type' => $row->type ?? "",
+						'commission_percentage' => $row->commission_percentage ?? 0,
+						'status' => $row->status,
+						'updated_at' => Carbon::now(),
+						'updated_by' => $request->login_user_id,
+					];
+					CustomerCommissionAgent::where('customer_commission_agent_id',$row['customer_commission_agent_id'])->update($update);
+				}
 			}
 		}
 

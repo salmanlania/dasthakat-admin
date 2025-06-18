@@ -153,7 +153,6 @@ CREATE TABLE `opening_stock_detail` (
 CREATE TABLE commission_agent (
   `company_id` char(36) NOT NULL,
   `company_branch_id` char(36) NOT NULL,
-  `commission_agent_type_id` int NOT NULL,
   `commission_agent_id` char(36) NOT NULL,
   `name` varchar(255) NOT NULL,
   `phone` varchar(255) NOT NULL,
@@ -163,6 +162,34 @@ CREATE TABLE commission_agent (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`commission_agent_id`)
+);
+
+CREATE TABLE vessel_commission_agent (
+  `vessel_commission_agent_id` char(36) NOT NULL,
+  `vessel_id` char(36) NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `commission_percentage` decimal(10,2) NOT NULL,
+  `commission_agent_id` char(36) NOT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `created_by` char(36) DEFAULT NULL,
+  `updated_by` char(36) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`vessel_commission_agent_id`)
+);
+
+CREATE TABLE customer_commission_agent (
+  `customer_commission_agent_id` char(36) NOT NULL,
+  `customer_id` char(36) NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `commission_percentage` decimal(10,2) NOT NULL,
+  `commission_agent_id` char(36) NOT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `created_by` char(36) DEFAULT NULL,
+  `updated_by` char(36) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`customer_commission_agent_id`)
 );
 
 

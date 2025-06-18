@@ -24,6 +24,7 @@ class Authenticate
             'test',
             '/',
             'deploy/migrations',
+            'setting/dbbackup',
             'deploy/seeders',
             'auth/login',
             'auth/session',
