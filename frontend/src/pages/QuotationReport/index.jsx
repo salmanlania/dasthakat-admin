@@ -23,6 +23,9 @@ import {
 import generateQuotationExcel from '../../utils/excel/quotation-excel.js';
 import { createQuotationPrint } from '../../utils/prints/quotation-print';
 
+import { FaRegFileExcel } from 'react-icons/fa6';
+import { FaRegFilePdf } from 'react-icons/fa';
+
 const QuotationReport = () => {
   const { RangePicker } = DatePicker;
   const dispatch = useDispatch();
@@ -94,43 +97,7 @@ const QuotationReport = () => {
 
   const columns = [
     {
-      title: (
-        <div>
-          <p>Quotation Date</p>
-          <div onClick={(e) => e.stopPropagation()}>
-            <DatePicker
-              size="small"
-              value={params.document_date}
-              className="font-normal"
-              onChange={(date) => dispatch(setQuotationListParams({ document_date: date }))}
-              format="MM-DD-YYYY"
-            />
-          </div>
-        </div>
-      ),
-      dataIndex: 'document_date',
-      key: 'document_date',
-      sorter: true,
-      width: 150,
-      ellipsis: true,
-      render: (_, { document_date }) =>
-        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null
-    },
-    {
-      title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Event Number </p>
-          <AsyncSelect
-            endpoint="/event"
-            size="small"
-            className="w-full font-normal"
-            valueKey="event_id"
-            labelKey="event_code"
-            value={params.event_id}
-            onChange={(value) => dispatch(setQuotationListParams({ event_id: value }))}
-          />
-        </div>
-      ),
+      title: 'Event Number',
       dataIndex: 'event_code',
       key: 'event_code',
       sorter: true,
@@ -138,21 +105,7 @@ const QuotationReport = () => {
       ellipsis: true
     },
     {
-      title: (
-        <div>
-          <p>Quotation No</p>
-          <Input
-            className="font-normal"
-            size="small"
-            allowClear
-            onClick={(e) => e.stopPropagation()}
-            value={params.document_identity}
-            onChange={(e) =>
-              dispatch(setQuotationListParams({ document_identity: e.target.value }))
-            }
-          />
-        </div>
-      ),
+      title: 'Quotation No',
       dataIndex: 'document_identity',
       key: 'document_identity',
       sorter: true,
@@ -160,41 +113,15 @@ const QuotationReport = () => {
       ellipsis: true
     },
     {
-      title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Vessel</p>
-          <AsyncSelect
-            endpoint="/vessel"
-            size="small"
-            className="w-full font-normal"
-            valueKey="vessel_id"
-            labelKey="name"
-            value={params.vessel_id}
-            onChange={(value) => dispatch(setQuotationListParams({ vessel_id: value }))}
-          />
-        </div>
-      ),
+      title: 'Vessel',
       dataIndex: 'vessel_name',
       key: 'vessel_name',
       sorter: true,
-      width: 200,
+      width: 140,
       ellipsis: true
     },
     {
-      title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Customer</p>
-          <AsyncSelect
-            endpoint="/customer"
-            size="small"
-            className="w-full font-normal"
-            valueKey="customer_id"
-            labelKey="name"
-            value={params.customer_id}
-            onChange={(value) => dispatch(setQuotationListParams({ customer_id: value }))}
-          />
-        </div>
-      ),
+      title: 'Customer',
       dataIndex: 'customer_name',
       key: 'customer_name',
       sorter: true,
@@ -202,45 +129,19 @@ const QuotationReport = () => {
       ellipsis: true
     },
     {
-      title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Total Quantity</p>
-          <AsyncSelect
-            endpoint="/customer"
-            size="small"
-            className="w-full font-normal"
-            valueKey="customer_id"
-            labelKey="name"
-            value={params.customer_id}
-            onChange={(value) => dispatch(setQuotationListParams({ customer_id: value }))}
-          />
-        </div>
-      ),
+      title: 'Total Quantity',
       dataIndex: 'customer_name',
       key: 'customer_name',
       sorter: true,
-      width: 200,
+      width: 140,
       ellipsis: true
     },
     {
-      title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Total Amount</p>
-          <AsyncSelect
-            endpoint="/customer"
-            size="small"
-            className="w-full font-normal"
-            valueKey="customer_id"
-            labelKey="name"
-            value={params.customer_id}
-            onChange={(value) => dispatch(setQuotationListParams({ customer_id: value }))}
-          />
-        </div>
-      ),
+      title: 'Total Amount',
       dataIndex: 'customer_name',
       key: 'customer_name',
       sorter: true,
-      width: 200,
+      width: 140,
       ellipsis: true
     },
     {
@@ -250,35 +151,6 @@ const QuotationReport = () => {
       sorter: true,
       width: 168,
       render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
-    },
-    {
-      title: 'Sent to Customer',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      sorter: true,
-      width: 140,
-      ellipsis: true
-    },
-    {
-      title: 'Response Time',
-      key: 'response_time',
-      width: 160,
-      render: (_, record) => {
-        const { created_at } = record;
-
-        if (!created_at) return '';
-
-        const created = dayjs(created_at);
-        const sent = dayjs(created_at);
-        const diffInMinutes = sent.diff(created, 'minute');
-
-        if (diffInMinutes < 1) return '< 1 min';
-
-        const hours = Math.floor(diffInMinutes / 60);
-        const minutes = diffInMinutes % 60;
-
-        return `${hours ? `${hours}h ` : ''}${minutes}m`;
-      }
     },
   ];
 
@@ -349,67 +221,126 @@ const QuotationReport = () => {
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1 justify-between flex-wrap">
           <Input
             placeholder="Search..." allowClear
-            className="w-full sm:w-64"
+            className="w-full sm:w-60"
             value={params.search}
             onChange={(e) => dispatch(setQuotationListParams({ search: e.target.value }))}
           />
+          <div className="min-w-[140px]">
+            <RangePicker
+              value={[
+                params.start_date && params.start_date !== ''
+                  ? dayjs(params.start_date, 'YYYY-MM-DD')
+                  : null,
+                params.end_date && params.end_date !== ''
+                  ? dayjs(params.end_date, 'YYYY-MM-DD')
+                  : null
+              ]}
+              onChange={(dates) => {
+                const newParams = {
+                  start_date: dates?.[0] ? dayjs(dates[0]).format('YYYY-MM-DD') : '',
+                  end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : ''
+                };
 
-          <RangePicker
-            value={[
-              params.start_date && params.start_date !== ''
-                ? dayjs(params.start_date, 'YYYY-MM-DD')
-                : null,
-              params.end_date && params.end_date !== ''
-                ? dayjs(params.end_date, 'YYYY-MM-DD')
-                : null
-            ]}
-            onChange={(dates) => {
-              const newParams = {
-                start_date: dates?.[0] ? dayjs(dates[0]).format('YYYY-MM-DD') : '',
-                end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : ''
-              };
+                // dispatch(setDispatchListParams(newParams));
 
-              // dispatch(setDispatchListParams(newParams));
-
-              const today = dayjs().format('YYYY-MM-DD');
-              const fetchParams = { ...params };
-              if (dates && dates[0]) {
-                fetchParams.start_date = newParams.start_date;
-                fetchParams.end_date = newParams.end_date;
-              } else {
-                if (!isOldChecked) {
-                  fetchParams.start_date = today;
-                  fetchParams.end_date = null;
+                const today = dayjs().format('YYYY-MM-DD');
+                const fetchParams = { ...params };
+                if (dates && dates[0]) {
+                  fetchParams.start_date = newParams.start_date;
+                  fetchParams.end_date = newParams.end_date;
                 } else {
-                  fetchParams.start_date = null;
-                  fetchParams.end_date = null;
+                  if (!isOldChecked) {
+                    fetchParams.start_date = today;
+                    fetchParams.end_date = null;
+                  } else {
+                    fetchParams.start_date = null;
+                    fetchParams.end_date = null;
+                  }
                 }
-              }
 
-              dispatch(getDispatchList(fetchParams));
-            }}
-            format="MM-DD-YYYY"
-          />
-
-          <div className="flex items-center gap-2">
-            {permissions.delete ? (
-              <Button
-                type="primary"
-                danger
-                onClick={() => setDeleteModalIsOpen(true)}
-                disabled={!deleteIDs.length}>
-                Delete
-              </Button>
-            ) : null}
-            {permissions.add ? (
-              <Link to="/quotation/create">
-                <Button type="primary">Add New</Button>
-              </Link>
-            ) : null}
+                dispatch(getDispatchList(fetchParams));
+              }}
+              format="MM-DD-YYYY"
+            />
           </div>
+
+          {/* <div className="flex flex-wrap items-center gap-4"> */}
+          <div className="min-w-[140px]">
+            {/* <label className="block text-sm font-medium text-gray-700 mb-1">Event Number</label> */}
+            <AsyncSelect
+              endpoint="/event"
+              className="w-full"
+              valueKey="event_id"
+              labelKey="event_code"
+              placeholder="Select Event"
+              value={params.event_id}
+              onChange={(value) => dispatch(setQuotationListParams({ event_id: value }))}
+              allowClear
+            />
+          </div>
+
+          <div className="min-w-[100px]">
+            {/* <label className="block text-sm font-medium text-gray-700 mb-1">Quotation No</label> */}
+            <Input
+              placeholder="Enter Quotation No"
+              allowClear
+              value={params.document_identity}
+              onChange={(e) =>
+                dispatch(setQuotationListParams({ document_identity: e.target.value }))
+              }
+            />
+          </div>
+
+          <div className="min-w-[14px]">
+            {/* <label className="block text-sm font-medium text-gray-700 mb-1">Vessel</label> */}
+            <AsyncSelect
+              endpoint="/vessel"
+              className="w-full"
+              valueKey="vessel_id"
+              labelKey="name"
+              placeholder="Select Vessel"
+              value={params.vessel_id}
+              onChange={(value) => dispatch(setQuotationListParams({ vessel_id: value }))}
+              allowClear
+            />
+          </div>
+
+          <div className="min-w-[200px]">
+            {/* <label className="block text-sm font-medium text-gray-700 mb-1">Customer</label> */}
+            <AsyncSelect
+              endpoint="/customer"
+              className="w-full"
+              valueKey="customer_id"
+              labelKey="name"
+              placeholder="Select Customer"
+              value={params.customer_id}
+              onChange={(value) => dispatch(setQuotationListParams({ customer_id: value }))}
+              allowClear
+            />
+          </div>
+
+          <div className="flex items-center justify-around gap-3">
+            <Button
+              type="primary"
+              icon={<FaRegFileExcel size={14} />}
+              className="bg-emerald-800 hover:!bg-emerald-700"
+            // onClick={exportExcel}
+            >
+              Export
+            </Button>
+            <Button
+              type="primary"
+              icon={<FaRegFilePdf size={14} />}
+              className="bg-rose-600 hover:!bg-rose-500"
+            // onClick={exportPdf}
+            >
+              Print
+            </Button>
+          </div>
+          {/* </div> */}
         </div>
 
         <Table
@@ -457,28 +388,6 @@ const QuotationReport = () => {
               className: record.isEventHeader ? 'event-header-row' : ''
             };
           }}
-        // components={{
-        //   body: {
-        //     row: (props) => {
-        //       const { children, className, ...restProps } = props;
-
-        //       if (className && className.includes('event-header-row')) {
-        //         const eventCode = props['data-row-key'].replace('header-', '');
-        //         return (
-        //           <tr {...restProps} className="event-header-row bg-[#fafafa] font-bold">
-        //             <td
-        //               colSpan={columns.length + (permissions.delete ? 1 : 0)}
-        //               className="text-md px-4 py-2 text-[#285198]">
-        //               {eventCode !== 'No Event' ? `Event: ${eventCode}` : 'No Event Assigned'}
-        //             </td>
-        //           </tr>
-        //         );
-        //       }
-
-        //       return <tr {...props} />;
-        //     }
-        //   }
-        // }}
         />
       </div>
 

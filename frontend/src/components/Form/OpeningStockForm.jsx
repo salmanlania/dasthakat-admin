@@ -2,7 +2,7 @@
 import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Select, Table } from 'antd';
 import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BiPlus } from 'react-icons/bi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
@@ -10,46 +10,56 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import useError from '../../hooks/useError';
 import {
-  addGoodsReceivedNoteDetail,
-  changeGoodsReceivedNoteDetailOrder,
-  changeGoodsReceivedNoteDetailValue,
-  copyGoodsReceivedNoteDetail,
-  getGoodsReceivedNoteForPrint,
-  removeGoodsReceivedNoteDetail,
-  resetGoodsReceivedNoteDetail,
-  setGoodsReceivedNoteDetails
-} from '../../store/features/goodsReceivedNoteSlice';
+  addOpeningStockDetail,
+  changeOpeningStockDetailOrder,
+  changeOpeningStockDetailValue,
+  copyOpeningStockDetail,
+  getOpeningStockForPrint,
+  removeOpeningStockDetail,
+  resetOpeningStockDetail,
+  setOpeningStockDetails
+} from '../../store/features/openingStockSlice';
 import { getProduct, getProductList } from '../../store/features/productSlice';
-import { getPurchaseOrder } from '../../store/features/purchaseOrderSlice';
-import { createGoodsReceivedNotePrint } from '../../utils/prints/goods-received-note-print';
+import { createOpeningStockPrint } from '../../utils/prints/opening-stock-print';
 import AsyncSelect from '../AsyncSelect';
 import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
 import { DetailSummaryInfo } from './QuotationForm';
 
-const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
+const OpeningStockForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const type = Form.useWatch('type', form);
+  const selectedWarehouse = Form.useWatch('warehouse_id', form);
   const [submitAction, setSubmitAction] = useState(null);
+
+  useEffect(() => {
+    if (!selectedWarehouse) return;
+
+    openingStockDetails.forEach((detail, index) => {
+      const hasWarehouse = detail.warehouse_id?.value;
+      if (!hasWarehouse) {
+        dispatch(
+          changeOpeningStockDetailValue({
+            index,
+            key: 'warehouse_id',
+            value: selectedWarehouse
+          })
+        );
+
+        form.setFieldsValue({
+          [`warehouse_id-${index}`]: selectedWarehouse
+        });
+      }
+    });
+  }, [selectedWarehouse]);
 
   const handleError = useError();
   const dispatch = useDispatch();
   const { id } = useParams();
-  const { isFormSubmitting, initialFormValues, goodsReceivedNoteDetails } = useSelector(
-    (state) => state.goodsReceivedNote
+  const { isFormSubmitting, initialFormValues, openingStockDetails } = useSelector(
+    (state) => state.openingStock
   );
-
-  goodsReceivedNoteDetails.forEach((item, index) => {
-    form.setFieldsValue({
-      [`product_description-${index}`]: item.product_description,
-      [`product_id-${index}`]: item.product_id,
-      [`product_name-${index}`]: item.product_name,
-      [`quantity-${index}`]: item.quantity,
-      [`rate-${index}`]: item.rate,
-      [`discount_percent-${index}`]: item.discount_percent
-    });
-  });
 
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
@@ -57,31 +67,28 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
 
   let totalQuantity = 0;
 
-  goodsReceivedNoteDetails.forEach((detail) => {
+  openingStockDetails.forEach((detail) => {
     totalQuantity += +detail.quantity || 0;
   });
 
   const onFinish = (values) => {
     const edit = mode;
-    const deletedDetails = goodsReceivedNoteDetails.filter((detail) => detail.isDeleted !== true);
+    const deletedDetails = openingStockDetails.filter((detail) => detail.isDeleted !== true);
 
-    const filteredDetails = goodsReceivedNoteDetails.filter(
+    const filteredDetails = openingStockDetails.filter(
       (detail) => !(detail.isDeleted && detail.row_status === 'I')
     );
 
-    const mappingSource = edit === 'edit' ? goodsReceivedNoteDetails : deletedDetails;
+    const mappingSource = edit === 'edit' ? openingStockDetails : deletedDetails;
 
     const data = {
       default_currency_id: currency ? currency.currency_id : null,
       type: values.type,
       remarks: values.remarks,
-      supplier_id: values.supplier_id ? values.supplier_id.value : null,
-      quotation_id: values.quotation_id,
       charge_order_id: values.charge_order_id,
-      purchase_order_id: values.purchase_order_id ? values.purchase_order_id.value : null,
-      payment_id: values.payment_id ? values.payment_id.value : null,
+      warehouse_id: values.warehouse_id ? values.warehouse_id.value : null,
       document_date: values.document_date ? dayjs(values.document_date).format('YYYY-MM-DD') : null,
-      good_received_note_detail: mappingSource.map(
+      opening_stock_detail: mappingSource.map(
         ({ id, row_status, isDeleted, ...detail }, index) => {
           return {
             ...detail,
@@ -91,13 +98,14 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
             warehouse_id: detail.warehouse_id ? detail.warehouse_id.value : null,
             unit_id: detail.unit_id ? detail.unit_id.value : null,
             sort_order: index,
-            good_received_note_detail_id: id ? id : null,
+            opening_stock_detail_id: id ? id : null,
             ...(edit === 'edit' ? { row_status } : {})
           };
         }
       ),
       total_quantity: totalQuantity
     };
+
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 
@@ -106,7 +114,11 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
     try {
       const res = await dispatch(getProductList({ product_code: value, stock: true })).unwrap();
 
-      if (!res.data.length) return;
+      const filteredProducts = res.data.filter(
+        (product) => product.product_type_id === 2 || product.product_type_id?.product_type_id === 2
+      );
+
+      if (!filteredProducts.length) return;
 
       const product = res.data[0];
 
@@ -121,7 +133,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       });
 
       dispatch(
-        changeGoodsReceivedNoteDetailValue({
+        changeOpeningStockDetailValue({
           index,
           key: 'product_id',
           value: {
@@ -132,7 +144,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       );
 
       dispatch(
-        changeGoodsReceivedNoteDetailValue({
+        changeOpeningStockDetailValue({
           index,
           key: 'product_description',
           value: product?.product_name || ''
@@ -140,7 +152,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       );
 
       dispatch(
-        changeGoodsReceivedNoteDetailValue({
+        changeOpeningStockDetailValue({
           index,
           key: 'product_type_id',
           value: product.product_type_id
@@ -153,7 +165,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       );
 
       dispatch(
-        changeGoodsReceivedNoteDetailValue({
+        changeOpeningStockDetailValue({
           index,
           key: 'unit_id',
           value: { value: product.unit_id, label: product.unit_name }
@@ -161,7 +173,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       );
 
       dispatch(
-        changeGoodsReceivedNoteDetailValue({
+        changeOpeningStockDetailValue({
           index,
           key: 'rate',
           value: product.sale_price
@@ -174,7 +186,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
 
   const onProductChange = async (index, selected) => {
     dispatch(
-      changeGoodsReceivedNoteDetailValue({
+      changeOpeningStockDetailValue({
         index,
         key: 'product_id',
         value: selected
@@ -183,7 +195,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
 
     if (!selected) {
       dispatch(
-        changeGoodsReceivedNoteDetailValue({
+        changeOpeningStockDetailValue({
           index,
           key: 'product_code',
           value: null
@@ -191,7 +203,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       );
 
       dispatch(
-        changeGoodsReceivedNoteDetailValue({
+        changeOpeningStockDetailValue({
           index,
           key: 'product_type',
           value: null
@@ -199,7 +211,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       );
 
       dispatch(
-        changeGoodsReceivedNoteDetailValue({
+        changeOpeningStockDetailValue({
           index,
           key: 'unit_id',
           value: null
@@ -207,7 +219,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       );
 
       dispatch(
-        changeGoodsReceivedNoteDetailValue({
+        changeOpeningStockDetailValue({
           index,
           key: 'rate',
           value: null
@@ -221,7 +233,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
     });
 
     dispatch(
-      changeGoodsReceivedNoteDetailValue({
+      changeOpeningStockDetailValue({
         index,
         key: 'product_description',
         value: selected?.label || ''
@@ -232,7 +244,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       const product = await dispatch(getProduct(selected.value)).unwrap();
 
       dispatch(
-        changeGoodsReceivedNoteDetailValue({
+        changeOpeningStockDetailValue({
           index,
           key: 'product_code',
           value: product.product_code
@@ -240,7 +252,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       );
 
       dispatch(
-        changeGoodsReceivedNoteDetailValue({
+        changeOpeningStockDetailValue({
           index,
           key: 'product_type_id',
           value: product.product_type_id
@@ -253,7 +265,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       );
 
       dispatch(
-        changeGoodsReceivedNoteDetailValue({
+        changeOpeningStockDetailValue({
           index,
           key: 'unit_id',
           value: { value: product.unit_id, label: product.unit_name }
@@ -261,7 +273,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       );
 
       dispatch(
-        changeGoodsReceivedNoteDetailValue({
+        changeOpeningStockDetailValue({
           index,
           key: 'cost_price',
           value: product.cost_price
@@ -269,109 +281,12 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       );
 
       dispatch(
-        changeGoodsReceivedNoteDetailValue({
+        changeOpeningStockDetailValue({
           index,
           key: 'rate',
           value: product.sale_price
         })
       );
-    } catch (error) {
-      handleError(error);
-    }
-  };
-
-  const onPOChange = async (selected) => {
-    if (!selected) return;
-    dispatch(setGoodsReceivedNoteDetails([]));
-
-    try {
-      const { purchase_order_detail, ...values } = await dispatch(
-        getPurchaseOrder(selected.value)
-      ).unwrap();
-      if (values.type === 'Buyout') {
-        form.setFieldsValue({
-          type: values.type,
-          charge_order_id: values.charge_order_id || null,
-          quotation_id: values.quotation_id || null,
-          event_id: values?.charge_order?.event
-            ? {
-              value: values?.charge_order?.event.event_id,
-              label: values?.charge_order?.event.event_name
-            }
-            : null,
-          customer_id: values?.charge_order?.customer
-            ? {
-              value: values?.charge_order?.customer.customer_id,
-              label: values?.charge_order?.customer.name
-            }
-            : null,
-          supplier_id: values?.supplier
-            ? {
-              value: values?.supplier.supplier_id,
-              label: values?.supplier.name
-            }
-            : null,
-          charge_no: values?.charge_order?.document_identity || null,
-          purchase_order_no: values?.charge_order?.customer_po_no || null
-        });
-      } else {
-        form.setFieldsValue({
-          type: values.type,
-          supplier_id: values?.supplier
-            ? {
-              value: values?.supplier.supplier_id,
-              label: values?.supplier.name
-            }
-            : null
-        });
-      }
-
-      if (!purchase_order_detail || !purchase_order_detail.length) return;
-
-      const details = purchase_order_detail
-        .map((detail) => ({
-          id: detail.purchase_order_detail_id,
-          purchase_order_detail_id: detail.purchase_order_detail_id,
-          product_type_id: detail.product_type
-            ? {
-              value: detail.product_type.product_type_id,
-              label: detail.product_type.name
-            }
-            : null,
-          product_code: detail.product ? detail.product.product_code : null,
-          product_id: detail.product
-            ? { value: detail.product.product_id, label: detail.product.product_name }
-            : null,
-          product_name: detail.product_name,
-          product_description: detail.product_description,
-          description: detail.description,
-          charge_order_detail_id: detail.charge_order_detail_id,
-          quantity: detail?.available_quantity ? parseFloat(detail?.available_quantity) : null,
-          unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
-          warehouse_id: null,
-          row_status: 'I',
-          isDeleted: false
-        }))
-        .filter((item) => item.quantity > 0);
-
-      dispatch(setGoodsReceivedNoteDetails(details));
-
-      details.forEach((_, index) => {
-        form.setFieldsValue({
-          [`warehouse_id-${index}`]: null
-        });
-      });
-    } catch (error) {
-      handleError(error);
-    }
-  };
-
-  const printGoodsReceivedNote = async () => {
-    const loadingToast = toast.loading('Loading print...');
-    try {
-      const data = await dispatch(getGoodsReceivedNoteForPrint(id)).unwrap();
-      toast.dismiss(loadingToast);
-      createGoodsReceivedNotePrint(data);
     } catch (error) {
       handleError(error);
     }
@@ -385,7 +300,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
           type="primary"
           className="!w-8"
           icon={<BiPlus size={14} />}
-          onClick={() => dispatch(addGoodsReceivedNoteDetail())}
+          onClick={() => dispatch(addOpeningStockDetail({ defaultWarehouse: selectedWarehouse }))}
         />
       ),
       key: 'order',
@@ -399,16 +314,16 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
               icon={<IoMdArrowDropup size={16} />}
               disabled={index === 0}
               onClick={() => {
-                dispatch(changeGoodsReceivedNoteDetailOrder({ from: index, to: index - 1 }));
+                dispatch(changeOpeningStockDetailOrder({ from: index, to: index - 1 }));
               }}
             />
             <Button
               className="h-4"
               size="small"
               icon={<IoMdArrowDropdown size={16} />}
-              disabled={index === goodsReceivedNoteDetails.length - 1}
+              disabled={index === openingStockDetails.length - 1}
               onClick={() => {
-                dispatch(changeGoodsReceivedNoteDetailOrder({ from: index, to: index + 1 }));
+                dispatch(changeOpeningStockDetailOrder({ from: index, to: index + 1 }));
               }}
             />
           </div>
@@ -429,7 +344,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       title: 'Product Type',
       dataIndex: 'product_type',
       key: 'product_type',
-      render: (_, { product_code, product_type_id }, index) => {
+      render: (_, { product_type_id }, index) => {
         return (
           <AsyncSelectNoPaginate
             endpoint="/lookups/product-types"
@@ -438,10 +353,11 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
             labelInValue
             className="w-full"
             value={product_type_id}
+            filterFn={(product) => product?.product_type_id === 2}
             onChange={(selected) => {
-              dispatch(resetGoodsReceivedNoteDetail(index));
+              dispatch(resetOpeningStockDetail(index));
               dispatch(
-                changeGoodsReceivedNoteDetailValue({
+                changeOpeningStockDetailValue({
                   index,
                   key: 'product_type_id',
                   value: selected
@@ -463,7 +379,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
             value={product_code}
             onChange={(value) =>
               dispatch(
-                changeGoodsReceivedNoteDetailValue({
+                changeOpeningStockDetailValue({
                   index,
                   key: 'product_code',
                   value: value
@@ -485,44 +401,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       render: (_, { product_id, product_name, product_type_id }, index) => {
         form.setFieldsValue({ [`product_name-${index}`]: product_name });
         form.setFieldsValue({ [`product_id-${index}`]: product_id });
-        return product_type_id?.value == 4 ? (
-          <Form.Item
-            className="m-0"
-            name={`product_name-${index}`}
-            initialValue={product_name}
-            rules={[
-              {
-                required: true,
-                whitespace: true,
-                message: 'Product Name is required'
-              }
-            ]}>
-            <DebounceInput
-              value={product_name}
-              onChange={(value) => {
-                dispatch(
-                  changeGoodsReceivedNoteDetailValue({
-                    index,
-                    key: 'product_name',
-                    value: value
-                  })
-                );
-
-                form.setFieldsValue({
-                  [`product_description-${index}`]: value
-                });
-
-                dispatch(
-                  changeGoodsReceivedNoteDetailValue({
-                    index,
-                    key: 'product_description',
-                    value: value
-                  })
-                );
-              }}
-            />
-          </Form.Item>
-        ) : (
+        return (
           <Form.Item
             className="m-0"
             name={`product_id-${index}`}
@@ -540,11 +419,12 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
               labelInValue
               className="w-full"
               value={product_id}
+              filterFn={(product) => product?.product_id === 2}
               onChange={(selected) => onProductChange(index, selected)}
               addNewLink={permissions.product.add ? '/product/create' : null}
             />
           </Form.Item>
-        );
+        )
       },
       width: 560
     },
@@ -571,7 +451,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
               disabled={product_type_id?.value == 4}
               onChange={(value) =>
                 dispatch(
-                  changeGoodsReceivedNoteDetailValue({
+                  changeOpeningStockDetailValue({
                     index,
                     key: 'product_description',
                     value: value
@@ -594,7 +474,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
             value={description}
             onChange={(value) =>
               dispatch(
-                changeGoodsReceivedNoteDetailValue({
+                changeOpeningStockDetailValue({
                   index,
                   key: 'description',
                   value: value
@@ -632,7 +512,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
               value={newQuantity}
               onChange={(value) =>
                 dispatch(
-                  changeGoodsReceivedNoteDetailValue({
+                  changeOpeningStockDetailValue({
                     index,
                     key: 'quantity',
                     value: value
@@ -661,7 +541,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
             value={unit_id}
             onChange={(selected) =>
               dispatch(
-                changeGoodsReceivedNoteDetailValue({
+                changeOpeningStockDetailValue({
                   index,
                   key: 'unit_id',
                   value: selected
@@ -685,14 +565,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
             className="m-0"
             name={`warehouse_id-${index}`}
             initialValue={warehouse_id}
-            rules={
-              isRequired
-                ? [{
-                  required: true,
-                  message: 'Warehouse is required'
-                }]
-                : []
-            }>
+            rules={[{ required: true, message: 'Warehouse is required' }]}>
             <AsyncSelect
               endpoint="/warehouse"
               required
@@ -703,7 +576,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
               value={warehouse_id}
               onChange={(selected) =>
                 dispatch(
-                  changeGoodsReceivedNoteDetailValue({
+                  changeOpeningStockDetailValue({
                     index,
                     key: 'warehouse_id',
                     value: selected
@@ -726,7 +599,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
           type="primary"
           className="!w-8"
           icon={<BiPlus size={14} />}
-          onClick={() => dispatch(addGoodsReceivedNoteDetail())}
+          onClick={() => dispatch(addOpeningStockDetail({ defaultWarehouse: selectedWarehouse }))}
         />
       ),
       key: 'action',
@@ -743,18 +616,18 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
                 {
                   key: '1',
                   label: 'Add',
-                  onClick: () => dispatch(addGoodsReceivedNoteDetail(index))
+                  onClick: () => dispatch(addOpeningStockDetail({ index, defaultWarehouse: selectedWarehouse }))
                 },
                 {
                   key: '2',
                   label: 'Copy',
-                  onClick: () => dispatch(copyGoodsReceivedNoteDetail(index))
+                  onClick: () => dispatch(copyOpeningStockDetail(index))
                 },
                 {
                   key: '3',
                   label: 'Delete',
                   danger: true,
-                  onClick: () => dispatch(removeGoodsReceivedNoteDetail(id))
+                  onClick: () => dispatch(removeOpeningStockDetail(id))
                 }
               ]
             }}>
@@ -771,7 +644,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
 
   return (
     <Form
-      name="goodsReceivedNote"
+      name="openingStock"
       layout="vertical"
       autoComplete="off"
       form={form}
@@ -786,7 +659,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       scrollToFirstError>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-base font-semibold">
-        <span className="text-gray-500">GRN No:</span>
+        <span className="text-gray-500">OPENING STOCK No:</span>
         <span
           className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
             } rounded px-1`}
@@ -806,70 +679,31 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
             name="document_date"
-            label="GRN Date"
-            rules={[{ required: true, message: 'GRN Date is required' }]}
+            label="OS Date"
+            rules={[{ required: true, message: 'OS Date is required' }]}
             className="w-full">
             <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
         </Col>
 
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="supplier_id" label="Vendor">
+        <Col span={24} sm={12} md={16} lg={16}>
+          <Form.Item name="warehouse_id" label="Warehouse" rules={[{ required: true, message: 'Warehouse is required' }]}>
             <AsyncSelect
-              endpoint="/supplier"
-              valueKey="supplier_id"
+              endpoint="/warehouse"
+              valueKey="warehouse_id"
               labelKey="name"
               labelInValue
-              addNewLink={permissions.supplier.add ? '/vendor/create' : null}
-            />
-          </Form.Item>
-        </Col>
-
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="purchase_order_id" label="Purchase Order">
-            <AsyncSelect
-              endpoint="/purchase-order"
-              valueKey="purchase_order_id"
-              labelKey="document_identity"
-              labelInValue
               getOptionLabel={(option) => {
-                return option.purchase_order_no || option.document_identity;
+                return option.name;
               }}
               params={{
                 available_po: 1
               }}
-              onChange={onPOChange}
-              addNewLink={permissions.purchase_order.add ? '/purchase-order/create' : null}
+              addNewLink={permissions.warehouse.add ? '/purchase-order/create' : null}
             />
           </Form.Item>
         </Col>
-
-        {type === 'Buyout' && (
-          <>
-            <Col span={24} sm={12} md={8} lg={8} className="flex gap-3">
-              <Form.Item name="charge_no" label="Charge No" className="w-full">
-                <Input disabled />
-              </Form.Item>
-
-              <Form.Item name="purchase_order_no" label="Purchase Order No" className="w-full">
-                <Input disabled />
-              </Form.Item>
-            </Col>
-
-            <Col span={24} sm={12} md={8} lg={8}>
-              <Form.Item name="event_id" label="Event">
-                <Select labelInValue disabled />
-              </Form.Item>
-            </Col>
-
-            <Col span={24} sm={12} md={8} lg={8}>
-              <Form.Item name="customer_id" label="Customer">
-                <Select labelInValue disabled />
-              </Form.Item>
-            </Col>
-          </>
-        )}
-        <Col span={24} sm={24} md={16} lg={16}>
+        <Col span={24} sm={24} md={24} lg={24}>
           <Form.Item name="remarks" label="Remarks">
             <Input.TextArea rows={1} />
           </Form.Item>
@@ -877,12 +711,12 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       </Row>
 
       <Divider orientation="left" className="!border-gray-300">
-        GRN Items
+        Opening Stock Items
       </Divider>
 
       <Table
         columns={columns}
-        dataSource={goodsReceivedNoteDetails}
+        dataSource={openingStockDetails}
         rowClassName={(record) => (record.isDeleted ? 'hidden-row' : '')}
         rowKey="id"
         size="small"
@@ -898,17 +732,9 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
       </div>
 
       <div className="mt-4 flex items-center justify-end gap-2">
-        <Link to="/goods-received-note">
+        <Link to="/opening-stock">
           <Button className="w-28">Exit</Button>
         </Link>
-        {mode === 'edit' ? (
-          <Button
-            type="primary"
-            className="w-28 bg-rose-600 hover:!bg-rose-500"
-            onClick={printGoodsReceivedNote}>
-            Print
-          </Button>
-        ) : null}
         <Button
           type="primary"
           className="w-28"
@@ -934,4 +760,4 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
   );
 };
 
-export default GoodsReceivedNoteForm;
+export default OpeningStockForm;

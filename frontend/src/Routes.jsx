@@ -97,10 +97,12 @@ const PurchaseReturn = lazy(() => import('./pages/PurchaseReturn'));
 const EditPurchaseReturn = lazy(() => import('./pages/PurchaseReturn/EditPurchaseReturn'));
 
 const GoodsReceivedNote = lazy(() => import('./pages/GoodsReceivedNote'));
-const CreateGoodsReceivedNote = lazy(
-  () => import('./pages/GoodsReceivedNote/CreateGoodsReceivedNote')
-);
+const CreateGoodsReceivedNote = lazy(() => import('./pages/GoodsReceivedNote/CreateGoodsReceivedNote'));
 const EditGoodsReceivedNote = lazy(() => import('./pages/GoodsReceivedNote/EditGoodsReceivedNote'));
+
+const OpeningStock = lazy(() => import('./pages/OpeningStock'));
+const CreateOpeningStock = lazy(() => import('./pages/OpeningStock/CreateOpeningStock'));
+const EditOpeningStock = lazy(() => import('./pages/OpeningStock/EditOpeningStock'));
 
 const Quotation = lazy(() => import('./pages/Quotation'));
 const CreateQuotation = lazy(() => import('./pages/Quotation/CreateQuotation'));
@@ -682,6 +684,30 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditGoodsReceivedNote />
+              </Suspense>
+            )
+          },
+          {
+            path: '/opening-stock',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <OpeningStock />
+              </Suspense>
+            )
+          },
+          {
+            path: '/opening-stock/create',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreateOpeningStock />
+              </Suspense>
+            )
+          },
+          {
+            path: '/opening-stock/edit/:id',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditOpeningStock />
               </Suspense>
             )
           },

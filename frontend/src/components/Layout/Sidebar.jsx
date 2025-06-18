@@ -99,6 +99,7 @@ const Sidebar = () => {
     !permissions?.shipment?.list &&
     !permissions?.purchase_return?.list &&
     !permissions?.stock_return?.list &&
+    !permissions?.opening_stock?.list &&
     !permissions?.servicelist?.list;
 
   const accountingPermission =
@@ -327,6 +328,11 @@ const Sidebar = () => {
           key: 'goods-received-note',
           label: <Link to="/goods-received-note">Goods Received Note</Link>,
           disabled: !permissions?.good_received_note?.list
+        },
+        {
+          key: 'opening-stock',
+          label: <Link to="/opening-stock">Opening Stock</Link>,
+          disabled: !permissions?.opening_stock?.list
         },
         {
           key: 'shipment',

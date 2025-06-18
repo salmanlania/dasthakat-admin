@@ -15,6 +15,7 @@ const AsyncSelectNoPaginate = ({
   addNewLink,
   allowClear = true,
   getOptionLabel,
+  filterFn,
   ...props
 }) => {
   const [isClicked, setIsClicked] = useState(false);
@@ -33,9 +34,13 @@ const AsyncSelectNoPaginate = ({
       let data = response.data;
       if (valueKey && labelKey) {
         data = data.map((item) => ({
+          ...item,
           value: item[valueKey],
           label: getOptionLabel ? getOptionLabel(item) : item[labelKey]
         }));
+      }
+      if (filterFn) {
+        data = data.filter(filterFn);
       }
       setOptions(data);
     } catch (error) {
