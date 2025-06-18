@@ -39,6 +39,11 @@
   ('General Group', 'Agent', 'agent', 'edit', 'Edit', 1.103),
   ('General Group', 'Agent', 'agent', 'delete', 'Delete', 1.104),
 
+  ('General Group', 'Commission Agent', 'commission_agent', 'list', 'List', 1.101),
+  ('General Group', 'Commission Agent', 'commission_agent', 'add', 'Add', 1.102),
+  ('General Group', 'Commission Agent', 'commission_agent', 'edit', 'Edit', 1.103),
+  ('General Group', 'Commission Agent', 'commission_agent', 'delete', 'Delete', 1.104),
+
   -- ('General Group', 'Technician', 'technician', 'list', 'List', 1.101),
   -- ('General Group', 'Technician', 'technician', 'add', 'Add', 1.102),
   -- ('General Group', 'Technician', 'technician', 'edit', 'Edit', 1.103),
