@@ -20,6 +20,7 @@ const AsyncSelect = ({
   allowClear = true,
   defaultFirstSelected = false,
   optionProps = {},
+  filterFn,
   ...props
 }) => {
   const [isClicked, setIsClicked] = useState(defaultFirstSelected);
@@ -46,12 +47,23 @@ const AsyncSelect = ({
 
       let optionsData = [];
       if (valueKey && labelKey) {
-        optionsData = response.data.data.map((item) => ({
-          value: item[valueKey],
-          label: getOptionLabel ? getOptionLabel(item) : item[labelKey]
-        }));
+        // optionsData = response.data.data.map((item) => ({
+        //   value: item[valueKey],
+        //   label: getOptionLabel ? getOptionLabel(item) : item[labelKey]
+        // }));
+        optionsData = response.data.data.map((item) => (
+          {
+            value: item[valueKey],
+            label: getOptionLabel ? getOptionLabel(item) : item[labelKey],
+            product_id: item?.product_type_id
+          }
+        ));
       } else {
         optionsData = response.data.data;
+      }
+
+      if (filterFn) {
+        optionsData = optionsData.filter(filterFn);
       }
 
       merge

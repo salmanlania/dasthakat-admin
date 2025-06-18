@@ -15,6 +15,7 @@ import dispatchReducer from './features/dispatchSlice';
 import eventReducer from './features/eventSlice';
 import flagReducer from './features/flagSlice';
 import goodsReceivedNoteReducer from './features/goodsReceivedNoteSlice';
+import openingStockReducer from './features/openingStockSlice';
 import ijoReducer from './features/ijoSlice';
 import paymentReducer from './features/paymentSlice';
 import pickListReducer from './features/pickListSlice';
@@ -84,6 +85,7 @@ const rootReducer = combineReducers({
   stockReturn: StockReturnReducer,
   purchaseReturn: PurchaseReturnReducer,
   goodsReceivedNote: goodsReceivedNoteReducer,
+  openingStock: openingStockReducer,
   quotation: quotationReducer,
   chargeOrder: chargeOrderReducer,
   ijo: ijoReducer,

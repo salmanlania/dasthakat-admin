@@ -144,6 +144,10 @@ const MainLayout = () => {
   if (href.startsWith('/purchase-return/edit') && !permissions.purchase_return.edit)
     return <NotFound />;
 
+  if (href === '/opening-stock' && !permissions.opening_stock.list) return <NotFound />;
+  if (href === '/opening-stock/create' && !permissions.opening_stock.add) return <NotFound />;
+  if (href.startsWith('/opening-stock/edit') && !permissions.opening_stock.edit) return <NotFound />;
+
   return (
     <Layout className="min-h-screen">
       <Sidebar />
