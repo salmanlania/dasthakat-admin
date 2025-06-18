@@ -29,8 +29,7 @@ const EditCommissionAgent = () => {
   };
 
   useEffect(() => {
-    // TODO:Uncomment next line when api is created
-    // dispatch(getCommissionAgent(id)).unwrap().catch(handleError);
+    dispatch(getCommissionAgent(id)).unwrap().catch(handleError);
   }, []);
 
   return (
@@ -46,17 +45,11 @@ const EditCommissionAgent = () => {
         </div>
       )}
 
-      {/* TODO:Add loading and values conditions when api is created */}
-
-      <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-        <CommissionAgentForm mode="edit" onSubmit={onCommissionAgentUpdate} />
-      </div>
-
-      {/* {!isItemLoading && initialFormValues ? (
+      {!isItemLoading && initialFormValues ? (
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
           <CommissionAgentForm mode="edit" onSubmit={onCommissionAgentUpdate} />
         </div>
-      ) : null} */}
+      ) : null}
     </>
   );
 };

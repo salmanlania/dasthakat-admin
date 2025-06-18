@@ -149,7 +149,11 @@ export const commissionAgentSlice = createSlice({
     addCase(getCommissionAgent.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
-      state.initialFormValues = {}; // TODO:Define form values here from api payload
+      state.initialFormValues = {
+        name: data.name,
+        phone: data.phone,
+        address: data.address
+      };
     });
     addCase(getCommissionAgent.rejected, (state) => {
       state.isItemLoading = false;

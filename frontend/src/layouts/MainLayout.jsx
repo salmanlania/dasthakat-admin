@@ -59,7 +59,10 @@ const MainLayout = () => {
   if (href === '/agent/create' && !permissions.agent.add) return <NotFound />;
   if (href.startsWith('/agent/edit') && !permissions.agent.edit) return <NotFound />;
 
-  // TODO:Add permission for commission agent
+  if (href === '/commission-agent' && !permissions.commission_agent.list) return <NotFound />;
+  if (href === '/commission-agent/create' && !permissions.commission_agent.add) return <NotFound />;
+  if (href.startsWith('/commission-agent/edit') && !permissions.commission_agent.edit)
+    return <NotFound />;
 
   if (href === '/technician' && !permissions.technician.list) return <NotFound />;
   if (href === '/notes' && !permissions.terms.list) return <NotFound />;

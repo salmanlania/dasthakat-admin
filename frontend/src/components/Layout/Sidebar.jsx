@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { BiChevronLeft } from 'react-icons/bi';
 import { FaRegUser } from 'react-icons/fa';
 import { IoIosArrowRoundForward } from 'react-icons/io';
-import { TbReportAnalytics } from "react-icons/tb";
+import { TbReportAnalytics } from 'react-icons/tb';
 import { IoSearchSharp } from 'react-icons/io5';
 import { LuCalculator, LuClipboardList, LuWarehouse, LuPackage, LuServer } from 'react-icons/lu';
 import { MdOutlineAdminPanelSettings, MdOutlineDashboard } from 'react-icons/md';
@@ -65,7 +65,7 @@ const Sidebar = () => {
     !permissions?.customer?.list &&
     !permissions?.supplier?.list &&
     !permissions?.agent?.list &&
-    // TODO:Add commission agent permission here
+    !permissions?.commission_agent?.list &&
     !permissions?.technician?.list &&
     !permissions?.flag?.list &&
     !permissions?.class?.list &&
@@ -168,9 +168,8 @@ const Sidebar = () => {
             },
             {
               key: 'commission-agent',
-              label: <Link to="/commission-agent">Commission Agent</Link>
-              // TODO:Add permission for this route
-              // disabled: !permissions?.agent?.list
+              label: <Link to="/commission-agent">Commission Agent</Link>,
+              disabled: !permissions?.commission_agent?.list
             },
             {
               key: 'technician',

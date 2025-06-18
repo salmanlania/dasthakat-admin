@@ -1,4 +1,3 @@
-// TODO: Add permission in this page
 import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
@@ -19,34 +18,6 @@ import {
   setCommissionAgentListParams
 } from '../../store/features/commissionAgentSlice';
 
-// TODO:Remove mockData when api is created
-const MOCK_DATA = [
-  {
-    commission_agent_id: 1,
-    name: 'Commission Agent 1',
-    address: 'Address 1',
-    telephone: '1234567890',
-    created_at: '2023-01-01T00:00:00Z',
-    created_by: 1
-  },
-  {
-    commission_agent_id: 2,
-    name: 'Commission Agent 2',
-    address: 'Address 2',
-    telephone: '1234567891',
-    created_at: '2023-01-02T00:00:00Z',
-    created_by: 2
-  },
-  {
-    commission_agent_id: 3,
-    name: 'Commission Agent 3',
-    address: 'Address 3',
-    telephone: '1234567892',
-    created_at: '2023-01-03T00:00:00Z',
-    created_by: 3
-  }
-];
-
 const CommissionAgent = () => {
   const dispatch = useDispatch();
   const handleError = useError();
@@ -54,6 +25,7 @@ const CommissionAgent = () => {
     (state) => state.commissionAgent
   );
   const { user } = useSelector((state) => state.auth);
+  const permissions = user.permission.commission_agent;
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
@@ -61,14 +33,13 @@ const CommissionAgent = () => {
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedName = useDebounce(params.name, 500);
   const debouncedAddress = useDebounce(params.address, 500);
-  const debouncedTelephone = useDebounce(params.telephone, 500);
+  const debouncedTelephone = useDebounce(params.phone, 500);
 
   const onCommissionAgentDelete = async (id) => {
     try {
-      // TODO:Uncomment next lines when api is created
-      // await dispatch(deleteCommissionAgent(id)).unwrap();
-      // toast.success('Commission Agent deleted successfully');
-      // dispatch(getCommissionAgentList(params)).unwrap();
+      await dispatch(deleteCommissionAgent(id)).unwrap();
+      toast.success('Commission Agent deleted successfully');
+      dispatch(getCommissionAgentList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -76,11 +47,10 @@ const CommissionAgent = () => {
 
   const onBulkDelete = async () => {
     try {
-      // TODO:Uncomment next lines when api is created
-      // await dispatch(bulkDeleteCommissionAgent(deleteIDs)).unwrap();
-      // toast.success('Commission Agents deleted successfully');
+      await dispatch(bulkDeleteCommissionAgent(deleteIDs)).unwrap();
+      toast.success('Commission Agents deleted successfully');
       closeDeleteModal();
-      // await dispatch(getCommissionAgentList(params)).unwrap();
+      await dispatch(getCommissionAgentList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -114,13 +84,13 @@ const CommissionAgent = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.telephone}
-            onChange={(e) => dispatch(setCommissionAgentListParams({ telephone: e.target.value }))}
+            value={params.phone}
+            onChange={(e) => dispatch(setCommissionAgentListParams({ phone: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: 'telephone',
-      key: 'telephone',
+      dataIndex: 'phone',
+      key: 'phone',
       sorter: true,
       width: 200,
       ellipsis: true
@@ -157,27 +127,31 @@ const CommissionAgent = () => {
       key: 'action',
       render: (_, { commission_agent_id }) => (
         <div className="flex items-center gap-2">
-          <Tooltip title="Edit">
-            <Link to={`/commission-agent/edit/${commission_agent_id}`}>
-              <Button
-                size="small"
-                type="primary"
-                className="bg-gray-500 hover:!bg-gray-400"
-                icon={<MdOutlineEdit size={14} />}
-              />
-            </Link>
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Popconfirm
-              title="Are you sure you want to delete?"
-              description="After deleting, You will not be able to recover it."
-              okButtonProps={{ danger: true }}
-              okText="Yes"
-              cancelText="No"
-              onConfirm={() => onCommissionAgentDelete(commission_agent_id)}>
-              <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
-            </Popconfirm>
-          </Tooltip>
+          {permissions.edit ? (
+            <Tooltip title="Edit">
+              <Link to={`/commission-agent/edit/${commission_agent_id}`}>
+                <Button
+                  size="small"
+                  type="primary"
+                  className="bg-gray-500 hover:!bg-gray-400"
+                  icon={<MdOutlineEdit size={14} />}
+                />
+              </Link>
+            </Tooltip>
+          ) : null}
+          {permissions.delete ? (
+            <Tooltip title="Delete">
+              <Popconfirm
+                title="Are you sure you want to delete?"
+                description="After deleting, You will not be able to recover it."
+                okButtonProps={{ danger: true }}
+                okText="Yes"
+                cancelText="No"
+                onConfirm={() => onCommissionAgentDelete(commission_agent_id)}>
+                <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
+              </Popconfirm>
+            </Tooltip>
+          ) : null}
         </div>
       ),
       width: 70,
@@ -185,9 +159,12 @@ const CommissionAgent = () => {
     }
   ];
 
+  if (!permissions.edit && !permissions.delete) {
+    columns.pop();
+  }
+
   useEffect(() => {
-    // TODO:Uncomment next line when api is created
-    // dispatch(getCommissionAgentList(params)).unwrap().catch(handleError);
+    dispatch(getCommissionAgentList(params)).unwrap().catch(handleError);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params.page,
@@ -218,30 +195,38 @@ const CommissionAgent = () => {
           />
 
           <div className="flex items-center gap-2">
-            <Button
-              type="primary"
-              danger
-              onClick={() => setDeleteModalIsOpen(true)}
-              disabled={!deleteIDs.length}>
-              Delete
-            </Button>
-
-            <Link to="/commission-agent/create">
-              <Button type="primary">Add New</Button>
-            </Link>
+            {permissions.delete ? (
+              <Button
+                type="primary"
+                danger
+                onClick={() => setDeleteModalIsOpen(true)}
+                disabled={!deleteIDs.length}>
+                Delete
+              </Button>
+            ) : null}
+            {permissions.add ? (
+              <Link to="/commission-agent/create">
+                <Button type="primary">Add New</Button>
+              </Link>
+            ) : null}
           </div>
         </div>
 
         <Table
           size="small"
-          rowSelection={{
-            type: 'checkbox',
-            selectedRowKeys: deleteIDs,
-            onChange: (selectedRowKeys) => dispatch(setCommissionAgentDeleteIDs(selectedRowKeys))
-          }}
+          rowSelection={
+            permissions.delete
+              ? {
+                  type: 'checkbox',
+                  selectedRowKeys: deleteIDs,
+                  onChange: (selectedRowKeys) =>
+                    dispatch(setCommissionAgentDeleteIDs(selectedRowKeys))
+                }
+              : null
+          }
           loading={isListLoading}
           className="mt-2"
-          rowKey="commission_agent_id" // TODO:change rowKey corresponding api response
+          rowKey="commission_agent_id"
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
@@ -259,7 +244,7 @@ const CommissionAgent = () => {
               })
             );
           }}
-          dataSource={MOCK_DATA} // TODO:Remove mockData when api is created and use list state
+          dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{

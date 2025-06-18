@@ -7,8 +7,7 @@ const CommissionAgentForm = ({ mode, onSubmit }) => {
   const { isFormSubmitting, initialFormValues } = useSelector((state) => state.commissionAgent);
 
   const onFinish = (values) => {
-    // TODO:Uncomment next line when api is created
-    // onSubmit(values);
+    onSubmit(values);
   };
 
   return (
@@ -34,7 +33,7 @@ const CommissionAgentForm = ({ mode, onSubmit }) => {
           </Form.Item>
         </Col>
         <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="telephone" label="Telephone">
+          <Form.Item name="phone" label="Telephone">
             <Input />
           </Form.Item>
         </Col>

@@ -152,6 +152,7 @@ CREATE TABLE `opening_stock_detail` (
 
 CREATE TABLE commission_agent (
   `company_id` char(36) NOT NULL,
+  `company_branch_id` char(36) NOT NULL,
   `commission_agent_type_id` int NOT NULL,
   `commission_agent_id` char(36) NOT NULL,
   `name` varchar(255) NOT NULL,
