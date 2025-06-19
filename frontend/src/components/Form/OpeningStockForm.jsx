@@ -66,9 +66,11 @@ const OpeningStockForm = ({ mode, onSubmit, onSave }) => {
   const currency = user.currency;
 
   let totalQuantity = 0;
+  let totalCost = 0;
 
   openingStockDetails.forEach((detail) => {
     totalQuantity += +detail.quantity || 0;
+    totalCost += +detail.amount || 0;
   });
 
   const onFinish = (values) => {
@@ -103,7 +105,8 @@ const OpeningStockForm = ({ mode, onSubmit, onSave }) => {
           };
         }
       ),
-      total_quantity: totalQuantity
+      total_quantity: totalQuantity,
+      total_amount: totalCost
     };
 
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
@@ -555,6 +558,72 @@ const OpeningStockForm = ({ mode, onSubmit, onSave }) => {
       width: 120
     },
     {
+      title: 'Cost Price',
+      dataIndex: 'cost_price',
+      key: 'cost_price',
+      render: (_, { cost_price, product_type_id }, index) => {
+        return (
+          <DebouncedCommaSeparatedInput
+            value={product_type_id?.value === 1 ? '0' : cost_price}
+            disabled={product_type_id?.value == 1}
+            onChange={(value) =>
+              dispatch(
+                changeOpeningStockDetailValue({
+                  index,
+                  key: 'cost_price',
+                  value: value
+                })
+              )
+            }
+          />
+        );
+      },
+      width: 100
+    },
+    {
+      title: 'Selling Price',
+      dataIndex: 'rate',
+      key: 'rate',
+      render: (_, { rate, editable }, index) => {
+        form.setFieldsValue({ [`rate-${index}`]: rate });
+        return (
+          <Form.Item
+            className="m-0"
+            name={`rate-${index}`}
+            initialValue={rate}
+            rules={[
+              {
+                required: true,
+                message: 'Selling price is required'
+              }
+            ]}>
+            <DebouncedCommaSeparatedInput
+              value={rate}
+              onChange={(value) =>
+                dispatch(
+                  changeOpeningStockDetailValue({
+                    index,
+                    key: 'rate',
+                    value: value
+                  })
+                )
+              }
+            />
+          </Form.Item>
+        );
+      },
+      width: 100
+    },
+    {
+      title: 'Amount',
+      dataIndex: 'amount',
+      key: 'amount',
+      render: (_, { amount }) => (
+        <DebouncedCommaSeparatedInput value={amount ? amount + '' : ''} disabled />
+      ),
+      width: 100
+    },
+    {
       title: 'Warehouse',
       dataIndex: 'warehouse_id',
       key: 'warehouse_id',
@@ -727,8 +796,9 @@ const OpeningStockForm = ({ mode, onSubmit, onSave }) => {
         }}
       />
 
-      <div className="flex flex-wrap gap-4 rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
+      <div className="flex flex-col item-start justify-center flex-wrap gap-4 rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
         <DetailSummaryInfo title="Total Quantity:" value={totalQuantity} />
+        <DetailSummaryInfo title="Total Cost:" value={totalCost} />
       </div>
 
       <div className="mt-4 flex items-center justify-end gap-2">
