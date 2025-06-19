@@ -411,6 +411,11 @@ const Sidebar = () => {
           key: 'quotation-report',
           label: <Link to="/quotation-report">Quotation Report</Link>,
           disabled: !permissions?.audit?.list
+        },
+        {
+          key: 'bid-response-report',
+          label: <Link to="/bid-response-report">Bid Response Report</Link>
+          // TODO:Add permission here
         }
       ]
     }

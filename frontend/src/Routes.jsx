@@ -97,7 +97,9 @@ const PurchaseReturn = lazy(() => import('./pages/PurchaseReturn'));
 const EditPurchaseReturn = lazy(() => import('./pages/PurchaseReturn/EditPurchaseReturn'));
 
 const GoodsReceivedNote = lazy(() => import('./pages/GoodsReceivedNote'));
-const CreateGoodsReceivedNote = lazy(() => import('./pages/GoodsReceivedNote/CreateGoodsReceivedNote'));
+const CreateGoodsReceivedNote = lazy(
+  () => import('./pages/GoodsReceivedNote/CreateGoodsReceivedNote')
+);
 const EditGoodsReceivedNote = lazy(() => import('./pages/GoodsReceivedNote/EditGoodsReceivedNote'));
 
 const OpeningStock = lazy(() => import('./pages/OpeningStock'));
@@ -131,8 +133,8 @@ const ServiceOrder = lazy(() => import('./pages/ServiceOrder'));
 const Scheduling = lazy(() => import('./pages/Scheduling'));
 
 // Reports
-
 const QuotationReport = lazy(() => import('./pages/QuotationReport'));
+const BidResponseReport = lazy(() => import('./pages/BidResponseReport'));
 
 function Routes() {
   const router = createBrowserRouter(
@@ -853,6 +855,14 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <QuotationReport />
+              </Suspense>
+            )
+          },
+          {
+            path: '/bid-response-report',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <BidResponseReport />
               </Suspense>
             )
           },
