@@ -48,9 +48,9 @@ class QuotationController extends Controller
 
 
 		$data = Quotation::LeftJoin('customer as c', 'c.customer_id', '=', 'quotation.customer_id')
-		->leftJoin('quotation_status as qs', function ($join) {
-			$join->on('qs.quotation_id', '=', 'quotation.quotation_id')
-				 ->where('qs.status', '=', 'send to customer');
+		->leftJoin('quotation_status as qs_last', function ($join) {
+			$join->on('qs_last.quotation_id', '=', 'quotation.quotation_id')
+				 ->where('qs_last.status', '=', 'send to customer');
 		})
 		->LeftJoin('port as p', 'p.port_id', '=', 'quotation.port_id')
 			->LeftJoin('event as e', 'e.event_id', '=', 'quotation.event_id')
@@ -95,7 +95,7 @@ class QuotationController extends Controller
 			});
 		}
 
-		$data = $data->select("quotation.*","qs.created_at as qs_date", DB::raw("CONCAT(e.event_code, ' (', CASE 
+		$data = $data->select("quotation.*","qs_last.created_at as qs_date", DB::raw("CONCAT(e.event_code, ' (', CASE 
 		WHEN e.status = 1 THEN 'Active' 
 		ELSE 'Inactive' 
 	END, ')') AS event_code"), 'u.user_name as status_updated_by', "c.name as customer_name", "v.name as vessel_name", "p.name as port_name");

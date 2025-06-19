@@ -194,14 +194,14 @@ class OpeningStockController extends Controller
 
 			$worksheet = $spreadsheet->getActiveSheet();
 
-			$row = 4;
+			$row = 1;
 			$productsByCategory = [];
 
 			// Group products by category_id
-			while ($worksheet->getCell('B' . $row)->getValue() != '') {
-				$product_code = $worksheet->getCell('B' . $row)->getValue();
-				$quantity = $worksheet->getCell('C' . $row)->getValue();
-				$rate = $worksheet->getCell('D' . $row)->getValue();
+			while ($worksheet->getCell('A' . $row)->getValue() != '') {
+				$product_code = $worksheet->getCell('A' . $row)->getValue();
+				$quantity = $worksheet->getCell('B' . $row)->getValue();
+				$rate = $worksheet->getCell('C' . $row)->getValue();
 
 				$product = Product::with('unit')
 					->where('product_code', $product_code)
