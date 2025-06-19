@@ -109,7 +109,8 @@ const Sidebar = () => {
 
   const LogisticsPermission = !permissions?.dispatch?.list;
   const systemPermission = !permissions?.audit?.list;
-  const reportsPermission = !permissions?.quote_report?.show;
+  const reportsPermission = !permissions?.quote_report?.show &&
+    !permissions?.bid_response?.show
 
   const items = [
     {
@@ -415,8 +416,8 @@ const Sidebar = () => {
         },
         {
           key: 'bid-response-report',
-          label: <Link to="/bid-response-report">Bid Response Report</Link>
-          // TODO:Add permission here
+          label: <Link to="/bid-response-report">Bid Response Report</Link>,
+          disabled: !permissions?.bid_response?.show
         }
       ]
     }
@@ -495,9 +496,8 @@ const Sidebar = () => {
       collapsedWidth="0"
       theme="light"
       collapsed={isCollapsed}
-      className={`${isSmallScreen ? '!fixed' : '!sticky'} ${
-        isCollapsed ? '' : 'border-r'
-      } scrollbar !left-0 !top-0 z-50 h-screen overflow-y-auto`}
+      className={`${isSmallScreen ? '!fixed' : '!sticky'} ${isCollapsed ? '' : 'border-r'
+        } scrollbar !left-0 !top-0 z-50 h-screen overflow-y-auto`}
       width={240}>
       <div className="m-2 flex flex-col items-center justify-center gap-2 rounded-xl bg-slate-200 p-4 px-2">
         {isSmallScreen && (
