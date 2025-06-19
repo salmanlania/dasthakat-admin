@@ -410,7 +410,7 @@ const Sidebar = () => {
         {
           key: 'quotation-report',
           label: <Link to="/quotation-report">Quotation Report</Link>,
-          disabled: !permissions?.audit?.list
+          disabled: !permissions?.quote_report?.show
         }
       ]
     }

@@ -60,7 +60,6 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
 };
 
 const pdfContent = (doc, data, pageWidth) => {
-  console.log('data' , data)
   const table2Column = [
     'Quotation Date',
     'Quotation No',
@@ -71,79 +70,63 @@ const pdfContent = (doc, data, pageWidth) => {
     'Total Amount',
     'Port',
     'Status',
+    'Created AT',
   ];
 
   const detail = data?.data;
   // const groupedRows = {};
   const table2Rows = [];
 
+  let totalQuantity = 0;
+  let totalAmount = 0;
+
   detail?.forEach(item => {
-    // const eventDate = item?.event_date || 'Empty';
-    // if (!groupedRows[eventDate]) {
-    //   groupedRows[eventDate] = [];
-    // }
-    // groupedRows[eventDate].push(item);
-    let formattedDate = item?.event_date ? dayjs(item.event_date).format('MM-DD-YYYY') : 'Date: Empty';
-  // });
 
+    totalQuantity += Number(item?.total_quantity) || 0;
+    totalAmount += Number(item?.total_amount) || 0;
 
-  // Object.keys(groupedRows).forEach(eventDate => {
-    // let formattedDate = eventDate
-    // if (eventDate === "0000-00-00" || eventDate === "11-30-1899") {
-    //   formattedDate = "Date : Empty"
-    // } else {
-    //   let dayjsDate = dayjs(eventDate);
-    //   if (dayjsDate.isValid()) {
-    //     formattedDate = `Date : ${dayjsDate.format('MM-DD-YYYY dddd')}`;
-    //   } else {
-    //     formattedDate = "Date : Empty";
-    //   }
-    // }
-
-    // table2Rows.push([
-    //   { content: formattedDate, colSpan: 9, styles: { halign: 'center', fontStyle: 'bold', fontSize: 10, halign: 'left', fillColor: [255, 255, 255], textColor: [255, 0, 0], lineWidth: 0.1, lineColor: [0, 0, 0], }, minCellHeight: 2, cellPadding: 1 }
-    // ]);
-
-    table2Rows.push([  
+    table2Rows.push([
       {
         content: item?.document_date || '   ',
-        styles: { textColor: [32, 50, 114]}
+        styles: { textColor: [32, 50, 114] }
       },
       {
         content: item?.document_identity || '   ',
-        styles: { textColor: [32, 50, 114]}
+        styles: { textColor: [32, 50, 114] }
       },
       {
         content: item?.event_code || '   ',
-        styles: { textColor: [32, 50, 114]}
+        styles: { textColor: [32, 50, 114] }
       },
       {
         content: item?.vessel_name || '   ',
-        styles: { textColor: [32, 50, 114]}
+        styles: { textColor: [32, 50, 114] }
       },
       {
         content: item?.customer_name || '   ',
-        styles: { textColor: [32, 50, 114]}
+        styles: { textColor: [32, 50, 114] }
       },
       {
         content: item?.total_quantity || '   ',
-        styles: { textColor: [32, 50, 114]}
+        styles: { textColor: [32, 50, 114] }
       },
       {
         content: item?.total_amount || '   ',
-        styles: { textColor: [32, 50, 114]}
+        styles: { textColor: [32, 50, 114] }
       },
       {
         content: item?.port_name || '   ',
-        styles: { textColor: [32, 50, 114]}
+        styles: { textColor: [32, 50, 114] }
       },
       {
         content: item?.status || '   ',
-        styles: { textColor: [32, 50, 114]}
+        styles: { textColor: [32, 50, 114] }
+      },
+      {
+        content: item?.created_at ? dayjs(item.created_at).format('MM-DD-YYYY hh:mm A') : '   ',
+        styles: { textColor: [32, 50, 114] }
       },
     ]);
-
-    // groupedRows[eventDate].forEach(item => {
     //   console.log('item', item)
     //   table2Rows.push([
     //     {
@@ -238,6 +221,14 @@ const pdfContent = (doc, data, pageWidth) => {
     // });
   });
 
+  table2Rows.push([
+    { content: 'Total', colSpan: 5, styles: { fontStyle: 'bold', halign: 'left' } },
+    { content: totalQuantity.toFixed(2), styles: { fontStyle: 'bold', textColor: [0, 128, 0] } },
+    { content: totalAmount.toFixed(2), styles: { fontStyle: 'bold', textColor: [0, 128, 0] } },
+    { content: '', styles: {} },
+    { content: '', styles: {} }
+  ]);
+
   doc.autoTable({
     startY: 35,
     head: [table2Column],
@@ -272,11 +263,12 @@ const pdfContent = (doc, data, pageWidth) => {
       0: { cellWidth: 22 },
       1: { cellWidth: 19 },
       2: { cellWidth: 19 },
-      3: { cellWidth: 45 },
-      4: { cellWidth: 19 },
+      3: { cellWidth: 23 },
+      4: { cellWidth: 23 },
       5: { cellWidth: 19 },
       6: { cellWidth: 19 },
       7: { cellWidth: 19 },
+      8: { cellWidth: 23 },
     },
     didParseCell: function (data) {
       const content = data.cell.text;

@@ -137,7 +137,7 @@ const QuotationReport = () => {
       dataIndex: 'document_date',
       key: 'document_date',
       sorter: true,
-      width: 150,
+      width: 110,
       ellipsis: true
     },
     {
@@ -145,7 +145,7 @@ const QuotationReport = () => {
       dataIndex: 'document_identity',
       key: 'document_identity',
       sorter: true,
-      width: 150,
+      width: 130,
       ellipsis: true
     },
     {
@@ -173,11 +173,11 @@ const QuotationReport = () => {
       ellipsis: true
     },
     {
-      title: 'Total Quantity',
+      title: 'T. Quantity',
       dataIndex: 'total_quantity',
       key: 'total_quantity',
       sorter: true,
-      width: 140,
+      width: 120,
       ellipsis: true
     },
     {
@@ -193,7 +193,7 @@ const QuotationReport = () => {
       dataIndex: 'port_name',
       key: 'port_name',
       sorter: true,
-      width: 200,
+      width: 150,
       ellipsis: true
     },
     {
@@ -201,7 +201,7 @@ const QuotationReport = () => {
       dataIndex: 'status',
       key: 'status',
       sorter: true,
-      width: 200,
+      width: 100,
       ellipsis: true
     },
     {
@@ -342,7 +342,6 @@ const QuotationReport = () => {
           </div>
 
           <div className="min-w-[100px]">
-            {/* <label className="block text-sm font-medium text-gray-700 mb-1">Quotation No</label> */}
             <Input
               placeholder="Enter Quotation No"
               allowClear
