@@ -222,7 +222,7 @@ const pdfContent = (doc, data, pageWidth) => {
   });
 
   table2Rows.push([
-    { content: 'Total', colSpan: 5, styles: { fontStyle: 'bold', halign: 'left' } },
+    { content: 'Total', colSpan: 5, styles: { fontStyle: 'bold', halign: 'right' } },
     { content: totalQuantity.toFixed(2), styles: { fontStyle: 'bold', textColor: [0, 128, 0] } },
     { content: totalAmount.toFixed(2), styles: { fontStyle: 'bold', textColor: [0, 128, 0] } },
     { content: '', styles: {} },
