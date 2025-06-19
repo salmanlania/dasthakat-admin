@@ -2,7 +2,7 @@ import { Modal, Button, Form, Input, Upload, Col, Row } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { createImportOpeningStock } from '../../store/features/openingStockSlice';
+import { createImportOpeningStock, getOpeningStockList } from '../../store/features/openingStockSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncSelect from '../AsyncSelect';
 import useError from '../../hooks/useError';
@@ -15,8 +15,17 @@ const ImportOpeningStockModal = ({ open, onClose, onUpload }) => {
     const dispatch = useDispatch();
     const handleError = useError();
 
+    const { params, } = useSelector(
+        (state) => state.openingStock
+    );
+
     const { user } = useSelector((state) => state.auth);
     const permissions = user.permission;
+
+    const formattedParams = {
+        ...params,
+        document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null
+    };
 
     const handleFileChange = ({ file }) => {
         const isValidType = ['.csv', '.xls', 'xlsx'].includes(file.name.split('.').pop());
@@ -42,6 +51,7 @@ const ImportOpeningStockModal = ({ open, onClose, onUpload }) => {
                 form.resetFields();
                 setFiles(null);
                 onClose();
+                await dispatch(getOpeningStockList(formattedParams)).unwrap().catch(handleError);
             } else {
                 toast.error('Please upload a valid file.');
             }
