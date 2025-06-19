@@ -48,7 +48,11 @@ class QuotationController extends Controller
 
 
 		$data = Quotation::LeftJoin('customer as c', 'c.customer_id', '=', 'quotation.customer_id')
-			->LeftJoin('port as p', 'p.port_id', '=', 'quotation.port_id')
+		->leftJoin('quotation_status as qs', function ($join) {
+			$join->on('qs.quotation_id', '=', 'quotation.quotation_id')
+				 ->where('qs.status', '=', 'send to customer');
+		})
+		->LeftJoin('port as p', 'p.port_id', '=', 'quotation.port_id')
 			->LeftJoin('event as e', 'e.event_id', '=', 'quotation.event_id')
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'quotation.vessel_id')
 			->leftJoinSub($latestStatusSubquery, 'qs', 'qs.quotation_id', '=', 'quotation.quotation_id')
@@ -91,11 +95,12 @@ class QuotationController extends Controller
 			});
 		}
 
-		$data = $data->select("quotation.*", DB::raw("CONCAT(e.event_code, ' (', CASE 
+		$data = $data->select("quotation.*","qs.created_at as qs_date", DB::raw("CONCAT(e.event_code, ' (', CASE 
 		WHEN e.status = 1 THEN 'Active' 
 		ELSE 'Inactive' 
 	END, ')') AS event_code"), 'u.user_name as status_updated_by', "c.name as customer_name", "v.name as vessel_name", "p.name as port_name");
-		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
+		
+	$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
 	}
