@@ -350,7 +350,7 @@ const OpeningStockForm = ({ mode, onSubmit, onSave }) => {
       render: (_, { product_type_id }, index) => {
         return (
           <AsyncSelectNoPaginate
-            endpoint="/lookups/product-types"
+            endpoint="/lookups/product-types?product_type_id=2"
             valueKey="product_type_id"
             labelKey="name"
             labelInValue
@@ -416,13 +416,13 @@ const OpeningStockForm = ({ mode, onSubmit, onSave }) => {
               }
             ]}>
             <AsyncSelect
-              endpoint="/product"
+              endpoint="/product?product_type_id=2"
               valueKey="product_id"
               labelKey="product_name"
               labelInValue
               className="w-full"
               value={product_id}
-              filterFn={(product) => product?.product_id === 2}
+              // filterFn={(product) => product?.product_id === 2}
               onChange={(selected) => onProductChange(index, selected)}
               addNewLink={permissions.product.add ? '/product/create' : null}
             />
@@ -430,64 +430,6 @@ const OpeningStockForm = ({ mode, onSubmit, onSave }) => {
         )
       },
       width: 560
-    },
-    {
-      title: 'Description',
-      dataIndex: 'product_description',
-      key: 'product_description',
-      render: (_, { product_description, product_type_id }, index) => {
-        form.setFieldsValue({ [`product_description-${index}`]: product_description });
-        return (
-          <Form.Item
-            className="m-0"
-            name={`product_description-${index}`}
-            initialValue={product_description}
-            rules={[
-              {
-                required: true,
-                whitespace: true,
-                message: 'Description is required'
-              }
-            ]}>
-            <DebounceInput
-              value={product_description}
-              disabled={product_type_id?.value == 4}
-              onChange={(value) =>
-                dispatch(
-                  changeOpeningStockDetailValue({
-                    index,
-                    key: 'product_description',
-                    value: value
-                  })
-                )
-              }
-            />
-          </Form.Item>
-        );
-      },
-      width: 300
-    },
-    {
-      title: 'Customer Notes',
-      dataIndex: 'description',
-      key: 'description',
-      render: (_, { description }, index) => {
-        return (
-          <DebounceInput
-            value={description}
-            onChange={(value) =>
-              dispatch(
-                changeOpeningStockDetailValue({
-                  index,
-                  key: 'description',
-                  value: value
-                })
-              )
-            }
-          />
-        );
-      },
-      width: 240
     },
     {
       title: 'Quantity',
@@ -558,30 +500,7 @@ const OpeningStockForm = ({ mode, onSubmit, onSave }) => {
       width: 120
     },
     {
-      title: 'Cost Price',
-      dataIndex: 'cost_price',
-      key: 'cost_price',
-      render: (_, { cost_price, product_type_id }, index) => {
-        return (
-          <DebouncedCommaSeparatedInput
-            value={product_type_id?.value === 1 ? '0' : cost_price}
-            disabled={product_type_id?.value == 1}
-            onChange={(value) =>
-              dispatch(
-                changeOpeningStockDetailValue({
-                  index,
-                  key: 'cost_price',
-                  value: value
-                })
-              )
-            }
-          />
-        );
-      },
-      width: 100
-    },
-    {
-      title: 'Selling Price',
+      title: 'Rate',
       dataIndex: 'rate',
       key: 'rate',
       render: (_, { rate, editable }, index) => {
@@ -628,7 +547,7 @@ const OpeningStockForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'warehouse_id',
       key: 'warehouse_id',
       render: (_, { warehouse_id, product_type_id }, index) => {
-        const isRequired = product_type_id?.value === 2;
+
         return (
           <Form.Item
             className="m-0"
@@ -728,7 +647,7 @@ const OpeningStockForm = ({ mode, onSubmit, onSave }) => {
       scrollToFirstError>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-base font-semibold">
-        <span className="text-gray-500">OPENING STOCK No:</span>
+        <span className="text-gray-500">OPENING STOCK NO:</span>
         <span
           className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
             } rounded px-1`}
@@ -748,8 +667,8 @@ const OpeningStockForm = ({ mode, onSubmit, onSave }) => {
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
             name="document_date"
-            label="OS Date"
-            rules={[{ required: true, message: 'OS Date is required' }]}
+            label="Opening Stock Date"
+            rules={[{ required: true, message: 'Opening Stock Date is required' }]}
             className="w-full">
             <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
