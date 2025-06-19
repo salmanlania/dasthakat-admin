@@ -4,7 +4,7 @@ import api from '../../axiosInstance';
 import { roundUpto } from '../../utils/number';
 
 export const getOpeningStockList = createAsyncThunk(
-  'good-received-note/list',
+  'opening-stock/list',
   async (params, { rejectWithValue }) => {
     try {
       const res = await api.get('/opening-stock', {
@@ -18,7 +18,7 @@ export const getOpeningStockList = createAsyncThunk(
 );
 
 export const deleteOpeningStock = createAsyncThunk(
-  'good-received-note/delete',
+  'opening-stock/delete',
   async (id, { rejectWithValue }) => {
     try {
       await api.delete(`/opening-stock/${id}`);
@@ -29,7 +29,7 @@ export const deleteOpeningStock = createAsyncThunk(
 );
 
 export const createOpeningStock = createAsyncThunk(
-  'good-received-note/create',
+  'opening-stock/create',
   async (data, { rejectWithValue }) => {
     try {
       return await api.post('/opening-stock', data);
@@ -39,8 +39,23 @@ export const createOpeningStock = createAsyncThunk(
   }
 );
 
+export const createImportOpeningStock = createAsyncThunk(
+  'opening-stock/import-create',
+  async (data, { rejectWithValue }) => {
+    try {
+      return await api.post('/opening-stock/upload/excel', data, {
+        headers: {
+          "Content-Type": 'multipart/form-data'
+        }
+      });
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const getOpeningStock = createAsyncThunk(
-  'good-received-note/get',
+  'opening-stock/get',
   async (id, { rejectWithValue }) => {
     try {
       const res = await api.get(`/opening-stock/${id}`);
@@ -52,7 +67,7 @@ export const getOpeningStock = createAsyncThunk(
 );
 
 export const getOpeningStockForPrint = createAsyncThunk(
-  'good-received-noteForPrint/get',
+  'opening-stockForPrint/get',
   async (id, { rejectWithValue }) => {
     try {
       const res = await api.get(`/opening-stock/${id}`);
@@ -64,7 +79,7 @@ export const getOpeningStockForPrint = createAsyncThunk(
 );
 
 export const updateOpeningStock = createAsyncThunk(
-  'good-received-note/update',
+  'opening-stock/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
       await api.put(`/opening-stock/${id}`, data);
@@ -75,7 +90,7 @@ export const updateOpeningStock = createAsyncThunk(
 );
 
 export const bulkDeleteOpeningStock = createAsyncThunk(
-  'good-received-note/bulkDelete',
+  'opening-stock/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
       await api.post('/opening-stock/bulk-delete', {
@@ -346,6 +361,7 @@ export const goodsReceivedNoteSlice = createSlice({
           product_description: detail.product_description,
           description: detail.description,
           // quantity: detail.quantity ? parseFloat(detail.quantity) : null,
+          cost_price: detail?.product_type?.product_type_id === 2 ? detail.cost_price || +detail.rate : null,
           quantity: detail.quantity ? detail.quantity : null,
           unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
           warehouse_id: detail.warehouse

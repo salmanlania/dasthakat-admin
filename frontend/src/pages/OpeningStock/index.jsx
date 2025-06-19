@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Table, Tooltip } from 'antd';
+import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Table, Tooltip, Upload } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -13,6 +13,7 @@ import ChargeOrderModal from '../../components/Modals/ChargeOrderModal';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
+import ImportOpeningStockModal from '../../components/Modals/ImportOpeningStockModal';
 import {
   bulkDeleteOpeningStock,
   createOpeningStock,
@@ -36,6 +37,7 @@ const OpeningStock = () => {
   const permissions = user.permission.opening_stock;
   const currency = user.currency;
 
+  const [importModalOpen, setImportModalOpen] = useState(false);
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
@@ -51,7 +53,6 @@ const OpeningStock = () => {
   };
 
   const onOpeningStockDelete = async (id) => {
-    // return console.log('id' , id)
     try {
       await dispatch(deleteOpeningStock(id)).unwrap();
       toast.success('Opening Stock deleted successfully');
@@ -128,6 +129,18 @@ const OpeningStock = () => {
     } finally {
       setIsGRNCreating(false);
     }
+  };
+
+  const handleImportSubmit = ({ file, remarks }) => {
+    if (!file) return toast.error('Please upload a file');
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('remarks', remarks);
+
+    console.log('Uploading file with remarks:', remarks);
+    // dispatch your upload API or thunk here
+    toast.success('File prepared for upload');
   };
 
   const columns = [
@@ -210,7 +223,6 @@ const OpeningStock = () => {
       title: 'Action',
       key: 'action',
       render: (_, { opening_stock_id }) => {
-        console.log('opening_stock_id' , opening_stock_id)
         return (
           <div className="flex items-center gap-2">
             {permissions.edit ? (
@@ -236,7 +248,7 @@ const OpeningStock = () => {
                   okText="Yes"
                   cancelText="No"
                   onConfirm={() => onOpeningStockDelete(opening_stock_id)}
-                  >
+                >
                   <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                 </Popconfirm>
               </Tooltip>
@@ -287,10 +299,6 @@ const OpeningStock = () => {
           />
 
           <div className="ml-auto flex flex-wrap items-center gap-2">
-            {permissions.add ? (
-              <>
-              </>
-            ) : null}
             {permissions.delete ? (
               <Button
                 type="primary"
@@ -304,6 +312,15 @@ const OpeningStock = () => {
               <Link to="/opening-stock/create">
                 <Button type="primary">Add New</Button>
               </Link>
+            ) : null}
+            {permissions.add ? (
+              <Button
+                type="primary"
+                className="bg-blue-500 hover:!bg-blue-600 border-none"
+                onClick={() => setImportModalOpen(true)}
+              >
+                Import
+              </Button>
             ) : null}
           </div>
         </div>
@@ -359,6 +376,11 @@ const OpeningStock = () => {
       />
 
       <ChargeOrderModal />
+      <ImportOpeningStockModal
+        open={importModalOpen}
+        onClose={() => setImportModalOpen(false)}
+        onUpload={handleImportSubmit}
+      />
     </>
   );
 };

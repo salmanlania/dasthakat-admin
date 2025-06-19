@@ -160,7 +160,13 @@ const QuotationReport = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    dispatch(getQuotationList(formattedParams)).unwrap().catch(handleError);
+
+    const hasDateFilter = params.start_date && params.end_date;
+    // dispatch(getQuotationList(formattedParams)).unwrap().catch(handleError);
+    if (hasDateFilter) {
+      dispatch(getQuotationList(formattedParams)).unwrap().catch(handleError);
+    }
+
     const savedLimit = sessionStorage.getItem('quotationLimit');
     if (savedLimit && +savedLimit !== params.limit) {
       dispatch(setQuotationListParams({ limit: +savedLimit }));
@@ -176,6 +182,8 @@ const QuotationReport = () => {
     params.vessel_id,
     params.event_id,
     params.port_id,
+    params.start_date,       // ✅ add this
+    params.end_date,
     params.status,
     debouncedSearch,
     debouncedQuotationNo,
@@ -244,7 +252,9 @@ const QuotationReport = () => {
                   end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : ''
                 };
 
-                // dispatch(setDispatchListParams(newParams));
+                const start = dates?.[0] ? dayjs(dates[0]).format('YYYY-MM-DD') : '';
+                const end = dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : '';
+
 
                 const today = dayjs().format('YYYY-MM-DD');
                 const fetchParams = { ...params };
@@ -260,8 +270,11 @@ const QuotationReport = () => {
                     fetchParams.end_date = null;
                   }
                 }
-
-                dispatch(getDispatchList(fetchParams));
+                dispatch(setQuotationListParams({
+                  start_date: start,
+                  end_date: end,
+                  page: 1
+                }));
               }}
               format="MM-DD-YYYY"
             />

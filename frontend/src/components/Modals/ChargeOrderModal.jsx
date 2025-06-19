@@ -282,7 +282,7 @@ const ChargeOrderModal = () => {
   }, [chargeQuotationID]);
 
   return (
-    <Modal open={chargeQuotationID} closable={false} footer={null} width={"80vw"} >
+    <Modal open={chargeQuotationID} closable={false} footer={null} width={"80vw"}>
       <div className="mb-3 flex items-center justify-between text-gray-600">
         <p className="text-base font-medium">Select products to charge order.</p>
         {isItemLoading ? (
