@@ -50,7 +50,7 @@ class QuotationController extends Controller
 		$data = Quotation::LeftJoin('customer as c', 'c.customer_id', '=', 'quotation.customer_id')
 		->leftJoin('quotation_status as qs_last', function ($join) {
 			$join->on('qs_last.quotation_id', '=', 'quotation.quotation_id')
-				 ->where('qs_last.status', '=', 'send to customer');
+				 ->where('qs_last.status', '=', 'Sent to customer');
 		})
 		->LeftJoin('port as p', 'p.port_id', '=', 'quotation.port_id')
 			->LeftJoin('event as e', 'e.event_id', '=', 'quotation.event_id')
