@@ -6,18 +6,24 @@ export const calculateTimeDifference = (startDate, endDate) => {
   const diffDays = responded.diff(created, 'day');
   const diffMonths = responded.diff(created, 'month');
   const diffYears = responded.diff(created, 'year');
+  const diffHours = responded.diff(created, 'hour');
 
   // If same day, show minutes and seconds
   if (diffDays === 0) {
     const mins = responded.diff(created, 'minute');
+    const hours = Math.floor(mins / 60);
+    const remainingMins = mins % 60;
     const secs = responded.diff(created, 'second') % 60;
+
+    if (hours > 0) {
+      return `${hours} hour${hours > 1 ? 's' : ''} ${remainingMins} min ${secs} sec`;
+    }
     return `${mins} min ${secs} sec`;
   }
 
-  // If same month, show days and hours
-  if (diffMonths === 0) {
-    const hours = responded.diff(created, 'hour') % 24;
-    return `${diffDays} day${diffDays > 1 ? 's' : ''} ${hours} hour${hours > 1 ? 's' : ''}`;
+  // If hours >= 24, show only days
+  if (diffHours >= 24) {
+    return `${diffDays} day${diffDays > 1 ? 's' : ''}`;
   }
 
   // If same year, show months and days

@@ -9,26 +9,41 @@ export const getQuotationList = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const res = await api.get('/quotation', {
-        params
+        params,
       });
       return res.data;
     } catch (err) {
       throw rejectWithValue(err);
     }
-  }
+  },
 );
+
+export const getBidResponseList = createAsyncThunk(
+  'quotation/bid-response',
+  async (params, { rejectWithValue }) => {
+    try {
+      const res = await api.get('/report/bid-response', {
+        params,
+      });
+      return res.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  },
+);
+
 export const getQuotationListReport = createAsyncThunk(
   'quotation/list-report',
   async (params, { rejectWithValue }) => {
     try {
       const res = await api.get('/report/quote-report', {
-        params
+        params,
       });
       return res.data;
     } catch (err) {
       throw rejectWithValue(err);
     }
-  }
+  },
 );
 
 export const getQuotationListPrint = createAsyncThunk(
@@ -39,13 +54,13 @@ export const getQuotationListPrint = createAsyncThunk(
         params: {
           ...params,
           all: 1,
-        }
+        },
       });
       return res.data;
     } catch (err) {
       throw rejectWithValue(err);
     }
-  }
+  },
 );
 
 export const deleteQuotation = createAsyncThunk(
@@ -56,7 +71,7 @@ export const deleteQuotation = createAsyncThunk(
     } catch (err) {
       throw rejectWithValue(err);
     }
-  }
+  },
 );
 
 export const createQuotation = createAsyncThunk(
@@ -67,7 +82,7 @@ export const createQuotation = createAsyncThunk(
     } catch (err) {
       throw rejectWithValue(err);
     }
-  }
+  },
 );
 
 export const getQuotation = createAsyncThunk('quotation/get', async (id, { rejectWithValue }) => {
@@ -93,7 +108,7 @@ export const getQuotationModal = createAsyncThunk(
       // Use return rejectWithValue, not throw
       return rejectWithValue(err);
     }
-  }
+  },
 );
 
 export const getQuotationForPrint = createAsyncThunk(
@@ -105,7 +120,7 @@ export const getQuotationForPrint = createAsyncThunk(
     } catch (err) {
       throw rejectWithValue(err);
     }
-  }
+  },
 );
 
 export const updateQuotation = createAsyncThunk(
@@ -116,7 +131,7 @@ export const updateQuotation = createAsyncThunk(
     } catch (err) {
       throw rejectWithValue(err);
     }
-  }
+  },
 );
 
 export const bulkDeleteQuotation = createAsyncThunk(
@@ -124,12 +139,12 @@ export const bulkDeleteQuotation = createAsyncThunk(
   async (ids, { rejectWithValue }) => {
     try {
       await api.post('/quotation/bulk-delete', {
-        quotation_ids: ids
+        quotation_ids: ids,
       });
     } catch (err) {
       throw rejectWithValue(err);
     }
-  }
+  },
 );
 
 const initialState = {
@@ -148,12 +163,12 @@ const initialState = {
     limit: 50,
     search: '',
     sort_column: null,
-    sort_direction: null
+    sort_direction: null,
   },
   paginationInfo: {
     total_records: 0,
-    total_pages: 0
-  }
+    total_pages: 0,
+  },
 };
 
 export const quotationSlice = createSlice({
@@ -168,7 +183,7 @@ export const quotationSlice = createSlice({
     setQuotationListParams: (state, action) => {
       state.params = {
         ...state.params,
-        ...action.payload
+        ...action.payload,
       };
     },
 
@@ -189,7 +204,7 @@ export const quotationSlice = createSlice({
         rate: null,
         amount: null,
         row_status: 'I',
-        markup: 0
+        markup: 0,
       };
 
       // If index is provided, insert the new detail after that index, otherwise push it to the end
@@ -209,7 +224,7 @@ export const quotationSlice = createSlice({
         // id: Date.now(),
         id: uuidv4(),
         row_status: 'I',
-        isDeleted: false
+        isDeleted: false,
       };
 
       state.quotationDetails.splice(index + 1, 0, newDetail);
@@ -221,7 +236,7 @@ export const quotationSlice = createSlice({
       if (itemIndex !== -1) {
         if (state.quotationDetails[itemIndex].row_status === 'I') {
           state.quotationDetails = state.quotationDetails.filter(
-            (item) => item.id !== action.payload
+            (item) => item.id !== action.payload,
           );
         } else {
           state.quotationDetails[itemIndex].row_status = 'D';
@@ -266,7 +281,7 @@ export const quotationSlice = createSlice({
 
         if (key === 'rate' && +detail.cost_price && +detail.rate) {
           detail.markup = roundUpto(
-            ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100
+            ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100,
           );
         }
       } else {
@@ -307,7 +322,7 @@ export const quotationSlice = createSlice({
         row_status:
           state.quotationDetails[index].row_status === 'U'
             ? 'U'
-            : state.quotationDetails[index].row_status
+            : state.quotationDetails[index].row_status,
       };
     },
 
@@ -338,13 +353,13 @@ export const quotationSlice = createSlice({
           detail.rate * detail.stock_quantity -
           (detail.discount_percent
             ? detail.rate * detail.stock_quantity * (detail.discount_percent / 100)
-            : 0)
+            : 0),
       };
 
       const splittedRow = {
         product_type_id: {
           value: 4,
-          label: 'Others'
+          label: 'Others',
         },
         product_name: detail.product_id?.label,
         product_description: detail.product_description,
@@ -370,7 +385,7 @@ export const quotationSlice = createSlice({
       };
 
       state.quotationDetails.splice(index, 1, row, splittedRow);
-    }
+    },
   },
   extraReducers: ({ addCase }) => {
     addCase(getQuotationList.pending, (state) => {
@@ -386,13 +401,13 @@ export const quotationSlice = createSlice({
       state.list = data;
       state.paginationInfo = {
         total_records: rest.total,
-        total_pages: rest.last_page
+        total_pages: rest.last_page,
       };
     });
     addCase(getQuotationListReport.rejected, (state) => {
       state.isListLoading = false;
     });
-   
+
     addCase(getQuotationListReport.pending, (state) => {
       state.isListLoading = true;
       state.initialFormValues = null;
@@ -406,7 +421,7 @@ export const quotationSlice = createSlice({
       state.list = data;
       state.paginationInfo = {
         total_records: rest.total,
-        total_pages: rest.last_page
+        total_pages: rest.last_page,
       };
     });
     addCase(getQuotationList.rejected, (state) => {
@@ -438,63 +453,63 @@ export const quotationSlice = createSlice({
         internal_notes: data.internal_notes,
         salesman_id: data.salesman
           ? {
-            value: data.salesman.salesman_id,
-            label: data.salesman.name
-          }
+              value: data.salesman.salesman_id,
+              label: data.salesman.name,
+            }
           : null,
         event_id: data.event
           ? {
-            value: data.event.event_id,
-            label: data.event.event_name
-          }
+              value: data.event.event_id,
+              label: data.event.event_name,
+            }
           : null,
         vessel_id: data.vessel
           ? {
-            value: data.vessel.vessel_id,
-            label: data.vessel.name
-          }
+              value: data.vessel.vessel_id,
+              label: data.vessel.name,
+            }
           : null,
         customer_id: data.customer
           ? {
-            value: data.customer.customer_id,
-            label: data.customer.name
-          }
+              value: data.customer.customer_id,
+              label: data.customer.name,
+            }
           : null,
         class1_id: data.class1
           ? {
-            value: data.class1.class_id,
-            label: data.class1.name
-          }
+              value: data.class1.class_id,
+              label: data.class1.name,
+            }
           : null,
         class2_id: data.class2
           ? {
-            value: data.class2.class_id,
-            label: data.class2.name
-          }
+              value: data.class2.class_id,
+              label: data.class2.name,
+            }
           : null,
         flag_id: data.flag
           ? {
-            value: data.flag.flag_id,
-            label: data.flag.name
-          }
+              value: data.flag.flag_id,
+              label: data.flag.name,
+            }
           : null,
         person_incharge_id: data.person_incharge
           ? {
-            value: data.person_incharge.user_id,
-            label: data.person_incharge.user_name
-          }
+              value: data.person_incharge.user_id,
+              label: data.person_incharge.user_name,
+            }
           : null,
         validity_id: data.validity
           ? {
-            value: data.validity.validity_id,
-            label: data.validity.name
-          }
+              value: data.validity.validity_id,
+              label: data.validity.name,
+            }
           : null,
         payment_id: data.payment
           ? {
-            value: data.payment.payment_id,
-            label: data.payment.name
-          }
+              value: data.payment.payment_id,
+              label: data.payment.name,
+            }
           : null,
         customer_ref: data.customer_ref,
         due_date: data.due_date,
@@ -504,19 +519,19 @@ export const quotationSlice = createSlice({
         remarks: data.remarks,
         port_id: data.port
           ? {
-            value: data.port.port_id,
-            label: data.port.name
-          }
+              value: data.port.port_id,
+              label: data.port.name,
+            }
           : null,
         port: data.port
           ? {
-            value: data.port.port_id,
-            label: data.port.name
-          }
+              value: data.port.port_id,
+              label: data.port.name,
+            }
           : null,
         term_id: data.term_id || null,
         term_desc: data.term_desc,
-        status: data.status
+        status: data.status,
       };
 
       if (!data.quotation_detail) return;
@@ -528,11 +543,13 @@ export const quotationSlice = createSlice({
           : null,
         product_type_id: detail.product_type
           ? {
-            value: detail.product_type.product_type_id,
-            label: detail.product_type.name
-          }
+              value: detail.product_type.product_type_id,
+              label: detail.product_type.name,
+            }
           : null,
-        product_name: detail.product_name ? detail.product_name : detail?.product?.product_name || null,
+        product_name: detail.product_name
+          ? detail.product_name
+          : detail?.product?.product_name || null,
         product_description: detail.product_description,
         description: detail.description,
         stock_quantity: detail?.product?.stock?.quantity
@@ -546,7 +563,10 @@ export const quotationSlice = createSlice({
           : null,
         vendor_part_no: detail.vendor_part_no,
         internal_notes: detail.internal_notes,
-        cost_price: detail?.product_type?.product_type_id === 4 ? detail.cost_price : +detail.cost_price || +detail.rate,
+        cost_price:
+          detail?.product_type?.product_type_id === 4
+            ? detail.cost_price
+            : +detail.cost_price || +detail.rate,
         markup: detail.markup,
         rate: detail.rate,
         amount: detail.amount,
@@ -554,7 +574,7 @@ export const quotationSlice = createSlice({
         discount_amount: detail.discount_amount,
         gross_amount: detail.gross_amount,
         row_status: 'U',
-        isDeleted: false
+        isDeleted: false,
       }));
 
       state.rebatePercentage = data?.rebate_percent ? data?.rebate_percent : 0;
@@ -582,63 +602,63 @@ export const quotationSlice = createSlice({
         internal_notes: data.internal_notes,
         salesman_id: data.salesman
           ? {
-            value: data.salesman.salesman_id,
-            label: data.salesman.name
-          }
+              value: data.salesman.salesman_id,
+              label: data.salesman.name,
+            }
           : null,
         event_id: data.event
           ? {
-            value: data.event.event_id,
-            label: data.event.event_name
-          }
+              value: data.event.event_id,
+              label: data.event.event_name,
+            }
           : null,
         vessel_id: data.vessel
           ? {
-            value: data.vessel.vessel_id,
-            label: data.vessel.name
-          }
+              value: data.vessel.vessel_id,
+              label: data.vessel.name,
+            }
           : null,
         customer_id: data.customer
           ? {
-            value: data.customer.customer_id,
-            label: data.customer.name
-          }
+              value: data.customer.customer_id,
+              label: data.customer.name,
+            }
           : null,
         class1_id: data.class1
           ? {
-            value: data.class1.class_id,
-            label: data.class1.name
-          }
+              value: data.class1.class_id,
+              label: data.class1.name,
+            }
           : null,
         class2_id: data.class2
           ? {
-            value: data.class2.class_id,
-            label: data.class2.name
-          }
+              value: data.class2.class_id,
+              label: data.class2.name,
+            }
           : null,
         flag_id: data.flag
           ? {
-            value: data.flag.flag_id,
-            label: data.flag.name
-          }
+              value: data.flag.flag_id,
+              label: data.flag.name,
+            }
           : null,
         person_incharge_id: data.person_incharge
           ? {
-            value: data.person_incharge.user_id,
-            label: data.person_incharge.user_name
-          }
+              value: data.person_incharge.user_id,
+              label: data.person_incharge.user_name,
+            }
           : null,
         validity_id: data.validity
           ? {
-            value: data.validity.validity_id,
-            label: data.validity.name
-          }
+              value: data.validity.validity_id,
+              label: data.validity.name,
+            }
           : null,
         payment_id: data.payment
           ? {
-            value: data.payment.payment_id,
-            label: data.payment.name
-          }
+              value: data.payment.payment_id,
+              label: data.payment.name,
+            }
           : null,
         customer_ref: data.customer_ref,
         due_date: data.due_date,
@@ -648,15 +668,15 @@ export const quotationSlice = createSlice({
         remarks: data.remarks,
         port_id: data.port
           ? {
-            value: data.port.port_id,
-            label: data.port.name
-          }
+              value: data.port.port_id,
+              label: data.port.name,
+            }
           : null,
         port: data.port
           ? {
-            value: data.port.port_id,
-            label: data.port.name
-          }
+              value: data.port.port_id,
+              label: data.port.name,
+            }
           : null,
         term_id: data.term_id || null,
         term_desc: data.term_desc,
@@ -674,11 +694,13 @@ export const quotationSlice = createSlice({
           : null,
         product_type_id: detail.product_type
           ? {
-            value: detail.product_type.product_type_id,
-            label: detail.product_type.name
-          }
+              value: detail.product_type.product_type_id,
+              label: detail.product_type.name,
+            }
           : null,
-        product_name: detail.product_name ? detail.product_name : detail?.product?.product_name || null,
+        product_name: detail.product_name
+          ? detail.product_name
+          : detail?.product?.product_name || null,
         product_description: detail.product_description,
         description: detail.description,
         stock_quantity: detail?.product?.stock?.quantity
@@ -692,7 +714,10 @@ export const quotationSlice = createSlice({
           : null,
         vendor_part_no: detail.vendor_part_no,
         internal_notes: detail.internal_notes,
-        cost_price: detail?.product_type?.product_type_id === 4 ? detail.cost_price : +detail.cost_price || +detail.rate,
+        cost_price:
+          detail?.product_type?.product_type_id === 4
+            ? detail.cost_price
+            : +detail.cost_price || +detail.rate,
         markup: detail.markup,
         rate: detail.rate,
         amount: detail.amount,
@@ -723,7 +748,7 @@ export const quotationSlice = createSlice({
         .map((item) => ({
           ...item,
           row_status: 'U',
-          isDeleted: false
+          isDeleted: false,
         }));
       state.initialFormValues = null;
       state.rebatePercentage = null;
@@ -743,7 +768,7 @@ export const quotationSlice = createSlice({
     addCase(bulkDeleteQuotation.rejected, (state) => {
       state.isBulkDeleting = false;
     });
-  }
+  },
 });
 
 export const {
@@ -758,6 +783,6 @@ export const {
   setRebatePercentage,
   setSalesmanPercentage,
   resetQuotationState,
-  splitQuotationQuantity
+  splitQuotationQuantity,
 } = quotationSlice.actions;
 export default quotationSlice.reducer;

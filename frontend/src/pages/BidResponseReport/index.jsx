@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import PageHeading from '../../components/Heading/PageHeading';
 import { Breadcrumb, Button, DatePicker } from 'antd';
-import AsyncSelect from '../../components/AsyncSelect';
 import dayjs from 'dayjs';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import AsyncSelect from '../../components/AsyncSelect';
+import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
-import { getQuotationList } from '../../store/features/quotationSlice';
+import { getBidResponseList } from '../../store/features/quotationSlice';
 import { createBidResponsePrint } from '../../utils/prints/bid-response-print';
 
 const { RangePicker } = DatePicker;
@@ -20,13 +20,13 @@ const BidResponseReport = () => {
     end_date: null,
     vessel_id: null,
     customer_id: null,
-    limit: 5000
+    limit: 5000,
   });
 
   const handleExport = async (type) => {
     try {
       setIsSubmitting(type);
-      const { data } = await dispatch(getQuotationList(filterParams)).unwrap();
+      const { data } = await dispatch(getBidResponseList(filterParams)).unwrap();
       console.log(data);
       createBidResponsePrint(data);
     } catch (error) {
@@ -50,7 +50,7 @@ const BidResponseReport = () => {
               <RangePicker
                 value={[
                   filterParams.start_date ? dayjs(filterParams.start_date, 'YYYY-MM-DD') : null,
-                  filterParams.end_date ? dayjs(filterParams.end_date, 'YYYY-MM-DD') : null
+                  filterParams.end_date ? dayjs(filterParams.end_date, 'YYYY-MM-DD') : null,
                 ]}
                 onChange={(dates) => {
                   const newParams = { ...filterParams };
