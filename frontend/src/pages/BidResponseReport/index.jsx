@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, DatePicker } from 'antd';
+import { Breadcrumb, Button, DatePicker, Form } from 'antd';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -27,7 +27,6 @@ const BidResponseReport = () => {
     try {
       setIsSubmitting(type);
       const { data } = await dispatch(getBidResponseList(filterParams)).unwrap();
-      console.log(data);
       createBidResponsePrint(data);
     } catch (error) {
       handlerError(error);
@@ -46,7 +45,7 @@ const BidResponseReport = () => {
       <div className="mt-4 rounded-md bg-white p-6">
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <div>
+            <Form.Item name="date_range" label="Date Range" layout="vertical">
               <RangePicker
                 value={[
                   filterParams.start_date ? dayjs(filterParams.start_date, 'YYYY-MM-DD') : null,
@@ -67,9 +66,9 @@ const BidResponseReport = () => {
                 format="MM-DD-YYYY"
                 className="w-full"
               />
-            </div>
+            </Form.Item>
 
-            <div>
+            <Form.Item name="vessel" label="Vessel" layout="vertical">
               <AsyncSelect
                 endpoint="/vessel"
                 className="w-full"
@@ -80,9 +79,9 @@ const BidResponseReport = () => {
                 onChange={(value) => setFilterParams({ ...filterParams, vessel_id: value })}
                 allowClear
               />
-            </div>
+            </Form.Item>
 
-            <div>
+            <Form.Item name="customer" label="Customer" layout="vertical">
               <AsyncSelect
                 endpoint="/customer"
                 className="w-full"
@@ -93,7 +92,7 @@ const BidResponseReport = () => {
                 onChange={(value) => setFilterParams({ ...filterParams, customer_id: value })}
                 allowClear
               />
-            </div>
+            </Form.Item>
           </div>
 
           <div className="flex justify-end gap-2">

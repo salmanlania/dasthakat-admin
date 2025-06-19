@@ -47,6 +47,14 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
 
   // Header LOGO
   doc.addImage(GMSLogo, 'PNG', 8, 1, 35, 26);
+
+  // Heading
+  doc.setFontSize(16);
+  doc.setFont('times', 'bold');
+  doc.text('BID RESPONSE REPORT', pageWidth / 2, 38, {
+    align: 'center',
+  });
+  doc.setFontSize(10);
 };
 
 const addFooter = (doc, pageWidth, pageHeight) => {
@@ -69,9 +77,6 @@ export const createBidResponsePrint = async (data) => {
   doc.setTextColor(32, 50, 114);
 
   const sideMargin = 4;
-
-  const descriptions = data.term_desc ? data.term_desc.split('\n') : [];
-  const rowSpan = descriptions.length + 1;
 
   // Table 2
   const table2Column = [
@@ -102,8 +107,8 @@ export const createBidResponsePrint = async (data) => {
       if (detail.vessel_id) uniqueVessel.add(detail.vessel_id);
       if (detail.customer_id) uniqueCustomer.add(detail.customer_id);
       if (detail.total_amount) totalAmount += +detail.total_amount;
-      if (detail.document_date && detail.qs_date) {
-        const created = dayjs(detail.document_date);
+      if (detail.created_at && detail.qs_date) {
+        const created = dayjs(detail.created_at);
         const responded = dayjs(detail.qs_date);
         totalResponseRate += responded.diff(created, 'ms');
       }
@@ -129,29 +134,14 @@ export const createBidResponsePrint = async (data) => {
     });
   }
 
-  const filledRows = fillEmptyRows(table2Rows, 16);
-  const totalEvents = `${uniqueEvents.size} ${uniqueEvents.size > 1 ? 'events' : 'event'}`;
-  const totalQuotes = `${uniqueQuotes.size} ${uniqueQuotes.size > 1 ? 'quotes' : 'quote'}`;
-  const totalVessel = `${uniqueVessel.size} ${uniqueVessel.size > 1 ? 'vessels' : 'vessel'}`;
-  const totalCustomer = `${uniqueCustomer.size} ${uniqueCustomer.size > 1 ? 'customers' : 'customer'}`;
-
-  table2Rows.push([
-    totalEvents,
-    totalQuotes,
-    totalVessel,
-    totalCustomer,
-    `$${formatThreeDigitCommas(roundUpto(totalAmount))}`,
-    '-',
-    '-',
-    millisecondsToReadable(totalResponseRate),
-  ]);
+  const filledRows = fillEmptyRows(table2Rows, 17);
 
   // Adding Table
   doc.autoTable({
-    startY: 34,
+    startY: 42,
     head: [table2Column],
     body: filledRows,
-    margin: { left: sideMargin, right: sideMargin, bottom: 32, top: 84 },
+    margin: { left: sideMargin, right: sideMargin, bottom: 12, top: 42 },
     headStyles: {
       fontSize: 8,
       fontStyle: 'bold',
@@ -191,50 +181,24 @@ export const createBidResponsePrint = async (data) => {
     },
   });
 
-  // Adding Table
-  doc.autoTable({
-    startY: 34,
-    head: [table2Column],
-    body: filledRows,
-    margin: { left: sideMargin, right: sideMargin, bottom: 32, top: 84 },
-    headStyles: {
-      fontSize: 8,
-      fontStyle: 'bold',
-      halign: 'center',
-      valign: 'middle',
-      textColor: [32, 50, 114],
-      fillColor: [221, 217, 196],
-    },
-    styles: {
-      halign: 'center',
-      valign: 'middle',
-      font: 'times',
-      fontSize: 8,
-      lineWidth: 0.1,
-      lineColor: [116, 116, 116],
-    },
-    bodyStyles: {
-      textColor: [32, 50, 114],
-      fillColor: [255, 255, 255],
-    },
-    alternateRowStyles: {
-      fillColor: [255, 255, 255],
-    },
-    rowPageBreak: 'avoid',
-    columnStyles: {
-      0: { cellWidth: 16 }, // Event No
-      1: { cellWidth: 16 }, // Quote No
-      2: { cellWidth: 46 }, // Vessel
-      3: { cellWidth: 46 }, // Customer
-      4: { cellWidth: 20 }, // Total Amount
-      5: { cellWidth: 20 }, // Created
-      6: { cellWidth: 20 }, // Sent To Customer
-      7: { cellWidth: 18 }, // Response Rate
-    },
-    didParseCell: function (data) {
-      data.cell.styles.minCellHeight = 13;
-    },
-  });
+  // Add summary text below the table
+  doc.setFontSize(9);
+  doc.setFont('times', 'normal');
+
+  const finalY = doc.previousAutoTable.finalY + 5;
+
+  const totalEvents = uniqueEvents.size;
+  const totalQuotes = uniqueQuotes.size;
+  const totalVessel = uniqueVessel.size;
+  const totalCustomer = uniqueCustomer.size;
+
+  // Display summary information as text
+  doc.text(`Events: ${totalEvents}`, 4, finalY);
+  doc.text(`Quotes: ${totalQuotes}`, 32, finalY);
+  doc.text(`Vessels: ${totalVessel}`, 64, finalY);
+  doc.text(`Customers: ${totalCustomer}`, 94, finalY);
+  doc.text(`$${formatThreeDigitCommas(roundUpto(totalAmount))}`, 132, finalY);
+  doc.text(`Response Rate: ${millisecondsToReadable(totalResponseRate)}`, 162, finalY);
 
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
@@ -247,7 +211,7 @@ export const createBidResponsePrint = async (data) => {
     addHeader(doc, data, pageWidth, sideMargin);
 
     // Footer
-    addFooter(doc, pageWidth, pageHeight - 25);
+    addFooter(doc, pageWidth, pageHeight);
   }
 
   doc.setProperties({
