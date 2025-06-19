@@ -149,7 +149,7 @@ const MainLayout = () => {
   if (href.startsWith('/opening-stock/edit') && !permissions.opening_stock.edit)
     return <NotFound />;
 
-  // TODO:Add bid response report permission here
+  if (href === '/bid-response-report' && !permissions?.bid_response?.show) return <NotFound />;
 
   return (
     <Layout className="min-h-screen">
