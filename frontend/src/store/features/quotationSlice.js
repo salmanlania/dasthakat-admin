@@ -17,6 +17,36 @@ export const getQuotationList = createAsyncThunk(
     }
   }
 );
+export const getQuotationListReport = createAsyncThunk(
+  'quotation/list-report',
+  async (params, { rejectWithValue }) => {
+    try {
+      const res = await api.get('/report/quote-report', {
+        params
+      });
+      return res.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
+export const getQuotationListPrint = createAsyncThunk(
+  'quotation/list-print',
+  async (params, { rejectWithValue }) => {
+    try {
+      const res = await api.get('/quotation', {
+        params: {
+          ...params,
+          all: 1,
+        }
+      });
+      return res.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
 
 export const deleteQuotation = createAsyncThunk(
   'quotation/delete',
@@ -351,6 +381,26 @@ export const quotationSlice = createSlice({
       state.quotationDetails = [];
     });
     addCase(getQuotationList.fulfilled, (state, action) => {
+      state.isListLoading = false;
+      const { data, ...rest } = action.payload;
+      state.list = data;
+      state.paginationInfo = {
+        total_records: rest.total,
+        total_pages: rest.last_page
+      };
+    });
+    addCase(getQuotationListReport.rejected, (state) => {
+      state.isListLoading = false;
+    });
+   
+    addCase(getQuotationListReport.pending, (state) => {
+      state.isListLoading = true;
+      state.initialFormValues = null;
+      state.rebatePercentage = null;
+      state.salesmanPercentage = null;
+      state.quotationDetails = [];
+    });
+    addCase(getQuotationListReport.fulfilled, (state, action) => {
       state.isListLoading = false;
       const { data, ...rest } = action.payload;
       state.list = data;

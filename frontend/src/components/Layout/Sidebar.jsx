@@ -109,6 +109,7 @@ const Sidebar = () => {
 
   const LogisticsPermission = !permissions?.dispatch?.list;
   const systemPermission = !permissions?.audit?.list;
+  const reportsPermission = !permissions?.quote_report?.show;
 
   const items = [
     {
@@ -404,7 +405,7 @@ const Sidebar = () => {
       key: 'reports',
       label: 'Reports',
       icon: <TbReportAnalytics size={18} />,
-      disabled: systemPermission,
+      disabled: reportsPermission,
       children: [
         {
           key: 'quotation-report',

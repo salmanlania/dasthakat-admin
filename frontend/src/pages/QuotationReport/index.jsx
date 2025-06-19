@@ -11,14 +11,15 @@ import ChargeOrderModal from '../../components/Modals/ChargeOrderModal';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
-import { setChargeQuotationID } from '../../store/features/chargeOrderSlice';
+import createQuotationReportPrint from '../../utils/Pdf/quotation-report-list.js';
 import {
   bulkDeleteQuotation,
   deleteQuotation,
   getQuotationForPrint,
-  getQuotationList,
+  getQuotationListReport,
   setQuotationDeleteIDs,
-  setQuotationListParams
+  setQuotationListParams,
+  getQuotationListPrint
 } from '../../store/features/quotationSlice';
 import generateQuotationExcel from '../../utils/excel/quotation-excel.js';
 import { createQuotationPrint } from '../../utils/prints/quotation-print';
@@ -52,7 +53,7 @@ const QuotationReport = () => {
     try {
       await dispatch(deleteQuotation(id)).unwrap();
       toast.success('Quotation deleted successfully');
-      dispatch(getQuotationList(formattedParams)).unwrap();
+      dispatch(getQuotationListReport(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -63,7 +64,7 @@ const QuotationReport = () => {
       await dispatch(bulkDeleteQuotation(deleteIDs)).unwrap();
       toast.success('Quotations deleted successfully');
       closeDeleteModal();
-      await dispatch(getQuotationList(formattedParams)).unwrap();
+      await dispatch(getQuotationListReport(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -82,12 +83,47 @@ const QuotationReport = () => {
     }
   };
 
-  const exportQuotation = async (id) => {
-    const loadingToast = toast.loading('Loading excel...');
+  // const exportQuotation = async (id) => {
+  //   const loadingToast = toast.loading('Loading excel...');
+
+  //   try {
+  //     const data = await dispatch(getQuotationForPrint(id)).unwrap();
+  //     generateQuotationExcel(data);
+  //   } catch (error) {
+  //     handleError(error);
+  //   } finally {
+  //     toast.dismiss(loadingToast);
+  //   }
+  // };
+
+  const exportPdf = async () => {
+
+    const loadingToast = toast.loading('Loading Print View...');
+    const originalParams = { ...params };
 
     try {
-      const data = await dispatch(getQuotationForPrint(id)).unwrap();
-      generateQuotationExcel(data);
+      const startDate = params.start_date ? dayjs(params.start_date).format('YYYY-MM-DD') : null;
+      const endDate = params.end_date ? dayjs(params.end_date).format('YYYY-MM-DD') : null;
+
+      const exportParams = {
+        ...params,
+        limit: 1000000000000,
+        start_date: startDate,
+        end_date: endDate,
+        sort_direction: 'ascend'
+      };
+
+      if (!startDate && !endDate) {
+        delete exportParams.start_date;
+        delete exportParams.end_date;
+      }
+
+      const data = await dispatch(getQuotationListPrint(exportParams)).unwrap();
+
+      createQuotationReportPrint(Array.isArray(data) ? data : [data], true);
+
+      dispatch(setQuotationListParams(originalParams));
+
     } catch (error) {
       handleError(error);
     } finally {
@@ -97,11 +133,11 @@ const QuotationReport = () => {
 
   const columns = [
     {
-      title: 'Event Number',
-      dataIndex: 'event_code',
-      key: 'event_code',
+      title: 'Quotation Date',
+      dataIndex: 'document_date',
+      key: 'document_date',
       sorter: true,
-      width: 140,
+      width: 150,
       ellipsis: true
     },
     {
@@ -110,6 +146,14 @@ const QuotationReport = () => {
       key: 'document_identity',
       sorter: true,
       width: 150,
+      ellipsis: true
+    },
+    {
+      title: 'Event Number',
+      dataIndex: 'event_code',
+      key: 'event_code',
+      sorter: true,
+      width: 140,
       ellipsis: true
     },
     {
@@ -130,18 +174,34 @@ const QuotationReport = () => {
     },
     {
       title: 'Total Quantity',
-      dataIndex: 'customer_name',
-      key: 'customer_name',
+      dataIndex: 'total_quantity',
+      key: 'total_quantity',
       sorter: true,
       width: 140,
       ellipsis: true
     },
     {
       title: 'Total Amount',
-      dataIndex: 'customer_name',
-      key: 'customer_name',
+      dataIndex: 'total_amount',
+      key: 'total_amount',
       sorter: true,
       width: 140,
+      ellipsis: true
+    },
+    {
+      title: 'Port',
+      dataIndex: 'port_name',
+      key: 'port_name',
+      sorter: true,
+      width: 200,
+      ellipsis: true
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      sorter: true,
+      width: 200,
       ellipsis: true
     },
     {
@@ -161,11 +221,7 @@ const QuotationReport = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
 
-    const hasDateFilter = params.start_date && params.end_date;
-    // dispatch(getQuotationList(formattedParams)).unwrap().catch(handleError);
-    if (hasDateFilter) {
-      dispatch(getQuotationList(formattedParams)).unwrap().catch(handleError);
-    }
+    dispatch(getQuotationListReport(formattedParams)).unwrap().catch(handleError);
 
     const savedLimit = sessionStorage.getItem('quotationLimit');
     if (savedLimit && +savedLimit !== params.limit) {
@@ -252,29 +308,19 @@ const QuotationReport = () => {
                   end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : ''
                 };
 
-                const start = dates?.[0] ? dayjs(dates[0]).format('YYYY-MM-DD') : '';
-                const end = dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : '';
-
-
-                const today = dayjs().format('YYYY-MM-DD');
-                const fetchParams = { ...params };
-                if (dates && dates[0]) {
-                  fetchParams.start_date = newParams.start_date;
-                  fetchParams.end_date = newParams.end_date;
-                } else {
-                  if (!isOldChecked) {
-                    fetchParams.start_date = today;
-                    fetchParams.end_date = null;
-                  } else {
-                    fetchParams.start_date = null;
-                    fetchParams.end_date = null;
-                  }
+                if (!dates || !dates[0] || !dates[1]) {
+                  newParams.start_date = null;
+                  newParams.end_date = null;
                 }
-                dispatch(setQuotationListParams({
-                  start_date: start,
-                  end_date: end,
-                  page: 1
-                }));
+
+                const fetchParams = { ...params, ...newParams, page: 1 };
+
+                dispatch(setQuotationListParams(fetchParams));
+
+                if (!newParams.start_date && !newParams.end_date) {
+                  dispatch(getQuotationListReport(fetchParams)).unwrap().catch(handleError);
+                }
+
               }}
               format="MM-DD-YYYY"
             />
@@ -348,7 +394,7 @@ const QuotationReport = () => {
               type="primary"
               icon={<FaRegFilePdf size={14} />}
               className="bg-rose-600 hover:!bg-rose-500"
-            // onClick={exportPdf}
+              onClick={exportPdf}
             >
               Print
             </Button>
@@ -390,7 +436,7 @@ const QuotationReport = () => {
             );
           }}
           // dataSource={list}
-          dataSource={groupedQuotationData}
+          dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
