@@ -13,6 +13,7 @@ use App\Models\QuotationStatus;
 use App\Models\StockLedger;
 use App\Models\Terms;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -23,86 +24,156 @@ class QuotationController extends Controller
 
 	public function index(Request $request)
 	{
-		$port_id = $request->input('port_id', '');
-		$customer_ref = $request->input('customer_ref', '');
-		$customer_id = $request->input('customer_id', '');
-		$document_identity = $request->input('document_identity', '');
-		$document_date = $request->input('document_date', '');
-		$vessel_id = $request->input('vessel_id', '');
-		$event_id = $request->input('event_id', '');
-		$search = $request->input('search', '');
-		$status = $request->input('status', '');
-		$status_updated_by = $request->input('status_updated_by', '');
-		$page =  $request->input('page', 1);
-		$perPage =  $request->input('limit', 10);
-		$sort_column = $request->input('sort_column', 'quotation.created_at');
-		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
-
-		$latestStatusSubquery = DB::table('quotation_status as qs1')
-			->select('qs1.quotation_id', 'qs1.status', 'qs1.created_by')
-			->whereRaw('qs1.id = (
-        SELECT qs2.id
-        FROM quotation_status as qs2
-        WHERE qs2.quotation_id = qs1.quotation_id order by qs2.created_at desc  limit 1
-    )');
-
-
-		$data = Quotation::LeftJoin('customer as c', 'c.customer_id', '=', 'quotation.customer_id')
-		->leftJoin('quotation_status as qs_last', function ($join) {
-			$join->on('qs_last.quotation_id', '=', 'quotation.quotation_id')
-				 ->where('qs_last.status', '=', 'Sent to customer');
-		})
-		->LeftJoin('port as p', 'p.port_id', '=', 'quotation.port_id')
-			->LeftJoin('event as e', 'e.event_id', '=', 'quotation.event_id')
-			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'quotation.vessel_id')
-			->leftJoinSub($latestStatusSubquery, 'qs', 'qs.quotation_id', '=', 'quotation.quotation_id')
-			->leftJoin('user as u', 'u.user_id', '=', 'qs.created_by');
-		$data = $data->where('quotation.company_id', '=', $request->company_id);
-		$data = $data->where('quotation.company_branch_id', '=', $request->company_branch_id);
-
-		if (!empty($status_updated_by)) $data = $data->where('qs.created_by', '=',  $status_updated_by);
-		if (!empty($status)) $data = $data->where('quotation.status', '=',  $status);
-		if (!empty($port_id)) $data = $data->where('quotation.port_id', '=',  $port_id);
-		if (!empty($customer_id)) $data = $data->where('quotation.customer_id', '=',  $customer_id);
-		if (!empty($vessel_id)) $data = $data->where('quotation.vessel_id', '=',  $vessel_id);
-		if (!empty($event_id)) $data = $data->where('quotation.event_id', '=',  $event_id);
-		if (!empty($customer_ref)) $data = $data->where('quotation.customer_ref', 'like', '%' . $customer_ref . '%');
-		if (!empty($document_identity)) $data = $data->where('quotation.document_identity', 'like', '%' . $document_identity . '%');
-		if (!empty($document_date)) $data = $data->where('quotation.document_date', '=',  $document_date);
-		$start_date = $request->input('start_date');
-		$end_date = $request->input('end_date');
-
-		if ($start_date && $end_date) {
-			$data->whereBetween('quotation.document_date', [$start_date, $end_date]);
-		} elseif ($start_date) {
-			$data->where('quotation.document_date', '>=', $start_date);
-		} elseif ($end_date) {
-			$data->where('quotation.document_date', '<=', $end_date);
+		// Extract all input parameters at once
+		$params = $request->only([
+			'port_id', 'customer_ref', 'customer_id', 'document_identity', 
+			'document_date', 'vessel_id', 'event_id', 'search', 'status',
+			'status_updated_by', 'page', 'limit', 'sort_column', 'sort_direction',
+			'start_date', 'end_date'
+		]);
+		
+		// Set defaults
+		$params['page'] = $params['page'] ?? 1;
+		$params['limit'] = $params['limit'] ?? 10;
+		$params['sort_column'] = $params['sort_column'] ?? 'quotation.created_at';
+		$params['sort_direction'] = ($params['sort_direction'] ?? 'descend') == 'ascend' ? 'asc' : 'desc';
+	
+		// Generate cache key based on all parameters and user context
+		$cacheKey = sprintf('quotations:%s:%s:%s', 
+			$request->company_id, 
+			$request->company_branch_id,
+			md5(json_encode($params))
+		);
+	
+		// Return cached response if available
+		if (Cache::has($cacheKey)) {
+			return response()->json(Cache::get($cacheKey));
 		}
-
-		if (!empty($search)) {
-			$search = strtolower($search);
-			$data = $data->where(function ($query) use ($search) {
-				$query
-					->where('c.name', 'like', '%' . $search . '%')
-					->OrWhere('quotation.customer_ref', 'like', '%' . $search . '%')
-					->OrWhere('p.name', 'like', '%' . $search . '%')
-					->OrWhere('u.user_name', 'like', '%' . $search . '%')
-					->OrWhere('v.name', 'like', '%' . $search . '%')
-					->OrWhere('quotation.status', 'like', '%' . $search . '%')
-					->OrWhere('e.event_code', 'like', '%' . $search . '%')
-					->OrWhere('quotation.document_identity', 'like', '%' . $search . '%');
+	
+		// Start building the query with only essential joins
+		$query = Quotation::query()
+			->select([
+				'quotation.document_date',
+				'quotation.quotation_id',
+				'quotation.document_identity',
+				'quotation.vessel_id',
+				'quotation.event_id',
+				'quotation.customer_id',
+				'quotation.port_id',
+				'quotation.customer_ref',
+				'quotation.status',
+				DB::raw("(SELECT created_at FROM quotation_status WHERE quotation_id = quotation.quotation_id AND status = 'Sent to customer' ORDER BY created_at DESC LIMIT 1) as qs_date"),
+				DB::raw("(SELECT u.user_name FROM quotation_status qs LEFT JOIN `user` u ON qs.created_by = u.user_id WHERE qs.quotation_id = quotation.quotation_id ORDER BY qs.created_at DESC LIMIT 1) as status_updated_by"),
+				DB::raw("(SELECT CONCAT(event_code, ' (', IF(status = 1, 'Active', 'Inactive'), ')') FROM event WHERE event_id = quotation.event_id) as event_code"),
+				DB::raw("(SELECT name FROM customer WHERE customer_id = quotation.customer_id) as customer_name"),
+				DB::raw("(SELECT name FROM vessel WHERE vessel_id = quotation.vessel_id) as vessel_name"),
+				DB::raw("(SELECT name FROM port WHERE port_id = quotation.port_id) as port_name")
+			])
+			->where('quotation.company_id', $request->company_id)
+			->where('quotation.company_branch_id', $request->company_branch_id);
+	
+		// Apply filters using optimized conditions
+		$this->applyFilters($query, $params);
+	
+		// Execute the query with optimized pagination
+		$result = $query->orderBy($params['sort_column'], $params['sort_direction'])
+					   ->paginate($params['limit'], ['quotation.quotation_id'], 'page', $params['page']);
+	
+		// Cache the result for 2 minutes (adjust based on your needs)
+		Cache::put($cacheKey, $result, Carbon::now()->addSeconds(1));
+	
+		return response()->json($result);
+	}
+	
+	protected function applyFilters($query, $params)
+	{
+		// Exact match filters (uses indexes better)
+		$exactFilters = [
+			'status' => 'quotation.status',
+			'port_id' => 'quotation.port_id',
+			'customer_id' => 'quotation.customer_id',
+			'vessel_id' => 'quotation.vessel_id',
+			'event_id' => 'quotation.event_id',
+			'document_date' => 'quotation.document_date'
+		];
+	
+		foreach ($exactFilters as $param => $column) {
+			if (!empty($params[$param])) {
+				$query->where($column, '=', $params[$param]);
+			}
+		}
+	
+		// Prefix match filters (better for LIKE queries)
+		$prefixFilters = [
+			'customer_ref' => 'quotation.customer_ref',
+			'document_identity' => 'quotation.document_identity'
+		];
+	
+		foreach ($prefixFilters as $param => $column) {
+			if (!empty($params[$param])) {
+				$query->where($column, 'like', $params[$param] . '%');
+			}
+		}
+	
+		// Date range filter
+		if (!empty($params['start_date']) && !empty($params['end_date'])) {
+			$query->whereBetween('quotation.document_date', [$params['start_date'], $params['end_date']]);
+		} elseif (!empty($params['start_date'])) {
+			$query->where('quotation.document_date', '>=', $params['start_date']);
+		} elseif (!empty($params['end_date'])) {
+			$query->where('quotation.document_date', '<=', $params['end_date']);
+		}
+	
+		// Status updated by (if needed)
+		if (!empty($params['status_updated_by'])) {
+			$query->whereExists(function ($subQuery) use ($params) {
+				$subQuery->select(DB::raw(1))
+						->from('quotation_status')
+						->whereColumn('quotation_status.quotation_id', 'quotation.quotation_id')
+						->where('quotation_status.created_by', $params['status_updated_by'])
+						->orderBy('quotation_status.created_at', 'desc')
+						->limit(1);
 			});
 		}
-
-		$data = $data->select("quotation.*","qs_last.created_at as qs_date", DB::raw("CONCAT(e.event_code, ' (', CASE 
-		WHEN e.status = 1 THEN 'Active' 
-		ELSE 'Inactive' 
-	END, ')') AS event_code"), 'u.user_name as status_updated_by', "c.name as customer_name", "v.name as vessel_name", "p.name as port_name");
-		
-	$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
-
-		return response()->json($data);
+	
+		// Search filter (optimized)
+		if (!empty($params['search'])) {
+			$search = strtolower($params['search']);
+			$query->where(function ($q) use ($search) {
+				// First check indexed columns with prefix matching
+				$q->where('quotation.customer_ref', 'like', $search . '%')
+				  ->orWhere('quotation.document_identity', 'like', $search . '%')
+				  ->orWhere('quotation.status', 'like', $search . '%');
+				
+				// Only check related tables if search term is long enough
+				if (strlen($search) > 3) {
+					$q->orWhereExists(function ($subQuery) use ($search) {
+						$subQuery->select(DB::raw(1))
+								->from('customer')
+								->whereColumn('customer.customer_id', 'quotation.customer_id')
+								->where('customer.name', 'like', '%' . $search . '%');
+					})
+					->orWhereExists(function ($subQuery) use ($search) {
+						$subQuery->select(DB::raw(1))
+								->from('vessel')
+								->whereColumn('vessel.vessel_id', 'quotation.vessel_id')
+								->where('vessel.name', 'like', '%' . $search . '%');
+					})
+					->orWhereExists(function ($subQuery) use ($search) {
+						$subQuery->select(DB::raw(1))
+								->from('port')
+								->whereColumn('port.port_id', 'quotation.port_id')
+								->where('port.name', 'like', '%' . $search . '%');
+					})
+					->orWhereExists(function ($subQuery) use ($search) {
+						$subQuery->select(DB::raw(1))
+								->from('event')
+								->whereColumn('event.event_id', 'quotation.event_id')
+								->where('event.event_code', 'like', '%' . $search . '%');
+					});
+				}
+			});
+		}
 	}
 
 	public function show($id, Request $request)

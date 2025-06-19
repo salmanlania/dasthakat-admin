@@ -17,6 +17,15 @@ if (!function_exists('hello')) {
 		return 'Hello ' . $name . '!';
 	}
 }
+function getFullSql($query)
+{
+	$sql = $query->toSql();
+	foreach ($query->getBindings() as $binding) {
+		$binding = is_numeric($binding) ? $binding : "'".addslashes($binding)."'";
+		$sql = preg_replace('/\?/', $binding, $sql, 1);
+	}
+	return $sql;
+}
 
 
 function deleteFile($path, $dir = 'public/uploads/')
