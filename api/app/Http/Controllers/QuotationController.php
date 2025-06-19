@@ -65,6 +65,16 @@ class QuotationController extends Controller
 		if (!empty($customer_ref)) $data = $data->where('quotation.customer_ref', 'like', '%' . $customer_ref . '%');
 		if (!empty($document_identity)) $data = $data->where('quotation.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($document_date)) $data = $data->where('quotation.document_date', '=',  $document_date);
+		$start_date = $request->input('start_date');
+		$end_date = $request->input('end_date');
+
+		if ($start_date && $end_date) {
+			$data->whereBetween('quotation.document_date', [$start_date, $end_date]);
+		} elseif ($start_date) {
+			$data->where('quotation.document_date', '>=', $start_date);
+		} elseif ($end_date) {
+			$data->where('quotation.document_date', '<=', $end_date);
+		}
 
 		if (!empty($search)) {
 			$search = strtolower($search);
