@@ -76,3 +76,9 @@
 .hidden-row {
   display: none !important;
 }
+
+.ant-table-thead th {
+  word-wrap: break-word !important;
+  white-space: normal !important;
+  line-height: 1.2;
+}
