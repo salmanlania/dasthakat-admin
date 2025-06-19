@@ -441,3 +441,9 @@ $router->group(['prefix' => 'opening-stock'], function ($router) {
    $router->delete('/{id}', 'OpeningStockController@delete');
    $router->post('/bulk-delete', 'OpeningStockController@bulkDelete');
 });
+
+$router->group(['prefix' => 'report'], function ($router) {
+   $router->get('/quote-report', 'ReportsController@QuoteReport');
+   $router->get('/bid-response', 'ReportsController@BidResponse');
+   $router->get('/bid-success', 'ReportsController@BidSuccess');
+});

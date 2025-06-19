@@ -207,3 +207,7 @@
 
   ('System', 'Audit', 'audit', 'list', 'List', 1.101),
   ('System', 'Audit', 'audit', 'view', 'View', 1.103); 
+
+  ('Reports', 'Quote Report', 'quote_report', 'show', 'Show', 1.101); 
+  ('Reports', 'Bid Response', 'bid_response', 'show', 'Show', 1.102); 
+  ('Reports', 'Bid Success', 'bid_success', 'show', 'Show', 1.103); 
