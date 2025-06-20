@@ -338,7 +338,7 @@ const QuotationReport = () => {
               type="primary"
               icon={<FcClearFilters size={14} />}
               className="bg-sky-800 hover:!bg-sky-700 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-            // disabled={!filtersAreActive}
+            disabled={!filtersAreActive}
             >
               Clear Filters
             </Button>
