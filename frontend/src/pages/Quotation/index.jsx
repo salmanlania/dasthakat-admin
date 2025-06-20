@@ -229,6 +229,18 @@ const Quotation = () => {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Total Amount</p>
+          <Input
+            className="font-normal"
+            size="small"
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.total_amount}
+            onChange={(e) => {
+              console.log('total_amount' , e)
+              dispatch(setQuotationListParams({ total_amount: e.target.value }))
+            }
+            }
+          />
         </div>
       ),
       dataIndex: 'total_amount',
@@ -474,11 +486,11 @@ const Quotation = () => {
               rowSelection={
                 permissions.delete
                   ? {
-                      type: 'checkbox',
-                      selectedRowKeys: deleteIDs,
-                      onChange: (selectedRowKeys) =>
-                        dispatch(setQuotationDeleteIDs(selectedRowKeys)),
-                    }
+                    type: 'checkbox',
+                    selectedRowKeys: deleteIDs,
+                    onChange: (selectedRowKeys) =>
+                      dispatch(setQuotationDeleteIDs(selectedRowKeys)),
+                  }
                   : null
               }
               loading={isListLoading}
