@@ -82,89 +82,6 @@ const QuotationReport = () => {
     }
   };
 
-  const columns = [
-    {
-      title: 'Quotation Date',
-      dataIndex: 'document_date',
-      key: 'document_date',
-      sorter: true,
-      width: 110,
-      ellipsis: true
-    },
-    {
-      title: 'Quotation No',
-      dataIndex: 'document_identity',
-      key: 'document_identity',
-      sorter: true,
-      width: 130,
-      ellipsis: true
-    },
-    {
-      title: 'Event Number',
-      dataIndex: 'event_code',
-      key: 'event_code',
-      sorter: true,
-      width: 140,
-      ellipsis: true
-    },
-    {
-      title: 'Vessel',
-      dataIndex: 'vessel_name',
-      key: 'vessel_name',
-      sorter: true,
-      width: 140,
-      ellipsis: true
-    },
-    {
-      title: 'Customer',
-      dataIndex: 'customer_name',
-      key: 'customer_name',
-      sorter: true,
-      width: 200,
-      ellipsis: true
-    },
-    {
-      title: 'T. Quantity',
-      dataIndex: 'total_quantity',
-      key: 'total_quantity',
-      sorter: true,
-      width: 120,
-      ellipsis: true
-    },
-    {
-      title: 'Total Amount',
-      dataIndex: 'total_amount',
-      key: 'total_amount',
-      sorter: true,
-      width: 140,
-      ellipsis: true
-    },
-    {
-      title: 'Port',
-      dataIndex: 'port_name',
-      key: 'port_name',
-      sorter: true,
-      width: 150,
-      ellipsis: true
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      sorter: true,
-      width: 100,
-      ellipsis: true
-    },
-    {
-      title: 'Created At',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      sorter: true,
-      width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
-    },
-  ];
-
   if (!permissions.edit && !permissions.delete) {
     columns.pop();
   }
@@ -199,20 +116,16 @@ const QuotationReport = () => {
 
   const filtersAreActive = useMemo(() => {
     return (
-      params.search ||
       params.start_date ||
       params.end_date ||
       params.event_id ||
-      params.document_identity ||
       params.vessel_id ||
       params.customer_id
     );
   }, [
-    params.search,
     params.start_date,
     params.end_date,
     params.event_id,
-    params.document_identity,
     params.vessel_id,
     params.customer_id
   ]);
@@ -254,10 +167,8 @@ const QuotationReport = () => {
         vessel_label: params.vessel_label,
         vessel: params.vessel_id?.label,
         event: params.event_id?.label,
-        quotationNo: params.document_identity,
         startDate,
         endDate,
-        document_identity: params.document_identity
       };
 
       createQuotationReportPrint(Array.isArray(data) ? data : [data], true);
@@ -307,7 +218,6 @@ const QuotationReport = () => {
       end_date: null,
       event_id: null,
       event_label: null,
-      document_identity: '',
       vessel_id: null,
       vessel_label: null,
       customer_id: null,
@@ -382,18 +292,6 @@ const QuotationReport = () => {
               </Form.Item>
             </div>
 
-            <div className="min-w-[200px]">
-              <Form.Item name="document_identity" label="Quotation No" layout="vertical">
-                <Input
-                  placeholder="Enter Quotation No"
-                  allowClear
-                  value={params.document_identity}
-                  onChange={(e) =>
-                    dispatch(setQuotationListParams({ document_identity: e.target.value }))
-                  }
-                />
-              </Form.Item>
-            </div>
             <div className="min-w-[260px]">
               <Form.Item name="vessel_id" label="Vessel" layout="vertical">
                 <AsyncSelect
