@@ -231,7 +231,7 @@ class OpeningStockController extends Controller
 				'document_prefix' => $document['document_prefix'] ?? "",
 				'document_identity' => $document['document_identity'] ?? "",
 				'document_date' => $request->document_date ?? Carbon::now(),
-				'remarks' => 'Opening Stock for All Items',
+				'remarks' => $request->remarks ?? "",
 				'created_at' => Carbon::now(),
 				'created_by' => $request->login_user_id ?? "",
 			];
