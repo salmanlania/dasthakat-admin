@@ -63,6 +63,9 @@ const Event = lazy(() => import('./pages/Event'));
 const CreateEvent = lazy(() => import('./pages/Event/CreateEvent'));
 const EditEvent = lazy(() => import('./pages/Event/EditEvent'));
 
+const CustomerAgent = lazy(() => import('./pages/CustomerAgent'));
+const VesselAgent = lazy(() => import('./pages/VesselAgent'));
+
 const Category = lazy(() => import('./pages/Category'));
 const SubCategory = lazy(() => import('./pages/SubCategory'));
 const Brand = lazy(() => import('./pages/Brand'));
@@ -98,7 +101,7 @@ const EditPurchaseReturn = lazy(() => import('./pages/PurchaseReturn/EditPurchas
 
 const GoodsReceivedNote = lazy(() => import('./pages/GoodsReceivedNote'));
 const CreateGoodsReceivedNote = lazy(
-  () => import('./pages/GoodsReceivedNote/CreateGoodsReceivedNote')
+  () => import('./pages/GoodsReceivedNote/CreateGoodsReceivedNote'),
 );
 const EditGoodsReceivedNote = lazy(() => import('./pages/GoodsReceivedNote/EditGoodsReceivedNote'));
 
@@ -150,7 +153,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Dashboard />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/user',
@@ -158,7 +161,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <User />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/user/create',
@@ -166,7 +169,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CreateUser />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/user/edit/:id',
@@ -174,7 +177,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditUser />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/user-permission',
@@ -182,7 +185,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <UserPermission />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/user-permission/create',
@@ -190,7 +193,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CreateUserPermission />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/user-permission/edit/:id',
@@ -198,7 +201,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditUserPermission />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/currency',
@@ -206,7 +209,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Currency />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/currency/create',
@@ -214,7 +217,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CreateCurrency />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/currency/edit/:id',
@@ -222,7 +225,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditCurrency />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/company',
@@ -230,7 +233,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Company />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/company-setting',
@@ -238,7 +241,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CompanySetting />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/company/create',
@@ -246,7 +249,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CreateCompany />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/company/edit/:id',
@@ -254,7 +257,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditCompany />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/company-branch',
@@ -262,7 +265,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CompanyBranch />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/company-branch/create',
@@ -270,7 +273,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CreateCompanyBranch />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/company-branch/edit/:id',
@@ -278,7 +281,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditCompanyBranch />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/salesman',
@@ -286,7 +289,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Salesman />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/customer',
@@ -294,7 +297,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Customer />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/customer/create',
@@ -302,7 +305,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CreateCustomer />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/customer/edit/:id',
@@ -310,7 +313,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditCustomer />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/vendor',
@@ -318,7 +321,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Vendor />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/vendor/create',
@@ -326,7 +329,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CreateVendor />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/vendor/edit/:id',
@@ -334,7 +337,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditVendor />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/agent',
@@ -342,7 +345,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Agent />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/agent/create',
@@ -350,7 +353,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CreateAgent />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/agent/edit/:id',
@@ -358,7 +361,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditAgent />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/commission-agent',
@@ -366,7 +369,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CommissionAgent />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/commission-agent/create',
@@ -374,7 +377,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CreateCommissionAgent />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/commission-agent/edit/:id',
@@ -382,7 +385,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditCommissionAgent />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/notes',
@@ -390,7 +393,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Notes />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/technician',
@@ -398,7 +401,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Technician />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/flag',
@@ -406,7 +409,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Flag />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/class',
@@ -414,7 +417,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Class />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/port',
@@ -422,7 +425,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Port />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/vessel',
@@ -430,7 +433,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Vessel />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/vessel/create',
@@ -438,7 +441,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CreateVessel />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/vessel/edit/:id',
@@ -446,7 +449,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditVessel />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/product',
@@ -454,7 +457,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Product />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/product/create',
@@ -462,7 +465,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CreateProduct />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/product/edit/:id',
@@ -470,7 +473,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditProduct />
               </Suspense>
-            )
+            ),
           },
 
           {
@@ -479,7 +482,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Category />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/sub-category',
@@ -487,7 +490,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <SubCategory />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/brand',
@@ -495,7 +498,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Brand />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/warehouse',
@@ -503,7 +506,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Warehouse />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/unit',
@@ -511,7 +514,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Unit />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/event',
@@ -519,7 +522,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Event />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/event/create',
@@ -527,7 +530,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CreateEvent />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/event/edit/:id',
@@ -535,7 +538,23 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditEvent />
               </Suspense>
-            )
+            ),
+          },
+          {
+            path: '/customer-agent',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CustomerAgent />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/vessel-agent',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <VesselAgent />
+              </Suspense>
+            ),
           },
           {
             path: '/validity',
@@ -543,7 +562,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Validity />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/payment',
@@ -551,7 +570,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Payment />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/purchase-order',
@@ -559,7 +578,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <PurchaseOrder />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/purchase-order/create',
@@ -567,7 +586,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CreatePurchaseOrder />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/purchase-order/edit/:id',
@@ -575,7 +594,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditPurchaseOrder />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/purchase-invoice',
@@ -583,7 +602,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <PurchaseInvoice />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/purchase-invoice/create',
@@ -591,7 +610,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CreatePurchaseInvoice />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/purchase-invoice/edit/:id',
@@ -599,7 +618,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditPurchaseInvoice />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/sale-invoice',
@@ -607,7 +626,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <SaleInvoice />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/sale-invoice/edit/:id',
@@ -615,7 +634,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditSaleInvoice />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/stock-return',
@@ -623,7 +642,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <StockReturn />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/stock-return/edit/:id',
@@ -631,7 +650,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditStockReturn />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/credit-note',
@@ -639,7 +658,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <SaleReturn />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/credit-note/edit/:id',
@@ -647,7 +666,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditSaleReturn />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/purchase-return',
@@ -655,7 +674,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <PurchaseReturn />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/purchase-return/edit/:id',
@@ -663,7 +682,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditPurchaseReturn />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/goods-received-note',
@@ -671,7 +690,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <GoodsReceivedNote />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/goods-received-note/create',
@@ -679,7 +698,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CreateGoodsReceivedNote />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/goods-received-note/edit/:id',
@@ -687,7 +706,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditGoodsReceivedNote />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/opening-stock',
@@ -695,7 +714,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <OpeningStock />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/opening-stock/create',
@@ -703,7 +722,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CreateOpeningStock />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/opening-stock/edit/:id',
@@ -711,7 +730,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditOpeningStock />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/quotation',
@@ -719,7 +738,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Quotation />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/quotation/create',
@@ -727,7 +746,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CreateQuotation />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/quotation/edit/:id',
@@ -735,7 +754,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditQuotation />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/charge-order',
@@ -743,7 +762,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <ChargeOrder />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/charge-order/create',
@@ -751,7 +770,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CreateChargeOrder />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/charge-order/edit/:id',
@@ -759,7 +778,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditChargeOrder />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/ijo',
@@ -767,7 +786,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <IJO />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/ijo/create',
@@ -775,7 +794,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CreateIJO />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/ijo/edit/:id',
@@ -783,7 +802,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditIJO />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/pick-list',
@@ -791,7 +810,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <PickList />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/pick-list/edit/:id',
@@ -799,7 +818,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditPickList />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/service-list',
@@ -807,7 +826,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <ServiceList />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/shipment',
@@ -815,7 +834,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Shipment />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/shipment/create',
@@ -823,7 +842,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <CreateShipment />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/shipment/edit/:id',
@@ -831,7 +850,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <EditShipment />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/service-order',
@@ -839,7 +858,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <ServiceOrder />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/scheduling',
@@ -847,7 +866,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Scheduling />
               </Suspense>
-            )
+            ),
           },
           // Reports
           {
@@ -856,7 +875,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <QuotationReport />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/bid-response-report',
@@ -864,7 +883,7 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <BidResponseReport />
               </Suspense>
-            )
+            ),
           },
           {
             path: '/audit',
@@ -872,9 +891,9 @@ function Routes() {
               <Suspense fallback={<PageLoader />}>
                 <Audit />
               </Suspense>
-            )
-          }
-        ]
+            ),
+          },
+        ],
       },
       {
         path: '/login',
@@ -882,7 +901,7 @@ function Routes() {
           <Suspense fallback={<PageLoader />}>
             <Login />
           </Suspense>
-        )
+        ),
       },
       {
         path: '/session',
@@ -890,7 +909,7 @@ function Routes() {
           <Suspense fallback={<PageLoader />}>
             <Session />
           </Suspense>
-        )
+        ),
       },
       {
         path: '/otp-verification',
@@ -898,16 +917,16 @@ function Routes() {
           <Suspense fallback={<PageLoader />}>
             <OtpVerification />
           </Suspense>
-        )
+        ),
       },
       {
         path: '*',
-        element: <NotFound />
-      }
+        element: <NotFound />,
+      },
     ],
     {
-      basename: `${import.meta.env.VITE_BASE_URL}`
-    }
+      basename: `${import.meta.env.VITE_BASE_URL}`,
+    },
   );
 
   return <RouterProvider router={router} />;

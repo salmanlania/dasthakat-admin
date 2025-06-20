@@ -78,6 +78,8 @@ const MainLayout = () => {
   if (href === '/event/create' && !permissions.event.add) return <NotFound />;
   if (href.startsWith('/event/edit') && !permissions.event.edit) return <NotFound />;
 
+  // TODO:Add customer agent and vessel agent permission here
+
   if (href === '/category' && !permissions.category.list) return <NotFound />;
   if (href === '/sub-category' && !permissions.sub_category.list) return <NotFound />;
   if (href === '/brand' && !permissions.brand.list) return <NotFound />;

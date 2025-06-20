@@ -7,13 +7,13 @@ export const getVesselList = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const res = await api.get('/vessel', {
-        params
+        params,
       });
       return res.data;
     } catch (err) {
       throw rejectWithValue(err);
     }
-  }
+  },
 );
 
 export const deleteVessel = createAsyncThunk('vessel/delete', async (id, { rejectWithValue }) => {
@@ -49,7 +49,7 @@ export const updateVessel = createAsyncThunk(
     } catch (err) {
       throw rejectWithValue(err);
     }
-  }
+  },
 );
 
 export const bulkDeleteVessel = createAsyncThunk(
@@ -57,12 +57,12 @@ export const bulkDeleteVessel = createAsyncThunk(
   async (ids, { rejectWithValue }) => {
     try {
       await api.post('/vessel/bulk-delete', {
-        vessel_ids: ids
+        vessel_ids: ids,
       });
     } catch (err) {
       throw rejectWithValue(err);
     }
-  }
+  },
 );
 
 const initialState = {
@@ -82,12 +82,12 @@ const initialState = {
     sort_direction: null,
     name: null,
     description: null,
-    catering_type: null
+    catering_type: null,
   },
   paginationInfo: {
     total_records: 0,
-    total_pages: 0
-  }
+    total_pages: 0,
+  },
 };
 
 export const vesselSlice = createSlice({
@@ -97,7 +97,7 @@ export const vesselSlice = createSlice({
     setVesselListParams: (state, action) => {
       state.params = {
         ...state.params,
-        ...action.payload
+        ...action.payload,
       };
     },
 
@@ -113,7 +113,7 @@ export const vesselSlice = createSlice({
         commission_agent: null,
         commission_percentage: null,
         status: null,
-        row_status: 'I'
+        row_status: 'I',
       };
 
       // If index is provided, insert the new detail after that index, otherwise push it to the end
@@ -132,7 +132,7 @@ export const vesselSlice = createSlice({
         ...detail,
         id: uuidv4(),
         row_status: 'I',
-        isDeleted: false
+        isDeleted: false,
       };
 
       state.commissionDetails.splice(index + 1, 0, newDetail);
@@ -144,7 +144,7 @@ export const vesselSlice = createSlice({
       if (itemIndex !== -1) {
         if (state.commissionDetails[itemIndex].row_status === 'I') {
           state.commissionDetails = state.commissionDetails.filter(
-            (item) => item.id !== action.payload
+            (item) => item.id !== action.payload,
           );
         } else {
           state.commissionDetails[itemIndex].row_status = 'D';
@@ -171,13 +171,16 @@ export const vesselSlice = createSlice({
       }
 
       detail[key] = value;
-    }
+    },
+
+    resetCommissionDetails: (state) => {
+      state.commissionDetails = [];
+    },
   },
   extraReducers: ({ addCase }) => {
     addCase(getVesselList.pending, (state) => {
       state.isListLoading = true;
       state.initialFormValues = null;
-      state.commissionDetails = [];
     });
     addCase(getVesselList.fulfilled, (state, action) => {
       state.isListLoading = false;
@@ -185,7 +188,7 @@ export const vesselSlice = createSlice({
       state.list = data;
       state.paginationInfo = {
         total_records: rest.total,
-        total_pages: rest.last_page
+        total_pages: rest.last_page,
       };
     });
     addCase(getVesselList.rejected, (state) => {
@@ -217,27 +220,27 @@ export const vesselSlice = createSlice({
         customer_id: data.customer_id
           ? {
               value: data.customer_id,
-              label: data.customer_name
+              label: data.customer_name,
             }
           : null,
         flag_id: data.flag_id
           ? {
               value: data.flag_id,
-              label: data.flag_name
+              label: data.flag_name,
             }
           : null,
         class1_id: data.class1_id
           ? {
               value: data.class1_id,
-              label: data.class1_name
+              label: data.class1_name,
             }
           : null,
         class2_id: data.class2_id
           ? {
               value: data.class2_id,
-              label: data.class2_name
+              label: data.class2_name,
             }
-          : null
+          : null,
       };
 
       if (!data.vessel_commission_agent_id) return;
@@ -246,14 +249,14 @@ export const vesselSlice = createSlice({
         commission_agent_id: detail.commission_agent
           ? {
               value: detail.commission_agent.commission_agent_id,
-              label: detail.commission_agent.name
+              label: detail.commission_agent.name,
             }
           : null,
         type: detail.type,
         commission_percentage: detail.commission_percentage,
         status: detail.status,
         row_status: 'U',
-        isDeleted: false
+        isDeleted: false,
       }));
     });
     addCase(getVessel.rejected, (state) => {
@@ -282,7 +285,7 @@ export const vesselSlice = createSlice({
     addCase(bulkDeleteVessel.rejected, (state) => {
       state.isBulkDeleting = false;
     });
-  }
+  },
 });
 
 export const {
@@ -292,6 +295,7 @@ export const {
   copyCommissionDetail,
   removeCommissionDetail,
   changeCommissionDetailOrder,
-  changeCommissionDetailValue
+  changeCommissionDetailValue,
+  resetCommissionDetails,
 } = vesselSlice.actions;
 export default vesselSlice.reducer;
