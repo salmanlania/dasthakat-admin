@@ -500,7 +500,7 @@ const OpeningStockForm = ({ mode, onSubmit, onSave }) => {
       width: 120
     },
     {
-      title: 'Cost',
+      title: 'Rate',
       dataIndex: 'rate',
       key: 'rate',
       render: (_, { rate, editable }, index) => {
