@@ -57,7 +57,7 @@ const ChargeOrder = () => {
   };
 
   const groupedData = useMemo(() => {
-    if (!list || !list.length) return [];
+    if (!list || !list.length) return { data: [], totalEvents: 0 };
 
     const result = [];
     const groupedByEvent = {};
@@ -84,7 +84,10 @@ const ChargeOrder = () => {
       });
     });
 
-    return result;
+    return {
+      data: result,
+      totalEvents: Object.keys(groupedByEvent).length,
+    };
   }, [list]);
 
   const onChargeOrderDelete = async (id) => {
@@ -429,10 +432,10 @@ const ChargeOrder = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     dispatch(getChargeOrderList(formattedParams)).unwrap().catch(handleError);
-    const savedLimit = sessionStorage.getItem('quotationLimit');
-    if (savedLimit && +savedLimit !== params.limit) {
-      dispatch(setChargeOrderListParams({ limit: +savedLimit }));
-    }
+    // const savedLimit = sessionStorage.getItem('quotationLimit');
+    // if (savedLimit && +savedLimit !== params.limit) {
+    //   dispatch(setChargeOrderListParams({ limit: +savedLimit }));
+    // }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params.page,
@@ -482,78 +485,83 @@ const ChargeOrder = () => {
           </div>
         </div>
 
-        <Table
-          size="small"
-          rowSelection={
-            permissions.delete
-              ? {
-                type: 'checkbox',
-                selectedRowKeys: deleteIDs,
-                onChange: (selectedRowKeys) => dispatch(setChargeOrderDeleteIDs(selectedRowKeys)),
-                getCheckboxProps: (record) => ({
-                  disabled: record.isEventHeader,
-                  name: record.charge_order_id
-                })
+        {(function () {
+          const { data, totalEvents } = groupedData;
+          return (
+            <Table
+              size="small"
+              rowSelection={
+                permissions.delete
+                  ? {
+                    type: 'checkbox',
+                    selectedRowKeys: deleteIDs,
+                    onChange: (selectedRowKeys) => dispatch(setChargeOrderDeleteIDs(selectedRowKeys)),
+                    getCheckboxProps: (record) => ({
+                      disabled: record.isEventHeader,
+                      name: record.charge_order_id
+                    })
+                  }
+                  : null
               }
-              : null
-          }
-          loading={isListLoading}
-          className="event-grouped-table mt-2"
-          rowKey={(record) =>
-            record.isEventHeader ? record.charge_order_id : record.charge_order_id
-          }
-          scroll={{ x: 'calc(100% - 200px)' }}
-          pagination={{
-            total: paginationInfo.total_records,
-            pageSize: params.limit,
-            current: params.page,
-            showTotal: (total) => `Total ${total} charge orders`
-          }}
-          onChange={(page, _, sorting) => {
-            sessionStorage.setItem('chargeOrderLimit', page.pageSize);
-            dispatch(
-              setChargeOrderListParams({
-                page: page.current,
-                limit: page.pageSize,
-                sort_column: sorting.field || params.sort_column,
-                sort_direction: sorting.order || params.sort_direction
-              })
-            );
-          }}
-          dataSource={groupedData}
-          showSorterTooltip={false}
-          columns={columns}
-          sticky={{
-            offsetHeader: 56
-          }}
-          onRow={(record) => {
-            return {
-              className: record.isEventHeader ? 'event-header-row' : ''
-            };
-          }}
-          components={{
-            body: {
-              row: (props) => {
-                const { children, className, ...restProps } = props;
+              loading={isListLoading}
+              className="event-grouped-table mt-2"
+              rowKey={(record) =>
+                record.isEventHeader ? record.charge_order_id : record.charge_order_id
+              }
+              scroll={{ x: 'calc(100% - 200px)' }}
+              pagination={{
+                total: paginationInfo.total_records,
+                pageSize: params.limit + totalEvents,
+                current: params.page,
+                showTotal: (total) => `Total ${total} charge orders`
+              }}
+              onChange={(page, _, sorting) => {
+                sessionStorage.setItem('chargeOrderLimit', page.pageSize);
+                dispatch(
+                  setChargeOrderListParams({
+                    page: page.current,
+                    limit: page.pageSize,
+                    sort_column: sorting.field || params.sort_column,
+                    sort_direction: sorting.order || params.sort_direction
+                  })
+                );
+              }}
+              dataSource={data}
+              showSorterTooltip={false}
+              columns={columns}
+              sticky={{
+                offsetHeader: 56
+              }}
+              onRow={(record) => {
+                return {
+                  className: record.isEventHeader ? 'event-header-row' : ''
+                };
+              }}
+              components={{
+                body: {
+                  row: (props) => {
+                    const { children, className, ...restProps } = props;
 
-                if (className && className.includes('event-header-row')) {
-                  const eventCode = props['data-row-key'].replace('header-', '');
-                  return (
-                    <tr {...restProps} className="event-header-row bg-[#fafafa] font-bold">
-                      <td
-                        colSpan={columns.length + (permissions.delete ? 1 : 0)}
-                        className="text-md px-4 py-2 text-[#285198]">
-                        {eventCode !== 'No Event' ? `Event: ${eventCode}` : 'No Event Assigned'}
-                      </td>
-                    </tr>
-                  );
+                    if (className && className.includes('event-header-row')) {
+                      const eventCode = props['data-row-key'].replace('header-', '');
+                      return (
+                        <tr {...restProps} className="event-header-row bg-[#fafafa] font-bold">
+                          <td
+                            colSpan={columns.length + (permissions.delete ? 1 : 0)}
+                            className="text-md px-4 py-2 text-[#285198]">
+                            {eventCode !== 'No Event' ? `Event: ${eventCode}` : 'No Event Assigned'}
+                          </td>
+                        </tr>
+                      );
+                    }
+
+                    return <tr {...props} />;
+                  }
                 }
-
-                return <tr {...props} />;
-              }
-            }
-          }}
-        />
+              }}
+            />
+          );
+        })()}
       </div>
 
       <PurchaseOrderModal />

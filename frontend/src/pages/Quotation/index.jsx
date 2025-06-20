@@ -23,7 +23,7 @@ import {
   getQuotationForPrint,
   getQuotationList,
   setQuotationDeleteIDs,
-  setQuotationListParams
+  setQuotationListParams,
 } from '../../store/features/quotationSlice';
 import generateQuotationExcel from '../../utils/excel/quotation-excel.js';
 import { createQuotationPrint } from '../../utils/prints/quotation-print';
@@ -32,7 +32,7 @@ const Quotation = () => {
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.quotation
+    (state) => state.quotation,
   );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.quotation;
@@ -46,7 +46,7 @@ const Quotation = () => {
 
   const formattedParams = {
     ...params,
-    document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null
+    document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null,
   };
 
   const onQuotationDelete = async (id) => {
@@ -118,7 +118,7 @@ const Quotation = () => {
       width: 150,
       ellipsis: true,
       render: (_, { document_date }) =>
-        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null
+        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null,
     },
     {
       title: (
@@ -140,7 +140,7 @@ const Quotation = () => {
       key: 'document_identity',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -161,7 +161,7 @@ const Quotation = () => {
       key: 'customer_name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -182,7 +182,7 @@ const Quotation = () => {
       key: 'vessel_name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -203,7 +203,7 @@ const Quotation = () => {
       key: 'event_code',
       sorter: true,
       width: 140,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -215,9 +215,7 @@ const Quotation = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.customer_ref}
-            onChange={(e) =>
-              dispatch(setQuotationListParams({ customer_ref: e.target.value }))
-            }
+            onChange={(e) => dispatch(setQuotationListParams({ customer_ref: e.target.value }))}
           />
         </div>
       ),
@@ -225,7 +223,28 @@ const Quotation = () => {
       key: 'customer_ref',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Total Amount</p>
+          <AsyncSelect
+            endpoint="/port"
+            size="small"
+            className="w-full font-normal"
+            valueKey="total_amount"
+            labelKey="name"
+            value={params.total_amount}
+            onChange={(value) => dispatch(setQuotationListParams({ total_amount: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'total_amount',
+      key: 'total_amount',
+      sorter: true,
+      width: 140,
+      ellipsis: true,
     },
     {
       title: (
@@ -246,7 +265,7 @@ const Quotation = () => {
       key: 'port_name',
       sorter: true,
       width: 140,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -266,7 +285,7 @@ const Quotation = () => {
       key: 'status',
       sorter: true,
       width: 180,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: 'Updated By',
@@ -274,7 +293,7 @@ const Quotation = () => {
       key: 'status_updated_by',
       sorter: true,
       width: 140,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: 'Created At',
@@ -282,7 +301,7 @@ const Quotation = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: 'Action',
@@ -353,8 +372,8 @@ const Quotation = () => {
         </div>
       ),
       width: 100,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -365,9 +384,9 @@ const Quotation = () => {
     window.scrollTo(0, 0);
     dispatch(getQuotationList(formattedParams)).unwrap().catch(handleError);
     const savedLimit = sessionStorage.getItem('quotationLimit');
-    if (savedLimit && +savedLimit !== params.limit) {
-      dispatch(setQuotationListParams({ limit: +savedLimit }));
-    }
+    // if (savedLimit && +savedLimit !== params.limit) {
+    //   dispatch(setQuotationListParams({ limit: +savedLimit }));
+    // }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params.page,
@@ -382,15 +401,16 @@ const Quotation = () => {
     params.status,
     debouncedSearch,
     debouncedQuotationNo,
-    debouncedCustomerRef
+    debouncedCustomerRef,
   ]);
 
   const groupedQuotationData = useMemo(() => {
-    if (!list || !list.length) return [];
+    if (!list || !list.length) return { data: [], totalEvents: 0 };
 
     const result = [];
     const groupedByEvent = {};
 
+    // Group quotations by event code
     list.forEach((item) => {
       const eventCode = item.event_code || 'No Event';
 
@@ -401,11 +421,12 @@ const Quotation = () => {
       groupedByEvent[eventCode].push(item);
     });
 
+    // Create final array with headers and items
     Object.keys(groupedByEvent).forEach((eventCode) => {
       result.push({
         isEventHeader: true,
         event_code: eventCode,
-        quotation_id: `header-${eventCode}`
+        quotation_id: `header-${eventCode}`,
       });
 
       groupedByEvent[eventCode].forEach((item) => {
@@ -413,7 +434,10 @@ const Quotation = () => {
       });
     });
 
-    return result;
+    return {
+      data: result,
+      totalEvents: Object.keys(groupedByEvent).length,
+    };
   }, [list]);
 
   return (
@@ -426,7 +450,8 @@ const Quotation = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setQuotationListParams({ search: e.target.value }))}
@@ -450,74 +475,80 @@ const Quotation = () => {
           </div>
         </div>
 
-        <Table
-          size="small"
-          rowSelection={
-            permissions.delete
-              ? {
-                type: 'checkbox',
-                selectedRowKeys: deleteIDs,
-                onChange: (selectedRowKeys) => dispatch(setQuotationDeleteIDs(selectedRowKeys))
+        {(function () {
+          const { data, totalEvents } = groupedQuotationData;
+          return (
+            <Table
+              size="small"
+              rowSelection={
+                permissions.delete
+                  ? {
+                      type: 'checkbox',
+                      selectedRowKeys: deleteIDs,
+                      onChange: (selectedRowKeys) =>
+                        dispatch(setQuotationDeleteIDs(selectedRowKeys)),
+                    }
+                  : null
               }
-              : null
-          }
-          loading={isListLoading}
-          className="mt-2"
-          // rowKey="quotation_id"
-          rowKey={(record) => record.quotation_id}
-          scroll={{ x: 'calc(100% - 200px)' }}
-          pagination={{
-            total: paginationInfo.total_records,
-            pageSize: params.limit,
-            current: params.page,
-            showTotal: (total) => `Total ${total} quotations`
-          }}
-          onChange={(page, _, sorting) => {
-            sessionStorage.setItem('quotationLimit', page.pageSize);
-            dispatch(
-              setQuotationListParams({
-                page: page.current,
-                limit: page.pageSize,
-                sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
-            );
-          }}
-          // dataSource={list}
-          dataSource={groupedQuotationData}
-          showSorterTooltip={false}
-          columns={columns}
-          sticky={{
-            offsetHeader: 56
-          }}
-          onRow={(record) => {
-            return {
-              className: record.isEventHeader ? 'event-header-row' : ''
-            };
-          }}
-          components={{
-            body: {
-              row: (props) => {
-                const { children, className, ...restProps } = props;
+              loading={isListLoading}
+              className="mt-2"
+              // rowKey="quotation_id"
+              rowKey={(record) => record.quotation_id}
+              scroll={{ x: 'calc(100% - 200px)' }}
+              pagination={{
+                total: paginationInfo.total_records,
+                pageSize: params.limit + totalEvents,
+                current: params.page,
+                showTotal: (total) => `Total ${total} quotations`,
+              }}
+              onChange={(page, _, sorting) => {
+                sessionStorage.setItem('quotationLimit', page.pageSize);
+                dispatch(
+                  setQuotationListParams({
+                    page: page.current,
+                    limit: page.pageSize - totalEvents,
+                    sort_column: sorting.field,
+                    sort_direction: sorting.order,
+                  }),
+                );
+              }}
+              // dataSource={list}
+              dataSource={data}
+              showSorterTooltip={false}
+              columns={columns}
+              sticky={{
+                offsetHeader: 56,
+              }}
+              onRow={(record) => {
+                return {
+                  className: record.isEventHeader ? 'event-header-row' : '',
+                };
+              }}
+              components={{
+                body: {
+                  row: (props) => {
+                    const { children, className, ...restProps } = props;
 
-                if (className && className.includes('event-header-row')) {
-                  const eventCode = props['data-row-key'].replace('header-', '');
-                  return (
-                    <tr {...restProps} className="event-header-row bg-[#fafafa] font-bold">
-                      <td
-                        colSpan={columns.length + (permissions.delete ? 1 : 0)}
-                        className="text-md px-4 py-2 text-[#285198]">
-                        {eventCode !== 'No Event' ? `Event: ${eventCode}` : 'No Event Assigned'}
-                      </td>
-                    </tr>
-                  );
-                }
+                    if (className && className.includes('event-header-row')) {
+                      const eventCode = props['data-row-key'].replace('header-', '');
+                      return (
+                        <tr {...restProps} className="event-header-row bg-[#fafafa] font-bold">
+                          <td
+                            colSpan={columns.length + (permissions.delete ? 1 : 0)}
+                            className="text-md px-4 py-2 text-[#285198]">
+                            {eventCode !== 'No Event' ? `Event: ${eventCode}` : 'No Event Assigned'}
+                          </td>
+                        </tr>
+                      );
+                    }
 
-                return <tr {...props} />;
-              }
-            }
-          }}
-        />
+                    return <tr {...props} />;
+                  },
+                },
+              }}
+            />
+          );
+        })()}
       </div>
 
       <DeleteConfirmModal
