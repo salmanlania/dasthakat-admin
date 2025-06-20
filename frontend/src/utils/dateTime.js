@@ -21,9 +21,10 @@ export const calculateTimeDifference = (startDate, endDate) => {
     return `${mins} min ${secs} sec`;
   }
 
-  // If hours >= 24, show only days
+  // If hours >= 24, show only days and hours
   if (diffHours >= 24) {
-    return `${diffDays} day${diffDays > 1 ? 's' : ''}`;
+    const remainingHours = diffHours % 24;
+    return `${diffDays} day${diffDays > 1 ? 's' : ''} ${remainingHours} hour${remainingHours > 1 ? 's' : ''}`;
   }
 
   // If same year, show months and days
