@@ -13,7 +13,6 @@ const getImageBuffer = async (image) => {
 };
 
 const generateQuotationReportExcel = async (datas) => {
-  console.log('datas top', datas)
 
   try {
     const data = datas?.data
@@ -119,8 +118,9 @@ const generateQuotationReportExcel = async (datas) => {
         };
 
         cell.font = {
+          color: { argb: 'FF203272' },
           size: 12,
-          color: { argb: 'FF000000' }
+          bold: true,
         };
 
         cell.alignment = { horizontal: 'center' };
@@ -207,8 +207,8 @@ const generateQuotationReportExcel = async (datas) => {
                 wrapText: true
               };
               cell.font = {
-                bold: true,
-                color: { argb: 'FF02AD2F' },
+                bold: false,
+                color: { argb: 'FF203272' },
                 size: 8
               }
               cell.border = {

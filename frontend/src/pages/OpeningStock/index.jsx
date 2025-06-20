@@ -138,8 +138,6 @@ const OpeningStock = () => {
     formData.append('file', file);
     formData.append('remarks', remarks);
 
-    console.log('Uploading file with remarks:', remarks);
-    // dispatch your upload API or thunk here
     toast.success('File prepared for upload');
   };
 

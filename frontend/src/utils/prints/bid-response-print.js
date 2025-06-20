@@ -193,7 +193,6 @@ export const createBidResponsePrint = async (data) => {
   const totalCustomer = uniqueCustomer.size;
 
   const dividedTotalResponseRate = Math.floor(totalResponseRate / totalQuotes);
-  console.log(dividedTotalResponseRate);
 
   // Display summary information as text
   doc.text(`Events: ${totalEvents}`, 4, finalY);

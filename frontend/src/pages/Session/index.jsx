@@ -20,7 +20,6 @@ export const sessionSubmit = async (values, dispatch, sessionData, handleError, 
       })
     ).unwrap();
 
-    console.log(response);
 
     if (response && typeof response === 'object' && !Array.isArray(response)) {
       if (response?.is_exempted === 1) {

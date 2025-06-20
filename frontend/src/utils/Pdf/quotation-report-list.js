@@ -171,18 +171,18 @@ const pdfContent = (doc, data, pageWidth) => {
       0: { cellWidth: 22 }, // date
       1: { cellWidth: 19 }, // quote no
       2: { cellWidth: 30 }, // event no
-      3: { cellWidth: 40 }, // vessel
-      4: { cellWidth: 60 }, // customer
+      3: { cellWidth: 44 }, // vessel
+      4: { cellWidth: 66 }, // customer
       5: { cellWidth: 19 }, // quantity
       6: { cellWidth: 19 }, // amount
-      7: { cellWidth: 37 }, // port
+      7: { cellWidth: 27 }, // port
       8: { cellWidth: 23 }, // status
       8: { cellWidth: 23 }, // create at
     },
     didParseCell: function (data) {
       const content = data.cell.text;
-      const minHeight = 8;
-      const additionalHeight = content.length > 50 ? 4 : 0;
+      const minHeight = 4;
+      const additionalHeight = content.length > 50 ? 3 : 0;
       data.cell.styles.minCellHeight = minHeight + additionalHeight;
     }
   });

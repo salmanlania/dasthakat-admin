@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, DatePicker, Input } from 'antd';
+import { Breadcrumb, Button, DatePicker, Input, Form } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
@@ -258,8 +258,6 @@ const QuotationReport = () => {
         document_identity: params.document_identity
       };
 
-      console.log('filterDetails', filterDetails)
-
       createQuotationReportPrint(Array.isArray(data) ? data : [data], true);
 
       dispatch(setQuotationListParams(originalParams));
@@ -329,97 +327,107 @@ const QuotationReport = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-center gap-2 flex-wrap mb-3">
           <div className="min-w-[200px]">
-            <RangePicker
-              value={[
-                params.start_date && params.start_date !== ''
-                  ? dayjs(params.start_date, 'YYYY-MM-DD')
-                  : null,
-                params.end_date && params.end_date !== ''
-                  ? dayjs(params.end_date, 'YYYY-MM-DD')
-                  : null
-              ]}
-              onChange={(dates) => {
-                const newParams = {
-                  start_date: dates?.[0] ? dayjs(dates[0]).format('YYYY-MM-DD') : '',
-                  end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : ''
-                };
+            <Form.Item name="date_range" label="Date Range" layout="vertical">
+              <RangePicker
+                value={[
+                  params.start_date && params.start_date !== ''
+                    ? dayjs(params.start_date, 'YYYY-MM-DD')
+                    : null,
+                  params.end_date && params.end_date !== ''
+                    ? dayjs(params.end_date, 'YYYY-MM-DD')
+                    : null
+                ]}
+                onChange={(dates) => {
+                  const newParams = {
+                    start_date: dates?.[0] ? dayjs(dates[0]).format('YYYY-MM-DD') : '',
+                    end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : ''
+                  };
 
-                if (!dates || !dates[0] || !dates[1]) {
-                  newParams.start_date = null;
-                  newParams.end_date = null;
-                }
+                  if (!dates || !dates[0] || !dates[1]) {
+                    newParams.start_date = null;
+                    newParams.end_date = null;
+                  }
 
-                const fetchParams = { ...params, ...newParams, page: 1 };
+                  const fetchParams = { ...params, ...newParams, page: 1 };
 
-                dispatch(setQuotationListParams(fetchParams));
+                  dispatch(setQuotationListParams(fetchParams));
 
-                if (!newParams.start_date && !newParams.end_date) {
-                  dispatch(getQuotationListReport(fetchParams)).unwrap().catch(handleError);
-                }
+                  if (!newParams.start_date && !newParams.end_date) {
+                    dispatch(getQuotationListReport(fetchParams)).unwrap().catch(handleError);
+                  }
 
-              }}
-              format="MM-DD-YYYY"
-            />
+                }}
+                format="MM-DD-YYYY"
+              />
+            </Form.Item>
           </div>
           <div className="min-w-[200px]">
-            <AsyncSelect
-              endpoint="/event"
-              className="w-full"
-              valueKey="event_id"
-              labelKey="event_code"
-              placeholder="Select Event"
-              labelInValue={true}
-              value={params.event_id}
-              onChange={(selected) => {
-                dispatch(setQuotationListParams({ event_id: selected?.value, event_label: selected?.label }))
-              }}
-              allowClear
-            />
+            <Form.Item name="event_id" label="Event" layout="vertical">
+              <AsyncSelect
+                endpoint="/event"
+                className="w-full"
+                valueKey="event_id"
+                labelKey="event_code"
+                placeholder="Select Event"
+                labelInValue={true}
+                value={params.event_id}
+                onChange={(selected) => {
+                  dispatch(setQuotationListParams({ event_id: selected?.value, event_label: selected?.label }))
+                }}
+                allowClear
+              />
+            </Form.Item>
           </div>
 
           <div className="min-w-[200px]">
-            <Input
-              placeholder="Enter Quotation No"
-              allowClear
-              value={params.document_identity}
-              onChange={(e) =>
-                dispatch(setQuotationListParams({ document_identity: e.target.value }))
-              }
-            />
+            <Form.Item name="document_identity" label="Quotation No" layout="vertical">
+              <Input
+                placeholder="Enter Quotation No"
+                allowClear
+                value={params.document_identity}
+                onChange={(e) =>
+                  dispatch(setQuotationListParams({ document_identity: e.target.value }))
+                }
+              />
+            </Form.Item>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 justify-center mx-auto">
           <div className="min-w-[260px]">
-            <AsyncSelect
-              endpoint="/vessel"
-              className="w-full"
-              valueKey="vessel_id"
-              labelInValue={true}
-              labelKey="name"
-              placeholder="Select Vessel"
-              value={params.vessel_id}
-              onChange={(selected) => {
-                dispatch(setQuotationListParams({ vessel_id: selected?.value, vessel_label: selected?.label }))
-              }}
-              allowClear
-            />
+            <Form.Item name="vessel_id" label="Vessel" layout="vertical">
+              <AsyncSelect
+                endpoint="/vessel"
+                className="w-full"
+                valueKey="vessel_id"
+                labelInValue={true}
+                labelKey="name"
+                placeholder="Select Vessel"
+                value={params.vessel_id}
+                onChange={(selected) => {
+                  dispatch(setQuotationListParams({ vessel_id: selected?.value, vessel_label: selected?.label }))
+                }}
+                allowClear
+              />
+            </Form.Item>
           </div>
 
           <div className="min-w-[240px]">
-            <AsyncSelect
-              endpoint="/customer"
-              className="w-full"
-              valueKey="customer_id"
-              labelKey="name"
-              placeholder="Select Customer"
-              value={params.customer_id}
-              labelInValue={true}
-              onChange={(selected) => {
-                dispatch(setQuotationListParams({ customer_id: selected?.value, customer_label: selected?.label }))
-              }}
-              allowClear
-            />
+            <Form.Item name="customer_id" label="Customer" layout="vertical">
+              <AsyncSelect
+                endpoint="/customer"
+                className="w-full"
+                valueKey="customer_id"
+                labelKey="name"
+                placeholder="Select Customer"
+                value={params.customer_id}
+                labelInValue={true}
+                onChange={(selected) => {
+                  dispatch(setQuotationListParams({ customer_id: selected?.value, customer_label: selected?.label }))
+                }}
+                allowClear
+              />
+            </Form.Item>
           </div>
           <div className="flex items-center justify-end gap-3">
             <Button
