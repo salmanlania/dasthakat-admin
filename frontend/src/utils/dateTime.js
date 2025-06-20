@@ -15,32 +15,63 @@ export const calculateTimeDifference = (startDate, endDate) => {
     const remainingMins = mins % 60;
     const secs = responded.diff(created, 'second') % 60;
 
+    let result = '';
     if (hours > 0) {
-      return `${hours} hour${hours > 1 ? 's' : ''} ${remainingMins} min ${secs} sec`;
+      result += `${hours} hour${hours > 1 ? 's' : ''} `;
     }
-    return `${mins} min ${secs} sec`;
+    if (remainingMins > 0) {
+      result += `${remainingMins} min `;
+    }
+    if (secs > 0) {
+      result += `${secs} sec`;
+    }
+    return result.trim();
   }
 
   // If hours >= 24, show only days and hours
   if (diffHours >= 24) {
     const remainingHours = diffHours % 24;
-    return `${diffDays} day${diffDays > 1 ? 's' : ''} ${remainingHours} hour${remainingHours > 1 ? 's' : ''}`;
+    let result = '';
+    if (diffDays > 0) {
+      result += `${diffDays} day${diffDays > 1 ? 's' : ''} `;
+    }
+    if (remainingHours > 0) {
+      result += `${remainingHours} hour${remainingHours > 1 ? 's' : ''}`;
+    }
+    return result.trim();
   }
 
   // If same year, show months and days
   if (diffYears === 0) {
     const remainingDays = diffDays % 30;
-    return `${diffMonths} month${diffMonths > 1 ? 's' : ''} ${remainingDays} day${remainingDays > 1 ? 's' : ''}`;
+    let result = '';
+    if (diffMonths > 0) {
+      result += `${diffMonths} month${diffMonths > 1 ? 's' : ''} `;
+    }
+    if (remainingDays > 0) {
+      result += `${remainingDays} day${remainingDays > 1 ? 's' : ''}`;
+    }
+    return result.trim();
   }
 
   // Otherwise show years, months and days
   const remainingMonths = diffMonths % 12;
   const remainingDays = diffDays % 30;
-  return `${diffYears} year${diffYears > 1 ? 's' : ''} ${remainingMonths} month${remainingMonths > 1 ? 's' : ''} ${remainingDays} day${remainingDays > 1 ? 's' : ''}`;
+  let result = '';
+  if (diffYears > 0) {
+    result += `${diffYears} year${diffYears > 1 ? 's' : ''} `;
+  }
+  if (remainingMonths > 0) {
+    result += `${remainingMonths} month${remainingMonths > 1 ? 's' : ''} `;
+  }
+  if (remainingDays > 0) {
+    result += `${remainingDays} day${remainingDays > 1 ? 's' : ''}`;
+  }
+  return result.trim();
 };
 
-export const millisecondsToReadable = (milliseconds) => {
+export const minutesToReadable = (minutes) => {
   const now = dayjs();
-  const date = dayjs(now - milliseconds); // Convert milliseconds to past date
+  const date = dayjs(now).subtract(minutes, 'minute'); // Convert minutes to past date
   return calculateTimeDifference(date, now);
 };

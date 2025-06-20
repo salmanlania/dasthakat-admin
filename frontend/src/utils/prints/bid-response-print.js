@@ -3,7 +3,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import GMSLogo from '../../assets/logo-with-title.png';
 
-import { calculateTimeDifference, millisecondsToReadable } from '../dateTime';
+import { calculateTimeDifference, minutesToReadable } from '../dateTime';
 import { formatThreeDigitCommas, roundUpto } from '../number';
 
 const fillEmptyRows = (rows, rowsPerPage, extraRows = 1) => {
@@ -110,7 +110,7 @@ export const createBidResponsePrint = async (data) => {
       if (detail.created_at && detail.qs_date) {
         const created = dayjs(detail.created_at);
         const responded = dayjs(detail.qs_date);
-        totalResponseRate += responded.diff(created, 'ms');
+        totalResponseRate += responded.diff(created, 'minute');
       }
 
       const row = [
@@ -192,13 +192,18 @@ export const createBidResponsePrint = async (data) => {
   const totalVessel = uniqueVessel.size;
   const totalCustomer = uniqueCustomer.size;
 
+  const dividedTotalResponseRate = Math.floor(totalResponseRate / totalQuotes);
+  console.log(dividedTotalResponseRate);
+
   // Display summary information as text
   doc.text(`Events: ${totalEvents}`, 4, finalY);
   doc.text(`Quotes: ${totalQuotes}`, 32, finalY);
   doc.text(`Vessels: ${totalVessel}`, 64, finalY);
   doc.text(`Customers: ${totalCustomer}`, 94, finalY);
   doc.text(`$${formatThreeDigitCommas(roundUpto(totalAmount))}`, 132, finalY);
-  doc.text(`Response Rate: ${millisecondsToReadable(totalResponseRate)}`, 162, finalY);
+  const responseRateText = `Response Rate: ${minutesToReadable(dividedTotalResponseRate)}`;
+  const maxWidth = 40; // Maximum width in points
+  doc.text(responseRateText, 162, finalY, { maxWidth });
 
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
