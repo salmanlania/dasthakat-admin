@@ -229,15 +229,6 @@ const Quotation = () => {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Total Amount</p>
-          <AsyncSelect
-            endpoint="/port"
-            size="small"
-            className="w-full font-normal"
-            valueKey="total_amount"
-            labelKey="name"
-            value={params.total_amount}
-            onChange={(value) => dispatch(setQuotationListParams({ total_amount: value }))}
-          />
         </div>
       ),
       dataIndex: 'total_amount',
