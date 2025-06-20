@@ -26,7 +26,7 @@ class QuotationController extends Controller
 	{
 		// Extract all input parameters at once
 		$params = $request->only([
-			'port_id', 'customer_ref', 'customer_id', 'document_identity', 
+			'total_amount','port_id', 'customer_ref', 'customer_id', 'document_identity', 
 			'document_date', 'vessel_id', 'event_id', 'search', 'status',
 			'status_updated_by', 'page', 'limit', 'sort_column', 'sort_direction',
 			'start_date', 'end_date'
@@ -107,12 +107,13 @@ class QuotationController extends Controller
 		// Prefix match filters (better for LIKE queries)
 		$prefixFilters = [
 			'customer_ref' => 'quotation.customer_ref',
-			'document_identity' => 'quotation.document_identity'
+			'document_identity' => 'quotation.document_identity',
+			'total_amount' => 'quotation.total_amount'
 		];
 	
 		foreach ($prefixFilters as $param => $column) {
 			if (!empty($params[$param])) {
-				$query->where($column, 'like', $params[$param] . '%');
+				$query->where($column, 'like', '%' . $params[$param] . '%');
 			}
 		}
 	
