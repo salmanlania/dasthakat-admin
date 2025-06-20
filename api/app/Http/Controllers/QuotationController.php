@@ -53,6 +53,7 @@ class QuotationController extends Controller
 		// Start building the query with only essential joins
 		$query = Quotation::query()
 			->select([
+				'quotation.total_amount',
 				'quotation.document_date',
 				'quotation.quotation_id',
 				'quotation.document_identity',
