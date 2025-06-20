@@ -189,15 +189,13 @@ class OpeningStockController extends Controller
 
 		DB::beginTransaction();
 		try {
-			$inputFile = $request->file('excel_file'); // 'excel_file' is the name of the uploaded field
+			$inputFile = $request->file('excel_file');
 			$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($inputFile->getPathname());
-
 			$worksheet = $spreadsheet->getActiveSheet();
 
 			$row = 1;
-			$productsByCategory = [];
+			$items = [];
 
-			// Group products by category_id
 			while ($worksheet->getCell('A' . $row)->getValue() != '') {
 				$product_code = $worksheet->getCell('A' . $row)->getValue();
 				$quantity = $worksheet->getCell('B' . $row)->getValue();
@@ -209,9 +207,7 @@ class OpeningStockController extends Controller
 					->first();
 
 				if ($product) {
-					$category_id = $product->category_id ?? 0;
-
-					$productsByCategory[$category_id][] = [
+					$items[] = [
 						'product' => $product,
 						'product_code' => $product_code,
 						'quantity' => $quantity,
@@ -223,106 +219,100 @@ class OpeningStockController extends Controller
 				$row++;
 			}
 
-			$openings = [];
+			$uuid = $this->get_uuid();
+			$document = DocumentType::getNextDocument($this->document_type_id, $request);
 
-			foreach ($productsByCategory as $category_id => $items) {
-				$uuid = $this->get_uuid();
-				$document = DocumentType::getNextDocument($this->document_type_id, $request);
+			$openingData = [
+				'company_id' => $request->company_id ?? "",
+				'company_branch_id' => $request->company_branch_id ?? "",
+				'opening_stock_id' => $uuid,
+				'document_type_id' => $document['document_type_id'] ?? "",
+				'document_no' => $document['document_no'] ?? "",
+				'document_prefix' => $document['document_prefix'] ?? "",
+				'document_identity' => $document['document_identity'] ?? "",
+				'document_date' => $request->document_date ?? Carbon::now(),
+				'remarks' => 'Opening Stock for All Items',
+				'created_at' => Carbon::now(),
+				'created_by' => $request->login_user_id ?? "",
+			];
 
-				$openingData = [
-					'company_id' => $request->company_id ?? "",
-					'company_branch_id' => $request->company_branch_id ?? "",
+			OpeningStock::create($openingData);
+
+			$total_quantity = 0;
+			$total_amount = 0;
+			$sort_order = 1;
+
+			foreach ($items as $item) {
+				$product = $item['product'];
+				$detail_uuid = $this->get_uuid();
+
+				$detail = [
 					'opening_stock_id' => $uuid,
-					'document_type_id' => $document['document_type_id'] ?? "",
-					'document_no' => $document['document_no'] ?? "",
-					'document_prefix' => $document['document_prefix'] ?? "",
-					'document_identity' => $document['document_identity'] ?? "",
-					'document_date' => $request->document_date ?? Carbon::now(),
-					'remarks' => 'Opening Stock for Category ID: ' . $category_id,
+					'opening_stock_detail_id' => $detail_uuid,
+					'sort_order' => $sort_order++,
+					'product_type_id' => $product->product_type_id,
+					'product_id' => $product->product_id,
+					'product_name' => $product->name,
+					'product_description' => $product->name,
+					'warehouse_id' => $request->warehouse_id ?? "",
+					'unit_id' => $product->unit_id,
+					'document_currency_id' => $base_currency_id,
+					'base_currency_id' => $base_currency_id,
+					'unit_conversion' => 1,
+					'currency_conversion' => 1,
+					'quantity' => $item['quantity'],
+					'rate' => $item['rate'],
+					'amount' => $item['amount'],
 					'created_at' => Carbon::now(),
 					'created_by' => $request->login_user_id ?? "",
 				];
 
-				OpeningStock::create($openingData);
+				OpeningStockDetail::create($detail);
 
-				$total_quantity = 0;
-				$total_amount = 0;
-				$sort_order = 1;
+				$total_quantity += $item['quantity'];
+				$total_amount += $item['amount'];
 
-				foreach ($items as $item) {
-					$product = $item['product'];
-					$detail_uuid = $this->get_uuid();
-
-					$detail = [
-						'opening_stock_id' => $uuid,
-						'opening_stock_detail_id' => $detail_uuid,
-						'sort_order' => $sort_order++,
-						'product_type_id' => $product->product_type_id,
-						'product_id' => $product->product_id,
-						'product_name' => $product->name,
-						'product_description' => $product->name,
-						'warehouse_id' => $request->warehouse_id ?? "",
-						'unit_id' => $product->unit_id,
-						'document_currency_id' => $base_currency_id,
-						'base_currency_id' => $base_currency_id,
-						'unit_conversion' => 1,
-						'currency_conversion' => 1,
-						'quantity' => $item['quantity'],
-						'rate' => $item['rate'],
-						'amount' => $item['amount'],
-						'created_at' => Carbon::now(),
-						'created_by' => $request->login_user_id ?? "",
-					];
-
-					OpeningStockDetail::create($detail);
-
-					$total_quantity += $item['quantity'];
-					$total_amount += $item['amount'];
-
-					if ($product->product_type_id == 2 && !empty($request->warehouse_id ?? "")) {
-						StockLedger::handleStockMovement([
-							'master_model' => new OpeningStock,
-							'document_id' => $uuid,
-							'document_detail_id' => $detail_uuid,
-							'row' => array_merge($detail, [
-								'unit_name' => $product->unit->name ?? null,
-								'remarks' => sprintf(
-									"%d %s of %s (Code: %s) added in warehouse under Opening Stock Document: %s",
-									$item['quantity'],
-									$product->unit->name ?? '',
-									$product->name,
-									$item['product_code'],
-									$document['document_identity'] ?? ''
-								)
-							]),
-						], 'I');
-					}
+				if ($product->product_type_id == 2 && !empty($request->warehouse_id ?? "")) {
+					StockLedger::handleStockMovement([
+						'master_model' => new OpeningStock,
+						'document_id' => $uuid,
+						'document_detail_id' => $detail_uuid,
+						'row' => array_merge($detail, [
+							'unit_name' => $product->unit->name ?? null,
+							'remarks' => sprintf(
+								"%d %s of %s (Code: %s) added in warehouse under Opening Stock Document: %s",
+								$item['quantity'],
+								$product->unit->name ?? '',
+								$product->name,
+								$item['product_code'],
+								$document['document_identity'] ?? ''
+							)
+						]),
+					], 'I');
 				}
-
-				// Update totals
-				OpeningStock::where('opening_stock_id', $uuid)->update([
-					'total_quantity' => $total_quantity,
-					'total_amount' => $total_amount,
-				]);
-
-				$openings[] = [
-					'category_id' => $category_id,
-					'opening_stock_id' => $uuid,
-					'document_identity' => $document['document_identity'] ?? '',
-					'total_quantity' => $total_quantity,
-					'total_amount' => $total_amount,
-				];
 			}
+
+			// Update totals
+			OpeningStock::where('opening_stock_id', $uuid)->update([
+				'total_quantity' => $total_quantity,
+				'total_amount' => $total_amount,
+			]);
 
 			DB::commit();
 
-			return $this->jsonResponse(['openings' => $openings], 200, "Opening Stock Imported by Category Successfully!");
+			return $this->jsonResponse([
+				'opening_stock_id' => $uuid,
+				'document_identity' => $document['document_identity'] ?? '',
+				'total_quantity' => $total_quantity,
+				'total_amount' => $total_amount,
+			], 200, "Opening Stock Imported Successfully!");
 		} catch (\Exception $e) {
 			DB::rollBack();
 			Log::error('Opening Stock Excel Import Error: ' . $e->getMessage());
 			return $this->jsonResponse("Error: " . $e->getMessage(), 500, "Transaction Failed");
 		}
 	}
+
 
 
 	public function update(Request $request, $id)
