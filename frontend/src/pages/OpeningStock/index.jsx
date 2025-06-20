@@ -147,7 +147,7 @@ const OpeningStock = () => {
     {
       title: (
         <div>
-          <p>OS Date</p>
+          <p>Opening Stock Date</p>
           <div onClick={(e) => e.stopPropagation()}>
             <DatePicker
               size="small"
@@ -170,7 +170,7 @@ const OpeningStock = () => {
     {
       title: (
         <div>
-          <p>OS No</p>
+          <p>Opening Stock No</p>
           <Input
             className="font-normal"
             size="small"

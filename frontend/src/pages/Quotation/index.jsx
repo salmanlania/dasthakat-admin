@@ -46,6 +46,7 @@ const Quotation = () => {
 
   const formattedParams = {
     ...params,
+    all: 1,
     document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null
   };
 
@@ -229,6 +230,28 @@ const Quotation = () => {
     },
     {
       title: (
+        <div>
+          <p>Total Amount</p>
+          <Input
+            className="font-normal"
+            allowClear
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            value={params.total_amount}
+            onChange={(e) =>
+              dispatch(setQuotationListParams({ total_amount: e.target.value }))
+            }
+          />
+        </div>
+      ),
+      dataIndex: 'total_amount',
+      key: 'total_amount',
+      sorter: true,
+      width: 140,
+      ellipsis: true
+    },
+    {
+      title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Port</p>
           <AsyncSelect
@@ -385,36 +408,70 @@ const Quotation = () => {
     debouncedCustomerRef
   ]);
 
-  const groupedQuotationData = useMemo(() => {
-    if (!list || !list.length) return [];
+  // const groupedQuotationData = useMemo(() => {
+  //   if (!list || !list.length) return [];
 
-    const result = [];
-    const groupedByEvent = {};
+  //   const result = [];
+  //   const groupedByEvent = {};
 
-    list.forEach((item) => {
-      const eventCode = item.event_code || 'No Event';
+  //   list.forEach((item) => {
+  //     const eventCode = item.event_code || 'No Event';
 
-      if (!groupedByEvent[eventCode]) {
-        groupedByEvent[eventCode] = [];
-      }
+  //     if (!groupedByEvent[eventCode]) {
+  //       groupedByEvent[eventCode] = [];
+  //     }
 
-      groupedByEvent[eventCode].push(item);
+  //     groupedByEvent[eventCode].push(item);
+  //   });
+
+  //   Object.keys(groupedByEvent).forEach((eventCode) => {
+  //     result.push({
+  //       isEventHeader: true,
+  //       event_code: eventCode,
+  //       quotation_id: `header-${eventCode}`
+  //     });
+
+  //     groupedByEvent[eventCode].forEach((item) => {
+  //       result.push(item);
+  //     });
+  //   });
+
+  //   return result;
+  // }, [list]);
+
+  const paginatedList = useMemo(() => {
+  const start = (params.page - 1) * params.limit;
+  const end = start + params.limit;
+  return list.slice(start, end);
+}, [list, params.page, params.limit]);
+
+const groupedQuotationData = useMemo(() => {
+  if (!paginatedList.length) return [];
+
+  const result = [];
+  const groupedByEvent = {};
+
+  paginatedList.forEach((item) => {
+    const eventCode = item.event_code || 'No Event';
+    if (!groupedByEvent[eventCode]) {
+      groupedByEvent[eventCode] = [];
+    }
+    groupedByEvent[eventCode].push(item);
+  });
+
+  Object.entries(groupedByEvent).forEach(([eventCode, items]) => {
+    result.push({
+      isEventHeader: true,
+      event_code: eventCode,
+      quotation_id: `header-${eventCode}`
     });
+    result.push(...items);
+  });
 
-    Object.keys(groupedByEvent).forEach((eventCode) => {
-      result.push({
-        isEventHeader: true,
-        event_code: eventCode,
-        quotation_id: `header-${eventCode}`
-      });
+  return result;
+}, [paginatedList]);
 
-      groupedByEvent[eventCode].forEach((item) => {
-        result.push(item);
-      });
-    });
-
-    return result;
-  }, [list]);
+  // const numberOfHeaders = groupedQuotationData.filter((d) => d.isEventHeader).length;
 
   return (
     <>
@@ -463,10 +520,11 @@ const Quotation = () => {
           }
           loading={isListLoading}
           className="mt-2"
-          // rowKey="quotation_id"
           rowKey={(record) => record.quotation_id}
           scroll={{ x: 'calc(100% - 200px)' }}
+          dataSource={groupedQuotationData}
           pagination={{
+            // total: paginationInfo.total_records,
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
@@ -484,7 +542,6 @@ const Quotation = () => {
             );
           }}
           // dataSource={list}
-          dataSource={groupedQuotationData}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
