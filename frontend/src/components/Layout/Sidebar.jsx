@@ -50,7 +50,7 @@ const Sidebar = () => {
       setStateOpenKeys(
         openKeys
           .filter((_, index) => index !== repeatIndex)
-          .filter((key) => levelKeys[key] <= levelKeys[currentOpenKey])
+          .filter((key) => levelKeys[key] <= levelKeys[currentOpenKey]),
       );
     } else {
       setStateOpenKeys(openKeys);
@@ -71,8 +71,9 @@ const Sidebar = () => {
     !permissions?.class?.list &&
     !permissions?.port?.list &&
     !permissions?.vessel?.list &&
-    !permissions?.event?.list;
-  !permissions?.setting?.update;
+    !permissions?.event?.list &&
+    // TODO:add customer agent & vessel agent permission here
+    !permissions?.setting?.update;
 
   const userManagementPermission = !permissions?.user?.list && !permissions?.user_permission?.list;
 
@@ -109,14 +110,13 @@ const Sidebar = () => {
 
   const LogisticsPermission = !permissions?.dispatch?.list;
   const systemPermission = !permissions?.audit?.list;
-  const reportsPermission = !permissions?.quote_report?.show &&
-    !permissions?.bid_response?.show
+  const reportsPermission = !permissions?.quote_report?.show && !permissions?.bid_response?.show;
 
   const items = [
     {
       key: '/',
       icon: <MdOutlineDashboard size={18} />,
-      label: <Link to="/">Dashboard</Link>
+      label: <Link to="/">Dashboard</Link>,
     },
     {
       key: 'administration',
@@ -132,84 +132,94 @@ const Sidebar = () => {
             {
               key: 'currency',
               label: <Link to="/currency">Currency</Link>,
-              disabled: !permissions?.currency?.list
+              disabled: !permissions?.currency?.list,
             },
             {
               key: 'company',
               label: <Link to="/company">Company</Link>,
-              disabled: !permissions?.company?.list
+              disabled: !permissions?.company?.list,
             },
             {
               key: 'company-branch',
               label: <Link to="/company-branch">Company Branch</Link>,
-              disabled: !permissions?.company_branch?.list
+              disabled: !permissions?.company_branch?.list,
             },
             {
               key: 'company-setting',
               label: <Link to="/company-setting">Company Setting</Link>,
-              disabled: !permissions?.setting?.update
+              disabled: !permissions?.setting?.update,
             },
             {
               key: 'salesman',
               label: <Link to="/salesman">Salesman</Link>,
-              disabled: !permissions?.salesman?.list
+              disabled: !permissions?.salesman?.list,
             },
             {
               key: 'customer',
               label: <Link to="/customer">Customer</Link>,
-              disabled: !permissions?.customer?.list
+              disabled: !permissions?.customer?.list,
             },
             {
               key: 'vendor',
               label: <Link to="/vendor">Vendor</Link>,
-              disabled: !permissions?.supplier?.list
+              disabled: !permissions?.supplier?.list,
             },
             {
               key: 'agent',
               label: <Link to="/agent">Agent</Link>,
-              disabled: !permissions?.agent?.list
+              disabled: !permissions?.agent?.list,
             },
             {
               key: 'commission-agent',
               label: <Link to="/commission-agent">Commission Agent</Link>,
-              disabled: !permissions?.commission_agent?.list
+              disabled: !permissions?.commission_agent?.list,
             },
             {
               key: 'technician',
               label: <Link to="/technician">Technician</Link>,
-              disabled: !permissions?.technician?.list
+              disabled: !permissions?.technician?.list,
             },
             {
               key: 'notes',
               label: <Link to="/notes">Notes</Link>,
-              disabled: !permissions?.terms?.list
+              disabled: !permissions?.terms?.list,
             },
             {
               key: 'flag',
               label: <Link to="/flag">Flag</Link>,
-              disabled: !permissions?.flag?.list
+              disabled: !permissions?.flag?.list,
             },
             {
               key: 'class',
               label: <Link to="/class">Class</Link>,
-              disabled: !permissions?.class?.list
+              disabled: !permissions?.class?.list,
             },
             {
               key: 'port',
               label: <Link to="/port">Port</Link>,
-              disabled: !permissions?.port?.list
+              disabled: !permissions?.port?.list,
             },
             {
               key: 'vessel',
               label: <Link to="/vessel">Vessel</Link>,
-              disabled: !permissions?.vessel?.list
+              disabled: !permissions?.vessel?.list,
             },
             {
               key: 'event',
               label: <Link to="/event">Event</Link>,
-              disabled: !permissions?.event?.list
-            }
-          ]
+              disabled: !permissions?.event?.list,
+            },
+            {
+              key: 'customer-agent',
+              label: <Link to="/customer-agent">Customer Agent</Link>,
+              // TODO:Add customer agent permission here
+            },
+            {
+              key: 'vessel-agent',
+              label: <Link to="/vessel-agent">Vessel Agent</Link>,
+              // TODO:Add vessel agent permission here
+            },
+          ],
         },
         {
           key: 'user-management',
@@ -219,14 +229,14 @@ const Sidebar = () => {
             {
               key: 'user',
               label: <Link to="/user">User</Link>,
-              disabled: !permissions?.user?.list
+              disabled: !permissions?.user?.list,
             },
             {
               key: 'user-permission',
               label: <Link to="/user-permission">User Permission</Link>,
-              disabled: !permissions.user_permission?.list
-            }
-          ]
+              disabled: !permissions.user_permission?.list,
+            },
+          ],
         },
         {
           key: 'inventory-setup',
@@ -236,46 +246,46 @@ const Sidebar = () => {
             {
               key: 'category',
               label: <Link to="/category">Category</Link>,
-              disabled: !permissions?.category?.list
+              disabled: !permissions?.category?.list,
             },
             {
               key: 'sub-category',
               label: <Link to="/sub-category">Sub Category</Link>,
-              disabled: !permissions?.sub_category?.list
+              disabled: !permissions?.sub_category?.list,
             },
             {
               key: 'brand',
               label: <Link to="/brand">Brand</Link>,
-              disabled: !permissions?.brand?.list
+              disabled: !permissions?.brand?.list,
             },
             {
               key: 'warehouse',
               label: <Link to="/warehouse">Warehouse</Link>,
-              disabled: !permissions?.warehouse?.list
+              disabled: !permissions?.warehouse?.list,
             },
             {
               key: 'unit',
               label: <Link to="/unit">Unit</Link>,
-              disabled: !permissions?.unit?.list
+              disabled: !permissions?.unit?.list,
             },
             {
               key: 'product',
               label: <Link to="/product">Product</Link>,
-              disabled: !permissions?.product?.list
+              disabled: !permissions?.product?.list,
             },
             {
               key: 'validity',
               label: <Link to="/validity">Validity</Link>,
-              disabled: !permissions?.validity?.list
+              disabled: !permissions?.validity?.list,
             },
             {
               key: 'payment',
               label: <Link to="/payment">Payment</Link>,
-              disabled: !permissions?.payment?.list
-            }
-          ]
-        }
-      ]
+              disabled: !permissions?.payment?.list,
+            },
+          ],
+        },
+      ],
     },
     {
       key: 'sale-management',
@@ -286,29 +296,29 @@ const Sidebar = () => {
         {
           key: 'quotation',
           label: <Link to="/quotation">Quotation</Link>,
-          disabled: !permissions?.quotation?.list
+          disabled: !permissions?.quotation?.list,
         },
         {
           key: 'charge-order',
           label: <Link to="/charge-order">Charge Order</Link>,
-          disabled: !permissions?.charge_order?.list
+          disabled: !permissions?.charge_order?.list,
         },
         {
           key: 'purchase-order',
           label: <Link to="/purchase-order">Purchase Order</Link>,
-          disabled: !permissions?.purchase_order?.list
+          disabled: !permissions?.purchase_order?.list,
         },
         {
           key: 'ijo',
           disabled: !permissions?.job_order?.list,
-          label: <Link to="/ijo">IJO</Link>
+          label: <Link to="/ijo">IJO</Link>,
         },
         {
           key: 'service-order',
           label: <Link to="/service-order">Service Order</Link>,
-          disabled: !permissions?.service_order?.list
-        }
-      ]
+          disabled: !permissions?.service_order?.list,
+        },
+      ],
     },
     {
       key: 'warehousing',
@@ -319,39 +329,39 @@ const Sidebar = () => {
         {
           key: 'pick-list',
           label: <Link to="/pick-list">Pick List</Link>,
-          disabled: !permissions?.picklist?.list
+          disabled: !permissions?.picklist?.list,
         },
         {
           key: 'service-list',
           label: <Link to="/service-list">Service List</Link>,
-          disabled: !permissions?.servicelist?.list
+          disabled: !permissions?.servicelist?.list,
         },
         {
           key: 'goods-received-note',
           label: <Link to="/goods-received-note">Goods Received Note</Link>,
-          disabled: !permissions?.good_received_note?.list
+          disabled: !permissions?.good_received_note?.list,
         },
         {
           key: 'opening-stock',
           label: <Link to="/opening-stock">Opening Stock</Link>,
-          disabled: !permissions?.opening_stock?.list
+          disabled: !permissions?.opening_stock?.list,
         },
         {
           key: 'shipment',
           label: <Link to="/shipment">Shipment</Link>,
-          disabled: !permissions?.shipment?.list
+          disabled: !permissions?.shipment?.list,
         },
         {
           key: 'stock-return',
           label: <Link to="/stock-return">Stock Return</Link>,
-          disabled: !permissions?.stock_return?.list
+          disabled: !permissions?.stock_return?.list,
         },
         {
           key: 'purchase-return',
           label: <Link to="/purchase-return">Purchase Return</Link>,
-          disabled: !permissions?.purchase_return?.list
-        }
-      ]
+          disabled: !permissions?.purchase_return?.list,
+        },
+      ],
     },
     {
       key: 'accounting',
@@ -362,19 +372,19 @@ const Sidebar = () => {
         {
           key: 'purchase-invoice',
           label: <Link to="/purchase-invoice">Purchase Invoice</Link>,
-          disabled: !permissions?.purchase_invoice?.list
+          disabled: !permissions?.purchase_invoice?.list,
         },
         {
           key: 'sale-invoice',
           label: <Link to="/sale-invoice">Sale Invoice</Link>,
-          disabled: !permissions?.sale_invoice?.list
+          disabled: !permissions?.sale_invoice?.list,
         },
         {
           key: 'credit-note',
           label: <Link to="/credit-note">Credit Note</Link>,
-          disabled: !permissions?.sale_return?.list
-        }
-      ]
+          disabled: !permissions?.sale_return?.list,
+        },
+      ],
     },
     {
       key: 'logistics',
@@ -385,9 +395,9 @@ const Sidebar = () => {
         {
           key: 'scheduling',
           label: <Link to="/scheduling">Scheduling</Link>,
-          disabled: !permissions?.dispatch?.list
-        }
-      ]
+          disabled: !permissions?.dispatch?.list,
+        },
+      ],
     },
     {
       key: 'system',
@@ -398,9 +408,9 @@ const Sidebar = () => {
         {
           key: 'audit',
           label: <Link to="/audit">Audit</Link>,
-          disabled: !permissions?.audit?.list
-        }
-      ]
+          disabled: !permissions?.audit?.list,
+        },
+      ],
     },
     {
       key: 'reports',
@@ -411,16 +421,15 @@ const Sidebar = () => {
         {
           key: 'quotation-report',
           label: <Link to="/quotation-report">Quotation Report</Link>,
-          disabled: !permissions?.quote_report?.show
-
+          disabled: !permissions?.quote_report?.show,
         },
         {
           key: 'bid-response-report',
           label: <Link to="/bid-response-report">Bid Response Report</Link>,
-          disabled: !permissions?.bid_response?.show
-        }
-      ]
-    }
+          disabled: !permissions?.bid_response?.show,
+        },
+      ],
+    },
   ];
   const levelKeys = getLevelKeys(items);
 
@@ -496,8 +505,9 @@ const Sidebar = () => {
       collapsedWidth="0"
       theme="light"
       collapsed={isCollapsed}
-      className={`${isSmallScreen ? '!fixed' : '!sticky'} ${isCollapsed ? '' : 'border-r'
-        } scrollbar !left-0 !top-0 z-50 h-screen overflow-y-auto`}
+      className={`${isSmallScreen ? '!fixed' : '!sticky'} ${
+        isCollapsed ? '' : 'border-r'
+      } scrollbar !left-0 !top-0 z-50 h-screen overflow-y-auto`}
       width={240}>
       <div className="m-2 flex flex-col items-center justify-center gap-2 rounded-xl bg-slate-200 p-4 px-2">
         {isSmallScreen && (
