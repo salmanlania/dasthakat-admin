@@ -839,6 +839,51 @@ const Scheduling = () => {
     debouncedAgentNotes
   ]);
 
+  const handleClearFilters = () => {
+    dispatch(
+      setDispatchListParams({
+        search: '',
+        start_date: '',
+        end_date: '',
+        event_date: null,
+        event_time: null,
+        event_id: null,
+        vessel_id: null,
+        port_id: null,
+        short_code: [],
+        technician_id: [],
+        technician_notes: '',
+        agent_id: null,
+        agent_notes: '',
+        status: null,
+        page: 1,
+      })
+    );
+
+    const today = dayjs().format('YYYY-MM-DD');
+    dispatch(
+      getDispatchList({
+        ...params,
+        search: '',
+        start_date: !isOldChecked ? today : '',
+        end_date: !isOldChecked ? null : '',
+        event_date: null,
+        event_time: null,
+        event_id: null,
+        vessel_id: null,
+        port_id: null,
+        short_code: [],
+        technician_id: [],
+        technician_notes: '',
+        agent_id: null,
+        agent_notes: '',
+        status: null,
+        page: 1
+      })
+    );
+  };
+
+
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
@@ -894,13 +939,15 @@ const Scheduling = () => {
             />
           </div>
           <div>
-            <div className="my-2 flex items-center gap-2">
-              <Checkbox checked={isOldChecked} onChange={(e) => setIsOldChecked(e.target.checked)}>
-                Old Records
-              </Checkbox>
-            </div>
           </div>
           <div className="flex items-center justify-around gap-3">
+            <Button
+              onClick={handleClearFilters}
+              type="primary"
+              className="bg-sky-800 hover:!bg-sky-700"
+            >
+              Clear Filters
+            </Button>
             <Button
               type="primary"
               icon={<FaRegFileExcel size={14} />}

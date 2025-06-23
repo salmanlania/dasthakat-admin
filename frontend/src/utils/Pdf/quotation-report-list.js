@@ -70,7 +70,7 @@ const pdfContent = (doc, data, pageWidth) => {
     'Total Amount',
     'Port',
     'Status',
-    'Created AT',
+    'Created At',
   ];
 
   const detail = data?.data;
@@ -127,98 +127,6 @@ const pdfContent = (doc, data, pageWidth) => {
         styles: { textColor: [32, 50, 114] }
       },
     ]);
-    //   console.log('item', item)
-    //   table2Rows.push([
-    //     {
-    //       content: item?.event_date ? dayjs(item.event_date).format('MM-DD-YYYY') : '   ',
-    //       styles: { textColor: [2, 158, 43], fontStyle: 'bold', }
-    //     },
-    //     {
-    //       content: item?.event_time || '   ',
-    //       styles: { textColor: [2, 158, 43], fontStyle: 'bold', }
-    //     },
-    //     {
-    //       content: item?.event_code || '   ',
-    //       styles: { textColor: [2, 158, 43], fontStyle: 'bold', }
-    //     },
-    //     {
-    //       content: item?.vessel_name || '   ',
-    //       styles: { textColor: [2, 158, 43], fontStyle: 'bold', }
-    //     },
-    //     {
-    //       content: item?.ports.map(i => i?.name) || '   ',
-    //       styles: { textColor: [2, 158, 43], fontStyle: 'bold', }
-    //     },
-    //     {
-    //       content: Array.isArray(item?.technicians)
-    //         ? item.technicians.map(t => t.user_name).join(', ')
-    //         : '   ',
-    //       styles: { textColor: [2, 158, 43], fontStyle: 'bold', }
-    //     },
-    //     {
-    //       content: item?.status || '   ',
-    //       styles: { textColor: [2, 158, 43], fontStyle: 'bold', }
-    //     },
-    //   ]);
-
-    //   if (item?.short_codes?.length) {
-    //     table2Rows.push([
-    //       {
-    //         content: 'Job Scope:',
-    //         colSpan: 1,
-    //         styles: { fontStyle: 'bold', halign: 'left' }
-    //       },
-    //       {
-    //         content: item.short_codes.map(sc => sc.label).join(', '),
-    //         colSpan: 6,
-    //         styles: { fontStyle: 'normal', halign: 'left' }
-    //       }
-    //     ]);
-    //   }
-    //   if (item?.agent_name || item?.agent_email || item?.agent_phone || item?.agent_fax) {
-    //     const agentInfo = `Name: ${item.agent_name || '   '} | Email: ${item.agent_email || '   '} | Phone: ${item.agent_phone || '   '} | Fax: ${item.agent_fax || '   '}`;
-    //     table2Rows.push([
-    //       {
-    //         content: 'Agent Info:',
-    //         colSpan: 1,
-    //         styles: { fontStyle: 'bold', halign: 'left' }
-    //       },
-    //       {
-    //         content: agentInfo,
-    //         colSpan: 6,
-    //         styles: { fontStyle: 'normal', halign: 'left' }
-    //       }
-    //     ]);
-    //   }
-    //   if (item?.technician_notes) {
-    //     table2Rows.push([
-    //       {
-    //         content: 'Technician Notes:',
-    //         colSpan: 1,
-    //         styles: { fontStyle: 'bold', halign: 'left' }
-    //       },
-    //       {
-    //         content: item.technician_notes,
-    //         colSpan: 6,
-    //         styles: { fontStyle: 'normal', halign: 'left' }
-    //       }
-    //     ]);
-    //   }
-    //   if (item?.agent_notes) {
-    //     table2Rows.push([
-    //       {
-    //         content: 'Agent Notes:',
-    //         colSpan: 1,
-    //         styles: { fontStyle: 'bold', halign: 'left' }
-    //       },
-    //       {
-    //         content: item.agent_notes,
-    //         colSpan: 6,
-    //         styles: { fontStyle: 'normal', halign: 'left' }
-    //       }
-    //     ]);
-    //   }
-    // });
   });
 
   table2Rows.push([
@@ -260,27 +168,29 @@ const pdfContent = (doc, data, pageWidth) => {
     },
     rowPageBreak: 'avoid',
     columnStyles: {
-      0: { cellWidth: 22 },
-      1: { cellWidth: 19 },
-      2: { cellWidth: 19 },
-      3: { cellWidth: 23 },
-      4: { cellWidth: 23 },
-      5: { cellWidth: 19 },
-      6: { cellWidth: 19 },
-      7: { cellWidth: 19 },
-      8: { cellWidth: 23 },
+      0: { cellWidth: 22 }, // date
+      1: { cellWidth: 19 }, // quote no
+      2: { cellWidth: 30 }, // event no
+      3: { cellWidth: 44 }, // vessel
+      4: { cellWidth: 66 }, // customer
+      5: { cellWidth: 19 }, // quantity
+      6: { cellWidth: 19 }, // amount
+      7: { cellWidth: 27 }, // port
+      8: { cellWidth: 23 }, // status
+      8: { cellWidth: 23 }, // create at
     },
     didParseCell: function (data) {
       const content = data.cell.text;
-      const minHeight = 8;
-      const additionalHeight = content.length > 50 ? 4 : 0;
+      const minHeight = 4;
+      const additionalHeight = content.length > 50 ? 3 : 0;
       data.cell.styles.minCellHeight = minHeight + additionalHeight;
     }
   });
 };
 
 const createQuotationReportPrint = (data, multiple = false) => {
-  const doc = new jsPDF();
+  // const doc = new jsPDF();
+  const doc = new jsPDF({ orientation: 'landscape' });
   const sideMargin = 4;
   const pageSize = doc.internal.pageSize;
   const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();

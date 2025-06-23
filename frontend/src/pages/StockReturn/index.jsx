@@ -55,7 +55,6 @@ const StockReturn = () => {
       toast.dismiss(loadingToast);
       createStockReturnPrint(data);
     } catch (error) {
-      console.log('error' , error)
       handleError(error);
     }
   };

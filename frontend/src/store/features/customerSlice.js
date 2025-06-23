@@ -9,14 +9,14 @@ export const getCustomerList = createAsyncThunk(
       const res = await api.get('/customer', {
         params: {
           ...params,
-          all: 1
-        }
+          all: 1,
+        },
       });
       return res.data;
     } catch (err) {
       throw rejectWithValue(err);
     }
-  }
+  },
 );
 
 export const deleteCustomer = createAsyncThunk(
@@ -27,7 +27,7 @@ export const deleteCustomer = createAsyncThunk(
     } catch (err) {
       throw rejectWithValue(err);
     }
-  }
+  },
 );
 
 export const createCustomer = createAsyncThunk(
@@ -38,7 +38,7 @@ export const createCustomer = createAsyncThunk(
     } catch (err) {
       throw rejectWithValue(err);
     }
-  }
+  },
 );
 
 export const getCustomer = createAsyncThunk('customer/get', async (id, { rejectWithValue }) => {
@@ -58,7 +58,7 @@ export const updateCustomer = createAsyncThunk(
     } catch (err) {
       throw rejectWithValue(err);
     }
-  }
+  },
 );
 
 export const bulkDeleteCustomer = createAsyncThunk(
@@ -66,12 +66,12 @@ export const bulkDeleteCustomer = createAsyncThunk(
   async (ids, { rejectWithValue }) => {
     try {
       await api.post('/customer/bulk-delete', {
-        customer_ids: ids
+        customer_ids: ids,
       });
     } catch (err) {
       throw rejectWithValue(err);
     }
-  }
+  },
 );
 
 const initialState = {
@@ -91,12 +91,12 @@ const initialState = {
     sort_direction: null,
     name: null,
     description: null,
-    catering_type: null
+    catering_type: null,
   },
   paginationInfo: {
     total_records: 0,
-    total_pages: 0
-  }
+    total_pages: 0,
+  },
 };
 
 export const customerSlice = createSlice({
@@ -106,7 +106,7 @@ export const customerSlice = createSlice({
     setCustomerListParams: (state, action) => {
       state.params = {
         ...state.params,
-        ...action.payload
+        ...action.payload,
       };
     },
 
@@ -122,7 +122,7 @@ export const customerSlice = createSlice({
         commission_agent_id: null,
         commission_percentage: null,
         status: null,
-        row_status: 'I'
+        row_status: 'I',
       };
 
       // If index is provided, insert the new detail after that index, otherwise push it to the end
@@ -141,7 +141,7 @@ export const customerSlice = createSlice({
         ...detail,
         id: uuidv4(),
         row_status: 'I',
-        isDeleted: false
+        isDeleted: false,
       };
 
       state.commissionDetails.splice(index + 1, 0, newDetail);
@@ -153,7 +153,7 @@ export const customerSlice = createSlice({
       if (itemIndex !== -1) {
         if (state.commissionDetails[itemIndex].row_status === 'I') {
           state.commissionDetails = state.commissionDetails.filter(
-            (item) => item.id !== action.payload
+            (item) => item.id !== action.payload,
           );
         } else {
           state.commissionDetails[itemIndex].row_status = 'D';
@@ -180,13 +180,16 @@ export const customerSlice = createSlice({
       }
 
       detail[key] = value;
-    }
+    },
+
+    resetCommissionDetails: (state) => {
+      state.commissionDetails = [];
+    },
   },
   extraReducers: ({ addCase }) => {
     addCase(getCustomerList.pending, (state) => {
       state.isListLoading = true;
       state.initialFormValues = null;
-      state.commissionDetails = [];
     });
     addCase(getCustomerList.fulfilled, (state, action) => {
       state.isListLoading = false;
@@ -194,7 +197,7 @@ export const customerSlice = createSlice({
       state.list = data;
       state.paginationInfo = {
         total_records: rest.total,
-        total_pages: rest.last_page
+        total_pages: rest.last_page,
       };
     });
     addCase(getCustomerList.rejected, (state) => {
@@ -223,13 +226,13 @@ export const customerSlice = createSlice({
         salesman_id: data.salesman_id
           ? {
               value: data.salesman_id,
-              label: data.salesman_name
+              label: data.salesman_name,
             }
           : null,
         payment_id: data.payment_id
           ? {
               value: data.payment_id,
-              label: data.name
+              label: data.name,
             }
           : null,
         vessel_id: data.vessel
@@ -243,7 +246,7 @@ export const customerSlice = createSlice({
         email_accounting: data.email_accounting,
         rebate_percent: data.rebate_percent,
         status: data.status,
-        block_status: data.block_status
+        block_status: data.block_status,
       };
 
       if (!data.customer_commission_agent) return;
@@ -252,14 +255,14 @@ export const customerSlice = createSlice({
         commission_agent_id: detail.commission_agent
           ? {
               value: detail.commission_agent.commission_agent_id,
-              label: detail.commission_agent.name
+              label: detail.commission_agent.name,
             }
           : null,
         type: detail.type,
         commission_percentage: detail.commission_percentage,
         status: detail.status,
         row_status: 'U',
-        isDeleted: false
+        isDeleted: false,
       }));
     });
     addCase(getCustomer.rejected, (state) => {
@@ -288,7 +291,7 @@ export const customerSlice = createSlice({
     addCase(bulkDeleteCustomer.rejected, (state) => {
       state.isBulkDeleting = false;
     });
-  }
+  },
 });
 
 export const {
@@ -298,6 +301,7 @@ export const {
   copyCommissionDetail,
   removeCommissionDetail,
   changeCommissionDetailOrder,
-  changeCommissionDetailValue
+  changeCommissionDetailValue,
+  resetCommissionDetails,
 } = customerSlice.actions;
 export default customerSlice.reducer;
