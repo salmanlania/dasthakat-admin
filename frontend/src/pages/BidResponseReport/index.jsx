@@ -55,11 +55,15 @@ const BidResponseReport = () => {
         }, {});
 
         // Create print with grouped data
-        createGroupByBidResponsePrint(data, groupByData, filterParams.groupBy);
+        if (type === 'pdf') {
+          createGroupByBidResponsePrint(data, groupByData, filterParams.groupBy);
+        }
         return;
       }
 
-      createBidResponsePrint(data);
+      if (type === 'pdf') {
+        createBidResponsePrint(data);
+      }
     } catch (error) {
       console.log(error);
       handlerError(error);

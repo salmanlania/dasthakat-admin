@@ -1,5 +1,15 @@
 import dayjs from 'dayjs';
 
+/**
+ * Calculates and formats the time difference between two dates
+ * @param {string|Date} startDate - The starting date/time
+ * @param {string|Date} endDate - The ending date/time
+ * @returns {string} Formatted string representing the time difference:
+ * - For same day: returns hours, minutes and seconds (e.g. "2 hours 30 min 45 sec")
+ * - For >24 hours: returns days and hours (e.g. "2 days 5 hours")
+ * - For same year: returns months and days (e.g. "2 months 5 days")
+ * - Otherwise: returns years, months and days (e.g. "1 year 2 months 5 days")
+ */
 export const calculateTimeDifference = (startDate, endDate) => {
   const created = dayjs(startDate);
   const responded = dayjs(endDate);
@@ -70,6 +80,11 @@ export const calculateTimeDifference = (startDate, endDate) => {
   return result.trim();
 };
 
+/**
+ * Converts minutes to a human-readable time difference string
+ * @param {number} minutes - Number of minutes to convert
+ * @returns {string} Formatted time difference string using calculateTimeDifference
+ */
 export const minutesToReadable = (minutes) => {
   const now = dayjs();
   const date = dayjs(now).subtract(minutes, 'minute'); // Convert minutes to past date
