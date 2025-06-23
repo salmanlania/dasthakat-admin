@@ -6,25 +6,6 @@ import GMSLogo from '../../assets/logo-with-title.png';
 import { calculateTimeDifference, minutesToReadable } from '../dateTime';
 import { formatThreeDigitCommas, roundUpto } from '../number';
 
-const fillEmptyRows = (rows, rowsPerPage, extraRows = 1) => {
-  // Calculate how many rows are required to fill the current page
-  const rowsOnLastPage = rows.length % rowsPerPage;
-  const emptyRowsNeeded = rowsOnLastPage ? rowsPerPage - rowsOnLastPage : 0;
-
-  // Adjust for notes if they exceed the available space
-  const totalRowsToAdd =
-    emptyRowsNeeded < extraRows
-      ? emptyRowsNeeded + rowsPerPage - extraRows
-      : emptyRowsNeeded - extraRows;
-
-  // Add empty rows to the table
-  for (let i = 0; i < totalRowsToAdd; i++) {
-    rows.push(['', '', '', '', '', '', '', '']);
-  }
-
-  return rows;
-};
-
 const addHeader = (doc, data, pageWidth, sideMargin) => {
   doc.setFontSize(20);
   doc.setFont('times', 'bold');
@@ -65,7 +46,28 @@ const addFooter = (doc, pageWidth, pageHeight) => {
   );
 };
 
-const generateTableData = (data, doc, sideMargin) => {
+const displaySummaryInformation = (doc, finalY, summaryData) => {
+  const {
+    totalEvents,
+    totalQuotes,
+    totalVessel,
+    totalCustomer,
+    totalAmount,
+    dividedTotalResponseRate,
+  } = summaryData;
+
+  doc.text(`Events: ${totalEvents}`, 4, finalY);
+  doc.text(`Quotes: ${totalQuotes}`, 32, finalY);
+  doc.text(`Vessels: ${totalVessel}`, 64, finalY);
+  doc.text(`Customers: ${totalCustomer}`, 94, finalY);
+  doc.text(`$${formatThreeDigitCommas(roundUpto(totalAmount))}`, 132, finalY);
+
+  const responseRateText = `Response Rate: ${minutesToReadable(dividedTotalResponseRate)}`;
+  const maxWidth = 40;
+  doc.text(responseRateText, 162, finalY, { maxWidth });
+};
+
+const generateTableData = (data, doc, sideMargin, pageTitleSlug = '') => {
   // Table 2
   const table2Column = [
     'Event No',
@@ -122,23 +124,23 @@ const generateTableData = (data, doc, sideMargin) => {
     });
   }
 
-  const filledRows = fillEmptyRows(table2Rows, 17);
+  const prevY = doc.previousAutoTable.finalY;
 
   // Adding Table
   doc.autoTable({
-    startY: 34,
+    startY: prevY ? prevY + 14 : prevY,
     head: [
       [
         {
-          content: 'BID RESPONSE REPORT',
+          content: `BID RESPONSE REPORT ${pageTitleSlug}`,
           colSpan: 8,
           styles: { halign: 'center', fontSize: 10, fontStyle: 'bold' },
         },
       ],
       table2Column,
     ],
-    body: filledRows,
-    margin: { left: sideMargin, right: sideMargin, bottom: 12, top: 34 },
+    body: table2Rows,
+    margin: { left: sideMargin, right: sideMargin, bottom: 18, top: 34 },
     headStyles: {
       fontSize: 8,
       fontStyle: 'bold',
@@ -191,24 +193,93 @@ const generateTableData = (data, doc, sideMargin) => {
 
   const dividedTotalResponseRate = Math.floor(totalResponseRate / totalQuotes);
 
-  // Display summary information as text
-  doc.text(`Events: ${totalEvents}`, 4, finalY);
-  doc.text(`Quotes: ${totalQuotes}`, 32, finalY);
-  doc.text(`Vessels: ${totalVessel}`, 64, finalY);
-  doc.text(`Customers: ${totalCustomer}`, 94, finalY);
-  doc.text(`$${formatThreeDigitCommas(roundUpto(totalAmount))}`, 132, finalY);
-  const responseRateText = `Response Rate: ${minutesToReadable(dividedTotalResponseRate)}`;
-  const maxWidth = 40; // Maximum width in points
-  doc.text(responseRateText, 162, finalY, { maxWidth });
+  displaySummaryInformation(doc, finalY, {
+    totalEvents,
+    totalQuotes,
+    totalVessel,
+    totalCustomer,
+    totalAmount,
+    dividedTotalResponseRate,
+  });
 };
 
-export const createBidResponsePrint = async (data) => {
+export const createGroupByBidResponsePrint = async (data, groupByData, groupBy) => {
   const doc = new jsPDF();
   doc.setTextColor(32, 50, 114);
 
   const sideMargin = 4;
 
-  generateTableData(data, doc, sideMargin);
+  for (const key in groupByData) {
+    const getFormattedValue = (data, field) => {
+      return data?.[0]?.[field] || '';
+    };
+
+    const getTitleByGroupType = {
+      date: (data) => {
+        const createdAt = getFormattedValue(data, 'created_at');
+        return createdAt ? dayjs(createdAt).format('MM-DD-YYYY') : '';
+      },
+      event: (data) => getFormattedValue(data, 'event_code'),
+      customer: (data) => getFormattedValue(data, 'customer_name'),
+      vessel: (data) => getFormattedValue(data, 'vessel_name'),
+    };
+
+    const pageTitleSlug = getTitleByGroupType[groupBy]
+      ? `(${groupBy.charAt(0).toUpperCase() + groupBy.slice(1)} - ${getTitleByGroupType[groupBy](groupByData[key])})`
+      : '';
+
+    generateTableData(groupByData[key], doc, sideMargin, pageTitleSlug);
+  }
+
+  const uniqueEvents = new Set();
+  const uniqueQuotes = new Set();
+  const uniqueVessel = new Set();
+  const uniqueCustomer = new Set();
+  let totalAmount = 0;
+  let totalResponseRate = 0;
+  data.forEach((detail) => {
+    if (detail.event_code) uniqueEvents.add(detail.event_code);
+    if (detail.document_identity) uniqueQuotes.add(detail.document_identity);
+    if (detail.vessel_id) uniqueVessel.add(detail.vessel_id);
+    if (detail.customer_id) uniqueCustomer.add(detail.customer_id);
+    if (detail.total_amount) totalAmount += +detail.total_amount;
+    if (detail.created_at && detail.qs_date) {
+      const created = dayjs(detail.created_at);
+      const responded = dayjs(detail.qs_date);
+      totalResponseRate += responded.diff(created, 'minute');
+    }
+  });
+
+  const finalY = doc.previousAutoTable.finalY + 20;
+  const pageWidth = doc.internal.pageSize.width;
+
+  // Draw line above grand total
+  doc.setLineWidth(0.3);
+  doc.setDrawColor(128, 128, 128); // Set line color to gray
+  doc.line(4, finalY - 8, pageWidth - 4, finalY - 8);
+
+  // Add summary text below the table
+  // Add Grand Total heading
+  doc.setFontSize(14);
+  doc.setFont('times', 'bold');
+  doc.text('Grand Total', pageWidth / 2, finalY, { align: 'center' });
+
+  doc.setFontSize(9);
+  doc.setFont('times', 'normal');
+
+  const totalEvents = uniqueEvents.size;
+  const totalQuotes = uniqueQuotes.size;
+  const totalVessel = uniqueVessel.size;
+  const totalCustomer = uniqueCustomer.size;
+  const dividedTotalResponseRate = Math.floor(totalResponseRate / totalQuotes);
+  displaySummaryInformation(doc, finalY + 8, {
+    totalEvents,
+    totalQuotes,
+    totalVessel,
+    totalCustomer,
+    totalAmount,
+    dividedTotalResponseRate,
+  });
 
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
@@ -225,7 +296,7 @@ export const createBidResponsePrint = async (data) => {
   }
 
   doc.setProperties({
-    title: `Bid Response Report`,
+    title: `Bid Response Report (${groupBy.toUpperCase()})`,
   });
 
   // Generate blob and open in new tab
