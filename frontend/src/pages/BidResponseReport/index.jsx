@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, DatePicker, Form } from 'antd';
+import { Breadcrumb, Button, DatePicker, Form, Select } from 'antd';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -20,6 +20,7 @@ const BidResponseReport = () => {
     end_date: null,
     vessel_id: null,
     customer_id: null,
+    groupBy: null,
     limit: 5000,
   });
 
@@ -27,8 +28,39 @@ const BidResponseReport = () => {
     try {
       setIsSubmitting(type);
       const { data } = await dispatch(getBidResponseList(filterParams)).unwrap();
+
+      // Check if groupBy filter is applied
+      if (filterParams.groupBy) {
+        // Define mapping functions for different grouping criteria
+        const groupByMapping = {
+          date: (item) => dayjs(item.created_at).format('YYYY-MM-DD'), // Group by formatted date
+          event: (item) => item.event_id, // Group by event ID
+          customer: (item) => item.customer_id, // Group by customer ID
+          vessel: (item) => item.vessel_id, // Group by vessel ID
+        };
+
+        // Get the appropriate grouping function based on selected criteria
+        const groupKey = groupByMapping[filterParams.groupBy];
+        if (!groupKey) return;
+
+        // Group the data using reduce
+        const groupByData = data.reduce((acc, item) => {
+          const key = groupKey(item); // Get grouping key for current item
+          if (!acc[key]) {
+            acc[key] = []; // Initialize array for new group
+          }
+          acc[key].push(item); // Add item to its group
+          return acc;
+        }, {});
+
+        // Create print with grouped data
+        createBidResponsePrint(data, groupByData, filterParams.groupBy);
+        return;
+      }
+
       createBidResponsePrint(data);
     } catch (error) {
+      console.log(error);
       handlerError(error);
     } finally {
       setIsSubmitting(false);
@@ -91,6 +123,33 @@ const BidResponseReport = () => {
                 value={filterParams.customer_id}
                 onChange={(value) => setFilterParams({ ...filterParams, customer_id: value })}
                 allowClear
+              />
+            </Form.Item>
+
+            <Form.Item name="groupBy" label="Group By" layout="vertical">
+              <Select
+                options={[
+                  {
+                    value: 'vessel',
+                    label: 'Vessel',
+                  },
+                  {
+                    value: 'customer',
+                    label: 'Customer',
+                  },
+                  {
+                    value: 'date',
+                    label: 'Date',
+                  },
+                  {
+                    value: 'event',
+                    label: 'Event',
+                  },
+                ]}
+                value={filterParams.groupBy}
+                onChange={(value) => setFilterParams({ ...filterParams, groupBy: value })}
+                allowClear
+                placeholder="Select Group By"
               />
             </Form.Item>
           </div>

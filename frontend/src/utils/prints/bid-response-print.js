@@ -47,13 +47,6 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
 
   // Header LOGO
   doc.addImage(GMSLogo, 'PNG', 8, 1, 35, 26);
-
-  // Heading
-  doc.setFontSize(16);
-  doc.setFont('times', 'bold');
-  doc.text('BID RESPONSE REPORT', pageWidth / 2, 38, {
-    align: 'center',
-  });
   doc.setFontSize(10);
 };
 
@@ -72,12 +65,7 @@ const addFooter = (doc, pageWidth, pageHeight) => {
   );
 };
 
-export const createBidResponsePrint = async (data) => {
-  const doc = new jsPDF();
-  doc.setTextColor(32, 50, 114);
-
-  const sideMargin = 4;
-
+const generateTableData = (data, doc, sideMargin, pageTitleSlug = '') => {
   // Table 2
   const table2Column = [
     'Event No',
@@ -138,10 +126,19 @@ export const createBidResponsePrint = async (data) => {
 
   // Adding Table
   doc.autoTable({
-    startY: 42,
-    head: [table2Column],
+    startY: 34,
+    head: [
+      [
+        {
+          content: `BID RESPONSE REPORT ${pageTitleSlug}`,
+          colSpan: 8,
+          styles: { halign: 'center', fontSize: 10, fontStyle: 'bold' },
+        },
+      ],
+      table2Column,
+    ],
     body: filledRows,
-    margin: { left: sideMargin, right: sideMargin, bottom: 12, top: 42 },
+    margin: { left: sideMargin, right: sideMargin, bottom: 12, top: 34 },
     headStyles: {
       fontSize: 8,
       fontStyle: 'bold',
@@ -203,6 +200,41 @@ export const createBidResponsePrint = async (data) => {
   const responseRateText = `Response Rate: ${minutesToReadable(dividedTotalResponseRate)}`;
   const maxWidth = 40; // Maximum width in points
   doc.text(responseRateText, 162, finalY, { maxWidth });
+};
+
+export const createBidResponsePrint = async (data, groupByData, groupBy) => {
+  const doc = new jsPDF();
+  doc.setTextColor(32, 50, 114);
+
+  const sideMargin = 4;
+
+  if (groupBy) {
+    for (const key in groupByData) {
+      const getFormattedValue = (data, field) => {
+        return data?.[0]?.[field] || '';
+      };
+
+      const getTitleByGroupType = {
+        date: (data) => {
+          const createdAt = getFormattedValue(data, 'created_at');
+          return createdAt ? dayjs(createdAt).format('MM-DD-YYYY') : '';
+        },
+        event: (data) => getFormattedValue(data, 'event_code'),
+        customer: (data) => getFormattedValue(data, 'customer_name'),
+        vessel: (data) => getFormattedValue(data, 'vessel_name'),
+      };
+
+      const pageTitleSlug = getTitleByGroupType[groupBy]
+        ? `(${groupBy.charAt(0).toUpperCase() + groupBy.slice(1)} - ${getTitleByGroupType[groupBy](groupByData[key])})`
+        : '';
+
+      generateTableData(groupByData[key], doc, sideMargin, pageTitleSlug);
+      // break page.
+      doc.addPage();
+    }
+  }
+
+  generateTableData(data, doc, sideMargin, groupBy ? '(All)' : '');
 
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
@@ -219,7 +251,7 @@ export const createBidResponsePrint = async (data) => {
   }
 
   doc.setProperties({
-    title: `Bid Response`,
+    title: `Bid Response Report ${groupBy ? `(${groupBy.toUpperCase()})` : ''}`,
   });
 
   // Generate blob and open in new tab
