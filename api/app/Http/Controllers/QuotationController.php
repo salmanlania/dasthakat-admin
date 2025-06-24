@@ -194,17 +194,23 @@ class QuotationController extends Controller
 			"payment",
 			"port",
 			"person_incharge",
-			"quotation_detail.supplier",
-			"quotation_detail.unit",
-			"quotation_detail.product_type",
-			"quotation_detail.product"
+			// "quotation_detail.supplier",
+			// "quotation_detail.unit",
+			// "quotation_detail.product_type",
+			// "quotation_detail.product"
 		)
 			->where('quotation_id', $id)->first();
 		
 		if (!$data) {
 			return $this->jsonResponse(null, 404, "Quotation not found");
 		}
-
+		$data->quotation_detail = QuotationDetail::with([
+			"product",
+			"supplier",
+			"unit",
+			"product_type"
+		])->where('quotation_id', $id)->get();
+	
 		// Process quotation details
 		$data->quotation_detail->each(function ($detail) use ($request) {
 			// Calculate available quantity

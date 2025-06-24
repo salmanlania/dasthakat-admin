@@ -104,15 +104,22 @@ class ChargeOrderController extends Controller
 			"class1",
 			"class2",
 			"agent",
-			"charge_order_detail.product",
-			"charge_order_detail.supplier",
-			"charge_order_detail.unit",
-			"charge_order_detail.product_type"
+			// "charge_order_detail.product",
+			// "charge_order_detail.supplier",
+			// "charge_order_detail.unit",
+			// "charge_order_detail.product_type"
 		])->where('charge_order_id', $id)->first();
 	
 		if (!$data) {
 			return $this->jsonResponse(null, 404, "Charge Order not found");
 		}
+
+		$data->charge_order_detail = ChargeOrderDetail::with([
+			"product",
+			"supplier",
+			"unit",
+			"product_type"
+		])->where('charge_order_id', $id)->get();
 	
 		// Load technicians (assuming technician_id stores JSON array)
 		$technicianIds = is_array($data->technician_id) ? $data->technician_id : [];
