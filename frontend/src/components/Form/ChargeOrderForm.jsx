@@ -171,95 +171,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
 
     closeNotesModal();
   };
-
-  const onProductCodeChange = async (index, value) => {
-    if (!value.trim()) return;
-    try {
-      const res = await dispatch(getProductList({ product_code: value, stock: true })).unwrap();
-
-      if (!res.data.length) return;
-
-      const product = res.data[0];
-      const stockQuantity = product?.stock?.quantity || 0;
-
-      form.setFieldsValue({
-        [`product_id-${index}`]: product?.product_id
-          ? {
-            value: product.product_id,
-            label: product.product_name
-          }
-          : null,
-        [`product_description-${index}`]: product?.product_name || ''
-      });
-
-      dispatch(
-        changeChargeOrderDetailValue({
-          index,
-          key: 'product_id',
-          value: {
-            value: product.product_id,
-            label: product.product_name
-          }
-        })
-      );
-
-      dispatch(
-        changeChargeOrderDetailValue({
-          index,
-          key: 'product_description',
-          value: product?.product_name || ''
-        })
-      );
-
-      dispatch(
-        changeChargeOrderDetailValue({
-          index,
-          key: 'product_type_id',
-          value: product.product_type_id
-            ? {
-              value: product.product_type_id,
-              label: product.product_type_name
-            }
-            : null
-        })
-      );
-
-      dispatch(
-        changeChargeOrderDetailValue({
-          index,
-          key: 'unit_id',
-          value: { value: product.unit_id, label: product.unit_name }
-        })
-      );
-
-      dispatch(
-        changeChargeOrderDetailValue({
-          index,
-          key: 'stock_quantity',
-          value: stockQuantity
-        })
-      );
-
-      dispatch(
-        changeChargeOrderDetailValue({
-          index,
-          key: 'cost_price',
-          value: product.cost_price
-        })
-      );
-
-      dispatch(
-        changeChargeOrderDetailValue({
-          index,
-          key: 'rate',
-          value: product.sale_price
-        })
-      );
-    } catch (error) {
-      handleError(error);
-    }
-  };
-
+  
   const onProductChange = async (index, selected) => {
     dispatch(
       changeChargeOrderDetailValue({
@@ -1381,8 +1293,6 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
             loading={isFormSubmitting && submitAction === 'save'}
             onClick={() => {
               onFinish('save');
-              // setSubmitAction('save');
-              // (isFormSubmitting ? null : isFormSubmitting)
             }}>
             Save
           </Button>
@@ -1392,8 +1302,6 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
             loading={isFormSubmitting && submitAction === 'saveAndExit'}
             onClick={() => {
               onFinish('saveAndExit');
-              // setSubmitAction('saveAndExit');
-              // (isFormSubmitting ? null : onFinish())
             }}>
             Save & Exit
           </Button>

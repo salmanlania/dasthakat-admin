@@ -13,7 +13,6 @@ const EditSaleInvoice = () => {
   const navigate = useNavigate();
   const handleError = useError();
   const { id } = useParams();
-  const { isItemLoading, initialFormValues } = useSelector((state) => state.saleInvoice);
 
   const onSaleInvoiceUpdate = async (data) => {
     try {
@@ -36,7 +35,6 @@ const EditSaleInvoice = () => {
   };
 
   useEffect(() => {
-    // dispatch(getSaleInvoice(id)).unwrap().catch(handleError);
     try {
       dispatch(getSaleInvoice(id)).unwrap()
     } catch (error) {

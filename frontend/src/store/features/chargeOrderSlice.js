@@ -333,7 +333,8 @@ export const chargeOrderSlice = createSlice({
 
       if (
         productType?.label !== 'Service' &&
-        key !== 'rate' &&
+        // key !== 'rate' &&
+        !['rate', 'supplier_id', 'vendor_part_no', 'unit_id'].includes(key) &&
         detail.cost_price &&
         detail.markup
       ) {
