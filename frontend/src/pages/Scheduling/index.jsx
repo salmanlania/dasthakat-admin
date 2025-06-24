@@ -155,19 +155,70 @@ const Scheduling = () => {
     }
   };
 
+  // const exportExcel = async () => {
+  //   const loadingToast = toast.loading('Downloading Excel File...');
+
+  //   try {
+  //     const exportParams = {
+  //       ...getFilteredParams(),
+  //       sort_direction: 'ascend'
+  //     };
+  //     const data = await dispatch(getDispatchList(exportParams)).unwrap();
+  //     generateSchedulingExcel(data, true);
+  //     setTableKey((prevKey) => prevKey + 1);
+  //   } catch (error) {
+  //     handleError(error)
+  //   } finally {
+  //     toast.dismiss(loadingToast);
+  //   }
+  // };
+
+  // const exportPdf = async () => {
+  //   const loadingToast = toast.loading('Loading Print View...');
+
+  //   try {
+  //     // const exportParams = {
+  //     //   ...getFilteredParams(),
+  //     //   sort_direction: 'ascend'
+  //     // };
+  //     const hasDateRange = params.start_date && params.end_date;
+  //     let exportParams;
+  //     const newDate = !isOldChecked ? dayjs().format('YYYY-MM-DD') : null;
+  //     // const exportParams = {
+  //     //   ...params,
+  //     //   start_date: newDate,
+  //     //   end_date: null,
+  //     //   ...getFilteredParams(),
+  //     //   sort_direction: 'ascend'
+  //     // };
+  //     const data = await dispatch(getDispatchList(exportParams)).unwrap();
+  //     createSchedulingListPrint(Array.isArray(data) ? data : [data], true);
+  //     setTableKey((prevKey) => prevKey + 1);
+  //   } catch (error) {
+  //     console.log('error', error)
+  //     handleError(error);
+  //   } finally {
+  //     toast.dismiss(loadingToast);
+  //   }
+  // };
+
+
   const exportExcel = async () => {
     const loadingToast = toast.loading('Downloading Excel File...');
 
     try {
+      // Check if date range is selected
       const hasDateRange = params.start_date && params.end_date;
 
       let exportParams;
       if (hasDateRange) {
+        // If date range is selected, use it
         exportParams = {
           ...params,
           sort_direction: 'ascend'
         };
       } else {
+        // If no date range selected, use current date and forward
         const today = dayjs().format('YYYY-MM-DD');
         exportParams = {
           ...params,
@@ -191,15 +242,18 @@ const Scheduling = () => {
     const loadingToast = toast.loading('Loading Print View...');
 
     try {
+      // Check if date range is selected
       const hasDateRange = params.start_date && params.end_date;
 
       let exportParams;
       if (hasDateRange) {
+        // If date range is selected, use it
         exportParams = {
           ...params,
           sort_direction: 'ascend'
         };
       } else {
+        // If no date range selected, use current date and forward
         const today = dayjs().format('YYYY-MM-DD');
         exportParams = {
           ...params,
@@ -219,7 +273,6 @@ const Scheduling = () => {
       toast.dismiss(loadingToast);
     }
   };
-
   const printPickLists = async (id) => {
     const loadingToast = toast.loading('Loading Pick Lists print...');
 
@@ -325,7 +378,11 @@ const Scheduling = () => {
                 'event_date',
                 date ? dayjs(date).format('YYYY-MM-DD') : null
               );
-              setTableKey((prev) => prev + 1);
+
+              // dispatch(getDispatchList(getFilteredParams()))
+              //   .unwrap()
+              //   .then(() => 
+                  setTableKey((prev) => prev + 1);
             }}
           />
         );
@@ -882,6 +939,7 @@ const Scheduling = () => {
       })
     );
   };
+
 
   return (
     <>
