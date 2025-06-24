@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, DatePicker, Form } from 'antd';
+import { Breadcrumb, Button, DatePicker, Form, Select } from 'antd';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -7,6 +7,8 @@ import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
 import { getBidResponseList } from '../../store/features/quotationSlice';
 import { createBidResponsePrint } from '../../utils/prints/bid-response-print';
+import { createGroupByBidResponsePrint } from '../../utils/prints/bid-response-print-groupby';
+import generateBidResponseExcel from '../../utils/excel/bid-response-excel';
 
 const { RangePicker } = DatePicker;
 
@@ -20,6 +22,7 @@ const BidResponseReport = () => {
     end_date: null,
     vessel_id: null,
     customer_id: null,
+    groupBy: null,
     limit: 5000,
   });
 
@@ -27,8 +30,47 @@ const BidResponseReport = () => {
     try {
       setIsSubmitting(type);
       const { data } = await dispatch(getBidResponseList(filterParams)).unwrap();
-      createBidResponsePrint(data);
+
+      // Check if groupBy filter is applied
+      if (filterParams.groupBy) {
+        // Define mapping functions for different grouping criteria
+        const groupByMapping = {
+          date: (item) => dayjs(item.created_at).format('YYYY-MM-DD'), // Group by formatted date
+          event: (item) => item.event_id, // Group by event ID
+          customer: (item) => item.customer_id, // Group by customer ID
+          vessel: (item) => item.vessel_id, // Group by vessel ID
+        };
+
+        // Get the appropriate grouping function based on selected criteria
+        const groupKey = groupByMapping[filterParams.groupBy];
+        if (!groupKey) return;
+
+        // Group the data using reduce
+        const groupByData = data.reduce((acc, item) => {
+          const key = groupKey(item); // Get grouping key for current item
+          if (!acc[key]) {
+            acc[key] = []; // Initialize array for new group
+          }
+          acc[key].push(item); // Add item to its group
+          return acc;
+        }, {});
+
+        // Create print with grouped data
+        if (type === 'pdf') {
+          createGroupByBidResponsePrint(data, groupByData, filterParams.groupBy);
+        } else {
+          generateBidResponseExcel(data, groupByData, filterParams.groupBy);
+        }
+        return;
+      }
+
+      if (type === 'pdf') {
+        createBidResponsePrint(data);
+      } else {
+        generateBidResponseExcel(data);
+      }
     } catch (error) {
+      console.log(error);
       handlerError(error);
     } finally {
       setIsSubmitting(false);
@@ -91,6 +133,33 @@ const BidResponseReport = () => {
                 value={filterParams.customer_id}
                 onChange={(value) => setFilterParams({ ...filterParams, customer_id: value })}
                 allowClear
+              />
+            </Form.Item>
+
+            <Form.Item name="groupBy" label="Group By" layout="vertical">
+              <Select
+                options={[
+                  {
+                    value: 'vessel',
+                    label: 'Vessel',
+                  },
+                  {
+                    value: 'customer',
+                    label: 'Customer',
+                  },
+                  {
+                    value: 'date',
+                    label: 'Date',
+                  },
+                  {
+                    value: 'event',
+                    label: 'Event',
+                  },
+                ]}
+                value={filterParams.groupBy}
+                onChange={(value) => setFilterParams({ ...filterParams, groupBy: value })}
+                allowClear
+                placeholder="Select Group By"
               />
             </Form.Item>
           </div>
