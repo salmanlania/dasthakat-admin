@@ -209,7 +209,7 @@ class QuotationController extends Controller
 			"supplier",
 			"unit",
 			"product_type"
-		])->where('quotation_id', $id)->get();
+		])->where('quotation_id', $id)->orderBy('sort_order','DESC')->get();
 	
 		// Process quotation details
 		$data->quotation_detail->each(function ($detail) use ($request) {
