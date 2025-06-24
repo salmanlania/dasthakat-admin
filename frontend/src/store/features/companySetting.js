@@ -33,6 +33,17 @@ export const sendTestEmail = createAsyncThunk(
   }
 );
 
+export const dbBackup = createAsyncThunk(
+  'setting/dbbackup',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get('/setting/dbbackup');
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
 
 const initialState = {
   isItemLoading: false,

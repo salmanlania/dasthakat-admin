@@ -1,7 +1,7 @@
-import { Avatar, Layout, Menu, Select } from 'antd';
+import { Avatar, Layout, Menu, Select, Modal } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { BiChevronLeft } from 'react-icons/bi';
-import { FaRegUser } from 'react-icons/fa';
+import { FaRegUser, FaRegSave } from 'react-icons/fa';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import { TbReportAnalytics } from 'react-icons/tb';
 import { IoSearchSharp } from 'react-icons/io5';
@@ -10,6 +10,10 @@ import { MdOutlineAdminPanelSettings, MdOutlineDashboard } from 'react-icons/md'
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toggleSidebar } from '../../store/features/sidebarSlice';
+import BackupModal from '../Modals/BackupModal';
+import { dbBackup } from '../../store/features/companySetting';
+import toast from 'react-hot-toast';
+import useError from '../../hooks/useError';
 
 const getLevelKeys = (items1) => {
   const key = {};
@@ -35,6 +39,28 @@ const Sidebar = () => {
   const { user } = useSelector((state) => state.auth);
   const [stateOpenKeys, setStateOpenKeys] = useState([]);
   const searchRef = useRef(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const handleError = useError();
+
+  const showBackupModal = () => setIsModalVisible(true);
+  const closeBackupModal = () => setIsModalVisible(false);
+
+  const handleBackupSuccess = async () => {
+    try {
+      const res = await dispatch(dbBackup()).unwrap();
+      console.log('res', res?.data?.file_path)
+      if (!res?.data?.file_path) {
+        window.open(res?.data?.file_path, '_blank');
+        toast.success('Backup successfully generated')
+        closeBackupModal()
+      } else {
+        toast.error('Backup created but file not found');
+        closeBackupModal()
+      }
+    } catch (error) {
+      handleError(error)
+    }
+  }
 
   const permissions = user?.permission;
 
@@ -430,6 +456,13 @@ const Sidebar = () => {
         },
       ],
     },
+    {
+      key: 'backup',
+      label: 'Backup',
+      icon: <FaRegSave size={18} />,
+      onClick: showBackupModal,
+      // disabled: LogisticsPermission,
+    },
   ];
   const levelKeys = getLevelKeys(items);
 
@@ -505,9 +538,8 @@ const Sidebar = () => {
       collapsedWidth="0"
       theme="light"
       collapsed={isCollapsed}
-      className={`${isSmallScreen ? '!fixed' : '!sticky'} ${
-        isCollapsed ? '' : 'border-r'
-      } scrollbar !left-0 !top-0 z-50 h-screen overflow-y-auto`}
+      className={`${isSmallScreen ? '!fixed' : '!sticky'} ${isCollapsed ? '' : 'border-r'
+        } scrollbar !left-0 !top-0 z-50 h-screen overflow-y-auto`}
       width={240}>
       <div className="m-2 flex flex-col items-center justify-center gap-2 rounded-xl bg-slate-200 p-4 px-2">
         {isSmallScreen && (
@@ -563,6 +595,12 @@ const Sidebar = () => {
         items={items}
         openKeys={stateOpenKeys}
         onOpenChange={onOpenChange}
+      />
+
+      <BackupModal
+        open={isModalVisible}
+        onCancel={closeBackupModal}
+        onBackupSuccess={handleBackupSuccess}
       />
     </Layout.Sider>
   );
