@@ -119,7 +119,7 @@ class ChargeOrderController extends Controller
 			"supplier",
 			"unit",
 			"product_type"
-		])->where('charge_order_id', $id)->get();
+		])->where('charge_order_id', $id)->orderBy('sort_order')->get();
 	
 		// Load technicians (assuming technician_id stores JSON array)
 		$technicianIds = is_array($data->technician_id) ? $data->technician_id : [];
