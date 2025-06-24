@@ -8,6 +8,7 @@ import useError from '../../hooks/useError';
 import { getBidResponseList } from '../../store/features/quotationSlice';
 import { createBidResponsePrint } from '../../utils/prints/bid-response-print';
 import { createGroupByBidResponsePrint } from '../../utils/prints/bid-response-print-groupby';
+import generateBidResponseExcel from '../../utils/excel/bid-response-excel';
 
 const { RangePicker } = DatePicker;
 
@@ -57,12 +58,16 @@ const BidResponseReport = () => {
         // Create print with grouped data
         if (type === 'pdf') {
           createGroupByBidResponsePrint(data, groupByData, filterParams.groupBy);
+        } else {
+          generateBidResponseExcel(data, groupByData, filterParams.groupBy);
         }
         return;
       }
 
       if (type === 'pdf') {
         createBidResponsePrint(data);
+      } else {
+        generateBidResponseExcel(data);
       }
     } catch (error) {
       console.log(error);

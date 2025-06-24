@@ -85,7 +85,6 @@ const generateTableData = (data, doc, sideMargin) => {
   const uniqueVessel = new Set();
   const uniqueCustomer = new Set();
   let totalAmount = 0;
-
   let totalResponseRate = 0;
 
   if (data) {
