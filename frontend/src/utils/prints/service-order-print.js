@@ -396,7 +396,7 @@ export const createServiceOrderPrint = (data, multiple = false) => {
   }
 
   doc.setProperties({
-    // title: `Service Order - ${multiple ? data[0]?.event.event_code : data.document_identity}`
+    title: `Service Order - ${multiple ? data[0]?.event.event_code : data.document_identity} - ${data[0]?.event?.vessel?.name ? data[0]?.event?.vessel?.name : data?.event?.vessel?.name}`
   });
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob, {});

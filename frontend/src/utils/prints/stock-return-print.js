@@ -318,7 +318,7 @@ export const createStockReturnPrint = (data) => {
   }
 
   doc.setProperties({
-    title: `SR - ${data.document_identity}`
+    title: `Stock Return - ${data.document_identity} - ${data?.charge_order?.vessel?.name}`
   });
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob, {});

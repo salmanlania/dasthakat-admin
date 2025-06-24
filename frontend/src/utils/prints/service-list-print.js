@@ -192,7 +192,7 @@ export const createServiceListPrint = (data) => {
   }
 
   doc.setProperties({
-    title: `Service List - ${data.document_identity}`
+    title: `Service List - ${data.document_identity} - ${data?.charge_order?.vessel?.name}`
   });
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob, {});

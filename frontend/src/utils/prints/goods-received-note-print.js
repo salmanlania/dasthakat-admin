@@ -312,7 +312,7 @@ export const createGoodsReceivedNotePrint = (data) => {
   });
 
   doc.setProperties({
-    title: 'Quotation - 0014'
+    title: 'GRN - 0014'
   });
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob, {});

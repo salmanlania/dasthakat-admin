@@ -596,7 +596,7 @@ export const createIJOPrint = (data, multiple = false) => {
   }
 
   doc.setProperties({
-    title: `IJO - ${multiple ? data[0]?.event.event_code : data.document_identity}`
+    title: `IJO - ${multiple ? data[0]?.event.event_code : data?.event.event_code ? data?.event.event_code : data?.document_identity} - ${data?.vessel?.name ? data?.vessel?.name : data[0]?.vessel?.name ? data[0]?.vessel?.name : ''}`
   });
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob, {});

@@ -429,6 +429,7 @@ export const createShipmentPrint = (data, multiple = false) => {
   }
 
   doc.setProperties({
+    title: `Shipment - ${data?.document_identity} - ${data?.event?.vessel?.name}`
   });
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob, {});

@@ -219,7 +219,7 @@ export const createBidResponsePrint = async (data) => {
   }
 
   doc.setProperties({
-    title: `Bid Response`,
+    title: `Bid Response - ${data[0]?.document_identity ? data[0]?.document_identity : ''} - ${data[0]?.vessel_name ? data[0]?.vessel_name : ''}`,
   });
 
   // Generate blob and open in new tab

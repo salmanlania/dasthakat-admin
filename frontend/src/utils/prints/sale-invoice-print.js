@@ -15,7 +15,7 @@ import Logo7 from '../../assets/quotation/logo7.png';
 import { formatThreeDigitCommas, roundUpto } from '../number';
 import { AiOutlineConsoleSql } from 'react-icons/ai';
 
-const mergePDFs = async (quotationPDFBlob) => {
+const mergePDFs = async (quotationPDFBlob, titleText) => {
   const quotationPDFBytes = await quotationPDFBlob.arrayBuffer();
   const quotationPDF = await PDFDocument.load(quotationPDFBytes);
 
@@ -32,6 +32,7 @@ const mergePDFs = async (quotationPDFBlob) => {
   // Add terms pages at the end
   // termsPages.forEach((page) => mergedPDF.addPage(page));
 
+  mergedPDF.setTitle(titleText);
   const finalPDFBytes = await mergedPDF.save();
   const finalBlob = new Blob([finalPDFBytes], { type: 'application/pdf' });
   const finalUrl = URL.createObjectURL(finalBlob);
@@ -457,8 +458,8 @@ export const createSaleInvoicePrint = async (data) => {
   }
 
   doc.setProperties({
-    title: `Quotation - ${data.document_identity}`
+    title: `Sale Invoice - ${data.document_identity} - ${data?.charge_order?.vessel?.name}`
   });
   const pdfBlob = doc.output('blob');
-  await mergePDFs(pdfBlob);
+  await mergePDFs(pdfBlob, `Sale Invoice - ${data.document_identity} - ${data?.charge_order?.vessel?.name}`);
 };

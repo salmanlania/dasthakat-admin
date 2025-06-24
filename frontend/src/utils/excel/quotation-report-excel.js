@@ -13,7 +13,6 @@ const getImageBuffer = async (image) => {
 };
 
 const generateQuotationReportExcel = async (datas) => {
-
   try {
     const data = datas?.data
     const workbook = new ExcelJS.Workbook();
@@ -311,9 +310,8 @@ const generateQuotationReportExcel = async (datas) => {
       });
     });
 
-    const currentDateTime = dayjs().format('YYYYMMDD-HHmmss');
     const buffer = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buffer]), `Quotation Report-${datas?.data[0]?.company_id ? datas?.data[0]?.company_id : datas?.data[0]?.created_at}.xlsx`);
+    saveAs(new Blob([buffer]), `Quotation Report-${datas?.data[0]?.document_identity ? datas?.data[0]?.document_identity : datas?.data[0]?.event_code ? datas?.data[0]?.event_code : datas?.data[0]?.qs_date}-${datas?.data[0]?.vessel_name ? datas?.data[0]?.vessel_name : ''}.xlsx`);
 
   } catch (error) {
     toast.error(error)

@@ -308,7 +308,7 @@ export const createPurchaseReturnPrint = (data) => {
   }
 
   doc.setProperties({
-    title: `PR - ${data.document_identity}`
+    title: `PR - ${data.document_identity} - ${data?.charge_order?.vessel?.name}`
   });
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob, {});

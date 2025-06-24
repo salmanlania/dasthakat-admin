@@ -156,24 +156,13 @@ const Scheduling = () => {
   const exportExcel = async () => {
     const loadingToast = toast.loading('Downloading Excel File...');
 
-    const originalParams = { ...params };
-
     try {
-      const newDate = !isOldChecked ? dayjs().format('YYYY-MM-DD') : null;
       const exportParams = {
-        ...params,
-        start_date: newDate,
-        end_date: null,
+        ...getFilteredParams(),
         sort_direction: 'ascend'
       };
-
       const data = await dispatch(getDispatchList(exportParams)).unwrap();
-
       generateSchedulingExcel(data, true);
-
-      dispatch(setDispatchListParams(originalParams));
-      dispatch(getDispatchList(originalParams));
-
       setTableKey((prevKey) => prevKey + 1);
     } catch (error) {
       handleError(error)
@@ -185,24 +174,13 @@ const Scheduling = () => {
   const exportPdf = async () => {
     const loadingToast = toast.loading('Loading Print View...');
 
-    const originalParams = { ...params };
-
     try {
-      const newDate = !isOldChecked ? dayjs().format('YYYY-MM-DD') : null;
       const exportParams = {
-        ...params,
-        start_date: newDate,
-        end_date: null,
+        ...getFilteredParams(),
         sort_direction: 'ascend'
       };
-
       const data = await dispatch(getDispatchList(exportParams)).unwrap();
-
       createSchedulingListPrint(Array.isArray(data) ? data : [data], true);
-
-      dispatch(setDispatchListParams(originalParams));
-      dispatch(getDispatchList(originalParams));
-
       setTableKey((prevKey) => prevKey + 1);
     } catch (error) {
       handleError(error);
@@ -808,13 +786,6 @@ const Scheduling = () => {
   ];
 
   useEffect(() => {
-    const today = dayjs().format('YYYY-MM-DD');
-
-    const modifiedParams = {
-      ...params,
-      start_date: !isOldChecked ? today : params.start_date,
-      end_date: !isOldChecked ? null : params.end_date
-    };
     dispatch(getDispatchList(getFilteredParams())).unwrap().catch(handleError);
   }, [
     isOldChecked,

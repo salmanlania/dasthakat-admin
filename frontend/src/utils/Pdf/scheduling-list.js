@@ -276,7 +276,7 @@ const createSchedulingListPrint = (data, multiple = false) => {
   }
 
   doc.setProperties({
-    title: `Scheduling - ${multiple ? data[0]?.data[0]?.company_id : data[0]?.data[0]?.created_at}`
+    title: `Scheduling - ${multiple ? data[0]?.data[0]?.event_code : data[0]?.data[0]?.event_code ? data[0]?.data[0]?.event_code : data[0]?.data[0]?.created_at} - ${multiple ? data[0]?.data[0]?.vessel_name : data[0]?.data[0]?.vessel_name ? data[0]?.data[0]?.vessel_name : ''}`
   });
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob, {});

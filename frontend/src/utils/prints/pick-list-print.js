@@ -193,7 +193,7 @@ export const createPickListPrint = (data, multiple = false) => {
   }
 
   doc.setProperties({
-    title: `Pick List - ${multiple ? data[0]?.charge_order?.event.event_code : data.document_identity}`
+    title: `Pick List - ${multiple ? data[0]?.charge_order?.event.event_code : data.document_identity} - ${data?.charge_order?.vessel?.name ? data?.charge_order?.vessel?.name : ''}`
   });
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob, {});

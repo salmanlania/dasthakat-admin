@@ -13,7 +13,6 @@ const getImageBuffer = async (image) => {
 };
 
 const generateSchedulingExcel = async (datas) => {
-
   try {
     const data = datas?.data
     const workbook = new ExcelJS.Workbook();
@@ -361,14 +360,12 @@ const generateSchedulingExcel = async (datas) => {
       });
     });
 
-    const currentDateTime = dayjs().format('YYYYMMDD-HHmmss');
     const buffer = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buffer]), `Scheduling-${datas?.data[0]?.company_id ? datas?.data[0]?.company_id : datas?.data[0]?.created_at}.xlsx`);
+    saveAs(new Blob([buffer]), `Scheduling-${datas?.data[0]?.event_code ? datas?.data[0]?.event_code : datas?.data[0]?.created_at}-${datas?.data[0]?.vessel_name ? datas?.data[0]?.vessel_name : ''}.xlsx`);
 
   } catch (error) {
     toast.error(error)
   }
-
 };
 
 export default generateSchedulingExcel;

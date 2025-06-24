@@ -33,7 +33,7 @@ const generateQuotationExcel = async (data) => {
 
   // Merge cells for the title section
   worksheet.mergeCells('G2:M2');
-  worksheet.mergeCells('G3:M3'); 
+  worksheet.mergeCells('G3:M3');
   worksheet.mergeCells('E4:O4');
 
   worksheet.getCell('G2').value = 'Global Marine Safety - America';
@@ -141,10 +141,10 @@ const generateQuotationExcel = async (data) => {
   worksheet.mergeCells(`Q${currentRow + 1}:R${currentRow + 1}`);
 
   worksheet.getCell(`Q${currentRow + 1}`).value = data.service_date
-  ? data.service_date === "1989-11-30"
-    ? dayjs(data.service_date).format('MM-DD-YYYY')
-    : 'TBA'
-  : '';
+    ? data.service_date === "1989-11-30"
+      ? dayjs(data.service_date).format('MM-DD-YYYY')
+      : 'TBA'
+    : '';
 
   for (let i = 0; i < 2; i++) {
     worksheet.getRow(currentRow + i).eachCell((cell) => {
@@ -509,7 +509,7 @@ const generateQuotationExcel = async (data) => {
 
   // Generate Excel file
   const buffer = await workbook.xlsx.writeBuffer();
-  saveAs(new Blob([buffer]), `Quotation-${data?.document_identity}.xlsx`);
+  saveAs(new Blob([buffer]), `Quotation-${data?.document_identity ? data?.document_identity : data?.event?.event_code ? data?.event?.event_code : data?.created_at}-${data?.vessel?.name ? data?.vessel?.name : ''}.xlsx`);
 };
 
 export default generateQuotationExcel;

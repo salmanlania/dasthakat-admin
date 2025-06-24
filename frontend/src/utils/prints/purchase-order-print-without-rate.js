@@ -294,7 +294,7 @@ export const createPurchaseOrderWithoutRatePrint = (data) => {
   }
 
   doc.setProperties({
-    title: `PO - ${data.document_identity}`
+    title: `PO - ${data.document_identity} - ${data?.charge_order?.vessel?.name ? data?.charge_order?.vessel?.name : ''}`
   });
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob, {});

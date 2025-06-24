@@ -223,7 +223,7 @@ const createQuotationReportPrint = (data, multiple = false) => {
   }
 
   doc.setProperties({
-    title: `Quotation Report - ${multiple ? data[0]?.data[0]?.company_id : data[0]?.data[0]?.created_at}`
+    title: `Quotation Report - ${data[0]?.data[0]?.document_identity ? data[0]?.data[0]?.document_identity : ''} - ${data[0]?.data[0]?.vessel_name ? data[0]?.data[0]?.vessel_name : ''}`
   });
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob, {});

@@ -15,7 +15,7 @@ import QuotationTerms from '../../assets/quotation/quotationTerms.pdf';
 
 import { formatThreeDigitCommas, roundUpto } from '../number';
 
-const mergePDFs = async (quotationPDFBlob) => {
+const mergePDFs = async (quotationPDFBlob, titleText) => {
   const quotationPDFBytes = await quotationPDFBlob.arrayBuffer();
   const quotationPDF = await PDFDocument.load(quotationPDFBytes);
 
@@ -32,6 +32,7 @@ const mergePDFs = async (quotationPDFBlob) => {
   // Add terms pages at the end
   termsPages.forEach((page) => mergedPDF.addPage(page));
 
+  mergedPDF.setTitle(titleText);
   const finalPDFBytes = await mergedPDF.save();
   const finalBlob = new Blob([finalPDFBytes], { type: 'application/pdf' });
   const finalUrl = URL.createObjectURL(finalBlob);
@@ -97,15 +98,15 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
     data.customer?.address,
     data.customer?.billing_address
   ].filter(Boolean).join(',\n');
-  
+
   const billTo = doc.splitTextToSize(
     [customerInfo].filter(Boolean).join('\n'),
     120
   );
-  
+
   doc.text(billTo, sideMargin, 45);
 
-    
+
   const vesselInfo = [
     data.vessel?.name,
     data.vessel?.billing_address
@@ -483,5 +484,5 @@ export const createQuotationPrint = async (data) => {
     title: `Quotation - ${data.document_identity}`
   });
   const pdfBlob = doc.output('blob');
-  await mergePDFs(pdfBlob);
+  await mergePDFs(pdfBlob, `Quotation - ${data.document_identity} - ${data.vessel?.name}`);
 };
