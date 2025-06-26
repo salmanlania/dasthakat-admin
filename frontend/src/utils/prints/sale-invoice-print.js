@@ -293,11 +293,11 @@ export const createSaleInvoicePrint = async (data) => {
     });
   }
 
-  const filledRows = fillEmptyRows(table2Rows, 11, descriptions.length + 1);
+  const filledRows = fillEmptyRows(table2Rows, 9, descriptions.length + 1);
 
   // Adding Table
   doc.autoTable({
-    startY: 101,
+    startY: 106,
     head: [table2Column],
     body: filledRows,
     margin: { left: sideMargin, right: sideMargin, bottom: 32, top: 84 },
