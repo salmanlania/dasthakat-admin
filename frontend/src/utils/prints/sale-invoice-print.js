@@ -101,8 +101,8 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   // Bill To content
   const customerInfo = [
     data?.charge_order?.customer?.name,
-    data?.charge_order?.customer?.address ? data?.charge_order?.customer?.address : data?.charge_order?.customer?.billing_address,
-    data?.charge_order?.vessel?.billing_address
+    // data?.charge_order?.customer?.address ? data?.charge_order?.customer?.address : data?.charge_order?.customer?.billing_address,
+    data?.vessel_billing_address ? data?.vessel_billing_address : data?.charge_order?.vessel?.billing_address ? data?.charge_order?.vessel?.billing_address : null
   ].filter(Boolean);
 
   const billTo = doc.splitTextToSize(customerInfo.join('\n'), boxWidth);
@@ -110,8 +110,9 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
 
   // Ship To content
   const vesselInfo = [
-    data?.charge_order?.vessel?.name,
-    data?.charge_order?.vessel?.billing_address
+    
+    `${data?.charge_order?.event?.event_code} - ${data?.charge_order?.vessel?.name}`,
+    // data?.charge_order?.vessel?.billing_address
   ].filter(Boolean).join('\n');
 
   const shipTo = doc.splitTextToSize(vesselInfo, boxWidth);
