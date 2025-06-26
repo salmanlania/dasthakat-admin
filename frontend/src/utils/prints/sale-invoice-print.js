@@ -222,30 +222,6 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   });
 };
 
-const addFooter = (doc, pageWidth, pageHeight) => {
-  doc.addImage(Logo1, 'PNG', 8, pageHeight, 26, 22);
-  doc.addImage(Logo2, 'PNG', 38, pageHeight + 6, 26, 10);
-  doc.addImage(Logo3, 'PNG', 70, pageHeight + 2, 26, 16);
-  doc.addImage(Logo4, 'PNG', 102, pageHeight + 4, 26, 16);
-  doc.addImage(Logo5, 'PNG', 130, pageHeight, 32, 16);
-  doc.addImage(Logo6, 'PNG', 164, pageHeight + 2, 14, 16);
-  doc.addImage(Logo7, 'PNG', 182, pageHeight + 2, 14, 16);
-
-  const currentPage = doc.internal.getCurrentPageInfo().pageNumber;
-  const totalPages = doc.internal.getNumberOfPages();
-
-  doc.setFont('times', 'bolditalic');
-  doc.text(
-    currentPage === totalPages ? `Last page` : `Continue to page ${currentPage + 1}`,
-    pageWidth / 2,
-    pageHeight - 9.2,
-    {
-      align: 'center'
-    }
-  );
-
-  doc.setFont('times', 'normal');
-};
 
 export const createSaleInvoicePrint = async (data) => {
   const doc = new jsPDF();
@@ -294,14 +270,14 @@ export const createSaleInvoicePrint = async (data) => {
     });
   }
 
-  const filledRows = fillEmptyRows(table2Rows, 9, descriptions.length + 1);
+  const filledRows = fillEmptyRows(table2Rows, 11, descriptions.length + 1);
 
   // Adding Table
   doc.autoTable({
     startY: 106,
     head: [table2Column],
     body: filledRows,
-    margin: { left: sideMargin, right: sideMargin, bottom: 32, top: 84 },
+    margin: { left: sideMargin, right: sideMargin, bottom: 2, top: 106 },
     headStyles: {
       fontSize: 8,
       fontStyle: 'bold',
@@ -385,26 +361,6 @@ export const createSaleInvoicePrint = async (data) => {
       }
     ]
   ];
-
-  // notes.push([
-  //   {
-  //     content: 'Notes:',
-  //     rowSpan: rowSpan,
-  //     styles: {
-  //       fontSize: 9,
-  //       fontStyle: 'bold'
-  //     }
-  //   },
-  //   {
-  //     content: 'Note: Any invoice discrepancies must be reported prior to invoice due date. Also please arrange payment in full by due date in order to avoid any late fee or additional charges. Appropriate wire fee must be included in order to avoid short payment resulting in additional charges.',
-  //     colSpan: 8,
-  //     styles: {
-  //       halign: 'left',
-  //       fontStyle: 'italic',
-  //       fontSize: 8
-  //     }
-  //   }
-  // ]);
 
   doc.autoTable({
     startY: doc.previousAutoTable.finalY,
