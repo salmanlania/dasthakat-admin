@@ -90,21 +90,21 @@ const pdfContent = (doc, data, pageWidth) => {
   const table2Rows =
     data.items && data.items.length
       ? data.items.map((item, index) => {
-          return [
-            index + 1,
-            item?.product?.product_code || '',
-            {
-              content: item?.product?.name || '',
-              styles: {
-                halign: 'left'
-              }
-            },
-            item?.warehouse?.name || '', // Location
-            parseFloat(item?.original_quantity || 0),
-            parseFloat(data?.picklist_status == 1 ? item?.original_quantity || 0 : ''),
-            item.remarks || ''
-          ];
-        })
+        return [
+          index + 1,
+          item?.product?.product_code || '',
+          {
+            content: item?.product?.name || '',
+            styles: {
+              halign: 'left'
+            }
+          },
+          item?.warehouse?.name || '', // Location
+          parseFloat(item?.original_quantity || 0),
+          data?.picklist_status == 1 ? parseFloat(item?.original_quantity || 0) : '',
+          item.remarks || ''
+        ];
+      })
       : [];
 
   doc.autoTable({
