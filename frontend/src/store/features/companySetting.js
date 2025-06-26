@@ -49,8 +49,8 @@ const initialState = {
   isItemLoading: false,
   isFormSubmitting: false,
   initialFormValues: null,
-  isTestEmailSending  : null,
-  testEmailResponse  : null
+  isTestEmailSending: null,
+  testEmailResponse: null
 };
 
 export const settingSlice = createSlice({

@@ -158,7 +158,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
     [
       data.document_date ? dayjs(data.document_date).format('MM-DD-YYYY') : '',
       data.document_identity,
-      data?.charge_order?.event.event_code,
+      data?.charge_order?.customer_po_no,
       data?.charge_order?.quotation?.payment.name ? data?.charge_order?.quotation?.payment.name : '',
       data?.charge_order ? data?.charge_order?.port?.name : '',
       data?.charge_order ? data.charge_order?.document_identity : '',

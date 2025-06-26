@@ -39,6 +39,7 @@ const Sidebar = () => {
   const { user } = useSelector((state) => state.auth);
   const [stateOpenKeys, setStateOpenKeys] = useState([]);
   const searchRef = useRef(null);
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const handleError = useError();
 

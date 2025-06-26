@@ -101,7 +101,7 @@ const pdfContent = (doc, data, pageWidth) => {
             },
             item?.warehouse?.name || '', // Location
             parseFloat(item?.original_quantity || 0),
-            '',
+            parseFloat(data?.picklist_status == 1 ? item?.original_quantity || 0 : ''),
             item.remarks || ''
           ];
         })
