@@ -31,12 +31,18 @@ const EditQuotation = () => {
       toast.success('Quotation updated successfully');
       navigate('/quotation');
     } catch (error) {
+
       handleError(error);
     }
   };
 
   useEffect(() => {
-    dispatch(getQuotation(id)).unwrap().catch(handleError);
+    try {
+      dispatch(getQuotation(id)).unwrap()
+    } catch (error) {
+      handleError(error)
+      console.log('error', error)
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

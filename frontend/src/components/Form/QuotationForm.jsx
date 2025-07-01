@@ -969,7 +969,18 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       render: (_, { cost_price, product_type_id }, index) => {
         return (
           <DebouncedCommaSeparatedInput
-            value={product_type_id?.value === 1 ? '0' : cost_price}
+            // value={product_type_id?.value === 1 ? '0' : cost_price}
+            value={
+              product_type_id?.value === 1
+                ? '0'
+                : cost_price === 0 || cost_price === '0'
+                  ? '0'
+                  : cost_price
+                    ? `${Number(cost_price).toString().includes('.') && Number(cost_price) % 1 !== 0
+                      ? Number(cost_price).toFixed(2).replace(/\.?0+$/, '')
+                      : Number(cost_price)}`
+                    : ''
+            }
             disabled={product_type_id?.value == 1}
             onChange={(value) =>
               dispatch(

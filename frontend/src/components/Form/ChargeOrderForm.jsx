@@ -171,7 +171,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
 
     closeNotesModal();
   };
-  
+
   const onProductChange = async (index, selected) => {
     dispatch(
       changeChargeOrderDetailValue({
@@ -801,10 +801,21 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
       dataIndex: 'cost_price',
       key: 'cost_price',
       render: (_, { cost_price, product_type_id }, index) => {
-        const finalCost = product_type_id?.value === 1 ? '0' : cost_price;
+        // const finalCost = product_type_id?.value === 1 ? '0' : cost_price;
         return (
           <DebouncedCommaSeparatedInput
-            value={finalCost}
+            // value={finalCost}
+            value={
+              product_type_id?.value === 1
+                ? '0'
+                : cost_price === 0 || cost_price === '0'
+                  ? '0'
+                  : cost_price
+                    ? `${Number(cost_price).toString().includes('.') && Number(cost_price) % 1 !== 0
+                      ? Number(cost_price).toFixed(2).replace(/\.?0+$/, '')
+                      : Number(cost_price)}`
+                    : ''
+            }
             disabled={product_type_id?.value == 1}
             onChange={(value) =>
               dispatch(
