@@ -16,6 +16,7 @@ class VendorQuotationDetail extends Model
         'quotation_id', 
         'quotation_detail_id', 
         'vendor_id', 
+        'sort_order', 
         'vendor_rate', 
         'is_primary_vendor', 
         'vendor_part_no',
@@ -23,4 +24,14 @@ class VendorQuotationDetail extends Model
         'created_by', 
         'updated_by'
     ];
+
+
+    public function quotation_detail()
+    {
+        return $this->belongsTo(QuotationDetail::class, 'quotation_detail_id', 'quotation_detail_id');
+    }
+    public function vendor()
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_id', 'vendor_id');
+    }
 }

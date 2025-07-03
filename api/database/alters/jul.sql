@@ -15,3 +15,5 @@ CREATE TABLE `vendor_quotation_detail` (
     `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`vendor_quotation_detail_id`)
 );
+
+ALTER TABLE `vendor_quotation_detail` ADD COLUMN `sort_order` INT(11) NOT NULL AFTER `vendor_id`;

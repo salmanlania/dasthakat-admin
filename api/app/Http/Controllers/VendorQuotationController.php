@@ -55,13 +55,13 @@ class VendorQuotationController extends Controller
 		$detail = VendorQuotationDetail::where('quotation_id', $request->quotation_id)
 			->where('quotation_detail_id', $request->quotation_detail_id)
 			->where('vendor_id', $request->vendor_id)
-			->select("vendor_rate")
+			->select('vendor_rate')
 			->first();
 
 		if (empty($detail)) {
 			return $this->jsonResponse([], 400, 'Quotation Item Not Found!');
 		}
-		
+
 		$data['vendor'] = Supplier::find($request->vendor_id)
 			->select('supplier_id', 'name', 'email')
 			->first();
@@ -73,7 +73,7 @@ class VendorQuotationController extends Controller
 			->find($request->quotation_id)
 			->select('quotation_detail_id', 'product_type_id')
 			->first();
-		
+
 		$data['vendor_rate'] = $detail->vendor_rate;
 
 		$jsonData = json_encode($data);
@@ -98,6 +98,16 @@ class VendorQuotationController extends Controller
 		return $this->jsonResponse([], 200, 'RFQ Sent Successfully!');
 	}
 
+	public function show($id)
+	{
+		$data = VendorQuotationDetail::with("quotation_detail","quotation_detail.product_type","quotation_detail.product","quotation_detail.unit","vendor")->where('quotation_id', $id)->get();
+
+		if (empty($data)) {
+			return $this->jsonResponse([], 400, 'Quotation Item(s) Not Found!');
+		}
+		return $this->jsonResponse($data, 200, 'Quotation Vendor Data Fetched Successfully!');
+	}
+
 	public function store(Request $request)
 	{
 		$isError = $this->validateStoreRequest($request->all());
@@ -110,13 +120,14 @@ class VendorQuotationController extends Controller
 		try {
 			$quotation_id = $request->quotation_id;
 			$data = [];
-
+			$sort_order = 1;
 			foreach ($request->quotation_detail as $detail) {
 				$data[] = [
 					'company_id' => $request->company_id ?? '',
 					'company_branch_id' => $request->company_branch_id ?? '',
 					'vendor_quotation_detail_id' => $this->get_uuid(),
 					'quotation_id' => $quotation_id ?? '',
+					'sort_order' => $sort_order,
 					'quotation_detail_id' => $detail['quotation_detail_id'],
 					'vendor_rate' => $detail['vendor_rate'] ?? '',
 					'is_primary_vendor' => $detail['is_primary_vendor'] ?? 0,
@@ -125,6 +136,7 @@ class VendorQuotationController extends Controller
 					'created_at' => Carbon::now(),
 					'created_by' => $request->login_user_id,
 				];
+				$sort_order++;
 			}
 
 			VendorQuotationDetail::insert($data);  // Bulk insert
@@ -137,8 +149,50 @@ class VendorQuotationController extends Controller
 			return $this->jsonResponse(['error' => $e->getMessage()], 500, 'Failed to save vendor quotations.');
 		}
 	}
+	public function update($id,Request $request)
+	{
+		$isError = $this->validateStoreRequest($request->all());
+		if (!empty($isError)) {
+			return $this->jsonResponse($isError, 400, 'Request Failed!');
+		}
 
-	public function update($id, Request $request)
+		DB::beginTransaction();
+
+		try {
+			VendorQuotationDetail::where('quotation_id', $id)->delete();
+			$quotation_id = $id;
+			$data = [];
+			$sort_order = 1;
+			foreach ($request->quotation_detail as $detail) {
+				$data[] = [
+					'company_id' => $request->company_id ?? '',
+					'company_branch_id' => $request->company_branch_id ?? '',
+					'vendor_quotation_detail_id' => $this->get_uuid(),
+					'quotation_id' => $quotation_id ?? '',
+					'sort_order' => $sort_order,
+					'quotation_detail_id' => $detail['quotation_detail_id'],
+					'vendor_rate' => $detail['vendor_rate'] ?? '',
+					'is_primary_vendor' => $detail['is_primary_vendor'] ?? 0,
+					'vendor_part_no' => $detail['vendor_part_no'] ?? '',
+					'vendor_notes' => $detail['vendor_notes'] ?? '',
+					'created_at' => Carbon::now(),
+					'created_by' => $request->login_user_id,
+				];
+				$sort_order++;
+			}
+
+			VendorQuotationDetail::insert($data);  // Bulk insert
+
+			DB::commit();
+
+			return $this->jsonResponse(['quotation_id' => $quotation_id], 200, 'Quotation Vendors Updated Successfully!');
+		} catch (\Exception $e) {
+			DB::rollBack();
+			return $this->jsonResponse(['error' => $e->getMessage()], 500, 'Failed to updating vendor quotations.');
+		}
+	}
+
+	public function vendorUpdate($id, Request $request)
 	{
 		$isError = $this->validateStoreRequest($request->all());
 		if (!empty($isError)) {
