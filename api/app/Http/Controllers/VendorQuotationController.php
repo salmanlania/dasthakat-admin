@@ -151,48 +151,6 @@ class VendorQuotationController extends Controller
 			return $this->jsonResponse(['error' => $e->getMessage()], 500, 'Failed to save vendor quotations.');
 		}
 	}
-	public function update($id,Request $request)
-	{
-		$isError = $this->validateStoreRequest($request->all());
-		if (!empty($isError)) {
-			return $this->jsonResponse($isError, 400, 'Request Failed!');
-		}
-
-		DB::beginTransaction();
-
-		try {
-			VendorQuotationDetail::where('quotation_id', $id)->delete();
-			$quotation_id = $id;
-			$data = [];
-			$sort_order = 1;
-			foreach ($request->quotation_detail as $detail) {
-				$data[] = [
-					'company_id' => $request->company_id ?? '',
-					'company_branch_id' => $request->company_branch_id ?? '',
-					'vendor_quotation_detail_id' => $this->get_uuid(),
-					'quotation_id' => $quotation_id ?? '',
-					'sort_order' => $sort_order,
-					'quotation_detail_id' => $detail['quotation_detail_id'],
-					'vendor_rate' => $detail['vendor_rate'] ?? '',
-					'is_primary_vendor' => $detail['is_primary_vendor'] ?? 0,
-					'vendor_part_no' => $detail['vendor_part_no'] ?? '',
-					'vendor_notes' => $detail['vendor_notes'] ?? '',
-					'created_at' => Carbon::now(),
-					'created_by' => $request->login_user_id,
-				];
-				$sort_order++;
-			}
-
-			VendorQuotationDetail::insert($data);  // Bulk insert
-
-			DB::commit();
-
-			return $this->jsonResponse(['quotation_id' => $quotation_id], 200, 'Quotation Vendors Updated Successfully!');
-		} catch (\Exception $e) {
-			DB::rollBack();
-			return $this->jsonResponse(['error' => $e->getMessage()], 500, 'Failed to updating vendor quotations.');
-		}
-	}
 
 	public function vendorUpdate($id, Request $request)
 	{

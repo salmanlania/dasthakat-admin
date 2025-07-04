@@ -32,9 +32,7 @@ class Authenticate
             'auth/refresh',
             'auth/logout',
             'auth/verify-email',
-            'vendor-platform/quotation',
-            'vendor-platform/quotation/{id}',
-            'vendor-platform/quotation/rfq'
+            'vendor-platform/quotation/vendor/{id}',
             // 'reset-password'
         ];
 
