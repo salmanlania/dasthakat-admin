@@ -118,7 +118,9 @@ class VendorQuotationController extends Controller
 		DB::beginTransaction();
 
 		try {
+			
 			$quotation_id = $request->quotation_id;
+			VendorQuotationDetail::where('quotation_id', $quotation_id)->delete();
 			$data = [];
 			$sort_order = 1;
 			foreach ($request->quotation_detail as $detail) {
