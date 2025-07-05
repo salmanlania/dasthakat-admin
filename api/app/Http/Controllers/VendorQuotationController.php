@@ -62,15 +62,15 @@ class VendorQuotationController extends Controller
 			return $this->jsonResponse([], 400, 'Quotation Item Not Found!');
 		}
 
-		$data['vendor'] = Supplier::find($request->vendor_id)
+		$data['vendor'] = Supplier::where('supplier_id',$request->vendor_id)
 			->select('supplier_id', 'name', 'email')
 			->first();
 		$data['quotation'] = Quotation::with('event:event_no,event_code', 'vessel:name')
-			->find($request->quotation_id)
+			->where('quotation_id',$request->quotation_id)
 			->select('quotation_id', 'document_identity', 'document_date')
 			->first();
 		$data['quotation_detail'] = QuotationDetail::with('product:impa_code,name,short_code,product_code', 'product_type:name', 'unit:name')
-			->find($request->quotation_id)
+			->where('quotation_id',$request->quotation_id)
 			->select('quotation_detail_id', 'product_type_id')
 			->first();
 
@@ -140,6 +140,10 @@ class VendorQuotationController extends Controller
 					'created_by' => $request->login_user_id,
 				];
 				$sort_order++;
+				if($detail['is_primary_vendor'] == 1){
+					QuotationDetail::where('quotation_detail_id', $detail['quotation_detail_id'])->update(['supplier_id' => $detail['vendor_id']]);
+				if($detail['vendor_rate'])
+				}
 			}
 
 			VendorQuotationDetail::insert($data);  // Bulk insert
