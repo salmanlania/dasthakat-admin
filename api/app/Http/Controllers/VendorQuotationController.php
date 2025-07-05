@@ -142,7 +142,9 @@ class VendorQuotationController extends Controller
 				$sort_order++;
 				if($detail['is_primary_vendor'] == 1){
 					QuotationDetail::where('quotation_detail_id', $detail['quotation_detail_id'])->update(['supplier_id' => $detail['vendor_id']]);
-				if($detail['vendor_rate'])
+				if($detail['vendor_rate']){
+					
+				}
 				}
 			}
 
