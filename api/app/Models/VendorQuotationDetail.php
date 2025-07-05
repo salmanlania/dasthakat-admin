@@ -32,6 +32,6 @@ class VendorQuotationDetail extends Model
     }
     public function vendor()
     {
-        return $this->belongsTo(Supplier::class, 'supplier_id', 'vendor_id');
+        return $this->belongsTo(Supplier::class, 'vendor_id', 'supplier_id');
     }
 }
