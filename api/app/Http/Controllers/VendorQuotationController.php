@@ -141,12 +141,29 @@ class VendorQuotationController extends Controller
 				];
 				$sort_order++;
 				if($detail['is_primary_vendor'] == 1){
-					QuotationDetail::where('quotation_detail_id', $detail['quotation_detail_id'])->update(['supplier_id' => $detail['vendor_id']]);
-				if($detail['vendor_rate']){
-					
-				}
+					$quotation_detail = QuotationDetail::where('quotation_detail_id', $detail['quotation_detail_id'])->first();
+					$quotation_detail->supplier_id = $detail['vendor_id'];
+					if($detail['vendor_rate'] > 0){
+						$quotation_detail->markup = calculateProfitPercentage($quotation_detail->cost_price, $detail['vendor_rate']);
+						$quotation_detail->rate = $detail['vendor_rate'];
+						$quotation_detail->amount = $quotation_detail->quantity * $detail['vendor_rate'];
+						$quotation_detail->discount_amount = ($quotation_detail->amount * $quotation_detail->discount_percent) / 100;
+						$quotation_detail->gross_amount = $quotation_detail->amount - $quotation_detail->discount_amount;
+					}
+					$quotation_detail->update();
 				}
 			}
+
+			$quotation = Quotation::where('quotation_id', $quotation_id)->first();
+			$detail = QuotationDetail::where('quotation_id', $quotation_id);
+			$quotation->total_amount = $detail->sum('amount');
+			$quotation->total_discount = $detail->sum('discount_amount');
+			$quotation->net_amount = $detail->sum('gross_amount');
+			$quotation->rebate_amount = $quotation->net_amount * $quotation->rebate_percent / 100;
+			$quotation->salesman_amount = $quotation->net_amount * $quotation->salesman_percent / 100;
+			$quotation->final_amount = $quotation->net_amount - ($quotation->salesman_amount + $quotation->rebate_amount);
+			$quotation->update();
+
 
 			VendorQuotationDetail::insert($data);  // Bulk insert
 
@@ -180,6 +197,27 @@ class VendorQuotationController extends Controller
 			$data->updated_at = Carbon::now();
 			$data->updated_by = $request->vendor_id;
 			$data->update();
+		
+			$quotation_detail = QuotationDetail::where('quotation_detail_id', $request->quotation_detail_id)->first();
+
+			if($request->vendor_rate>0){
+				$quotation_detail->markup = calculateProfitPercentage($quotation_detail->cost_price, $request->vendor_rate);
+				$quotation_detail->rate = $request->vendor_rate;
+				$quotation_detail->amount = $quotation_detail->quantity * $request->vendor_rate;
+				$quotation_detail->discount_amount = ($quotation_detail->amount * $quotation_detail->discount_percent) / 100;
+				$quotation_detail->gross_amount = $quotation_detail->amount - $quotation_detail->discount_amount;
+			}
+
+			
+			$quotation = Quotation::where('quotation_id', $request->quotation_id)->first();
+			$detail = QuotationDetail::where('quotation_id', $request->quotation_id);
+			$quotation->total_amount = $detail->sum('amount');
+			$quotation->total_discount = $detail->sum('discount_amount');
+			$quotation->net_amount = $detail->sum('gross_amount');
+			$quotation->rebate_amount = $quotation->net_amount * $quotation->rebate_percent / 100;
+			$quotation->salesman_amount = $quotation->net_amount * $quotation->salesman_percent / 100;
+			$quotation->final_amount = $quotation->net_amount - ($quotation->salesman_amount + $quotation->salesman_amount);
+			$quotation->update();
 
 			DB::commit();
 
