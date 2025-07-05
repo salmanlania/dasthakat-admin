@@ -48,6 +48,7 @@ import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate.jsx';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebouncedNumberInput from '../Input/DebouncedNumberInput';
 import DebounceInput from '../Input/DebounceInput';
+import VendorSelectionModal from '../Modals/VendorSelectionModal.jsx';
 
 export const DetailSummaryInfo = ({ title, value }) => {
   return (
@@ -115,6 +116,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
 
   const [globalMarkup, setGlobalMarkup] = useState('');
   const [globalDiscount, setGlobalDiscount] = useState('');
+  const [vendorModalOpen, setVendorModalOpen] = useState(false);
   const [submitAction, setSubmitAction] = useState(null);
   let totalQuantity = 0;
   let totalCost = 0;
@@ -1689,6 +1691,15 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
             }}>
             Save & Exit
           </Button>
+
+          {
+            mode === 'edit'
+              ?
+              <Button onClick={() => setVendorModalOpen(true)}>Vendors</Button>
+              :
+              ''
+          }
+
         </div>
       </Form>
       <NotesModal
@@ -1699,6 +1710,11 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         onCancel={closeNotesModal}
         onSubmit={onNotesSave}
         disabled={!permissions?.quotation?.edit || !permissions?.quotation?.add}
+      />
+
+      <VendorSelectionModal
+        open={vendorModalOpen}
+        onClose={() => setVendorModalOpen(false)}
       />
     </>
   );

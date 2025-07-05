@@ -147,17 +147,54 @@ export const bulkDeleteQuotation = createAsyncThunk(
   },
 );
 
+// Vendor
+
+export const getVendor = createAsyncThunk('vendor/get', async (id, { rejectWithValue }) => {
+  try {
+    const res = await api.get(`/vendor-platform/quotation/${id}`);
+    return res.data.data;
+  } catch (err) {
+    throw rejectWithValue(err);
+  }
+});
+
+export const postVendorSelection = createAsyncThunk(
+  'vendor/postSelection',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const res = await api.post(`/vendor-platform/quotation/`, payload);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
+
+export const postRfq = createAsyncThunk(
+  'rfg/postSelection',
+  async (payload , { rejectWithValue }) => {
+    try {
+      const res = await api.post(`/vendor-platform/quotation/rfq`, payload);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
+
 const initialState = {
   isListLoading: false,
   isFormSubmitting: false,
   isBulkDeleting: false,
   initialFormValues: null,
   isItemLoading: false,
+  isItemVendorLoading: false,
   list: [],
   deleteIDs: [],
   rebatePercentage: null,
   salesmanPercentage: null,
   quotationDetails: [],
+  vendorDetails: [],
   params: {
     page: 1,
     limit: 50,
@@ -446,6 +483,7 @@ export const quotationSlice = createSlice({
       state.isItemLoading = false;
       const data = action.payload;
       state.initialFormValues = {
+        quotation_id: data.quotation_id,
         document_identity: data.document_identity,
         document_type_id: data.document_type_id,
         document_date: data.document_date ? dayjs(data.document_date) : null,
@@ -574,6 +612,7 @@ export const quotationSlice = createSlice({
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_amount,
         gross_amount: detail.gross_amount,
+        quotation_detail_id: detail?.quotation_detail_id,
         row_status: 'U',
         isDeleted: false,
       }));
@@ -586,6 +625,46 @@ export const quotationSlice = createSlice({
       state.initialFormValues = null;
       state.rebatePercentage = null;
       state.salesmanPercentage = null;
+    });
+
+    addCase(getVendor.pending, (state) => {
+      state.isItemVendorLoading = true;
+    });
+    addCase(getVendor.fulfilled, (state, action) => {
+      state.isItemVendorLoading = false;
+      const data = action.payload;
+
+      state.vendorDetails = [];
+
+      const groupedByProduct = data.reduce((acc, curr) => {
+        const key = curr.quotation_detail_id;
+        if (!acc[key]) {
+          acc[key] = {
+            ...curr.quotation_detail,
+            product_name: curr.quotation_detail.product_name,
+            product_type_id: curr.quotation_detail.product_type_id,
+            quotation_detail_id: key,
+            vendors: [],
+          };
+        }
+
+        acc[key].vendors.push({
+          supplier_id: curr.vendor
+            ? { value: curr.vendor.supplier_id, label: curr.vendor.name }
+            : null,
+          rate: curr.vendor_rate,
+          isPrimary: curr.is_primary_vendor === 1,
+        });
+
+        return acc;
+      }, {});
+
+      state.vendorDetails = Object.values(groupedByProduct);
+    });
+
+    addCase(getVendor.rejected, (state) => {
+      state.isItemVendorLoading = false;
+      state.vendorDetails = null;
     });
 
     addCase(getQuotationModal.pending, (state) => {

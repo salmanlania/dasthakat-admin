@@ -31,7 +31,6 @@ const EditQuotation = () => {
       toast.success('Quotation updated successfully');
       navigate('/quotation');
     } catch (error) {
-
       handleError(error);
     }
   };
