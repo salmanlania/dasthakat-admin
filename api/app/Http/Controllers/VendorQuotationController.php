@@ -131,6 +131,7 @@ class VendorQuotationController extends Controller
 					'quotation_id' => $quotation_id ?? '',
 					'sort_order' => $sort_order,
 					'quotation_detail_id' => $detail['quotation_detail_id'],
+					'vendor_id' => $detail['vendor_id'] ?? '',
 					'vendor_rate' => $detail['vendor_rate'] ?? '',
 					'is_primary_vendor' => $detail['is_primary_vendor'] ?? 0,
 					'vendor_part_no' => $detail['vendor_part_no'] ?? '',
