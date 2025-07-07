@@ -1,4 +1,4 @@
-import { Modal, Table, Input, Radio, Button } from 'antd';
+import { Modal, Table, Input, Spin, Radio, Button, Switch } from 'antd';
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { getVendor } from '../../store/features/quotationSlice';
@@ -12,17 +12,18 @@ const VendorSelectionModal = ({ open, onClose }) => {
   const handleError = useError();
 
   const {
-    isFormSubmitting,
     initialFormValues,
     quotationDetails,
     permissions,
-    vendorDetails
+    vendorDetails,
+    isItemVendorLoading
   } = useSelector((state) => state.quotation);
 
   const id = initialFormValues?.quotation_id;
 
   const [data, setData] = useState([]);
   const [vendorCount, setVendorCount] = useState(4);
+  const [isSaving, setIsSaving] = useState(false);
 
 
   useEffect(() => {
@@ -56,10 +57,10 @@ const VendorSelectionModal = ({ open, onClose }) => {
         product_type_id: item.product_type_id,
         index,
         vendors: [
-          { name: 'Vendor 1', rate: 0, isPrimary: index === 0, supplier_id: null },
-          { name: 'Vendor 2', rate: 0, isPrimary: false, supplier_id: null },
-          { name: 'Vendor 3', rate: 0, isPrimary: false, supplier_id: null },
-          { name: 'Vendor 4', rate: 0, isPrimary: false, supplier_id: null },
+          { name: 'Vendor 1', rate: 0, isPrimary: true, supplier_id: null, rfqSent: false },
+          { name: 'Vendor 2', rate: 0, isPrimary: false, supplier_id: null, rfqSent: false },
+          { name: 'Vendor 3', rate: 0, isPrimary: false, supplier_id: null, rfqSent: false },
+          { name: 'Vendor 4', rate: 0, isPrimary: false, supplier_id: null, rfqSent: false },
         ],
       }));
 
@@ -71,28 +72,50 @@ const VendorSelectionModal = ({ open, onClose }) => {
     }
   }, [quotationDetails, vendorDetails]);
 
-  const sendRfq = async (productIndex, vendorIndex) => {
-    const product = data[productIndex];
-    const vendor = product.vendors[vendorIndex];
+  // const sendRfq = async (productIndex, vendorIndex, checked) => {
+  //   const newData = JSON.parse(JSON.stringify(data));
+  //   const product = newData[productIndex];
+  //   const vendor = product.vendors[vendorIndex];
 
-    const quotation_detail_id = product?.quotation_detail_id;
-    const vendor_id = vendor?.supplier_id?.value;
+  //   let quotation_detail_id = product?.quotation_detail_id;
 
-    const payload = {
-      quotation_id: initialFormValues?.quotation_id,
-      quotation_detail_id,
-      vendor_id,
-    };
+  //   if (!quotation_detail_id && quotationDetails?.length > 0) {
+  //     quotation_detail_id = quotationDetails[productIndex]?.quotation_detail_id;
+  //   }
 
-    try {
-      await dispatch(postRfq(payload)).unwrap();
-      toast.success('RFQ Sent Successfully!');
-    } catch (error) {
-      handleError(error);
-    }
+  //   const vendor_id = vendor?.supplier_id?.value;
+
+  //   const payload = {
+  //     quotation_id: initialFormValues?.quotation_id,
+  //     quotation_detail_id,
+  //     vendor_id,
+  //   };
+
+  //   try {
+  //     if (checked) {
+  //       await dispatch(postRfq(payload)).unwrap();
+  //       vendor.rfqSent = true;
+  //       toast.success('RFQ Sent Successfully!');
+  //     } else {
+  //       vendor.rfqSent = false;
+  //       toast.success('RFQ Unmarked');
+  //     }
+
+  //     newData[productIndex].vendors[vendorIndex] = vendor;
+  //     setData(newData);
+  //   } catch (error) {
+  //     handleError(error);
+  //   }
+  // };
+
+  const toggleRfq = (productIndex, vendorIndex, checked) => {
+    const newData = JSON.parse(JSON.stringify(data));
+    newData[productIndex].vendors[vendorIndex].rfqSent = checked;
+    setData(newData);
   };
 
   const onFinish = async () => {
+    setIsSaving(true);
     const payload = {
       quotation_id: initialFormValues?.quotation_id,
       quotation_detail: [],
@@ -109,6 +132,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
           quotation_detail_id,
           vendor_rate: vendor.rate ? parseFloat(vendor.rate) : null,
           is_primary_vendor: vendor.isPrimary ? 1 : 0,
+          rfq: vendor.rfqSent ? 1 : 0,
         });
       });
     });
@@ -116,19 +140,22 @@ const VendorSelectionModal = ({ open, onClose }) => {
     try {
       await dispatch(postVendorSelection(payload)).unwrap()
       toast.success('Quotation Vendors Saved Successfully!')
+      onClose()
     } catch (error) {
       handleError(error)
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleRateChange = (productIndex, vendorIndex, value) => {
-    const newData = [...data];
+    const newData = JSON.parse(JSON.stringify(data));
     newData[productIndex].vendors[vendorIndex].rate = value;
     setData(newData);
   };
 
   const handlePrimaryChange = (productIndex, vendorIndex) => {
-    const newData = [...data];
+    const newData = JSON.parse(JSON.stringify(data));;
     newData[productIndex].vendors = newData[productIndex].vendors.map((vendor, idx) => ({
       ...vendor,
       isPrimary: idx === vendorIndex
@@ -142,47 +169,54 @@ const VendorSelectionModal = ({ open, onClose }) => {
       dataIndex: 'product_name',
       key: 'product_name',
       fixed: 'left',
-      width: 200,
+      width: 140,
     },
     ...Array.from({ length: vendorCount }).flatMap((_, vendorIndex) => [
       {
         title: `Vendor ${vendorIndex + 1}`,
         key: `supplier_id-${vendorIndex}`,
-        width: 140,
+        width: 100,
+        ellipsis: false,
         render: (_, record, productIndex) => {
           const vendor = record.vendors[vendorIndex];
           return (
-            <AsyncSelect
-              endpoint="/supplier"
-              valueKey="supplier_id"
-              labelKey="name"
-              labelInValue
-              className="w-full"
-              disabled={record.product_type_id?.value === 1 || record.product_type_id?.value === 2}
-              value={vendor?.supplier_id}
-              onChange={(selected) => {
-                const updatedData = [...data];
-                const updatedVendors = [...updatedData[productIndex].vendors];
-                const updatedVendor = {
-                  ...updatedVendors[vendorIndex],
-                  supplier_id: selected,
-                };
-                updatedVendors[vendorIndex] = updatedVendor;
-                updatedData[productIndex] = {
-                  ...updatedData[productIndex],
-                  vendors: updatedVendors,
-                };
-                setData(updatedData);
-              }}
-              addNewLink={permissions?.supplier?.add ? '/vendor/create' : null}
-            />
+            <div style={{ whiteSpace: 'normal', wordWrap: 'break-word', maxWidth: 100 }}>
+              <AsyncSelect
+                endpoint="/supplier"
+                valueKey="supplier_id"
+                labelKey="name"
+                labelInValue
+                style={{ width: '100%', minWidth: 100 }}
+                className="w-full"
+                disabled={record.product_type_id?.value === 1 || record.product_type_id?.value === 2}
+                value={vendor?.supplier_id}
+                onChange={(selected) => {
+                  const updatedData = [...data];
+                  const updatedVendors = [...updatedData[productIndex].vendors];
+                  const updatedVendor = {
+                    ...updatedVendors[vendorIndex],
+                    supplier_id: selected,
+                  };
+                  updatedVendors[vendorIndex] = updatedVendor;
+                  updatedData[productIndex] = {
+                    ...updatedData[productIndex],
+                    vendors: updatedVendors,
+                  };
+                  setData(updatedData);
+                }}
+                addNewLink={permissions?.supplier?.add ? '/vendor/create' : null}
+              />
+            </div>
           );
         },
       },
       {
-        title: `Rate ${vendorIndex + 1}`,
+        // title: `Rate ${vendorIndex + 1}`,
+        title: `Rate`,
         key: `rate-${vendorIndex}`,
-        width: 60,
+        width: 120,
+        maxWidth: 120,
+        ellipsis: true,
         render: (_, record, productIndex) => (
           <Input
             value={record.vendors[vendorIndex].rate}
@@ -190,7 +224,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
               handleRateChange(productIndex, vendorIndex, e.target.value)
             }
             placeholder="Rate"
-            style={{ width: '90px' }}
+            style={{ width: '100%' }}
           />
         ),
       },
@@ -198,8 +232,27 @@ const VendorSelectionModal = ({ open, onClose }) => {
         title: `Primary ${vendorIndex + 1}`,
         key: `vendor_primary_${vendorIndex}`,
         width: 100,
+        ellipsis: true,
         render: (_, record, productIndex) => {
+          const vendor = record.vendors[vendorIndex];
           return (
+            // <Switch
+            //   checked={vendor.isPrimary}
+            //   onChange={(checked) => {
+            //     const newData = JSON.parse(JSON.stringify(data));
+            //     if (checked) {
+            //       newData[productIndex].vendors = newData[productIndex].vendors.map((vendor, idx) => ({
+            //         ...vendor,
+            //         isPrimary: idx === vendorIndex
+            //       }));
+            //     } else {
+            //       newData[productIndex].vendors[vendorIndex].isPrimary = false;
+            //     }
+            //     setData(newData);
+            //   }}
+            //   checkedChildren="Yes"
+            //   unCheckedChildren="No"
+            // />
             <Radio
               checked={record.vendors[vendorIndex].isPrimary}
               onChange={() => handlePrimaryChange(productIndex, vendorIndex)}
@@ -212,12 +265,21 @@ const VendorSelectionModal = ({ open, onClose }) => {
       {
         title: `RFQ ${vendorIndex + 1}`,
         key: `vendor_rfq_${vendorIndex}`,
-        width: 80,
-        render: (_, record, productIndex) => (
-          <Button type="link" size="small" onClick={() => sendRfq(productIndex, vendorIndex)}>
-            Send RFQ
-          </Button>
-        ),
+        width: 60,
+        ellipsis: true,
+        render: (_, record, productIndex) => {
+          const vendor = record.vendors[vendorIndex];
+          const isDisable = vendorDetails.length > 0
+          return (
+            <Switch
+              checked={vendor.rfqSent}
+              // disabled={isDisable || !vendor?.supplier_id?.value}
+              onChange={(checked) => toggleRfq(productIndex, vendorIndex, checked)}
+              checkedChildren="Sent"
+              unCheckedChildren="Send"
+            />
+          )
+        },
       },
     ]),
   ];
@@ -230,18 +292,21 @@ const VendorSelectionModal = ({ open, onClose }) => {
       title="Select Vendors"
       width="95%"
     >
-      <Table
-        columns={columns}
-        dataSource={data}
-        pagination={false}
-        bordered
-        scroll={{ x: 'max-content' }}
-      />
+      <Spin spinning={isItemVendorLoading}>
+        <Table
+          columns={columns}
+          dataSource={data}
+          pagination={false}
+          bordered
+          scroll={{ x: 'max-content' }}
+        />
+      </Spin>
       <div className="mt-4 flex justify-end gap-2">
         <Button onClick={onClose}>Cancel</Button>
         <Button
           type="primary"
           onClick={onFinish}
+          loading={isSaving}
         >
           Save
         </Button>
