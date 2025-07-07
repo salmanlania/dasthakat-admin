@@ -205,27 +205,32 @@ class VendorQuotationController extends Controller
 		DB::beginTransaction();
 
 		try {
+			foreach($request->quotation_detail as $row){
+
+			
 			$data = VendorQuotationDetail::where('quotation_id', $id)
-				->where('quotation_detail_id', $request->quotation_detail_id)
+				->where('quotation_detail_id', $row['quotation_detail_id'])
 				->where('vendor_id', $request->vendor_id)
 				->first();
 
-			$data->vendor_rate = $request->vendor_rate ?? '';
-			$data->vendor_part_no = $request->vendor_part_no ?? '';
-			$data->vendor_notes = $request->vendor_notes ?? '';
+			$data->vendor_rate = $row['vendor_rate'] ?? '';
+			$data->vendor_part_no = $row['vendor_part_no'] ?? '';
+			$data->vendor_notes = $row['vendor_notes'] ?? '';
 			$data->updated_at = Carbon::now();
 			$data->updated_by = $request->vendor_id;
 			$data->update();
 
-			$quotation_detail = QuotationDetail::where('quotation_detail_id', $request->quotation_detail_id)->first();
+			$quotation_detail = QuotationDetail::where('quotation_detail_id', $row['quotation_detail_id'])->first();
 
-			if ($request->vendor_rate) {
-				$quotation_detail->markup = calculateProfitPercentage($quotation_detail->cost_price, $request->vendor_rate);
-				$quotation_detail->rate = $request->vendor_rate;
-				$quotation_detail->amount = $quotation_detail->quantity * $request->vendor_rate;
+			if ($row['vendor_rate']) {
+				$quotation_detail->markup = calculateProfitPercentage($quotation_detail->cost_price, $row['vendor_rate']);
+				$quotation_detail->rate = $row['vendor_rate'];
+				$quotation_detail->amount = $quotation_detail->quantity * $row['vendor_rate'];
 				$quotation_detail->discount_amount = ($quotation_detail->amount * $quotation_detail->discount_percent) / 100;
 				$quotation_detail->gross_amount = $quotation_detail->amount - $quotation_detail->discount_amount;
 			}
+
+		}
 
 			$quotation = Quotation::where('quotation_id', $request->quotation_id)->first();
 			$detail = QuotationDetail::where('quotation_id', $request->quotation_id);
