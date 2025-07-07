@@ -89,11 +89,11 @@ class VendorQuotationController extends Controller
 			'message' => '',
 		];
 
-		// try {
-		// 	$this->sendEmail($payload);
-		// } catch (\Exception $e) {
-		// 	return $this->jsonResponse([], 400, 'RFQ Sent Failed!' . $e->getMessage());
-		// }
+		try {
+			$this->sendEmail($payload);
+		} catch (\Exception $e) {
+			return $this->jsonResponse([], 400, 'RFQ Sent Failed!' . $e->getMessage());
+		}
 
 		return $this->jsonResponse($data, 200, 'RFQ Sent Successfully!');
 	}
