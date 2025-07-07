@@ -47,7 +47,6 @@ class VendorQuotationController extends Controller
 
 	function sendRFQ($data)
 	{
-		
 		$data['quotation'] = Quotation::with('event:event_id,event_no,event_code', 'vessel:vessel_id,name')
 			->where('quotation_id', $data['quotation_id'])
 			->select('quotation_id', 'document_identity', 'document_date', 'event_id', 'vessel_id')
@@ -55,7 +54,7 @@ class VendorQuotationController extends Controller
 
 		$rfqQuotations = [];
 		foreach ($data['quotation_detail'] as $detail) {
-			if (($detail['rfq'] ?? 0) == 1 && isset($detail['vendor_id'])) {
+			if (($detail['rfq'] ?? 0) == 1 && !empty($detail['vendor_id'])) {
 				if (!isset($rfqQuotations[$detail['vendor_id']])) {
 					$rfqQuotations[$detail['vendor_id']] = [];
 				}
@@ -64,12 +63,11 @@ class VendorQuotationController extends Controller
 		}
 
 		foreach ($rfqQuotations as $vendor_id => $detail) {
-			
-			$quotationDetail=[];
+			$quotationDetail = [];
 			foreach ($detail as $row) {
-				$quotationDetail[] = QuotationDetail::with('product:product_id,impa_code,name,short_code,product_code', 'product_type:product_type_id,name', 'unit:unit_id,name')
+				$quotationItem = QuotationDetail::with('product:product_id,impa_code,name,short_code,product_code', 'product_type:product_type_id,name', 'unit:unit_id,name')
 					->where('quotation_id', $data['quotation_id'])
-					->where('quotation_detail_id', $detail['quotation_detail_id'])
+					->where('quotation_detail_id', $row['quotation_detail_id'])
 					->where('supplier_id', $vendor_id)
 					->select('product_name', 'quotation_detail_id', 'product_id', 'product_type_id', 'unit_id', 'vendor_part_no')
 					->first();
@@ -78,12 +76,15 @@ class VendorQuotationController extends Controller
 					->where('vendor_id', $vendor_id)
 					->select('vendor_rate')
 					->first();
-				$quotationDetail[]['vendor_rate'] = $vendor_item->vendor_rate;
-				$vendor = Supplier::where('supplier_id',$data['vendor_id'])
-			->select('supplier_id', 'name', 'email')
-			->first();
+				if ($quotationItem && $vendor_item) {
+					$quotationItem->vendor_rate = $vendor_item->vendor_rate;
+					$quotationDetail[] = $quotationItem;
+				}
 			}
-			
+
+			$vendor = Supplier::where('supplier_id', $vendor_id)
+				->select('supplier_id', 'name', 'email')
+				->first();
 			$transform = [
 				'quotation' => $data['quotation'],
 				'quotation_detail' => $quotationDetail,
@@ -92,12 +93,12 @@ class VendorQuotationController extends Controller
 			$jsonData = json_encode($transform);
 			$encoded = rtrim(strtr(base64_encode($jsonData), '+/', '-_'), '=');
 			$transform['link'] = "http://localhost:5173/vendor-platform/quotation?q={$encoded}";
-
+			// dd($transform['vendor']);
 			$payload = [
 				'template' => 'vendor_quotation_rate_update',
 				'data' => $transform,
-				'email' => $transform['vendor']->email ?? '',
-				'name' => $transform['vendor']->name,
+				'email' => $transform['vendor']['email'],
+				'name' => $transform['vendor']['name'],
 				'subject' => 'New Request Quotation ' . $transform['quotation']->document_identity,
 				'message' => '',
 			];
@@ -128,17 +129,14 @@ class VendorQuotationController extends Controller
 		}
 
 		DB::beginTransaction();
-
 		try {
-
 			$quotation_id = $request->quotation_id;
 			VendorQuotationDetail::where('quotation_id', $quotation_id)->delete();
 			$data = [];
 			foreach ($request->quotation_detail as $row => $detail) {
-
 				$row++;
-					$data[] = [
-						'company_id' => $request->company_id ?? '',
+				$data[] = [
+					'company_id' => $request->company_id ?? '',
 					'company_branch_id' => $request->company_branch_id ?? '',
 					'vendor_quotation_detail_id' => $this->get_uuid(),
 					'quotation_id' => $quotation_id ?? '',
@@ -152,21 +150,20 @@ class VendorQuotationController extends Controller
 					'created_at' => Carbon::now(),
 					'created_by' => $request->login_user_id,
 				];
-				if(!empty($detail['vendor_id'])){
-
-				if($detail['is_primary_vendor'] == 1){
-					$quotation_detail = QuotationDetail::where('quotation_detail_id', $detail['quotation_detail_id'])->first();
-					$quotation_detail->supplier_id = $detail['vendor_id'];
-					if($detail['vendor_rate']){
-						$quotation_detail->markup = calculateProfitPercentage($quotation_detail->cost_price, $detail['vendor_rate']);
-						$quotation_detail->rate = $detail['vendor_rate'];
-						$quotation_detail->amount = $quotation_detail->quantity * $detail['vendor_rate'];
-						$quotation_detail->discount_amount = ($quotation_detail->amount * $quotation_detail->discount_percent) / 100;
-						$quotation_detail->gross_amount = $quotation_detail->amount - $quotation_detail->discount_amount;
+				if (!empty($detail['vendor_id'])) {
+					if ($detail['is_primary_vendor'] == 1) {
+						$quotation_detail = QuotationDetail::where('quotation_detail_id', $detail['quotation_detail_id'])->first();
+						$quotation_detail->supplier_id = $detail['vendor_id'];
+						if ($detail['vendor_rate']) {
+							$quotation_detail->markup = calculateProfitPercentage($quotation_detail->cost_price, $detail['vendor_rate']);
+							$quotation_detail->rate = $detail['vendor_rate'];
+							$quotation_detail->amount = $quotation_detail->quantity * $detail['vendor_rate'];
+							$quotation_detail->discount_amount = ($quotation_detail->amount * $quotation_detail->discount_percent) / 100;
+							$quotation_detail->gross_amount = $quotation_detail->amount - $quotation_detail->discount_amount;
+						}
+						$quotation_detail->update();
 					}
-					$quotation_detail->update();
 				}
-			}
 			}
 			VendorQuotationDetail::insert($data);  // Bulk insert
 
@@ -182,16 +179,15 @@ class VendorQuotationController extends Controller
 
 			DB::commit();
 
+			try {
+				$this->sendRFQ($request);
+			} catch (\Exception $e) {
+				return $this->jsonResponse([], 400, 'RFQ Sent Failed!' . $e->getMessage());
+			}
 			return $this->jsonResponse(['quotation_id' => $quotation_id], 200, 'Quotation Vendors Saved Successfully!');
 		} catch (\Exception $e) {
 			DB::rollBack();
 			return $this->jsonResponse(['error' => $e->getMessage()], 500, 'Failed to save vendor quotations.');
-		}
-
-		try {
-			$this->sendRFQ($request);
-		} catch (\Exception $e) {
-			return $this->jsonResponse([], 400, 'RFQ Sent Failed!' . $e->getMessage());
 		}
 	}
 
@@ -202,45 +198,45 @@ class VendorQuotationController extends Controller
 			return $this->jsonResponse($isError, 400, 'Request Failed!');
 		}
 
+		$updateQuote = false;
 		DB::beginTransaction();
-
 		try {
-			foreach($request->quotation_detail as $row){
+			foreach ($request->quotation_detail as $row) {
+				$data = VendorQuotationDetail::where('quotation_id', $id)
+					->where('quotation_detail_id', $row['quotation_detail_id'])
+					->where('vendor_id', $request->vendor_id)
+					->first();
 
-			
-			$data = VendorQuotationDetail::where('quotation_id', $id)
-				->where('quotation_detail_id', $row['quotation_detail_id'])
-				->where('vendor_id', $request->vendor_id)
-				->first();
+				$data->vendor_rate = $row['vendor_rate'] ?? '';
+				$data->vendor_part_no = $row['vendor_part_no'] ?? '';
+				$data->vendor_notes = $row['vendor_notes'] ?? '';
+				$data->updated_at = Carbon::now();
+				$data->updated_by = $request->vendor_id;
+				$data->update();
 
-			$data->vendor_rate = $row['vendor_rate'] ?? '';
-			$data->vendor_part_no = $row['vendor_part_no'] ?? '';
-			$data->vendor_notes = $row['vendor_notes'] ?? '';
-			$data->updated_at = Carbon::now();
-			$data->updated_by = $request->vendor_id;
-			$data->update();
+				$quotation_detail = QuotationDetail::where('quotation_detail_id', $row['quotation_detail_id'])->first();
 
-			$quotation_detail = QuotationDetail::where('quotation_detail_id', $row['quotation_detail_id'])->first();
-
-			if ($row['vendor_rate']) {
-				$quotation_detail->markup = calculateProfitPercentage($quotation_detail->cost_price, $row['vendor_rate']);
-				$quotation_detail->rate = $row['vendor_rate'];
-				$quotation_detail->amount = $quotation_detail->quantity * $row['vendor_rate'];
-				$quotation_detail->discount_amount = ($quotation_detail->amount * $quotation_detail->discount_percent) / 100;
-				$quotation_detail->gross_amount = $quotation_detail->amount - $quotation_detail->discount_amount;
+				if ($row['vendor_rate'] && $data->is_primary_vendor == 1) {
+					$updateQuote = true;
+					$quotation_detail->markup = calculateProfitPercentage($quotation_detail->cost_price, $row['vendor_rate']);
+					$quotation_detail->rate = $row['vendor_rate'];
+					$quotation_detail->amount = $quotation_detail->quantity * $row['vendor_rate'];
+					$quotation_detail->discount_amount = ($quotation_detail->amount * $quotation_detail->discount_percent) / 100;
+					$quotation_detail->gross_amount = $quotation_detail->amount - $quotation_detail->discount_amount;
+					$quotation_detail->update();
+				}
 			}
-
-		}
-
-			$quotation = Quotation::where('quotation_id', $request->quotation_id)->first();
-			$detail = QuotationDetail::where('quotation_id', $request->quotation_id);
-			$quotation->total_amount = $detail->sum('amount');
-			$quotation->total_discount = $detail->sum('discount_amount');
-			$quotation->net_amount = $detail->sum('gross_amount');
-			$quotation->rebate_amount = $quotation->net_amount * $quotation->rebate_percent / 100;
-			$quotation->salesman_amount = $quotation->net_amount * $quotation->salesman_percent / 100;
-			$quotation->final_amount = $quotation->net_amount - ($quotation->salesman_amount + $quotation->salesman_amount);
-			$quotation->update();
+			if ($updateQuote) {
+				$quotation = Quotation::where('quotation_id', $id)->first();
+				$detail = QuotationDetail::where('quotation_id', $id);
+				$quotation->total_amount = $detail->sum('amount');
+				$quotation->total_discount = $detail->sum('discount_amount');
+				$quotation->net_amount = $detail->sum('gross_amount');
+				$quotation->rebate_amount = $quotation->net_amount * $quotation->rebate_percent / 100;
+				$quotation->salesman_amount = $quotation->net_amount * $quotation->salesman_percent / 100;
+				$quotation->final_amount = $quotation->net_amount - ($quotation->salesman_amount + $quotation->salesman_amount);
+				$quotation->update();
+			}
 
 			DB::commit();
 
