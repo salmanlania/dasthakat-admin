@@ -34,7 +34,6 @@ class VendorQuotationController extends Controller
 		$rules = [
 			'quotation_id' => ['required'],
 			'quotation_detail' => ['required', 'array'],
-			'quotation_detail.*.vendor_id' => ['required'],
 			'quotation_detail.*.quotation_detail_id' => ['required'],
 		];
 
@@ -81,7 +80,7 @@ class VendorQuotationController extends Controller
 		$data['link'] = "http://localhost:5173/vendor-platform/quotation/{$encoded}";
 
 		$payload = [
-			'template' => 'otp-verify-template',
+			'template' => 'vendor_quotation_rate_update',
 			'data' => $data,
 			'email' => $data['vendor']->email ?? '',
 			'name' => $data['vendor']->name,
@@ -100,7 +99,7 @@ class VendorQuotationController extends Controller
 
 	public function show($id)
 	{
-		$data = VendorQuotationDetail::with("quotation_detail","quotation_detail.product_type","quotation_detail.product","quotation_detail.unit","vendor")->where('quotation_id', $id)->get();
+		$data = VendorQuotationDetail::with("quotation_detail","quotation_detail.product_type","quotation_detail.product","quotation_detail.unit","vendor")->where('quotation_id', $id)->orderBy('sort_order')->get();
 
 		if (empty($data)) {
 			return $this->jsonResponse([], 400, 'Quotation Item(s) Not Found!');
@@ -122,14 +121,15 @@ class VendorQuotationController extends Controller
 			$quotation_id = $request->quotation_id;
 			VendorQuotationDetail::where('quotation_id', $quotation_id)->delete();
 			$data = [];
-			$sort_order = 1;
-			foreach ($request->quotation_detail as $detail) {
-				$data[] = [
-					'company_id' => $request->company_id ?? '',
+			foreach ($request->quotation_detail as $row => $detail) {
+				
+				$row++;
+					$data[] = [
+						'company_id' => $request->company_id ?? '',
 					'company_branch_id' => $request->company_branch_id ?? '',
 					'vendor_quotation_detail_id' => $this->get_uuid(),
 					'quotation_id' => $quotation_id ?? '',
-					'sort_order' => $sort_order,
+					'sort_order' => $row,
 					'quotation_detail_id' => $detail['quotation_detail_id'],
 					'vendor_id' => $detail['vendor_id'] ?? '',
 					'vendor_rate' => $detail['vendor_rate'] ?? '',
@@ -139,11 +139,12 @@ class VendorQuotationController extends Controller
 					'created_at' => Carbon::now(),
 					'created_by' => $request->login_user_id,
 				];
-				$sort_order++;
+				if(!empty($detail['vendor_id'])){
+
 				if($detail['is_primary_vendor'] == 1){
 					$quotation_detail = QuotationDetail::where('quotation_detail_id', $detail['quotation_detail_id'])->first();
 					$quotation_detail->supplier_id = $detail['vendor_id'];
-					if($detail['vendor_rate'] > 0){
+					if($detail['vendor_rate']){
 						$quotation_detail->markup = calculateProfitPercentage($quotation_detail->cost_price, $detail['vendor_rate']);
 						$quotation_detail->rate = $detail['vendor_rate'];
 						$quotation_detail->amount = $quotation_detail->quantity * $detail['vendor_rate'];
@@ -153,6 +154,8 @@ class VendorQuotationController extends Controller
 					$quotation_detail->update();
 				}
 			}
+			}
+			VendorQuotationDetail::insert($data);  // Bulk insert
 
 			$quotation = Quotation::where('quotation_id', $quotation_id)->first();
 			$detail = QuotationDetail::where('quotation_id', $quotation_id);
@@ -165,7 +168,6 @@ class VendorQuotationController extends Controller
 			$quotation->update();
 
 
-			VendorQuotationDetail::insert($data);  // Bulk insert
 
 			DB::commit();
 
@@ -200,7 +202,7 @@ class VendorQuotationController extends Controller
 		
 			$quotation_detail = QuotationDetail::where('quotation_detail_id', $request->quotation_detail_id)->first();
 
-			if($request->vendor_rate>0){
+			if($request->vendor_rate){
 				$quotation_detail->markup = calculateProfitPercentage($quotation_detail->cost_price, $request->vendor_rate);
 				$quotation_detail->rate = $request->vendor_rate;
 				$quotation_detail->amount = $quotation_detail->quantity * $request->vendor_rate;
