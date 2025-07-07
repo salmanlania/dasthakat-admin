@@ -64,9 +64,9 @@ class VendorQuotationController extends Controller
 		$data['vendor'] = Supplier::where('supplier_id',$request->vendor_id)
 			->select('supplier_id', 'name', 'email')
 			->first();
-		$data['quotation'] = Quotation::with('event:event_no,event_code', 'vessel:name')
+		$data['quotation'] = Quotation::with('event:event_id,event_no,event_code', 'vessel:vessel_id,name')
 			->where('quotation_id',$request->quotation_id)
-			->select('quotation_id', 'document_identity', 'document_date')
+			->select('quotation_id', 'document_identity', 'document_date', 'event_id', 'vessel_id')
 			->first();
 		$data['quotation_detail'] = QuotationDetail::with('product:impa_code,name,short_code,product_code', 'product_type:name', 'unit:name')
 			->where('quotation_id',$request->quotation_id)
@@ -94,7 +94,7 @@ class VendorQuotationController extends Controller
 			return $this->jsonResponse([], 400, 'RFQ Sent Failed!' . $e->getMessage());
 		}
 
-		return $this->jsonResponse([], 200, 'RFQ Sent Successfully!');
+		return $this->jsonResponse($data, 200, 'RFQ Sent Successfully!');
 	}
 
 	public function show($id)
