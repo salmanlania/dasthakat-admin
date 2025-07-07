@@ -68,9 +68,10 @@ class VendorQuotationController extends Controller
 			->where('quotation_id',$request->quotation_id)
 			->select('quotation_id', 'document_identity', 'document_date', 'event_id', 'vessel_id')
 			->first();
-		$data['quotation_detail'] = QuotationDetail::with('product:impa_code,name,short_code,product_code', 'product_type:name', 'unit:name')
+		$data['quotation_detail'] = QuotationDetail::with('product:product_id,impa_code,name,short_code,product_code', 'product_type:product_type_id,name', 'unit:unit_id,name')
 			->where('quotation_id',$request->quotation_id)
-			->select('quotation_detail_id', 'product_type_id')
+			->where('quotation_detail_id', $request->quotation_detail_id)
+			->select('quotation_detail_id', 'product_id', 'product_type_id', 'unit_id')
 			->first();
 
 		$data['vendor_rate'] = $detail->vendor_rate;
@@ -88,11 +89,11 @@ class VendorQuotationController extends Controller
 			'message' => '',
 		];
 
-		try {
-			$this->sendEmail($payload);
-		} catch (\Exception $e) {
-			return $this->jsonResponse([], 400, 'RFQ Sent Failed!' . $e->getMessage());
-		}
+		// try {
+		// 	$this->sendEmail($payload);
+		// } catch (\Exception $e) {
+		// 	return $this->jsonResponse([], 400, 'RFQ Sent Failed!' . $e->getMessage());
+		// }
 
 		return $this->jsonResponse($data, 200, 'RFQ Sent Successfully!');
 	}
