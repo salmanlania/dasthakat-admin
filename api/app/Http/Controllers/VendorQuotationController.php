@@ -74,7 +74,9 @@ class VendorQuotationController extends Controller
 			->select('quotation_detail_id', 'product_id', 'product_type_id', 'unit_id')
 			->first();
 
-		$data['vendor_rate'] = $detail->vendor_rate;
+			$data['quotation_detail']->vendor_rate = $detail->vendor_rate;
+
+		// $data['vendor_rate'] = $detail->vendor_rate;
 
 		$jsonData = json_encode($data);
 		$encoded = rtrim(strtr(base64_encode($jsonData), '+/', '-_'), '=');
