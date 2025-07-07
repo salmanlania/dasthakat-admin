@@ -10,6 +10,8 @@ const Session = lazy(() => import('./pages/Session'));
 const OtpVerification = lazy(() => import('./pages/OtpVerification'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 
+const VendorPlatformQuotation = lazy(() => import('./pages/VendorPlatform/Quotation'));
+
 const User = lazy(() => import('./pages/User'));
 const CreateUser = lazy(() => import('./pages/User/CreateUser'));
 const EditUser = lazy(() => import('./pages/User/EditUser'));
@@ -890,6 +892,19 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Audit />
+              </Suspense>
+            ),
+          },
+        ],
+      },
+      {
+        path: '/vendor-platform',
+        children: [
+          {
+            path: 'quotation',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <VendorPlatformQuotation />
               </Suspense>
             ),
           },
