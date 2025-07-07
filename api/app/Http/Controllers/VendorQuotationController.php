@@ -51,15 +51,10 @@ class VendorQuotationController extends Controller
 		if (!empty($isError))
 			return $this->jsonResponse($isError, 400, 'Request Failed!');
 
-		$detail = VendorQuotationDetail::where('quotation_id', $request->quotation_id)
-			->where('quotation_detail_id', $request->quotation_detail_id)
-			->where('vendor_id', $request->vendor_id)
-			->select('vendor_rate')
-			->first();
 
-		if (empty($detail)) {
-			return $this->jsonResponse([], 400, 'Quotation Item Not Found!');
-		}
+		// if (empty($detail)) {
+		// 	return $this->jsonResponse([], 400, 'Quotation Item Not Found!');
+		// }
 
 		$data['vendor'] = Supplier::where('supplier_id',$request->vendor_id)
 			->select('supplier_id', 'name', 'email')
@@ -71,10 +66,18 @@ class VendorQuotationController extends Controller
 		$data['quotation_detail'] = QuotationDetail::with('product:product_id,impa_code,name,short_code,product_code', 'product_type:product_type_id,name', 'unit:unit_id,name')
 			->where('quotation_id',$request->quotation_id)
 			->where('quotation_detail_id', $request->quotation_detail_id)
-			->select('quotation_detail_id', 'product_id', 'product_type_id', 'unit_id')
-			->first();
+			->select('product_name','quotation_detail_id', 'product_id', 'product_type_id', 'unit_id')
+			->get();
 
-			$data['quotation_detail']->vendor_rate = $detail->vendor_rate;
+			foreach($data['quotation_detail'] as &$detail){
+				$vendor_item = VendorQuotationDetail::where('quotation_id', $request->quotation_id)
+					->where('quotation_detail_id', $request->quotation_detail_id)
+					->where('vendor_id', $request->vendor_id)
+					->select('vendor_rate')
+					->first();
+				$detail->vendor_rate = $vendor_item->vendor_rate;
+			}
+			// $data['quotation_detail']->vendor_rate = $detail->vendor_rate;
 
 		// $data['vendor_rate'] = $detail->vendor_rate;
 
