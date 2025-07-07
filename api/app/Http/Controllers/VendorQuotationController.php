@@ -77,7 +77,7 @@ class VendorQuotationController extends Controller
 
 		$jsonData = json_encode($data);
 		$encoded = rtrim(strtr(base64_encode($jsonData), '+/', '-_'), '=');
-		$data['link'] = "http://localhost:5173/vendor-platform/quotation/{$encoded}";
+		$data['link'] = "http://localhost:5173/vendor-platform/quotation?q={$encoded}";
 
 		$payload = [
 			'template' => 'vendor_quotation_rate_update',
