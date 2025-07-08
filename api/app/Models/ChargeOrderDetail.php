@@ -12,7 +12,17 @@ class ChargeOrderDetail extends Model
     protected $primaryKey = 'charge_order_detail_id';
     public $incrementing = false;
 
-
+    protected $casts = [
+        'quantity' => 'float',
+        'cost_price' => 'float',
+        'markup' => 'float',
+        'rate' => 'float',
+        'amount' => 'float',
+        'discount_amount' => 'float',
+        'discount_percent' => 'float',
+        'gross_amount' => 'float',
+    ];
+    
     protected $fillable = [
         "charge_order_id",
         "charge_order_detail_id",

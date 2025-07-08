@@ -46,6 +46,7 @@ class QuotationDetail extends Model
         'rate' => 'float',
         'amount' => 'float',
         'discount_amount' => 'float',
+        'discount_percent' => 'float',
         'gross_amount' => 'float',
     ];
 

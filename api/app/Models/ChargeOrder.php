@@ -13,6 +13,10 @@ class ChargeOrder extends Model
     public $incrementing = false;
     protected $casts = [
         'technician_id' => 'array',
+        'total_quantity' => 'float',
+        'total_amount' => 'float',
+        'total_discount' => 'float',
+        'net_amount' => 'float',
     ];
 
     protected $fillable = [
