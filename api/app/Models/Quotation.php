@@ -56,6 +56,18 @@ class Quotation extends Model
         "created_by",
         "updated_by"
     ];
+    protected $casts = [
+        'total_cost' => 'float',
+        'total_quantity' => 'float',
+        'total_amount' => 'float',
+        'total_discount' => 'float',
+        'net_amount' => 'float',
+        'rebate_percent' => 'float',
+        'rebate_amount' => 'float',
+        'salesman_percent' => 'float',
+        'salesman_amount' => 'float',
+        'final_amount' => 'float',
+    ];
 
     public function quotation_detail()
     {

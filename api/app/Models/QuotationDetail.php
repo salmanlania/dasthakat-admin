@@ -38,6 +38,17 @@ class QuotationDetail extends Model
         "created_by",
         "updated_by"
     ];
+    
+    protected $casts = [
+        'quantity' => 'float',
+        'cost_price' => 'float',
+        'markup' => 'float',
+        'rate' => 'float',
+        'amount' => 'float',
+        'discount_amount' => 'float',
+        'gross_amount' => 'float',
+    ];
+
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id','product_id')->select('*',DB::raw("CONCAT(impa_code, ' ', name) as product_name"));
