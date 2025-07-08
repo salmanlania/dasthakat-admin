@@ -255,36 +255,36 @@ const generateQuotationExcel = async (data) => {
       // QTY
       worksheet.getCell(`I${currentRow}`).value = detail.quantity
         ? formatThreeDigitCommas(parseFloat(detail.quantity))
-        : '';
+        : '0';
 
       // Price Per Unit
       worksheet.mergeCells(`J${currentRow}:K${currentRow}`);
       worksheet.getCell(`J${currentRow}`).value = detail.rate
         ? `$${formatThreeDigitCommas(detail.rate)}`
-        : '';
+        : '$0';
 
       // Gross Amount
       worksheet.mergeCells(`L${currentRow}:M${currentRow}`);
       worksheet.getCell(`L${currentRow}`).value = detail.amount
         ? `$${formatThreeDigitCommas(detail.amount)}`
-        : '';
+        : '$0';
 
       // Discount %
       worksheet.getCell(`N${currentRow}`).value = detail.discount_percent
         ? `${roundUpto(+detail.discount_percent)}%`
-        : '';
+        : '0%';
 
       // Discount Amount
       worksheet.mergeCells(`O${currentRow}:P${currentRow}`);
       worksheet.getCell(`O${currentRow}`).value = detail.discount_amount
         ? `$${formatThreeDigitCommas(detail.discount_amount)}`
-        : '';
+        : '$0';
 
       // Net Amount
       worksheet.mergeCells(`Q${currentRow}:R${currentRow}`);
       worksheet.getCell(`Q${currentRow}`).value = detail.gross_amount
         ? `$${formatThreeDigitCommas(detail.gross_amount)}`
-        : '';
+        : '$0';
 
       worksheet.getRow(currentRow).eachCell((cell, index) => {
         if (cell.value) {
@@ -356,7 +356,7 @@ const generateQuotationExcel = async (data) => {
     right: { style: 'thin' }
   };
 
-  const totalGrossAmount = data.total_amount ? `$${formatThreeDigitCommas(data.total_amount)}` : '';
+  const totalGrossAmount = data.total_amount ? `$${formatThreeDigitCommas(data.total_amount)}` : '$0';
   worksheet.mergeCells(`L${currentRow}:M${currentRow}`);
   worksheet.getRow(currentRow).getCell('L').value = totalGrossAmount;
   worksheet.getRow(currentRow).getCell('L').alignment = {
@@ -372,7 +372,7 @@ const generateQuotationExcel = async (data) => {
 
   const totalDiscountAmount = data.total_discount
     ? `$${formatThreeDigitCommas(data.total_discount)}`
-    : '';
+    : '$0';
   worksheet.mergeCells(`N${currentRow}:P${currentRow}`);
   worksheet.getRow(currentRow).getCell('N').value = totalDiscountAmount;
   worksheet.getRow(currentRow).getCell('N').alignment = {
@@ -386,7 +386,7 @@ const generateQuotationExcel = async (data) => {
     right: { style: 'thin' }
   };
 
-  const netAmount = data.net_amount ? `$${formatThreeDigitCommas(data.net_amount)}` : '';
+  const netAmount = data.net_amount ? `$${formatThreeDigitCommas(data.net_amount)}` : '$0';
   worksheet.mergeCells(`Q${currentRow}:R${currentRow}`);
   worksheet.getRow(currentRow).getCell('Q').value = netAmount;
   worksheet.getRow(currentRow).getCell('Q').alignment = {

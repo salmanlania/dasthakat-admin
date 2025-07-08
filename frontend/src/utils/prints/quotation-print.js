@@ -344,11 +344,11 @@ export const createQuotationPrint = async (data) => {
   });
 
   // Total Amounts
-  const totalGrossAmount = data.total_amount ? `$${formatThreeDigitCommas(data.total_amount)}` : '';
+  const totalGrossAmount = data.total_amount ? `$${formatThreeDigitCommas(data.total_amount)}` : '$0';
   const totalDiscountAmount = data.total_discount
     ? `$${formatThreeDigitCommas(data.total_discount)}`
-    : '';
-  const netAmount = data.net_amount ? `$${formatThreeDigitCommas(data.net_amount)}` : '';
+    : '$0';
+  const netAmount = data.net_amount ? `$${formatThreeDigitCommas(data.net_amount)}` : '$0';
 
   let notes = [
     [
