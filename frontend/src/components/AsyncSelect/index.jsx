@@ -47,10 +47,6 @@ const AsyncSelect = ({
 
       let optionsData = [];
       if (valueKey && labelKey) {
-        // optionsData = response.data.data.map((item) => ({
-        //   value: item[valueKey],
-        //   label: getOptionLabel ? getOptionLabel(item) : item[labelKey]
-        // }));
         optionsData = response.data.data.map((item) => (
           {
             value: item[valueKey],

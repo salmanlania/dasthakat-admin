@@ -801,10 +801,8 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
       dataIndex: 'cost_price',
       key: 'cost_price',
       render: (_, { cost_price, product_type_id }, index) => {
-        // const finalCost = product_type_id?.value === 1 ? '0' : cost_price;
         return (
           <DebouncedCommaSeparatedInput
-            // value={finalCost}
             value={
               product_type_id?.value === 1
                 ? '0'

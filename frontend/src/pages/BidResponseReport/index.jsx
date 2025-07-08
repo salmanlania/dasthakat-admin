@@ -31,31 +31,26 @@ const BidResponseReport = () => {
       setIsSubmitting(type);
       const { data } = await dispatch(getBidResponseList(filterParams)).unwrap();
 
-      // Check if groupBy filter is applied
       if (filterParams.groupBy) {
-        // Define mapping functions for different grouping criteria
         const groupByMapping = {
-          date: (item) => dayjs(item.created_at).format('YYYY-MM-DD'), // Group by formatted date
-          event: (item) => item.event_id, // Group by event ID
-          customer: (item) => item.customer_id, // Group by customer ID
-          vessel: (item) => item.vessel_id, // Group by vessel ID
+          date: (item) => dayjs(item.created_at).format('YYYY-MM-DD'),
+          event: (item) => item.event_id,
+          customer: (item) => item.customer_id,
+          vessel: (item) => item.vessel_id,
         };
 
-        // Get the appropriate grouping function based on selected criteria
         const groupKey = groupByMapping[filterParams.groupBy];
         if (!groupKey) return;
 
-        // Group the data using reduce
         const groupByData = data.reduce((acc, item) => {
-          const key = groupKey(item); // Get grouping key for current item
+          const key = groupKey(item);
           if (!acc[key]) {
-            acc[key] = []; // Initialize array for new group
+            acc[key] = [];
           }
-          acc[key].push(item); // Add item to its group
+          acc[key].push(item);
           return acc;
         }, {});
 
-        // Create print with grouped data
         if (type === 'pdf') {
           createGroupByBidResponsePrint(data, groupByData, filterParams.groupBy);
         } else {
