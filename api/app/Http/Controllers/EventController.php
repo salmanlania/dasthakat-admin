@@ -339,7 +339,9 @@ class EventController extends Controller
 				"f.name as flag_name",
 				"f.flag_id",
 				"s.salesman_id as salesman_id",
-				"s.name as salesman_name"
+				"s.name as salesman_name",
+				"s.commission_percentage",
+
 			)
 			->where('event_id', $id)->first();
 
