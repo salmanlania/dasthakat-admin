@@ -445,6 +445,7 @@ export const quotationSlice = createSlice({
     addCase(getQuotation.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
+      console.log('data' , data)
       state.initialFormValues = {
         document_identity: data.document_identity,
         document_type_id: data.document_type_id,
@@ -579,7 +580,7 @@ export const quotationSlice = createSlice({
       }));
 
       state.rebatePercentage = data?.rebate_percent ? data?.rebate_percent : 0;
-      state.salesmanPercentage = data?.salesman_percent ? data?.salesman_percent : 0;
+      state.salesmanPercentage = data?.salesman_percent ? data?.salesman_percent : data?.commission_percentage ? data?.commission_percentage : 0;
     });
     addCase(getQuotation.rejected, (state) => {
       state.isItemLoading = false;
@@ -730,7 +731,7 @@ export const quotationSlice = createSlice({
       }));
 
       state.rebatePercentage = data?.rebate_percent ? data?.rebate_percent : 0;
-      state.salesmanPercentage = data?.salesman_percent ? data?.salesman_percent : 0;
+      state.salesmanPercentage = data?.salesman_percent ? data?.salesman_percent : data?.commission_percentage ? data?.commission_percentage : 0;
     });
     addCase(getQuotationModal.rejected, (state) => {
       state.isItemLoading = false;

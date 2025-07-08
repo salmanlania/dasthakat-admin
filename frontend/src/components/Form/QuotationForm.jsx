@@ -135,20 +135,46 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     totalNet += +detail.gross_amount || 0;
   });
 
-  const rebateAmount =
-    rebatePercentage && totalNet
-      ? formatThreeDigitCommas(roundUpto(totalNet * (rebatePercentage / 100)))
-      : 0;
+  const parsedRebate = parseFloat(rebatePercentage) || 0;
+  const parsedSalesman = parseFloat(salesmanPercentage) || 0;
 
-  const salesmanAmount =
-    salesmanPercentage && totalNet
-      ? formatThreeDigitCommas(roundUpto(totalNet * (salesmanPercentage / 100)))
-      : 0;
+  // const rebateAmount =
+  //   rebatePercentage && totalNet
+  //     ? formatThreeDigitCommas(roundUpto(totalNet * (rebatePercentage / 100)))
+  //     : 0;
+
+  // const salesmanAmount =
+  //   salesmanPercentage && totalNet
+  //     ? formatThreeDigitCommas(roundUpto(totalNet * (salesmanPercentage / 100)))
+  //     : 0;
+
+  const rebateAmount = totalNet
+    ? formatThreeDigitCommas(roundUpto(totalNet * (parsedRebate / 100)))
+    : 0;
+
+  const salesmanAmount = totalNet
+    ? formatThreeDigitCommas(roundUpto(totalNet * (parsedSalesman / 100)))
+    : 0;
+
+  // const finalAmount =
+  //   roundUpto(
+  //     parseInt(totalNet || 0) - parseInt(rebateAmount || 0) - parseInt(salesmanAmount || 0)
+  //   ) || 0;
 
   const finalAmount =
     roundUpto(
-      parseInt(totalNet || 0) - parseInt(rebateAmount || 0) - parseInt(salesmanAmount || 0)
+      parseInt(totalNet || 0) -
+      parseInt(rebateAmount?.toString().replace(/,/g, '') || 0) -
+      parseInt(salesmanAmount?.toString().replace(/,/g, '') || 0)
     ) || 0;
+
+  console.log('finalAmount', finalAmount)
+
+  console.log('checking', {
+    totalNet,
+    rebateAmount,
+    salesmanAmount
+  })
 
   totalProfit = roundUpto(finalAmount - totalCost);
 
@@ -1265,6 +1291,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         salesman_id: { value: data.salesman_id, label: data.salesman_name }
       });
       dispatch(setRebatePercentage(data.rebate_percent ? +data.rebate_percent : 0));
+      dispatch(
+        setSalesmanPercentage(data.commission_percentage ? +data.commission_percentage : 0)
+      );
     } catch (error) {
       handleError(error);
     }
