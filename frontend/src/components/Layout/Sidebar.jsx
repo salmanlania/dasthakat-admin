@@ -49,7 +49,6 @@ const Sidebar = () => {
   const handleBackupSuccess = async () => {
     try {
       const res = await dispatch(dbBackup()).unwrap();
-      console.log('res', res?.data?.file_path)
       if (!res?.data?.file_path) {
         window.open(res?.data?.file_path, '_blank');
         toast.success('Backup successfully generated')

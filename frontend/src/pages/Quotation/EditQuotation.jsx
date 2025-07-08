@@ -41,7 +41,6 @@ const EditQuotation = () => {
       dispatch(getQuotation(id)).unwrap()
     } catch (error) {
       handleError(error)
-      console.log('error', error)
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

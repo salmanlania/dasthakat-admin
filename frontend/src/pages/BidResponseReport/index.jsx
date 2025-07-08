@@ -70,7 +70,6 @@ const BidResponseReport = () => {
         generateBidResponseExcel(data);
       }
     } catch (error) {
-      console.log(error);
       handlerError(error);
     } finally {
       setIsSubmitting(false);
