@@ -263,18 +263,18 @@ export const createQuotationPrint = async (data) => {
       const sr = detail.sort_order + 1;
       const description = `${detail?.product_description || ''}${detail?.description ? `\n \n${detail.description}` : ''}`;
       const uom = detail.unit ? detail.unit.name : '';
-      const quantity = detail.quantity ? formatThreeDigitCommas(parseFloat(detail.quantity)) : '';
-      const pricePerUnit = detail.rate ? `$${formatThreeDigitCommas(detail.rate)}` : '';
-      const grossAmount = detail.amount ? `$${formatThreeDigitCommas(detail.amount)}` : '';
+      const quantity = detail.quantity ? formatThreeDigitCommas(parseFloat(detail.quantity)) : '0';
+      const pricePerUnit = detail.rate ? `$${formatThreeDigitCommas(detail.rate)}` : '$0';
+      const grossAmount = detail.amount ? `$${formatThreeDigitCommas(detail.amount)}` : '$0';
       const discountPercent = detail.discount_percent
         ? `${roundUpto(+detail.discount_percent)}%`
-        : '';
+        : '0%';
       const discountAmount = detail.discount_amount
         ? `$${formatThreeDigitCommas(detail.discount_amount)}`
-        : '';
+        : '$0';
       const netAmount = detail.gross_amount
         ? `$${formatThreeDigitCommas(detail.gross_amount)}`
-        : '';
+        : '$0';
 
       const row = [
         sr,
