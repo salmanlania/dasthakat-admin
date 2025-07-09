@@ -103,8 +103,6 @@ const EditChargeOrder = () => {
         ).unwrap();
       }
 
-      // toast.success('Charge Order updated successfully');
-
       if (additionalRequest !== 'CREATE_PO') {
         navigate('/charge-order')
       }

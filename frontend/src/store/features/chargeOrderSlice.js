@@ -333,7 +333,6 @@ export const chargeOrderSlice = createSlice({
 
       if (
         productType?.label !== 'Service' &&
-        // key !== 'rate' &&
         !['rate', 'supplier_id', 'vendor_part_no', 'unit_id'].includes(key) &&
         detail.cost_price &&
         detail.markup
@@ -567,7 +566,6 @@ export const chargeOrderSlice = createSlice({
         stock_quantity: detail?.product?.stock?.quantity
           ? parseFloat(detail.product.stock.quantity)
           : 0,
-        // quantity: detail.quantity ? parseFloat(detail.quantity) : null,
         quantity: detail.quantity ? detail.quantity : null,
         picked_quantity: detail.picked_quantity ? parseFloat(detail.picked_quantity) : null,
         unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
@@ -577,7 +575,6 @@ export const chargeOrderSlice = createSlice({
         vendor_part_no: detail.vendor_part_no,
         markup: detail.markup,
         cost_price: detail.cost_price,
-        // rate: detail?.rate,
         rate: detail.rate !== undefined ? parseFloat(detail.rate) : null,
         amount: detail.amount,
         discount_percent: detail.discount_percent,

@@ -152,7 +152,7 @@ const Shipment = () => {
     const filteredChargeData = chargeData
       .map((charge) => ({
         ...charge,
-        details: charge.details.filter((detail) => detail.checked) // Keep only checked products
+        details: charge.details.filter((detail) => detail.checked)
       }))
       .filter((charge) => charge.details.length > 0);
 
@@ -214,27 +214,26 @@ const Shipment = () => {
       return charge;
     });
 
-    setChargeData(updatedChargeData); // Assuming setChargeData is your state updater
+    setChargeData(updatedChargeData);
   };
 
   const onChargeCheck = (chargeId) => {
     const updatedChargeData = chargeData.map((charge) => {
       if (charge.charge_order_id === chargeId) {
-        // Check if all items are already checked
         const allChecked = charge.details.every((detail) => detail.checked);
 
         return {
           ...charge,
           details: charge.details.map((detail) => ({
             ...detail,
-            checked: !allChecked // Toggle all to the opposite state
+            checked: !allChecked
           }))
         };
       }
       return charge;
     });
 
-    setChargeData(updatedChargeData); // Assuming setChargeData is your state updater
+    setChargeData(updatedChargeData);
   };
 
   const isAllChargeChecked = (chargeId) => {
@@ -531,7 +530,6 @@ const Shipment = () => {
             className="mb-[1px] w-28"
             disabled={!eventId}
             loading={isFormSubmitting === 'SO'}
-            // onClick={onShipmentCreate}>
             onClick={onShipmentCreate}>
             Create SO
           </Button>

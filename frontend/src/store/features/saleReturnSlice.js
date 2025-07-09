@@ -150,18 +150,11 @@ export const saleReturnListSlice = createSlice({
       }
     },
 
-    // changeSaleReturnDetailValue: (state, action) => {
-    //   const { index, key, value } = action.payload;
-    //   const detail = state.saleReturnDetail[index];
-    //   detail[key] = value;
-    // },
-
     changeSaleReturnDetailValue: (state, action) => {
       const { index, key, value } = action.payload;
       const detail = state.saleReturnDetail[index];
       detail[key] = value;
 
-      // const productTypeIdStock = detail.product_type_id?.value ? detail.product_type_id?.value : detail.product?.product_type_id;
       const productTypeId = detail.product_type_id.value;
       const productId = detail.charge_order_detail_id;
 

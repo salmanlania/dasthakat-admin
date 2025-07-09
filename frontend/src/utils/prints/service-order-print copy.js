@@ -53,13 +53,13 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       {
         content: 'Event Number',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de' 
         }
       },
       {
         content: data?.event?.event_code || '',
         styles: {
-          textColor: '#d51902', // Red Color
+          textColor: '#d51902', 
           fontSize: 11,
           fillColor: 'ebf1de'
         }
@@ -67,14 +67,14 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       {
         content: 'Sales Person',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de' 
         }
       },
       {
         content: data?.salesman?.name || '',
         styles: {
           fontSize: 11,
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de' 
         }
       }
     ]
@@ -116,18 +116,18 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         content: 'Vessel Details',
         colSpan: 2,
         styles: {
-          textColor: '#ffffff', // white color
+          textColor: '#ffffff',
           fontSize: 8,
-          fillColor: '#244062' // Blue Color
+          fillColor: '#244062'
         }
       },
       {
         content: 'Agent Details',
         colSpan: 2,
         styles: {
-          textColor: '#ffffff', // white color
+          textColor: '#ffffff',
           fontSize: 8,
-          fillColor: '#244062' // Blue Color
+          fillColor: '#244062'
         }
       }
     ],
@@ -135,26 +135,26 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       {
         content: 'Vessel Name',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de' 
         }
       },
       {
         content: data?.vessel?.name || '',
         styles: {
-          textColor: '#d51902', // Red Color
+          textColor: '#d51902', 
           fontSize: 9
         }
       },
       {
         content: 'Company Name',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de' 
         }
       },
       {
         content: data?.agent?.name || '',
         styles: {
-          textColor: '#d51902', // Red Color
+          textColor: '#d51902', 
           fontSize: 9
         }
       }
@@ -163,7 +163,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       {
         content: 'IMO Number',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de' 
         }
       },
       {
@@ -175,7 +175,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       {
         content: 'Office Number',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de' 
         }
       },
       {
@@ -189,7 +189,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       {
         content: 'Flag',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de' 
         }
       },
       {
@@ -201,7 +201,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       {
         content: 'Mobile Number',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de' 
         }
       },
       {
@@ -215,7 +215,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       {
         content: 'Class',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de' 
         }
       },
       {
@@ -227,7 +227,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       {
         content: 'Email',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de' 
         }
       },
       {
@@ -241,7 +241,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       {
         content: 'Location',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de' 
         }
       },
       {
@@ -253,7 +253,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       {
         content: 'ETA',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de' 
         }
       },
       {
@@ -311,31 +311,31 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       {
         content: 'Charge Number',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de' 
         }
       },
       {
         content: 'Customer PO #',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de' 
         }
       },
       {
         content: 'SO/DO Number',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de' 
         }
       },
       {
         content: 'Memo',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de' 
         }
       },
       {
         content: 'Qty',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de' 
         }
       }
     ]
@@ -430,11 +430,11 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     },
     didParseCell: function (data) {
       const cellIndex = data.column.index;
-      if (cellIndex === 0) data.cell.styles.cellWidth = 24; // First column width
-      if (cellIndex === 1) data.cell.styles.cellWidth = 30; // Second column width
-      if (cellIndex === 2) data.cell.styles.cellWidth = 28; // Second column width
-      if (cellIndex === 3) data.cell.styles.cellWidth = 110; // Third column width
-      if (cellIndex === 4) data.cell.styles.cellWidth = 16; // Fourth column width
+      if (cellIndex === 0) data.cell.styles.cellWidth = 24; 
+      if (cellIndex === 1) data.cell.styles.cellWidth = 30; 
+      if (cellIndex === 2) data.cell.styles.cellWidth = 28; 
+      if (cellIndex === 3) data.cell.styles.cellWidth = 110;
+      if (cellIndex === 4) data.cell.styles.cellWidth = 16; 
     }
   });
 
@@ -444,23 +444,23 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
       {
         content: 'Certificate Number',
         styles: {
-          fillColor: '#244062', // Blue Color
-          textColor: '#ffffff' // White Color
+          fillColor: '#244062',
+          textColor: '#ffffff' 
         }
       },
       {
         content: 'Type',
         styles: {
-          fillColor: '#244062', // Blue Color
-          textColor: '#ffffff' // White Color
+          fillColor: '#244062',
+          textColor: '#ffffff' 
         }
       },
       {
         content: 'For office Use Only',
         colSpan: 2,
         styles: {
-          fillColor: '#244062', // Blue Color
-          textColor: '#ffffff' // White Color
+          fillColor: '#244062',
+          textColor: '#ffffff' 
         }
       }
     ]
@@ -472,7 +472,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         {
           content: certificate?.certificate_number || '',
           styles: {
-            textColor: '#d51902' // Red Color
+            textColor: '#d51902' 
           }
         },
         {
@@ -481,13 +481,13 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
         {
           content: 'Work Order Complied By',
           styles: {
-            fillColor: 'ebf1de' // gray color
+            fillColor: 'ebf1de' 
           }
         },
         {
           content: 'Muhammad Ali',
           styles: {
-            textColor: '#d51902' // Red Color
+            textColor: '#d51902' 
           }
         }
       ]);
@@ -513,8 +513,8 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     {
       content: 'General Notes',
       styles: {
-        fillColor: 'ebf1de', // gray color
-        textColor: '#244062' // Blue Color
+        fillColor: 'ebf1de', 
+        textColor: '#244062'
       }
     },
     {
@@ -545,10 +545,10 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
     },
     didParseCell: function (data) {
       const cellIndex = data.column.index;
-      if (cellIndex === 0) data.cell.styles.cellWidth = 54; // First column width
-      if (cellIndex === 1) data.cell.styles.cellWidth = 30; // Second column width
-      if (cellIndex === 2) data.cell.styles.cellWidth = 62; // Third column width
-      if (cellIndex === 3) data.cell.styles.cellWidth = 62; // Fourth column width
+      if (cellIndex === 0) data.cell.styles.cellWidth = 54; 
+      if (cellIndex === 1) data.cell.styles.cellWidth = 30; 
+      if (cellIndex === 2) data.cell.styles.cellWidth = 62; 
+      if (cellIndex === 3) data.cell.styles.cellWidth = 62; 
     }
   });
 };

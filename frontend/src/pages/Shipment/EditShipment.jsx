@@ -26,7 +26,6 @@ const EditShipment = () => {
   };
 
   useEffect(() => {
-    // dispatch(getShipment(id)).unwrap().catch(handleError);
     try {
       dispatch(getShipment(id)).unwrap()
     } catch (error) {

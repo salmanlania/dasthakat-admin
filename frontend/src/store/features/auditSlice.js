@@ -113,7 +113,6 @@ export const auditSlice = createSlice({
     setBrandEditable: (state, action) => {
       const { id, editable } = action.payload;
 
-      // if record is new then simply update editable field for this item
       if (id === 'new') {
         state.list = state.list.map((item) => ({
           ...item,
@@ -122,10 +121,8 @@ export const auditSlice = createSlice({
         return;
       }
 
-      // Filter out items with brand_id as "new"
       state.list = state.list.filter((item) => item.brand_id !== 'new');
 
-      // Update the list
       state.list = state.list.map((item) => {
         if (item.brand_id === id) {
           return item.editable
@@ -140,7 +137,6 @@ export const auditSlice = createSlice({
               };
         }
 
-        // If any other item is editable, reset it
         return item.editable
           ? { ...item.prevRecord, editable: false }
           : { ...item, editable: false };

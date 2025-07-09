@@ -1389,7 +1389,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           key={tableKey}
           columns={columns}
           dataSource={filteredRows}
-          // rowKey={'id'}
           rowKey={(record, index) => record.id ?? `temp-${index}`}
           virtual
           size="small"

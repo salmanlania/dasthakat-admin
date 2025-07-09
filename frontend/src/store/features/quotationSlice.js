@@ -105,7 +105,6 @@ export const getQuotationModal = createAsyncThunk(
       });
       return res.data.data;
     } catch (err) {
-      // Use return rejectWithValue, not throw
       return rejectWithValue(err);
     }
   },
@@ -194,7 +193,6 @@ export const quotationSlice = createSlice({
     addQuotationDetail: (state, action) => {
       const index = action.payload;
       const newDetail = {
-        // id: Date.now(),
         id: uuidv4(),
         product_code: null,
         product_id: null,
@@ -207,7 +205,6 @@ export const quotationSlice = createSlice({
         markup: 0,
       };
 
-      // If index is provided, insert the new detail after that index, otherwise push it to the end
       if (index || index === 0) {
         state.quotationDetails.splice(index + 1, 0, newDetail);
       } else {
@@ -221,7 +218,6 @@ export const quotationSlice = createSlice({
       const detail = state.quotationDetails[index];
       const newDetail = {
         ...detail,
-        // id: Date.now(),
         id: uuidv4(),
         row_status: 'I',
         isDeleted: false,
@@ -267,8 +263,6 @@ export const quotationSlice = createSlice({
 
       if (
         productType?.label !== 'Service' &&
-        // key !== 'rate' &&
-        // key === 'markup' &&
         (key === 'markup' || key === 'cost_price') &&
         detail.cost_price &&
         detail.markup !== null &&
@@ -445,7 +439,7 @@ export const quotationSlice = createSlice({
     addCase(getQuotation.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
-      console.log('data' , data)
+      console.log('data', data)
       state.initialFormValues = {
         document_identity: data.document_identity,
         document_type_id: data.document_type_id,

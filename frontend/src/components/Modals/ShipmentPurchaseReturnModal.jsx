@@ -160,7 +160,6 @@ const ShipmentPurchaseReturnModal = ({ visible, onClose, data }) => {
             title="Return Selected Items"
             open={visible}
             onCancel={onClose}
-            // width={800}
             width="95%"
             style={{
                 maxWidth: '1200px',

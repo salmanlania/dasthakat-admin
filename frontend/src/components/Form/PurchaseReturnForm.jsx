@@ -454,7 +454,6 @@ const PurchaseReturnForm = ({ mode, onSubmit, onSave }) => {
           <Col span={24} sm={12} md={6} lg={6}>
             <DetailSummaryInfo
               title="Total Quantity:"
-              // value={totalQuantity || 0}
               value={mode === 'edit' && totalQuantity ? totalQuantity : totalQuantity}
             />
             <DetailSummaryInfo

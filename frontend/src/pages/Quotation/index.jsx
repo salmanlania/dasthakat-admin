@@ -386,10 +386,6 @@ const Quotation = () => {
     window.scrollTo(0, 0);
     dispatch(getQuotationList(formattedParams)).unwrap().catch(handleError);
     const savedLimit = sessionStorage.getItem('quotationLimit');
-    // if (savedLimit && +savedLimit !== params.limit) {
-    //   dispatch(setQuotationListParams({ limit: +savedLimit }));
-    // }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params.page,
     params.limit,
@@ -412,7 +408,6 @@ const Quotation = () => {
     const result = [];
     const groupedByEvent = {};
 
-    // Group quotations by event code
     list.forEach((item) => {
       const eventCode = item.event_code || 'No Event';
 
@@ -423,7 +418,6 @@ const Quotation = () => {
       groupedByEvent[eventCode].push(item);
     });
 
-    // Create final array with headers and items
     Object.keys(groupedByEvent).forEach((eventCode) => {
       result.push({
         isEventHeader: true,
@@ -494,7 +488,6 @@ const Quotation = () => {
               }
               loading={isListLoading}
               className="mt-2"
-              // rowKey="quotation_id"
               rowKey={(record) => record.quotation_id}
               scroll={{ x: 'calc(100% - 200px)' }}
               pagination={{
@@ -514,7 +507,6 @@ const Quotation = () => {
                   }),
                 );
               }}
-              // dataSource={list}
               dataSource={data}
               showSorterTooltip={false}
               columns={columns}

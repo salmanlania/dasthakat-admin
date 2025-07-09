@@ -83,10 +83,6 @@ const IJO = () => {
     }
   };
 
-  // const generateCertificate = (id) => {
-  //   dispatch(getIJO(id)).unwrap().catch(handleError);
-  // }
-
   const columns = [
     {
       title: (

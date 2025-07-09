@@ -63,13 +63,13 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
       {
         content: 'Event Number',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de'
         }
       },
       {
         content: data?.event?.event_code || '',
         styles: {
-          textColor: '#d51902', // Red Color
+          textColor: '#d51902',
           fontSize: 11,
           fillColor: 'ebf1de'
         }
@@ -99,10 +99,10 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
     },
     didParseCell: function (data) {
       const cellIndex = data.column.index;
-      if (cellIndex === 0) data.cell.styles.cellWidth = 24; // First column width
-      if (cellIndex === 1) data.cell.styles.cellWidth = 30; // Second column width
-      if (cellIndex === 2) data.cell.styles.cellWidth = 30; // Third column width
-      if (cellIndex === 3) data.cell.styles.cellWidth = 124; // Fourth column width
+      if (cellIndex === 0) data.cell.styles.cellWidth = 24; 
+      if (cellIndex === 1) data.cell.styles.cellWidth = 30; 
+      if (cellIndex === 2) data.cell.styles.cellWidth = 30; 
+      if (cellIndex === 3) data.cell.styles.cellWidth = 124;
     }
   });
 
@@ -113,18 +113,18 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
         content: 'Vessel Details',
         colSpan: 2,
         styles: {
-          textColor: '#ffffff', // white color
+          textColor: '#ffffff',
           fontSize: 8,
-          fillColor: '#244062' // Blue Color
+          fillColor: '#244062'
         }
       },
       {
         content: 'Agent Details',
         colSpan: 2,
         styles: {
-          textColor: '#ffffff', // white color
+          textColor: '#ffffff', 
           fontSize: 8,
-          fillColor: '#244062' // Blue Color
+          fillColor: '#244062'
         }
       }
     ],
@@ -132,26 +132,26 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
       {
         content: 'Vessel Name',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de'
         }
       },
       {
         content: data?.vessel?.name || '',
         styles: {
-          textColor: '#d51902', // Red Color
+          textColor: '#d51902',
           fontSize: 9
         }
       },
       {
         content: 'Company Name',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de' 
         }
       },
       {
         content: data?.agent?.name || '',
         styles: {
-          textColor: '#d51902', // Red Color
+          textColor: '#d51902',
           fontSize: 9
         }
       }
@@ -160,7 +160,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
       {
         content: 'IMO Number',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de'
         }
       },
       {
@@ -172,7 +172,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
       {
         content: 'Office Number',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de'
         }
       },
       {
@@ -186,7 +186,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
       {
         content: 'Flag',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de'
         }
       },
       {
@@ -198,7 +198,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
       {
         content: 'Mobile Number',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de'
         }
       },
       {
@@ -212,7 +212,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
       {
         content: 'Class',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de'
         }
       },
       {
@@ -224,7 +224,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
       {
         content: 'Email',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de'
         }
       },
       {
@@ -238,7 +238,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
       {
         content: 'Location',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de'
         }
       },
       {
@@ -250,7 +250,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
       {
         content: 'ETA',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de'
         }
       },
       {
@@ -308,43 +308,43 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
       {
         content: 'Charge Number',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de'
         }
       },
       {
         content: 'Customer PO #',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de'
         }
       },
       {
         content: 'DN Number',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de'
         }
       },
       {
         content: 'Memo',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de'
         }
       },
       {
         content: 'Internal Notes',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de'
         }
       },
       {
         content: 'Customer Notes',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de'
         }
       },
       {
         content: 'Qty',
         styles: {
-          fillColor: 'ebf1de' // gray color
+          fillColor: 'ebf1de'
         }
       }
     ]
@@ -426,7 +426,6 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
   const filledRows = fillEmptyRows(table3Row, 20);
   doc.autoTable({
     startY: doc.previousAutoTable.finalY,
-    // body: filledRows
     body: filledRows,
     margin: { left: sideMargin, right: sideMargin },
     styles: {
@@ -447,39 +446,38 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
     },
     didParseCell: function (data) {
       const cellIndex = data.column.index;
-      if (cellIndex === 0) data.cell.styles.cellWidth = 22; // First column width
-      if (cellIndex === 1) data.cell.styles.cellWidth = 20; // Second column width
-      if (cellIndex === 2) data.cell.styles.cellWidth = 26; // Second column width
-      if (cellIndex === 3) data.cell.styles.cellWidth = 62; // Third column width
-      if (cellIndex === 4) data.cell.styles.cellWidth = 31; // Third column width
-      if (cellIndex === 5) data.cell.styles.cellWidth = 31; // Third column width
-      if (cellIndex === 6) data.cell.styles.cellWidth = 16; // Fourth column width
+      if (cellIndex === 0) data.cell.styles.cellWidth = 22;
+      if (cellIndex === 1) data.cell.styles.cellWidth = 20;
+      if (cellIndex === 2) data.cell.styles.cellWidth = 26;
+      if (cellIndex === 3) data.cell.styles.cellWidth = 62;
+      if (cellIndex === 4) data.cell.styles.cellWidth = 31;
+      if (cellIndex === 5) data.cell.styles.cellWidth = 31;
+      if (cellIndex === 6) data.cell.styles.cellWidth = 16;
     }
   });
 
-  // Table 4
   const table4Row = [
     [
       {
         content: 'Certificate Number',
         styles: {
-          fillColor: '#244062', // Blue Color
-          textColor: '#ffffff' // White Color
+          fillColor: '#244062', 
+          textColor: '#ffffff' 
         }
       },
       {
         content: 'Type',
         styles: {
-          fillColor: '#244062', // Blue Color
-          textColor: '#ffffff' // White Color
+          fillColor: '#244062', 
+          textColor: '#ffffff' 
         }
       },
       {
         content: 'For office Use Only',
         colSpan: 2,
         styles: {
-          fillColor: '#244062', // Blue Color
-          textColor: '#ffffff' // White Color
+          fillColor: '#244062', 
+          textColor: '#ffffff' 
         }
       }
     ]
@@ -496,7 +494,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
         {
           content: certificate?.certificate_number || '',
           styles: {
-            textColor: '#d51902' // Red Color
+            textColor: '#d51902' 
           }
         },
         {
@@ -529,7 +527,6 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
       },
       {
         content: 'Technician Notes',
-        // rowSpan : certiLen,
         styles: {
           fillColor: 'ebf1de',
           textColor: '#244062'
@@ -537,7 +534,6 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
       },
       {
         content: techNotes,
-        // rowSpan : certiLen,
         styles: {
           halign: 'left'
         }
@@ -567,10 +563,10 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
     },
     didParseCell: function (data) {
       const cellIndex = data.column.index;
-      if (cellIndex === 0) data.cell.styles.cellWidth = 54; // First column width
-      if (cellIndex === 1) data.cell.styles.cellWidth = 30; // Second column width
-      if (cellIndex === 2) data.cell.styles.cellWidth = 35; // Third column width
-      if (cellIndex === 3) data.cell.styles.cellWidth = 89; // Fourth column width
+      if (cellIndex === 0) data.cell.styles.cellWidth = 54;
+      if (cellIndex === 1) data.cell.styles.cellWidth = 30;
+      if (cellIndex === 2) data.cell.styles.cellWidth = 35;
+      if (cellIndex === 3) data.cell.styles.cellWidth = 89;
     }
   });
 };

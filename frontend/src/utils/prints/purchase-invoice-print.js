@@ -24,10 +24,10 @@ const fillEmptyRows = (rows, rowsPerPage) => {
 const addHeader = (doc, data, sideMargin) => {
   // *** Header ***
   // Logo's
-  doc.addImage(GMSLogo, 'PNG', 8, 3, 32, 26); // x, y, width, height
-  doc.addImage(Logo1, 'PNG', 104, 5, 26, 18); // x, y, width, height
-  doc.addImage(Logo2, 'PNG', 136, 5, 42, 24); // x, y, width, height
-  doc.addImage(Logo3, 'PNG', 178, 5, 26, 22); // x, y, width, height
+  doc.addImage(GMSLogo, 'PNG', 8, 3, 32, 26);
+  doc.addImage(Logo1, 'PNG', 104, 5, 26, 18);
+  doc.addImage(Logo2, 'PNG', 136, 5, 42, 24);
+  doc.addImage(Logo3, 'PNG', 178, 5, 26, 22);
 
   // Main Heading
   doc.setFontSize(18);
@@ -45,14 +45,14 @@ const addHeader = (doc, data, sideMargin) => {
   // Purchase Order Box
   // Draw the rectangle (outer border)
   doc.setDrawColor(0, 0, 0);
-  doc.setLineWidth(1); // Set border thickness
-  doc.rect(sideMargin, 65, 80, 10); // x, y, width, height
+  doc.setLineWidth(1);
+  doc.rect(sideMargin, 65, 80, 10);
   doc.setLineWidth(0.3);
 
   // Add the text inside the box
-  doc.setFontSize(15); // Set font size
-  doc.setFont('times', 'bolditalic'); // Set font style (italic and bold)
-  doc.text('Purchase Order', 26, 71.5); // Centered text
+  doc.setFontSize(15);
+  doc.setFont('times', 'bolditalic');
+  doc.text('Purchase Order', 26, 71.5);
 
   // *** Right side boxes ***
   let startX = 126;
@@ -98,12 +98,12 @@ const addHeader = (doc, data, sideMargin) => {
   let startSendToY = 87;
   let sentToWidth = 99;
   let sentToHeight = 42;
-  doc.rect(startSendToX, startSendToY, sentToWidth, sentToHeight); // x, y, width, height
+  doc.rect(startSendToX, startSendToY, sentToWidth, sentToHeight);
 
   // Add "Send To :" text
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.text('Send To :', startSendToX + 4, startSendToY + 6); // x, y
+  doc.text('Send To :', startSendToX + 4, startSendToY + 6);
   doc.rect(startSendToX, startSendToY + 10, sentToWidth, 0);
 
   // Add the content
@@ -124,12 +124,12 @@ const addHeader = (doc, data, sideMargin) => {
   let startShipToY = 87;
   let shipToWidth = 99;
   let shipToHeight = 42;
-  doc.rect(startShipToX, startShipToY, shipToWidth, shipToHeight); // x, y, width, height
+  doc.rect(startShipToX, startShipToY, shipToWidth, shipToHeight);
 
   // Add "Ship To :" text
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.text('Ship To :', startShipToX + 4, startShipToY + 6); // x, y
+  doc.text('Ship To :', startShipToX + 4, startShipToY + 6);
   doc.rect(startShipToX, startShipToY + 10, shipToWidth, 0);
 
   // Add the content

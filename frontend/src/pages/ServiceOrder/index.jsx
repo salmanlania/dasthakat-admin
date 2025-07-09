@@ -117,27 +117,26 @@ const ServiceOrder = () => {
       return charge;
     });
 
-    setChargeData(updatedChargeData); // Assuming setChargeData is your state updater
+    setChargeData(updatedChargeData);
   };
 
   const onChargeCheck = (chargeId) => {
     const updatedChargeData = chargeData.map((charge) => {
       if (charge.charge_order_id === chargeId) {
-        // Check if all items are already checked
         const allChecked = charge.details.every((detail) => detail.checked);
 
         return {
           ...charge,
           details: charge.details.map((detail) => ({
             ...detail,
-            checked: !allChecked // Toggle all to the opposite state
+            checked: !allChecked
           }))
         };
       }
       return charge;
     });
 
-    setChargeData(updatedChargeData); // Assuming setChargeData is your state updater
+    setChargeData(updatedChargeData);
   };
 
   const isAllChargeChecked = (chargeId) => {

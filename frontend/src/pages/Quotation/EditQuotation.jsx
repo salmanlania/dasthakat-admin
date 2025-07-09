@@ -19,7 +19,6 @@ const EditQuotation = () => {
     try {
       await dispatch(updateQuotation({ id, data })).unwrap();
       toast.success('Quotation updated successfully');
-      // navigate('/quotation');
       dispatch(getQuotation(id)).unwrap().catch(handleError);
     } catch (error) {
       handleError(error);
@@ -31,7 +30,6 @@ const EditQuotation = () => {
       toast.success('Quotation updated successfully');
       navigate('/quotation');
     } catch (error) {
-
       handleError(error);
     }
   };

@@ -263,7 +263,7 @@ const generateQuotationReportExcel = async (datas) => {
     worksheet.getCell(`B${currentRow}`).fill = {
       type: 'pattern',
       pattern: 'solid',
-      fgColor: { argb: 'FFD700' } // Gold background for total row
+      fgColor: { argb: 'FFD700' }
     };
 
     // Add total quantity in column G

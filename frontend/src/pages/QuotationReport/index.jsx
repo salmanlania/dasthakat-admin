@@ -88,14 +88,6 @@ const QuotationReport = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-
-    // dispatch(getQuotationListReport(formattedParams)).unwrap().catch(handleError);
-
-    // const savedLimit = sessionStorage.getItem('quotationLimit');
-    // if (savedLimit && +savedLimit !== params.limit) {
-    //   dispatch(setQuotationListParams({ limit: +savedLimit }));
-    // }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params.page,
     params.limit,

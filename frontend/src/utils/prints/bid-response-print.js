@@ -163,14 +163,14 @@ const generateTableData = (data, doc, sideMargin) => {
     },
     rowPageBreak: 'avoid',
     columnStyles: {
-      0: { cellWidth: 16 }, // Event No
-      1: { cellWidth: 16 }, // Quote No
-      2: { cellWidth: 46 }, // Vessel
-      3: { cellWidth: 46 }, // Customer
-      4: { cellWidth: 20 }, // Total Amount
-      5: { cellWidth: 20 }, // Created
-      6: { cellWidth: 20 }, // Sent To Customer
-      7: { cellWidth: 18 }, // Response Rate
+      0: { cellWidth: 16 },
+      1: { cellWidth: 16 },
+      2: { cellWidth: 46 }, 
+      3: { cellWidth: 46 }, 
+      4: { cellWidth: 20 },
+      5: { cellWidth: 20 }, 
+      6: { cellWidth: 20 },
+      7: { cellWidth: 18 },
     },
     didParseCell: function (data) {
       data.cell.styles.minCellHeight = 13;
@@ -197,7 +197,7 @@ const generateTableData = (data, doc, sideMargin) => {
   doc.text(`Customers: ${totalCustomer}`, 94, finalY);
   doc.text(`$${formatThreeDigitCommas(roundUpto(totalAmount))}`, 132, finalY);
   const responseRateText = `Response Rate: ${minutesToReadable(dividedTotalResponseRate)}`;
-  const maxWidth = 40; // Maximum width in points
+  const maxWidth = 40;
   doc.text(responseRateText, 162, finalY, { maxWidth });
 };
 

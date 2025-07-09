@@ -422,7 +422,6 @@ const OpeningStockForm = ({ mode, onSubmit, onSave }) => {
               labelInValue
               className="w-full"
               value={product_id}
-              // filterFn={(product) => product?.product_id === 2}
               onChange={(selected) => onProductChange(index, selected)}
               addNewLink={permissions.product.add ? '/product/create' : null}
             />

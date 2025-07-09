@@ -153,7 +153,6 @@ const addHeader = (doc, data, sideMargin) => {
   const table1Rows = [
     [
       data.created_by_user ? data.created_by_user.user_name : '',
-      // data.user ? data.user.email : '',
       'tech1@gms-america.com',
       dayjs().format('MM-DD-YYYY'),
       data.ship_via || ''

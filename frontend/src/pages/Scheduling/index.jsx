@@ -159,18 +159,15 @@ const Scheduling = () => {
     const loadingToast = toast.loading('Downloading Excel File...');
 
     try {
-      // Check if date range is selected
       const hasDateRange = params.start_date && params.end_date;
 
       let exportParams;
       if (hasDateRange) {
-        // If date range is selected, use it
         exportParams = {
           ...params,
           sort_direction: 'ascend'
         };
       } else {
-        // If no date range selected, use current date and forward
         const today = dayjs().format('YYYY-MM-DD');
         exportParams = {
           ...params,
@@ -194,18 +191,15 @@ const Scheduling = () => {
     const loadingToast = toast.loading('Loading Print View...');
 
     try {
-      // Check if date range is selected
       const hasDateRange = params.start_date && params.end_date;
 
       let exportParams;
       if (hasDateRange) {
-        // If date range is selected, use it
         exportParams = {
           ...params,
           sort_direction: 'ascend'
         };
       } else {
-        // If no date range selected, use current date and forward
         const today = dayjs().format('YYYY-MM-DD');
         exportParams = {
           ...params,
@@ -329,10 +323,6 @@ const Scheduling = () => {
                 'event_date',
                 date ? dayjs(date).format('YYYY-MM-DD') : null
               );
-
-              // dispatch(getDispatchList(getFilteredParams()))
-              //   .unwrap()
-              //   .then(() => 
               setTableKey((prev) => prev + 1);
             }}
           />

@@ -166,14 +166,14 @@ const generateTableData = (data, doc, sideMargin, pageTitleSlug = '') => {
     },
     rowPageBreak: 'avoid',
     columnStyles: {
-      0: { cellWidth: 16 }, // Event No
-      1: { cellWidth: 16 }, // Quote No
-      2: { cellWidth: 46 }, // Vessel
-      3: { cellWidth: 46 }, // Customer
-      4: { cellWidth: 20 }, // Total Amount
-      5: { cellWidth: 20 }, // Created
-      6: { cellWidth: 20 }, // Sent To Customer
-      7: { cellWidth: 18 }, // Response Rate
+      0: { cellWidth: 16 }, 
+      1: { cellWidth: 16 }, 
+      2: { cellWidth: 46 },
+      3: { cellWidth: 46 },
+      4: { cellWidth: 20 }, 
+      5: { cellWidth: 20 },
+      6: { cellWidth: 20 }, 
+      7: { cellWidth: 18 }, 
     },
     didParseCell: function (data) {
       data.cell.styles.minCellHeight = 13;
@@ -255,7 +255,7 @@ export const createGroupByBidResponsePrint = async (data, groupByData, groupBy) 
 
   // Draw line above grand total
   doc.setLineWidth(0.3);
-  doc.setDrawColor(128, 128, 128); // Set line color to gray
+  doc.setDrawColor(128, 128, 128);
   doc.line(4, finalY - 8, pageWidth - 4, finalY - 8);
 
   // Add summary text below the table

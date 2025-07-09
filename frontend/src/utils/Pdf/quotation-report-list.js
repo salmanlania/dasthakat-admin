@@ -74,7 +74,6 @@ const pdfContent = (doc, data, pageWidth) => {
   ];
 
   const detail = data?.data;
-  // const groupedRows = {};
   const table2Rows = [];
 
   let totalQuantity = 0;
@@ -168,16 +167,16 @@ const pdfContent = (doc, data, pageWidth) => {
     },
     rowPageBreak: 'avoid',
     columnStyles: {
-      0: { cellWidth: 22 }, // date
-      1: { cellWidth: 19 }, // quote no
-      2: { cellWidth: 30 }, // event no
-      3: { cellWidth: 44 }, // vessel
-      4: { cellWidth: 66 }, // customer
-      5: { cellWidth: 19 }, // quantity
-      6: { cellWidth: 19 }, // amount
-      7: { cellWidth: 27 }, // port
-      8: { cellWidth: 23 }, // status
-      8: { cellWidth: 23 }, // create at
+      0: { cellWidth: 22 },
+      1: { cellWidth: 19 },
+      2: { cellWidth: 30 },
+      3: { cellWidth: 44 },
+      4: { cellWidth: 66 },
+      5: { cellWidth: 19 },
+      6: { cellWidth: 19 },
+      7: { cellWidth: 27 },
+      8: { cellWidth: 23 },
+      8: { cellWidth: 23 },
     },
     didParseCell: function (data) {
       const content = data.cell.text;
@@ -189,7 +188,6 @@ const pdfContent = (doc, data, pageWidth) => {
 };
 
 const createQuotationReportPrint = (data, multiple = false) => {
-  // const doc = new jsPDF();
   const doc = new jsPDF({ orientation: 'landscape' });
   const sideMargin = 4;
   const pageSize = doc.internal.pageSize;

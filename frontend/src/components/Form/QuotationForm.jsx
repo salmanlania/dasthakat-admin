@@ -138,16 +138,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
   const parsedRebate = parseFloat(rebatePercentage) || 0;
   const parsedSalesman = parseFloat(salesmanPercentage) || 0;
 
-  // const rebateAmount =
-  //   rebatePercentage && totalNet
-  //     ? formatThreeDigitCommas(roundUpto(totalNet * (rebatePercentage / 100)))
-  //     : 0;
-
-  // const salesmanAmount =
-  //   salesmanPercentage && totalNet
-  //     ? formatThreeDigitCommas(roundUpto(totalNet * (salesmanPercentage / 100)))
-  //     : 0;
-
   const rebateAmount = totalNet
     ? formatThreeDigitCommas(roundUpto(totalNet * (parsedRebate / 100)))
     : 0;
@@ -155,11 +145,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
   const salesmanAmount = totalNet
     ? formatThreeDigitCommas(roundUpto(totalNet * (parsedSalesman / 100)))
     : 0;
-
-  // const finalAmount =
-  //   roundUpto(
-  //     parseInt(totalNet || 0) - parseInt(rebateAmount || 0) - parseInt(salesmanAmount || 0)
-  //   ) || 0;
 
   const finalAmount =
     roundUpto(
@@ -995,7 +980,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       render: (_, { cost_price, product_type_id }, index) => {
         return (
           <DebouncedCommaSeparatedInput
-            // value={product_type_id?.value === 1 ? '0' : cost_price}
             value={
               product_type_id?.value === 1
                 ? '0'
