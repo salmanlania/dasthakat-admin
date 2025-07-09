@@ -583,14 +583,6 @@ const PurchaseInvoiceForm = ({ mode, onSubmit, onSave }) => {
         <Link to="/purchase-invoice">
           <Button className="w-28">Exit</Button>
         </Link>
-        {/* {mode === 'edit' ? (
-          <Button
-            type="primary"
-            className="w-28 bg-rose-600 hover:!bg-rose-500"
-            onClick={printPurchaseInvoice}>
-            Print
-          </Button>
-        ) : null} */}
         <Button
           type="primary"
           className="w-28"

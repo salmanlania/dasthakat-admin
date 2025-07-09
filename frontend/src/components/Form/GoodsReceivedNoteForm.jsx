@@ -825,7 +825,6 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
         </span>
       </p>
 
-      {/* Hidden Fields */}
       <Form.Item name="type" hidden />
 
       <Row gutter={12}>

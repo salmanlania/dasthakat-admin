@@ -308,7 +308,6 @@ const IJO = () => {
           ) : null}
           {permissions.edit ? (
             <Tooltip title="Add Certificate">
-              {/* <Link to={`/ijo/edit/${job_order_id}`}> */}
               <Button
                 size="small"
                 type="primary"
@@ -317,7 +316,6 @@ const IJO = () => {
                 className="bg-emerald-600 hover:!bg-emerald-500"
                 icon={<MdWorkspacePremium size={14} />}
               />
-              {/* </Link> */}
             </Tooltip>
           ) : null}
         </div>
