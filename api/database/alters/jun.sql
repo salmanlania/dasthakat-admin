@@ -193,3 +193,5 @@ CREATE TABLE customer_commission_agent (
 );
 
 
+ALTER TABLE `sale_invoice` 
+ADD COLUMN `ship_date` DATETIME DEFAULT NULL AFTER `document_date`;

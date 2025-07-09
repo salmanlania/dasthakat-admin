@@ -182,6 +182,7 @@ class SaleInvoiceController extends Controller
 			'sale_invoice_id'   => $uuid,
 			'company_id'        => $request->company_id ?? "",
 			'company_branch_id' => $request->company_branch_id ?? "",
+			'ship_date'         => $request->ship_date ?? "",
 			'document_type_id'  => $document['document_type_id'] ?? "",
 			'document_no'       => $document['document_no'] ?? "",
 			'document_prefix'   => $document['document_prefix'] ?? "",
@@ -267,6 +268,7 @@ class SaleInvoiceController extends Controller
 
 		$data  = SaleInvoice::find($id);
 		$data->document_date = $request->document_date;
+		$data->ship_date = $request->ship_date;
 		$data->vessel_billing_address = $request->vessel_billing_address;
 		$data->updated_at = Carbon::now();
 		$data->updated_by = $request->login_user_id;
