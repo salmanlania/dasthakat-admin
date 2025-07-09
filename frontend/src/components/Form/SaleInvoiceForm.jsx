@@ -31,8 +31,13 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
   const onFinish = (values) => {
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
 
+    const formatDate = (date) => (date ? dayjs(date).format('YYYY-MM-DD') : null);
+
     const data = {
       ...values,
+      ship_date: formatDate(values.ship_date),
+      document_date: formatDate(values.document_date),
+      required_date: formatDate(values.required_date),
       vessel_billing_address: values?.vessel_billing_address ? values?.vessel_billing_address : null
     };
 
@@ -113,8 +118,11 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
         required_date: initialFormValues.required_date
           ? dayjs(initialFormValues.required_date)
           : null,
+        // ship_date: initialFormValues?.ship_date
+        //   ? dayjs(initialFormValues.ship_date)
+        //   : null,
         ship_date: initialFormValues?.ship_date
-          ? dayjs(initialFormValues.ship_date)
+          ? dayjs(dayjs(initialFormValues.ship_date).format('YYYY-MM-DD'))
           : null,
       });
     }
