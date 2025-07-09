@@ -112,6 +112,7 @@ const SaleInvoice = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            allowClear
             value={params.document_identity}
             onChange={(e) =>
               dispatch(
@@ -132,11 +133,12 @@ const SaleInvoice = () => {
     {
       title: (
         <div>
-          <p>Quoation No</p>
+          <p>Quotation No</p>
           <Input
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            allowClear
             value={params.quotation_no}
             onChange={(e) =>
               dispatch(
@@ -162,6 +164,7 @@ const SaleInvoice = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            allowClear
             value={params.charge_no}
             onChange={(e) =>
               dispatch(
@@ -175,6 +178,48 @@ const SaleInvoice = () => {
       ),
       dataIndex: 'charge_no',
       key: 'charge_no',
+      sorter: true,
+      width: 180,
+      ellipsis: true
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Event No</p>
+          <AsyncSelect
+            endpoint="/event"
+            size="small"
+            className="w-full font-normal"
+            valueKey="event_id"
+            labelKey="event_code"
+            value={params.event_id}
+            onChange={(value) => dispatch(setSaleInvoiceListParams({ event_id: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'event_code',
+      key: 'event_code',
+      sorter: true,
+      width: 180,
+      ellipsis: true
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Vessel</p>
+          <AsyncSelect
+            endpoint="/vessel"
+            size="small"
+            className="w-full font-normal"
+            valueKey="vessel_id"
+            labelKey="name"
+            value={params.vessel_id}
+            onChange={(value) => dispatch(setSaleInvoiceListParams({ vessel_id: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'vessel_name',
+      key: 'vessel_name',
       sorter: true,
       width: 180,
       ellipsis: true
@@ -251,6 +296,8 @@ const SaleInvoice = () => {
     params.sort_direction,
     params.document_date,
     params.customer_id,
+    params.event_id,
+    params.vessel_id,
     debouncedSearch,
     debouncedSaleInvoiceNo,
     debouncedChargeNo,
@@ -267,10 +314,11 @@ const SaleInvoice = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setSaleInvoiceListParams({ search: e.target.value }))}
+            allowClear
           />
 
           <div className="flex items-center gap-2">

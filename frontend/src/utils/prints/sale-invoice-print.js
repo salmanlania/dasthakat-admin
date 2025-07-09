@@ -110,7 +110,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
 
   // Ship To content
   const vesselInfo = [
-    
+
     `${data?.charge_order?.event?.event_code} - ${data?.charge_order?.vessel?.name}`,
     // data?.charge_order?.vessel?.billing_address
   ].filter(Boolean).join('\n');
@@ -152,7 +152,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
     'Delivery Location',
     'S.O No.',
     'Event No.',
-    'Sales Rep',
+    // 'Sales Rep',
     'Ship Date'
   ];
   const table1Rows = [
@@ -164,15 +164,22 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       data?.charge_order ? data?.charge_order?.port?.name : '',
       data?.charge_order ? data.charge_order?.document_identity : '',
       data?.charge_order ? data.charge_order?.event?.event_code : '',
-      data?.charge_order ? data.charge_order?.salesman?.name : '',
-      data?.shipment
-        ? (data?.shipment?.document_date === "1989-11-30"
-          ? dayjs(data?.shipment?.document_date).format('MM-DD-YYYY')
-          : data.shipment?.document_date === "0000-00-00"
+      // data?.charge_order ? data.charge_order?.salesman?.name : '',
+      data?.ship_date
+        ? (data?.ship_date === "1989-11-30"
+          ? dayjs(data?.ship_date).format('MM-DD-YYYY')
+          : data?.ship_date === "0000-00-00"
             ? 'TBA'
-            : dayjs(data?.shipment?.document_date).format("MM-DD-YYYY"))
-        : '',
-      // dayjs(data?.shipment?.document_date).format("MM-DD-YYYY")
+            : dayjs(data?.ship_date).format("MM-DD-YYYY"))
+        :
+        data?.shipment
+          ?
+          (data?.shipment?.document_date === "1989-11-30"
+            ? dayjs(data?.shipment?.document_date).format('MM-DD-YYYY')
+            : data?.shipment?.document_date === "0000-00-00"
+              ? 'TBA'
+              : dayjs(data?.shipment?.document_date).format("MM-DD-YYYY"))
+          : '',
     ]
   ];
 
@@ -208,13 +215,13 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       0: { cellWidth: 19 },
       1: { cellWidth: 24 },
       2: { cellWidth: 22 },
-      3: { cellWidth: 37 },
-      4: { cellWidth: 25 },
+      3: { cellWidth: 45 },
+      4: { cellWidth: 35 },
       5: { cellWidth: 19 },
       6: { cellWidth: 19 },
-      7: { cellWidth: 15 },
+      // 7: { cellWidth: 15 },
       8: { cellWidth: 22 },
-      9: { cellWidth: 21 },
+      9: { cellWidth: 15 },
     },
     didParseCell: function (data) {
       data.cell.styles.minCellHeight = 9;

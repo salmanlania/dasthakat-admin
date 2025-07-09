@@ -343,7 +343,6 @@ const ChargeOrder = () => {
                 onClick={() => dispatch(setChargePoID(charge_order_id))}
               />
             </Tooltip>
-
             {permissions.edit ? (
               <Tooltip title="Edit">
                 <Link to={`/charge-order/edit/${charge_order_id}`}>
@@ -356,7 +355,6 @@ const ChargeOrder = () => {
                 </Link>
               </Tooltip>
             ) : null}
-
             {permissions.delete ? (
               <Tooltip title="Delete">
                 <Popconfirm
@@ -370,7 +368,6 @@ const ChargeOrder = () => {
                 </Popconfirm>
               </Tooltip>
             ) : null}
-
             <Tooltip title="Product Status">
               <Link>
                 <Button

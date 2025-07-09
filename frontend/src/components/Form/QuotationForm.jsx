@@ -153,14 +153,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       parseInt(salesmanAmount?.toString().replace(/,/g, '') || 0)
     ) || 0;
 
-  console.log('finalAmount', finalAmount)
-
-  console.log('checking', {
-    totalNet,
-    rebateAmount,
-    salesmanAmount
-  })
-
   totalProfit = roundUpto(finalAmount - totalCost);
 
   const onFinish = (values) => {

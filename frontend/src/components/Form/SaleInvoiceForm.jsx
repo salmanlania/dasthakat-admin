@@ -112,7 +112,10 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
           : null,
         required_date: initialFormValues.required_date
           ? dayjs(initialFormValues.required_date)
-          : null
+          : null,
+        ship_date: initialFormValues?.ship_date
+          ? dayjs(initialFormValues.ship_date)
+          : null,
       });
     }
   }, [initialFormValues, form, mode]);
@@ -384,6 +387,16 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
           <Col span={24} sm={12} md={8} lg={8}>
             <Form.Item name="vessel_billing_address" label="Vessel Billing Address">
               <Input />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item
+              name="ship_date"
+              label="Shipment Date"
+              disabled
+            // rules={[{ required: true, message: 'charge order date is required' }]}
+            >
+              <DatePicker format="MM-DD-YYYY" className="w-full" />
             </Form.Item>
           </Col>
         </Row>

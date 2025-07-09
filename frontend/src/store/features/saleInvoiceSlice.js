@@ -180,6 +180,7 @@ export const saleInvoiceSlice = createSlice({
         customer_id: data?.charge_order?.customer?.name,
         charger_order_id: data?.charge_order?.document_identity,
         port_id: data?.charge_order?.port?.name,
+        ship_date: data?.ship_date ? data?.ship_date : '',
         ref_document_identity: data?.charge_order?.ref_document_identity
       };
       state.saleInvoiceDetail = data.sale_invoice_detail.map((detail) => ({
