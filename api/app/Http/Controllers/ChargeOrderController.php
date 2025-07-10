@@ -313,6 +313,9 @@ class ChargeOrderController extends Controller
 		if (!isPermission('add', 'picklist', $request->permission_list)) {
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		}
+		
+		$chargeOrder->refresh(); 
+
 		$inventoryDetails = $chargeOrder->charge_order_detail
 			->where('product_type_id', 2)
 			->where('picklist_detail_id', null);
@@ -404,6 +407,9 @@ class ChargeOrderController extends Controller
 		if (!isPermission('add', 'servicelist', $request->permission_list)) {
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		}
+		
+		$chargeOrder->refresh(); 
+		
 		$inventoryDetails = $chargeOrder->charge_order_detail
 			->where('product_type_id', 1)
 			->where('servicelist_detail_id', null);
@@ -496,9 +502,15 @@ class ChargeOrderController extends Controller
 		if (!isPermission('add', 'service_order', $request->permission_list)) {
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		}
+
+		$chargeOrder->refresh();
+
 		$COD = $chargeOrder->charge_order_detail;
 
 		if ($COD->isEmpty()) {
+			 Log::warning('updateServiceOrder was called for a ChargeOrder with no details.', [
+            'charge_order_id' => $chargeOrder->charge_order_id
+        ]);
 			return;
 		}
 
@@ -598,6 +610,7 @@ class ChargeOrderController extends Controller
 		if (!isPermission('add', 'job_order', $request->permission_list)) {
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		}
+		$chargeOrder->refresh(); 
 		$COD = $chargeOrder->charge_order_detail;
 
 		if ($COD->isEmpty()) {
@@ -1030,6 +1043,8 @@ class ChargeOrderController extends Controller
 			JobOrderDetail::where('charge_order_id', $id)->whereHas('job_order', function ($q) use ($event_id) {
 				$q->where('event_id', $event_id);
 			})->delete();
+			ServiceOrder::where('charge_order_id', $id)->update(['event_id'=>$request->event_id]);
+			
 		}
 
 
