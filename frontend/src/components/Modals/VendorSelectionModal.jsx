@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { getVendor } from '../../store/features/quotationSlice';
 import AsyncSelect from '../AsyncSelect';
-import { postVendorSelection, postRfq } from '../../store/features/quotationSlice';
+import { postVendorSelection } from '../../store/features/quotationSlice';
 import toast from 'react-hot-toast';
 import useError from '../../hooks/useError';
 
@@ -33,6 +33,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
       try {
         await dispatch(getVendor(id)).unwrap();
       } catch (err) {
+        console.log('error' , err)
         handleError(err);
       }
     };
@@ -71,42 +72,6 @@ const VendorSelectionModal = ({ open, onClose }) => {
       }
     }
   }, [quotationDetails, vendorDetails]);
-
-  // const sendRfq = async (productIndex, vendorIndex, checked) => {
-  //   const newData = JSON.parse(JSON.stringify(data));
-  //   const product = newData[productIndex];
-  //   const vendor = product.vendors[vendorIndex];
-
-  //   let quotation_detail_id = product?.quotation_detail_id;
-
-  //   if (!quotation_detail_id && quotationDetails?.length > 0) {
-  //     quotation_detail_id = quotationDetails[productIndex]?.quotation_detail_id;
-  //   }
-
-  //   const vendor_id = vendor?.supplier_id?.value;
-
-  //   const payload = {
-  //     quotation_id: initialFormValues?.quotation_id,
-  //     quotation_detail_id,
-  //     vendor_id,
-  //   };
-
-  //   try {
-  //     if (checked) {
-  //       await dispatch(postRfq(payload)).unwrap();
-  //       vendor.rfqSent = true;
-  //       toast.success('RFQ Sent Successfully!');
-  //     } else {
-  //       vendor.rfqSent = false;
-  //       toast.success('RFQ Unmarked');
-  //     }
-
-  //     newData[productIndex].vendors[vendorIndex] = vendor;
-  //     setData(newData);
-  //   } catch (error) {
-  //     handleError(error);
-  //   }
-  // };
 
   const toggleRfq = (productIndex, vendorIndex, checked) => {
     const newData = JSON.parse(JSON.stringify(data));
@@ -211,7 +176,6 @@ const VendorSelectionModal = ({ open, onClose }) => {
         },
       },
       {
-        // title: `Rate ${vendorIndex + 1}`,
         title: `Rate`,
         key: `rate-${vendorIndex}`,
         width: 120,
@@ -234,25 +198,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
         width: 100,
         ellipsis: true,
         render: (_, record, productIndex) => {
-          const vendor = record.vendors[vendorIndex];
           return (
-            // <Switch
-            //   checked={vendor.isPrimary}
-            //   onChange={(checked) => {
-            //     const newData = JSON.parse(JSON.stringify(data));
-            //     if (checked) {
-            //       newData[productIndex].vendors = newData[productIndex].vendors.map((vendor, idx) => ({
-            //         ...vendor,
-            //         isPrimary: idx === vendorIndex
-            //       }));
-            //     } else {
-            //       newData[productIndex].vendors[vendorIndex].isPrimary = false;
-            //     }
-            //     setData(newData);
-            //   }}
-            //   checkedChildren="Yes"
-            //   unCheckedChildren="No"
-            // />
             <Radio
               checked={record.vendors[vendorIndex].isPrimary}
               onChange={() => handlePrimaryChange(productIndex, vendorIndex)}
@@ -269,11 +215,9 @@ const VendorSelectionModal = ({ open, onClose }) => {
         ellipsis: true,
         render: (_, record, productIndex) => {
           const vendor = record.vendors[vendorIndex];
-          const isDisable = vendorDetails.length > 0
           return (
             <Switch
               checked={vendor.rfqSent}
-              // disabled={isDisable || !vendor?.supplier_id?.value}
               onChange={(checked) => toggleRfq(productIndex, vendorIndex, checked)}
               checkedChildren="Sent"
               unCheckedChildren="Send"
