@@ -74,7 +74,7 @@ public class BaseTest {
         ReportManager.createTest(testDescription);
 //        ReportManager.createTest("Create Customer Test Case");
 
-        // Assuming you are still on the login page
+        ReportManager.logInfo("Step 1: Login to the System with valid credentials ");
         LoginPage login = new LoginPage(driver);
         String email = ConfigReader.getProperty("admin.email");
         String password = ConfigReader.getProperty("admin.password");
@@ -83,6 +83,8 @@ public class BaseTest {
     @AfterMethod
     public void SignOutFromSite() {
         CreateQuotePage quotePage = new CreateQuotePage(driver,this);
+        ReportManager.logInfo("Last Step : Sign Out");
+
         quotePage.sigOut();
     }
     @BeforeSuite
