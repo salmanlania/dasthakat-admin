@@ -102,13 +102,16 @@ class SettingController extends Controller
         // Write content to file
         File::put($fileFullPath, $sqlContent);
 
+        // Generate download URL
+        $downloadUrl = url('database/backups/' . $fileName);
+
         return $this->jsonResponse([
             'status' => 'success',
             'message' => 'Database backup created successfully.',
             'file_path' => $fileFullPath,
+            'download_url' => $downloadUrl
         ]);
     }
-
 
 	public function EmailDubugging(Request $request)
 	{

@@ -14,7 +14,7 @@ class VesselCommissionAgent extends Model
     protected $fillable = [
         'vessel_commission_agent_id',
         'vessel_id',
-        'commission_agent_type',
+        'type',
         'commission_percentage', 
         'commission_agent_id',
         'status',

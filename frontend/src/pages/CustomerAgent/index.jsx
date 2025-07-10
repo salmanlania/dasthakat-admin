@@ -10,7 +10,7 @@ import {
   getCustomer,
   removeCommissionDetail,
   resetCommissionDetails,
-  updateCustomer,
+  updateCustomerAgent,
 } from '../../store/features/customerSlice';
 import DebouncedNumberInput from '../../components/Input/DebouncedNumberInput';
 import AsyncSelect from '../../components/AsyncSelect';
@@ -176,7 +176,7 @@ const CustomerAgent = () => {
               },
               {
                 value: 'Inactive',
-                label: 'Inactive',
+                label: 'In Active',
               },
             ]}
             value={status}
@@ -259,12 +259,6 @@ const CustomerAgent = () => {
     const customerID = form.getFieldValue('customer_id');
 
     const payload = {
-      ...initialFormValues,
-      salesman_id: initialFormValues.salesman_id ? initialFormValues.salesman_id.value : null,
-      payment_id: initialFormValues.payment_id ? initialFormValues.payment_id.value : null,
-      vessel_id: initialFormValues.vessel_id
-        ? initialFormValues.vessel_id.map((v) => v.value)
-        : null,
       customer_commission_agent: commissionDetails.map((detail) => ({
         ...detail,
         customer_commission_agent_id: detail.row_status === 'I' ? null : detail.id,
@@ -273,7 +267,7 @@ const CustomerAgent = () => {
     };
 
     try {
-      await dispatch(updateCustomer({ id: customerID, data: payload })).unwrap();
+      await dispatch(updateCustomerAgent({ id: customerID, data: payload })).unwrap();
       toast.success('Customer Agent updated successfully');
       await dispatch(getCustomer(customerID)).unwrap();
     } catch (error) {

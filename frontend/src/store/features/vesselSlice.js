@@ -52,6 +52,17 @@ export const updateVessel = createAsyncThunk(
   },
 );
 
+export const updateVesselAgent = createAsyncThunk(
+  'vessel-agent/update',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      await api.put(`/vessel/${id}/commission-agents`, data);
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  },
+);
+
 export const bulkDeleteVessel = createAsyncThunk(
   'vessel/bulkDelete',
   async (ids, { rejectWithValue }) => {
@@ -112,7 +123,7 @@ export const vesselSlice = createSlice({
         commission_type: null,
         commission_agent: null,
         commission_percentage: null,
-        status: null,
+        status: 'Active',
         row_status: 'I',
       };
 
@@ -219,45 +230,47 @@ export const vesselSlice = createSlice({
         block_status: data.block_status,
         customer_id: data.customer_id
           ? {
-              value: data.customer_id,
-              label: data.customer_name,
-            }
+            value: data.customer_id,
+            label: data.customer_name,
+          }
           : null,
         flag_id: data.flag_id
           ? {
-              value: data.flag_id,
-              label: data.flag_name,
-            }
+            value: data.flag_id,
+            label: data.flag_name,
+          }
           : null,
         class1_id: data.class1_id
           ? {
-              value: data.class1_id,
-              label: data.class1_name,
-            }
+            value: data.class1_id,
+            label: data.class1_name,
+          }
           : null,
         class2_id: data.class2_id
           ? {
-              value: data.class2_id,
-              label: data.class2_name,
-            }
+            value: data.class2_id,
+            label: data.class2_name,
+          }
           : null,
       };
 
-      if (!data.vessel_commission_agent_id) return;
-      state.commissionDetails = data.vessel_commission_agent.map((detail) => ({
-        id: detail.vessel_commission_agent_id,
-        commission_agent_id: detail.commission_agent
-          ? {
+      if (!data.vessel_commission_agent) return;
+      if (Array.isArray(data.vessel_commission_agent)) {
+        state.commissionDetails = data.vessel_commission_agent.map((detail) => ({
+          id: detail.vessel_commission_agent_id,
+          commission_agent_id: detail.commission_agent
+            ? {
               value: detail.commission_agent.commission_agent_id,
               label: detail.commission_agent.name,
             }
-          : null,
-        type: detail.type,
-        commission_percentage: detail.commission_percentage,
-        status: detail.status,
-        row_status: 'U',
-        isDeleted: false,
-      }));
+            : null,
+          type: detail.type,
+          commission_percentage: detail.commission_percentage,
+          status: detail.status,
+          row_status: 'U',
+          isDeleted: false,
+        }));
+      }
     });
     addCase(getVessel.rejected, (state) => {
       state.isItemLoading = false;

@@ -93,6 +93,7 @@ $router->group(['prefix' => 'customer'], function ($router) {
    $router->get('/{id}', 'CustomerController@show');
    $router->post('/', 'CustomerController@store');
    $router->put('/{id}', 'CustomerController@update');
+   $router->put('/{id}/commission-agents', 'CustomerController@updateCommissionAgent');
    $router->delete('/{id}', 'CustomerController@delete');
    $router->post('/bulk-delete', 'CustomerController@bulkDelete');
 });
@@ -165,6 +166,7 @@ $router->group(['prefix' => 'vessel'], function ($router) {
    $router->get('/{id}', 'VesselController@show');
    $router->post('/', 'VesselController@store');
    $router->put('/{id}', 'VesselController@update');
+   $router->put('/{id}/commission-agents', 'VesselController@updateCommissionAgent');
    $router->delete('/{id}', 'VesselController@delete');
    $router->post('/bulk-delete', 'VesselController@bulkDelete');
 });

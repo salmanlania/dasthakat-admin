@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Audit;
 use App\Models\ChargeOrder;
 use App\Models\ChargeOrderDetail;
+use App\Models\CustomerCommissionAgent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Event;
@@ -17,6 +18,7 @@ use App\Models\Quotation;
 use App\Models\ServicelistReceived;
 use App\Models\ServiceOrder;
 use App\Models\ShipmentDetail;
+use App\Models\VesselCommissionAgent;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -344,6 +346,10 @@ class EventController extends Controller
 
 			)
 			->where('event_id', $id)->first();
+
+			$data->vessel_commission_agent = VesselCommissionAgent::with('commission_agent')->where('vessel_id', $data->vessel_id)->orderBy('sort_order')->get();
+			$data->customer_commission_agent = CustomerCommissionAgent::with('commission_agent')->where('customer_id', $data->customer_id)->orderBy('sort_order')->get();
+
 
 		if ($jsonResponse) {
 			return $this->jsonResponse($data, 200, "Show Data");

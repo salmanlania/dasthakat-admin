@@ -10,7 +10,7 @@ import {
   getVessel,
   removeCommissionDetail,
   resetCommissionDetails,
-  updateVessel,
+  updateVesselAgent,
 } from '../../store/features/vesselSlice';
 import DebouncedNumberInput from '../../components/Input/DebouncedNumberInput';
 import AsyncSelect from '../../components/AsyncSelect';
@@ -27,9 +27,11 @@ const VesselAgent = () => {
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
 
-  const { isItemLoading, isFormSubmitting, commissionDetails, initialFormValues } = useSelector(
+  const { isItemLoading, isFormSubmitting, commissionDetails } = useSelector(
     (state) => state.vessel,
   );
+
+  console.log('commissionDetails' , commissionDetails)
 
   const columns = [
     {
@@ -176,7 +178,7 @@ const VesselAgent = () => {
               },
               {
                 value: 'Inactive',
-                label: 'Inactive',
+                label: 'In Active',
               },
             ]}
             value={status}
@@ -258,11 +260,11 @@ const VesselAgent = () => {
     const vesselID = form.getFieldValue('vessel_id');
 
     const payload = {
-      ...initialFormValues,
-      customer_id: initialFormValues.customer_id ? initialFormValues.customer_id.value : null,
-      flag_id: initialFormValues.flag_id ? initialFormValues.flag_id.value : null,
-      class1_id: initialFormValues.class1_id ? initialFormValues.class1_id.value : null,
-      class2_id: initialFormValues.class2_id ? initialFormValues.class2_id.value : null,
+      // ...initialFormValues,
+      // customer_id: initialFormValues.customer_id ? initialFormValues.customer_id.value : null,
+      // flag_id: initialFormValues.flag_id ? initialFormValues.flag_id.value : null,
+      // class1_id: initialFormValues.class1_id ? initialFormValues.class1_id.value : null,
+      // class2_id: initialFormValues.class2_id ? initialFormValues.class2_id.value : null,
       vessel_commission_agent: commissionDetails.map((detail) => ({
         ...detail,
         vessel_commission_agent_id: detail.row_status === 'I' ? null : detail.id,
@@ -271,7 +273,7 @@ const VesselAgent = () => {
     };
 
     try {
-      await dispatch(updateVessel({ id: vesselID, data: payload })).unwrap();
+      await dispatch(updateVesselAgent({ id: vesselID, data: payload })).unwrap();
       toast.success('Vessel Agent updated successfully');
       await dispatch(getVessel(vesselID)).unwrap();
     } catch (error) {

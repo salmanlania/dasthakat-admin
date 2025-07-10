@@ -157,6 +157,7 @@ const initialState = {
   rebatePercentage: null,
   salesmanPercentage: null,
   quotationDetails: [],
+  commissionAgentData: [],
   params: {
     page: 1,
     limit: 50,
@@ -528,6 +529,15 @@ export const quotationSlice = createSlice({
         term_desc: data.term_desc,
         status: data.status,
       };
+
+      // state.commissionAgentData = [data.commission_agent]
+      state.commissionAgentData = data.commission_agent.map((detail) => ({
+        name: detail?.name,
+        commission_percentage: detail?.percentage,
+        amount: detail?.amount,
+        row_status: 'U',
+        isDeleted: false,
+      }));
 
       if (!data.quotation_detail) return;
       state.quotationDetails = data.quotation_detail.map((detail) => ({

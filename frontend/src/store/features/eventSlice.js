@@ -71,6 +71,9 @@ const initialState = {
   initialFormValues: null,
   isItemLoading: false,
   list: [],
+  customerCommissionAgent: [],
+  commissionAgent: [],
+  vesselCommissionAgent: [],
   deleteIDs: [],
   params: {
     page: 1,
@@ -99,9 +102,17 @@ export const eventSlice = createSlice({
       };
     },
 
+    setCommissionAgentWithAmount: (state, action) => {
+      state.commissionAgent = action.payload;
+    },
+
     setEventDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
-    }
+    },
+
+    resetCommissionAgent: (state) => {
+      state.commissionAgent = [];
+    },
   },
   extraReducers: ({ addCase }) => {
     addCase(getEventList.pending, (state) => {
@@ -138,32 +149,74 @@ export const eventSlice = createSlice({
       state.isItemLoading = false;
       const data = action.payload;
 
+      const activeCustomerAgentsRaw = (data?.customer_commission_agent || []).filter(
+        item => item?.status === 'Active'
+      );
+
+      const activeVesselAgentsRaw = (data?.vessel_commission_agent || []).filter(
+        item => item?.status === 'Active'
+      );
+
+      state.customerCommissionAgent = activeCustomerAgentsRaw;
+      state.vesselCommissionAgent = activeVesselAgentsRaw;
+
+      const customerAgents = state.customerCommissionAgent.map(item => {
+        const percentage = parseFloat(item?.commission_percentage || 0);
+
+        return {
+          type: 'Customer',
+          commission_agent_id: item?.commission_agent_id,
+          customer_id: item?.customer_id,
+          vessel_id: null, // not applicable
+          name: item?.commission_agent?.name || '',
+          commission_percentage: percentage,
+          amount: 0
+        };
+      });
+
+      const vesselAgents = state.vesselCommissionAgent.map(item => {
+        const percentage = parseFloat(item?.commission_percentage || 0);
+
+        return {
+          type: 'Vessel',
+          commission_agent_id: item?.commission_agent_id,
+          vessel_id: item?.vessel_id,
+          customer_id: null, // not applicable
+          name: item?.commission_agent?.name || '',
+          commission_percentage: percentage,
+        };
+      });
+
+
+      state.commissionAgent = [...customerAgents, ...vesselAgents];
+
+
       state.initialFormValues = {
         event_code: data.event_code,
         status: data.status,
         customer_id: data.customer_id
           ? {
-              value: data.customer_id,
-              label: data.customer_name
-            }
+            value: data.customer_id,
+            label: data.customer_name
+          }
           : null,
         vessel_id: data.vessel_id
           ? {
-              value: data.vessel_id,
-              label: data.vessel_name
-            }
+            value: data.vessel_id,
+            label: data.vessel_name
+          }
           : null,
         class1_id: data.class1_id
           ? {
-              value: data.class1_id,
-              label: data.class1_name
-            }
+            value: data.class1_id,
+            label: data.class1_name
+          }
           : null,
         class2_id: data.class2_id
           ? {
-              value: data.class2_id,
-              label: data.class2_name
-            }
+            value: data.class2_id,
+            label: data.class2_name
+          }
           : null
       };
     });
@@ -196,5 +249,5 @@ export const eventSlice = createSlice({
   }
 });
 
-export const { setEventListParams, setEventDeleteIDs } = eventSlice.actions;
+export const { setEventListParams, setEventDeleteIDs, setCommissionAgentWithAmount, resetCommissionAgent } = eventSlice.actions;
 export default eventSlice.reducer;

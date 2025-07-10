@@ -98,6 +98,7 @@ class Quotation extends Model
     {
         return $this->hasOne(Customer::class, 'customer_id', 'customer_id')->select('*');
     }
+  
     public function flag()
     {
         return $this->hasOne(Flag::class, 'flag_id', 'flag_id')->select('flag_id', 'name');

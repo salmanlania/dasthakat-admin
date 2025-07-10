@@ -49,8 +49,8 @@ const Sidebar = () => {
   const handleBackupSuccess = async () => {
     try {
       const res = await dispatch(dbBackup()).unwrap();
-      if (!res?.data?.file_path) {
-        window.open(res?.data?.file_path, '_blank');
+      if (res?.data?.download_url) {
+        window.open(res?.data?.download_url, '_blank');
         toast.success('Backup successfully generated')
         closeBackupModal()
       } else {

@@ -61,6 +61,17 @@ export const updateCustomer = createAsyncThunk(
   },
 );
 
+export const updateCustomerAgent = createAsyncThunk(
+  'customer-agent/update',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      await api.put(`/customer/${id}/commission-agents`, data);
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  },
+);
+
 export const bulkDeleteCustomer = createAsyncThunk(
   'customer/bulkDelete',
   async (ids, { rejectWithValue }) => {

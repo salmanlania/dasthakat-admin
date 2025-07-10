@@ -14,7 +14,8 @@ class CustomerCommissionAgent extends Model
     protected $fillable = [
         'customer_commission_agent_id',
         'customer_id',
-        'commission_agent_type',
+        'sort_order',
+        'type',
         'commission_percentage', 
         'commission_agent_id',
         'status',

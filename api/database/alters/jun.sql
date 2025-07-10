@@ -192,6 +192,32 @@ CREATE TABLE customer_commission_agent (
   PRIMARY KEY (`customer_commission_agent_id`)
 );
 
+CREATE TABLE quotation_commission_agent (
+  `id` char(36) NOT NULL,
+  `quotation_id` char(36) NOT NULL,
+  `commission_agent_id` char(36) NOT NULL,
+  `sort_order` INT(11) DEFAULT 0 NOT NULL,
+  `customer_id` char(36) NOT NULL,
+  `vessel_id` char(36) NOT NULL,
+  `percentage` decimal(10,2) NOT NULL,
+  `amount` decimal(10,2) DEFAULT NULL,
+  `created_by` char(36) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+);
 
 ALTER TABLE `sale_invoice` 
 ADD COLUMN `ship_date` DATETIME DEFAULT NULL AFTER `document_date`;
+
+
+ALTER TABLE `vessel_commission_agent`
+  ADD COLUMN `sort_order` INT(11) NULL AFTER `type`;
+ALTER TABLE `customer_commission_agent`
+  ADD COLUMN `sort_order` INT(11) NULL AFTER `type`;
+
+  
+ALTER TABLE `quotation_commission_agent`
+  ADD COLUMN `updated_at` DATETIME DEFAULT NULL,
+  ADD COLUMN `updated_by` CHAR(36) DEFAULT NULL;
+  
+>>>>>>> June-task-report

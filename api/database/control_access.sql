@@ -28,6 +28,8 @@
   ('General Group', 'Customer', 'customer', 'add', 'Add', 1.102),
   ('General Group', 'Customer', 'customer', 'edit', 'Edit', 1.103),
   ('General Group', 'Customer', 'customer', 'delete', 'Delete', 1.104),
+  
+  ('General Group', 'Customer Commission Agent', 'customer_commission_agent', 'edit', 'Edit', 1.101),
 
   ('General Group', 'Vendor', 'supplier', 'list', 'List', 1.101),
   ('General Group', 'Vendor', 'supplier', 'add', 'Add', 1.102),
@@ -78,6 +80,8 @@
   ('General Group', 'Vessel', 'vessel', 'add', 'Add', 1.102),
   ('General Group', 'Vessel', 'vessel', 'edit', 'Edit', 1.103),
   ('General Group', 'Vessel', 'vessel', 'delete', 'Delete', 1.104),
+
+  ('General Group', 'Vessel Commission Agent', 'vessel_commission_agent', 'edit', 'Edit', 1.101),
 
  ('User Management', 'User Permission', 'user_permission', 'list', 'List', 1.101),
   ('User Management', 'User Permission', 'user_permission', 'add', 'Add', 1.102),
@@ -133,6 +137,7 @@
   ('Sale Management', 'Quotation', 'quotation', 'add', 'Add', 1.102),
   ('Sale Management', 'Quotation', 'quotation', 'edit', 'Edit', 1.103),
   ('Sale Management', 'Quotation', 'quotation', 'delete', 'Delete', 1.104),
+  ('Sale Management', 'Quotation', 'quotation', 'commission_agent', 'Commission Agent', 1.105),
 
   ('Sale Management', 'Charge Order', 'charge_order', 'list', 'List', 1.101),
   ('Sale Management', 'Charge Order', 'charge_order', 'add', 'Add', 1.102),

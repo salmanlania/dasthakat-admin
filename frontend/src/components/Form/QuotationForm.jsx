@@ -11,20 +11,22 @@ import {
   Popover,
   Select,
   Table,
-  Tooltip
+  Tooltip,
 } from 'antd';
 import dayjs from 'dayjs';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
+import { TiDelete } from "react-icons/ti";
+import { FaEye } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { BiPlus } from 'react-icons/bi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoIosWarning, IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { TbEdit } from 'react-icons/tb';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import NotesModal from '../../components/Modals/NotesModal.jsx';
 import useError from '../../hooks/useError';
-import { getEvent } from '../../store/features/eventSlice';
+import { getEvent, resetCommissionAgent } from '../../store/features/eventSlice';
 import { getProduct, getProductList } from '../../store/features/productSlice';
 import {
   addQuotationDetail,
@@ -48,6 +50,7 @@ import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate.jsx';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebouncedNumberInput from '../Input/DebouncedNumberInput';
 import DebounceInput from '../Input/DebounceInput';
+import { render } from 'react-dom';
 
 export const DetailSummaryInfo = ({ title, value }) => {
   return (
@@ -93,6 +96,7 @@ export const quotationStatusOptions = [
 const QuotationForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const handleError = useError();
+  const location = useLocation();
   const dispatch = useDispatch();
   const { id } = useParams();
   const {
@@ -100,8 +104,10 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     initialFormValues,
     quotationDetails,
     rebatePercentage,
-    salesmanPercentage
+    salesmanPercentage,
+    commissionAgentData
   } = useSelector((state) => state.quotation);
+  const { commissionAgent } = useSelector((state) => state.event);
   const [prevEvent, setPrevEvent] = useState(initialFormValues?.event_id);
 
   const { user } = useSelector((state) => state.auth);
@@ -116,6 +122,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
   const [globalMarkup, setGlobalMarkup] = useState('');
   const [globalDiscount, setGlobalDiscount] = useState('');
   const [submitAction, setSubmitAction] = useState(null);
+  const [hiddenAgentKeys, setHiddenAgentKeys] = useState([]);
   let totalQuantity = 0;
   let totalCost = 0;
   let totalAmount = 0;
@@ -156,6 +163,27 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
   totalProfit = roundUpto(finalAmount - totalCost);
 
   const onFinish = (values) => {
+
+    const safeTotalNet = totalNet || 0;
+
+    const selectedCommissionAgents = commissionAgent
+      .filter(agent => !hiddenAgentKeys.includes(agent.commission_agent_id))
+      .map(agent => {
+        const percentage = parseFloat(agent?.commission_percentage || 0);
+        const amount = roundUpto((percentage * totalNet) / 100);
+        return {
+          vessel_id: agent.vessel_id || null,
+          customer_id: agent.customer_id || null,
+          commission_agent_id: agent.commission_agent_id,
+          percentage,
+          amount,
+          isDeleted: false,
+          sort_order: 1
+        };
+      });
+
+    // dispatch(setCommissionAgentWithAmount(selectedCommissionAgents));
+
     if (rebatePercentage > 100) return toast.error('Rebate Percentage cannot be greater than 100');
     if (salesmanPercentage > 100)
       return toast.error('Salesman Percentage cannot be greater than 100');
@@ -192,6 +220,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       term_id: values.term_id && values.term_id.length ? values.term_id.map((v) => v.value) : null,
       status: values.status,
       remarks: values.remarks,
+      commission_agent: selectedCommissionAgents,
       quotation_detail: mappingSource.map(
         ({ id, row_status, isDeleted, product_type, ...detail }, index) => {
           return {
@@ -220,7 +249,13 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       salesman_amount: salesmanAmount
     };
 
-    submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
+    submitAction === 'save'
+      ? onSubmit(data).then(() => dispatch(resetCommissionAgent()))
+      : submitAction === 'saveAndExit'
+        ? onSave(data).then(() => dispatch(resetCommissionAgent()))
+        : null;
+
+    // submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 
   const closeNotesModal = () => {
@@ -1222,6 +1257,77 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     }
   ];
 
+  const [selectedCommissionAgentKeys, setSelectedCommissionAgentKeys] = useState([]);
+
+  const commissionAgentColumns = [
+    {
+      title: 'Agent Name',
+      dataIndex: 'name',
+      key: 'name',
+      render: (text, record, index) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          Agent {index + 1}
+          {
+            permissions?.quotation?.commission_agent
+              ? <Tooltip title={text}>
+                <FaEye size={14} style={{ cursor: 'pointer' }} />
+              </Tooltip>
+              : null
+          }
+        </div>
+      )
+    },
+    {
+      title: 'Percentage',
+      key: 'commission_percentage',
+      dataIndex: 'commission_percentage',
+      render: (value) => `${value ?? 0}%`
+    },
+    {
+      title: 'Total Amount',
+      key: 'amount',
+      dataIndex: 'commission_percentage',
+      render: (percentage) => {
+        const safePercentage = parseFloat(percentage || 0);
+        const safeTotalNet = totalNet || 0;
+        const amount = roundUpto((safePercentage * safeTotalNet) / 100);
+        return isNaN(amount) ? 0 : amount;
+      }
+    },
+    ...(location.pathname.includes('quotation/create')
+      ? [
+        {
+          title: 'Actions',
+          key: 'actions',
+          render: (_, record) => (
+            <Button
+              danger
+              size="small"
+              style={{
+                border: 'none',
+                outline: 'none',
+                background: 'none',
+                boxShadow: 'none'
+              }}
+              onClick={() =>
+                setHiddenAgentKeys((prev) => [...prev, record.commission_agent_id])
+              }
+            >
+              <TiDelete size={20} />
+            </Button>
+          )
+        }
+      ]
+      : [])
+  ];
+
+  const rowSelection = {
+    selectedRowKeys: selectedCommissionAgentKeys,
+    onChange: (selectedRowKeys) => {
+      setSelectedCommissionAgentKeys(selectedRowKeys);
+    }
+  };
+
   const onTermChange = (selected) => {
     if (!selected.length) {
       form.setFieldsValue({ term_desc: '' });
@@ -1559,98 +1665,128 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           }}
         />
 
-        <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
-          <Row gutter={[12, 12]}>
-            <Col span={24} sm={12} md={6} lg={6}>
-              <DetailSummaryInfo
-                title="Total Cost:"
-                value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
-              />
-              <DetailSummaryInfo
-                title="Total Amount:"
-                value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
-              />
-              <DetailSummaryInfo
-                title="Discount Amount:"
-                value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
-              />
-              <DetailSummaryInfo
-                title="Net Amount:"
-                value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
-              />
-            </Col>
-            <div className="flex flex-col gap-2 text-right">
-              <DetailSummary
-                title="Total Quantity:"
-                value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
-              />
-              <DetailSummary
-                title="Total Profit:"
-                value={formatThreeDigitCommas(roundUpto(totalProfit)) || 0}
-              />
-            </div>
-          </Row>
-          <Row gutter={[12, 12]}>
-            <Col span={24} sm={12} md={6} lg={6}>
-              <DetailSummaryInfo
-                title="Rebate:"
-                value={
-                  <div className="item-center flex flex-row-reverse gap-12">
-                    {rebateAmount || 0}
-                    <DebouncedNumberInput
-                      type="decimal"
-                      size="small"
-                      className="w-[3.8rem] text-right"
-                      value={
-                        rebatePercentage === 0
-                          ? '0%'
-                          : rebatePercentage
-                            ? rebatePercentage.toString().endsWith('%')
-                              ? rebatePercentage
-                              : `${rebatePercentage}%`
-                            : ''
-                      }
-                      disabled
-                      onChange={(value) => dispatch(setRebatePercentage(value))}
-                    />
-                  </div>
-                }
-              />
-            </Col>
-          </Row>
-          <Row gutter={[12, 12]}>
-            <Col span={24} sm={12} md={6} lg={6}>
-              <DetailSummaryInfo
-                title="Salesman:"
-                value={
-                  <div className="item-center flex flex-row-reverse gap-12 mt-2">
-                    {salesmanAmount || 0}
-                    <DebouncedNumberInput
-                      type="decimal"
-                      size="small"
-                      className="w-[3.8rem] text-right"
-                      value={
-                        salesmanPercentage === 0
-                          ? '0%'
-                          : salesmanPercentage
-                            ? salesmanPercentage.toString().endsWith('%')
-                              ? salesmanPercentage
-                              : `${salesmanPercentage}%`
-                            : ''
-                      }
-                      disabled
-                      onChange={(value) => dispatch(setSalesmanPercentage(value))}
-                    />
-                  </div>
-                }
-              />
-            </Col>
-          </Row>
-          <Row gutter={[12, 12]}>
-            <Col span={24} sm={12} md={6} lg={6}>
-              <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
-            </Col>
-          </Row>
+        <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3 flex justify-between gap-4">
+          <div className="flex-1 lg:w-2/5">
+            <Row gutter={[12, 12]}>
+              <Col span={24} sm={12} md={6} lg={6}>
+                <DetailSummaryInfo
+                  title="Total Cost:"
+                  value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
+                />
+                <DetailSummaryInfo
+                  title="Total Amount:"
+                  value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
+                />
+                <DetailSummaryInfo
+                  title="Discount Amount:"
+                  value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
+                />
+                <DetailSummaryInfo
+                  title="Net Amount:"
+                  value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
+                />
+              </Col>
+              <div className="flex flex-col gap-2 text-right">
+                <DetailSummary
+                  title="Total Quantity:"
+                  value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
+                />
+                <DetailSummary
+                  title="Total Profit:"
+                  value={formatThreeDigitCommas(roundUpto(totalProfit)) || 0}
+                />
+              </div>
+            </Row>
+            <Row gutter={[12, 12]}>
+              <Col span={24} sm={12} md={6} lg={6}>
+                <DetailSummaryInfo
+                  title="Rebate:"
+                  value={
+                    <div className="item-center flex flex-row-reverse gap-12">
+                      {rebateAmount || 0}
+                      <DebouncedNumberInput
+                        type="decimal"
+                        size="small"
+                        className="w-[3.8rem] text-right"
+                        value={
+                          rebatePercentage === 0
+                            ? '0%'
+                            : rebatePercentage
+                              ? rebatePercentage.toString().endsWith('%')
+                                ? rebatePercentage
+                                : `${rebatePercentage}%`
+                              : ''
+                        }
+                        disabled
+                        onChange={(value) => dispatch(setRebatePercentage(value))}
+                      />
+                    </div>
+                  }
+                />
+              </Col>
+            </Row>
+            <Row gutter={[12, 12]}>
+              <Col span={24} sm={12} md={6} lg={6}>
+                <DetailSummaryInfo
+                  title="Salesman:"
+                  value={
+                    <div className="item-center flex flex-row-reverse gap-12 mt-2">
+                      {salesmanAmount || 0}
+                      <DebouncedNumberInput
+                        type="decimal"
+                        size="small"
+                        className="w-[3.8rem] text-right"
+                        value={
+                          salesmanPercentage === 0
+                            ? '0%'
+                            : salesmanPercentage
+                              ? salesmanPercentage.toString().endsWith('%')
+                                ? salesmanPercentage
+                                : `${salesmanPercentage}%`
+                              : ''
+                        }
+                        disabled
+                        onChange={(value) => dispatch(setSalesmanPercentage(value))}
+                      />
+                    </div>
+                  }
+                />
+              </Col>
+            </Row>
+            <Row gutter={[12, 12]}>
+              <Col span={24} sm={12} md={6} lg={6}>
+                <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
+              </Col>
+            </Row>
+          </div>
+          {
+            commissionAgent.length > 0 ?
+              <div className="mt-4 rounded-lg border border-slate-300 bg-slate-50 p-4 flex-1 lg:w-3/5">
+                <Table
+                  columns={commissionAgentColumns}
+                  dataSource={commissionAgent}
+                  rowKey={(record) => record.commission_agent_id}
+                  size="small"
+                  pagination={false}
+                  rowSelection={null}
+                  rowClassName={(record) =>
+                    hiddenAgentKeys.includes(record.commission_agent_id) ? 'hidden-row' : ''
+                  }
+                // rowSelection={rowSelection}
+                />
+              </div>
+              : commissionAgentData.length > 0 ?
+                <div className="mt-4 rounded-lg border border-slate-300 bg-slate-50 p-4 flex-1 lg:w-3/5">
+                  <Table
+                    columns={commissionAgentColumns}
+                    dataSource={commissionAgentData}
+                    rowKey={(record) => record.commission_agent_id}
+                    size="small"
+                    pagination={false}
+                  />
+                </div>
+                : null
+          }
         </div>
 
         <div className="mt-4 flex items-center justify-end gap-2">
