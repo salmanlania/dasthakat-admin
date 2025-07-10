@@ -64,6 +64,7 @@ class QuotationController extends Controller
 				'quotation.port_id',
 				'quotation.customer_ref',
 				'quotation.status',
+				'quotation.created_at',
 				DB::raw("(SELECT created_at FROM quotation_status WHERE quotation_id = quotation.quotation_id AND status = 'Sent to customer' ORDER BY created_at DESC LIMIT 1) as qs_date"),
 				DB::raw("(SELECT u.user_name FROM quotation_status qs LEFT JOIN `user` u ON qs.created_by = u.user_id WHERE qs.quotation_id = quotation.quotation_id ORDER BY qs.created_at DESC LIMIT 1) as status_updated_by"),
 				DB::raw("(SELECT CONCAT(event_code, ' (', IF(status = 1, 'Active', 'Inactive'), ')') FROM event WHERE event_id = quotation.event_id) as event_code"),
@@ -178,14 +179,6 @@ class QuotationController extends Controller
 			});
 		}
 
-		$data = $data->select('quotation.*', 'qs_last.created_at as qs_date', DB::raw("CONCAT(e.event_code, ' (', CASE 
-		WHEN e.status = 1 THEN 'Active' 
-		ELSE 'Inactive' 
-	END, ')') AS event_code"), 'u.user_name as status_updated_by', 'c.name as customer_name', 'v.name as vessel_name', 'p.name as port_name');
-
-		$data = $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
-
-		return response()->json($data);
 	}
 
 	public function show($id, Request $request)
