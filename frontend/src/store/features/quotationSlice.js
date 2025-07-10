@@ -172,7 +172,7 @@ export const postVendorSelection = createAsyncThunk(
 
 export const postRfq = createAsyncThunk(
   'rfg/postSelection',
-  async (payload , { rejectWithValue }) => {
+  async (payload, { rejectWithValue }) => {
     try {
       const res = await api.post(`/vendor-platform/quotation/rfq`, payload);
       return res.data;
@@ -424,6 +424,11 @@ export const quotationSlice = createSlice({
 
       state.quotationDetails.splice(index, 1, row, splittedRow);
     },
+
+    resetVendorDetails: (state) => {
+      state.vendorDetails = [];
+    },
+
   },
   extraReducers: ({ addCase }) => {
     addCase(getQuotationList.pending, (state) => {
@@ -639,10 +644,13 @@ export const quotationSlice = createSlice({
       const groupedByProduct = data.reduce((acc, curr) => {
         const key = curr.quotation_detail_id;
         if (!acc[key]) {
+          // console.log('Product Name:', curr.quotation_detail?.product_name);
+          // console.log('quotation_detail:', curr.quotation_detail);
+          // console.log('curr:', curr);
           acc[key] = {
             ...curr.quotation_detail,
-            product_name: curr.quotation_detail.product_name,
-            product_type_id: curr.quotation_detail.product_type_id,
+            product_name: curr.quotation_detail ? curr.quotation_detail.product_name : '',
+            product_type_id: curr.quotation_detail ? curr.quotation_detail.product_type_id : '',
             quotation_detail_id: key,
             vendors: [],
           };
@@ -864,5 +872,6 @@ export const {
   setSalesmanPercentage,
   resetQuotationState,
   splitQuotationQuantity,
+  resetVendorDetails
 } = quotationSlice.actions;
 export default quotationSlice.reducer;
