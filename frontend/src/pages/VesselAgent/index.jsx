@@ -31,7 +31,7 @@ const VesselAgent = () => {
     (state) => state.vessel,
   );
 
-  console.log('commissionDetails' , commissionDetails)
+  console.log('commissionDetails', commissionDetails)
 
   const columns = [
     {
@@ -87,27 +87,36 @@ const VesselAgent = () => {
       title: 'Commission Type',
       dataIndex: 'type',
       key: 'type',
-      render: (_, { type }, index) => {
+      render: (_, record, index) => {
         return (
-          <Select
-            className="w-full"
-            options={[
-              {
-                value: 'Other',
-                label: 'Other',
-              },
-            ]}
-            value={type}
-            onChange={(selected) =>
-              dispatch(
-                changeCommissionDetailValue({
-                  index,
-                  key: 'type',
-                  value: selected,
-                }),
-              )
-            }
-          />
+          <Form.Item
+            className="m-0"
+            name={['commission_type', index]}
+            initialValue={record.type ?? undefined}
+            rules={[{
+              required: true,
+              message: "Commission type is required"
+            }]}
+          >
+            <Select
+              className="w-full"
+              options={[
+                {
+                  value: 'Other',
+                  label: 'Other',
+                },
+              ]}
+              onChange={(selected) =>
+                dispatch(
+                  changeCommissionDetailValue({
+                    index,
+                    key: 'type',
+                    value: selected,
+                  }),
+                )
+              }
+            />
+          </Form.Item>
         );
       },
       width: 120,
@@ -116,26 +125,35 @@ const VesselAgent = () => {
       title: 'Commission Agent',
       dataIndex: 'commission_agent_id',
       key: 'commission_agent_id',
-      render: (_, { commission_agent_id }, index) => {
+      render: (_, record, index) => {
         return (
-          <AsyncSelect
-            endpoint="/commission-agent"
-            valueKey="commission_agent_id"
-            labelKey="name"
-            labelInValue
-            className="w-full"
-            value={commission_agent_id}
-            onChange={(selected) =>
-              dispatch(
-                changeCommissionDetailValue({
-                  index,
-                  key: 'commission_agent_id',
-                  value: selected,
-                }),
-              )
-            }
-            addNewLink={permissions.commission_agent.add ? '/commission-agent/create' : null}
-          />
+          <Form.Item
+            className="m-0"
+            name={['commission_agent_id', index]}
+            initialValue={record.commission_agent_id ?? undefined}
+            rules={[{
+              required: true,
+              message: "Commission Agent is required"
+            }]}
+          >
+            <AsyncSelect
+              endpoint="/commission-agent"
+              valueKey="commission_agent_id"
+              labelKey="name"
+              labelInValue
+              className="w-full"
+              onChange={(selected) =>
+                dispatch(
+                  changeCommissionDetailValue({
+                    index,
+                    key: 'commission_agent_id',
+                    value: selected,
+                  }),
+                )
+              }
+              addNewLink={permissions.commission_agent.add ? '/commission-agent/create' : null}
+            />
+          </Form.Item>
         );
       },
       width: 240,
@@ -144,21 +162,30 @@ const VesselAgent = () => {
       title: 'Commission %',
       dataIndex: 'commission_percentage',
       key: 'commission_percentage',
-      render: (_, { commission_percentage }, index) => {
+      render: (_, record, index) => {
         return (
-          <DebouncedNumberInput
-            value={commission_percentage}
-            type="decimal"
-            onChange={(value) =>
-              dispatch(
-                changeCommissionDetailValue({
-                  index,
-                  key: 'commission_percentage',
-                  value: value,
-                }),
-              )
-            }
-          />
+          <Form.Item
+            className="m-0"
+            name={['commission_percentage', index]}
+            initialValue={record.commission_percentage ?? undefined}
+            rules={[{
+              required: true,
+              message: "Commission percentage is required"
+            }]}
+          >
+            <DebouncedNumberInput
+              type="decimal"
+              onChange={(value) =>
+                dispatch(
+                  changeCommissionDetailValue({
+                    index,
+                    key: 'commission_percentage',
+                    value: value,
+                  }),
+                )
+              }
+            />
+          </Form.Item>
         );
       },
       width: 140,
@@ -167,31 +194,40 @@ const VesselAgent = () => {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      render: (_, { status }, index) => {
+      render: (_, record, index) => {
         return (
-          <Select
-            className="w-full"
-            options={[
-              {
-                value: 'Active',
-                label: 'Active',
-              },
-              {
-                value: 'Inactive',
-                label: 'In Active',
-              },
-            ]}
-            value={status}
-            onChange={(selected) =>
-              dispatch(
-                changeCommissionDetailValue({
-                  index,
-                  key: 'status',
-                  value: selected,
-                }),
-              )
-            }
-          />
+          <Form.Item
+            className="m-0"
+            name={['status', index]}
+            initialValue={record.status ?? undefined}
+            rules={[{
+              required: true,
+              message: "Status is required"
+            }]}
+          >
+            <Select
+              className="w-full"
+              options={[
+                {
+                  value: 'Active',
+                  label: 'Active',
+                },
+                {
+                  value: 'Inactive',
+                  label: 'In Active',
+                },
+              ]}
+              onChange={(selected) =>
+                dispatch(
+                  changeCommissionDetailValue({
+                    index,
+                    key: 'status',
+                    value: selected,
+                  }),
+                )
+              }
+            />
+          </Form.Item>
         );
       },
       width: 120,
@@ -257,22 +293,19 @@ const VesselAgent = () => {
   };
 
   const updateDetails = async () => {
-    const vesselID = form.getFieldValue('vessel_id');
-
-    const payload = {
-      // ...initialFormValues,
-      // customer_id: initialFormValues.customer_id ? initialFormValues.customer_id.value : null,
-      // flag_id: initialFormValues.flag_id ? initialFormValues.flag_id.value : null,
-      // class1_id: initialFormValues.class1_id ? initialFormValues.class1_id.value : null,
-      // class2_id: initialFormValues.class2_id ? initialFormValues.class2_id.value : null,
-      vessel_commission_agent: commissionDetails.map((detail) => ({
-        ...detail,
-        vessel_commission_agent_id: detail.row_status === 'I' ? null : detail.id,
-        commission_agent_id: detail?.commission_agent_id?.value || null,
-      })),
-    };
-
     try {
+
+      await form.validateFields();
+      const vesselID = form.getFieldValue('vessel_id');
+
+      const payload = {
+        vessel_commission_agent: commissionDetails.map((detail) => ({
+          ...detail,
+          vessel_commission_agent_id: detail.row_status === 'I' ? null : detail.id,
+          commission_agent_id: detail?.commission_agent_id?.value || null,
+        })),
+      };
+
       await dispatch(updateVesselAgent({ id: vesselID, data: payload })).unwrap();
       toast.success('Vessel Agent updated successfully');
       await dispatch(getVessel(vesselID)).unwrap();

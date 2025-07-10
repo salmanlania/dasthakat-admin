@@ -132,7 +132,7 @@ export const customerSlice = createSlice({
         type: null,
         commission_agent_id: null,
         commission_percentage: null,
-        status: null,
+        status: 'Active',
         row_status: 'I',
       };
 
@@ -186,7 +186,13 @@ export const customerSlice = createSlice({
 
       const detail = state.commissionDetails[index];
 
-      if (detail.row_status === 'U' && detail[key] !== value) {
+      if (!detail) return;
+
+      // if (detail.row_status === 'U' && detail[key] !== value) {
+      //   detail.row_status = 'U';
+      // }
+
+      if (detail.row_status !== 'I' && detail[key] !== value) {
         detail.row_status = 'U';
       }
 
@@ -236,15 +242,15 @@ export const customerSlice = createSlice({
         customer_code: data.customer_code,
         salesman_id: data.salesman_id
           ? {
-              value: data.salesman_id,
-              label: data.salesman_name,
-            }
+            value: data.salesman_id,
+            label: data.salesman_name,
+          }
           : null,
         payment_id: data.payment_id
           ? {
-              value: data.payment_id,
-              label: data.name,
-            }
+            value: data.payment_id,
+            label: data.name,
+          }
           : null,
         vessel_id: data.vessel
           ? data.vessel.map((v) => ({ value: v.vessel_id, label: v.name }))
@@ -265,9 +271,9 @@ export const customerSlice = createSlice({
         id: detail.customer_commission_agent_id,
         commission_agent_id: detail.commission_agent
           ? {
-              value: detail.commission_agent.commission_agent_id,
-              label: detail.commission_agent.name,
-            }
+            value: detail.commission_agent.commission_agent_id,
+            label: detail.commission_agent.name,
+          }
           : null,
         type: detail.type,
         commission_percentage: detail.commission_percentage,

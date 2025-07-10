@@ -177,7 +177,13 @@ export const vesselSlice = createSlice({
 
       const detail = state.commissionDetails[index];
 
-      if (detail.row_status === 'U' && detail[key] !== value) {
+      if (!detail) return;
+
+      // if (detail.row_status === 'U' && detail[key] !== value) {
+      //   detail.row_status = 'U';
+      // }
+
+      if (detail.row_status !== 'I' && detail[key] !== value) {
         detail.row_status = 'U';
       }
 
