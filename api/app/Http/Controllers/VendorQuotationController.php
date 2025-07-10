@@ -138,7 +138,7 @@ public function sendRFQ($data)
 
                 $jsonData = json_encode($transform);
                 $encoded = rtrim(strtr(base64_encode($jsonData), '+/', '-_'), '=');
-                $transform['link'] = config('app.vendor_url') . "/vendor-platform/quotation?q={$encoded}";
+                $transform['link'] = env("VENDOR_URL") . "quotation?q={$encoded}";
 
                 $payload = [
                     'template' => 'vendor_quotation_rate_update',
