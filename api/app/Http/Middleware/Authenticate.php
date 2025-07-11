@@ -32,8 +32,7 @@ class Authenticate
             'auth/refresh',
             'auth/logout',
             'auth/verify-email',
-            'vendor-platform/quotation/vendor/{id}',
-            // 'reset-password'
+            'vendor-platform/quotation/vendor/*'
         ];
 
 
@@ -59,10 +58,11 @@ class Authenticate
     public function handle($request, Closure $next, $guard = null)
     {
         
-        
-        if (in_array($request->path(), $this->except)) {
+        foreach ($this->except as $route) {
+            if ($request->is($route)) {
             return $next($request);
         }
+    }
         
         $access_token = $request->header('Authorization');
          $access_token = str_replace('access_token ', '', $access_token);

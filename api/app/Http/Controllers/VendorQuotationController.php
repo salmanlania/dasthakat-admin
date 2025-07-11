@@ -231,9 +231,10 @@ public function store(Request $request)
                         $quotation_detail->supplier_id = $detail['vendor_id'];
                         
                         if ($detail['vendor_rate']) {
-                            $quotation_detail->markup = calculateProfitPercentage($quotation_detail->cost_price, $detail['vendor_rate']);
-                            $quotation_detail->rate = $detail['vendor_rate'];
-                            $quotation_detail->amount = $quotation_detail->quantity * $detail['vendor_rate'];
+                            // $quotation_detail->markup = calculateProfitPercentage($quotation_detail->cost_price, $detail['vendor_rate']);
+                            $quotation_detail->cost_price = $detail['vendor_rate'];
+                            $quotation_detail->rate = ($quotation_detail->cost_price * $quotation_detail->markup) / 100;
+                            $quotation_detail->amount = $quotation_detail->quantity * $quotation_detail->rate;
                             $quotation_detail->discount_amount = ($quotation_detail->amount * $quotation_detail->discount_percent) / 100;
                             $quotation_detail->gross_amount = $quotation_detail->amount - $quotation_detail->discount_amount;
                         }
@@ -256,6 +257,7 @@ public function store(Request $request)
 
         // Recalculate quotation totals
         $detail = QuotationDetail::where('quotation_id', $quotation_id);
+        $quotation->total_cost = $detail->sum(DB::raw('cost * quantity'));
         $quotation->total_amount = $detail->sum('amount');
         $quotation->total_discount = $detail->sum('discount_amount');
         $quotation->net_amount = $detail->sum('gross_amount');
@@ -443,59 +445,155 @@ public function store(Request $request)
 	// 	}
 	// }
 
+	// public function vendorUpdate($id, Request $request)
+	// {
+	// 	$isError = $this->validateStoreRequest($request->all());
+	// 	if (!empty($isError)) {
+	// 		return $this->jsonResponse($isError, 400, 'Request Failed!');
+	// 	}
+
+	// 	$updateQuote = false;  
+	// 	DB::beginTransaction();
+	// 	try {
+	// 		foreach ($request->quotation_detail as $row) {
+	// 			$data = VendorQuotationDetail::where('quotation_id', $id)
+	// 				->where('quotation_detail_id', $row['quotation_detail_id'])
+	// 				->where('vendor_id', $request->vendor_id)
+	// 				->first();
+
+	// 			$data->vendor_rate = $row['vendor_rate'] ?? '';
+	// 			$data->vendor_part_no = $row['vendor_part_no'] ?? '';
+	// 			$data->vendor_notes = $row['vendor_notes'] ?? '';
+	// 			$data->updated_at = Carbon::now();
+	// 			$data->updated_by = $request->vendor_id;
+	// 			$data->update();
+
+	// 			$quotation_detail = QuotationDetail::where('quotation_detail_id', $row['quotation_detail_id'])->first();
+
+	// 			if ($row['vendor_rate'] && $data->is_primary_vendor == 1) {
+	// 				$updateQuote = true;
+	// 				$quotation_detail->markup = calculateProfitPercentage($quotation_detail->cost_price, $row['vendor_rate']);
+	// 				$quotation_detail->rate = $row['vendor_rate'];
+	// 				$quotation_detail->amount = $quotation_detail->quantity * $row['vendor_rate'];
+	// 				$quotation_detail->discount_amount = ($quotation_detail->amount * $quotation_detail->discount_percent) / 100;
+	// 				$quotation_detail->gross_amount = $quotation_detail->amount - $quotation_detail->discount_amount;
+	// 				$quotation_detail->update();
+	// 			}
+	// 		}
+	// 		if ($updateQuote) {
+	// 			$quotation = Quotation::where('quotation_id', $id)->first();
+	// 			$detail = QuotationDetail::where('quotation_id', $id);
+	// 			$quotation->total_amount = $detail->sum('amount');
+	// 			$quotation->total_discount = $detail->sum('discount_amount');
+	// 			$quotation->net_amount = $detail->sum('gross_amount');
+	// 			$quotation->rebate_amount = $quotation->net_amount * $quotation->rebate_percent / 100;
+	// 			$quotation->salesman_amount = $quotation->net_amount * $quotation->salesman_percent / 100;
+	// 			$quotation->final_amount = $quotation->net_amount - ($quotation->salesman_amount + $quotation->salesman_amount);
+	// 			$quotation->update();
+	// 		}
+
+	// 		DB::commit();
+
+	// 		return $this->jsonResponse(['quotation_id' => $id], 200, 'Quotation Vendor Details Updated Successfully!');
+	// 	} catch (\Exception $e) {
+	// 		DB::rollBack();
+	// 		return $this->jsonResponse(['error' => $e->getMessage()], 500, 'Failed to update vendor quotations.');
+	// 	}
+	// }
 	public function vendorUpdate($id, Request $request)
-	{
-		$isError = $this->validateStoreRequest($request->all());
-		if (!empty($isError)) {
-			return $this->jsonResponse($isError, 400, 'Request Failed!');
-		}
+{
+    $isError = $this->validateStoreRequest($request->all());
+    if (!empty($isError)) {
+        return $this->jsonResponse($isError, 400, 'Request Failed!');
+    }
 
-		$updateQuote = false;
-		DB::beginTransaction();
-		try {
-			foreach ($request->quotation_detail as $row) {
-				$data = VendorQuotationDetail::where('quotation_id', $id)
-					->where('quotation_detail_id', $row['quotation_detail_id'])
-					->where('vendor_id', $request->vendor_id)
-					->first();
+    $updateQuote = false;
+    $errors = [];
+    DB::beginTransaction();
+    
+    try {
+        foreach ($request->quotation_detail as $row) {
+            try {
+                // Find or create the vendor quotation detail record
+                $data = VendorQuotationDetail::firstOrNew([
+                    'quotation_id' => $id,
+                    'quotation_detail_id' => $row['quotation_detail_id'],
+                    'vendor_id' => $request->vendor_id
+                ]);
 
-				$data->vendor_rate = $row['vendor_rate'] ?? '';
-				$data->vendor_part_no = $row['vendor_part_no'] ?? '';
-				$data->vendor_notes = $row['vendor_notes'] ?? '';
-				$data->updated_at = Carbon::now();
-				$data->updated_by = $request->vendor_id;
-				$data->update();
+                // Set the fields with proper null checks
+                $data->vendor_rate = $row['vendor_rate'] ?? null;
+                $data->vendor_part_no = $row['vendor_part_no'] ?? null;
+                $data->vendor_notes = $row['vendor_notes'] ?? null;
+                $data->updated_at = Carbon::now();
+                $data->updated_by = $request->vendor_id;
+                $data->save();
 
-				$quotation_detail = QuotationDetail::where('quotation_detail_id', $row['quotation_detail_id'])->first();
+                // Update quotation detail if this is primary vendor
+                if (!empty($row['vendor_rate'])) {
+                    $quotation_detail = QuotationDetail::where('quotation_detail_id', $row['quotation_detail_id'])
+                        ->first();
 
-				if ($row['vendor_rate'] && $data->is_primary_vendor == 1) {
-					$updateQuote = true;
-					$quotation_detail->markup = calculateProfitPercentage($quotation_detail->cost_price, $row['vendor_rate']);
-					$quotation_detail->rate = $row['vendor_rate'];
-					$quotation_detail->amount = $quotation_detail->quantity * $row['vendor_rate'];
-					$quotation_detail->discount_amount = ($quotation_detail->amount * $quotation_detail->discount_percent) / 100;
-					$quotation_detail->gross_amount = $quotation_detail->amount - $quotation_detail->discount_amount;
-					$quotation_detail->update();
-				}
-			}
-			if ($updateQuote) {
-				$quotation = Quotation::where('quotation_id', $id)->first();
-				$detail = QuotationDetail::where('quotation_id', $id);
-				$quotation->total_amount = $detail->sum('amount');
-				$quotation->total_discount = $detail->sum('discount_amount');
-				$quotation->net_amount = $detail->sum('gross_amount');
-				$quotation->rebate_amount = $quotation->net_amount * $quotation->rebate_percent / 100;
-				$quotation->salesman_amount = $quotation->net_amount * $quotation->salesman_percent / 100;
-				$quotation->final_amount = $quotation->net_amount - ($quotation->salesman_amount + $quotation->salesman_amount);
-				$quotation->update();
-			}
+                    if (!$quotation_detail) {
+                        throw new \Exception("Quotation detail not found for ID: {$row['quotation_detail_id']}");
+                    }
 
-			DB::commit();
+                    if ($data->is_primary_vendor == 1) {
+                        $updateQuote = true;
+                        // $quotation_detail->markup = calculateProfitPercentage(
+                        //     $quotation_detail->cost_price, 
+                        //     $row['vendor_rate']
+                        // );
+                        $quotation_detail->cost_price = $row['vendor_rate'];
+                        $quotation_detail->rate = ($quotation_detail->cost_price * $quotation_detail->markup) / 100;
+                        $quotation_detail->amount = $quotation_detail->quantity * $row['vendor_rate'];
+                        $quotation_detail->discount_amount = ($quotation_detail->amount * $quotation_detail->discount_percent) / 100;
+                        $quotation_detail->gross_amount = $quotation_detail->amount - $quotation_detail->discount_amount;
+                        $quotation_detail->save();
+                    }
+                }
+            } catch (\Exception $e) {
+                $errors[] = "Error processing detail {$row['quotation_detail_id']}: " . $e->getMessage();
+                continue;
+            }
+        }
 
-			return $this->jsonResponse(['quotation_id' => $id], 200, 'Quotation Vendor Details Updated Successfully!');
-		} catch (\Exception $e) {
-			DB::rollBack();
-			return $this->jsonResponse(['error' => $e->getMessage()], 500, 'Failed to update vendor quotations.');
-		}
-	}
+        // Update quotation totals if needed
+        if ($updateQuote) {
+            $quotation = Quotation::findOrFail($id);
+            $detail = QuotationDetail::where('quotation_id', $id);
+
+            $quotation->total_cost = $detail->sum(DB::raw('cost * quantity'));
+            $quotation->total_amount = $detail->sum('amount');
+            $quotation->total_discount = $detail->sum('discount_amount');
+            $quotation->net_amount = $detail->sum('gross_amount');
+            $quotation->rebate_amount = $quotation->net_amount * $quotation->rebate_percent / 100;
+            $quotation->salesman_amount = $quotation->net_amount * $quotation->salesman_percent / 100;
+            
+            // Fixed: Was using salesman_amount twice in calculation
+            $quotation->final_amount = $quotation->net_amount - ($quotation->salesman_amount + $quotation->rebate_amount);
+            
+            $quotation->save();
+        }
+
+        DB::commit();
+
+        $response = ['quotation_id' => $id];
+        if (!empty($errors)) {
+            $response['warnings'] = $errors;
+            return $this->jsonResponse($response, 200, 'Updated with some warnings');
+        }
+
+        return $this->jsonResponse($response, 200, 'Quotation Vendor Details Updated Successfully!');
+        
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Vendor Update Error: ' . $e->getMessage(), [
+            'quotation_id' => $id,
+            'vendor_id' => $request->vendor_id ?? null,
+            'trace' => $e->getTraceAsString()
+        ]);
+        return $this->jsonResponse(['error' => $e->getMessage()], 500, 'Failed to update vendor quotations.');
+    }
+}
 }
