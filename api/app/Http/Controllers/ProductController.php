@@ -112,7 +112,6 @@ class ProductController extends Controller
 
 		$product = $product->where('product.product_id', $id);
 		$product = $product->select('product.*',
-    		DB::raw("TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM FORMAT(product.sale_price, 2))) AS sale_price"),
 		 'pt.product_type_id', 'pt.name as product_type_name', 'c.name as category_name', 'sc.name as sub_category_name', 'b.name as brand_name', 'u.name as unit_name')->first();
 		$product['image_url']  = !empty($product['image']) ?  url('public/uploads/' . $product['image']) : '';
 

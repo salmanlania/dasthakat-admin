@@ -13,6 +13,10 @@ class Product extends Model
     public $incrementing = false;
 
     // protected $connection = 'mysql';
+    protected $casts = [
+        'cost_price' => 'float',
+        'sale_price' => 'float',
+    ];
 
 
     /**
