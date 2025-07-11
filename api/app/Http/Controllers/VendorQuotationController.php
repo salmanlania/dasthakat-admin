@@ -257,7 +257,7 @@ public function store(Request $request)
 
         // Recalculate quotation totals
         $detail = QuotationDetail::where('quotation_id', $quotation_id);
-        $quotation->total_cost = $detail->sum(DB::raw('cost * quantity'));
+        $quotation->total_cost = $detail->sum(DB::raw('cost_price * quantity'));
         $quotation->total_amount = $detail->sum('amount');
         $quotation->total_discount = $detail->sum('discount_amount');
         $quotation->net_amount = $detail->sum('gross_amount');
@@ -563,7 +563,7 @@ public function store(Request $request)
             $quotation = Quotation::findOrFail($id);
             $detail = QuotationDetail::where('quotation_id', $id);
 
-            $quotation->total_cost = $detail->sum(DB::raw('cost * quantity'));
+            $quotation->total_cost = $detail->sum(DB::raw('cost_price * quantity'));
             $quotation->total_amount = $detail->sum('amount');
             $quotation->total_discount = $detail->sum('discount_amount');
             $quotation->net_amount = $detail->sum('gross_amount');
