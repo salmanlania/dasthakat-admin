@@ -100,7 +100,7 @@ public function sendRFQ($data)
                         $quotationItem = QuotationDetail::with('product:product_id,impa_code,name,short_code,product_code', 'product_type:product_type_id,name', 'unit:unit_id,name')
                             ->where('quotation_id', $data['quotation_id'])
                             ->where('quotation_detail_id', $row['quotation_detail_id'])
-                            ->where('supplier_id', $vendor_id)
+                            // ->where('supplier_id', $vendor_id)
                             ->select('product_name', 'quotation_detail_id', 'product_id', 'product_type_id', 'unit_id', 'vendor_part_no')
                             ->first();
 
