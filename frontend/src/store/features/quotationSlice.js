@@ -314,6 +314,7 @@ export const quotationSlice = createSlice({
       }
 
       if (detail.quantity && detail.rate) {
+        console.log(detail.rate)
         detail.amount = roundUpto(+detail.quantity * +detail.rate);
 
         if (key === 'rate' && +detail.cost_price && +detail.rate) {
@@ -690,6 +691,7 @@ export const quotationSlice = createSlice({
         vendor_rate: item.vendor_rate,
         is_primary_vendor: item.is_primary_vendor,
         rfq: item.rfq,
+        vendor_part_no: item.vendor_part_no,
       }));
     });
 

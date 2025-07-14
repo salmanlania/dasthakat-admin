@@ -76,6 +76,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
                 ? { value: existingVendor.vendor.supplier_id, label: existingVendor.vendor.name }
                 : null,
               rfqSent: existingVendor.rfq === 1,
+              vendor_part_no: existingVendor.vendor_part_no || '',
             }
             : {
               name: `Vendor`,
@@ -128,6 +129,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
 
     data.forEach((product) => {
       const quotation_detail_id = product.quotation_detail_id;
+      console.log('product', product);
 
       product.vendors.forEach((vendor) => {
         const supplier = vendor?.supplier_id?.value || null;
@@ -138,10 +140,11 @@ const VendorSelectionModal = ({ open, onClose }) => {
           vendor_rate: vendor.rate ? parseFloat(vendor.rate) : null,
           is_primary_vendor: vendor.isPrimary ? 1 : 0,
           rfq: vendor.rfqSent ? 1 : 0,
+          vendor_part_no: vendor.vendor_part_no || '',
         });
       });
     });
-
+// return
     try {
       await dispatch(postVendorSelection(payload)).unwrap();
       toast.success('Quotation Vendors Saved Successfully!');
