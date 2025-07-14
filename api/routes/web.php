@@ -449,3 +449,10 @@ $router->group(['prefix' => 'report'], function ($router) {
    $router->get('/bid-response', 'ReportsController@BidResponse');
    $router->get('/bid-success', 'ReportsController@BidSuccess');
 });
+
+$router->group(['prefix' => 'vendor-platform/quotation'], function ($router) {
+   $router->post('/', 'VendorQuotationController@store');
+   $router->get('/{id}', 'VendorQuotationController@show');
+   $router->put('/vendor/{id}', 'VendorQuotationController@vendorUpdate');
+   $router->post('/rfq', 'VendorQuotationController@sendRFQ');
+});

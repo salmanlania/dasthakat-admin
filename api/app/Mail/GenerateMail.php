@@ -49,5 +49,9 @@ class GenerateMail extends Mailable
             return new Content(
                 view: 'emails.test-template',
             );
+        if ($this->data['template'] === "vendor_quotation_rate_update")
+            return new Content(
+                view: 'emails.rfq_mail',
+            );
     }
 }

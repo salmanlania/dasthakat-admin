@@ -139,3 +139,12 @@ function validateRequest(array $request, array $rules)
 
 	return [];
 }
+function calculateProfitPercentage(float $costPrice, float $sellingPrice): float
+{
+    if ($costPrice == 0) {
+        return 0.0;
+    }
+    $profit = $sellingPrice - $costPrice;
+    $percentage = ($profit / $costPrice) * 100;
+    return $percentage;
+}

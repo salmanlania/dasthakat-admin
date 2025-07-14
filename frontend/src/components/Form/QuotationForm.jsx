@@ -38,7 +38,8 @@ import {
   resetQuotationDetail,
   setRebatePercentage,
   setSalesmanPercentage,
-  splitQuotationQuantity
+  splitQuotationQuantity,
+  getQuotation
 } from '../../store/features/quotationSlice';
 import { getSalesman } from '../../store/features/salesmanSlice';
 import generateQuotationExcel from '../../utils/excel/quotation-excel.js';
@@ -50,7 +51,11 @@ import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate.jsx';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebouncedNumberInput from '../Input/DebouncedNumberInput';
 import DebounceInput from '../Input/DebounceInput';
+
 import { render } from 'react-dom';
+
+import VendorSelectionModal from '../Modals/VendorSelectionModal.jsx';
+
 
 export const DetailSummaryInfo = ({ title, value }) => {
   return (
@@ -121,6 +126,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
 
   const [globalMarkup, setGlobalMarkup] = useState('');
   const [globalDiscount, setGlobalDiscount] = useState('');
+  const [vendorModalOpen, setVendorModalOpen] = useState(false);
   const [submitAction, setSubmitAction] = useState(null);
   const [hiddenAgentKeys, setHiddenAgentKeys] = useState([]);
   let totalQuantity = 0;
@@ -1830,6 +1836,15 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
             }}>
             Save & Exit
           </Button>
+
+          {
+            mode === 'edit'
+              ?
+              <Button onClick={() => setVendorModalOpen(true)}>Vendors</Button>
+              :
+              ''
+          }
+
         </div>
       </Form>
       <NotesModal
@@ -1840,6 +1855,19 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         onCancel={closeNotesModal}
         onSubmit={onNotesSave}
         disabled={!permissions?.quotation?.edit || !permissions?.quotation?.add}
+      />
+
+      <VendorSelectionModal
+        open={vendorModalOpen}
+        onClose={async () => {
+          setVendorModalOpen(false)
+          try {
+            await dispatch(getQuotation(id)).unwrap()
+            setVendorModalOpen(true)
+          } catch (error) {
+            handleError(error)
+          };
+        }}
       />
     </>
   );

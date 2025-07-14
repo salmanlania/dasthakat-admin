@@ -146,18 +146,56 @@ export const bulkDeleteQuotation = createAsyncThunk(
   },
 );
 
+// Vendor
+
+export const getVendor = createAsyncThunk('vendor/get', async (id, { rejectWithValue }) => {
+  try {
+    const res = await api.get(`/vendor-platform/quotation/${id}`);
+    return res.data.data;
+  } catch (err) {
+    throw rejectWithValue(err);
+  }
+});
+
+export const postVendorSelection = createAsyncThunk(
+  'vendor/postSelection',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const res = await api.post(`/vendor-platform/quotation/`, payload);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
+
+export const postRfq = createAsyncThunk(
+  'rfg/postSelection',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const res = await api.post(`/vendor-platform/quotation/rfq`, payload);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
+
 const initialState = {
   isListLoading: false,
   isFormSubmitting: false,
   isBulkDeleting: false,
   initialFormValues: null,
   isItemLoading: false,
+  isItemVendorLoading: false,
   list: [],
   deleteIDs: [],
   rebatePercentage: null,
   salesmanPercentage: null,
   quotationDetails: [],
   commissionAgentData: [],
+  vendorQuotationDetails: [],
+  vendorDetails: [],
   params: {
     page: 1,
     limit: 50,
@@ -273,6 +311,7 @@ export const quotationSlice = createSlice({
       }
 
       if (detail.quantity && detail.rate) {
+        console.log(detail.rate)
         detail.amount = roundUpto(+detail.quantity * +detail.rate);
 
         if (key === 'rate' && +detail.cost_price && +detail.rate) {
@@ -382,6 +421,11 @@ export const quotationSlice = createSlice({
 
       state.quotationDetails.splice(index, 1, row, splittedRow);
     },
+
+    resetVendorDetails: (state) => {
+      state.vendorDetails = [];
+    },
+
   },
   extraReducers: ({ addCase }) => {
     addCase(getQuotationList.pending, (state) => {
@@ -441,6 +485,7 @@ export const quotationSlice = createSlice({
       state.isItemLoading = false;
       const data = action.payload;
       state.initialFormValues = {
+        quotation_id: data.quotation_id,
         document_identity: data.document_identity,
         document_type_id: data.document_type_id,
         document_date: data.document_date ? dayjs(data.document_date) : null,
@@ -578,9 +623,53 @@ export const quotationSlice = createSlice({
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_amount,
         gross_amount: detail.gross_amount,
+        quotation_detail_id: detail?.quotation_detail_id,
         row_status: 'U',
         isDeleted: false,
       }));
+
+      state.vendorQuotationDetails = data.quotation_detail.map((detail) => ({
+        id: detail.quotation_detail_id,
+        product_code: detail.product ? detail.product.product_code : null,
+        product_id: detail.product
+          ? { value: detail.product.product_id, label: detail.product.product_name }
+          : null,
+        product_type_id: detail.product_type
+          ? {
+            value: detail.product_type.product_type_id,
+            label: detail.product_type.name,
+          }
+          : null,
+        product_name: detail.product_name
+          ? detail.product_name
+          : detail?.product?.product_name || null,
+        product_description: detail.product_description,
+        description: detail.description,
+        stock_quantity: detail?.product?.stock?.quantity
+          ? parseFloat(detail.product.stock.quantity)
+          : 0,
+        quantity: detail.quantity ? detail.quantity : null,
+        available_quantity: detail.available_quantity ? detail.available_quantity : null,
+        unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
+        supplier_id: detail.supplier
+          ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
+          : null,
+        vendor_part_no: detail.vendor_part_no,
+        internal_notes: detail.internal_notes,
+        cost_price:
+          detail?.product_type?.product_type_id === 4
+            ? detail.cost_price
+            : +detail.cost_price || +detail.rate,
+        markup: detail.markup,
+        rate: detail.rate,
+        amount: detail.amount,
+        discount_percent: detail.discount_percent,
+        discount_amount: detail.discount_amount,
+        gross_amount: detail.gross_amount,
+        quotation_detail_id: detail?.quotation_detail_id,
+        row_status: 'U',
+        isDeleted: false,
+      })).filter((detail) => [3, 4].includes(detail.product_type_id?.value));;
 
       state.rebatePercentage = data?.rebate_percent ? data?.rebate_percent : 0;
       state.salesmanPercentage = data?.salesman_percent ? data?.salesman_percent : data?.commission_percentage ? data?.commission_percentage : 0;
@@ -590,6 +679,31 @@ export const quotationSlice = createSlice({
       state.initialFormValues = null;
       state.rebatePercentage = null;
       state.salesmanPercentage = null;
+    });
+
+    addCase(getVendor.pending, (state) => {
+      state.isItemVendorLoading = true;
+    });
+    
+    addCase(getVendor.fulfilled, (state, action) => {
+      state.isItemVendorLoading = false;
+      const data = action.payload;
+
+      state.vendorDetails = data.map((item) => ({
+        quotation_detail_id: item.quotation_detail_id,
+        vendor: item.vendor
+          ? { supplier_id: item.vendor.supplier_id, name: item.vendor.name }
+          : null,
+        vendor_rate: item.vendor_rate,
+        is_primary_vendor: item.is_primary_vendor,
+        rfq: item.rfq,
+        vendor_part_no: item.vendor_part_no,
+      }));
+    });
+
+    addCase(getVendor.rejected, (state) => {
+      state.isItemVendorLoading = false;
+      state.vendorDetails = null;
     });
 
     addCase(getQuotationModal.pending, (state) => {
@@ -789,5 +903,6 @@ export const {
   setSalesmanPercentage,
   resetQuotationState,
   splitQuotationQuantity,
+  resetVendorDetails
 } = quotationSlice.actions;
 export default quotationSlice.reducer;
