@@ -75,7 +75,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
           const existingVendor = existingVendors[vendorIndex] || null;
           return existingVendor
             ? {
-              name: `Vendor ${vendorIndex + 1}`,
+              name: `Vendor`,
               rate: existingVendor.vendor_rate || 0,
               isPrimary: existingVendor.is_primary_vendor === 1,
               supplier_id: existingVendor.vendor
@@ -84,7 +84,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
               rfqSent: existingVendor.rfq === 1,
             }
             : {
-              name: `Vendor ${vendorIndex + 1}`,
+              name: `Vendor`,
               rate: 0,
               isPrimary: vendorIndex === 0,
               supplier_id: null,
@@ -184,7 +184,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
     },
     ...Array.from({ length: vendorCount }).flatMap((_, vendorIndex) => [
       {
-        title: `Vendor ${vendorIndex + 1}`,
+        title: `Vendor`,
         key: `supplier_id-${vendorIndex}`,
         width: 130,
         ellipsis: false,
@@ -237,7 +237,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
         ),
       },
       {
-        title: `Primary ${vendorIndex + 1}`,
+        title: `Primary`,
         key: `vendor_primary_${vendorIndex}`,
         width: 100,
         ellipsis: true,
@@ -251,7 +251,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
         ),
       },
       {
-        title: `RFQ ${vendorIndex + 1}`,
+        title: `RFQ`,
         key: `vendor_rfq_${vendorIndex}`,
         width: 80,
         ellipsis: true,
