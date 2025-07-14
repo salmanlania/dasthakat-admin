@@ -484,6 +484,9 @@ const Quotation = () => {
                     selectedRowKeys: deleteIDs,
                     onChange: (selectedRowKeys) =>
                       dispatch(setQuotationDeleteIDs(selectedRowKeys)),
+                    getCheckboxProps: (record) => ({
+                      disabled: record.isEventHeader,
+                    }),
                   }
                   : null
               }
