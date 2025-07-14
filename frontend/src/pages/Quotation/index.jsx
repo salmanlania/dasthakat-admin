@@ -236,7 +236,6 @@ const Quotation = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.total_amount}
             onChange={(e) => {
-              console.log('total_amount' , e)
               dispatch(setQuotationListParams({ total_amount: e.target.value }))
             }
             }

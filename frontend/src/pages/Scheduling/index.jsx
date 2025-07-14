@@ -219,7 +219,6 @@ const Scheduling = () => {
       createSchedulingListPrint(Array.isArray(data) ? data : [data], true);
       setTableKey((prevKey) => prevKey + 1);
     } catch (error) {
-      console.log('error', error)
       handleError(error);
     } finally {
       toast.dismiss(loadingToast);
