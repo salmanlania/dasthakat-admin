@@ -194,6 +194,7 @@ const initialState = {
   rebatePercentage: null,
   salesmanPercentage: null,
   quotationDetails: [],
+  vendorQuotationDetails: [],
   vendorDetails: [],
   params: {
     page: 1,
@@ -622,6 +623,49 @@ export const quotationSlice = createSlice({
         isDeleted: false,
       }));
 
+      state.vendorQuotationDetails = data.quotation_detail.map((detail) => ({
+        id: detail.quotation_detail_id,
+        product_code: detail.product ? detail.product.product_code : null,
+        product_id: detail.product
+          ? { value: detail.product.product_id, label: detail.product.product_name }
+          : null,
+        product_type_id: detail.product_type
+          ? {
+            value: detail.product_type.product_type_id,
+            label: detail.product_type.name,
+          }
+          : null,
+        product_name: detail.product_name
+          ? detail.product_name
+          : detail?.product?.product_name || null,
+        product_description: detail.product_description,
+        description: detail.description,
+        stock_quantity: detail?.product?.stock?.quantity
+          ? parseFloat(detail.product.stock.quantity)
+          : 0,
+        quantity: detail.quantity ? detail.quantity : null,
+        available_quantity: detail.available_quantity ? detail.available_quantity : null,
+        unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
+        supplier_id: detail.supplier
+          ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
+          : null,
+        vendor_part_no: detail.vendor_part_no,
+        internal_notes: detail.internal_notes,
+        cost_price:
+          detail?.product_type?.product_type_id === 4
+            ? detail.cost_price
+            : +detail.cost_price || +detail.rate,
+        markup: detail.markup,
+        rate: detail.rate,
+        amount: detail.amount,
+        discount_percent: detail.discount_percent,
+        discount_amount: detail.discount_amount,
+        gross_amount: detail.gross_amount,
+        quotation_detail_id: detail?.quotation_detail_id,
+        row_status: 'U',
+        isDeleted: false,
+      })).filter((detail) => [3, 4].includes(detail.product_type_id?.value));;
+
       state.rebatePercentage = data?.rebate_percent ? data?.rebate_percent : 0;
       state.salesmanPercentage = data?.salesman_percent ? data?.salesman_percent : 0;
     });
@@ -635,39 +679,54 @@ export const quotationSlice = createSlice({
     addCase(getVendor.pending, (state) => {
       state.isItemVendorLoading = true;
     });
+    // addCase(getVendor.fulfilled, (state, action) => {
+    //   state.isItemVendorLoading = false;
+    //   const data = action.payload;
+
+    //   state.vendorDetails = [];
+
+    //   const groupedByProduct = data.reduce((acc, curr) => {
+    //     const key = curr.quotation_detail_id;
+    //     if (!acc[key]) {
+    //       // console.log('Product Name:', curr.quotation_detail?.product_name);
+    //       // console.log('quotation_detail:', curr.quotation_detail);
+    //       // console.log('curr:', curr);
+    //       acc[key] = {
+    //         ...curr.quotation_detail,
+    //         product_name: curr.quotation_detail ? curr.quotation_detail.product_name : '',
+    //         product_type_id: curr.quotation_detail ? curr.quotation_detail.product_type_id : '',
+    //         quotation_detail_id: key,
+    //         vendors: [],
+    //       };
+    //     }
+
+    //     acc[key].vendors.push({
+    //       supplier_id: curr.vendor
+    //         ? { value: curr.vendor.supplier_id, label: curr.vendor.name }
+    //         : null,
+    //       rate: curr.vendor_rate,
+    //       isPrimary: curr.is_primary_vendor === 1,
+    //     });
+
+    //     return acc;
+    //   }, {});
+
+    //   state.vendorDetails = Object.values(groupedByProduct);
+    // });
+
     addCase(getVendor.fulfilled, (state, action) => {
       state.isItemVendorLoading = false;
       const data = action.payload;
 
-      state.vendorDetails = [];
-
-      const groupedByProduct = data.reduce((acc, curr) => {
-        const key = curr.quotation_detail_id;
-        if (!acc[key]) {
-          // console.log('Product Name:', curr.quotation_detail?.product_name);
-          // console.log('quotation_detail:', curr.quotation_detail);
-          // console.log('curr:', curr);
-          acc[key] = {
-            ...curr.quotation_detail,
-            product_name: curr.quotation_detail ? curr.quotation_detail.product_name : '',
-            product_type_id: curr.quotation_detail ? curr.quotation_detail.product_type_id : '',
-            quotation_detail_id: key,
-            vendors: [],
-          };
-        }
-
-        acc[key].vendors.push({
-          supplier_id: curr.vendor
-            ? { value: curr.vendor.supplier_id, label: curr.vendor.name }
-            : null,
-          rate: curr.vendor_rate,
-          isPrimary: curr.is_primary_vendor === 1,
-        });
-
-        return acc;
-      }, {});
-
-      state.vendorDetails = Object.values(groupedByProduct);
+      state.vendorDetails = data.map((item) => ({
+        quotation_detail_id: item.quotation_detail_id,
+        vendor: item.vendor
+          ? { supplier_id: item.vendor.supplier_id, name: item.vendor.name }
+          : null,
+        vendor_rate: item.vendor_rate,
+        is_primary_vendor: item.is_primary_vendor,
+        rfq: item.rfq,
+      }));
     });
 
     addCase(getVendor.rejected, (state) => {

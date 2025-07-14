@@ -36,7 +36,8 @@ import {
   resetQuotationDetail,
   setRebatePercentage,
   setSalesmanPercentage,
-  splitQuotationQuantity
+  splitQuotationQuantity,
+  getQuotation
 } from '../../store/features/quotationSlice';
 import { getSalesman } from '../../store/features/salesmanSlice';
 import generateQuotationExcel from '../../utils/excel/quotation-excel.js';
@@ -1714,7 +1715,15 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
 
       <VendorSelectionModal
         open={vendorModalOpen}
-        onClose={() => setVendorModalOpen(false)}
+        onClose={async () => {
+          setVendorModalOpen(false)
+          try {
+            await dispatch(getQuotation(id)).unwrap()
+            setVendorModalOpen(true)
+          } catch (error) {
+            handleError(error)
+          };
+        }}
       />
     </>
   );
