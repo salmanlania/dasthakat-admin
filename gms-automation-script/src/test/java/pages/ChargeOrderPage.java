@@ -36,9 +36,14 @@ public class ChargeOrderPage extends BaseTest {
     private final By CLICK_EXIT_QUOTATION_FORM = By.cssSelector(".justify-end button:nth-child(1)");
     private final By CLICK_SINGLE_DELETE_BUTTON_CHARGE_ORDER_ON_LIST_VIEW = By.cssSelector(".ant-table-tbody tr:nth-child(3) td:last-of-type div button:nth-child(3)");
     private final By CONFIRM_SINGLE_DELETE_YES = By.cssSelector(".ant-popover-content div.ant-popconfirm-buttons button:nth-child(2)");
+    private final By CONFIRM_SINGLE_DELETE_NO= By.cssSelector(".ant-popover-content div.ant-popconfirm-buttons button:nth-child(1)");
     private final By CHARGE_SINGLE_DELETE_MESSAGE_POPUP = By.xpath("//div[text()='Charge order deleted successfully']");
 
-
+    private final By SELECT_ALL_ROWS_FOR_BULK_DELETE= By.cssSelector(".ant-table-selection-column div");
+    private final By CLICK_DELETE_BUTTON_FOR_BULK_DELETE= By.cssSelector(".p-2 > div.flex.items-center.justify-between.gap-2 > div > button");
+    private final By CLICK_DELETE_ON_POPUP= By.cssSelector(".mt-6 button:nth-child(2)");
+    private final By NO_DATA_SELECTOR=  By.cssSelector(".ant-table-tbody .ant-empty-description");
+    private final By QUOTATION_BULK_DELETE_MESSAGE_POPUP= By.xpath("//*[@id='root']/div[2]/div/div/div[2]");
 
     public ChargeOrderPage(WebDriver driver) {
         this.driver = driver;
@@ -458,6 +463,16 @@ public class ChargeOrderPage extends BaseTest {
 
     }
 
+    public void clickDeleteRowButton() throws InterruptedException {
+        Thread.sleep(5000);
+        wait.until(ExpectedConditions.elementToBeClickable(CLICK_SINGLE_DELETE_BUTTON_CHARGE_ORDER_ON_LIST_VIEW)).click();
+
+    }
+    public void clickNoButtonOnDeleteConfirmationPopup()  {
+        wait.until(ExpectedConditions.elementToBeClickable(CONFIRM_SINGLE_DELETE_NO)).click();
+
+    }
+
     public void verifySingleChargeOrderDeleteMessage() {
         WebElement successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(CHARGE_SINGLE_DELETE_MESSAGE_POPUP));
         String actualText = successMessage.getText().trim();
@@ -467,5 +482,40 @@ public class ChargeOrderPage extends BaseTest {
 
     }
 
+    public void selectAllRowsForBulDeleteOfChargeOrder()  {
+        wait.until(ExpectedConditions.elementToBeClickable(SELECT_ALL_ROWS_FOR_BULK_DELETE)).click();
 
-}
+    }
+    public void clickDeleteForBulKDeleteOfChargeOrder()  {
+        wait.until(ExpectedConditions.elementToBeClickable(CLICK_DELETE_BUTTON_FOR_BULK_DELETE)).click();
+        wait.until(ExpectedConditions.elementToBeClickable(CLICK_DELETE_ON_POPUP)).click();
+
+    }
+    public void verifyBulkChargeOrderDeleteMessage() throws InterruptedException {
+        Thread.sleep(5000);
+        WebElement successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(QUOTATION_BULK_DELETE_MESSAGE_POPUP));
+        String actualText = successMessage.getText().trim();
+        String expectedText = "Charge orders deleted successfully";
+        Assert.assertEquals(actualText, expectedText, "❌ Charge Order Bulk Delete success message did not match!");
+    }
+    public void verifyTheAllDataDeletedSuccessfully() {
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(QUOTATION_BULK_DELETE_MESSAGE_POPUP));
+
+
+        // Find the element
+        WebElement noDataElement = driver.findElement(NO_DATA_SELECTOR);
+
+        // Get its text
+        String actualText = noDataElement.getText();
+
+        // Print for debugging
+        System.out.println("Table empty text: " + actualText);
+
+        // Assert
+        Assert.assertEquals(actualText.trim(), "No data", "Expected 'No data' but found: " + actualText+"Therefore all data does not deleted");
+    }
+
+    }
+
+
+

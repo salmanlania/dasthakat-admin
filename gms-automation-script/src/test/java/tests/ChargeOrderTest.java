@@ -7,7 +7,7 @@ import utils.ReportManager;
 
 
 public class ChargeOrderTest extends BaseTest {
-    /*
+
     @Test(priority = 1, description = "ID=TC_48,49 Verify that the Charge order option is functional or not")
     public void verifyChargeOrderOptionOnQuotationForm() throws InterruptedException {
         ChargeOrderPage coPage = new ChargeOrderPage(driver);
@@ -213,18 +213,37 @@ public class ChargeOrderTest extends BaseTest {
         coPage.clickSinglyeDeleteButtonFromFlistView();
         coPage.verifySingleChargeOrderDeleteMessage();
   }
-  */
 
-  @Test(priority = 9,description = "ID=TC_69 Verify the functionality of Delete option on Charge Order page")
-    public void VerifyTheBulkDeleteFunctionality() throws InterruptedException {
+
+  @Test(priority = 10,description = "ID=TC_72 Verify the functionality of No option on delete dialog box")
+    public void VerifyTheNoDeleteFunctionalityOfChargeOrder() throws InterruptedException {
         ChargeOrderPage coPage = new ChargeOrderPage(driver);
         ReportManager.logInfo("Step 2: Navigate to the Sales Management module from the main menu");
         coPage.clickSaleManagementDropdown();
         ReportManager.logInfo("Step 3: Click on the Charge Order option under Sales Management module");
         coPage.clickChargeOrderDropdown();
-        ReportManager.logInfo("Step 4: Click on any of charge order Delete option in the action column. and Check if the deleted Charge Order removed from the list");
-        coPage.clickSinglyeDeleteButtonFromFlistView();
-        coPage.verifySingleChargeOrderDeleteMessage();
+        ReportManager.logInfo("Step 4: Locate a specific Charge Order record and Click on Delete option for that Charge Order");
+        coPage.clickDeleteRowButton();
+      ReportManager.logInfo("Step 5: Locate a specific Charge Order record and Click on Delete option for that Charge Order");
+      coPage.clickNoButtonOnDeleteConfirmationPopup();
+  }
+  @Test(priority = 11,description = "ID=TC_73 Verify the functionality of No option on delete dialog box")
+    public void VerifyTheBulkDeleteFunctionalityOfChargeOrder() throws InterruptedException {
+        ChargeOrderPage coPage = new ChargeOrderPage(driver);
+        ReportManager.logInfo("Step 2: Navigate to the Sales Management module from the main menu");
+        coPage.clickSaleManagementDropdown();
+        ReportManager.logInfo("Step 3: Click on the Charge Order option under Sales Management module");
+        coPage.clickChargeOrderDropdown();
+        ReportManager.logInfo("Step 4:Select checkboxes beside multiple Charge Orders");
+        coPage.selectAllRowsForBulDeleteOfChargeOrder();
+        ReportManager.logInfo("Step 5: Click on delete button");
+        coPage.clickDeleteForBulKDeleteOfChargeOrder();
+        ReportManager.logInfo("Step 6: Confirm the delete action");
+        coPage.verifyBulkChargeOrderDeleteMessage();
+        ReportManager.logInfo("Step 7: Verify that dialog box should closed by clicking on no option");
+        coPage.verifyTheAllDataDeletedSuccessfully();
+
+
   }
 
 
