@@ -17,3 +17,11 @@ CREATE TABLE `vendor_quotation_detail` (
 );
 
 ALTER TABLE `vendor_quotation_detail` ADD COLUMN `sort_order` INT(11) NOT NULL AFTER `vendor_id`;
+
+
+ALTER TABLE vendor_quotation_detail
+MODIFY quotation_detail_id CHAR(36) 
+COLLATE utf8mb4_unicode_ci;
+
+
+SHOW FULL COLUMNS FROM vendor_quotation_detail WHERE FIELD = 'quotation_detail_id';
