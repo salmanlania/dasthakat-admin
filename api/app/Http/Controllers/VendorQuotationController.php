@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use App\Models\Quotation;
 use App\Models\QuotationDetail;
 use App\Models\Supplier;
@@ -97,13 +98,14 @@ public function sendRFQ($data)
 
                 foreach ($details as $row) {
                     try {
-                        $quotationItem = QuotationDetail::with('product:product_id,impa_code,name,short_code,product_code', 'product_type:product_type_id,name', 'unit:unit_id,name')
+                        $quotationItem = QuotationDetail::with('product_type:product_type_id,name', 'unit:unit_id,name')
                             ->where('quotation_id', $data['quotation_id'])
                             ->where('quotation_detail_id', $row['quotation_detail_id'])
                             // ->where('supplier_id', $vendor_id)
                             ->select('product_name', 'quotation_detail_id', 'product_id', 'product_type_id', 'unit_id', 'vendor_part_no')
                             ->first();
 
+                            $quotationItem->product = Product::where('product_id', $quotationItem->product_id)->select("*")->first();
                         if (!$quotationItem) {
                             throw new \RuntimeException("Quotation detail not found for ID {$row['quotation_detail_id']}");
                         }
@@ -231,7 +233,7 @@ public function store(Request $request)
                         $quotation_detail->supplier_id = $detail['vendor_id'];
                         
                         if ($detail['vendor_rate']) {
-                            // $quotation_detail->markup = calculateProfitPercentage($quotation_detail->cost_price, $detail['vendor_rate']);
+                            $quotation_detail->vendor_part_no = $detail['vendor_part_no'] ?? '';
                             $quotation_detail->cost_price = $detail['vendor_rate'];
                             $quotation_detail->rate = ($quotation_detail->cost_price * $quotation_detail->markup) / 100;
                             $quotation_detail->amount = $quotation_detail->quantity * $quotation_detail->rate;
