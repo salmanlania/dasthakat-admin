@@ -237,7 +237,7 @@ class VendorQuotationController extends Controller
                             if ($detail['vendor_rate']) {
                                 $quotation_detail->vendor_part_no = $detail['vendor_part_no'] ?? '';
                                 $quotation_detail->cost_price = $detail['vendor_rate'];
-                                $quotation_detail->rate = ($quotation_detail->cost_price * $quotation_detail->markup) / 100;
+                                $quotation_detail->rate = $quotation_detail->cost_price + ($quotation_detail->cost_price * $quotation_detail->markup) / 100;
                                 $quotation_detail->amount = $quotation_detail->quantity * $quotation_detail->rate;
                                 $quotation_detail->discount_amount = ($quotation_detail->amount * $quotation_detail->discount_percent) / 100;
                                 $quotation_detail->gross_amount = $quotation_detail->amount - $quotation_detail->discount_amount;
@@ -549,7 +549,7 @@ class VendorQuotationController extends Controller
                             // );
                             $quotation_detail->vendor_part_no = $row['vendor_part_no'] ?? "";
                             $quotation_detail->cost_price = $row['vendor_rate'];
-                            $quotation_detail->rate = ($quotation_detail->cost_price * $quotation_detail->markup) / 100;
+                            $quotation_detail->rate = $quotation_detail->cost_price +  ($quotation_detail->cost_price * $quotation_detail->markup) / 100;
                             $quotation_detail->amount = $quotation_detail->quantity * $row['vendor_rate'];
                             $quotation_detail->discount_amount = ($quotation_detail->amount * $quotation_detail->discount_percent) / 100;
                             $quotation_detail->gross_amount = $quotation_detail->amount - $quotation_detail->discount_amount;
