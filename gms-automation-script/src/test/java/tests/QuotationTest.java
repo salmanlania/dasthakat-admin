@@ -4,6 +4,7 @@ import pages.CreateQuotePage;
 import utils.BaseTest;
 
 public class QuotationTest extends BaseTest {
+
     @Test(priority = 1, description = "ID=TC_01 Verify the functionality of required field validation for 'Quotation date', 'Salesman' and 'Event'")
     public void verifyRequiredFieldValidationFormOfQuotationForm() {
         CreateQuotePage quotePage = new CreateQuotePage(driver, this);
@@ -118,6 +119,8 @@ public class QuotationTest extends BaseTest {
 
 
 
+
+
     @Test(priority = 11,description = "ID=TC_19...31, 33, 34 ,37 Whole Quotation Create ")
     public void createQuotationTestCase() throws InterruptedException {
         CreateQuotePage quotePage = new CreateQuotePage(driver,this);
@@ -153,7 +156,6 @@ public class QuotationTest extends BaseTest {
         quotePage.clickSaveQuotationButton();
         quotePage.verifyQuotationSaveMessage();
     }
-
     @Test(priority = 12, description = "ID=TC_38 Verify the functionality of Cancel button")
     public void createCancelSaveFunctionality() throws InterruptedException {
         CreateQuotePage quotePage = new CreateQuotePage(driver,this);

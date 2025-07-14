@@ -36,6 +36,7 @@ public class CreateQuotePage extends BaseTest {
     private final By SELECT_VALIDITY_FROM_DROPDOWN = By.cssSelector("#quotation_validity_id_list ~ div.rc-virtual-list div.ant-select-item-option-active");
     private final By CLICK_EVENT_INPUT = By.id("quotation_event_id");
     private final By SELECT_EVENT_FROM_DROPDOWN = By.cssSelector("#quotation_event_id_list ~ div.rc-virtual-list div.ant-select-item-option-active");
+    private final By SELECT_PRODUCT_FROM_DROPDOWN = By.cssSelector("#quotation_product_name-0_list ~ div.rc-virtual-list div.ant-select-item-option-active");
     private final By SELECT_CATEGORY_FROM_DROPDOWN_ON_PRODUCT_POPUP = By.cssSelector("#product_category_id_list~div.rc-virtual-list div.ant-select-item-option-active");
     private final By SELECT_SUB_CATEGORY_FROM_DROPDOWN_ON_PRODUCT_POPUP = By.cssSelector("#product_sub_category_id_list~div.rc-virtual-list div.ant-select-item-option-active");
     private final By SELECT_EVENT_PLUS_BUTTON = By.cssSelector("#quotation> div.ant-row.css-dev-only-do-not-override-1u61tqm > div:nth-child(3) > div > div > div.ant-col.ant-form-item-control.css-dev-only-do-not-override-1u61tqm > div > div > div > span > svg");
@@ -593,7 +594,6 @@ public class CreateQuotePage extends BaseTest {
         try {
             System.out.println("Waiting for the Event list to become visible...");
             By listLocator = By.cssSelector("#quotation_event_id_list ~ div.rc-virtual-list");
-            WebElement list = wait.until(ExpectedConditions.visibilityOfElementLocated(listLocator));
             isListVisible1 = true;
             System.out.println("Event list found and visible.");
         } catch (TimeoutException e) {
@@ -605,7 +605,6 @@ public class CreateQuotePage extends BaseTest {
         if (isListVisible1) {
             System.out.println("Selecting the first item from the Event list...");
             By firstItemLocator = SELECT_EVENT_FROM_DROPDOWN;
-
             try {
                 WebElement firstItem = wait.until(ExpectedConditions.presenceOfElementLocated(firstItemLocator));
                 System.out.println("First item HTML: " + firstItem.getAttribute("outerHTML"));
@@ -977,12 +976,65 @@ public class CreateQuotePage extends BaseTest {
 
         Thread.sleep(500);
     }
+    public By getLatestProductNameList() {
+        // 1. Find all dropdown containers
+        List<WebElement> allDropdowns = driver.findElements(
+                By.cssSelector("div[id^='quotation_product_name-'][id$='_list']")
+        );
+
+        if (allDropdowns.isEmpty()) {
+            throw new NoSuchElementException("No product name dropdowns found");
+        }
+
+        // 2. Extract numbers and find the highest
+        int highestId = allDropdowns.stream().mapToInt(e -> {
+            String id = e.getAttribute("id");
+            String numPart = id.split("-")[1].split("_")[0];
+            return Integer.parseInt(numPart);
+        }).max().orElseThrow();
+
+        // 3. Build the CSS selector string
+        String selector = "#quotation_product_name-" + highestId + "_list ~ div.rc-virtual-list";
+
+        System.out.println("✅ Dynamic By.cssSelector: " + selector);
+
+        // 4. Return as By
+        return By.cssSelector(selector);
+    }
+    public By getLatestProductNameOptionSelector() {
+        // 1. Find all dropdown containers
+        List<WebElement> allDropdowns = driver.findElements(
+                By.cssSelector("div[id^='quotation_product_name-'][id$='_list']")
+        );
+
+        if (allDropdowns.isEmpty()) {
+            throw new NoSuchElementException("No product name dropdowns found");
+        }
+
+        // 2. Extract numbers and find the highest
+        int highestId = allDropdowns.stream().mapToInt(e -> {
+            String id = e.getAttribute("id");
+            String numPart = id.split("-")[1].split("_")[0];
+            return Integer.parseInt(numPart);
+        }).max().orElseThrow();
+
+        // 3. Build the CSS selector string
+        String selector = "#quotation_product_name-" + highestId + "_list ~ div.rc-virtual-list div.ant-select-item-option-active";
+
+        System.out.println("✅ Dynamic By.cssSelector: " + selector);
+
+        // 4. Return as By
+        return By.cssSelector(selector);
+    }
+
+
+
 
 
     public void selectOrCreateInventoryProduct() throws InterruptedException {
         String parentWindow = baseTest.getCurrentWindowHandle();
         // Wait for element to be clickable then click
-        wait.until(ExpectedConditions.elementToBeClickable(CLICK_PRODUCT_INPUT_FIELD_TO_ADD_PRODUCT_IN_GRID)).sendKeys("This is Inventory Product");
+        wait.until(ExpectedConditions.elementToBeClickable(CLICK_PRODUCT_INPUT_FIELD_TO_ADD_PRODUCT_IN_GRID)).sendKeys("This is Inventory Product 13123123");
         Thread.sleep(2000);
         // Wait for the Event element and click it
         wait.until(ExpectedConditions.attributeToBe(CLICK_PRODUCT_INPUT_FIELD_TO_ADD_PRODUCT_IN_GRID, "aria-expanded", "true"));
@@ -991,21 +1043,23 @@ public class CreateQuotePage extends BaseTest {
         try {
 
             System.out.println("Waiting for the Event list to become visible...");
-//            By listLocator = By.cssSelector("div.rc-virtual-list [id^=\"quotation_product_id-\"]");
-            WebElement list = toCreatingLocatortoselecttheProductNameinGrid();
+          By listLocator = getLatestProductNameList();
+          wait.until(ExpectedConditions.visibilityOfElementLocated(listLocator)); // ✅ The real check
+
             isListVisible1 = true;
             System.out.println("Product list found and visible.");
         } catch (TimeoutException e) {
             isListVisible1 = false;
             System.out.println("Product list not found within the timeout.");
         }
+//        #quotation_product_name-0_list ~ div.rc-virtual-list div.ant-select-item-option-active
+
 // Handle both cases - the rest of the code will run after either block
         if (isListVisible1) {
             System.out.println("Selecting the first item from the Event list...");
-//            WebElement firstItemLocator = toCreatingLocatortoselecttheProductNameinGrid();
-
+            By firstItemLocator = getLatestProductNameOptionSelector();
             try {
-                WebElement firstItem = toCreatingLocatortoselecttheProductNameinGrid();
+                WebElement firstItem = wait.until(ExpectedConditions.presenceOfElementLocated(firstItemLocator));
                 System.out.println("First item HTML: " + firstItem.getAttribute("outerHTML"));
                 wait.until(ExpectedConditions.elementToBeClickable(firstItem)).click();
                 System.out.println("First item selected from the list.");
@@ -1016,6 +1070,7 @@ public class CreateQuotePage extends BaseTest {
             System.out.println("Taking fallback path...");
             try {
                 wait.until(ExpectedConditions.visibilityOfElementLocated(CLICK_PRODUCT_PLUS_BUTTON_IN_GRID_TO_CREATE_PRODUCT)).click();
+
                 baseTest.switchToNewWindow();
 //                WebElement element = driver.findElement(ADD_PRODUCT_NAME_PRODUCT_POPUP);
 //                JavascriptExecutor js = (JavascriptExecutor) driver;
@@ -1040,10 +1095,11 @@ public class CreateQuotePage extends BaseTest {
                 Thread.sleep(5000);
                 baseTest.switchToParentWindow(parentWindow);
                 Thread.sleep(2000);
-                wait.until(ExpectedConditions.elementToBeClickable(CLICK_PRODUCT_INPUT_FIELD_TO_ADD_PRODUCT_IN_GRID)).sendKeys("This is Inventory Product");
-                WebElement firstItem = toCreatingLocatortoselecttheProductNameinGrid();
-                System.out.println("First item HTML: " + firstItem.getAttribute("outerHTML"));
-                wait.until(ExpectedConditions.elementToBeClickable(firstItem)).click();
+                WebElement inputField = wait.until(ExpectedConditions.elementToBeClickable(CLICK_PRODUCT_INPUT_FIELD_TO_ADD_PRODUCT_IN_GRID));
+                inputField.clear();
+                inputField.sendKeys("This is Inventory Product");
+                Thread.sleep(2000);
+                inputField.sendKeys(Keys.ENTER);
                 System.out.println("First item selected from the list.");
             } catch (Exception e) {
                 System.out.println("Error in fallback path: " + e.getMessage());
@@ -1146,8 +1202,8 @@ public class CreateQuotePage extends BaseTest {
         String parentWindow = baseTest.getCurrentWindowHandle();
         String impaCode2 = "IMPA_CODE" + System.currentTimeMillis();
         // Wait for element to be clickable then click
-        wait.until(ExpectedConditions.elementToBeClickable(CLICK_PRODUCT_INPUT_FIELD_TO_ADD_PRODUCT_IN_GRID)).sendKeys("This is Service product");
-        Thread.sleep(2000);
+        wait.until(ExpectedConditions.elementToBeClickable(CLICK_PRODUCT_INPUT_FIELD_TO_ADD_PRODUCT_IN_GRID)).sendKeys("This is service Product");
+        Thread.sleep(3000);
         // Wait for the Event element and click it
         wait.until(ExpectedConditions.attributeToBe(CLICK_PRODUCT_INPUT_FIELD_TO_ADD_PRODUCT_IN_GRID, "aria-expanded", "true"));
         // Initialize the isListVisible flag
@@ -1155,8 +1211,8 @@ public class CreateQuotePage extends BaseTest {
         try {
 
             System.out.println("Waiting for the Event list to become visible...");
-//            By listLocator = By.cssSelector("div.rc-virtual-list [id^=\"quotation_product_id-\"]");
-            WebElement list = toCreatingLocatortoselecttheProductNameinGrid();
+            By listLocator = getLatestProductNameList();
+            wait.until(ExpectedConditions.visibilityOfElementLocated(listLocator)); // ✅ The real check
             isListVisible1 = true;
             System.out.println("Product list found and visible.");
         } catch (TimeoutException e) {
@@ -1166,10 +1222,9 @@ public class CreateQuotePage extends BaseTest {
 // Handle both cases - the rest of the code will run after either block
         if (isListVisible1) {
             System.out.println("Selecting the first item from the Event list...");
-//            WebElement firstItemLocator = toCreatingLocatortoselecttheProductNameinGrid();
-
+            By firstItemLocator = getLatestProductNameOptionSelector();
             try {
-                WebElement firstItem = toCreatingLocatortoselecttheProductNameinGrid();
+                WebElement firstItem = wait.until(ExpectedConditions.presenceOfElementLocated(firstItemLocator));
                 System.out.println("First item HTML: " + firstItem.getAttribute("outerHTML"));
                 wait.until(ExpectedConditions.elementToBeClickable(firstItem)).click();
                 System.out.println("First item selected from the list.");
@@ -1198,10 +1253,11 @@ public class CreateQuotePage extends BaseTest {
                 Thread.sleep(5000);
                 baseTest.switchToParentWindow(parentWindow);
                 Thread.sleep(2000);
-                wait.until(ExpectedConditions.elementToBeClickable(CLICK_PRODUCT_INPUT_FIELD_TO_ADD_PRODUCT_IN_GRID)).sendKeys("This is Service product");
-                WebElement firstItem = toCreatingLocatortoselecttheProductNameinGrid();
-                System.out.println("First item HTML: " + firstItem.getAttribute("outerHTML"));
-                wait.until(ExpectedConditions.elementToBeClickable(firstItem)).click();
+                WebElement inputField = wait.until(ExpectedConditions.elementToBeClickable(CLICK_PRODUCT_INPUT_FIELD_TO_ADD_PRODUCT_IN_GRID));
+                inputField.clear();
+                inputField.sendKeys("This is service Product");
+                Thread.sleep(2000);
+                inputField.sendKeys(Keys.ENTER);
                 System.out.println("First item selected from the list.");
             } catch (Exception e) {
                 System.out.println("Error in fallback path: " + e.getMessage());
@@ -1225,7 +1281,9 @@ public class CreateQuotePage extends BaseTest {
 
             System.out.println("Waiting for the Event list to become visible...");
 //            By listLocator = By.cssSelector("div.rc-virtual-list [id^=\"quotation_product_id-\"]");
-            WebElement list = toCreatingLocatortoselecttheProductNameinGrid();
+            By listLocator = getLatestProductNameList();
+            wait.until(ExpectedConditions.visibilityOfElementLocated(listLocator)); // ✅ The real check
+
             isListVisible1 = true;
             System.out.println("Product list found and visible.");
         } catch (TimeoutException e) {
@@ -1235,10 +1293,9 @@ public class CreateQuotePage extends BaseTest {
 // Handle both cases - the rest of the code will run after either block
         if (isListVisible1) {
             System.out.println("Selecting the first item from the Event list...");
-//            WebElement firstItemLocator = toCreatingLocatortoselecttheProductNameinGrid();
-
+            By firstItemLocator = getLatestProductNameOptionSelector();
             try {
-                WebElement firstItem = toCreatingLocatortoselecttheProductNameinGrid();
+                WebElement firstItem = wait.until(ExpectedConditions.presenceOfElementLocated(firstItemLocator));
                 System.out.println("First item HTML: " + firstItem.getAttribute("outerHTML"));
                 wait.until(ExpectedConditions.elementToBeClickable(firstItem)).click();
                 System.out.println("First item selected from the list.");
@@ -1273,10 +1330,11 @@ public class CreateQuotePage extends BaseTest {
                 Thread.sleep(5000);
                 baseTest.switchToParentWindow(parentWindow);
                 Thread.sleep(2000);
-                wait.until(ExpectedConditions.elementToBeClickable(CLICK_PRODUCT_INPUT_FIELD_TO_ADD_PRODUCT_IN_GRID)).sendKeys("This is IMPA Product");
-                WebElement firstItem = toCreatingLocatortoselecttheProductNameinGrid();
-                System.out.println("First item HTML: " + firstItem.getAttribute("outerHTML"));
-                wait.until(ExpectedConditions.elementToBeClickable(firstItem)).click();
+                WebElement inputField = wait.until(ExpectedConditions.elementToBeClickable(CLICK_PRODUCT_INPUT_FIELD_TO_ADD_PRODUCT_IN_GRID));
+                inputField.clear();
+                inputField.sendKeys("This is IMPA product");
+                Thread.sleep(2000);
+                inputField.sendKeys(Keys.ENTER);
                 System.out.println("First item selected from the list.");
             } catch (Exception e) {
                 System.out.println("Error in fallback path: " + e.getMessage());

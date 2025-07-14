@@ -1,9 +1,6 @@
 package pages;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -31,7 +28,17 @@ public class ChargeOrderPage extends BaseTest {
     private final By SELECT_ALL_ROWS = By.cssSelector("#charge-order-modal div.ant-table-header thead tr th label.ant-checkbox-wrapper");
     private final By CLICK_IJO_TOP_ROW_EDIT = By.cssSelector(".ant-table-tbody tr:nth-child(2) td:last-of-type div a");
     private final By CLICK_PICK_LIST_TOP_ROW_EDIT = By.cssSelector(".ant-table-tbody tr:nth-child(2) td:last-of-type div a");
+    private final By GLOBAL_SEARCH_IJO = By.cssSelector(".gap-2:nth-child(1) span input");
+    private final By GLOBAL_SEARCH_QUOTATION = By.cssSelector(".gap-2:nth-child(1) span input");
+    private final By GLOBAL_SEARCH_PICK_LIST = By.cssSelector(".ant-input-affix-wrapper input");
+    private final By GLOBAL_SEARCH_SERVICE_LIST = By.cssSelector(".ant-input-affix-wrapper input");
     private final By ENTER_CUSTOMER_PO = By.id("charge-order-modal_customer_po_no");
+    private final By CLICK_EXIT_QUOTATION_FORM = By.cssSelector(".justify-end button:nth-child(1)");
+    private final By CLICK_SINGLE_DELETE_BUTTON_CHARGE_ORDER_ON_LIST_VIEW = By.cssSelector(".ant-table-tbody tr:nth-child(3) td:last-of-type div button:nth-child(3)");
+    private final By CONFIRM_SINGLE_DELETE_YES = By.cssSelector(".ant-popover-content div.ant-popconfirm-buttons button:nth-child(2)");
+    private final By CHARGE_SINGLE_DELETE_MESSAGE_POPUP = By.xpath("//div[text()='Charge order deleted successfully']");
+
+
 
     public ChargeOrderPage(WebDriver driver) {
         this.driver = driver;
@@ -75,7 +82,8 @@ public class ChargeOrderPage extends BaseTest {
    public void clickCancelModalButton(){
         wait.until(ExpectedConditions.visibilityOfElementLocated(CLICK_CANCEL_BUTTON_OF_CHARGE_ORDER_MODAL)).click();
     }
-    public void clickSaveChargeModalButton() {
+    public void clickSaveChargeModalButton() throws InterruptedException {
+        Thread.sleep(2000);
         wait.until(ExpectedConditions.elementToBeClickable(CLICK_CHARGE_BUTTON_OF_CHARGE_ORDER_MODAL)).click();
 
         // ✅ Wait for success toast/modal to confirm the request did not fail
@@ -282,7 +290,182 @@ public class ChargeOrderPage extends BaseTest {
 
     }
 
+    public String getEventNoOfNewChargeOrder() {
+        WebElement paragraph = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("#chargeOrder div div:nth-child(5) span.ant-select-selection-item")
+        ));
+        return paragraph.getText();
+    }
+    public String getIJOTotalPagenationText() {
+        WebElement paragraph = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector(".ant-pagination-mini li.ant-pagination-total-text")
+        ));
+        return paragraph.getText();
+    }
+    public void verifyThatIJOisCreatedSingleForTheEvent(String eventNumberOfCO, String beforSearchTotal ){
+        wait.until(ExpectedConditions.visibilityOfElementLocated(GLOBAL_SEARCH_IJO)).sendKeys(eventNumberOfCO);
+        System.out.println("Before Search Total IJO : " + beforSearchTotal);
+        String AfterSearchTotal = getIJOTotalPagenationText();
+        System.out.println("After Search Total IJO : " + AfterSearchTotal);
 
+        Assert.assertEquals(AfterSearchTotal.trim(), beforSearchTotal.trim(),
+                "MULTIPLE IJO OF THE SAME EVENT CREATED!");
+
+    }
+    public void createQuotationNonInventoryProducts() throws InterruptedException {
+        CreateQuotePage quotePage = new CreateQuotePage(driver,this);
+        quotePage.clickAddNewQuotationButton();
+        quotePage.selectEvent();
+        quotePage.addOtherProductTypeItemInGrid();
+        Thread.sleep(5000);
+//        quotePage.addInventoryProductIntoGrid();
+        quotePage.addServiceProductIntoGrid();
+        quotePage.addIMPAProductIntoGrid();
+        Thread.sleep(2000);
+        quotePage.clickSaveQuotationButton();
+        quotePage.verifyQuotationSaveMessage();
+    }
+    public void createQuotationNonServiceProducts() throws InterruptedException {
+        CreateQuotePage quotePage = new CreateQuotePage(driver,this);
+        quotePage.clickAddNewQuotationButton();
+        quotePage.selectEvent();
+        quotePage.addOtherProductTypeItemInGrid();
+        Thread.sleep(5000);
+        quotePage.addInventoryProductIntoGrid();
+//        quotePage.addServiceProductIntoGrid();
+        quotePage.addIMPAProductIntoGrid();
+        Thread.sleep(2000);
+        quotePage.clickSaveQuotationButton();
+        quotePage.verifyQuotationSaveMessage();
+    }
+
+    public void clickExitQuotationButton() {
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(CLICK_EXIT_QUOTATION_FORM));
+
+        // Scroll element into view using JS
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element);
+
+        // Small pause to allow smooth scroll to finish (optional, tweak if needed)
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException ignored) {
+        }
+
+        // Re-check element to avoid stale element after scroll
+        wait.until(ExpectedConditions.elementToBeClickable(CLICK_EXIT_QUOTATION_FORM)).click();
+    }
+    public String getQuotationNo(){
+        WebElement paragraph = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("#quotation p span.ml-4")
+        ));
+        return paragraph.getText();
+    }
+    public String getChargeOrderNo(){
+        WebElement paragraph = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("#chargeOrder p span.ml-4")
+        ));
+        return paragraph.getText();
+    }
+    public void searchQuotation(String getQuotationNoForSearch){
+        wait.until(ExpectedConditions.visibilityOfElementLocated(GLOBAL_SEARCH_QUOTATION)).sendKeys(getQuotationNoForSearch);
+
+    }
+    public void searchPickList(String getChargeOrderNoForSearch){
+        wait.until(ExpectedConditions.visibilityOfElementLocated(GLOBAL_SEARCH_PICK_LIST)).sendKeys(getChargeOrderNoForSearch);
+
+    }
+    public void searchServiceList(String getChargeOrderNoForSearch){
+        wait.until(ExpectedConditions.visibilityOfElementLocated(GLOBAL_SEARCH_SERVICE_LIST)).sendKeys(getChargeOrderNoForSearch);
+
+    }
+
+    public void verifyPickListCreatedOrNot(String getChargeOrderNoForSearch){
+        // Locate the tbody (update the XPath/CSS selector as needed)
+        WebElement tbody = driver.findElement(By.xpath("//tbody"));
+
+        List<WebElement> rows = tbody.findElements(By.tagName("tr"));
+
+        boolean isTextFound = false;
+
+        for (WebElement row : rows) {
+            List<WebElement> cells = row.findElements(By.tagName("td"));
+            for (WebElement cell : cells) {
+                String cellText = cell.getText().trim();
+                if (cellText.equals(getChargeOrderNoForSearch)) {
+                    isTextFound = true;
+                    break; // Found, break inner loop
+                }
+            }
+            if (isTextFound) {
+                break; // Found, break outer loop
+            }
+        }
+
+        if (isTextFound) {
+            System.out.println("Test case failed: "+getChargeOrderNoForSearch+" found in table.");
+            // If using TestNG:
+            Assert.fail(getChargeOrderNoForSearch+ "was found in the table, so test failed.");
+        } else {
+            System.out.println("Test case passed: "+getChargeOrderNoForSearch+" not found in table.");
+        }
+    }
+    public void verifyServiceListCreatedOrNot(String getChargeOrderNoForSearch){
+        // Locate the tbody (update the XPath/CSS selector as needed)
+        WebElement tbody = driver.findElement(By.xpath("//tbody"));
+
+        List<WebElement> rows = tbody.findElements(By.tagName("tr"));
+
+        boolean isTextFound = false;
+
+        for (WebElement row : rows) {
+            List<WebElement> cells = row.findElements(By.tagName("td"));
+            for (WebElement cell : cells) {
+                String cellText = cell.getText().trim();
+                if (cellText.equals(getChargeOrderNoForSearch)) {
+                    isTextFound = true;
+                    break; // Found, break inner loop
+                }
+            }
+            if (isTextFound) {
+                break; // Found, break outer loop
+            }
+        }
+
+        if (isTextFound) {
+            System.out.println("Test case failed: "+getChargeOrderNoForSearch+" found in table.");
+            // If using TestNG:
+            Assert.fail(getChargeOrderNoForSearch+ "was found in the table, so test failed.");
+        } else {
+            System.out.println("Test case passed: "+getChargeOrderNoForSearch+" not found in table.");
+        }
+    }
+    public void clickChargeOrderDropdown() {
+        // Wait for element to be clickable then click
+        List<WebElement> links = driver.findElements(CLICK_QUOTATION_DROPDOWN);
+
+        for (WebElement link : links) {
+            if (link.getText().trim().equals("Charge Order")) {
+                link.click();
+                break;
+            }
+        }
+    }
+
+    public void clickSinglyeDeleteButtonFromFlistView() throws InterruptedException {
+        Thread.sleep(10000);
+        wait.until(ExpectedConditions.elementToBeClickable(CLICK_SINGLE_DELETE_BUTTON_CHARGE_ORDER_ON_LIST_VIEW)).click();
+        wait.until(ExpectedConditions.elementToBeClickable(CONFIRM_SINGLE_DELETE_YES)).click();
+
+    }
+
+    public void verifySingleChargeOrderDeleteMessage() {
+        WebElement successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(CHARGE_SINGLE_DELETE_MESSAGE_POPUP));
+        String actualText = successMessage.getText().trim();
+        String expectedText = "Charge order deleted successfully";
+        Assert.assertEquals(actualText, expectedText, "❌ Charge Order Delete success message did not match!");
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(CHARGE_SINGLE_DELETE_MESSAGE_POPUP));
+
+    }
 
 
 }
