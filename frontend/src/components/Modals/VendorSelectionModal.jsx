@@ -22,26 +22,24 @@ const VendorSelectionModal = ({ open, onClose }) => {
   const id = initialFormValues?.quotation_id;
 
   const [data, setData] = useState([]);
-  const [vendorCount] = useState(4); // Fixed to 4 as per your original code
+  const [vendorCount] = useState(4);
   const [isSaving, setIsSaving] = useState(false);
-  const hasFetchedVendors = useRef(false); // Track if API has been called
-  const lastFetchedId = useRef(null); // Track the last quotation_id fetched
+  const hasFetchedVendors = useRef(false);
+  const lastFetchedId = useRef(null);
 
   useEffect(() => {
     if (!id || !open) {
-      hasFetchedVendors.current = false; // Reset when modal closes or id is null
+      hasFetchedVendors.current = false;
       lastFetchedId.current = null;
       return;
     }
 
-    // Skip if already fetched for this id
     if (hasFetchedVendors.current && lastFetchedId.current === id) {
       return;
     }
 
     const fetchVendors = async () => {
       try {
-        console.log('Fetching vendors for id:', id, 'open:', open);
         hasFetchedVendors.current = true;
         lastFetchedId.current = id;
         await dispatch(getVendor(id)).unwrap();
@@ -52,7 +50,6 @@ const VendorSelectionModal = ({ open, onClose }) => {
 
     fetchVendors();
 
-    // No cleanup needed here since we reset on !id || !open
   }, [id, open, dispatch, handleError]);
 
   useEffect(() => {
@@ -61,16 +58,13 @@ const VendorSelectionModal = ({ open, onClose }) => {
       return;
     }
 
-    // Map vendorQuotationDetails to include only product_type_id 3 or 4
     const mappedData = vendorQuotationDetails
       .filter((item) => [3, 4].includes(item?.product_type_id?.value))
       .map((item, index) => {
-        // Find existing vendor details for this quotation_detail_id
         const existingVendors = vendorDetails?.filter(
           (vendor) => vendor.quotation_detail_id === item.quotation_detail_id
         ) || [];
 
-        // Create vendor entries, merging existing vendorDetails with defaults
         const vendors = Array.from({ length: vendorCount }, (_, vendorIndex) => {
           const existingVendor = existingVendors[vendorIndex] || null;
           return existingVendor
@@ -283,9 +277,6 @@ const VendorSelectionModal = ({ open, onClose }) => {
           columns={columns}
           dataSource={data}
           pagination={false}
-          // virtual
-          // bordered
-          // scroll={{ x: 'calc(100% - 200px)' }}
           scroll={{ x: 'calc(100% - 200px)', y: 400 }}
         />
       </Spin>

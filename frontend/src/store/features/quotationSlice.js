@@ -305,8 +305,6 @@ export const quotationSlice = createSlice({
 
       if (
         productType?.label !== 'Service' &&
-        // key !== 'rate' &&
-        // key === 'markup' &&
         (key === 'markup' || key === 'cost_price') &&
         detail.cost_price &&
         detail.markup !== null &&
@@ -679,41 +677,7 @@ export const quotationSlice = createSlice({
     addCase(getVendor.pending, (state) => {
       state.isItemVendorLoading = true;
     });
-    // addCase(getVendor.fulfilled, (state, action) => {
-    //   state.isItemVendorLoading = false;
-    //   const data = action.payload;
-
-    //   state.vendorDetails = [];
-
-    //   const groupedByProduct = data.reduce((acc, curr) => {
-    //     const key = curr.quotation_detail_id;
-    //     if (!acc[key]) {
-    //       // console.log('Product Name:', curr.quotation_detail?.product_name);
-    //       // console.log('quotation_detail:', curr.quotation_detail);
-    //       // console.log('curr:', curr);
-    //       acc[key] = {
-    //         ...curr.quotation_detail,
-    //         product_name: curr.quotation_detail ? curr.quotation_detail.product_name : '',
-    //         product_type_id: curr.quotation_detail ? curr.quotation_detail.product_type_id : '',
-    //         quotation_detail_id: key,
-    //         vendors: [],
-    //       };
-    //     }
-
-    //     acc[key].vendors.push({
-    //       supplier_id: curr.vendor
-    //         ? { value: curr.vendor.supplier_id, label: curr.vendor.name }
-    //         : null,
-    //       rate: curr.vendor_rate,
-    //       isPrimary: curr.is_primary_vendor === 1,
-    //     });
-
-    //     return acc;
-    //   }, {});
-
-    //   state.vendorDetails = Object.values(groupedByProduct);
-    // });
-
+    
     addCase(getVendor.fulfilled, (state, action) => {
       state.isItemVendorLoading = false;
       const data = action.payload;
