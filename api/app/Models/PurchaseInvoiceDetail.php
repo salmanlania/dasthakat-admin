@@ -11,6 +11,7 @@ class PurchaseInvoiceDetail extends Model
     protected $table = 'purchase_invoice_detail';
     protected $primaryKey = 'purchase_invoice_detail_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
 
     protected $fillable = [
@@ -33,6 +34,13 @@ class PurchaseInvoiceDetail extends Model
         "created_by",
         "updated_by"
     ];
+    protected $casts = [
+        'po_price' => 'float',
+        'quantity' => 'float',
+        'rate' => 'float',
+        'amount' => 'float',
+    ];
+
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id', 'product_id')->select('*',DB::raw("CONCAT(impa_code, ' ', name) as product_name"));

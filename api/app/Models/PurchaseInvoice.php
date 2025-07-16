@@ -11,6 +11,7 @@ class PurchaseInvoice extends Model
     protected $table = 'purchase_invoice';
     protected $primaryKey = 'purchase_invoice_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         "company_id",
@@ -39,6 +40,13 @@ class PurchaseInvoice extends Model
         "created_by",
         "updated_by"
     ];
+    protected $casts = [
+        'total_quantity' => 'float',
+        'total_amount' => 'float',
+        'net_amount' => 'float',
+        'freight' => 'float',
+    ];
+
   
     public function purchase_invoice_detail()
     {

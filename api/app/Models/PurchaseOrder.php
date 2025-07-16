@@ -11,6 +11,7 @@ class PurchaseOrder extends Model
     protected $table = 'purchase_order';
     protected $primaryKey = 'purchase_order_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         "company_id",
@@ -37,7 +38,11 @@ class PurchaseOrder extends Model
         "created_by",
         "updated_by"
     ];
-  
+    protected $casts = [
+        'total_quantity' => 'float',
+        'total_amount' => 'float',
+    ];
+    
     public function purchase_order_detail()
     {
         return $this->hasMany(PurchaseOrderDetail::class, 'purchase_order_id','purchase_order_id')->orderBy('sort_order');

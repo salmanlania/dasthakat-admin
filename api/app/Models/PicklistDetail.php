@@ -10,6 +10,7 @@ class PicklistDetail extends Model
     protected $table = 'picklist_detail';
     protected $primaryKey = 'picklist_detail_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         "picklist_id",
@@ -22,6 +23,10 @@ class PicklistDetail extends Model
         "created_by",
         "updated_by"
     ];
+    protected $casts = [
+        'quantity' => 'float',
+    ];
+
     public function charge_order_detail()
     {
         return $this->belongsTo(ChargeOrderDetail::class, 'charge_order_detail_id', 'charge_order_detail_id')->select('*');

@@ -11,6 +11,7 @@ class GRNDetail extends Model
     protected $table = 'good_received_note_detail';
     protected $primaryKey = 'good_received_note_detail_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
 
     protected $fillable = [
@@ -36,6 +37,11 @@ class GRNDetail extends Model
         "vendor_notes",
         "created_by",
         "updated_by"
+    ];
+    protected $casts = [
+        'quantity' => 'float',
+        'rate' => 'float',
+        'amount' => 'float',
     ];
     public function grn()
     {

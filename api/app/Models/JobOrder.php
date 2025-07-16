@@ -11,6 +11,7 @@ class JobOrder extends Model
     protected $table = 'job_order';
     protected $primaryKey = 'job_order_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         "company_id",

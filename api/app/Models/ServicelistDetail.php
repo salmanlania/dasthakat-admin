@@ -10,6 +10,7 @@ class ServicelistDetail extends Model
     protected $table = 'servicelist_detail';
     protected $primaryKey = 'servicelist_detail_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         "servicelist_id",
@@ -21,6 +22,10 @@ class ServicelistDetail extends Model
         "created_by",
         "updated_by"
     ];
+    protected $casts = [
+        'quantity' => 'float',
+    ];
+
     public function charge_order_detail()
     {
         return $this->belongsTo(ChargeOrderDetail::class, 'charge_order_detail_id', 'charge_order_detail_id')->select('*');

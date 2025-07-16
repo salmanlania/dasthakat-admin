@@ -9,6 +9,8 @@ class ServiceOrderDetail extends Model
     protected $table = 'service_order_detail';
     protected $primaryKey = 'service_order_detail_id';
     public $incrementing = false;
+    protected $keyType = 'string';
+
     protected $fillable = [
         'service_order_id',
         'service_order_detail_id',
@@ -28,6 +30,9 @@ class ServiceOrderDetail extends Model
         'created_by',
         'updated_at',
         'updated_by',
+    ];
+    protected $casts = [
+        'quantity' => 'float',
     ];
 
     public function service_order()
