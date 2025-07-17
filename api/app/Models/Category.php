@@ -7,6 +7,7 @@ class Category extends Model
 {
     protected $table = 'category';
     protected $primaryKey = 'category_id'; 
+    protected $keyType = 'string';
     public $incrementing = false; 
     protected $fillable = [
         'company_id','company_branch_id','category_id','name','created_by','updated_by'

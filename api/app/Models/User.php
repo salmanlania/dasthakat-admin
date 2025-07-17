@@ -16,6 +16,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
     protected $primaryKey = 'user_id'; 
     public $incrementing = false; 
+    protected $keyType = 'string';
 
     // protected $connection = 'mysql';
     protected $table = 'user';

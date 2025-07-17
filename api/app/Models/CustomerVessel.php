@@ -16,6 +16,7 @@ class CustomerVessel extends Model implements AuthenticatableContract, Authoriza
 
     protected $primaryKey = 'customer_vessel_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     // protected $connection = 'mysql';
     protected $table = 'customer_vessel';

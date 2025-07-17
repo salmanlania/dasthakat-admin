@@ -8,6 +8,7 @@ class VendorQuotationDetail extends Model
     protected $table = 'vendor_quotation_detail';
     protected $primaryKey = 'vendor_quotation_detail_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         'company_id', 

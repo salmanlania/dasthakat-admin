@@ -222,18 +222,18 @@ export const createPurchaseReturnPrint = (data) => {
     ? data.purchase_return_detail.map((detail, index) => [
       index + 1,
       detail?.product?.impa_code || '',
-      detail.quantity ? parseFloat(detail.quantity) : '',
+      detail.quantity ? parseFloat(detail.quantity) : 0,
       detail.unit ? detail.unit.name : '',
       {
         content: detail?.product_description || '',
         styles: { halign: 'left' }
       },
       {
-        content: detail.rate ? formatThreeDigitCommas(detail.rate) : '',
+        content: detail.rate ? formatThreeDigitCommas(detail.rate) : 0,
         styles: { halign: 'right' }
       },
       {
-        content: detail.amount ? formatThreeDigitCommas(detail.amount) : '',
+        content: detail.amount ? formatThreeDigitCommas(detail.amount) : 0,
         styles: { halign: 'right' }
       }
     ])

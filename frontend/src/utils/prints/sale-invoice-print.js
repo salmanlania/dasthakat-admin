@@ -254,12 +254,12 @@ export const createSaleInvoicePrint = async (data) => {
     data.sale_invoice_detail.forEach((detail) => {
       const sr = detail.sort_order + 1;
       const description = `${detail?.product_description || ''}${detail?.description ? `\n \n${detail.description}` : ''}`;
-      const quantity = detail.quantity ? formatThreeDigitCommas(parseFloat(detail.quantity)) : '';
+      const quantity = detail.quantity ? formatThreeDigitCommas(parseFloat(detail.quantity)) : 0;
       const uom = detail.unit ? detail.unit.name : '';
-      const pricePerUnit = detail.rate ? `$${formatThreeDigitCommas(detail.rate)}` : '';
+      const pricePerUnit = detail.rate ? `$${formatThreeDigitCommas(detail.rate)}` : 0;
       const netAmount = detail.amount
         ? `$${formatThreeDigitCommas(detail.amount)}`
-        : '';
+        : 0;
 
       const row = [
         sr,

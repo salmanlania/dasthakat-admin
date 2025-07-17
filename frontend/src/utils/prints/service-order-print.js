@@ -305,7 +305,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth, eventDate) => {
         },
         {
           content: (() => {
-            const quantity = parseFloat(detail?.quantity);
+            const quantity = parseFloat(detail?.quantity ? detail?.quantity : 0);
             if (!isNaN(quantity)) {
               const finalValue = quantity % 1 === 0
                 ? Math.floor(quantity)

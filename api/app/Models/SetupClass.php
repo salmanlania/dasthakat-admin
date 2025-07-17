@@ -8,6 +8,7 @@ class SetupClass extends Model
 {
     protected $table = 'class';
     protected $primaryKey = 'class_id';
+    protected $keyType = 'string';
     public $incrementing = false;
     protected $fillable = [
         'company_id',

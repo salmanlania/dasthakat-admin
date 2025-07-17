@@ -11,7 +11,8 @@ class ChargeOrderDetail extends Model
     protected $table = 'charge_order_detail';
     protected $primaryKey = 'charge_order_detail_id';
     public $incrementing = false;
-
+    protected $keyType = 'string';
+    
     protected $casts = [
         'quantity' => 'float',
         'cost_price' => 'float',
