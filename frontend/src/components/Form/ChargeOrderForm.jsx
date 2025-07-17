@@ -854,10 +854,11 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
       dataIndex: 'markup',
       key: 'markup',
       render: (_, { markup, product_type_id, product_type }, index) => {
-        const newMarkup = Number(markup)
-          .toString()
-          .replace(/(\.\d*?)0+$/, '$1')
-          .replace(/\.$/, '');
+        console.log('markup', markup);
+        // const newMarkup = Number(markup)
+        //   .toString()
+        //   .replace(/(\.\d*?)0+$/, '$1')
+        //   .replace(/\.$/, '');
         return (
           <DebouncedNumberInput
             value={product_type_id?.value == 1 ? 0 : markup}

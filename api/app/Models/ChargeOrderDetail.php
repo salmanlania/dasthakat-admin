@@ -16,7 +16,7 @@ class ChargeOrderDetail extends Model
     protected $casts = [
         'quantity' => 'float',
         'cost_price' => 'float',
-        'markup' => 'float',
+        // 'markup' => 'float',
         'rate' => 'float',
         'amount' => 'float',
         'discount_amount' => 'float',

@@ -301,7 +301,7 @@ export const quotationSlice = createSlice({
 
       detail[key] = value;
       const productType = detail.product_type_id;
-      let fullRate;
+      
       if (
         productType?.label !== 'Service' &&
         (key === 'markup' || key === 'cost_price') &&
@@ -311,19 +311,29 @@ export const quotationSlice = createSlice({
       ) { 
         detail.rate = roundUpto(+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
         detail.full_rate = (+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
+        detail.old_rate = roundUpto(+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
       }
 
       if (detail.quantity && detail.rate) {
         detail.amount = roundUpto(+detail.quantity * +detail.rate);
 
         if (key === 'rate' && +detail.cost_price && +detail.rate) { 
+          // detail.full_rate = detail.rate;
+          if(detail.old_rate != detail.rate){
+
+            detail.markup = roundUpto(
+              ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100,
+            );
+          }
           // // console.log(`rate:${detail.rate}, cost_price:${detail.cost_price}`);
           // // console.log('beforeRoundUPTO, ', ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100)
-          detail.markup = roundUpto(
-            ((+detail.full_rate - +detail.cost_price) / +detail.cost_price) * 100,
-          );
-          // // console.log('detail.markup', detail.markup);
-          // // console.log('key, value' , key, value)
+
+          //  console.log('detail' , {
+          //   full_rate : detail.full_rate,
+          //   rate : detail.rate,
+          //   cost_price : detail.cost_price,
+          //   markup : detail.markup,
+          //  });
         }
       } else {
         detail.amount = '';
@@ -384,6 +394,7 @@ export const quotationSlice = createSlice({
         quantity: detail.stock_quantity,
         rate: detail.rate,
         full_rate: detail.full_rate,
+        old_rate: detail.old_rate,
         cost_price: detail.cost_price,
         markup: detail.markup,
         amount: detail.rate * detail.stock_quantity,
@@ -411,6 +422,7 @@ export const quotationSlice = createSlice({
         quantity: splittedQuantity,
         rate: detail.rate,
         full_rate: detail.full_rate,
+        old_rate: detail.old_rate,
         amount: detail.rate * splittedQuantity,
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_percent
@@ -628,6 +640,7 @@ export const quotationSlice = createSlice({
         markup: detail.markup,
         rate: detail.rate,
         full_rate: detail.rate,
+        old_rate: detail.rate,
         amount: detail.amount,
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_amount,
@@ -849,6 +862,7 @@ export const quotationSlice = createSlice({
         markup: detail.markup,
         rate: detail.rate,
         full_rate: detail.full_rate,
+        old_rate: detail.old_rate,
         amount: detail.amount,
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_amount,
