@@ -8,6 +8,7 @@ import utils.BaseTest;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Random;
 
 public class ChargeOrderPage extends BaseTest {
     WebDriver driver;
@@ -306,6 +307,48 @@ public class ChargeOrderPage extends BaseTest {
                 By.cssSelector(".ant-pagination-mini li.ant-pagination-total-text")
         ));
         return paragraph.getText();
+    }
+    public String getITotalPaginationText() {
+        WebElement paragraph = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector(".ant-pagination-mini li.ant-pagination-total-text")
+        ));
+        return paragraph.getText();
+    }
+
+    public String getChargeOrderFromNumberFromListView() {
+
+        List<WebElement> allRows = driver.findElements(By.cssSelector("tbody.ant-table-tbody > tr"));
+
+        if (allRows.isEmpty()) {
+            System.out.println("No rows found.");
+            return null;
+        }
+
+        Random random = new Random();
+        for (int i = 0; i < allRows.size(); i++) {
+            int randomIndex = random.nextInt(allRows.size());
+            WebElement randomRow = allRows.get(randomIndex);
+            List<WebElement> allTds = randomRow.findElements(By.tagName("td"));
+
+            if (allTds.size() >= 3) {
+                return allTds.get(2).getText();
+            }
+        }
+
+        System.out.println("No valid row with at least 3 <td> found.");
+        return null;
+    }
+
+    public void verifyGlobalSearchOfChargeOrder(String getChargeOrderNoForSearch){
+        wait.until(ExpectedConditions.visibilityOfElementLocated(GLOBAL_SEARCH_IJO)).sendKeys(getChargeOrderNoForSearch);
+        String expected="Total 1 charge orders";
+        wait.until(ExpectedConditions.visibilityOfElementLocated(CLICK_SINGLE_DELETE_BUTTON_CHARGE_ORDER_ON_LIST_VIEW));
+
+        String actualText= getITotalPaginationText();
+        Assert.assertEquals(actualText, expected, "Pagination text does not match!");
+
+
+
     }
     public void verifyThatIJOisCreatedSingleForTheEvent(String eventNumberOfCO, String beforSearchTotal ){
         wait.until(ExpectedConditions.visibilityOfElementLocated(GLOBAL_SEARCH_IJO)).sendKeys(eventNumberOfCO);

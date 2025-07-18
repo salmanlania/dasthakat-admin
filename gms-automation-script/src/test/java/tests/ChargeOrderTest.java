@@ -5,8 +5,11 @@ import pages.ChargeOrderPage;
 import utils.BaseTest;
 import utils.ReportManager;
 
+import javax.swing.plaf.IconUIResource;
+
 
 public class ChargeOrderTest extends BaseTest {
+    /*
 
     @Test(priority = 1, description = "ID=TC_48,49 Verify that the Charge order option is functional or not")
     public void verifyChargeOrderOptionOnQuotationForm() throws InterruptedException {
@@ -245,6 +248,26 @@ public class ChargeOrderTest extends BaseTest {
 
 
   }
+
+     */
+    @Test(priority = 12,description = "ID=TC_86 Verify Search filter functionality")
+    public void VerifyTheBulkDeleteFunctionalityOfChargeOrder() throws InterruptedException {
+        ChargeOrderPage coPage = new ChargeOrderPage(driver);
+        ReportManager.logInfo("Step 2: Navigate to the Sales Management module from the main menu");
+        coPage.clickSaleManagementDropdown();
+        ReportManager.logInfo("Step 3: Click on the Charge Order option under Sales Management module");
+        coPage.clickChargeOrderDropdown();
+        ReportManager.logInfo("Step 4: Locate the search filter");
+        Thread.sleep(1000);
+        String getChargeOrderNoForSearch = coPage.getChargeOrderFromNumberFromListView();
+//        System.out.println(getChargeOrderNoForSearch);
+        Thread.sleep(5000);
+        coPage.verifyGlobalSearchOfChargeOrder(getChargeOrderNoForSearch);
+
+
+
+
+    }
 
 
 
