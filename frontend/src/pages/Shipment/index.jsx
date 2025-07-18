@@ -8,35 +8,37 @@ import {
   Popconfirm,
   Spin,
   Table,
-  Tooltip
+  Tooltip,
 } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { FaRegFilePdf } from 'react-icons/fa';
 import { GoTrash } from 'react-icons/go';
 import { MdOutlineEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { FaRegFilePdf } from 'react-icons/fa';
 import AsyncSelect from '../../components/AsyncSelect/index.jsx';
 import PageHeading from '../../components/Heading/PageHeading.jsx';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal.jsx';
 import useDebounce from '../../hooks/useDebounce.js';
+import useDocumentTitle from '../../hooks/useDocumentTitle.js';
 import useError from '../../hooks/useError.jsx';
+import { getChargeOrder } from '../../store/features/chargeOrderSlice.js';
 import {
   bulkDeleteShipment,
   createShipment,
   deleteShipment,
+  getShipmentForPrint,
   getShipmentList,
   setShipmentDeleteIDs,
   setShipmentListParams,
   viewBeforeCreate,
-  getShipmentForPrint
 } from '../../store/features/shipmentSlice.js';
-import { getChargeOrder } from '../../store/features/chargeOrderSlice.js';
 import { createShipmentPrint } from '../../utils/prints/shipment-print.js';
 
 const Shipment = () => {
+  useDocumentTitle('Shipment List');
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const handleError = useError();
@@ -47,7 +49,7 @@ const Shipment = () => {
     paginationInfo,
     isBulkDeleting,
     deleteIDs,
-    isFormSubmitting
+    isFormSubmitting,
   } = useSelector((state) => state.shipment);
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.shipment;
@@ -109,14 +111,14 @@ const Shipment = () => {
         viewBeforeCreate({
           event_id: values.event_id.value,
           charge_order_id: values?.charge_order_id?.value || null,
-          type: 'DO'
-        })
+          type: 'DO',
+        }),
       ).unwrap();
       setChargeData(res);
       setCreateModalIsOpen(true);
     } catch (error) {
       handleError(error);
-      closeCreateModal()
+      closeCreateModal();
     } finally {
       setChargeDataGetting(false);
     }
@@ -135,14 +137,14 @@ const Shipment = () => {
         viewBeforeCreate({
           event_id: values.event_id.value,
           charge_order_id: values?.charge_order_id?.value || null,
-          type: 'SO'
-        })
+          type: 'SO',
+        }),
       ).unwrap();
       setCreateModalIsOpen(true);
       setChargeData(res);
     } catch (error) {
       handleError(error);
-      closeCreateModal()
+      closeCreateModal();
     } finally {
       setChargeDataGetting(false);
     }
@@ -152,7 +154,7 @@ const Shipment = () => {
     const filteredChargeData = chargeData
       .map((charge) => ({
         ...charge,
-        details: charge.details.filter((detail) => detail.checked)
+        details: charge.details.filter((detail) => detail.checked),
       }))
       .filter((charge) => charge.details.length > 0);
 
@@ -163,8 +165,8 @@ const Shipment = () => {
           event_id: values.event_id.value,
           charge_order_id: values?.charge_order_id?.value || null,
           type: shipmentType,
-          shipment: filteredChargeData
-        })
+          shipment: filteredChargeData,
+        }),
       ).unwrap();
       toast.success('Shipment created successfully');
       form.resetFields();
@@ -177,7 +179,7 @@ const Shipment = () => {
 
   const onChargeOrderChange = async (selected) => {
     form.setFieldsValue({
-      event_id: null
+      event_id: null,
     });
 
     try {
@@ -186,9 +188,9 @@ const Shipment = () => {
         event_id: res.event
           ? {
               value: res.event.event_id,
-              label: res.event.event_code
+              label: res.event.event_code,
             }
-          : null
+          : null,
       });
     } catch (error) {
       handleError(error);
@@ -204,11 +206,11 @@ const Shipment = () => {
             if (detail.charge_order_detail_id === chargeDetailId) {
               return {
                 ...detail,
-                checked: detail.checked ? false : true
+                checked: detail.checked ? false : true,
               };
             }
             return detail;
-          })
+          }),
         };
       }
       return charge;
@@ -226,8 +228,8 @@ const Shipment = () => {
           ...charge,
           details: charge.details.map((detail) => ({
             ...detail,
-            checked: !allChecked
-          }))
+            checked: !allChecked,
+          })),
         };
       }
       return charge;
@@ -241,17 +243,17 @@ const Shipment = () => {
     return charge ? charge.details.every((detail) => detail.checked) : false;
   };
 
-    const printSODO = async (id) => {
-      const loadingToast = toast.loading('Loading print...');
-  
-      try {
-        const data = await dispatch(getShipmentForPrint(id)).unwrap();
-        toast.dismiss(loadingToast);
-        createShipmentPrint(data);
-      } catch (error) {
-        handleError(error);
-      }
-    };
+  const printSODO = async (id) => {
+    const loadingToast = toast.loading('Loading print...');
+
+    try {
+      const data = await dispatch(getShipmentForPrint(id)).unwrap();
+      toast.dismiss(loadingToast);
+      createShipmentPrint(data);
+    } catch (error) {
+      handleError(error);
+    }
+  };
 
   const columns = [
     {
@@ -271,7 +273,7 @@ const Shipment = () => {
       key: 'document_identity',
       sorter: true,
       width: 120,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -292,7 +294,7 @@ const Shipment = () => {
       key: 'event_code',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -313,7 +315,7 @@ const Shipment = () => {
       key: 'salesman_name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -333,7 +335,7 @@ const Shipment = () => {
       sorter: true,
       dataIndex: 'vessel_name',
       key: 'vessel_name',
-      width: 220
+      width: 220,
     },
     {
       title: (
@@ -352,7 +354,7 @@ const Shipment = () => {
       key: 'imo',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -372,7 +374,7 @@ const Shipment = () => {
       sorter: true,
       dataIndex: 'flag_name',
       key: 'flag_name',
-      width: 120
+      width: 120,
     },
     {
       title: (
@@ -392,7 +394,7 @@ const Shipment = () => {
       sorter: true,
       dataIndex: 'class1_name',
       key: 'class1_name',
-      width: 120
+      width: 120,
     },
     {
       title: (
@@ -412,7 +414,7 @@ const Shipment = () => {
       sorter: true,
       dataIndex: 'class2_name',
       key: 'class2_name',
-      width: 120
+      width: 120,
     },
     {
       title: 'Created At',
@@ -420,7 +422,7 @@ const Shipment = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: 'Action',
@@ -466,8 +468,8 @@ const Shipment = () => {
         </div>
       ),
       width: 100,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -489,7 +491,7 @@ const Shipment = () => {
     params.class2_id,
     debouncedSearch,
     debouncedCode,
-    debouncedIMO
+    debouncedIMO,
   ]);
 
   return (
@@ -572,7 +574,7 @@ const Shipment = () => {
               ? {
                   type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setShipmentDeleteIDs(selectedRowKeys))
+                  onChange: (selectedRowKeys) => dispatch(setShipmentDeleteIDs(selectedRowKeys)),
                 }
               : null
           }
@@ -584,7 +586,7 @@ const Shipment = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} shipments`
+            showTotal: (total) => `Total ${total} shipments`,
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -592,15 +594,15 @@ const Shipment = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

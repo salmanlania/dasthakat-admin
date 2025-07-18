@@ -10,20 +10,22 @@ import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
   bulkDeleteEvent,
   deleteEvent,
   getEventList,
   setEventDeleteIDs,
-  setEventListParams
+  setEventListParams,
 } from '../../store/features/eventSlice';
 
 const Event = () => {
+  useDocumentTitle('Event List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.event
+    (state) => state.event,
   );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.event;
@@ -73,7 +75,7 @@ const Event = () => {
       key: 'event_code',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -94,7 +96,7 @@ const Event = () => {
       key: 'customer_name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -115,7 +117,7 @@ const Event = () => {
       key: 'vessel_name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -136,7 +138,7 @@ const Event = () => {
       key: 'class1_name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -157,7 +159,7 @@ const Event = () => {
       key: 'class2_name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -170,12 +172,12 @@ const Event = () => {
             options={[
               {
                 value: 1,
-                label: 'Active'
+                label: 'Active',
               },
               {
                 value: 0,
-                label: 'Inactive'
-              }
+                label: 'Inactive',
+              },
             ]}
             value={params.status}
             onChange={(value) => dispatch(setEventListParams({ status: value }))}
@@ -196,7 +198,7 @@ const Event = () => {
             Inactive
           </Tag>
         ),
-      width: 120
+      width: 120,
     },
     {
       title: 'Created At',
@@ -204,7 +206,7 @@ const Event = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: 'Action',
@@ -239,8 +241,8 @@ const Event = () => {
         </div>
       ),
       width: 70,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -261,7 +263,7 @@ const Event = () => {
     params.class2_id,
     params.status,
     debouncedSearch,
-    debouncedCode
+    debouncedCode,
   ]);
 
   return (
@@ -274,7 +276,8 @@ const Event = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setEventListParams({ search: e.target.value }))}
@@ -303,7 +306,7 @@ const Event = () => {
               ? {
                   type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setEventDeleteIDs(selectedRowKeys))
+                  onChange: (selectedRowKeys) => dispatch(setEventDeleteIDs(selectedRowKeys)),
                 }
               : null
           }
@@ -315,7 +318,7 @@ const Event = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} events`
+            showTotal: (total) => `Total ${total} events`,
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -323,15 +326,15 @@ const Event = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

@@ -4,10 +4,12 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import OpeningStockForm from '../../components/Form/OpeningStockForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { createOpeningStock } from '../../store/features/openingStockSlice';
 
 const CreateOpeningStock = () => {
+  useDocumentTitle('Create Opening Stock');
   const navigate = useNavigate();
   const handleError = useError();
   const dispatch = useDispatch();

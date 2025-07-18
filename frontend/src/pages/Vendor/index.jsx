@@ -15,14 +15,16 @@ import {
   deleteVendor,
   getVendorList,
   setVendorDeleteIDs,
-  setVendorListParams
+  setVendorListParams,
 } from '../../store/features/vendorSlice';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const Vendor = () => {
+  useDocumentTitle('Vendor List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.vendor
+    (state) => state.vendor,
   );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.supplier;
@@ -78,7 +80,7 @@ const Vendor = () => {
       key: 'supplier_code',
       sorter: true,
       width: 120,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -97,7 +99,7 @@ const Vendor = () => {
       key: 'name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -110,12 +112,12 @@ const Vendor = () => {
             options={[
               {
                 value: 1,
-                label: 'Active'
+                label: 'Active',
               },
               {
                 value: 0,
-                label: 'Inactive'
-              }
+                label: 'Inactive',
+              },
             ]}
             allowClear
             value={params.status}
@@ -136,7 +138,7 @@ const Vendor = () => {
             Inactive
           </Tag>
         ),
-      width: 120
+      width: 120,
     },
     {
       title: (
@@ -155,7 +157,7 @@ const Vendor = () => {
       key: 'location',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -174,7 +176,7 @@ const Vendor = () => {
       key: 'contact1',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -193,7 +195,7 @@ const Vendor = () => {
       key: 'contact2',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -212,7 +214,7 @@ const Vendor = () => {
       key: 'email',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -231,7 +233,7 @@ const Vendor = () => {
       key: 'address',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: 'Created At',
@@ -239,7 +241,7 @@ const Vendor = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: 'Action',
@@ -274,8 +276,8 @@ const Vendor = () => {
         </div>
       ),
       width: 70,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -297,7 +299,7 @@ const Vendor = () => {
     debouncedContact1,
     debouncedContact2,
     debouncedEmail,
-    debouncedAddress
+    debouncedAddress,
   ]);
 
   return (
@@ -310,7 +312,8 @@ const Vendor = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setVendorListParams({ search: e.target.value }))}
@@ -341,7 +344,7 @@ const Vendor = () => {
               ? {
                   type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setVendorDeleteIDs(selectedRowKeys))
+                  onChange: (selectedRowKeys) => dispatch(setVendorDeleteIDs(selectedRowKeys)),
                 }
               : null
           }
@@ -353,7 +356,7 @@ const Vendor = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} vendors`
+            showTotal: (total) => `Total ${total} vendors`,
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -361,15 +364,15 @@ const Vendor = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

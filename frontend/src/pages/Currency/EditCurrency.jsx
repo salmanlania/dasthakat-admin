@@ -5,10 +5,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import CurrencyForm from '../../components/Form/CurrencyForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { getCurrency, updateCurrency } from '../../store/features/currencySlice';
 
 const EditCurrency = () => {
+  useDocumentTitle('Edit Currency');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();

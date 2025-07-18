@@ -1,7 +1,15 @@
 import { Breadcrumb, Button, Dropdown, Form, Select, Table } from 'antd';
-import PageHeading from '../../components/Heading/PageHeading';
-import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import toast from 'react-hot-toast';
+import { BiPlus } from 'react-icons/bi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
+import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
+import { useDispatch, useSelector } from 'react-redux';
+import AsyncSelect from '../../components/AsyncSelect';
+import PageHeading from '../../components/Heading/PageHeading';
+import DebouncedNumberInput from '../../components/Input/DebouncedNumberInput';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
+import useError from '../../hooks/useError';
 import {
   addCommissionDetail,
   changeCommissionDetailOrder,
@@ -12,15 +20,9 @@ import {
   resetCommissionDetails,
   updateVesselAgent,
 } from '../../store/features/vesselSlice';
-import DebouncedNumberInput from '../../components/Input/DebouncedNumberInput';
-import AsyncSelect from '../../components/AsyncSelect';
-import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
-import { BiPlus } from 'react-icons/bi';
-import useError from '../../hooks/useError';
-import toast from 'react-hot-toast';
-import { useEffect } from 'react';
 
 const VesselAgent = () => {
+  useDocumentTitle('Vessel Agent');
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const handleError = useError();
@@ -31,7 +33,7 @@ const VesselAgent = () => {
     (state) => state.vessel,
   );
 
-  console.log('commissionDetails', commissionDetails)
+  console.log('commissionDetails', commissionDetails);
 
   const columns = [
     {
@@ -93,11 +95,12 @@ const VesselAgent = () => {
             className="m-0"
             name={['commission_type', index]}
             initialValue={record.type ?? undefined}
-            rules={[{
-              required: true,
-              message: "Commission type is required"
-            }]}
-          >
+            rules={[
+              {
+                required: true,
+                message: 'Commission type is required',
+              },
+            ]}>
             <Select
               className="w-full"
               options={[
@@ -131,11 +134,12 @@ const VesselAgent = () => {
             className="m-0"
             name={['commission_agent_id', index]}
             initialValue={record.commission_agent_id ?? undefined}
-            rules={[{
-              required: true,
-              message: "Commission Agent is required"
-            }]}
-          >
+            rules={[
+              {
+                required: true,
+                message: 'Commission Agent is required',
+              },
+            ]}>
             <AsyncSelect
               endpoint="/commission-agent"
               valueKey="commission_agent_id"
@@ -168,11 +172,12 @@ const VesselAgent = () => {
             className="m-0"
             name={['commission_percentage', index]}
             initialValue={record.commission_percentage ?? undefined}
-            rules={[{
-              required: true,
-              message: "Commission percentage is required"
-            }]}
-          >
+            rules={[
+              {
+                required: true,
+                message: 'Commission percentage is required',
+              },
+            ]}>
             <DebouncedNumberInput
               type="decimal"
               onChange={(value) =>
@@ -200,11 +205,12 @@ const VesselAgent = () => {
             className="m-0"
             name={['status', index]}
             initialValue={record.status ?? undefined}
-            rules={[{
-              required: true,
-              message: "Status is required"
-            }]}
-          >
+            rules={[
+              {
+                required: true,
+                message: 'Status is required',
+              },
+            ]}>
             <Select
               className="w-full"
               options={[
@@ -294,7 +300,6 @@ const VesselAgent = () => {
 
   const updateDetails = async () => {
     try {
-
       await form.validateFields();
       const vesselID = form.getFieldValue('vessel_id');
 

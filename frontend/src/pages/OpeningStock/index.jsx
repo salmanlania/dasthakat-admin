@@ -1,19 +1,18 @@
-import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Table, Tooltip, Upload } from 'antd';
+import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { FaRegFilePdf } from 'react-icons/fa';
 import { GoTrash } from 'react-icons/go';
 import { MdOutlineEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
 import ChargeOrderModal from '../../components/Modals/ChargeOrderModal';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
-import useDebounce from '../../hooks/useDebounce';
-import useError from '../../hooks/useError';
 import ImportOpeningStockModal from '../../components/Modals/ImportOpeningStockModal';
+import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
+import useError from '../../hooks/useError';
 import {
   bulkDeleteOpeningStock,
   createOpeningStock,
@@ -21,16 +20,17 @@ import {
   getOpeningStockForPrint,
   getOpeningStockList,
   setOpeningStockDeleteIDs,
-  setOpeningStockListParams
+  setOpeningStockListParams,
 } from '../../store/features/openingStockSlice';
 import { getPurchaseOrder } from '../../store/features/purchaseOrderSlice';
 import { createOpeningStockPrint } from '../../utils/prints/opening-stock-print';
 
 const OpeningStock = () => {
+  useDocumentTitle('Opening Stock List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.openingStock
+    (state) => state.openingStock,
   );
   const { user } = useSelector((state) => state.auth);
   const otherPermissions = user.permission;
@@ -49,7 +49,7 @@ const OpeningStock = () => {
 
   const formattedParams = {
     ...params,
-    document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null
+    document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null,
   };
 
   const onOpeningStockDelete = async (id) => {
@@ -89,7 +89,7 @@ const OpeningStock = () => {
     try {
       setIsGRNCreating(true);
       const { purchase_order_detail, supplier } = await dispatch(
-        getPurchaseOrder(selectedPO)
+        getPurchaseOrder(selectedPO),
       ).unwrap();
 
       const details = purchase_order_detail
@@ -105,7 +105,7 @@ const OpeningStock = () => {
           description: detail.description,
           quantity: detail?.available_quantity ? parseFloat(detail?.available_quantity) : 0,
           unit_id: detail.unit ? detail.unit.unit_id : null,
-          sort_order: index
+          sort_order: index,
         }))
         .filter((detail) => detail.quantity > 0);
 
@@ -116,7 +116,7 @@ const OpeningStock = () => {
         purchase_order_id: selectedPO,
         supplier_id: supplier?.supplier_id,
         good_received_note_detail: details,
-        total_quantity: totalQuantity
+        total_quantity: totalQuantity,
       };
 
       await dispatch(createOpeningStock(payload)).unwrap();
@@ -163,7 +163,7 @@ const OpeningStock = () => {
       width: 160,
       ellipsis: true,
       render: (_, { document_date }) =>
-        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null
+        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null,
     },
     {
       title: (
@@ -178,8 +178,8 @@ const OpeningStock = () => {
             onChange={(e) =>
               dispatch(
                 setOpeningStockListParams({
-                  document_identity: e.target.value
-                })
+                  document_identity: e.target.value,
+                }),
               )
             }
           />
@@ -189,25 +189,25 @@ const OpeningStock = () => {
       key: 'document_identity',
       sorter: true,
       width: 160,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: 'Total Quantity',
       dataIndex: 'total_quantity',
       key: 'total_quantity',
-      width: 140
+      width: 140,
     },
     {
       title: 'Total Amount',
       dataIndex: 'total_amount',
       key: 'total_amount',
-      width: 140
+      width: 140,
     },
     {
       title: 'Remarks',
       dataIndex: 'remarks',
       key: 'remarks',
-      width: 140
+      width: 140,
     },
     {
       title: 'Created At',
@@ -215,7 +215,7 @@ const OpeningStock = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: 'Action',
@@ -245,18 +245,17 @@ const OpeningStock = () => {
                   okButtonProps={{ danger: true }}
                   okText="Yes"
                   cancelText="No"
-                  onConfirm={() => onOpeningStockDelete(opening_stock_id)}
-                >
+                  onConfirm={() => onOpeningStockDelete(opening_stock_id)}>
                   <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                 </Popconfirm>
               </Tooltip>
             ) : null}
           </div>
-        )
+        );
       },
       width: 90,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -276,7 +275,7 @@ const OpeningStock = () => {
     params.supplier_id,
     params.purchase_order_id,
     debouncedSearch,
-    debouncedOpeningStockNo
+    debouncedOpeningStockNo,
   ]);
 
   return (
@@ -314,9 +313,8 @@ const OpeningStock = () => {
             {permissions.add ? (
               <Button
                 type="primary"
-                className="bg-blue-500 hover:!bg-blue-600 border-none"
-                onClick={() => setImportModalOpen(true)}
-              >
+                className="border-none bg-blue-500 hover:!bg-blue-600"
+                onClick={() => setImportModalOpen(true)}>
                 Import
               </Button>
             ) : null}
@@ -328,11 +326,11 @@ const OpeningStock = () => {
           rowSelection={
             permissions.delete
               ? {
-                type: 'checkbox',
-                selectedRowKeys: deleteIDs,
-                onChange: (selectedRowKeys) =>
-                  dispatch(setOpeningStockDeleteIDs(selectedRowKeys))
-              }
+                  type: 'checkbox',
+                  selectedRowKeys: deleteIDs,
+                  onChange: (selectedRowKeys) =>
+                    dispatch(setOpeningStockDeleteIDs(selectedRowKeys)),
+                }
               : null
           }
           loading={isListLoading}
@@ -343,7 +341,7 @@ const OpeningStock = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} opening stock`
+            showTotal: (total) => `Total ${total} opening stock`,
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -351,15 +349,15 @@ const OpeningStock = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

@@ -8,34 +8,33 @@ import {
   Popconfirm,
   Spin,
   Table,
-  Tooltip
+  Tooltip,
 } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { GoTrash } from 'react-icons/go';
-import { MdOutlineEdit } from 'react-icons/md';
 import { FaRegFilePdf } from 'react-icons/fa';
+import { GoTrash } from 'react-icons/go';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect/index.jsx';
 import PageHeading from '../../components/Heading/PageHeading.jsx';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal.jsx';
 import useDebounce from '../../hooks/useDebounce.js';
+import useDocumentTitle from '../../hooks/useDocumentTitle.js';
 import useError from '../../hooks/useError.jsx';
 import {
   bulkDeleteServiceOrder,
   deleteServiceOrder,
+  getServiceOrderForPrint,
   getServiceOrderList,
   setServiceOrderDeleteIDs,
   setServiceOrderListParams,
-  getServiceOrderForPrint,
-  viewBeforeCreate
 } from '../../store/features/ServiceOrder.js';
-import { getChargeOrder } from '../../store/features/chargeOrderSlice.js';
 import { createServiceOrderPrint } from '../../utils/prints/service-order-print.js';
 
 const ServiceOrder = () => {
+  useDocumentTitle('Service Order List');
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const handleError = useError();
@@ -46,7 +45,7 @@ const ServiceOrder = () => {
     paginationInfo,
     isBulkDeleting,
     deleteIDs,
-    isFormSubmitting
+    isFormSubmitting,
   } = useSelector((state) => state.serviceOrder);
 
   const { user } = useSelector((state) => state.auth);
@@ -107,11 +106,11 @@ const ServiceOrder = () => {
             if (detail.charge_order_detail_id === chargeDetailId) {
               return {
                 ...detail,
-                checked: detail.checked ? false : true
+                checked: detail.checked ? false : true,
               };
             }
             return detail;
-          })
+          }),
         };
       }
       return charge;
@@ -129,8 +128,8 @@ const ServiceOrder = () => {
           ...charge,
           details: charge.details.map((detail) => ({
             ...detail,
-            checked: !allChecked
-          }))
+            checked: !allChecked,
+          })),
         };
       }
       return charge;
@@ -176,7 +175,7 @@ const ServiceOrder = () => {
       key: 'document_identity',
       sorter: true,
       width: 120,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -197,7 +196,7 @@ const ServiceOrder = () => {
       key: 'event_code',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -218,7 +217,7 @@ const ServiceOrder = () => {
       key: 'customer_name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -238,7 +237,7 @@ const ServiceOrder = () => {
       sorter: true,
       dataIndex: 'agent_name',
       key: 'agent_name',
-      width: 220
+      width: 220,
     },
     {
       title: (
@@ -258,7 +257,7 @@ const ServiceOrder = () => {
       sorter: true,
       dataIndex: 'vessel_name',
       key: 'vessel_name',
-      width: 220
+      width: 220,
     },
     {
       title: (
@@ -269,7 +268,9 @@ const ServiceOrder = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.charge_order_no}
-            onChange={(e) => dispatch(setServiceOrderListParams({ charge_order_no: e.target.value }))}
+            onChange={(e) =>
+              dispatch(setServiceOrderListParams({ charge_order_no: e.target.value }))
+            }
           />
         </div>
       ),
@@ -277,7 +278,7 @@ const ServiceOrder = () => {
       key: 'charge_order_no',
       sorter: true,
       width: 180,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -296,7 +297,7 @@ const ServiceOrder = () => {
       key: 'quotation_no',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: 'Created At',
@@ -304,7 +305,7 @@ const ServiceOrder = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: 'Action',
@@ -338,8 +339,8 @@ const ServiceOrder = () => {
         </div>
       ),
       width: 80,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -366,7 +367,7 @@ const ServiceOrder = () => {
     debouncedIMO,
     debouncedQUOTATION,
     debouncedCHARGEORDERNO,
-    debouncedAGENT
+    debouncedAGENT,
   ]);
 
   return (
@@ -406,7 +407,8 @@ const ServiceOrder = () => {
               ? {
                   type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setServiceOrderDeleteIDs(selectedRowKeys))
+                  onChange: (selectedRowKeys) =>
+                    dispatch(setServiceOrderDeleteIDs(selectedRowKeys)),
                 }
               : null
           }
@@ -418,7 +420,7 @@ const ServiceOrder = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} Orders`
+            showTotal: (total) => `Total ${total} Orders`,
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -426,15 +428,15 @@ const ServiceOrder = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

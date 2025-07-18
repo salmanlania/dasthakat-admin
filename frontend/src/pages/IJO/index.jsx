@@ -2,6 +2,7 @@ import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { FaRegFilePdf } from 'react-icons/fa';
 import { GoTrash } from 'react-icons/go';
 import { MdOutlineEdit, MdWorkspacePremium } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,28 +10,26 @@ import { Link } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
+import GenerateCertificateModal from '../../components/Modals/GenerateCertificateModal.jsx';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle.js';
 import useError from '../../hooks/useError';
 import {
   bulkDeleteIJO,
-  deleteIJO, getIJOForPrint,
+  deleteIJO,
+  getIJOForPrint,
   getIJOList,
   setIJODeleteIDs,
   setIJOListParams,
-  getIJO
 } from '../../store/features/ijoSlice';
-import { FaRegFilePdf } from 'react-icons/fa';
-import { createPickListPrint } from '../../utils/prints/pick-list-print.js';
 import { createIJOPrint } from '../../utils/prints/ijo-print.js';
-import { getPurchaseOrderForPrint } from '../../store/features/purchaseOrderSlice.js';
-import { createPurchaseOrderPrint } from '../../utils/prints/purchase-order-print.js';
-import GenerateCertificateModal from '../../components/Modals/GenerateCertificateModal.jsx';
 
 const IJO = () => {
+  useDocumentTitle('IJO List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.ijo
+    (state) => state.ijo,
   );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.job_order;
@@ -43,7 +42,7 @@ const IJO = () => {
     setSelectedJobOrderId(id);
     setCertificateModalOpen(true);
   };
-  
+
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
@@ -101,7 +100,7 @@ const IJO = () => {
       key: 'document_identity',
       sorter: true,
       width: 120,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -122,7 +121,7 @@ const IJO = () => {
       key: 'event_code',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -143,7 +142,7 @@ const IJO = () => {
       key: 'salesman_name',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -162,7 +161,7 @@ const IJO = () => {
       ),
       dataIndex: 'vessel_name',
       key: 'vessel_name',
-      width: 220
+      width: 220,
     },
     {
       title: (
@@ -181,7 +180,7 @@ const IJO = () => {
       key: 'imo',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -200,7 +199,7 @@ const IJO = () => {
       ),
       dataIndex: 'flag_name',
       key: 'flag_name',
-      width: 150
+      width: 150,
     },
     {
       title: (
@@ -219,7 +218,7 @@ const IJO = () => {
       ),
       dataIndex: 'class1_name',
       key: 'class1_name',
-      width: 150
+      width: 150,
     },
     {
       title: (
@@ -238,7 +237,7 @@ const IJO = () => {
       ),
       dataIndex: 'class2_name',
       key: 'class2_name',
-      width: 150
+      width: 150,
     },
     {
       title: (
@@ -257,7 +256,7 @@ const IJO = () => {
       ),
       dataIndex: 'agent_name',
       key: 'agent_name',
-      width: 150
+      width: 150,
     },
     {
       title: 'Created At',
@@ -265,13 +264,13 @@ const IJO = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: 'Action',
       key: 'action',
       render: (_, { job_order_id }) => (
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-wrap items-center gap-2">
           <Tooltip title="Print">
             <Button
               size="small"
@@ -321,8 +320,8 @@ const IJO = () => {
         </div>
       ),
       width: 100,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -346,7 +345,7 @@ const IJO = () => {
     params.agent_id,
     debouncedSearch,
     debouncedCode,
-    debouncedIMO
+    debouncedIMO,
   ]);
 
   return (
@@ -359,7 +358,8 @@ const IJO = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setIJOListParams({ search: e.target.value }))}
@@ -388,10 +388,10 @@ const IJO = () => {
           rowSelection={
             permissions.delete
               ? {
-                type: 'checkbox',
-                selectedRowKeys: deleteIDs,
-                onChange: (selectedRowKeys) => dispatch(setIJODeleteIDs(selectedRowKeys))
-              }
+                  type: 'checkbox',
+                  selectedRowKeys: deleteIDs,
+                  onChange: (selectedRowKeys) => dispatch(setIJODeleteIDs(selectedRowKeys)),
+                }
               : null
           }
           loading={isListLoading}
@@ -402,7 +402,7 @@ const IJO = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} IJO`
+            showTotal: (total) => `Total ${total} IJO`,
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -410,15 +410,15 @@ const IJO = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

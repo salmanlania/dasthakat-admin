@@ -6,17 +6,17 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ChargeOrderForm from '../../components/Form/ChargeOrderForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import PurchaseOrderModal from '../../components/Modals/PurchaseOrderModal';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
   createChargeOrderPickList,
-  createChargeOrderPO,
   createChargeOrderServiceList,
   getChargeOrder,
-  updateChargeOrder
+  updateChargeOrder,
 } from '../../store/features/chargeOrderSlice';
-import { setChargePoID } from '../../store/features/purchaseOrderSlice';
 
 const EditChargeOrder = () => {
+  useDocumentTitle('Edit Charge Order');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();
@@ -30,16 +30,16 @@ const EditChargeOrder = () => {
       if (additionalRequest === 'CREATE_PICK_LIST') {
         await dispatch(
           createChargeOrderPickList({
-            charge_order_id: id
-          })
+            charge_order_id: id,
+          }),
         ).unwrap();
       }
 
       if (additionalRequest === 'CREATE_SERVICE_LIST') {
         await dispatch(
           createChargeOrderServiceList({
-            charge_order_id: id
-          })
+            charge_order_id: id,
+          }),
         ).unwrap();
       }
 
@@ -60,23 +60,23 @@ const EditChargeOrder = () => {
       if (additionalRequest === 'CREATE_PICK_LIST') {
         await dispatch(
           createChargeOrderPickList({
-            charge_order_id: id
-          })
+            charge_order_id: id,
+          }),
         ).unwrap();
       }
 
       if (additionalRequest === 'CREATE_SERVICE_LIST') {
         await dispatch(
           createChargeOrderServiceList({
-            charge_order_id: id
-          })
+            charge_order_id: id,
+          }),
         ).unwrap();
       }
 
       toast.success('Charge Order updated successfully');
 
       if (additionalRequest !== 'CREATE_PO') {
-        navigate('/charge-order')
+        navigate('/charge-order');
       }
     } catch (error) {
       handleError(error);
@@ -90,21 +90,21 @@ const EditChargeOrder = () => {
       if (additionalRequest === 'CREATE_PICK_LIST') {
         await dispatch(
           createChargeOrderPickList({
-            charge_order_id: id
-          })
+            charge_order_id: id,
+          }),
         ).unwrap();
       }
 
       if (additionalRequest === 'CREATE_SERVICE_LIST') {
         await dispatch(
           createChargeOrderServiceList({
-            charge_order_id: id
-          })
+            charge_order_id: id,
+          }),
         ).unwrap();
       }
 
       if (additionalRequest !== 'CREATE_PO') {
-        navigate('/charge-order')
+        navigate('/charge-order');
       }
     } catch (error) {
       handleError(error);
@@ -131,7 +131,12 @@ const EditChargeOrder = () => {
 
       {!isItemLoading && initialFormValues ? (
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <ChargeOrderForm mode="edit" onSubmit={onChargeOrderUpdate} onSave={onChargeOrderUpdates} onSavePo={onChargeOrderUpdatePo} />
+          <ChargeOrderForm
+            mode="edit"
+            onSubmit={onChargeOrderUpdate}
+            onSave={onChargeOrderUpdates}
+            onSavePo={onChargeOrderUpdatePo}
+          />
         </div>
       ) : null}
 

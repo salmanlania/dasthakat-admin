@@ -5,10 +5,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import PurchaseOrderForm from '../../components/Form/PurchaseOrderForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { getPurchaseOrder, updatePurchaseOrder } from '../../store/features/purchaseOrderSlice';
 
 const EditPurchaseOrder = () => {
+  useDocumentTitle('Edit Purchase Order');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();
@@ -54,7 +56,11 @@ const EditPurchaseOrder = () => {
 
       {!isItemLoading && initialFormValues ? (
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <PurchaseOrderForm mode="edit" onSubmit={onPurchaseOrderUpdate} onSave={onPurchaseOrderUpdates} />
+          <PurchaseOrderForm
+            mode="edit"
+            onSubmit={onPurchaseOrderUpdate}
+            onSave={onPurchaseOrderUpdates}
+          />
         </div>
       ) : null}
     </>

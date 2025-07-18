@@ -1,32 +1,27 @@
-import { Breadcrumb, Button, Input, Popconfirm, Table, Tabs, Tooltip } from 'antd';
+import { Button, Input, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { FaRegSave } from 'react-icons/fa';
-import { FcCancel } from 'react-icons/fc';
-import { GoTrash } from 'react-icons/go';
-import { MdOutlineEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
-import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
-  addNewBrand,
   bulkDeleteBrand,
   createBrand,
   deleteBrand,
   getAuditList,
   removeNewBrand,
-  setBrandDeleteIDs,
   setBrandEditable,
   setBrandListParams,
   updateBrand,
-  updateBrandListValue
+  updateBrandListValue,
 } from '../../store/features/auditSlice';
 import { formatLabel } from '../../utils/string';
 
 const Brand = () => {
+  useDocumentTitle('Audit List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, isSubmitting, deleteIDs } =
@@ -64,8 +59,8 @@ const Brand = () => {
       await dispatch(
         updateBrand({
           id: brand_id,
-          data: { name }
-        })
+          data: { name },
+        }),
       ).unwrap();
       await dispatch(getAuditList(params)).unwrap();
     } catch (error) {
@@ -107,7 +102,7 @@ const Brand = () => {
       sorter: true,
       className: 'text-xs',
 
-      render: (_, { company }) => company?.name || null
+      render: (_, { company }) => company?.name || null,
     },
     {
       title: 'Company Branch',
@@ -116,7 +111,7 @@ const Brand = () => {
       sorter: true,
 
       className: 'text-xs',
-      render: (_, { company_branch }) => company_branch?.name || null
+      render: (_, { company_branch }) => company_branch?.name || null,
     },
 
     {
@@ -126,7 +121,7 @@ const Brand = () => {
       sorter: true,
       className: 'text-xs',
 
-      render: (_, { action_on }) => formatLabel(action_on)
+      render: (_, { action_on }) => formatLabel(action_on),
     },
     {
       title: 'Document No.',
@@ -135,7 +130,7 @@ const Brand = () => {
       sorter: true,
       className: 'text-xs',
 
-      render: (_, { document_name }) => document_name
+      render: (_, { document_name }) => document_name,
     },
     {
       title: 'User',
@@ -146,7 +141,7 @@ const Brand = () => {
 
       render: (_, { action_by_user }) => (
         <Tooltip title={action_by_user?.email}>{action_by_user?.user_name}</Tooltip>
-      )
+      ),
     },
     {
       title: 'Action',
@@ -174,7 +169,7 @@ const Brand = () => {
           <span className="w-13 mx-2 block rounded bg-emerald-700 py-[2px] text-center text-xs text-white">
             {action}
           </span>
-        )
+        ),
     },
     {
       title: 'Time',
@@ -183,8 +178,8 @@ const Brand = () => {
       sorter: true,
       className: 'text-xs',
       width: 150,
-      render: (_, { action_at }) => dayjs(action_at).format('DD-MMM-YYYY hh:mm')
-    }
+      render: (_, { action_at }) => dayjs(action_at).format('DD-MMM-YYYY hh:mm'),
+    },
   ];
 
   if (!permissions.edit && !permissions.delete && !permissions.add) {
@@ -227,8 +222,8 @@ const Brand = () => {
                   page: page.current,
                   limit: page.pageSize,
                   sort_column: sorting.field,
-                  sort_direction: sorting.order
-                })
+                  sort_direction: sorting.order,
+                }),
               );
             }}
             loading={isListLoading}
@@ -239,13 +234,13 @@ const Brand = () => {
               total: paginationInfo.total_records,
               pageSize: params.limit,
               current: params.page,
-              showTotal: (total) => `Total ${total} Actions`
+              showTotal: (total) => `Total ${total} Actions`,
             }}
             dataSource={list}
             showSorterTooltip={false}
             columns={columns}
             sticky={{
-              offsetHeader: 56
+              offsetHeader: 56,
             }}
           />
         </div>

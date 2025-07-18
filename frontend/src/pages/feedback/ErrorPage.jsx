@@ -1,7 +1,9 @@
 import { Button, Result } from 'antd';
 import { Link } from 'react-router-dom';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const ErrorPage = () => {
+  useDocumentTitle('Error Page');
   return (
     <Result
       status="warning"

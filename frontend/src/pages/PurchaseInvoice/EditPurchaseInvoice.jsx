@@ -1,17 +1,19 @@
-import { Breadcrumb, Spin } from 'antd';
+import { Breadcrumb } from 'antd';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import PurchaseInvoiceForm from '../../components/Form/PurchaseInvoiceForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
   getPurchaseInvoice,
-  updatePurchaseInvoice
+  updatePurchaseInvoice,
 } from '../../store/features/purchaseInvoiceSlice';
 
 const EditPurchaseInvoice = () => {
+  useDocumentTitle('Edit Purchase Invoice');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();
@@ -48,7 +50,11 @@ const EditPurchaseInvoice = () => {
         <Breadcrumb items={[{ title: 'Purchase Invoice' }, { title: 'Edit' }]} separator=">" />
       </div>
       <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-        <PurchaseInvoiceForm mode="edit" onSubmit={onPurchaseInvoiceUpdate} onSave={onPurchaseInvoiceUpdates} />
+        <PurchaseInvoiceForm
+          mode="edit"
+          onSubmit={onPurchaseInvoiceUpdate}
+          onSave={onPurchaseInvoiceUpdates}
+        />
       </div>
     </>
   );

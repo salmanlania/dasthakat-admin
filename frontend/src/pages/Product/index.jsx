@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, Input, Popconfirm, Select, Table, Tooltip } from 'antd';
+import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -11,21 +11,23 @@ import AsyncSelectNoPaginate from '../../components/AsyncSelect/AsyncSelectNoPag
 import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle.js';
 import useError from '../../hooks/useError';
 import {
   bulkDeleteProduct,
   deleteProduct,
   getProductList,
   setProductDeleteIDs,
-  setProductListParams
+  setProductListParams,
 } from '../../store/features/productSlice';
 import { formatThreeDigitCommas, removeCommas } from '../../utils/number';
 
 const Product = () => {
+  useDocumentTitle('Product List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.product
+    (state) => state.product,
   );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.product;
@@ -44,7 +46,7 @@ const Product = () => {
   const formattedParams = {
     ...params,
     cost_price: removeCommas(params.cost_price),
-    sale_price: removeCommas(params.sale_price)
+    sale_price: removeCommas(params.sale_price),
   };
 
   const onProductDelete = async (id) => {
@@ -87,7 +89,7 @@ const Product = () => {
       key: 'product_code',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -99,7 +101,7 @@ const Product = () => {
             labelKey="name"
             className="w-full font-normal"
             params={{
-              include_other: 0
+              include_other: 0,
             }}
             size="small"
             labelInValue
@@ -115,7 +117,7 @@ const Product = () => {
       dataIndex: 'product_type_name',
       key: 'product_type_name',
       sorter: true,
-      width: 160
+      width: 160,
     },
     {
       title: (
@@ -135,7 +137,7 @@ const Product = () => {
       key: 'name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -155,7 +157,7 @@ const Product = () => {
       key: 'short_code',
       sorter: true,
       width: 140,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -175,7 +177,7 @@ const Product = () => {
       key: 'impa_code',
       sorter: true,
       width: 140,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -197,7 +199,7 @@ const Product = () => {
       key: 'category_name',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -219,7 +221,7 @@ const Product = () => {
       key: 'sub_category_name',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -241,7 +243,7 @@ const Product = () => {
       key: 'brand_name',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -263,7 +265,7 @@ const Product = () => {
       key: 'unit_name',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -284,7 +286,7 @@ const Product = () => {
       sorter: true,
       width: 150,
       ellipsis: true,
-      render: (_, { cost_price }) => formatThreeDigitCommas(cost_price)
+      render: (_, { cost_price }) => formatThreeDigitCommas(cost_price),
     },
     {
       title: (
@@ -305,7 +307,7 @@ const Product = () => {
       sorter: true,
       width: 150,
       ellipsis: true,
-      render: (_, { sale_price }) => formatThreeDigitCommas(sale_price)
+      render: (_, { sale_price }) => formatThreeDigitCommas(sale_price),
     },
     {
       title: 'Created At',
@@ -313,7 +315,7 @@ const Product = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: 'Action',
@@ -348,8 +350,8 @@ const Product = () => {
         </div>
       ),
       width: 70,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -374,7 +376,7 @@ const Product = () => {
     params.category_id,
     params.sub_category_id,
     params.brand_id,
-    params.unit_id
+    params.unit_id,
   ]);
 
   return (
@@ -419,7 +421,7 @@ const Product = () => {
               ? {
                   type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setProductDeleteIDs(selectedRowKeys))
+                  onChange: (selectedRowKeys) => dispatch(setProductDeleteIDs(selectedRowKeys)),
                 }
               : null
           }
@@ -431,7 +433,7 @@ const Product = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} companies`
+            showTotal: (total) => `Total ${total} companies`,
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -439,15 +441,15 @@ const Product = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

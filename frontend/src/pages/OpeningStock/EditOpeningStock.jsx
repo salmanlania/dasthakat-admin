@@ -5,13 +5,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import OpeningStockForm from '../../components/Form/OpeningStockForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
-import {
-  getOpeningStock,
-  updateOpeningStock
-} from '../../store/features/openingStockSlice';
+import { getOpeningStock, updateOpeningStock } from '../../store/features/openingStockSlice';
 
 const EditOpeningStock = () => {
+  useDocumentTitle('Edit Opening Stock');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();
@@ -27,7 +26,7 @@ const EditOpeningStock = () => {
       handleError(error);
     }
   };
-  
+
   const onOpeningStockUpdates = async (data) => {
     try {
       await dispatch(updateOpeningStock({ id, data })).unwrap();
@@ -57,7 +56,11 @@ const EditOpeningStock = () => {
 
       {!isItemLoading && initialFormValues ? (
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <OpeningStockForm mode="edit" onSubmit={onOpeningStockUpdate} onSave={onOpeningStockUpdates} />
+          <OpeningStockForm
+            mode="edit"
+            onSubmit={onOpeningStockUpdate}
+            onSave={onOpeningStockUpdates}
+          />
         </div>
       ) : null}
     </>

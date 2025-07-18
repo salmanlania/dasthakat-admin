@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
   addNewWarehouse,
@@ -22,10 +23,11 @@ import {
   setWarehouseEditable,
   setWarehouseListParams,
   updateWarehouse,
-  updateWarehouseListValue
+  updateWarehouseListValue,
 } from '../../store/features/warehouseSlice';
 
 const Warehouse = () => {
+  useDocumentTitle('Warehouse List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, isSubmitting, deleteIDs } =
@@ -63,8 +65,8 @@ const Warehouse = () => {
       await dispatch(
         updateWarehouse({
           id: warehouse_id,
-          data: { name }
-        })
+          data: { name },
+        }),
       ).unwrap();
       await dispatch(getWarehouseList(params)).unwrap();
     } catch (error) {
@@ -115,7 +117,7 @@ const Warehouse = () => {
           />
         ) : (
           <span>{name}</span>
-        )
+        ),
     },
     {
       title: 'Created At',
@@ -128,7 +130,7 @@ const Warehouse = () => {
           dayjs(created_at).format('MM-DD-YYYY hh:mm A')
         ) : (
           <span className="text-gray-400">AUTO</span>
-        )
+        ),
     },
     {
       title: 'Action',
@@ -168,8 +170,8 @@ const Warehouse = () => {
                     dispatch(
                       setWarehouseEditable({
                         id: warehouse_id,
-                        editable: true
-                      })
+                        editable: true,
+                      }),
                     )
                   }
                 />
@@ -192,8 +194,8 @@ const Warehouse = () => {
         );
       },
       width: 70,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete && !permissions.add) {
@@ -214,7 +216,8 @@ const Warehouse = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setWarehouseListParams({ search: e.target.value }))}
@@ -245,8 +248,8 @@ const Warehouse = () => {
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) => dispatch(setWarehouseDeleteIDs(selectedRowKeys)),
                   getCheckboxProps: (record) => ({
-                    disabled: record.warehouse_id === 'new'
-                  })
+                    disabled: record.warehouse_id === 'new',
+                  }),
                 }
               : null
           }
@@ -256,8 +259,8 @@ const Warehouse = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           loading={isListLoading}
@@ -268,13 +271,13 @@ const Warehouse = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} warehouse`
+            showTotal: (total) => `Total ${total} warehouse`,
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

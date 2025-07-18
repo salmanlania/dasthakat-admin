@@ -1,11 +1,12 @@
 import { Button, Divider, Table } from 'antd';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import GMSLogo from '../../../assets/logo-with-title.png';
+import api from '../../../axiosInstance';
 import DebouncedCommaSeparatedInput from '../../../components/Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../../../components/Input/DebounceInput';
+import useDocumentTitle from '../../../hooks/useDocumentTitle';
 import { decodeRfqData } from '../../../utils/encode';
-import api from '../../../axiosInstance';
-import toast from 'react-hot-toast';
 
 const getInitialState = () => {
   const queryParams = new URLSearchParams(window.location.search);
@@ -15,6 +16,7 @@ const getInitialState = () => {
 };
 
 const VendorPlatformQuotation = () => {
+  useDocumentTitle('Vendor Platform Quotation');
   const [data, setData] = useState(getInitialState);
   const [isSubmitting, setIsSubmitting] = useState(false);
 

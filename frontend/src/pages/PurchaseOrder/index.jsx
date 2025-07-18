@@ -7,7 +7,7 @@ import {
   Select,
   Table,
   Tag,
-  Tooltip
+  Tooltip,
 } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
@@ -30,28 +30,30 @@ import {
   getPurchaseOrderForPrint,
   getPurchaseOrderList,
   setPurchaseOrderDeleteIDs,
-  setPurchaseOrderListParams
+  setPurchaseOrderListParams,
 } from '../../store/features/purchaseOrderSlice';
 import { createPurchaseInvoice } from '../../store/features/purchaseInvoiceSlice';
 import { createPurchaseOrderPrint } from '../../utils/prints/purchase-order-print';
 import { createPurchaseOrderWithoutRatePrint } from '../../utils/prints/purchase-order-print-without-rate';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 export const purchaseOrderTypes = [
   {
     value: 'Inventory',
-    label: 'Inventory'
+    label: 'Inventory',
   },
   {
     value: 'Buyout',
-    label: 'Buyout'
-  }
+    label: 'Buyout',
+  },
 ];
 
 const PurchaseOrder = () => {
+  useDocumentTitle('Purchase Order List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.purchaseOrder
+    (state) => state.purchaseOrder,
   );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.purchase_order;
@@ -67,11 +69,11 @@ const PurchaseOrder = () => {
   const GRNStatus = {
     1: 'Complete',
     2: 'Partial',
-    3: 'In Progress'
+    3: 'In Progress',
   };
   const formattedParams = {
     ...params,
-    document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null
+    document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null,
   };
 
   const onPurchaseOrderDelete = async (id) => {
@@ -141,7 +143,7 @@ const PurchaseOrder = () => {
       width: 180,
       ellipsis: true,
       render: (_, { document_date }) =>
-        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null
+        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null,
     },
     {
       title: (
@@ -155,8 +157,8 @@ const PurchaseOrder = () => {
             onChange={(e) =>
               dispatch(
                 setPurchaseOrderListParams({
-                  document_identity: e.target.value
-                })
+                  document_identity: e.target.value,
+                }),
               )
             }
           />
@@ -166,7 +168,7 @@ const PurchaseOrder = () => {
       key: 'document_identity',
       sorter: true,
       width: 165,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -181,8 +183,8 @@ const PurchaseOrder = () => {
             onChange={(e) =>
               dispatch(
                 setPurchaseOrderListParams({
-                  type: e
-                })
+                  type: e,
+                }),
               )
             }
           />
@@ -192,7 +194,7 @@ const PurchaseOrder = () => {
       key: 'type',
       sorter: true,
       width: 180,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -213,7 +215,7 @@ const PurchaseOrder = () => {
       key: 'supplier_name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -234,7 +236,7 @@ const PurchaseOrder = () => {
       key: 'customer_name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -248,8 +250,8 @@ const PurchaseOrder = () => {
             onChange={(e) =>
               dispatch(
                 setPurchaseOrderListParams({
-                  charge_no: e.target.value
-                })
+                  charge_no: e.target.value,
+                }),
               )
             }
           />
@@ -259,7 +261,7 @@ const PurchaseOrder = () => {
       key: 'charge_no',
       sorter: true,
       width: 120,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -273,8 +275,8 @@ const PurchaseOrder = () => {
             onChange={(e) =>
               dispatch(
                 setPurchaseOrderListParams({
-                  quotation_no: e.target.value
-                })
+                  quotation_no: e.target.value,
+                }),
               )
             }
           />
@@ -284,7 +286,7 @@ const PurchaseOrder = () => {
       key: 'quotation_no',
       sorter: true,
       width: 140,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -305,7 +307,7 @@ const PurchaseOrder = () => {
       key: 'event_code',
       sorter: true,
       width: 140,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -326,7 +328,7 @@ const PurchaseOrder = () => {
       key: 'vessel_name',
       sorter: true,
       width: 140,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -339,16 +341,16 @@ const PurchaseOrder = () => {
             options={[
               {
                 value: 1,
-                label: GRNStatus[1]
+                label: GRNStatus[1],
               },
               {
                 value: 2,
-                label: GRNStatus[2]
+                label: GRNStatus[2],
               },
               {
                 value: 3,
-                label: GRNStatus[3]
-              }
+                label: GRNStatus[3],
+              },
             ]}
             value={params.grn_status}
             onChange={(value) => dispatch(setPurchaseOrderListParams({ grn_status: value }))}
@@ -386,7 +388,7 @@ const PurchaseOrder = () => {
           );
         }
       },
-      width: 140
+      width: 140,
     },
     {
       title: 'Created At',
@@ -394,7 +396,7 @@ const PurchaseOrder = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: 'Action',
@@ -455,7 +457,9 @@ const PurchaseOrder = () => {
               onClick={async () => {
                 try {
                   const document_date = dayjs().format('YYYY-MM-DD');
-                  await dispatch(createPurchaseInvoice({ purchase_order_id , document_date})).unwrap();
+                  await dispatch(
+                    createPurchaseInvoice({ purchase_order_id, document_date }),
+                  ).unwrap();
                   toast.success('Purchase invoice created successfully');
                 } catch (error) {
                   handleError(error);
@@ -466,8 +470,8 @@ const PurchaseOrder = () => {
         </div>
       ),
       width: 105,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -492,7 +496,7 @@ const PurchaseOrder = () => {
     debouncedSearch,
     debouncedPurchaseOrderNo,
     debouncedChargeNo,
-    debouncedQuotationNo
+    debouncedQuotationNo,
   ]);
 
   return (
@@ -538,7 +542,7 @@ const PurchaseOrder = () => {
                   type: 'checkbox',
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) =>
-                    dispatch(setPurchaseOrderDeleteIDs(selectedRowKeys))
+                    dispatch(setPurchaseOrderDeleteIDs(selectedRowKeys)),
                 }
               : null
           }
@@ -550,7 +554,7 @@ const PurchaseOrder = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} purchase orders`
+            showTotal: (total) => `Total ${total} purchase orders`,
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -558,15 +562,15 @@ const PurchaseOrder = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

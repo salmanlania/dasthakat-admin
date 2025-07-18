@@ -5,10 +5,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import PurchaseReturnForm from '../../components/Form/PurchaseReturnForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
-import { getPurchaseReturn , updatePurchaseReturn} from '../../store/features/purchaseReturnSlice';
+import { getPurchaseReturn, updatePurchaseReturn } from '../../store/features/purchaseReturnSlice';
 
 const EditPurchaseReturn = () => {
+  useDocumentTitle('Edit Purchase Return');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();
@@ -53,7 +55,11 @@ const EditPurchaseReturn = () => {
 
       {!isItemLoading && initialFormValues ? (
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <PurchaseReturnForm mode="edit" onSubmit={PurchaseReturnUpdate} onSave={PurchaseReturnUpdates} />
+          <PurchaseReturnForm
+            mode="edit"
+            onSubmit={PurchaseReturnUpdate}
+            onSave={PurchaseReturnUpdates}
+          />
         </div>
       ) : null}
     </>

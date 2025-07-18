@@ -5,10 +5,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import VesselForm from '../../components/Form/VesselForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { getVessel, updateVessel } from '../../store/features/vesselSlice';
 
 const EditVessel = () => {
+  useDocumentTitle('Edit Vessel');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();

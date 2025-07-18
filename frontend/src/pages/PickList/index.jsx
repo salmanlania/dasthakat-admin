@@ -6,27 +6,29 @@ import { FaRegFilePdf } from 'react-icons/fa';
 import { LuListChecks } from 'react-icons/lu';
 import { MdOutlineEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
 import PickListReceiveModal from '../../components/Modals/PickListReceiveModal';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
-import { Link } from 'react-router-dom';
 import {
   getPickListForPrint,
   getPickListList,
   setPickListListParams,
-  setPickListOpenModalId
+  setPickListOpenModalId,
 } from '../../store/features/pickListSlice';
 import { createPickListPrint } from '../../utils/prints/pick-list-print';
 
 const pickListStatus = {
   1: 'Complete',
   2: 'Partial',
-  3: 'In Progress'
+  3: 'In Progress',
 };
 
 const PickList = () => {
+  useDocumentTitle('Pick List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo } = useSelector((state) => state.pickList);
@@ -69,7 +71,7 @@ const PickList = () => {
       key: 'document_identity',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -81,7 +83,7 @@ const PickList = () => {
             labelKey="document_identity"
             className="w-full font-normal"
             params={{
-              include_other: 0
+              include_other: 0,
             }}
             size="small"
             labelInValue
@@ -97,7 +99,7 @@ const PickList = () => {
       dataIndex: 'charge_order_no',
       key: 'charge_order_no',
       sorter: true,
-      width: 180
+      width: 180,
     },
     {
       title: (
@@ -116,7 +118,7 @@ const PickList = () => {
       key: 'total_quantity',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -141,7 +143,7 @@ const PickList = () => {
       dataIndex: 'event_code',
       key: 'event_code',
       sorter: true,
-      width: 180
+      width: 180,
     },
     {
       title: (
@@ -166,7 +168,7 @@ const PickList = () => {
       dataIndex: 'vessel_name',
       key: 'vessel_name',
       sorter: true,
-      width: 180
+      width: 180,
     },
     {
       title: (
@@ -179,16 +181,16 @@ const PickList = () => {
             options={[
               {
                 value: 1,
-                label: pickListStatus[1]
+                label: pickListStatus[1],
               },
               {
                 value: 2,
-                label: pickListStatus[2]
+                label: pickListStatus[2],
               },
               {
                 value: 3,
-                label: pickListStatus[3]
-              }
+                label: pickListStatus[3],
+              },
             ]}
             value={params.picklist_status}
             onChange={(value) => dispatch(setPickListListParams({ picklist_status: value }))}
@@ -226,7 +228,7 @@ const PickList = () => {
           );
         }
       },
-      width: 140
+      width: 140,
     },
     {
       title: 'Created At',
@@ -236,7 +238,7 @@ const PickList = () => {
       width: 168,
       render: (_, { created_at }) => {
         return dayjs(created_at).format('MM-DD-YYYY hh:mm A');
-      }
+      },
     },
     {
       title: 'Action',
@@ -273,8 +275,8 @@ const PickList = () => {
         </div>
       ),
       width: 105,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   useEffect(() => {
@@ -290,7 +292,7 @@ const PickList = () => {
     params.picklist_status,
     debouncedSearch,
     debouncedPickListNo,
-    debouncedTotalQuantity
+    debouncedTotalQuantity,
   ]);
 
   const dataSource = list.map((item) => ({
@@ -302,7 +304,7 @@ const PickList = () => {
     picklist_status: item.picklist_status,
     created_at: item.created_at,
     id: item.picklist_id,
-    key: item.picklist_id
+    key: item.picklist_id,
   }));
 
   return (
@@ -313,7 +315,8 @@ const PickList = () => {
 
       <div className="mt-4 rounded-md bg-white p-2">
         <Input
-          placeholder="Search..." allowClear
+          placeholder="Search..."
+          allowClear
           className="w-full sm:w-64"
           value={params.search}
           onChange={(e) => dispatch(setPickListListParams({ search: e.target.value }))}
@@ -328,7 +331,7 @@ const PickList = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} picklist`
+            showTotal: (total) => `Total ${total} picklist`,
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -336,15 +339,15 @@ const PickList = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           dataSource={dataSource}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

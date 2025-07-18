@@ -4,10 +4,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import QuotationForm from '../../components/Form/QuotationForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
-import { createQuotation , getQuotation} from '../../store/features/quotationSlice';
+import { createQuotation } from '../../store/features/quotationSlice';
 
 const CreateQuotation = () => {
+  useDocumentTitle('Create Quotation');
   const navigate = useNavigate();
   const handleError = useError();
   const dispatch = useDispatch();

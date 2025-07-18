@@ -1,41 +1,43 @@
-import React, { useState, useEffect } from 'react';
 import {
   Button,
-  Input,
-  Select,
-  Tabs,
-  Form,
-  Row,
-  Col,
-  Typography,
-  Spin,
   Checkbox,
-  Radio
+  Col,
+  Form,
+  Input,
+  Radio,
+  Row,
+  Select,
+  Spin,
+  Tabs,
+  Typography,
 } from 'antd';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { FiSend } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import useDocumentTitle from '../../hooks/useDocumentTitle.js';
+import useError from '../../hooks/useError.jsx';
 import {
   getCompanySetting,
+  sendTestEmail,
   updateCompanySetting,
-  sendTestEmail
 } from '../../store/features/companySetting';
-import toast from 'react-hot-toast';
-import useError from '../../hooks/useError.jsx';
-import { useNavigate } from 'react-router-dom';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
 const { Title } = Typography;
 
 const CompanySetting = () => {
+  useDocumentTitle('Company Setting');
   const [activeTab, setActiveTab] = useState('1');
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const handleError = useError();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const { initialFormValues, isItemLoading, isTestEmailSending } = useSelector(
-    (state) => state.CompanySetting
+    (state) => state.CompanySetting,
   );
 
   const debugChecked = Form.useWatch('debug', form);
@@ -86,7 +88,7 @@ const CompanySetting = () => {
         smtp_timeout: values.smtpTimeout,
         mail_type: values.mailEngine,
         smtp_encryption: values.smtpEncryption,
-        debug: values.debug ? '1' : '0'
+        debug: values.debug ? '1' : '0',
       };
 
       if (values.debug) {
@@ -94,13 +96,13 @@ const CompanySetting = () => {
       }
 
       const whatsapp = {
-        whatsapp_token : values.whatsappToken,
-        whatsapp_api_url : values.whatsappURL,
+        whatsapp_token: values.whatsappToken,
+        whatsapp_api_url: values.whatsappURL,
       };
 
       const data = {
         mail,
-        whatsapp
+        whatsapp,
       };
       await dispatch(updateCompanySetting(data)).unwrap();
       toast.success('Update Setting Successfully!');
@@ -122,9 +124,9 @@ const CompanySetting = () => {
     }
   };
 
-  const dashboardRedirection = ()=>{
-    navigate('/')
-  }
+  const dashboardRedirection = () => {
+    navigate('/');
+  };
 
   return (
     <Spin spinning={isItemLoading}>
@@ -140,8 +142,12 @@ const CompanySetting = () => {
         </div>
 
         <div className="mb-4 flex justify-end px-6">
-          <Button className="mr-2" onClick={dashboardRedirection}>Exit</Button>
-          <Button type="primary" onClick={() => form.submit()}>Save</Button>
+          <Button className="mr-2" onClick={dashboardRedirection}>
+            Exit
+          </Button>
+          <Button type="primary" onClick={() => form.submit()}>
+            Save
+          </Button>
         </div>
 
         <div className="px-6">
@@ -150,7 +156,7 @@ const CompanySetting = () => {
             layout="vertical"
             onFinish={onFinish}
             initialValues={{
-              mailEngine: 'Mail'
+              mailEngine: 'Mail',
             }}>
             <Tabs activeKey={activeTab} onChange={setActiveTab} className="mb-6" type="card">
               <TabPane tab="Email Setting" key="1">
@@ -272,7 +278,9 @@ const CompanySetting = () => {
         </div>
 
         <div className="mt-6 flex justify-end px-6 py-4">
-          <Button className="mr-2" onClick={dashboardRedirection}>Exit</Button>
+          <Button className="mr-2" onClick={dashboardRedirection}>
+            Exit
+          </Button>
           <Button type="primary" onClick={() => form.submit()}>
             Save
           </Button>

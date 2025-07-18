@@ -1,17 +1,19 @@
 import { Breadcrumb, Spin } from 'antd';
-import PageHeading from '../../components/Heading/PageHeading';
+import { useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
-import useError from '../../hooks/useError';
 import { useNavigate } from 'react-router-dom';
+import UserPermissionForm from '../../components/Form/UserPermissionForm';
+import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
+import useError from '../../hooks/useError';
 import {
   createUserPermission,
-  getUserPermissionForm
+  getUserPermissionForm,
 } from '../../store/features/userPermissionSlice';
-import toast from 'react-hot-toast';
-import { useEffect } from 'react';
-import UserPermissionForm from '../../components/Form/UserPermissionForm';
 
 const CreateUserPermission = () => {
+  useDocumentTitle('Create User Permission');
   const dispatch = useDispatch();
   const handleError = useError();
   const navigate = useNavigate();

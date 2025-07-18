@@ -5,10 +5,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import UserPermissionForm from '../../components/Form/UserPermissionForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { getUserPermission, updateUserPermission } from '../../store/features/userPermissionSlice';
 
 const EditUserPermission = () => {
+  useDocumentTitle('Edit User Permission');
   const dispatch = useDispatch();
   const handleError = useError();
   const navigate = useNavigate();
@@ -24,8 +26,8 @@ const EditUserPermission = () => {
     dispatch(
       updateUserPermission({
         id,
-        data: { ...values, permission: permissionsGroup }
-      })
+        data: { ...values, permission: permissionsGroup },
+      }),
     )
       .unwrap()
       .then(() => {

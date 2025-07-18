@@ -4,10 +4,12 @@ import { MdLockOutline } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import LOGO from '../../assets/logo.jpg';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { loginHandler } from '../../store/features/authSlice';
 
 const Login = () => {
+  useDocumentTitle('Login');
   const dispatch = useDispatch();
   const handleError = useError();
   const navigate = useNavigate();
@@ -19,8 +21,8 @@ const Login = () => {
       await dispatch(loginHandler(values)).unwrap();
       navigate('/session', {
         state: {
-          prevUrl: location.state?.prevUrl
-        }
+          prevUrl: location.state?.prevUrl,
+        },
       });
     } catch (error) {
       handleError(error);
@@ -43,14 +45,13 @@ const Login = () => {
             rules={[
               {
                 required: true,
-                message: 'Please enter your email!'
+                message: 'Please enter your email!',
               },
               {
                 type: 'email',
-                message: 'Please enter a valid email!'
-              }
-            ]}
-          >
+                message: 'Please enter a valid email!',
+              },
+            ]}>
             <Input
               size="large"
               autoFocus
@@ -64,13 +65,12 @@ const Login = () => {
             rules={[
               {
                 required: true,
-                message: 'Please enter your password!'
+                message: 'Please enter your password!',
               },
               {
-                whitespace: true
-              }
-            ]}
-          >
+                whitespace: true,
+              },
+            ]}>
             <Input.Password
               size="large"
               prefix={<MdLockOutline size={18} className="text-gray-500" />}

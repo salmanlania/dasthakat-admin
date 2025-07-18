@@ -11,20 +11,22 @@ import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import CountrySelect from '../../components/Select/CountrySelect';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
   bulkDeleteCustomer,
   deleteCustomer,
   getCustomerList,
   setCustomerDeleteIDs,
-  setCustomerListParams
+  setCustomerListParams,
 } from '../../store/features/customerSlice';
 
 const Customer = () => {
+  useDocumentTitle('Customer List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.customer
+    (state) => state.customer,
   );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.customer;
@@ -80,7 +82,7 @@ const Customer = () => {
       key: 'customer_code',
       sorter: true,
       width: 120,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -99,7 +101,7 @@ const Customer = () => {
       key: 'name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -112,12 +114,12 @@ const Customer = () => {
             options={[
               {
                 value: 1,
-                label: 'Active'
+                label: 'Active',
               },
               {
                 value: 0,
-                label: 'Inactive'
-              }
+                label: 'Inactive',
+              },
             ]}
             allowClear
             value={params.status}
@@ -138,7 +140,7 @@ const Customer = () => {
             Inactive
           </Tag>
         ),
-      width: 120
+      width: 120,
     },
     {
       title: (
@@ -159,7 +161,7 @@ const Customer = () => {
       key: 'salesman_name',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -180,7 +182,7 @@ const Customer = () => {
       dataIndex: 'vessel',
       key: 'vessel',
       width: 220,
-      render: (_, { vessel }) => (vessel ? vessel.map((v) => v.name).join(', ') : null)
+      render: (_, { vessel }) => (vessel ? vessel.map((v) => v.name).join(', ') : null),
     },
     {
       title: (
@@ -199,7 +201,7 @@ const Customer = () => {
       key: 'country',
       sorter: true,
       width: 220,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -218,7 +220,7 @@ const Customer = () => {
       key: 'address',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -237,7 +239,7 @@ const Customer = () => {
       key: 'phone_no',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -256,7 +258,7 @@ const Customer = () => {
       key: 'email_sales',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -275,7 +277,7 @@ const Customer = () => {
       key: 'email_accounting',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -294,7 +296,7 @@ const Customer = () => {
       key: 'billing_address',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: 'Created At',
@@ -302,7 +304,7 @@ const Customer = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: 'Action',
@@ -337,8 +339,8 @@ const Customer = () => {
         </div>
       ),
       width: 70,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -364,7 +366,7 @@ const Customer = () => {
     debouncedPhone,
     debouncedEmailSales,
     debouncedEmailAccounting,
-    debouncedBillingAddress
+    debouncedBillingAddress,
   ]);
 
   return (
@@ -377,7 +379,8 @@ const Customer = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setCustomerListParams({ search: e.target.value }))}
@@ -408,7 +411,7 @@ const Customer = () => {
               ? {
                   type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setCustomerDeleteIDs(selectedRowKeys))
+                  onChange: (selectedRowKeys) => dispatch(setCustomerDeleteIDs(selectedRowKeys)),
                 }
               : null
           }
@@ -420,7 +423,7 @@ const Customer = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} customers`
+            showTotal: (total) => `Total ${total} customers`,
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -428,15 +431,15 @@ const Customer = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

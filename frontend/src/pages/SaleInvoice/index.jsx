@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Select, Table, Tooltip } from 'antd';
+import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -9,26 +9,26 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
-import ChargeOrderModal from '../../components/Modals/ChargeOrderModal';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
-  getSaleInvoiceList,
-  setSaleInvoiceListParams,
-  setSaleInvoiceDeleteIDs,
-  getSaleInvoice,
+  bulkDeleteSaleInvoice,
   deleteSaleInvoice,
-  bulkDeleteSaleInvoice
+  getSaleInvoice,
+  getSaleInvoiceList,
+  setSaleInvoiceDeleteIDs,
+  setSaleInvoiceListParams,
 } from '../../store/features/saleInvoiceSlice';
 import { createSaleInvoicePrint } from '../../utils/prints/sale-invoice-print';
 
 const SaleInvoice = () => {
+  useDocumentTitle('Sale Invoice List');
   const dispatch = useDispatch();
   const handleError = useError();
-  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs, listID } = useSelector(
-    (state) => state.saleInvoice
-  );
+  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs, listID } =
+    useSelector((state) => state.saleInvoice);
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.sale_invoice;
 
@@ -42,7 +42,7 @@ const SaleInvoice = () => {
 
   const formattedParams = {
     ...params,
-    document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null
+    document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null,
   };
 
   const onSaleInvoiceDelete = async (id) => {
@@ -54,7 +54,6 @@ const SaleInvoice = () => {
       handleError(error);
     }
   };
-
 
   const onBulkDelete = async () => {
     closeDeleteModal();
@@ -102,7 +101,7 @@ const SaleInvoice = () => {
       width: 190,
       ellipsis: true,
       render: (_, { document_date }) =>
-        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null
+        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null,
     },
     {
       title: (
@@ -117,8 +116,8 @@ const SaleInvoice = () => {
             onChange={(e) =>
               dispatch(
                 setSaleInvoiceListParams({
-                  document_identity: e.target.value
-                })
+                  document_identity: e.target.value,
+                }),
               )
             }
           />
@@ -128,7 +127,7 @@ const SaleInvoice = () => {
       key: 'document_identity',
       sorter: true,
       width: 180,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -143,8 +142,8 @@ const SaleInvoice = () => {
             onChange={(e) =>
               dispatch(
                 setSaleInvoiceListParams({
-                  quotation_no: e.target.value
-                })
+                  quotation_no: e.target.value,
+                }),
               )
             }
           />
@@ -154,7 +153,7 @@ const SaleInvoice = () => {
       key: 'quotation_no',
       sorter: true,
       width: 180,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -169,8 +168,8 @@ const SaleInvoice = () => {
             onChange={(e) =>
               dispatch(
                 setSaleInvoiceListParams({
-                  charge_no: e.target.value
-                })
+                  charge_no: e.target.value,
+                }),
               )
             }
           />
@@ -180,7 +179,7 @@ const SaleInvoice = () => {
       key: 'charge_no',
       sorter: true,
       width: 180,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -201,7 +200,7 @@ const SaleInvoice = () => {
       key: 'event_code',
       sorter: true,
       width: 180,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -222,7 +221,7 @@ const SaleInvoice = () => {
       key: 'vessel_name',
       sorter: true,
       width: 180,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: 'Created At',
@@ -230,13 +229,13 @@ const SaleInvoice = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: <div style={{ textAlign: 'center', width: '100%' }}>Action</div>,
       key: 'action',
       render: (_, { sale_invoice_id }) => (
-        <div className="flex justify-center items-center gap-2">
+        <div className="flex items-center justify-center gap-2">
           {permissions.edit ? (
             <>
               <Tooltip title="Print">
@@ -266,8 +265,7 @@ const SaleInvoice = () => {
                     okButtonProps={{ danger: true }}
                     okText="Yes"
                     cancelText="No"
-                    onConfirm={() => onSaleInvoiceDelete(sale_invoice_id)}
-                  >
+                    onConfirm={() => onSaleInvoiceDelete(sale_invoice_id)}>
                     <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                   </Popconfirm>
                 </Tooltip>
@@ -277,8 +275,8 @@ const SaleInvoice = () => {
         </div>
       ),
       width: 90,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -301,7 +299,7 @@ const SaleInvoice = () => {
     debouncedSearch,
     debouncedSaleInvoiceNo,
     debouncedChargeNo,
-    debouncedQuotationNo
+    debouncedQuotationNo,
   ]);
 
   return (
@@ -339,11 +337,10 @@ const SaleInvoice = () => {
           rowSelection={
             permissions.delete
               ? {
-                type: 'checkbox',
-                selectedRowKeys: deleteIDs,
-                onChange: (selectedRowKeys) =>
-                  dispatch(setSaleInvoiceDeleteIDs(selectedRowKeys))
-              }
+                  type: 'checkbox',
+                  selectedRowKeys: deleteIDs,
+                  onChange: (selectedRowKeys) => dispatch(setSaleInvoiceDeleteIDs(selectedRowKeys)),
+                }
               : null
           }
           loading={isListLoading}
@@ -354,7 +351,7 @@ const SaleInvoice = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} sale invoice`
+            showTotal: (total) => `Total ${total} sale invoice`,
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -362,15 +359,15 @@ const SaleInvoice = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

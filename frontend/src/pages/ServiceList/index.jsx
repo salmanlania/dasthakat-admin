@@ -9,22 +9,24 @@ import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
 import ServiceListReceiveModal from '../../components/Modals/ServiceListReceiveModal';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
   getServiceListForPrint,
   getServiceListList,
   setServiceListListParams,
-  setServiceListOpenModalId
+  setServiceListOpenModalId,
 } from '../../store/features/serviceListSlice';
 import { createServiceListPrint } from '../../utils/prints/service-list-print';
 
 const serviceListStatus = {
   1: 'Complete',
   2: 'In Complete',
-  3: 'In Progress'
+  3: 'In Progress',
 };
 
 const ServiceList = () => {
+  useDocumentTitle('Service List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo } = useSelector((state) => state.serviceList);
@@ -68,7 +70,7 @@ const ServiceList = () => {
       key: 'document_identity',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -80,7 +82,7 @@ const ServiceList = () => {
             labelKey="document_identity"
             className="w-full font-normal"
             params={{
-              include_other: 0
+              include_other: 0,
             }}
             size="small"
             labelInValue
@@ -88,7 +90,7 @@ const ServiceList = () => {
             value={params.charge_order_id}
             onChange={(selected) =>
               dispatch(
-                setServiceListListParams({ charge_order_id: selected ? selected.value : null })
+                setServiceListListParams({ charge_order_id: selected ? selected.value : null }),
               )
             }
             allowClear
@@ -98,7 +100,7 @@ const ServiceList = () => {
       dataIndex: 'charge_order_no',
       key: 'charge_order_no',
       sorter: true,
-      width: 180
+      width: 180,
     },
     {
       title: (
@@ -117,7 +119,7 @@ const ServiceList = () => {
       key: 'total_quantity',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -142,7 +144,7 @@ const ServiceList = () => {
       dataIndex: 'event_code',
       key: 'event_code',
       sorter: true,
-      width: 180
+      width: 180,
     },
     {
       title: (
@@ -167,7 +169,7 @@ const ServiceList = () => {
       dataIndex: 'vessel_name',
       key: 'vessel_name',
       sorter: true,
-      width: 180
+      width: 180,
     },
     {
       title: (
@@ -180,16 +182,16 @@ const ServiceList = () => {
             options={[
               {
                 value: 1,
-                label: serviceListStatus[1]
+                label: serviceListStatus[1],
               },
               {
                 value: 2,
-                label: serviceListStatus[2]
+                label: serviceListStatus[2],
               },
               {
                 value: 3,
-                label: serviceListStatus[3]
-              }
+                label: serviceListStatus[3],
+              },
             ]}
             value={params.servicelist_status}
             onChange={(value) => dispatch(setServiceListListParams({ servicelist_status: value }))}
@@ -227,7 +229,7 @@ const ServiceList = () => {
           );
         }
       },
-      width: 140
+      width: 140,
     },
 
     {
@@ -236,7 +238,7 @@ const ServiceList = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: 'Action',
@@ -265,8 +267,8 @@ const ServiceList = () => {
         </div>
       ),
       width: 80,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   useEffect(() => {
@@ -282,7 +284,7 @@ const ServiceList = () => {
     params.servicelist_status,
     debouncedSearch,
     debouncedServiceListNo,
-    debouncedTotalQuantity
+    debouncedTotalQuantity,
   ]);
 
   const dataSource = list.map((item) => ({
@@ -293,7 +295,7 @@ const ServiceList = () => {
     vessel_name: item?.vessel_name,
     servicelist_status: item.servicelist_status,
     id: item.servicelist_id,
-    key: item.servicelist_id
+    key: item.servicelist_id,
   }));
 
   return (
@@ -304,7 +306,8 @@ const ServiceList = () => {
 
       <div className="mt-4 rounded-md bg-white p-2">
         <Input
-          placeholder="Search..." allowClear
+          placeholder="Search..."
+          allowClear
           className="w-full sm:w-64"
           value={params.search}
           onChange={(e) => dispatch(setServiceListListParams({ search: e.target.value }))}
@@ -319,7 +322,7 @@ const ServiceList = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} servicelist`
+            showTotal: (total) => `Total ${total} servicelist`,
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -327,15 +330,15 @@ const ServiceList = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           dataSource={dataSource}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

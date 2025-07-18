@@ -9,20 +9,22 @@ import { Link } from 'react-router-dom';
 import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
   bulkDeleteCurrency,
   deleteCurrency,
   getCurrencyList,
   setCurrencyDeleteIDs,
-  setCurrencyListParams
+  setCurrencyListParams,
 } from '../../store/features/currencySlice';
 
 const Currency = () => {
+  useDocumentTitle('Currency List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.currency
+    (state) => state.currency,
   );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.currency;
@@ -76,7 +78,7 @@ const Currency = () => {
       key: 'currency_code',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -95,7 +97,7 @@ const Currency = () => {
       key: 'name',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -114,7 +116,7 @@ const Currency = () => {
       key: 'symbol_left',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -133,7 +135,7 @@ const Currency = () => {
       key: 'symbol_right',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -152,7 +154,7 @@ const Currency = () => {
       key: 'value',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -165,12 +167,12 @@ const Currency = () => {
             options={[
               {
                 value: 1,
-                label: 'Active'
+                label: 'Active',
               },
               {
                 value: 0,
-                label: 'Inactive'
-              }
+                label: 'Inactive',
+              },
             ]}
             value={params.status}
             onChange={(value) => dispatch(setCurrencyListParams({ status: value }))}
@@ -191,7 +193,7 @@ const Currency = () => {
             Inactive
           </Tag>
         ),
-      width: 120
+      width: 120,
     },
     {
       title: 'Created At',
@@ -199,7 +201,7 @@ const Currency = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: 'Action',
@@ -234,8 +236,8 @@ const Currency = () => {
         </div>
       ),
       width: 70,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -255,7 +257,7 @@ const Currency = () => {
     debouncedCode,
     debouncedSymbolLeft,
     debouncedSymbolRight,
-    debouncedValue
+    debouncedValue,
   ]);
 
   return (
@@ -268,7 +270,8 @@ const Currency = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setCurrencyListParams({ search: e.target.value }))}
@@ -299,7 +302,7 @@ const Currency = () => {
               ? {
                   type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setCurrencyDeleteIDs(selectedRowKeys))
+                  onChange: (selectedRowKeys) => dispatch(setCurrencyDeleteIDs(selectedRowKeys)),
                 }
               : null
           }
@@ -311,7 +314,7 @@ const Currency = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} currency`
+            showTotal: (total) => `Total ${total} currency`,
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -319,15 +322,15 @@ const Currency = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

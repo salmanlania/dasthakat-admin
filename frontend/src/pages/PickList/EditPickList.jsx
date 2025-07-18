@@ -1,15 +1,15 @@
 import { Breadcrumb, Spin } from 'antd';
 import { useEffect } from 'react';
-import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import PickListForm from '../../components/Form/PickListForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
-import { getPurchaseOrder, updatePurchaseOrder } from '../../store/features/purchaseOrderSlice';
 import { getPickListListDetail } from '../../store/features/pickListSlice';
 
 const EditPickList = () => {
+  useDocumentTitle('Edit Pick List');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();
@@ -21,7 +21,7 @@ const EditPickList = () => {
   };
 
   useEffect(() => {
-    refreshPickList()
+    refreshPickList();
   }, []);
 
   return (

@@ -5,10 +5,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import CompanyForm from '../../components/Form/CompanyForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { getCompany, updateCompany } from '../../store/features/companySlice';
 
 const EditCompany = () => {
+  useDocumentTitle('Edit Company');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();

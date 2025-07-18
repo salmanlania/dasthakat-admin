@@ -4,10 +4,12 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import UserForm from '../../components/Form/UserForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { createUser } from '../../store/features/userSlice';
 
 const CreateUser = () => {
+  useDocumentTitle('Create User');
   const navigate = useNavigate();
   const handleError = useError();
   const dispatch = useDispatch();

@@ -1,46 +1,44 @@
 import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
+import { FaEye, FaFileInvoice } from 'react-icons/fa';
 import { GoTrash } from 'react-icons/go';
 import { IoCheckmarkDoneCircleSharp } from 'react-icons/io5';
-import { FaFileInvoice } from 'react-icons/fa';
 import { LuClipboardList } from 'react-icons/lu';
-import { HiRefresh } from 'react-icons/hi';
 import { MdOutlineEdit } from 'react-icons/md';
-import { FaEye } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
+import AnalysisModalChargeOrder from '../../components/Modals/AnalysisModalChargeOrder';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import PurchaseOrderModal from '../../components/Modals/PurchaseOrderModal';
-import useDebounce from '../../hooks/useDebounce';
 import TempModalChargeOrder from '../../components/Modals/TempModalChargeOrder';
-import AnalysisModalChargeOrder from '../../components/Modals/AnalysisModalChargeOrder';
+import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle.js';
 import useError from '../../hooks/useError';
 import {
   bulkDeleteChargeOrder,
-  createChargeOrderPO,
   deleteChargeOrder,
   getChargeOrderList,
+  setAnalysisChargeOrderID,
   setChargeOrderDeleteIDs,
   setChargeOrderListParams,
-  setTempChargeOrderID,
-  setAnalysisChargeOrderID
 } from '../../store/features/chargeOrderSlice';
 import { getEventJobOrders, getEventServiceOrder } from '../../store/features/dispatchSlice.js';
 import { setChargePoID } from '../../store/features/purchaseOrderSlice';
+import { createSaleInvoice } from '../../store/features/saleInvoiceSlice';
 import { createIJOPrint } from '../../utils/prints/ijo-print.js';
 import { createServiceOrderPrint } from '../../utils/prints/service-order-print.js';
-import { createSaleInvoice } from '../../store/features/saleInvoiceSlice';
 
 const ChargeOrder = () => {
+  useDocumentTitle('Charge Order List');
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.chargeOrder
+    (state) => state.chargeOrder,
   );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.charge_order;
@@ -53,7 +51,7 @@ const ChargeOrder = () => {
 
   const formattedParams = {
     ...params,
-    document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null
+    document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null,
   };
 
   const groupedData = useMemo(() => {
@@ -76,7 +74,7 @@ const ChargeOrder = () => {
       result.push({
         isEventHeader: true,
         event_code: eventCode,
-        charge_order_id: `header-${eventCode}`
+        charge_order_id: `header-${eventCode}`,
       });
 
       groupedByEvent[eventCode].forEach((item) => {
@@ -118,8 +116,9 @@ const ChargeOrder = () => {
       toast.custom(
         (t) => (
           <div
-            className={`${t.visible ? 'animate-enter' : 'animate-leave'
-              } pointer-events-auto flex w-full max-w-md rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5`}>
+            className={`${
+              t.visible ? 'animate-enter' : 'animate-leave'
+            } pointer-events-auto flex w-full max-w-md rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5`}>
             <div className="w-0 flex-1 p-4">
               <div className="flex items-start">
                 <div className="flex-shrink-0 pt-0.5">
@@ -152,8 +151,8 @@ const ChargeOrder = () => {
           </div>
         ),
         {
-          duration: 8000
-        }
+          duration: 8000,
+        },
       );
     } catch (error) {
       handleError(error);
@@ -210,7 +209,7 @@ const ChargeOrder = () => {
       width: 180,
       ellipsis: true,
       render: (_, { document_date }) =>
-        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null
+        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null,
     },
     {
       title: (
@@ -231,7 +230,7 @@ const ChargeOrder = () => {
       key: 'document_identity',
       sorter: true,
       width: 180,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -252,7 +251,7 @@ const ChargeOrder = () => {
       key: 'ref_document_identity',
       sorter: true,
       width: 180,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -273,7 +272,7 @@ const ChargeOrder = () => {
       key: 'customer_name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -294,7 +293,7 @@ const ChargeOrder = () => {
       key: 'vessel_name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -319,7 +318,7 @@ const ChargeOrder = () => {
       render: (text, record) => {
         if (record.isEventHeader) return null;
         return text;
-      }
+      },
     },
     {
       title: 'Created At',
@@ -327,7 +326,7 @@ const ChargeOrder = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: <div style={{ textAlign: 'center', width: '100%' }}>Action</div>,
@@ -416,8 +415,8 @@ const ChargeOrder = () => {
         );
       },
       width: 150,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -437,7 +436,7 @@ const ChargeOrder = () => {
     params.vessel_id,
     params.event_id,
     debouncedSearch,
-    debouncedDocNo
+    debouncedDocNo,
   ]);
 
   return (
@@ -483,14 +482,15 @@ const ChargeOrder = () => {
               rowSelection={
                 permissions.delete
                   ? {
-                    type: 'checkbox',
-                    selectedRowKeys: deleteIDs,
-                    onChange: (selectedRowKeys) => dispatch(setChargeOrderDeleteIDs(selectedRowKeys)),
-                    getCheckboxProps: (record) => ({
-                      disabled: record.isEventHeader,
-                      name: record.charge_order_id
-                    })
-                  }
+                      type: 'checkbox',
+                      selectedRowKeys: deleteIDs,
+                      onChange: (selectedRowKeys) =>
+                        dispatch(setChargeOrderDeleteIDs(selectedRowKeys)),
+                      getCheckboxProps: (record) => ({
+                        disabled: record.isEventHeader,
+                        name: record.charge_order_id,
+                      }),
+                    }
                   : null
               }
               loading={isListLoading}
@@ -503,7 +503,7 @@ const ChargeOrder = () => {
                 total: paginationInfo.total_records,
                 pageSize: params.limit + totalEvents,
                 current: params.page,
-                showTotal: (total) => `Total ${total} charge orders`
+                showTotal: (total) => `Total ${total} charge orders`,
               }}
               onChange={(page, _, sorting) => {
                 sessionStorage.setItem('chargeOrderLimit', page.pageSize);
@@ -512,19 +512,19 @@ const ChargeOrder = () => {
                     page: page.current,
                     limit: page.pageSize,
                     sort_column: sorting.field || params.sort_column,
-                    sort_direction: sorting.order || params.sort_direction
-                  })
+                    sort_direction: sorting.order || params.sort_direction,
+                  }),
                 );
               }}
               dataSource={data}
               showSorterTooltip={false}
               columns={columns}
               sticky={{
-                offsetHeader: 56
+                offsetHeader: 56,
               }}
               onRow={(record) => {
                 return {
-                  className: record.isEventHeader ? 'event-header-row' : ''
+                  className: record.isEventHeader ? 'event-header-row' : '',
                 };
               }}
               components={{
@@ -546,8 +546,8 @@ const ChargeOrder = () => {
                     }
 
                     return <tr {...props} />;
-                  }
-                }
+                  },
+                },
               }}
             />
           );

@@ -4,10 +4,12 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import AgentForm from '../../components/Form/AgentForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { createAgent } from '../../store/features/agentSlice';
 
 const CreateAgent = () => {
+  useDocumentTitle('Create Agent');
   const navigate = useNavigate();
   const handleError = useError();
   const dispatch = useDispatch();

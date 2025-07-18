@@ -12,6 +12,7 @@ import PageHeading from '../../components/Heading/PageHeading';
 import ChargeOrderModal from '../../components/Modals/ChargeOrderModal';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
   bulkDeleteGoodsReceivedNote,
@@ -20,16 +21,17 @@ import {
   getGoodsReceivedNoteForPrint,
   getGoodsReceivedNoteList,
   setGoodsReceivedNoteDeleteIDs,
-  setGoodsReceivedNoteListParams
+  setGoodsReceivedNoteListParams,
 } from '../../store/features/goodsReceivedNoteSlice';
 import { getPurchaseOrder } from '../../store/features/purchaseOrderSlice';
 import { createGoodsReceivedNotePrint } from '../../utils/prints/goods-received-note-print';
 
 const GoodsReceivedNote = () => {
+  useDocumentTitle('GRN List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.goodsReceivedNote
+    (state) => state.goodsReceivedNote,
   );
   const { user } = useSelector((state) => state.auth);
   const otherPermissions = user.permission;
@@ -47,7 +49,7 @@ const GoodsReceivedNote = () => {
 
   const formattedParams = {
     ...params,
-    document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null
+    document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null,
   };
 
   const onGoodsReceivedNoteDelete = async (id) => {
@@ -87,7 +89,7 @@ const GoodsReceivedNote = () => {
     try {
       setIsGRNCreating(true);
       const { purchase_order_detail, supplier } = await dispatch(
-        getPurchaseOrder(selectedPO)
+        getPurchaseOrder(selectedPO),
       ).unwrap();
 
       const details = purchase_order_detail
@@ -103,7 +105,7 @@ const GoodsReceivedNote = () => {
           description: detail.description,
           quantity: detail?.available_quantity ? parseFloat(detail?.available_quantity) : 0,
           unit_id: detail.unit ? detail.unit.unit_id : null,
-          sort_order: index
+          sort_order: index,
         }))
         .filter((detail) => detail.quantity > 0);
 
@@ -114,7 +116,7 @@ const GoodsReceivedNote = () => {
         purchase_order_id: selectedPO,
         supplier_id: supplier?.supplier_id,
         good_received_note_detail: details,
-        total_quantity: totalQuantity
+        total_quantity: totalQuantity,
       };
 
       await dispatch(createGoodsReceivedNote(payload)).unwrap();
@@ -151,7 +153,7 @@ const GoodsReceivedNote = () => {
       width: 160,
       ellipsis: true,
       render: (_, { document_date }) =>
-        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null
+        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null,
     },
     {
       title: (
@@ -165,8 +167,8 @@ const GoodsReceivedNote = () => {
             onChange={(e) =>
               dispatch(
                 setGoodsReceivedNoteListParams({
-                  document_identity: e.target.value
-                })
+                  document_identity: e.target.value,
+                }),
               )
             }
           />
@@ -176,7 +178,7 @@ const GoodsReceivedNote = () => {
       key: 'document_identity',
       sorter: true,
       width: 160,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -197,7 +199,7 @@ const GoodsReceivedNote = () => {
       key: 'supplier_name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -220,25 +222,25 @@ const GoodsReceivedNote = () => {
       key: 'purchase_order_no',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: 'Vessel Name',
       dataIndex: 'vessel_name',
       key: 'vessel_name',
-      width: 140
+      width: 140,
     },
     {
       title: 'Charge Order No',
       dataIndex: 'charge_order_no',
       key: 'charge_order_no',
-      width: 140
+      width: 140,
     },
     {
       title: 'Event Code',
       dataIndex: 'event_code',
       key: 'event_code',
-      width: 140
+      width: 140,
     },
     {
       title: 'Created At',
@@ -246,7 +248,7 @@ const GoodsReceivedNote = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: 'Action',
@@ -292,8 +294,8 @@ const GoodsReceivedNote = () => {
         </div>
       ),
       width: 105,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -313,7 +315,7 @@ const GoodsReceivedNote = () => {
     params.supplier_id,
     params.purchase_order_id,
     debouncedSearch,
-    debouncedGoodsReceivedNoteNo
+    debouncedGoodsReceivedNoteNo,
   ]);
 
   return (
@@ -334,10 +336,7 @@ const GoodsReceivedNote = () => {
           />
 
           <div className="ml-auto flex flex-wrap items-center gap-2">
-            {permissions.add ? (
-              <>
-              </>
-            ) : null}
+            {permissions.add ? <></> : null}
             {permissions.delete ? (
               <Button
                 type="primary"
@@ -363,7 +362,7 @@ const GoodsReceivedNote = () => {
                   type: 'checkbox',
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) =>
-                    dispatch(setGoodsReceivedNoteDeleteIDs(selectedRowKeys))
+                    dispatch(setGoodsReceivedNoteDeleteIDs(selectedRowKeys)),
                 }
               : null
           }
@@ -375,7 +374,7 @@ const GoodsReceivedNote = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} goods received note`
+            showTotal: (total) => `Total ${total} goods received note`,
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -383,15 +382,15 @@ const GoodsReceivedNote = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

@@ -4,10 +4,12 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import IJOForm from '../../components/Form/IJOForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { createIJO } from '../../store/features/ijoSlice';
 
 const CreateIJO = () => {
+  useDocumentTitle('Create IJO');
   const navigate = useNavigate();
   const handleError = useError();
   const dispatch = useDispatch();
@@ -30,7 +32,7 @@ const CreateIJO = () => {
     } catch (error) {
       handleError(error);
     }
-  }
+  };
 
   return (
     <>
@@ -40,7 +42,7 @@ const CreateIJO = () => {
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-      <IJOForm onSubmit={onIJOCreate} onSave={onIJOSaveAndExit} />
+        <IJOForm onSubmit={onIJOCreate} onSave={onIJOSaveAndExit} />
       </div>
     </>
   );

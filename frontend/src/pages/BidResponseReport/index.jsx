@@ -1,18 +1,20 @@
 import { Breadcrumb, Button, DatePicker, Form, Select } from 'antd';
 import dayjs from 'dayjs';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { getBidResponseList } from '../../store/features/quotationSlice';
+import generateBidResponseExcel from '../../utils/excel/bid-response-excel';
 import { createBidResponsePrint } from '../../utils/prints/bid-response-print';
 import { createGroupByBidResponsePrint } from '../../utils/prints/bid-response-print-groupby';
-import generateBidResponseExcel from '../../utils/excel/bid-response-excel';
 
 const { RangePicker } = DatePicker;
 
 const BidResponseReport = () => {
+  useDocumentTitle('Bid Response Report');
   const dispatch = useDispatch();
   const handlerError = useError();
   const [isSubmitting, setIsSubmitting] = useState(null);

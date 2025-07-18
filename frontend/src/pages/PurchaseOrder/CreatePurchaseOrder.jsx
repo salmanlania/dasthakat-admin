@@ -4,10 +4,12 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import PurchaseOrderForm from '../../components/Form/PurchaseOrderForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { createPurchaseOrder } from '../../store/features/purchaseOrderSlice';
 
 const CreatePurchaseOrder = () => {
+  useDocumentTitle('Create Purchase Order');
   const navigate = useNavigate();
   const handleError = useError();
   const dispatch = useDispatch();

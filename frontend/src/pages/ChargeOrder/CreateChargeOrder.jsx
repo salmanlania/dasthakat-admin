@@ -4,11 +4,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import ChargeOrderForm from '../../components/Form/ChargeOrderForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
-import { createChargeOrder, getChargeOrder } from '../../store/features/chargeOrderSlice';
-import { setChargePoID } from '../../store/features/purchaseOrderSlice';
+import { createChargeOrder } from '../../store/features/chargeOrderSlice';
 
 const CreateChargeOrder = () => {
+  useDocumentTitle('Create Charge Order');
   const navigate = useNavigate();
   const handleError = useError();
   const dispatch = useDispatch();
@@ -19,7 +20,7 @@ const CreateChargeOrder = () => {
       const res = await dispatch(createChargeOrder({ data, additionalRequest })).unwrap();
       toast.success('Charge Order created successfully');
       const createdId = res.data.data.charge_order_id;
-      navigate(`/charge-order/edit/${createdId}`)
+      navigate(`/charge-order/edit/${createdId}`);
     } catch (error) {
       handleError(error);
     }

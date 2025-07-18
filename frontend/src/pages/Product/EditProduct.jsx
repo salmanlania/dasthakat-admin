@@ -5,10 +5,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import ProductForm from '../../components/Form/ProductForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { getProduct, updateProduct } from '../../store/features/productSlice';
 
 const EditProduct = () => {
+  useDocumentTitle('Edit Product');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();

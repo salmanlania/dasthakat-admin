@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Select, Table, Tooltip } from 'antd';
+import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -9,28 +9,28 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
-import ChargeOrderModal from '../../components/Modals/ChargeOrderModal';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
 
 import {
+  bulkDeletePurchaseReturn,
+  getPurchaseReturnInvoice,
   getPurchaseReturnList,
-  setPurchaseReturnListParams,
   purchaseReturnDelete,
   setPurchaseReturnDeleteIDs,
-  bulkDeletePurchaseReturn,
-  getPurchaseReturnInvoice
+  setPurchaseReturnListParams,
 } from '../../store/features/purchaseReturnSlice';
 
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import { createPurchaseReturnPrint } from '../../utils/prints/purchase-return-print';
 
 const PurchaseReturn = () => {
+  useDocumentTitle('Purchase Return List');
   const dispatch = useDispatch();
   const handleError = useError();
-  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs, listID } = useSelector(
-    (state) => state.purchaseReturn
-  );
+  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs, listID } =
+    useSelector((state) => state.purchaseReturn);
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.purchase_return;
 
@@ -44,7 +44,7 @@ const PurchaseReturn = () => {
 
   const formattedParams = {
     ...params,
-    document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null
+    document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null,
   };
 
   const onPurchaseReturnDelete = async (id) => {
@@ -103,7 +103,7 @@ const PurchaseReturn = () => {
       width: 190,
       ellipsis: true,
       render: (_, { document_date }) =>
-        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null
+        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null,
     },
     {
       title: (
@@ -118,8 +118,8 @@ const PurchaseReturn = () => {
             onChange={(e) =>
               dispatch(
                 setPurchaseReturnListParams({
-                  document_identity: e.target.value
-                })
+                  document_identity: e.target.value,
+                }),
               )
             }
           />
@@ -129,7 +129,7 @@ const PurchaseReturn = () => {
       key: 'document_identity',
       sorter: true,
       width: 180,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -144,8 +144,8 @@ const PurchaseReturn = () => {
             onChange={(e) =>
               dispatch(
                 setPurchaseReturnListParams({
-                  purchase_order_no: e.target.value
-                })
+                  purchase_order_no: e.target.value,
+                }),
               )
             }
           />
@@ -155,7 +155,7 @@ const PurchaseReturn = () => {
       key: 'purhcase_order_no',
       sorter: true,
       width: 180,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -176,7 +176,7 @@ const PurchaseReturn = () => {
       key: 'vessel_name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -191,8 +191,8 @@ const PurchaseReturn = () => {
             onChange={(e) =>
               dispatch(
                 setPurchaseReturnListParams({
-                  charge_order_no: e.target.value
-                })
+                  charge_order_no: e.target.value,
+                }),
               )
             }
           />
@@ -202,7 +202,7 @@ const PurchaseReturn = () => {
       key: 'charge_no',
       sorter: true,
       width: 180,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -227,7 +227,7 @@ const PurchaseReturn = () => {
       render: (text, record) => {
         if (record.isEventHeader) return null;
         return text;
-      }
+      },
     },
     {
       title: 'Created At',
@@ -235,13 +235,13 @@ const PurchaseReturn = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: <div style={{ textAlign: 'center', width: '100%' }}>Action</div>,
       key: 'action',
       render: (_, { purchase_return_id }) => (
-        <div className="flex justify-center items-center gap-2">
+        <div className="flex items-center justify-center gap-2">
           {permissions.edit ? (
             <>
               <Tooltip title="Edit">
@@ -262,8 +262,7 @@ const PurchaseReturn = () => {
                     okButtonProps={{ danger: true }}
                     okText="Yes"
                     cancelText="No"
-                    onConfirm={() => onPurchaseReturnDelete(purchase_return_id)}
-                  >
+                    onConfirm={() => onPurchaseReturnDelete(purchase_return_id)}>
                     <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                   </Popconfirm>
                 </Tooltip>
@@ -282,8 +281,8 @@ const PurchaseReturn = () => {
         </div>
       ),
       width: 90,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -305,7 +304,7 @@ const PurchaseReturn = () => {
     debouncedSearch,
     debouncedSaleInvoiceNo,
     debouncedChargeNo,
-    debouncedQuotationNo
+    debouncedQuotationNo,
   ]);
 
   return (
@@ -318,7 +317,8 @@ const PurchaseReturn = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setPurchaseReturnListParams({ search: e.target.value }))}
@@ -330,8 +330,7 @@ const PurchaseReturn = () => {
                 type="primary"
                 danger
                 onClick={() => setDeleteModalIsOpen(true)}
-                disabled={!deleteIDs.length}
-              >
+                disabled={!deleteIDs.length}>
                 Delete
               </Button>
             ) : null}
@@ -343,11 +342,11 @@ const PurchaseReturn = () => {
           rowSelection={
             permissions.delete
               ? {
-                type: 'checkbox',
-                selectedRowKeys: deleteIDs,
-                onChange: (selectedRowKeys) =>
-                  dispatch(setPurchaseReturnDeleteIDs(selectedRowKeys))
-              }
+                  type: 'checkbox',
+                  selectedRowKeys: deleteIDs,
+                  onChange: (selectedRowKeys) =>
+                    dispatch(setPurchaseReturnDeleteIDs(selectedRowKeys)),
+                }
               : null
           }
           loading={isListLoading}
@@ -358,7 +357,7 @@ const PurchaseReturn = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} sale invoice`
+            showTotal: (total) => `Total ${total} sale invoice`,
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -366,15 +365,15 @@ const PurchaseReturn = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

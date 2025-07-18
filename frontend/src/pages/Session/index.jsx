@@ -1,8 +1,9 @@
 import { Button, Form, Select } from 'antd';
 import toast from 'react-hot-toast';
+import { useDispatch, useSelector } from 'react-redux';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import LOGO from '../../assets/logo.jpg';
-import { useDispatch, useSelector } from 'react-redux';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { postSession } from '../../store/features/authSlice';
 
@@ -16,10 +17,9 @@ export const sessionSubmit = async (values, dispatch, sessionData, handleError, 
         company_id: companyId,
         company_branch_id: companyBranchId,
         email: sessionData.email,
-        password: sessionData.password
-      })
+        password: sessionData.password,
+      }),
     ).unwrap();
-
 
     if (response && typeof response === 'object' && !Array.isArray(response)) {
       if (response?.is_exempted === 1) {
@@ -47,6 +47,7 @@ export const sessionSubmit = async (values, dispatch, sessionData, handleError, 
 };
 
 const Session = () => {
+  useDocumentTitle('Session');
   const handleError = useError();
   const dispatch = useDispatch();
   const location = useLocation();
@@ -68,7 +69,7 @@ const Session = () => {
 
   const initialFormValues = {
     company_id: companies[0]?.value,
-    company_branch_id: companies[0]?.branches[0]?.value
+    company_branch_id: companies[0]?.branches[0]?.value,
   };
 
   return (

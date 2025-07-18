@@ -1,13 +1,15 @@
 import { Breadcrumb } from 'antd';
+import toast from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import CompanyBranchForm from '../../components/Form/CompanyBranchForm';
 import PageHeading from '../../components/Heading/PageHeading';
-import { useNavigate } from 'react-router-dom';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
-import { useDispatch } from 'react-redux';
 import { createCompanyBranch } from '../../store/features/companyBranchSlice';
-import toast from 'react-hot-toast';
 
 const CreateCompany = () => {
+  useDocumentTitle('Create Company Branch');
   const navigate = useNavigate();
   const handleError = useError();
   const dispatch = useDispatch();

@@ -10,20 +10,22 @@ import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
   bulkDeleteUser,
   deleteUser,
   getUserList,
   setUserDeleteIDs,
-  setUserListParams
+  setUserListParams,
 } from '../../store/features/userSlice';
 
 const User = () => {
+  useDocumentTitle('User List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.user
+    (state) => state.user,
   );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.user;
@@ -74,7 +76,7 @@ const User = () => {
       key: 'user_name',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -93,7 +95,7 @@ const User = () => {
       key: 'email',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -113,7 +115,7 @@ const User = () => {
       dataIndex: 'permission_name',
       key: 'permission_name',
       sorter: true,
-      width: 180
+      width: 180,
     },
     {
       title: (
@@ -126,12 +128,12 @@ const User = () => {
             options={[
               {
                 value: 1,
-                label: 'Active'
+                label: 'Active',
               },
               {
                 value: 0,
-                label: 'Inactive'
-              }
+                label: 'Inactive',
+              },
             ]}
             value={params.status}
             onChange={(value) => dispatch(setUserListParams({ status: value }))}
@@ -152,7 +154,7 @@ const User = () => {
             Inactive
           </Tag>
         ),
-      width: 120
+      width: 120,
     },
     {
       title: 'Created At',
@@ -160,7 +162,7 @@ const User = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: 'Action',
@@ -195,8 +197,8 @@ const User = () => {
         </div>
       ),
       width: 70,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -215,7 +217,7 @@ const User = () => {
     params.status,
     debouncedSearch,
     debouncedUserName,
-    debouncedEmail
+    debouncedEmail,
   ]);
 
   return (
@@ -228,7 +230,8 @@ const User = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setUserListParams({ search: e.target.value }))}
@@ -259,7 +262,7 @@ const User = () => {
               ? {
                   type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setUserDeleteIDs(selectedRowKeys))
+                  onChange: (selectedRowKeys) => dispatch(setUserDeleteIDs(selectedRowKeys)),
                 }
               : null
           }
@@ -270,7 +273,7 @@ const User = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} users`
+            showTotal: (total) => `Total ${total} users`,
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -278,8 +281,8 @@ const User = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           dataSource={list}
@@ -287,7 +290,7 @@ const User = () => {
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

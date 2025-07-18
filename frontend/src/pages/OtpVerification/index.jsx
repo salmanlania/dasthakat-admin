@@ -1,21 +1,23 @@
 import { Button } from 'antd';
+import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { useNavigate, useLocation, Navigate } from 'react-router-dom';
-import LOGO from '../../assets/logo.jpg';
 import { useDispatch, useSelector } from 'react-redux';
-import { useRef, useState, useEffect } from 'react';
-import { verifyOtpHandler } from '../../store/features/authSlice';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import LOGO from '../../assets/logo.jpg';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
+import { verifyOtpHandler } from '../../store/features/authSlice';
 import { sessionSubmit } from '../Session/index';
 
 const OtpVerification = () => {
+  useDocumentTitle('OTP Verification');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const handleError = useError();
 
   const { otpPayload, isVerifyingOtp, userSession, sessionData } = useSelector(
-    (state) => state.auth
+    (state) => state.auth,
   );
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -54,7 +56,7 @@ const OtpVerification = () => {
     }
   };
 
-    if (!otpPayload) return <Navigate to="/login" />
+  if (!otpPayload) return <Navigate to="/login" />;
 
   const handleChange = (e, index) => {
     const rawValue = e.target.value;
@@ -115,7 +117,7 @@ const OtpVerification = () => {
           password: otpPayload.password,
           company_branch_id: otpPayload.company_branch_id,
           company_id: otpPayload.company_id,
-          code: fullOtp
+          code: fullOtp,
         };
         await dispatch(verifyOtpHandler(data)).unwrap();
 
@@ -134,7 +136,7 @@ const OtpVerification = () => {
     try {
       const values = {
         company_id: otpPayload.company_id,
-        company_branch_id: otpPayload.company_branch_id
+        company_branch_id: otpPayload.company_branch_id,
       };
 
       await sessionSubmit(values, dispatch, sessionData, handleError);

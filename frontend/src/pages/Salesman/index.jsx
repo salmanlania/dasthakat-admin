@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
   addNewSalesman,
@@ -22,10 +23,11 @@ import {
   setSalesmanEditable,
   setSalesmanListParams,
   updateSalesman,
-  updateSalesmanListValue
+  updateSalesmanListValue,
 } from '../../store/features/salesmanSlice';
 
 const Salesman = () => {
+  useDocumentTitle('Salesman List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, isSubmitting, deleteIDs } =
@@ -65,8 +67,8 @@ const Salesman = () => {
       await dispatch(
         updateSalesman({
           id: salesman_id,
-          data: { name, commission_percentage }
-        })
+          data: { name, commission_percentage },
+        }),
       ).unwrap();
       await dispatch(getSalesmanList(params)).unwrap();
     } catch (error) {
@@ -128,7 +130,7 @@ const Salesman = () => {
           />
         ) : (
           <span>{name}</span>
-        )
+        ),
     },
     {
       title: (
@@ -158,7 +160,7 @@ const Salesman = () => {
           />
         ) : (
           <span>{commission_percentage}</span>
-        )
+        ),
     },
     {
       title: 'Created At',
@@ -171,7 +173,7 @@ const Salesman = () => {
           dayjs(created_at).format('MM-DD-YYYY hh:mm A')
         ) : (
           <span className="text-gray-400">AUTO</span>
-        )
+        ),
     },
     {
       title: 'Action',
@@ -211,8 +213,8 @@ const Salesman = () => {
                     dispatch(
                       setSalesmanEditable({
                         id: salesman_id,
-                        editable: true
-                      })
+                        editable: true,
+                      }),
                     )
                   }
                 />
@@ -235,8 +237,8 @@ const Salesman = () => {
         );
       },
       width: 70,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete && !permissions.add) {
@@ -253,7 +255,7 @@ const Salesman = () => {
     params.sort_direction,
     debouncedSearch,
     debouncedName,
-    debouncedCM
+    debouncedCM,
   ]);
 
   return (
@@ -266,7 +268,8 @@ const Salesman = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setSalesmanListParams({ search: e.target.value }))}
@@ -297,8 +300,8 @@ const Salesman = () => {
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) => dispatch(setSalesmanDeleteIDs(selectedRowKeys)),
                   getCheckboxProps: (record) => ({
-                    disabled: record.salesman_id === 'new'
-                  })
+                    disabled: record.salesman_id === 'new',
+                  }),
                 }
               : null
           }
@@ -308,8 +311,8 @@ const Salesman = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           loading={isListLoading}
@@ -320,13 +323,13 @@ const Salesman = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} salesman`
+            showTotal: (total) => `Total ${total} salesman`,
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

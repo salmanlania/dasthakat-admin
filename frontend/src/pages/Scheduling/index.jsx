@@ -1,3 +1,4 @@
+import { CopyOutlined } from '@ant-design/icons';
 import {
   Breadcrumb,
   Button,
@@ -5,16 +6,15 @@ import {
   Input,
   Select,
   Table,
-  Tag,
   TimePicker,
-  Checkbox,
   Tooltip,
-  message
+  message,
 } from 'antd';
 import dayjs from 'dayjs';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { FaRegFilePdf } from 'react-icons/fa';
+import { FaRegFileExcel } from 'react-icons/fa6';
 import { TbEdit } from 'react-icons/tb';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncSelect from '../../components/AsyncSelect/index.jsx';
@@ -22,42 +22,42 @@ import AsyncSelectSpecial from '../../components/AsyncSelectSpecial/index.jsx';
 import PageHeading from '../../components/Heading/PageHeading.jsx';
 import NotesModal from '../../components/Modals/NotesModal.jsx';
 import useDebounce from '../../hooks/useDebounce.js';
+import useDocumentTitle from '../../hooks/useDocumentTitle.js';
 import useError from '../../hooks/useError.jsx';
-import generateSchedulingExcel from '../../utils/excel/scheduling-excel.js';
-import createSchedulingListPrint from '../../utils/Pdf/scheduling-list.js';
 import {
   getDispatchList,
   getEventJobOrders,
   getEventPickLists,
   getEventServiceOrder,
   setDispatchListParams,
-  updateDispatch
+  updateDispatch,
 } from '../../store/features/dispatchSlice.js';
+import generateSchedulingExcel from '../../utils/excel/scheduling-excel.js';
+import createSchedulingListPrint from '../../utils/Pdf/scheduling-list.js';
 import { createIJOPrint } from '../../utils/prints/ijo-print.js';
 import { createPickListPrint } from '../../utils/prints/pick-list-print.js';
 import { createServiceOrderPrint } from '../../utils/prints/service-order-print.js';
-import { FaRegFileExcel } from 'react-icons/fa6';
-import { CopyOutlined } from '@ant-design/icons';
 
 const Scheduling = () => {
+  useDocumentTitle('Scheduling List');
   const { RangePicker } = DatePicker;
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isFormSubmitting } = useSelector(
-    (state) => state.dispatch
+    (state) => state.dispatch,
   );
 
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.dispatch;
   const [tableKey, setTableKey] = useState(0);
   const [isOldChecked, setIsOldChecked] = useState(false);
-  const [formatDate, setFormatDate] = useState([])
+  const [formatDate, setFormatDate] = useState([]);
 
   const [notesModalIsOpen, setNotesModalIsOpen] = useState({
     open: false,
     id: null,
     column: null,
-    notes: null
+    notes: null,
   });
 
   const getFilteredParams = () => {
@@ -67,9 +67,9 @@ const Scheduling = () => {
 
     return {
       ...params,
-      start_date: hasDateRange ? params.start_date : (!isOldChecked ? today : params.start_date),
-      end_date: hasDateRange ? params.end_date : (!isOldChecked ? null : params.end_date),
-      status: params.status
+      start_date: hasDateRange ? params.start_date : !isOldChecked ? today : params.start_date,
+      end_date: hasDateRange ? params.end_date : !isOldChecked ? null : params.end_date,
+      status: params.status,
     };
   };
 
@@ -100,7 +100,7 @@ const Scheduling = () => {
       result.push({
         isDateHeader: true,
         event_date: date,
-        event_id: `header-${date}`
+        event_id: `header-${date}`,
       });
 
       groupedByDate[date].forEach((item) => {
@@ -120,8 +120,8 @@ const Scheduling = () => {
       await dispatch(
         updateDispatch({
           id,
-          data: { [key]: value }
-        })
+          data: { [key]: value },
+        }),
       ).unwrap();
       dispatch(getDispatchList(getFilteredParams())).unwrap();
 
@@ -165,7 +165,7 @@ const Scheduling = () => {
       if (hasDateRange) {
         exportParams = {
           ...params,
-          sort_direction: 'ascend'
+          sort_direction: 'ascend',
         };
       } else {
         const today = dayjs().format('YYYY-MM-DD');
@@ -173,7 +173,7 @@ const Scheduling = () => {
           ...params,
           start_date: today,
           end_date: null,
-          sort_direction: 'ascend'
+          sort_direction: 'ascend',
         };
       }
 
@@ -181,7 +181,7 @@ const Scheduling = () => {
       generateSchedulingExcel(data, true);
       setTableKey((prevKey) => prevKey + 1);
     } catch (error) {
-      handleError(error)
+      handleError(error);
     } finally {
       toast.dismiss(loadingToast);
     }
@@ -197,7 +197,7 @@ const Scheduling = () => {
       if (hasDateRange) {
         exportParams = {
           ...params,
-          sort_direction: 'ascend'
+          sort_direction: 'ascend',
         };
       } else {
         const today = dayjs().format('YYYY-MM-DD');
@@ -205,7 +205,7 @@ const Scheduling = () => {
           ...params,
           start_date: today,
           end_date: null,
-          sort_direction: 'ascend'
+          sort_direction: 'ascend',
         };
       }
 
@@ -282,8 +282,8 @@ const Scheduling = () => {
               onChange={(date) => {
                 dispatch(
                   setDispatchListParams({
-                    event_date: date ? dayjs(date).format('YYYY-MM-DD') : null
-                  })
+                    event_date: date ? dayjs(date).format('YYYY-MM-DD') : null,
+                  }),
                 );
               }}
               format="MM-DD-YYYY"
@@ -321,13 +321,13 @@ const Scheduling = () => {
               await updateValue(
                 record.event_id,
                 'event_date',
-                date ? dayjs(date).format('YYYY-MM-DD') : null
+                date ? dayjs(date).format('YYYY-MM-DD') : null,
               );
               setTableKey((prev) => prev + 1);
             }}
           />
         );
-      }
+      },
     },
     {
       title: (
@@ -341,7 +341,7 @@ const Scheduling = () => {
               showSecond={false}
               onChange={(time) =>
                 dispatch(
-                  setDispatchListParams({ event_time: time ? time.format('HH:mm:ss') : null })
+                  setDispatchListParams({ event_time: time ? time.format('HH:mm:ss') : null }),
                 )
               }
             />
@@ -365,7 +365,7 @@ const Scheduling = () => {
             updateValue(event_id, 'event_time', date ? dayjs(date).format('HH:mm') : null)
           }
         />
-      )
+      ),
     },
     {
       title: (
@@ -386,7 +386,7 @@ const Scheduling = () => {
       key: 'event_code',
       sorter: true,
       width: 140,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -407,7 +407,7 @@ const Scheduling = () => {
       key: 'vessel_name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -442,9 +442,9 @@ const Scheduling = () => {
               defaultValue={
                 ports[0]
                   ? {
-                    value: ports[0].port_id,
-                    label: ports[0].name
-                  }
+                      value: ports[0].port_id,
+                      label: ports[0].name,
+                    }
                   : null
               }
               onChange={(selected) =>
@@ -456,12 +456,12 @@ const Scheduling = () => {
                 width: '90%',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
-                textOverflow: 'ellipsis'
+                textOverflow: 'ellipsis',
               }}
             />
           </div>
         );
-      }
+      },
     },
     {
       title: (
@@ -471,8 +471,8 @@ const Scheduling = () => {
             additionalOptions={[
               {
                 label: 'New Supply',
-                value: 'new_supply'
-              }
+                value: 'new_supply',
+              },
             ]}
             endpoint="/lookups/short-codes"
             size="small"
@@ -504,7 +504,7 @@ const Scheduling = () => {
             ))}
           </div>
         );
-      }
+      },
     },
     {
       title: (
@@ -530,9 +530,9 @@ const Scheduling = () => {
       render: (_, { event_id, users, technicians }) => {
         const selectedValues = technicians
           ? technicians.map((tech) => ({
-            value: tech.user_id,
-            label: tech.user_name
-          }))
+              value: tech.user_id,
+              label: tech.user_name,
+            }))
           : [];
         return (
           <AsyncSelect
@@ -547,14 +547,14 @@ const Scheduling = () => {
               updateValue(
                 event_id,
                 'technician_id',
-                selected ? selected.map((item) => item.value) : null
+                selected ? selected.map((item) => item.value) : null,
               );
             }}
             className="w-full"
             size="small"
           />
         );
-      }
+      },
     },
     {
       title: (
@@ -589,14 +589,14 @@ const Scheduling = () => {
                     open: true,
                     id: event_id,
                     column: 'technician_notes',
-                    notes: technician_notes
+                    notes: technician_notes,
                   })
                 }
               />
             </div>
           </div>
         );
-      }
+      },
     },
     {
       title: (
@@ -612,8 +612,8 @@ const Scheduling = () => {
             onChange={(selected) => {
               dispatch(
                 setDispatchListParams({
-                  agent_id: selected
-                })
+                  agent_id: selected,
+                }),
               );
             }}
           />
@@ -631,7 +631,7 @@ const Scheduling = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              width: '100%'
+              width: '100%',
             }}>
             <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
               <AsyncSelect
@@ -644,9 +644,9 @@ const Scheduling = () => {
                 defaultValue={
                   agent_id
                     ? {
-                      value: agent_id,
-                      label: agent_name
-                    }
+                        value: agent_id,
+                        label: agent_name,
+                      }
                     : null
                 }
                 onChange={(selected) =>
@@ -658,7 +658,7 @@ const Scheduling = () => {
                   width: '90%',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
-                  textOverflow: 'ellipsis'
+                  textOverflow: 'ellipsis',
                 }}
               />
             </div>
@@ -677,7 +677,7 @@ const Scheduling = () => {
                 size="small"
                 onClick={() =>
                   handleCopy(
-                    `Name: ${agent_name}\nEmail: ${agent_email}\nPhone: ${agent_phone}\nFax: ${agent_fax}`
+                    `Name: ${agent_name}\nEmail: ${agent_email}\nPhone: ${agent_phone}\nFax: ${agent_fax}`,
                   )
                 }
                 style={{ marginLeft: '8px' }}
@@ -685,7 +685,7 @@ const Scheduling = () => {
             </Tooltip>
           </div>
         );
-      }
+      },
     },
     {
       title: (
@@ -720,14 +720,14 @@ const Scheduling = () => {
                     open: true,
                     id: event_id,
                     column: 'agent_notes',
-                    notes: agent_notes
+                    notes: agent_notes,
                   })
                 }
               />
             </div>
           </div>
         );
-      }
+      },
     },
     {
       title: (
@@ -743,8 +743,8 @@ const Scheduling = () => {
             onChange={(selected) => {
               dispatch(
                 setDispatchListParams({
-                  status: selected
-                })
+                  status: selected,
+                }),
               );
             }}
           />
@@ -767,7 +767,7 @@ const Scheduling = () => {
             onChange={(selectedValue) => updateValue(event_id, 'status', selectedValue || null)}
           />
         );
-      }
+      },
     },
     {
       title: 'Print',
@@ -807,8 +807,8 @@ const Scheduling = () => {
         </div>
       ),
       width: 130,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   useEffect(() => {
@@ -834,7 +834,7 @@ const Scheduling = () => {
     params.event_time,
     debouncedSearch,
     debouncedTechnicianNotes,
-    debouncedAgentNotes
+    debouncedAgentNotes,
   ]);
 
   const handleClearFilters = () => {
@@ -855,7 +855,7 @@ const Scheduling = () => {
         agent_notes: '',
         status: null,
         page: 1,
-      })
+      }),
     );
 
     const today = dayjs().format('YYYY-MM-DD');
@@ -876,11 +876,10 @@ const Scheduling = () => {
         agent_id: null,
         agent_notes: '',
         status: null,
-        page: 1
-      })
+        page: 1,
+      }),
     );
   };
-
 
   return (
     <>
@@ -906,12 +905,12 @@ const Scheduling = () => {
                   : null,
                 params.end_date && params.end_date !== ''
                   ? dayjs(params.end_date, 'YYYY-MM-DD')
-                  : null
+                  : null,
               ]}
               onChange={(dates) => {
                 const newParams = {
                   start_date: dates?.[0] ? dayjs(dates[0]).format('YYYY-MM-DD') : '',
-                  end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : ''
+                  end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : '',
                 };
 
                 dispatch(setDispatchListParams(newParams));
@@ -936,14 +935,12 @@ const Scheduling = () => {
               format="MM-DD-YYYY"
             />
           </div>
-          <div>
-          </div>
+          <div></div>
           <div className="flex items-center justify-around gap-3">
             <Button
               onClick={handleClearFilters}
               type="primary"
-              className="bg-sky-800 hover:!bg-sky-700"
-            >
+              className="bg-sky-800 hover:!bg-sky-700">
               Clear Filters
             </Button>
             <Button
@@ -978,17 +975,17 @@ const Scheduling = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} scheduling`
+            showTotal: (total) => `Total ${total} scheduling`,
           }}
           dataSource={groupedData}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
           onRow={(record) => {
             return {
-              className: record.isDateHeader ? 'date-header-row' : ''
+              className: record.isDateHeader ? 'date-header-row' : '',
             };
           }}
           components={{
@@ -1013,8 +1010,8 @@ const Scheduling = () => {
                 }
 
                 return <tr {...props} />;
-              }
-            }
+              },
+            },
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -1022,8 +1019,8 @@ const Scheduling = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
         />

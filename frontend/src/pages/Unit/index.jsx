@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
   addNewUnit,
@@ -22,10 +23,11 @@ import {
   setUnitEditable,
   setUnitListParams,
   updateUnit,
-  updateUnitListValue
+  updateUnitListValue,
 } from '../../store/features/unitSlice';
 
 const Unit = () => {
+  useDocumentTitle('Unit List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, isSubmitting, deleteIDs } =
@@ -63,8 +65,8 @@ const Unit = () => {
       await dispatch(
         updateUnit({
           id: unit_id,
-          data: { name }
-        })
+          data: { name },
+        }),
       ).unwrap();
       await dispatch(getUnitList(params)).unwrap();
     } catch (error) {
@@ -115,7 +117,7 @@ const Unit = () => {
           />
         ) : (
           <span>{name}</span>
-        )
+        ),
     },
     {
       title: 'Created At',
@@ -128,7 +130,7 @@ const Unit = () => {
           dayjs(created_at).format('MM-DD-YYYY hh:mm A')
         ) : (
           <span className="text-gray-400">AUTO</span>
-        )
+        ),
     },
     {
       title: 'Action',
@@ -168,8 +170,8 @@ const Unit = () => {
                     dispatch(
                       setUnitEditable({
                         id: unit_id,
-                        editable: true
-                      })
+                        editable: true,
+                      }),
                     )
                   }
                 />
@@ -192,8 +194,8 @@ const Unit = () => {
         );
       },
       width: 70,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete && !permissions.add) {
@@ -214,7 +216,8 @@ const Unit = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setUnitListParams({ search: e.target.value }))}
@@ -245,8 +248,8 @@ const Unit = () => {
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) => dispatch(setUnitDeleteIDs(selectedRowKeys)),
                   getCheckboxProps: (record) => ({
-                    disabled: record.unit_id === 'new'
-                  })
+                    disabled: record.unit_id === 'new',
+                  }),
                 }
               : null
           }
@@ -256,8 +259,8 @@ const Unit = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           loading={isListLoading}
@@ -268,13 +271,13 @@ const Unit = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} unit`
+            showTotal: (total) => `Total ${total} unit`,
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

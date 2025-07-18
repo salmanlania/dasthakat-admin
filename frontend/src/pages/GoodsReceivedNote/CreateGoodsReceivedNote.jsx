@@ -4,10 +4,12 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import GoodsReceivedNoteForm from '../../components/Form/GoodsReceivedNoteForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { createGoodsReceivedNote } from '../../store/features/goodsReceivedNoteSlice';
 
 const CreateGoodsReceivedNote = () => {
+  useDocumentTitle('Create GRN');
   const navigate = useNavigate();
   const handleError = useError();
   const dispatch = useDispatch();
@@ -41,7 +43,10 @@ const CreateGoodsReceivedNote = () => {
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-        <GoodsReceivedNoteForm onSubmit={onGoodsReceivedNoteCreate} onSave={onGoodsReceivedNoteCreates} />
+        <GoodsReceivedNoteForm
+          onSubmit={onGoodsReceivedNoteCreate}
+          onSave={onGoodsReceivedNoteCreates}
+        />
       </div>
     </>
   );

@@ -5,13 +5,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import CommissionAgentForm from '../../components/Form/CommissionAgentForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
   getCommissionAgent,
-  updateCommissionAgent
+  updateCommissionAgent,
 } from '../../store/features/commissionAgentSlice';
 
 const EditCommissionAgent = () => {
+  useDocumentTitle('Edit Commission Agent');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();

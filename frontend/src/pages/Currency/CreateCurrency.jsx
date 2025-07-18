@@ -4,10 +4,12 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import CurrencyForm from '../../components/Form/CurrencyForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { createCurrency } from '../../store/features/currencySlice';
 
 const CreateCurrency = () => {
+  useDocumentTitle('Create Currency');
   const navigate = useNavigate();
   const handleError = useError();
   const dispatch = useDispatch();

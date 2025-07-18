@@ -4,10 +4,12 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import PurchaseInvoiceForm from '../../components/Form/PurchaseInvoiceForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { createPurchaseInvoice } from '../../store/features/purchaseInvoiceSlice';
 
 const CreatePurchaseInvoice = () => {
+  useDocumentTitle('Create Purchase Invoice');
   const navigate = useNavigate();
   const handleError = useError();
   const dispatch = useDispatch();

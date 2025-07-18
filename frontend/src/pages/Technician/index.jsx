@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
   addNewTechnician,
@@ -22,10 +23,11 @@ import {
   setTechnicianEditable,
   setTechnicianListParams,
   updateTechnician,
-  updateTechnicianListValue
+  updateTechnicianListValue,
 } from '../../store/features/technicianSlice';
 
 const Technician = () => {
+  useDocumentTitle('Technician List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, isSubmitting, deleteIDs } =
@@ -63,8 +65,8 @@ const Technician = () => {
       await dispatch(
         updateTechnician({
           id: technician_id,
-          data: { name }
-        })
+          data: { name },
+        }),
       ).unwrap();
       await dispatch(getTechnicianList(params)).unwrap();
     } catch (error) {
@@ -115,7 +117,7 @@ const Technician = () => {
           />
         ) : (
           <span>{name}</span>
-        )
+        ),
     },
     {
       title: 'Created At',
@@ -128,7 +130,7 @@ const Technician = () => {
           dayjs(created_at).format('MM-DD-YYYY hh:mm A')
         ) : (
           <span className="text-gray-400">AUTO</span>
-        )
+        ),
     },
     {
       title: 'Action',
@@ -168,8 +170,8 @@ const Technician = () => {
                     dispatch(
                       setTechnicianEditable({
                         id: technician_id,
-                        editable: true
-                      })
+                        editable: true,
+                      }),
                     )
                   }
                 />
@@ -192,8 +194,8 @@ const Technician = () => {
         );
       },
       width: 70,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete && !permissions.add) {
@@ -215,7 +217,8 @@ const Technician = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setTechnicianListParams({ search: e.target.value }))}
@@ -246,8 +249,8 @@ const Technician = () => {
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) => dispatch(setTechnicianDeleteIDs(selectedRowKeys)),
                   getCheckboxProps: (record) => ({
-                    disabled: record.technician_id === 'new'
-                  })
+                    disabled: record.technician_id === 'new',
+                  }),
                 }
               : null
           }
@@ -257,8 +260,8 @@ const Technician = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           loading={isListLoading}
@@ -269,13 +272,13 @@ const Technician = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} technicians`
+            showTotal: (total) => `Total ${total} technicians`,
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

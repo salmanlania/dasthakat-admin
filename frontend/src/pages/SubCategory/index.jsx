@@ -11,6 +11,7 @@ import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
   addNewSubCategory,
@@ -23,10 +24,11 @@ import {
   setSubCategoryEditable,
   setSubCategoryListParams,
   updateSubCategory,
-  updateSubCategoryListValue
+  updateSubCategoryListValue,
 } from '../../store/features/subCategorySlice';
 
 const SubCategory = () => {
+  useDocumentTitle('Sub Category List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, isSubmitting, deleteIDs } =
@@ -55,8 +57,8 @@ const SubCategory = () => {
       await dispatch(
         createSubCategory({
           name,
-          category_id: category_id
-        })
+          category_id: category_id,
+        }),
       ).unwrap();
       await dispatch(getSubCategoryList(params)).unwrap();
     } catch (error) {
@@ -74,8 +76,8 @@ const SubCategory = () => {
       await dispatch(
         updateSubCategory({
           id: sub_category_id,
-          data: { name, category_id: category_id }
-        })
+          data: { name, category_id: category_id },
+        }),
       ).unwrap();
       await dispatch(getSubCategoryList(params)).unwrap();
     } catch (error) {
@@ -137,7 +139,7 @@ const SubCategory = () => {
           />
         ) : (
           <span>{name}</span>
-        )
+        ),
     },
     {
       title: (
@@ -168,7 +170,7 @@ const SubCategory = () => {
             labelKey="name"
             defaultValue={{
               value: category_id,
-              label: category_name
+              label: category_name,
             }}
             labelInValue
             onChange={(selected) =>
@@ -178,7 +180,7 @@ const SubCategory = () => {
           />
         ) : (
           <span>{category_name}</span>
-        )
+        ),
     },
     {
       title: 'Created At',
@@ -191,7 +193,7 @@ const SubCategory = () => {
           dayjs(created_at).format('MM-DD-YYYY hh:mm A')
         ) : (
           <span className="text-gray-400">AUTO</span>
-        )
+        ),
     },
     {
       title: 'Action',
@@ -231,8 +233,8 @@ const SubCategory = () => {
                     dispatch(
                       setSubCategoryEditable({
                         id: sub_category_id,
-                        editable: true
-                      })
+                        editable: true,
+                      }),
                     )
                   }
                 />
@@ -255,8 +257,8 @@ const SubCategory = () => {
         );
       },
       width: 70,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete && !permissions.add) {
@@ -272,7 +274,7 @@ const SubCategory = () => {
     params.sort_direction,
     params.category_id,
     debouncedSearch,
-    debouncedName
+    debouncedName,
   ]);
 
   return (
@@ -285,7 +287,8 @@ const SubCategory = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setSubCategoryListParams({ search: e.target.value }))}
@@ -316,8 +319,8 @@ const SubCategory = () => {
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) => dispatch(setSubCategoryDeleteIDs(selectedRowKeys)),
                   getCheckboxProps: (record) => ({
-                    disabled: record.sub_category_id === 'new'
-                  })
+                    disabled: record.sub_category_id === 'new',
+                  }),
                 }
               : null
           }
@@ -327,8 +330,8 @@ const SubCategory = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           loading={isListLoading}
@@ -339,13 +342,13 @@ const SubCategory = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} subCategory`
+            showTotal: (total) => `Total ${total} subCategory`,
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

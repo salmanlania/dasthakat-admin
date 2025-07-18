@@ -1,17 +1,15 @@
-import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Select, Table, Tooltip } from 'antd';
+import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { FaRegFilePdf } from 'react-icons/fa';
 import { GoTrash } from 'react-icons/go';
 import { MdOutlineEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
-import ChargeOrderModal from '../../components/Modals/ChargeOrderModal';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
   bulkDeletePurchaseInvoice,
@@ -19,15 +17,16 @@ import {
   getPurchaseInvoiceForPrint,
   getPurchaseInvoiceList,
   setPurchaseInvoiceDeleteIDs,
-  setPurchaseInvoiceListParams
+  setPurchaseInvoiceListParams,
 } from '../../store/features/purchaseInvoiceSlice';
 import { createPurchaseInvoicePrint } from '../../utils/prints/purchase-invoice-print';
 
 const PurchaseInvoice = () => {
+  useDocumentTitle('Purchase Invoice List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.purchaseInvoice
+    (state) => state.purchaseInvoice,
   );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.purchase_invoice;
@@ -42,7 +41,7 @@ const PurchaseInvoice = () => {
 
   const formattedParams = {
     ...params,
-    document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null
+    document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null,
   };
 
   const onPurchaseInvoiceDelete = async (id) => {
@@ -101,7 +100,7 @@ const PurchaseInvoice = () => {
       width: 190,
       ellipsis: true,
       render: (_, { document_date }) =>
-        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null
+        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null,
     },
     {
       title: (
@@ -115,8 +114,8 @@ const PurchaseInvoice = () => {
             onChange={(e) =>
               dispatch(
                 setPurchaseInvoiceListParams({
-                  document_identity: e.target.value
-                })
+                  document_identity: e.target.value,
+                }),
               )
             }
           />
@@ -126,7 +125,7 @@ const PurchaseInvoice = () => {
       key: 'document_identity',
       sorter: true,
       width: 180,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -140,8 +139,8 @@ const PurchaseInvoice = () => {
             onChange={(e) =>
               dispatch(
                 setPurchaseInvoiceListParams({
-                  purchase_order_no: e.target.value
-                })
+                  purchase_order_no: e.target.value,
+                }),
               )
             }
           />
@@ -151,7 +150,7 @@ const PurchaseInvoice = () => {
       key: 'purchase_order_no',
       sorter: true,
       width: 180,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -165,8 +164,8 @@ const PurchaseInvoice = () => {
             onChange={(e) =>
               dispatch(
                 setPurchaseInvoiceListParams({
-                  supplier_name: e.target.value
-                })
+                  supplier_name: e.target.value,
+                }),
               )
             }
           />
@@ -176,7 +175,7 @@ const PurchaseInvoice = () => {
       key: 'supplier_name',
       sorter: true,
       width: 180,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -190,8 +189,8 @@ const PurchaseInvoice = () => {
             onChange={(e) =>
               dispatch(
                 setPurchaseInvoiceListParams({
-                  vendor_invoice_no: e.target.value
-                })
+                  vendor_invoice_no: e.target.value,
+                }),
               )
             }
           />
@@ -201,7 +200,7 @@ const PurchaseInvoice = () => {
       key: 'vendor_invoice_no',
       sorter: true,
       width: 180,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -215,8 +214,8 @@ const PurchaseInvoice = () => {
             onChange={(e) =>
               dispatch(
                 setPurchaseInvoiceListParams({
-                  charge_no: e.target.value
-                })
+                  charge_no: e.target.value,
+                }),
               )
             }
           />
@@ -226,7 +225,7 @@ const PurchaseInvoice = () => {
       key: 'charge_no',
       sorter: true,
       width: 180,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -240,8 +239,8 @@ const PurchaseInvoice = () => {
             onChange={(e) =>
               dispatch(
                 setPurchaseInvoiceListParams({
-                  ship_via: e.target.value
-                })
+                  ship_via: e.target.value,
+                }),
               )
             }
           />
@@ -251,7 +250,7 @@ const PurchaseInvoice = () => {
       key: 'ship_via',
       sorter: true,
       width: 180,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: 'Created At',
@@ -259,13 +258,13 @@ const PurchaseInvoice = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: 'Action',
       key: 'action',
       render: (_, { purchase_invoice_id }) => (
-        <div className="flex justify-end items-center gap-2">
+        <div className="flex items-center justify-end gap-2">
           {permissions.edit ? (
             <>
               <Tooltip title="Edit">
@@ -296,8 +295,8 @@ const PurchaseInvoice = () => {
         </div>
       ),
       width: 75,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -317,7 +316,7 @@ const PurchaseInvoice = () => {
     debouncedSearch,
     debouncedPurchaseInvoiceNo,
     debouncedChargeNo,
-    debouncedQuotationNo
+    debouncedQuotationNo,
   ]);
 
   return (
@@ -330,7 +329,8 @@ const PurchaseInvoice = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setPurchaseInvoiceListParams({ search: e.target.value }))}
@@ -354,11 +354,11 @@ const PurchaseInvoice = () => {
           rowSelection={
             permissions.delete
               ? {
-                type: 'checkbox',
-                selectedRowKeys: deleteIDs,
-                onChange: (selectedRowKeys) =>
-                  dispatch(setPurchaseInvoiceDeleteIDs(selectedRowKeys))
-              }
+                  type: 'checkbox',
+                  selectedRowKeys: deleteIDs,
+                  onChange: (selectedRowKeys) =>
+                    dispatch(setPurchaseInvoiceDeleteIDs(selectedRowKeys)),
+                }
               : null
           }
           loading={isListLoading}
@@ -369,7 +369,7 @@ const PurchaseInvoice = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} purchase invoice`
+            showTotal: (total) => `Total ${total} purchase invoice`,
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -377,15 +377,15 @@ const PurchaseInvoice = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

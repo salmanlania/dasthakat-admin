@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
   addNewTerms,
@@ -22,10 +23,11 @@ import {
   setTermsEditable,
   setTermsListParams,
   updateTerms,
-  updateTermsListValue
+  updateTermsListValue,
 } from '../../store/features/termsSlice';
 
 const Notes = () => {
+  useDocumentTitle('Notes');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, isSubmitting, deleteIDs } =
@@ -63,8 +65,8 @@ const Notes = () => {
       await dispatch(
         updateTerms({
           id: term_id,
-          data: { name }
-        })
+          data: { name },
+        }),
       ).unwrap();
       await dispatch(getTermsList(params)).unwrap();
     } catch (error) {
@@ -114,7 +116,7 @@ const Notes = () => {
           />
         ) : (
           <span>{name}</span>
-        )
+        ),
     },
     {
       title: 'Created At',
@@ -127,7 +129,7 @@ const Notes = () => {
           dayjs(created_at).format('MM-DD-YYYY hh:mm A')
         ) : (
           <span className="text-gray-400">AUTO</span>
-        )
+        ),
     },
     {
       title: 'Action',
@@ -167,8 +169,8 @@ const Notes = () => {
                     dispatch(
                       setTermsEditable({
                         id: term_id,
-                        editable: true
-                      })
+                        editable: true,
+                      }),
                     )
                   }
                 />
@@ -191,8 +193,8 @@ const Notes = () => {
         );
       },
       width: 70,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete && !permissions.add) {
@@ -213,7 +215,8 @@ const Notes = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setTermsListParams({ search: e.target.value }))}
@@ -244,8 +247,8 @@ const Notes = () => {
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) => dispatch(setTermsDeleteIDs(selectedRowKeys)),
                   getCheckboxProps: (record) => ({
-                    disabled: record.term_id === 'new'
-                  })
+                    disabled: record.term_id === 'new',
+                  }),
                 }
               : null
           }
@@ -255,8 +258,8 @@ const Notes = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           loading={isListLoading}
@@ -267,13 +270,13 @@ const Notes = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} notes`
+            showTotal: (total) => `Total ${total} notes`,
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

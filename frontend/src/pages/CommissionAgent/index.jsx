@@ -9,20 +9,22 @@ import { Link } from 'react-router-dom';
 import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
   bulkDeleteCommissionAgent,
   deleteCommissionAgent,
   getCommissionAgentList,
   setCommissionAgentDeleteIDs,
-  setCommissionAgentListParams
+  setCommissionAgentListParams,
 } from '../../store/features/commissionAgentSlice';
 
 const CommissionAgent = () => {
+  useDocumentTitle('Commission Agent List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.commissionAgent
+    (state) => state.commissionAgent,
   );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.commission_agent;
@@ -74,7 +76,7 @@ const CommissionAgent = () => {
       key: 'name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -93,7 +95,7 @@ const CommissionAgent = () => {
       key: 'phone',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -112,7 +114,7 @@ const CommissionAgent = () => {
       key: 'address',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: 'Created At',
@@ -120,7 +122,7 @@ const CommissionAgent = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: 'Action',
@@ -155,8 +157,8 @@ const CommissionAgent = () => {
         </div>
       ),
       width: 70,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -174,7 +176,7 @@ const CommissionAgent = () => {
     debouncedSearch,
     debouncedName,
     debouncedAddress,
-    debouncedTelephone
+    debouncedTelephone,
   ]);
 
   return (
@@ -220,7 +222,7 @@ const CommissionAgent = () => {
                   type: 'checkbox',
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) =>
-                    dispatch(setCommissionAgentDeleteIDs(selectedRowKeys))
+                    dispatch(setCommissionAgentDeleteIDs(selectedRowKeys)),
                 }
               : null
           }
@@ -232,7 +234,7 @@ const CommissionAgent = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} commission agents`
+            showTotal: (total) => `Total ${total} commission agents`,
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -240,15 +242,15 @@ const CommissionAgent = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

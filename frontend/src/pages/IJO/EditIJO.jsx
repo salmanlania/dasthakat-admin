@@ -5,10 +5,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import IJOForm from '../../components/Form/IJOForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { getIJO, updateIJO } from '../../store/features/ijoSlice';
 
 const EditIJO = () => {
+  useDocumentTitle('Edit IJO');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();

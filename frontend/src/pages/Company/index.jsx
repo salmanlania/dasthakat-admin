@@ -10,20 +10,22 @@ import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
   bulkDeleteCompany,
   deleteCompany,
   getCompanyList,
   setCompanyDeleteIDs,
-  setCompanyListParams
+  setCompanyListParams,
 } from '../../store/features/companySlice';
 
 const Company = () => {
+  useDocumentTitle('Company List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.company
+    (state) => state.company,
   );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.company;
@@ -73,7 +75,7 @@ const Company = () => {
       key: 'name',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -94,7 +96,7 @@ const Company = () => {
       key: 'currency_name',
       sorter: true,
       width: 150,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: 'Created At',
@@ -102,7 +104,7 @@ const Company = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: 'Action',
@@ -137,8 +139,8 @@ const Company = () => {
         </div>
       ),
       width: 70,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -154,7 +156,7 @@ const Company = () => {
     params.sort_direction,
     debouncedSearch,
     debouncedName,
-    params.currency_id
+    params.currency_id,
   ]);
 
   return (
@@ -167,7 +169,8 @@ const Company = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setCompanyListParams({ search: e.target.value }))}
@@ -198,7 +201,7 @@ const Company = () => {
               ? {
                   type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setCompanyDeleteIDs(selectedRowKeys))
+                  onChange: (selectedRowKeys) => dispatch(setCompanyDeleteIDs(selectedRowKeys)),
                 }
               : null
           }
@@ -210,7 +213,7 @@ const Company = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} companies`
+            showTotal: (total) => `Total ${total} companies`,
           }}
           onChange={(page, _, sorting) => {
             dispatch(
@@ -218,15 +221,15 @@ const Company = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
       </div>

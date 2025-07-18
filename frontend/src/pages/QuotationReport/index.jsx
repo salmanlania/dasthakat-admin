@@ -1,38 +1,37 @@
-import { Breadcrumb, Button, DatePicker, Input, Form } from 'antd';
+import { Breadcrumb, Button, DatePicker, Form } from 'antd';
 import dayjs from 'dayjs';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
+import { FcClearFilters } from 'react-icons/fc';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
-import { FcClearFilters } from "react-icons/fc";
 import useError from '../../hooks/useError';
-import createQuotationReportPrint from '../../utils/Pdf/quotation-report-list.js';
 import {
   bulkDeleteQuotation,
   deleteQuotation,
   getQuotationForPrint,
+  getQuotationListPrint,
   getQuotationListReport,
-  setQuotationDeleteIDs,
   setQuotationListParams,
-  getQuotationListPrint
 } from '../../store/features/quotationSlice';
 import generateQuotationReportExcel from '../../utils/excel/quotation-report-excel.js';
+import createQuotationReportPrint from '../../utils/Pdf/quotation-report-list.js';
 import { createQuotationPrint } from '../../utils/prints/quotation-print';
 
-import { FaRegFileExcel } from 'react-icons/fa6';
 import { FaRegFilePdf } from 'react-icons/fa';
+import { FaRegFileExcel } from 'react-icons/fa6';
+import useDocumentTitle from '../../hooks/useDocumentTitle.js';
 
 const QuotationReport = () => {
+  useDocumentTitle('Quotation Report');
   const { RangePicker } = DatePicker;
   const dispatch = useDispatch();
   const handleError = useError();
   const [form] = Form.useForm();
-  const { list, params, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.quotation
-  );
+  const { list, params, isBulkDeleting, deleteIDs } = useSelector((state) => state.quotation);
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.quotation;
 
@@ -45,7 +44,7 @@ const QuotationReport = () => {
 
   const formattedParams = {
     ...params,
-    document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null
+    document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null,
   };
 
   const onQuotationDelete = async (id) => {
@@ -103,7 +102,7 @@ const QuotationReport = () => {
     params.status,
     debouncedSearch,
     debouncedQuotationNo,
-    debouncedCustomerRef
+    debouncedCustomerRef,
   ]);
 
   const filtersAreActive = useMemo(() => {
@@ -114,16 +113,9 @@ const QuotationReport = () => {
       params.vessel_id ||
       params.customer_id
     );
-  }, [
-    params.start_date,
-    params.end_date,
-    params.event_id,
-    params.vessel_id,
-    params.customer_id
-  ]);
+  }, [params.start_date, params.end_date, params.event_id, params.vessel_id, params.customer_id]);
 
   const exportPdf = async () => {
-
     if (!filtersAreActive) {
       // toast.error("Please select at least one filter before exporting.");
       return;
@@ -141,7 +133,7 @@ const QuotationReport = () => {
         limit: 1000000000000,
         start_date: startDate,
         end_date: endDate,
-        sort_direction: 'ascend'
+        sort_direction: 'ascend',
       };
 
       if (!startDate && !endDate) {
@@ -150,7 +142,6 @@ const QuotationReport = () => {
       }
 
       const data = await dispatch(getQuotationListPrint(exportParams)).unwrap();
-
 
       const filterDetails = {
         customer: params.customer_id?.label,
@@ -166,7 +157,6 @@ const QuotationReport = () => {
       createQuotationReportPrint(Array.isArray(data) ? data : [data], true);
 
       dispatch(setQuotationListParams(originalParams));
-
     } catch (error) {
       handleError(error);
     } finally {
@@ -188,7 +178,7 @@ const QuotationReport = () => {
         limit: 1000000000000,
         start_date: startDate,
         end_date: endDate,
-        sort_direction: 'ascend'
+        sort_direction: 'ascend',
       };
 
       const data = await dispatch(getQuotationListPrint(exportParams)).unwrap();
@@ -197,7 +187,7 @@ const QuotationReport = () => {
 
       dispatch(setQuotationListParams(originalParams));
     } catch (error) {
-      handleError(error)
+      handleError(error);
     } finally {
       toast.dismiss(loadingToast);
     }
@@ -214,7 +204,7 @@ const QuotationReport = () => {
       vessel_label: null,
       customer_id: null,
       customer_label: null,
-      page: 1
+      page: 1,
     };
 
     dispatch(setQuotationListParams(clearedParams));
@@ -230,7 +220,7 @@ const QuotationReport = () => {
       </div>
       <div className="mt-4 rounded-md bg-white p-2">
         <Form form={form} name="quotation_report_form" layout="vertical">
-          <div className="flex items-center justify-start ml-4 gap-2 flex-wrap">
+          <div className="ml-4 flex flex-wrap items-center justify-start gap-2">
             <div className="min-w-[200px]">
               <Form.Item name="date_range" label="Date Range" layout="vertical">
                 <RangePicker
@@ -240,12 +230,12 @@ const QuotationReport = () => {
                       : null,
                     params.end_date && params.end_date !== ''
                       ? dayjs(params.end_date, 'YYYY-MM-DD')
-                      : null
+                      : null,
                   ]}
                   onChange={(dates) => {
                     const newParams = {
                       start_date: dates?.[0] ? dayjs(dates[0]).format('YYYY-MM-DD') : '',
-                      end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : ''
+                      end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : '',
                     };
 
                     if (!dates || !dates[0] || !dates[1]) {
@@ -260,7 +250,6 @@ const QuotationReport = () => {
                     if (!newParams.start_date && !newParams.end_date) {
                       dispatch(getQuotationListReport(fetchParams)).unwrap().catch(handleError);
                     }
-
                   }}
                   format="MM-DD-YYYY"
                 />
@@ -277,7 +266,12 @@ const QuotationReport = () => {
                   labelInValue={true}
                   value={params.event_id}
                   onChange={(selected) => {
-                    dispatch(setQuotationListParams({ event_id: selected?.value, event_label: selected?.label }))
+                    dispatch(
+                      setQuotationListParams({
+                        event_id: selected?.value,
+                        event_label: selected?.label,
+                      }),
+                    );
                   }}
                   allowClear
                 />
@@ -295,7 +289,12 @@ const QuotationReport = () => {
                   placeholder="Select Vessel"
                   value={params.vessel_id}
                   onChange={(selected) => {
-                    dispatch(setQuotationListParams({ vessel_id: selected?.value, vessel_label: selected?.label }))
+                    dispatch(
+                      setQuotationListParams({
+                        vessel_id: selected?.value,
+                        vessel_label: selected?.label,
+                      }),
+                    );
                   }}
                   allowClear
                 />
@@ -313,7 +312,12 @@ const QuotationReport = () => {
                   value={params.customer_id}
                   labelInValue={true}
                   onChange={(selected) => {
-                    dispatch(setQuotationListParams({ customer_id: selected?.value, customer_label: selected?.label }))
+                    dispatch(
+                      setQuotationListParams({
+                        customer_id: selected?.value,
+                        customer_label: selected?.label,
+                      }),
+                    );
                   }}
                   allowClear
                 />
@@ -322,16 +326,14 @@ const QuotationReport = () => {
           </div>
         </Form>
 
-
-        <div className="flex flex-wrap items-center gap-2 justify-end ml-auto">
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
           <div className="flex items-center justify-end gap-3">
             <Button
               onClick={handleClearFilters}
               type="primary"
               icon={<FcClearFilters size={14} />}
-              className="bg-sky-800 hover:!bg-sky-700 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={!filtersAreActive}
-            >
+              className="bg-sky-800 hover:!bg-sky-700 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={!filtersAreActive}>
               Clear Filters
             </Button>
             <Button
@@ -339,8 +341,7 @@ const QuotationReport = () => {
               icon={<FaRegFileExcel size={14} />}
               className="bg-emerald-800 hover:!bg-emerald-700"
               disabled={!filtersAreActive}
-              onClick={exportExcel}
-            >
+              onClick={exportExcel}>
               Export
             </Button>
             <Button
@@ -348,13 +349,11 @@ const QuotationReport = () => {
               icon={<FaRegFilePdf size={14} />}
               className="bg-rose-600 hover:!bg-rose-500"
               disabled={!filtersAreActive}
-              onClick={exportPdf}
-            >
+              onClick={exportPdf}>
               Print
             </Button>
           </div>
         </div>
-
       </div>
 
       <DeleteConfirmModal

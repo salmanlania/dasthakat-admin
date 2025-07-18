@@ -5,10 +5,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import CompanyBranchForm from '../../components/Form/CompanyBranchForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { getCompanyBranch, updateCompanyBranch } from '../../store/features/companyBranchSlice';
 
 const EditCompanyBranch = () => {
+  useDocumentTitle('Edit Company Branch');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();

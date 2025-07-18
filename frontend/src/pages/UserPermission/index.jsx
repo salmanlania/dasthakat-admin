@@ -9,23 +9,25 @@ import { Link } from 'react-router-dom';
 import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
   bulkDeleteUserPermission,
   deleteUserPermission,
   getUserPermissionList,
   setUserPermissionDeleteIDs,
-  setUserPermissionListParams
+  setUserPermissionListParams,
 } from '../../store/features/userPermissionSlice';
 
 const UserPermission = () => {
+  useDocumentTitle('User Permission List');
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
 
   const handleError = useError();
   const dispatch = useDispatch();
 
   const { params, paginationInfo, list, isLoading, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.userPermission
+    (state) => state.userPermission,
   );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.user_permission;
@@ -45,7 +47,7 @@ const UserPermission = () => {
     params.sort_column,
     params.sort_direction,
     debouncedName,
-    debouncedDesc
+    debouncedDesc,
   ]);
 
   const onUserPermissionDelete = async (id) => {
@@ -75,7 +77,7 @@ const UserPermission = () => {
       dataIndex: 'name',
       sorter: true,
       width: 200,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: (
@@ -93,7 +95,7 @@ const UserPermission = () => {
       dataIndex: 'description',
       sorter: true,
       width: 300,
-      ellipsis: true
+      ellipsis: true,
     },
     {
       title: 'Created At',
@@ -101,7 +103,7 @@ const UserPermission = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A')
+      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
     },
     {
       title: 'Action',
@@ -136,8 +138,8 @@ const UserPermission = () => {
         </div>
       ),
       width: 70,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   if (!permissions.edit && !permissions.delete) {
@@ -165,7 +167,8 @@ const UserPermission = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <div className="flex items-center justify-between gap-2">
           <Input
-            placeholder="Search..." allowClear
+            placeholder="Search..."
+            allowClear
             className="w-full sm:w-64"
             value={params.search}
             onChange={(e) => dispatch(setUserPermissionListParams({ search: e.target.value }))}
@@ -197,7 +200,7 @@ const UserPermission = () => {
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} permissions`
+            showTotal: (total) => `Total ${total} permissions`,
           }}
           rowKey="user_permission_id"
           size="small"
@@ -205,7 +208,7 @@ const UserPermission = () => {
           scroll={{ x: 'calc(100% - 200px)' }}
           showSorterTooltip={false}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
           rowSelection={
             permissions.delete
@@ -213,7 +216,7 @@ const UserPermission = () => {
                   type: 'checkbox',
                   selectedRowKeys: deleteIDs,
                   onChange: (selectedRowKeys) =>
-                    dispatch(setUserPermissionDeleteIDs(selectedRowKeys))
+                    dispatch(setUserPermissionDeleteIDs(selectedRowKeys)),
                 }
               : null
           }
@@ -223,8 +226,8 @@ const UserPermission = () => {
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
-                sort_direction: sorting.order
-              })
+                sort_direction: sorting.order,
+              }),
             );
           }}
           sortDirections={['ascend', 'descend']}

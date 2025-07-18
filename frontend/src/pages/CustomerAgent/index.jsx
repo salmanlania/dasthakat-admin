@@ -1,7 +1,15 @@
-import { Breadcrumb, Button, Dropdown, Form, Select, Spin, Table } from 'antd';
-import PageHeading from '../../components/Heading/PageHeading';
-import { useDispatch, useSelector } from 'react-redux';
+import { Breadcrumb, Button, Dropdown, Form, Select, Table } from 'antd';
+import { useEffect } from 'react';
+import toast from 'react-hot-toast';
+import { BiPlus } from 'react-icons/bi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
+import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
+import { useDispatch, useSelector } from 'react-redux';
+import AsyncSelect from '../../components/AsyncSelect';
+import PageHeading from '../../components/Heading/PageHeading';
+import DebouncedNumberInput from '../../components/Input/DebouncedNumberInput';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
+import useError from '../../hooks/useError';
 import {
   addCommissionDetail,
   changeCommissionDetailOrder,
@@ -12,15 +20,9 @@ import {
   resetCommissionDetails,
   updateCustomerAgent,
 } from '../../store/features/customerSlice';
-import DebouncedNumberInput from '../../components/Input/DebouncedNumberInput';
-import AsyncSelect from '../../components/AsyncSelect';
-import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
-import { BiPlus } from 'react-icons/bi';
-import useError from '../../hooks/useError';
-import toast from 'react-hot-toast';
-import { useEffect } from 'react';
 
 const CustomerAgent = () => {
+  useDocumentTitle('Customer Agent');
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const handleError = useError();
@@ -91,11 +93,12 @@ const CustomerAgent = () => {
             className="m-0"
             name={['commission_type', index]}
             initialValue={record.type ?? undefined}
-            rules={[{
-              required: true,
-              message: "Commission type is required"
-            }]}
-          >
+            rules={[
+              {
+                required: true,
+                message: 'Commission type is required',
+              },
+            ]}>
             <Select
               className="w-full"
               options={[
@@ -129,11 +132,12 @@ const CustomerAgent = () => {
             className="m-0"
             name={['commission_agent_id', index]}
             initialValue={record.commission_agent_id ?? undefined}
-            rules={[{
-              required: true,
-              message: "Commission Agent is required"
-            }]}
-          >
+            rules={[
+              {
+                required: true,
+                message: 'Commission Agent is required',
+              },
+            ]}>
             <AsyncSelect
               endpoint="/commission-agent"
               valueKey="commission_agent_id"
@@ -166,11 +170,12 @@ const CustomerAgent = () => {
             className="m-0"
             name={['commission_percentage', index]}
             initialValue={record.commission_percentage ?? undefined}
-            rules={[{
-              required: true,
-              message: "Commission percentage is required"
-            }]}
-          >
+            rules={[
+              {
+                required: true,
+                message: 'Commission percentage is required',
+              },
+            ]}>
             <DebouncedNumberInput
               type="decimal"
               onChange={(value) =>
@@ -198,11 +203,12 @@ const CustomerAgent = () => {
             className="m-0"
             name={['status', index]}
             initialValue={record.status ?? undefined}
-            rules={[{
-              required: true,
-              message: "Status is required"
-            }]}
-          >
+            rules={[
+              {
+                required: true,
+                message: 'Status is required',
+              },
+            ]}>
             <Select
               className="w-full"
               options={[
@@ -293,7 +299,6 @@ const CustomerAgent = () => {
 
   const updateDetails = async () => {
     try {
-
       await form.validateFields();
       const customerID = form.getFieldValue('customer_id');
 

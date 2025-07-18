@@ -5,10 +5,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import QuotationForm from '../../components/Form/QuotationForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { getQuotation, updateQuotation } from '../../store/features/quotationSlice';
 
 const EditQuotation = () => {
+  useDocumentTitle('Edit Quotation');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();

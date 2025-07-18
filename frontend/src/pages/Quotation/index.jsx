@@ -1,6 +1,6 @@
 import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Select, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { FaRegFilePdf } from 'react-icons/fa';
 import { FaRegFileExcel } from 'react-icons/fa6';
@@ -15,6 +15,7 @@ import PageHeading from '../../components/Heading/PageHeading';
 import ChargeOrderModal from '../../components/Modals/ChargeOrderModal';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
+import useDocumentTitle from '../../hooks/useDocumentTitle.js';
 import useError from '../../hooks/useError';
 import { setChargeQuotationID } from '../../store/features/chargeOrderSlice';
 import {
@@ -29,6 +30,7 @@ import generateQuotationExcel from '../../utils/excel/quotation-excel.js';
 import { createQuotationPrint } from '../../utils/prints/quotation-print';
 
 const Quotation = () => {
+  useDocumentTitle('Quotation List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
@@ -237,7 +239,7 @@ const Quotation = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.total_amount}
             onChange={(e) => {
-              dispatch(setQuotationListParams({ total_amount: e.target.value }))
+              dispatch(setQuotationListParams({ total_amount: e.target.value }));
             }}
           />
         </div>
@@ -400,7 +402,7 @@ const Quotation = () => {
     debouncedSearch,
     debouncedQuotationNo,
     debouncedCustomerRef,
-    debouncedTotalAmount
+    debouncedTotalAmount,
   ]);
 
   const groupedQuotationData = useMemo(() => {
@@ -480,14 +482,14 @@ const Quotation = () => {
               rowSelection={
                 permissions.delete
                   ? {
-                    type: 'checkbox',
-                    selectedRowKeys: deleteIDs,
-                    onChange: (selectedRowKeys) =>
-                      dispatch(setQuotationDeleteIDs(selectedRowKeys)),
-                    getCheckboxProps: (record) => ({
-                      disabled: record.isEventHeader,
-                    }),
-                  }
+                      type: 'checkbox',
+                      selectedRowKeys: deleteIDs,
+                      onChange: (selectedRowKeys) =>
+                        dispatch(setQuotationDeleteIDs(selectedRowKeys)),
+                      getCheckboxProps: (record) => ({
+                        disabled: record.isEventHeader,
+                      }),
+                    }
                   : null
               }
               loading={isListLoading}

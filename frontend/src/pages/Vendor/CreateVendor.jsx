@@ -1,13 +1,15 @@
 import { Breadcrumb } from 'antd';
+import toast from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import VendorForm from '../../components/Form/VendorForm';
 import PageHeading from '../../components/Heading/PageHeading';
-import { useNavigate } from 'react-router-dom';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
-import { useDispatch } from 'react-redux';
 import { createVendor } from '../../store/features/vendorSlice';
-import toast from 'react-hot-toast';
 
 const CreateVendor = () => {
+  useDocumentTitle('Create Vendor');
   const navigate = useNavigate();
   const handleError = useError();
   const dispatch = useDispatch();

@@ -5,10 +5,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import ShipmentForm from '../../components/Form/ShipmentForm';
 import PageHeading from '../../components/Heading/PageHeading';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { getShipment, updateShipment } from '../../store/features/shipmentSlice';
 
 const EditShipment = () => {
+  useDocumentTitle('Edit Shipment');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();
@@ -27,9 +29,9 @@ const EditShipment = () => {
 
   useEffect(() => {
     try {
-      dispatch(getShipment(id)).unwrap()
+      dispatch(getShipment(id)).unwrap();
     } catch (error) {
-      handleError(error)
+      handleError(error);
     }
   }, []);
 
