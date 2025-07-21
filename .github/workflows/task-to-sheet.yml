@@ -1,9 +1,7 @@
 name: Log commit to Google Sheet
 
 on:
-
   push:
-
 
 jobs:
   log-commit:
@@ -24,7 +22,6 @@ jobs:
         env:
           GOOGLE_SHEETS_CREDENTIALS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}
           SHEET_ID: ${{ secrets.SHEET_ID }}
-          SHEET_NAME: "Rayaan"
         run: |
           echo "$GOOGLE_SHEETS_CREDENTIALS" > creds.json
 
@@ -41,30 +38,44 @@ jobs:
           creds = ServiceAccountCredentials.from_json_keyfile_name('creds.json', scope)
           client = gspread.authorize(creds)
 
-          # Open sheet
-          sheet = client.open_by_key(os.getenv('SHEET_ID')).worksheet(os.getenv('SHEET_NAME'))
-
           # Get latest commit info
           commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8").strip()
-          author = subprocess.check_output(["git", "log", "-1", "--pretty=format:%an"]).decode("utf-8").strip()
+          author_name = subprocess.check_output(["git", "log", "-1", "--pretty=format:%an"]).decode("utf-8").strip()
+          author_email = subprocess.check_output(["git", "log", "-1", "--pretty=format:%ae"]).decode("utf-8").strip()
           raw_date = subprocess.check_output(["git", "log", "-1", "--pretty=format:%ai"]).decode("utf-8").strip()
           parsed_date = datetime.strptime(raw_date, "%Y-%m-%d %H:%M:%S %z")
           date = parsed_date.strftime("%d-%m-%Y")
           message = subprocess.check_output(["git", "log", "-1", "--pretty=format:%s"]).decode("utf-8").strip()
           description = subprocess.check_output(["git", "log", "-1", "--pretty=format:%B"]).decode("utf-8").strip()
-          
-          # Extract hours from commit description (e.g. hours=4)
+
+          # Email -> Sheet name mapping
+          email_to_sheet = {
+              "alirayyan.dev@gmail.com": "Rayaan",
+              "salmanlania@gmail.com": "Salman"
+              # Add more mappings here if needed
+          }
+
+          sheet_name = email_to_sheet.get(author_email)
+          if not sheet_name:
+              print(f"No matching sheet for email: {author_email}")
+              exit(0)
+
+          # Open sheet
+          sheet = client.open_by_key(os.getenv('SHEET_ID')).worksheet(sheet_name)
+
+          # Extract hours from commit description (e.g. hour=4)
           hours_match = re.search(r'hour=(\d+)', description, re.IGNORECASE)
           addTask_match = re.search(r'task=(\d+)', description, re.IGNORECASE)
 
-          total_hours = hours_match.group(1) if hours_match else "0"
+          total_hours = int(hours_match.group(1)) if hours_match else 0
+          # date_for_sheet = parsed_date.strftime("%d-%m-%Y").lstrip("'")
+          date_for_sheet = parsed_date.strftime("%d-%m-%Y")
           addTask = addTask_match.group(1) if addTask_match else "0"
           project = "GMS"
           from_date = ""
-          
           to_date = ""
+
           # Append to sheet only if task=1
           if addTask == "1":
-              sheet.append_row([date, project, message, from_date, to_date, total_hours])
-
+              sheet.append_row([date_for_sheet, project, message, from_date, to_date, total_hours], value_input_option="USER_ENTERED")
           EOF
