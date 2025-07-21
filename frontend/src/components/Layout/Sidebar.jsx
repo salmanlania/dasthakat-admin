@@ -2,6 +2,7 @@ import { Avatar, Layout, Menu, Select, Modal } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { BiChevronLeft } from 'react-icons/bi';
 import { FaRegUser, FaRegSave } from 'react-icons/fa';
+import { TbBuildingStore } from 'react-icons/tb';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import { TbReportAnalytics } from 'react-icons/tb';
 import { IoSearchSharp } from 'react-icons/io5';
@@ -51,16 +52,16 @@ const Sidebar = () => {
       const res = await dispatch(dbBackup()).unwrap();
       if (res?.data?.download_url) {
         window.open(res?.data?.download_url, '_blank');
-        toast.success('Backup successfully generated')
-        closeBackupModal()
+        toast.success('Backup successfully generated');
+        closeBackupModal();
       } else {
         toast.error('Backup created but file not found');
-        closeBackupModal()
+        closeBackupModal();
       }
     } catch (error) {
-      handleError(error)
+      handleError(error);
     }
-  }
+  };
 
   const permissions = user?.permission;
 
@@ -463,6 +464,12 @@ const Sidebar = () => {
       onClick: showBackupModal,
       // disabled: LogisticsPermission,
     },
+    {
+      key: 'vendor platform',
+      label: <Link to="/vendor-platform">Vendor Platform</Link>,
+      icon: <TbBuildingStore size={18} />,
+      // disabled: LogisticsPermission,
+    },
   ];
   const levelKeys = getLevelKeys(items);
 
@@ -538,8 +545,9 @@ const Sidebar = () => {
       collapsedWidth="0"
       theme="light"
       collapsed={isCollapsed}
-      className={`${isSmallScreen ? '!fixed' : '!sticky'} ${isCollapsed ? '' : 'border-r'
-        } scrollbar !left-0 !top-0 z-50 h-screen overflow-y-auto`}
+      className={`${isSmallScreen ? '!fixed' : '!sticky'} ${
+        isCollapsed ? '' : 'border-r'
+      } scrollbar !left-0 !top-0 z-50 h-screen overflow-y-auto`}
       width={240}>
       <div className="m-2 flex flex-col items-center justify-center gap-2 rounded-xl bg-slate-200 p-4 px-2">
         {isSmallScreen && (

@@ -11,6 +11,8 @@ const OtpVerification = lazy(() => import('./pages/OtpVerification'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 
 const VendorPlatformQuotation = lazy(() => import('./pages/VendorPlatform/Quotation'));
+const VendorPlatform = lazy(() => import('./pages/VendorPlatform'));
+const EditVendorPlatform = lazy(() => import('./pages/VendorPlatform/EditVendorPlatform'));
 
 const User = lazy(() => import('./pages/User'));
 const CreateUser = lazy(() => import('./pages/User/CreateUser'));
@@ -759,6 +761,22 @@ function Routes() {
             ),
           },
           {
+            path: '/vendor-platform',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <VendorPlatform />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/vendor-platform/edit/:id',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditVendorPlatform />
+              </Suspense>
+            ),
+          },
+          {
             path: '/charge-order',
             element: (
               <Suspense fallback={<PageLoader />}>
@@ -898,7 +916,7 @@ function Routes() {
         ],
       },
       {
-        path: '/vendor-platform',
+        path: '/vendor-portal',
         children: [
           {
             path: 'quotation',

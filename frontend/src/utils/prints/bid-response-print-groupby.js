@@ -114,7 +114,6 @@ const generateTableData = (data, doc, sideMargin, pageTitleSlug = '') => {
         },
         detail?.created_at ? dayjs(detail?.created_at).format('MM-DD-YYYY HH:mm A') : '',
         detail?.qs_date ? dayjs(detail?.qs_date).format('MM-DD-YYYY HH:mm A') : '',
-        // Calculate response rate show in minutes and seconds
         detail?.created_at && detail?.qs_date
           ? calculateTimeDifference(detail.created_at, detail.qs_date)
           : '',
@@ -180,7 +179,6 @@ const generateTableData = (data, doc, sideMargin, pageTitleSlug = '') => {
     },
   });
 
-  // Add summary text below the table
   doc.setFontSize(9);
   doc.setFont('times', 'normal');
 
@@ -253,13 +251,10 @@ export const createGroupByBidResponsePrint = async (data, groupByData, groupBy) 
   const finalY = doc.previousAutoTable.finalY + 20;
   const pageWidth = doc.internal.pageSize.width;
 
-  // Draw line above grand total
   doc.setLineWidth(0.3);
   doc.setDrawColor(128, 128, 128);
   doc.line(4, finalY - 8, pageWidth - 4, finalY - 8);
 
-  // Add summary text below the table
-  // Add Grand Total heading
   doc.setFontSize(14);
   doc.setFont('times', 'bold');
   doc.text('Grand Total', pageWidth / 2, finalY, { align: 'center' });
@@ -288,10 +283,8 @@ export const createGroupByBidResponsePrint = async (data, groupByData, groupBy) 
     const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
     const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
 
-    // Header
     addHeader(doc, data, pageWidth, sideMargin);
 
-    // Footer
     addFooter(doc, pageWidth, pageHeight);
   }
 
@@ -299,7 +292,6 @@ export const createGroupByBidResponsePrint = async (data, groupByData, groupBy) 
     title: `Bid Response Report (${groupBy.toUpperCase()})`,
   });
 
-  // Generate blob and open in new tab
   const pdfBlob = doc.output('blob');
   const blobUrl = URL.createObjectURL(pdfBlob);
   window.open(blobUrl, '_blank');

@@ -195,6 +195,7 @@ const initialState = {
   quotationDetails: [],
   commissionAgentData: [],
   vendorQuotationDetails: [],
+  totalCommissionAmount: 0,
   vendorDetails: [],
   params: {
     page: 1,
@@ -218,6 +219,7 @@ export const quotationSlice = createSlice({
       state.quotationDetails = [];
       state.initialFormValues = null;
     },
+
     setQuotationListParams: (state, action) => {
       state.params = {
         ...state.params,
@@ -242,6 +244,7 @@ export const quotationSlice = createSlice({
         amount: null,
         row_status: 'I',
         markup: 0,
+        lastUpdatedField: null,
       };
 
       if (index || index === 0) {
@@ -263,6 +266,10 @@ export const quotationSlice = createSlice({
       };
 
       state.quotationDetails.splice(index + 1, 0, newDetail);
+    },
+
+    setTotalCommissionAmount: (state, action) => {
+      state.totalCommissionAmount = action.payload;
     },
 
     removeQuotationDetail: (state, action) => {
@@ -293,10 +300,6 @@ export const quotationSlice = createSlice({
 
       const detail = state.quotationDetails[index];
 
-      if (detail.row_status === 'U' && detail[key] !== value) {
-        detail.row_status = 'U';
-      }
-
       detail[key] = value;
       const productType = detail.product_type_id;
 
@@ -311,7 +314,6 @@ export const quotationSlice = createSlice({
       }
 
       if (detail.quantity && detail.rate) {
-        console.log(detail.rate)
         detail.amount = roundUpto(+detail.quantity * +detail.rate);
 
         if (key === 'rate' && +detail.cost_price && +detail.rate) {
@@ -626,6 +628,7 @@ export const quotationSlice = createSlice({
         quotation_detail_id: detail?.quotation_detail_id,
         row_status: 'U',
         isDeleted: false,
+        lastUpdatedField: null,
       }));
 
       state.vendorQuotationDetails = data.quotation_detail.map((detail) => ({
@@ -684,7 +687,7 @@ export const quotationSlice = createSlice({
     addCase(getVendor.pending, (state) => {
       state.isItemVendorLoading = true;
     });
-    
+
     addCase(getVendor.fulfilled, (state, action) => {
       state.isItemVendorLoading = false;
       const data = action.payload;
@@ -903,6 +906,7 @@ export const {
   setSalesmanPercentage,
   resetQuotationState,
   splitQuotationQuantity,
+  setTotalCommissionAmount,
   resetVendorDetails
 } = quotationSlice.actions;
 export default quotationSlice.reducer;

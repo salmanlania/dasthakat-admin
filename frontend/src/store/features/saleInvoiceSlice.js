@@ -45,7 +45,8 @@ export const createSaleInvoice = createAsyncThunk(
   'saleInvoice/create',
   async (data, { rejectWithValue }) => {
     try {
-      await api.post('/sale-invoice', data);
+      const res = await api.post('/sale-invoice', data);
+      return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);
     }

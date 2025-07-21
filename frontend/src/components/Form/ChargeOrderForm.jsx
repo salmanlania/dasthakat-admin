@@ -1314,6 +1314,17 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
             }}>
             Save & Exit
           </Button>
+
+          {
+            mode === 'edit'
+              ?
+              <Button
+                // onClick={() => setVendorModalOpen(true)}
+              >
+                Vendors</Button>
+              :
+              ''
+          }
         </div>
       </Form>
       <NotesModal

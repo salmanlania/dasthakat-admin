@@ -24,6 +24,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
   const [data, setData] = useState([]);
   const [vendorCount] = useState(4);
   const [isSaving, setIsSaving] = useState(false);
+  const [isExitSaving, setIsExitSaving] = useState(false);
   const hasFetchedVendors = useRef(false);
   const lastFetchedId = useRef(null);
 
@@ -111,17 +112,20 @@ const VendorSelectionModal = ({ open, onClose }) => {
     setData(newData);
   };
 
-  const onFinish = async () => {
+  const onFinish = async (value) => {
+    console.log('fun value', value)
 
     const invalidRows = data.filter((product) =>
       product.vendors.some((vendor) => vendor.isPrimary && !vendor.supplier_id)
     );
+    console.log('invalidRows', invalidRows)
     if (invalidRows.length > 0) {
       toast.error('Primary vendors must have a selected supplier.');
       return;
     }
 
-    setIsSaving(true);
+    value === 'exit' ? setIsExitSaving(true) : setIsSaving(true)
+
     const payload = {
       quotation_id: initialFormValues?.quotation_id,
       quotation_detail: [],
@@ -129,7 +133,6 @@ const VendorSelectionModal = ({ open, onClose }) => {
 
     data.forEach((product) => {
       const quotation_detail_id = product.quotation_detail_id;
-      console.log('product', product);
 
       product.vendors.forEach((vendor) => {
         const supplier = vendor?.supplier_id?.value || null;
@@ -144,15 +147,16 @@ const VendorSelectionModal = ({ open, onClose }) => {
         });
       });
     });
-// return
+    // return
     try {
       await dispatch(postVendorSelection(payload)).unwrap();
       toast.success('Quotation Vendors Saved Successfully!');
-      onClose();
+      value === 'exit' ? onClose() : ''
     } catch (error) {
       handleError(error);
     } finally {
       setIsSaving(false);
+      setIsExitSaving(false);
     }
   };
 
@@ -168,6 +172,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
       ...vendor,
       isPrimary: idx === vendorIndex,
     }));
+    newData[productIndex].vendors.sort((a, b) => (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0));
     setData(newData);
   };
 
@@ -285,8 +290,11 @@ const VendorSelectionModal = ({ open, onClose }) => {
       </Spin>
       <div className="mt-4 flex justify-end gap-2">
         <Button onClick={onClose}>Cancel</Button>
-        <Button type="primary" onClick={onFinish} loading={isSaving}>
+        <Button type="primary" onClick={() => onFinish()} loading={isSaving}>
           Save
+        </Button>
+        <Button type="primary" onClick={() => onFinish('exit')} loading={isExitSaving}>
+          Save & Exit
         </Button>
       </div>
     </Modal>
