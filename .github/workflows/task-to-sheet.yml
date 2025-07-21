@@ -77,6 +77,5 @@ jobs:
 
           # Append to sheet only if task=1
           if addTask == "1":
-              sheet.append_row([date_for_sheet, project, message, from_date, to_date, total_hours],
-              value_input_option="USER_ENTERED"  # ✅ this is the key!)
+              sheet.append_row([date_for_sheet, project, message, from_date, to_date, total_hours], value_input_option="USER_ENTERED")
           EOF
