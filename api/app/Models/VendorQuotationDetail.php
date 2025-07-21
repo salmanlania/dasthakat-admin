@@ -10,6 +10,7 @@ class VendorQuotationDetail extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
+    
     protected $fillable = [
         'company_id', 
         'company_branch_id', 
