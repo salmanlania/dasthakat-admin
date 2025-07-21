@@ -8,6 +8,8 @@ class Unit extends Model
     protected $table = 'unit';
     protected $primaryKey = 'unit_id'; 
     public $incrementing = false; 
+    protected $keyType = 'string';
+
     protected $fillable = [
         'company_id','company_branch_id','unit_id','name','created_by','updated_by'
     ];

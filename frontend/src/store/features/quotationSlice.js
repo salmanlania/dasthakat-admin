@@ -291,6 +291,8 @@ export const quotationSlice = createSlice({
     changeQuotationDetailValue: (state, action) => {
       const { index, key, value } = action.payload;
 
+      // console.log('changeQuotationDetailValue', key, value);
+
       const detail = state.quotationDetails[index];
 
       if (detail.row_status === 'U' && detail[key] !== value) {
@@ -299,25 +301,39 @@ export const quotationSlice = createSlice({
 
       detail[key] = value;
       const productType = detail.product_type_id;
-
+      
       if (
         productType?.label !== 'Service' &&
         (key === 'markup' || key === 'cost_price') &&
         detail.cost_price &&
         detail.markup !== null &&
         detail.markup !== undefined
-      ) {
+      ) { 
         detail.rate = roundUpto(+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
+        detail.full_rate = (+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
+        detail.old_rate = roundUpto(+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
       }
 
       if (detail.quantity && detail.rate) {
-        console.log(detail.rate)
         detail.amount = roundUpto(+detail.quantity * +detail.rate);
 
-        if (key === 'rate' && +detail.cost_price && +detail.rate) {
-          detail.markup = roundUpto(
-            ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100,
-          );
+        if (key === 'rate' && +detail.cost_price && +detail.rate) { 
+          // detail.full_rate = detail.rate;
+          if(detail.old_rate != detail.rate){
+
+            detail.markup = roundUpto(
+              ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100,
+            );
+          }
+          // // console.log(`rate:${detail.rate}, cost_price:${detail.cost_price}`);
+          // // console.log('beforeRoundUPTO, ', ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100)
+
+          //  console.log('detail' , {
+          //   full_rate : detail.full_rate,
+          //   rate : detail.rate,
+          //   cost_price : detail.cost_price,
+          //   markup : detail.markup,
+          //  });
         }
       } else {
         detail.amount = '';
@@ -377,6 +393,8 @@ export const quotationSlice = createSlice({
         ...detail,
         quantity: detail.stock_quantity,
         rate: detail.rate,
+        full_rate: detail.full_rate,
+        old_rate: detail.old_rate,
         cost_price: detail.cost_price,
         markup: detail.markup,
         amount: detail.rate * detail.stock_quantity,
@@ -403,6 +421,8 @@ export const quotationSlice = createSlice({
         supplier_id: detail.supplier_id,
         quantity: splittedQuantity,
         rate: detail.rate,
+        full_rate: detail.full_rate,
+        old_rate: detail.old_rate,
         amount: detail.rate * splittedQuantity,
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_percent
@@ -619,6 +639,8 @@ export const quotationSlice = createSlice({
             : +detail.cost_price || +detail.rate,
         markup: detail.markup,
         rate: detail.rate,
+        full_rate: detail.rate,
+        old_rate: detail.rate,
         amount: detail.amount,
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_amount,
@@ -839,6 +861,8 @@ export const quotationSlice = createSlice({
             : +detail.cost_price || +detail.rate,
         markup: detail.markup,
         rate: detail.rate,
+        full_rate: detail.full_rate,
+        old_rate: detail.old_rate,
         amount: detail.amount,
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_amount,

@@ -140,7 +140,8 @@ class SaleReturnController extends Controller
 				"charge_order.quotation.payment",
 			)
 				->where('sale_return_id', $id)->first();
-
+				
+				if(!empty($purchase_return) ) {
 				   foreach ($purchase_return->purchase_return_detail as &$detail) {
 						if (!empty($detail->product_id)) {
 							$product = Product::with('product_type')->where('product_id', $detail->product_id)->first();
@@ -155,6 +156,7 @@ class SaleReturnController extends Controller
 
 						}
 					}
+				}
 
 				$stock_return = StockReturn::with(
 					'stock_return_detail.charge_order_detail',

@@ -224,7 +224,7 @@ export const createPurchaseOrderWithoutRatePrint = (data) => {
     ? data.purchase_order_detail.map((detail, index) => [
         index + 1,
         detail?.product?.impa_code || '',
-        detail.quantity ? parseFloat(detail.quantity) : '',
+        detail.quantity ? parseFloat(detail.quantity) : 0,
         detail.unit ? detail.unit.name : '',
         detail.vpart || '',
         {

@@ -11,6 +11,7 @@ class OpeningStockDetail extends Model
     protected $table = 'opening_stock_detail';
     protected $primaryKey = 'opening_stock_detail_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
 
     protected $fillable = [
@@ -34,6 +35,12 @@ class OpeningStockDetail extends Model
         "created_by",
         "updated_by"
     ];
+    protected $casts = [
+        'quantity' => 'float',
+        'rate' => 'float',
+        'amount' => 'float',
+    ];
+
     public function opening_stock()
     {
         return $this->belongsTo(OpeningStock::class, 'opening_stock_id')->select('*');

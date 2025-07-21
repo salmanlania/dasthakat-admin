@@ -11,6 +11,7 @@ class SaleReturn extends Model
     protected $table = 'sale_return';
     protected $primaryKey = 'sale_return_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
        "company_id",
@@ -28,6 +29,11 @@ class SaleReturn extends Model
         "created_by",
         "updated_by"
     ];
+    protected $casts = [
+        'total_quantity' => 'float',
+        'total_amount' => 'float',
+    ];
+
 
     public function sale_return_detail()
     {

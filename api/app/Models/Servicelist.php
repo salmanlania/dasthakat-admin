@@ -10,6 +10,7 @@ class Servicelist extends Model
     protected $table = 'servicelist';
     protected $primaryKey = 'servicelist_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         "company_id",
@@ -25,6 +26,10 @@ class Servicelist extends Model
         "created_by",
         "updated_by"
     ];
+    protected $casts = [
+        'total_quantity' => 'float',
+    ];
+
 
     public function servicelist_detail()
     {

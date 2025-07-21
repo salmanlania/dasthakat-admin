@@ -11,6 +11,7 @@ class StockReturn extends Model
     protected $table = 'stock_return';
     protected $primaryKey = 'stock_return_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         "company_id",
@@ -33,7 +34,10 @@ class StockReturn extends Model
         "created_by",
         "updated_by"
     ];
-
+    protected $casts = [
+        'total_quantity' => 'float',
+        'total_amount' => 'float',
+    ];
     public function stock_return_detail()
     {
         return $this->hasMany(StockReturnDetail::class, 'stock_return_id', 'stock_return_id')->orderBy('sort_order');

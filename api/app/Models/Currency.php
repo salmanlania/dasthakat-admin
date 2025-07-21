@@ -9,6 +9,7 @@ class Currency extends Model
     protected $table = 'currency';
     protected $primaryKey = 'currency_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         'company_id',

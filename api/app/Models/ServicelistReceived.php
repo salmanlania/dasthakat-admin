@@ -10,6 +10,7 @@ class ServicelistReceived extends Model
     protected $table = 'servicelist_received';
     protected $primaryKey = 'servicelist_received_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         "company_id",
@@ -26,6 +27,10 @@ class ServicelistReceived extends Model
         "created_by",
         "updated_by"
     ];
+    protected $casts = [
+        'total_quantity' => 'float',
+    ];
+
 
     public function servicelist_received_detail()
     {

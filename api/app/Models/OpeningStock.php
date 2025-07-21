@@ -11,6 +11,7 @@ class OpeningStock extends Model
     protected $table = 'opening_stock';
     protected $primaryKey = 'opening_stock_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         "company_id",
@@ -27,7 +28,10 @@ class OpeningStock extends Model
         "created_by",
         "updated_by"
     ];
-
+    protected $casts = [
+        'total_quantity' => 'float',
+        'total_amount' => 'float',
+    ];
     public function opening_stock_detail()
     {
         return $this->hasMany(OpeningStockDetail::class, 'opening_stock_id', 'opening_stock_id')->orderBy('sort_order');

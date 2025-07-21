@@ -7,6 +7,7 @@ class Port extends Model
 {
     protected $table = 'port';
     protected $primaryKey = 'port_id'; 
+    protected $keyType = 'string';
     public $incrementing = false; 
     protected $fillable = [
         'company_id','company_branch_id','port_id','name','created_by','updated_by'

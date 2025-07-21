@@ -10,6 +10,7 @@ class Picklist extends Model
     protected $table = 'picklist';
     protected $primaryKey = 'picklist_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         "company_id",
@@ -25,6 +26,10 @@ class Picklist extends Model
         "created_by",
         "updated_by"
     ];
+    protected $casts = [
+        'total_quantity' => 'float',
+    ];
+
 
     public function picklist_detail()
     {

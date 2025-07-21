@@ -338,15 +338,19 @@ export const chargeOrderSlice = createSlice({
         detail.markup
       ) {
         detail.rate = roundUpto(+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
+        detail.full_rate = (+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
+        detail.old_rate = roundUpto(+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
       }
 
       if (detail.quantity && detail.rate) {
         detail.amount = roundUpto(+detail.quantity * +detail.rate);
 
-        if (+detail.cost_price && +detail.rate) {
-          detail.markup = roundUpto(
-            ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100
-          );
+        if (key === 'rate' && +detail.cost_price && +detail.rate) {
+          if (detail.old_rate != detail.rate) {
+            detail.markup = roundUpto(
+              ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100
+            );
+          }
         }
       } else {
         detail.amount = '';
@@ -374,6 +378,8 @@ export const chargeOrderSlice = createSlice({
         ...detail,
         quantity: detail.stock_quantity,
         rate: detail.rate,
+        full_rate: detail.full_rate,
+        old_rate: detail.old_rate,
         cost_price: detail.cost_price,
         markup: detail.markup,
         amount: detail.rate * detail.stock_quantity,
@@ -400,6 +406,8 @@ export const chargeOrderSlice = createSlice({
         supplier_id: detail.supplier_id,
         quantity: splittedQuantity,
         rate: detail.rate,
+        full_rate: detail.full_rate,
+        old_rate: detail.old_rate,
         amount: detail.rate * splittedQuantity,
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_percent

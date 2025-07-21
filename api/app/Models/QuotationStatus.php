@@ -12,7 +12,7 @@ class QuotationStatus extends Model
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $updated_at = false;
-
+    protected $keyType = 'string';
     protected $fillable = [
         "id",
         "quotation_id",

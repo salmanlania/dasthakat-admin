@@ -10,6 +10,7 @@ class Supplier extends Model
 
     protected $primaryKey = 'supplier_id'; 
     public $incrementing = false; 
+    protected $keyType = 'string';
 
     // protected $connection = 'mysql';
     protected $table = 'supplier';

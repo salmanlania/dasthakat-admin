@@ -11,6 +11,7 @@ class PurchaseOrderDetail extends Model
     protected $table = 'purchase_order_detail';
     protected $primaryKey = 'purchase_order_detail_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
 
     protected $fillable = [
@@ -32,6 +33,12 @@ class PurchaseOrderDetail extends Model
         "created_by",
         "updated_by"
     ];
+    protected $casts = [
+        'quantity' => 'float',
+        'rate' => 'float',
+        'amount' => 'float',
+    ];
+
     public function purchase_order()
     {
         return $this->belongsTo(PurchaseOrder::class, 'purchase_order_id', 'purchase_order_id')->select('*');

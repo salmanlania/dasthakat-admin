@@ -11,6 +11,7 @@ class JobOrderDetail extends Model
     protected $table = 'job_order_detail';
     protected $primaryKey = 'job_order_detail_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         "company_id",
@@ -32,6 +33,9 @@ class JobOrderDetail extends Model
         "quantity",
         "created_by",
         "updated_by"
+    ];
+    protected $casts = [
+        'quantity' => 'float',
     ];
 
     public function charge_order_detail()

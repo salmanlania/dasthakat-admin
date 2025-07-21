@@ -226,7 +226,7 @@ export const createPurchaseOrderPrint = (data) => {
     ? data.purchase_order_detail.map((detail, index) => [
         index + 1,
         detail?.product?.impa_code || '',
-        detail.quantity ? parseFloat(detail.quantity) : '',
+        detail.quantity ? parseFloat(detail.quantity) : 0,
         detail.unit ? detail.unit.name : '',
         detail.vpart || '',
         {
@@ -234,11 +234,11 @@ export const createPurchaseOrderPrint = (data) => {
           styles: { halign: 'left' }
         },
         {
-          content: detail.rate ? formatThreeDigitCommas(detail.rate) : '',
+          content: detail.rate ? formatThreeDigitCommas(detail.rate) : 0,
           styles: { halign: 'right' }
         },
         {
-          content: detail.amount ? formatThreeDigitCommas(detail.amount) : '',
+          content: detail.amount ? formatThreeDigitCommas(detail.amount) : 0,
           styles: { halign: 'right' }
         },
         detail.vendor_notes || ''
