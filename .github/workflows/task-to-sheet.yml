@@ -139,7 +139,8 @@ jobs:
           hours_match = re.search(r'hour=(\d+)', description, re.IGNORECASE)
           addTask_match = re.search(r'task=(\d+)', description, re.IGNORECASE)
 
-          total_hours = hours_match.group(1) if hours_match else "0"
+          total_hours = int(hours_match.group(1)) if hours_match else 0
+          date_for_sheet = parsed_date.date()
           addTask = addTask_match.group(1) if addTask_match else "0"
           project = "GMS"
           from_date = ""
@@ -147,5 +148,5 @@ jobs:
 
           # Append to sheet only if task=1
           if addTask == "1":
-              sheet.append_row([date, project, message, from_date, to_date, total_hours])
+              sheet.append_row([date_for_sheet, project, message, from_date, to_date, total_hours])
           EOF
