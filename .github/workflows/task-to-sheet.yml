@@ -72,8 +72,8 @@ jobs:
           date_for_sheet = parsed_date.strftime("%d-%m-%Y")
           addTask = addTask_match.group(1) if addTask_match else "0"
           project = "GMS"
-          from_date = ""
-          to_date = ""
+          from_date = parsed_date.strftime("%d-%m-%Y")
+          to_date = parsed_date.strftime("%d-%m-%Y")
 
           # Append to sheet only if task=1
           if addTask == "1":
