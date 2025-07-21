@@ -854,7 +854,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
       dataIndex: 'markup',
       key: 'markup',
       render: (_, { markup, product_type_id, product_type }, index) => {
-        console.log('markup', markup);
+        // console.log('markup', markup);
         // const newMarkup = Number(markup)
         //   .toString()
         //   .replace(/(\.\d*?)0+$/, '$1')
