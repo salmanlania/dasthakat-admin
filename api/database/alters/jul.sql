@@ -62,3 +62,30 @@ CREATE TABLE vp_quotation_rfq_detail (
 -- Create indexes
 CREATE INDEX idx_vp_quotation_rfq_detail_quotation_detail_id ON vp_quotation_rfq_detail(quotation_detail_id);
 CREATE INDEX idx_vp_quotation_rfq_detail_vendor_quotation_detail_id ON vp_quotation_rfq_detail(vendor_quotation_detail_id);
+
+INSERT INTO
+    `const_document_type` (
+        `document_type_id`,
+        `document_name`,
+        `document_prefix`,
+        `table_name`,
+        `primary_key`
+    )
+VALUES
+    (
+        56,
+        'Vendor Quotation',
+        '{BC}/VQ-',
+        'vp_quotation_rfq',
+        'id'
+    );
+
+
+
+  ALTER table `vp_quotation_rfq`
+  ADD COLUMN `company_id` char(36) NOT NULL AFTER `id`,
+  ADD COLUMN `company_branch_id` char(36) NOT NULL AFTER `company_id`,
+  ADD COLUMN `document_type_id` int NOT NULL AFTER `company_branch_id`,
+  ADD COLUMN `document_no` int NOT NULL AFTER `document_type_id`,
+  ADD COLUMN `document_prefix` varchar(255) NOT NULL AFTER `document_no`,
+  ADD COLUMN `document_identity` varchar(255) NOT NULL AFTER `document_prefix`;

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DocumentType;
 use App\Models\Product;
 use App\Models\ProductType;
 use App\Models\Quotation;
@@ -19,6 +20,9 @@ use Illuminate\Support\Facades\Validator;
 
 class VendorQuotationController extends Controller
 {
+
+    protected $document_type_id = 56; // Assuming this is the document type ID for Vendor Quotation RFQ
+
     public function validateRequest($request)
     {
         $rules = [
@@ -104,7 +108,7 @@ class VendorQuotationController extends Controller
                         try {
                             $quotationItem = VendorQuotationDetail::join('quotation_detail as qd', 'qd.quotation_detail_id', '=', 'vendor_quotation_detail.quotation_detail_id')->where('qd.quotation_detail_id', $row['quotation_detail_id'])
                                 ->where('vendor_id', $vendor_id)
-                                ->select('vendor_quotation_detail.vendor_quotation_detail_id','qd.product_name', 'qd.quotation_detail_id', 'qd.product_id', 'qd.product_type_id', 'qd.unit_id', 'vendor_quotation_detail.vendor_part_no')
+                                ->select('vendor_quotation_detail.vendor_quotation_detail_id', 'qd.product_name', 'qd.quotation_detail_id', 'qd.product_id', 'qd.product_type_id', 'qd.unit_id', 'vendor_quotation_detail.vendor_part_no')
                                 ->first();
 
                             $quotationItem->product = Product::where('product_id', $quotationItem->product_id)->select("*", DB::raw("CONCAT(impa_code, ' ', name) as product_name"))->first();
@@ -195,8 +199,16 @@ class VendorQuotationController extends Controller
             throw new \InvalidArgumentException('Quotation ID, Vendor ID, and Quotation Details are required');
         }
         $id = $this->get_uuid();
+        $document = DocumentType::getNextDocument($this->document_type_id, $data);
+
         VpQuotationRfq::insert([
             'id' => $id,
+            'company_id' => $data['company_id'] ?? null,
+            'company_branch_id' => $data['company_branch_id'] ?? null,
+            'document_type_id' => $document['document_type_id'] ?? null,
+            'document_no' => $document['document_no'] ?? null,
+            'document_prefix' => $document['document_prefix'] ?? null,
+            'document_identity' => $document['document_identity'] ?? null,
             'quotation_id' => $quotation_id,
             'vendor_id' => $vendor_id,
             'status' => 'pending',
@@ -226,11 +238,11 @@ class VendorQuotationController extends Controller
 
     public function fetchRFQ($id)
     {
-        $rfq = VpQuotationRfq::with('quotation','quotation.event','quotation.vessel', 'vendor')
+        $rfq = VpQuotationRfq::with('quotation', 'quotation.event', 'quotation.vessel', 'vendor')
             ->where('id', $id)
             ->first();
 
-            foreach ($rfq->details as &$detail) {
+        foreach ($rfq->details as &$detail) {
             $detail->vendor_quotation_detail = VendorQuotationDetail::with('quotation_detail', 'quotation_detail.product_type', 'quotation_detail.product', 'quotation_detail.unit')
                 ->where('vendor_quotation_detail_id', $detail->vendor_quotation_detail_id)
                 ->first();

@@ -43,6 +43,12 @@ class VpQuotationRfq extends Model
      */
     protected $fillable = [
         'id',
+        'company_id',
+        'company_branch_id',
+        'document_type_id',
+        'document_no',
+        'document_prefix',
+        'document_identity',
         'quotation_id',
         'vendor_id',
         'status',
