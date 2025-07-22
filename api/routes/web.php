@@ -454,4 +454,5 @@ $router->group(['prefix' => 'vendor-platform/quotation'], function ($router) {
    $router->get('/{id}', 'VendorQuotationController@show');
    $router->put('/vendor/{id}', 'VendorQuotationController@vendorUpdate');
    $router->post('/rfq', 'VendorQuotationController@sendRFQ');
+   $router->get('/rfq/{id}', 'VendorQuotationController@fetchRFQ');
 });

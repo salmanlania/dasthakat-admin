@@ -224,6 +224,154 @@ class VendorQuotationController extends Controller
         return $id;
     }
 
+    public function fetchRFQ($id)
+    {
+        $rfq = VpQuotationRfq::with('quotation', 'vendor', 'vendor_quotation_detail','vendor_quotation_detail.quotation_detail')
+            ->where('id', $id)
+            ->first();
+
+        if (!$rfq) {
+            return $this->jsonResponse([], 404, 'RFQ Not Found!');
+        }
+
+        return $this->jsonResponse($rfq, 200, 'RFQ Data Fetched Successfully!');
+    }
+    // {
+
+    //     try {
+    //         // Validate required data
+    //         if (empty($data['quotation_id'])) {
+    //             throw new \InvalidArgumentException('Quotation ID is required');
+    //         }
+    //         // Validate quotation details
+    //         if (empty($data['quotation_detail']) || !is_array($data['quotation_detail'])) {
+    //             throw new \InvalidArgumentException('Invalid quotation details provided');
+    //         }
+
+    //         // Fetch quotation with minimal data
+    //         $data['quotation'] = Quotation::with('event:event_id,event_no,event_code', 'vessel:vessel_id,name')
+    //             ->where('quotation_id', $data['quotation_id'])
+    //             ->select('quotation_id', 'document_identity', 'document_date', 'event_id', 'vessel_id')
+    //             ->firstOrFail();
+
+
+    //         $rfqQuotations = [];
+    //         $errors = [];
+    //         $successCount = 0;
+
+    //         // Group details by vendor
+    //         foreach ($data['quotation_detail'] as $detail) {
+    //             try {
+    //                 if (($detail['rfq'] ?? 0) == 1 && !empty($detail['vendor_id'])) {
+    //                     if (!isset($rfqQuotations[$detail['vendor_id']])) {
+    //                         $rfqQuotations[$detail['vendor_id']] = [];
+    //                     }
+    //                     $rfqQuotations[$detail['vendor_id']][] = $detail;
+    //                 }
+    //             } catch (\Exception $e) {
+    //                 $errors[] = "Error processing detail ID " . $detail['quotation_detail_id'] || "known" . ": " . $e->getMessage();
+    //             }
+    //         }
+
+    //         // Process each vendor's RFQ
+    //         foreach ($rfqQuotations as $vendor_id => $details) {
+    //             try {
+    //                 $quotationDetail = [];
+    //                 $vendor = Supplier::where('supplier_id', $vendor_id)
+    //                     ->select('supplier_id', 'name', 'email')
+    //                     ->first();
+
+    //                 if (!$vendor) {
+    //                     throw new \RuntimeException("Vendor ID {$vendor_id} not found");
+    //                 }
+
+    //                 foreach ($details as $row) {
+    //                     try {
+    //                         $quotationItem = VendorQuotationDetail::join('quotation_detail as qd', 'qd.quotation_detail_id', '=', 'vendor_quotation_detail.quotation_detail_id')->where('qd.quotation_detail_id', $row['quotation_detail_id'])
+    //                             ->where('vendor_id', $vendor_id)
+    //                             ->select('qd.product_name', 'qd.quotation_detail_id', 'qd.product_id', 'qd.product_type_id', 'qd.unit_id', 'vendor_quotation_detail.vendor_part_no')
+    //                             ->first();
+
+    //                         $quotationItem->product = Product::where('product_id', $quotationItem->product_id)->select("*", DB::raw("CONCAT(impa_code, ' ', name) as product_name"))->first();
+    //                         $quotationItem->product_type = ProductType::where('product_type_id', $quotationItem->product_type_id)->select("*")->first();
+    //                         $quotationItem->unit = Unit::where('unit_id', $quotationItem->unit_id)->select("*")->first();
+    //                         if (!$quotationItem) {
+    //                             throw new \RuntimeException("Quotation detail not found for ID {$row['quotation_detail_id']}");
+    //                         }
+
+    //                         $vendor_item = VendorQuotationDetail::where('quotation_id', $data['quotation_id'])
+    //                             ->where('quotation_detail_id', $row['quotation_detail_id'])
+    //                             ->where('vendor_id', $vendor_id)
+    //                             ->select('vendor_rate')
+    //                             ->first();
+
+    //                         if (!$vendor_item) {
+    //                             throw new \RuntimeException("Vendor quotation detail not found for ID {$row['quotation_detail_id']}");
+    //                         }
+
+    //                         $quotationItem->vendor_rate = $vendor_item->vendor_rate;
+    //                         $quotationDetail[] = $quotationItem;
+    //                     } catch (\Exception $e) {
+    //                         $errors[] = "Error processing item {$row['quotation_detail_id']} for vendor {$vendor_id}: " . $e->getMessage();
+    //                         continue;
+    //                     }
+    //                 }
+
+    //                 if (empty($quotationDetail)) {
+    //                     throw new \RuntimeException("No valid quotation items found for vendor {$vendor_id}");
+    //                 }
+    //                 $data['quotation_detail'] = $quotationDetail;
+    //                 $data['vendor_id'] = $vendor_id;
+    //                 $id = $this->saveRFQ($data);
+
+    //                 $link = env("VENDOR_URL") . "quotation/{$id}";
+    //                 // $transform = [
+    //                 //     'quotation' => $data['quotation'],
+    //                 //     'quotation_detail' => $quotationDetail,
+    //                 //     'vendor' => $vendor,
+    //                 // ];
+
+    //                 // $jsonData = json_encode($transform);
+    //                 // $encoded = rtrim(strtr(base64_encode($jsonData), '+/', '-_'), '=');
+    //                 // $transform['link'] = env("VENDOR_URL") . "quotation?q={$encoded}";
+
+    //                 $payload = [
+    //                     'template' => 'vendor_quotation_rate_update',
+    //                     'data' => [
+    //                         'link' => $link,
+    //                     ],
+    //                     'email' => $vendor->email,
+    //                     'name' => $vendor->name,
+    //                     'subject' => 'New Request Quotation ' . $data['quotation']->document_identity,
+    //                     'message' => '',
+    //                 ];
+    //                 $this->sendEmail($payload);
+    //                 $successCount++;
+    //             } catch (\Exception $e) {
+    //                 $errors[] = "Error sending RFQ to vendor {$vendor_id}: " . $e->getMessage();
+    //                 continue;
+    //             }
+    //         }
+
+    //         if ($successCount === 0 && !empty($errors)) {
+    //             throw new \RuntimeException("Failed to send any RFQs. Errors: " . implode('; ', $errors));
+    //         }
+
+    //         return [
+    //             'success' => true,
+    //             'sent_count' => $successCount,
+    //             'errors' => $errors
+    //         ];
+    //     } catch (\Exception $e) {
+    //         Log::error('RFQ Processing Error: ' . $e->getMessage(), [
+    //             'quotation_id' => $data['quotation_id'] ?? null,
+    //             'trace' => $e->getTraceAsString()
+    //         ]);
+    //         throw $e;
+    //     }
+    // }
+
+
     public function store(Request $request)
     {
         $isError = $this->validateStoreRequest($request->all());

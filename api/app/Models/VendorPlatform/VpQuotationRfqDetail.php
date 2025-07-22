@@ -68,9 +68,10 @@ class VpQuotationRfqDetail extends Model
     {
         return $this->belongsTo(QuotationDetail::class, 'quotation_detail_id');
     }
+   
 
     public function vendor_quotation_detail()
     {
-        return $this->belongsTo(VendorQuotationDetail::class, 'vendor_quotation_detail', 'vendor_quotation_detail');
+        return $this->belongsTo(VendorQuotationDetail::class, 'vendor_quotation_detail_id', 'vendor_quotation_detail_id');
     }
 }

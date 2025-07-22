@@ -71,6 +71,10 @@ class VpQuotationRfq extends Model
     {
         return $this->belongsTo(Quotation::class, 'quotation_id');
     }
+    public function details()
+    {
+        return $this->hasMany(VpQuotationRfqDetail::class, 'id');
+    }
 
     public function vendor()
     {
