@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\VendorPlatform;
 
 use App\Models\Quotation;
 use App\Models\Supplier;
