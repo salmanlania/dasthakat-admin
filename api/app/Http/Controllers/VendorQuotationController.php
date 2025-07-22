@@ -8,6 +8,8 @@ use App\Models\Quotation;
 use App\Models\QuotationDetail;
 use App\Models\Supplier;
 use App\Models\Unit;
+use App\Models\VendorPlaform\VpQuotationRfq;
+use App\Models\VendorPlaform\VpQuotationRfqDetail;
 use App\Models\VendorQuotationDetail;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -56,6 +58,10 @@ class VendorQuotationController extends Controller
             if (empty($data['quotation_id'])) {
                 throw new \InvalidArgumentException('Quotation ID is required');
             }
+            // Validate quotation details
+            if (empty($data['quotation_detail']) || !is_array($data['quotation_detail'])) {
+                throw new \InvalidArgumentException('Invalid quotation details provided');
+            }
 
             // Fetch quotation with minimal data
             $data['quotation'] = Quotation::with('event:event_id,event_no,event_code', 'vessel:vessel_id,name')
@@ -63,10 +69,6 @@ class VendorQuotationController extends Controller
                 ->select('quotation_id', 'document_identity', 'document_date', 'event_id', 'vessel_id')
                 ->firstOrFail();
 
-            // Validate quotation details
-            if (empty($data['quotation_detail']) || !is_array($data['quotation_detail'])) {
-                throw new \InvalidArgumentException('Invalid quotation details provided');
-            }
 
             $rfqQuotations = [];
             $errors = [];
@@ -105,7 +107,7 @@ class VendorQuotationController extends Controller
                                 ->select('qd.product_name', 'qd.quotation_detail_id', 'qd.product_id', 'qd.product_type_id', 'qd.unit_id', 'vendor_quotation_detail.vendor_part_no')
                                 ->first();
 
-                            $quotationItem->product = Product::where('product_id', $quotationItem->product_id)->select("*",DB::raw("CONCAT(impa_code, ' ', name) as product_name"))->first();
+                            $quotationItem->product = Product::where('product_id', $quotationItem->product_id)->select("*", DB::raw("CONCAT(impa_code, ' ', name) as product_name"))->first();
                             $quotationItem->product_type = ProductType::where('product_type_id', $quotationItem->product_type_id)->select("*")->first();
                             $quotationItem->unit = Unit::where('unit_id', $quotationItem->unit_id)->select("*")->first();
                             if (!$quotationItem) {
@@ -133,26 +135,30 @@ class VendorQuotationController extends Controller
                     if (empty($quotationDetail)) {
                         throw new \RuntimeException("No valid quotation items found for vendor {$vendor_id}");
                     }
+                    $data['quotation_detail'] = $quotationDetail;
+                    $id = $this->saveRFQ($data);
 
-                    $transform = [
-                        'quotation' => $data['quotation'],
-                        'quotation_detail' => $quotationDetail,
-                        'vendor' => $vendor,
-                    ];
+                    $link = env("VENDOR_URL") . "quotation/{$id}";
+                    // $transform = [
+                    //     'quotation' => $data['quotation'],
+                    //     'quotation_detail' => $quotationDetail,
+                    //     'vendor' => $vendor,
+                    // ];
 
-                    $jsonData = json_encode($transform);
-                    $encoded = rtrim(strtr(base64_encode($jsonData), '+/', '-_'), '=');
-                    $transform['link'] = env("VENDOR_URL") . "quotation?q={$encoded}";
+                    // $jsonData = json_encode($transform);
+                    // $encoded = rtrim(strtr(base64_encode($jsonData), '+/', '-_'), '=');
+                    // $transform['link'] = env("VENDOR_URL") . "quotation?q={$encoded}";
 
                     $payload = [
                         'template' => 'vendor_quotation_rate_update',
-                        'data' => $transform,
+                        'data' => [
+                            'link' => $link,
+                        ],
                         'email' => $vendor->email,
                         'name' => $vendor->name,
                         'subject' => 'New Request Quotation ' . $data['quotation']->document_identity,
                         'message' => '',
                     ];
-// Log::error('Sending RFQ to vendor',$transform );
                     $this->sendEmail($payload);
                     $successCount++;
                 } catch (\Exception $e) {
@@ -170,7 +176,6 @@ class VendorQuotationController extends Controller
                 'sent_count' => $successCount,
                 'errors' => $errors
             ];
-            
         } catch (\Exception $e) {
             Log::error('RFQ Processing Error: ' . $e->getMessage(), [
                 'quotation_id' => $data['quotation_id'] ?? null,
@@ -178,6 +183,44 @@ class VendorQuotationController extends Controller
             ]);
             throw $e;
         }
+    }
+
+    public function saveRFQ($data)
+    {
+        $quotation_id = $data['quotation_id'];
+        $vendor_id = $data['vendor_id'];
+        $quotationDetail = $data['quotation_detail'];
+        if (empty($quotation_id) || empty($vendor_id) || empty($quotationDetail)) {
+            throw new \InvalidArgumentException('Quotation ID, Vendor ID, and Quotation Details are required');
+        }
+        $id = $this->get_uuid();
+        VpQuotationRfq::insert([
+            'id' => $id,
+            'quotation_id' => $quotation_id,
+            'vendor_id' => $vendor_id,
+            'status' => 'pending',
+            'total_items' => count($quotationDetail),
+            'items_quoted' => 0, // Initially set to 0, will be updated later
+            'date_required' => $data['date_required'],
+            'date_sent' => Carbon::now(),
+            'date_returned' => null,
+        ]);
+        $detail = [];
+        foreach ($quotationDetail as $item) {
+            $detail[] = [
+                'detail_id' => $this->get_uuid(),
+                'id' => $id,
+                'quotation_detail_id' => $item->quotation_detail_id,
+                'vendor_quotation_detail_id' => $item->vendor_quotation_detail_id ?? null,
+                'created_by' => auth()->id(),
+                'updated_by' => auth()->id(),
+            ];
+        }
+
+        if (!empty($detail)) {
+            VpQuotationRfqDetail::insert($detail);
+        }
+        return $id;
     }
 
     public function store(Request $request)
@@ -204,13 +247,15 @@ class VendorQuotationController extends Controller
             $errors = [];
             $primaryVendorUpdates = 0;
 
-            foreach ($request->quotation_detail as $row => $detail) {
+            foreach ($request->quotation_detail as $row => &$detail) {
                 try {
+                    $vendor_quotation_detail_id = $this->get_uuid();
+                    $detail->vendor_quotation_detail_id = $vendor_quotation_detail_id;
                     $row++;
                     $data[] = [
                         'company_id' => $request->company_id ?? '',
                         'company_branch_id' => $request->company_branch_id ?? '',
-                        'vendor_quotation_detail_id' => $this->get_uuid(),
+                        'vendor_quotation_detail_id' => $vendor_quotation_detail_id,
                         'quotation_id' => $quotation_id,
                         'sort_order' => $row,
                         'quotation_detail_id' => $detail['quotation_detail_id'],
@@ -301,72 +346,6 @@ class VendorQuotationController extends Controller
         }
     }
 
-    // function sendRFQ($data)
-    // {
-    // 	$data['quotation'] = Quotation::with('event:event_id,event_no,event_code', 'vessel:vessel_id,name')
-    // 		->where('quotation_id', $data['quotation_id'])
-    // 		->select('quotation_id', 'document_identity', 'document_date', 'event_id', 'vessel_id')
-    // 		->first();
-
-    // 	$rfqQuotations = [];
-    // 	foreach ($data['quotation_detail'] as $detail) {
-    // 		if (($detail['rfq'] ?? 0) == 1 && !empty($detail['vendor_id'])) {
-    // 			if (!isset($rfqQuotations[$detail['vendor_id']])) {
-    // 				$rfqQuotations[$detail['vendor_id']] = [];
-    // 			}
-    // 			$rfqQuotations[$detail['vendor_id']][] = $detail;
-    // 		}
-    // 	}
-
-    // 	foreach ($rfqQuotations as $vendor_id => $detail) {
-    // 		$quotationDetail = [];
-    // 		foreach ($detail as $row) {
-    // 			$quotationItem = QuotationDetail::with('product:product_id,impa_code,name,short_code,product_code', 'product_type:product_type_id,name', 'unit:unit_id,name')
-    // 				->where('quotation_id', $data['quotation_id'])
-    // 				->where('quotation_detail_id', $row['quotation_detail_id'])
-    // 				->where('supplier_id', $vendor_id)
-    // 				->select('product_name', 'quotation_detail_id', 'product_id', 'product_type_id', 'unit_id', 'vendor_part_no')
-    // 				->first();
-    // 			$vendor_item = VendorQuotationDetail::where('quotation_id', $data['quotation_id'])
-    // 				->where('quotation_detail_id', $row['quotation_detail_id'])
-    // 				->where('vendor_id', $vendor_id)
-    // 				->select('vendor_rate')
-    // 				->first();
-    // 			if ($quotationItem && $vendor_item) {
-    // 				$quotationItem->vendor_rate = $vendor_item->vendor_rate;
-    // 				$quotationDetail[] = $quotationItem;
-    // 			}
-    // 		}
-
-    // 		$vendor = Supplier::where('supplier_id', $vendor_id)
-    // 			->select('supplier_id', 'name', 'email')
-    // 			->first();
-    // 		$transform = [
-    // 			'quotation' => $data['quotation'],
-    // 			'quotation_detail' => $quotationDetail,
-    // 			'vendor' => $vendor,
-    // 		];
-    // 		$jsonData = json_encode($transform);
-    // 		$encoded = rtrim(strtr(base64_encode($jsonData), '+/', '-_'), '=');
-    // 		$transform['link'] = "http://localhost:5173/vendor-platform/quotation?q={$encoded}";
-    // 		// dd($transform['vendor']);
-    // 		$payload = [
-    // 			'template' => 'vendor_quotation_rate_update',
-    // 			'data' => $transform,
-    // 			'email' => $transform['vendor']['email'],
-    // 			'name' => $transform['vendor']['name'],
-    // 			'subject' => 'New Request Quotation ' . $transform['quotation']->document_identity,
-    // 			'message' => '',
-    // 		];
-
-    // 		try {
-    // 			$this->sendEmail($payload);
-    // 		} catch (\Exception $e) {
-    // 			Log::error('Quotation Store Error: ' . $e->getMessage());
-    // 			throw $this->jsonResponse([], 400, 'RFQ Sent Failed!' . $e->getMessage());
-    // 		}
-    // 	}
-    // }
 
     public function show($id)
     {
@@ -378,131 +357,6 @@ class VendorQuotationController extends Controller
         return $this->jsonResponse($data, 200, 'Quotation Vendor Data Fetched Successfully!');
     }
 
-    // public function store(Request $request)
-    // {
-    // 	$isError = $this->validateStoreRequest($request->all());
-    // 	if (!empty($isError)) {
-    // 		return $this->jsonResponse($isError, 400, 'Request Failed!');
-    // 	}
-
-    // 	DB::beginTransaction();
-    // 	try {
-    // 		$quotation_id = $request->quotation_id;
-    // 		VendorQuotationDetail::where('quotation_id', $quotation_id)->delete();
-    // 		$data = [];
-    // 		foreach ($request->quotation_detail as $row => $detail) {
-    // 			$row++;
-    // 			$data[] = [
-    // 				'company_id' => $request->company_id ?? '',
-    // 				'company_branch_id' => $request->company_branch_id ?? '',
-    // 				'vendor_quotation_detail_id' => $this->get_uuid(),
-    // 				'quotation_id' => $quotation_id ?? '',
-    // 				'sort_order' => $row,
-    // 				'quotation_detail_id' => $detail['quotation_detail_id'],
-    // 				'vendor_id' => $detail['vendor_id'] ?? '',
-    // 				'vendor_rate' => $detail['vendor_rate'] ?? '',
-    // 				'is_primary_vendor' => $detail['is_primary_vendor'] ?? 0,
-    // 				'vendor_part_no' => $detail['vendor_part_no'] ?? '',
-    // 				'vendor_notes' => $detail['vendor_notes'] ?? '',
-    // 				'created_at' => Carbon::now(),
-    // 				'created_by' => $request->login_user_id,
-    // 			];
-    // 			if (!empty($detail['vendor_id'])) {
-    // 				if ($detail['is_primary_vendor'] == 1) {
-    // 					$quotation_detail = QuotationDetail::where('quotation_detail_id', $detail['quotation_detail_id'])->first();
-    // 					$quotation_detail->supplier_id = $detail['vendor_id'];
-    // 					if ($detail['vendor_rate']) {
-    // 						$quotation_detail->markup = calculateProfitPercentage($quotation_detail->cost_price, $detail['vendor_rate']);
-    // 						$quotation_detail->rate = $detail['vendor_rate'];
-    // 						$quotation_detail->amount = $quotation_detail->quantity * $detail['vendor_rate'];
-    // 						$quotation_detail->discount_amount = ($quotation_detail->amount * $quotation_detail->discount_percent) / 100;
-    // 						$quotation_detail->gross_amount = $quotation_detail->amount - $quotation_detail->discount_amount;
-    // 					}
-    // 					$quotation_detail->update();
-    // 				}
-    // 			}
-    // 		}
-    // 		VendorQuotationDetail::insert($data);  // Bulk insert
-
-    // 		$quotation = Quotation::where('quotation_id', $quotation_id)->first();
-    // 		$detail = QuotationDetail::where('quotation_id', $quotation_id);
-    // 		$quotation->total_amount = $detail->sum('amount');
-    // 		$quotation->total_discount = $detail->sum('discount_amount');
-    // 		$quotation->net_amount = $detail->sum('gross_amount');
-    // 		$quotation->rebate_amount = $quotation->net_amount * $quotation->rebate_percent / 100;
-    // 		$quotation->salesman_amount = $quotation->net_amount * $quotation->salesman_percent / 100;
-    // 		$quotation->final_amount = $quotation->net_amount - ($quotation->salesman_amount + $quotation->rebate_amount);
-    // 		$quotation->update();
-
-    // 		DB::commit();
-
-    // 		try {
-    // 			$this->sendRFQ($request);
-    // 		} catch (\Exception $e) {
-    // 			return $this->jsonResponse([], 400, 'RFQ Sent Failed!' . $e->getMessage());
-    // 		}
-    // 		return $this->jsonResponse(['quotation_id' => $quotation_id], 200, 'Quotation Vendors Saved Successfully!');
-    // 	} catch (\Exception $e) {
-    // 		DB::rollBack();
-    // 		return $this->jsonResponse(['error' => $e->getMessage()], 500, 'Failed to save vendor quotations.');
-    // 	}
-    // }
-
-    // public function vendorUpdate($id, Request $request)
-    // {
-    // 	$isError = $this->validateStoreRequest($request->all());
-    // 	if (!empty($isError)) {
-    // 		return $this->jsonResponse($isError, 400, 'Request Failed!');
-    // 	}
-
-    // 	$updateQuote = false;  
-    // 	DB::beginTransaction();
-    // 	try {
-    // 		foreach ($request->quotation_detail as $row) {
-    // 			$data = VendorQuotationDetail::where('quotation_id', $id)
-    // 				->where('quotation_detail_id', $row['quotation_detail_id'])
-    // 				->where('vendor_id', $request->vendor_id)
-    // 				->first();
-
-    // 			$data->vendor_rate = $row['vendor_rate'] ?? '';
-    // 			$data->vendor_part_no = $row['vendor_part_no'] ?? '';
-    // 			$data->vendor_notes = $row['vendor_notes'] ?? '';
-    // 			$data->updated_at = Carbon::now();
-    // 			$data->updated_by = $request->vendor_id;
-    // 			$data->update();
-
-    // 			$quotation_detail = QuotationDetail::where('quotation_detail_id', $row['quotation_detail_id'])->first();
-
-    // 			if ($row['vendor_rate'] && $data->is_primary_vendor == 1) {
-    // 				$updateQuote = true;
-    // 				$quotation_detail->markup = calculateProfitPercentage($quotation_detail->cost_price, $row['vendor_rate']);
-    // 				$quotation_detail->rate = $row['vendor_rate'];
-    // 				$quotation_detail->amount = $quotation_detail->quantity * $row['vendor_rate'];
-    // 				$quotation_detail->discount_amount = ($quotation_detail->amount * $quotation_detail->discount_percent) / 100;
-    // 				$quotation_detail->gross_amount = $quotation_detail->amount - $quotation_detail->discount_amount;
-    // 				$quotation_detail->update();
-    // 			}
-    // 		}
-    // 		if ($updateQuote) {
-    // 			$quotation = Quotation::where('quotation_id', $id)->first();
-    // 			$detail = QuotationDetail::where('quotation_id', $id);
-    // 			$quotation->total_amount = $detail->sum('amount');
-    // 			$quotation->total_discount = $detail->sum('discount_amount');
-    // 			$quotation->net_amount = $detail->sum('gross_amount');
-    // 			$quotation->rebate_amount = $quotation->net_amount * $quotation->rebate_percent / 100;
-    // 			$quotation->salesman_amount = $quotation->net_amount * $quotation->salesman_percent / 100;
-    // 			$quotation->final_amount = $quotation->net_amount - ($quotation->salesman_amount + $quotation->salesman_amount);
-    // 			$quotation->update();
-    // 		}
-
-    // 		DB::commit();
-
-    // 		return $this->jsonResponse(['quotation_id' => $id], 200, 'Quotation Vendor Details Updated Successfully!');
-    // 	} catch (\Exception $e) {
-    // 		DB::rollBack();
-    // 		return $this->jsonResponse(['error' => $e->getMessage()], 500, 'Failed to update vendor quotations.');
-    // 	}
-    // }
     public function vendorUpdate($id, Request $request)
     {
         $isError = $this->validateStoreRequest($request->all());
@@ -543,10 +397,6 @@ class VendorQuotationController extends Controller
 
                         if ($data->is_primary_vendor == 1) {
                             $updateQuote = true;
-                            // $quotation_detail->markup = calculateProfitPercentage(
-                            //     $quotation_detail->cost_price, 
-                            //     $row['vendor_rate']
-                            // );
                             $quotation_detail->vendor_part_no = $row['vendor_part_no'] ?? "";
                             $quotation_detail->cost_price = $row['vendor_rate'];
                             $quotation_detail->rate = $quotation_detail->cost_price +  ($quotation_detail->cost_price * $quotation_detail->markup) / 100;

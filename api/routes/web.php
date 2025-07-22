@@ -20,7 +20,6 @@ use Illuminate\Support\Facades\DB;
 */
 
 
-
 $router->group([
    'middleware' => ['cors'],
 ], function ($router) {});

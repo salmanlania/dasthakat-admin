@@ -25,3 +25,40 @@ COLLATE utf8mb4_unicode_ci;
 
 
 SHOW FULL COLUMNS FROM vendor_quotation_detail WHERE FIELD = 'quotation_detail_id';
+
+
+CREATE TABLE vp_quotation_rfq (
+    id CHAR(36) PRIMARY KEY,
+    quotation_id CHAR(36) NOT NULL,
+    vendor_id CHAR(36) NULL,
+    STATUS CHAR(50) NULL,
+    total_items INT NULL,
+    items_quoted INT NULL,
+    date_required DATETIME NULL,
+    date_sent DATETIME NULL,
+    date_returned DATETIME NULL,
+    created_at TIMESTAMP NULL,
+    created_by CHAR(36) NULL,
+    updated_at TIMESTAMP NULL,
+    updated_by CHAR(36) NULL
+);
+
+-- Create indexes
+CREATE INDEX idx_vp_quotation_rfq_quotation_id ON vp_quotation_rfq(quotation_id);
+CREATE INDEX idx_vp_quotation_rfq_vendor_id ON vp_quotation_rfq(vendor_id);
+CREATE INDEX idx_vp_quotation_rfq_status ON vp_quotation_rfq(STATUS);
+
+CREATE TABLE vp_quotation_rfq_detail (
+    detail_id CHAR(36) PRIMARY KEY,
+    id CHAR(36) NOT NULL,
+    quotation_detail_id CHAR(36) NOT NULL,
+    vendor_quotation_detail_id CHAR(36) NULL,
+    created_at TIMESTAMP NULL,
+    created_by CHAR(36) NULL,
+    updated_at TIMESTAMP NULL,
+    updated_by CHAR(36) NULL
+);
+
+-- Create indexes
+CREATE INDEX idx_vp_quotation_rfq_detail_quotation_detail_id ON vp_quotation_rfq_detail(quotation_detail_id);
+CREATE INDEX idx_vp_quotation_rfq_detail_vendor_quotation_detail_id ON vp_quotation_rfq_detail(vendor_quotation_detail_id);
