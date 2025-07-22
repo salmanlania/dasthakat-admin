@@ -226,7 +226,7 @@ class VendorQuotationController extends Controller
 
     public function fetchRFQ($id)
     {
-        $rfq = VpQuotationRfq::with('quotation', 'vendor')
+        $rfq = VpQuotationRfq::with('quotation','quotation.event','quotation.vessel', 'vendor')
             ->where('id', $id)
             ->first();
 
