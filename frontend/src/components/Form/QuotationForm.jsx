@@ -177,12 +177,13 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     ? formatThreeDigitCommas(roundUpto(totalNet * (parsedSalesman / 100)))
     : 0;
 
-  const finalAmount =
-    roundUpto(
-      parseInt(totalNet || 0) -
-        parseInt(rebateAmount?.toString().replace(/,/g, '') || 0) -
-        parseInt(salesmanAmount?.toString().replace(/,/g, '') || 0),
-    ) || 0;
+  const minusValue =
+    parseInt(rebateAmount?.toString().replace(/,/g, '') || 0) +
+    parseInt(salesmanAmount?.toString().replace(/,/g, '') || 0) +
+    parseInt(totalCost || 0) +
+    parseInt(totalCommissionAmount || 0);
+
+  const finalAmount = roundUpto(parseInt(totalNet || 0) - minusValue) || 0;
 
   totalProfit = roundUpto(finalAmount - totalCost);
 
