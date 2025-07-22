@@ -246,11 +246,11 @@ class VendorQuotationController extends Controller
             $data = [];
             $errors = [];
             $primaryVendorUpdates = 0;
-
-            foreach ($request->quotation_detail as $row => &$detail) {
+            $quotation_details = $request->quotation_detail;
+            foreach ($quotation_details as $row => $detail) {
                 try {
                     $vendor_quotation_detail_id = $this->get_uuid();
-                    $detail->vendor_quotation_detail_id = $vendor_quotation_detail_id;
+                    $detail['vendor_quotation_detail_id'] = $vendor_quotation_detail_id;
                     $row++;
                     $data[] = [
                         'company_id' => $request->company_id ?? '',
@@ -297,7 +297,7 @@ class VendorQuotationController extends Controller
                     continue;
                 }
             }
-
+            $request->merge(['quotation_detail' => $quotation_details]);
             if (empty($data)) {
                 throw new \RuntimeException("No valid vendor quotation details to save");
             }
