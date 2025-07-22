@@ -8,8 +8,8 @@ use App\Models\Quotation;
 use App\Models\QuotationDetail;
 use App\Models\Supplier;
 use App\Models\Unit;
-use App\Models\VendorPlaform\VpQuotationRfq;
-use App\Models\VendorPlaform\VpQuotationRfqDetail;
+use App\Models\VpQuotationRfq;
+use App\Models\VpQuotationRfqDetail;
 use App\Models\VendorQuotationDetail;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -136,6 +136,7 @@ class VendorQuotationController extends Controller
                         throw new \RuntimeException("No valid quotation items found for vendor {$vendor_id}");
                     }
                     $data['quotation_detail'] = $quotationDetail;
+                    $data['vendor_id'] = $vendor_id;
                     $id = $this->saveRFQ($data);
 
                     $link = env("VENDOR_URL") . "quotation/{$id}";

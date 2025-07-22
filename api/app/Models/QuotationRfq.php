@@ -1,28 +1,26 @@
 <?php
 
-namespace App\Models\VendorPlaform;
+namespace App\Models;
 
 use App\Models\Quotation;
-use App\Models\QuotationDetail;
 use App\Models\Supplier;
-use App\Models\VendorQuotationDetail;
 use Illuminate\Database\Eloquent\Model;
 
-class VpQuotationRfqDetail extends Model
+class VpQuotationRfq extends Model
 {
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'vp_quotation_rfq_detail';
+    protected $table = 'vp_quotation_rfq';
 
     /**
      * The primary key associated with the table.
      *
      * @var string
      */
-    protected $primaryKey = 'detail_id';
+    protected $primaryKey = 'id';
 
     /**
      * Indicates if the IDs are auto-incrementing.
@@ -44,12 +42,15 @@ class VpQuotationRfqDetail extends Model
      * @var array
      */
     protected $fillable = [
-        'detail_id',
         'id',
-        'quotation_detail_id',
-        'vendor_quotation_detail_id',
-        'created_by',
-        'updated_by'
+        'quotation_id',
+        'vendor_id',
+        'status',
+        'total_items',
+        'items_quoted',
+        'date_required',
+        'date_sent',
+        'date_returned'
     ];
 
     /**
@@ -58,19 +59,21 @@ class VpQuotationRfqDetail extends Model
      * @var array
      */
     protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'total_items' => 'integer',
+        'items_quoted' => 'integer',
+        'date_required' => 'datetime',
+        'date_sent' => 'datetime',
+        'date_returned' => 'datetime'
     ];
 
     //relationships
-    
-    public function quotation_detail()
+    public function quotation()
     {
-        return $this->belongsTo(QuotationDetail::class, 'quotation_detail_id');
+        return $this->belongsTo(Quotation::class, 'quotation_id');
     }
 
-    public function vendor_quotation_detail()
+    public function vendor()
     {
-        return $this->belongsTo(VendorQuotationDetail::class, 'vendor_quotation_detail', 'vendor_quotation_detail');
+        return $this->belongsTo(Supplier::class, 'vendor_id', 'supplier_id');
     }
 }
