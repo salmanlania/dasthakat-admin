@@ -104,7 +104,7 @@ class VendorQuotationController extends Controller
                         try {
                             $quotationItem = VendorQuotationDetail::join('quotation_detail as qd', 'qd.quotation_detail_id', '=', 'vendor_quotation_detail.quotation_detail_id')->where('qd.quotation_detail_id', $row['quotation_detail_id'])
                                 ->where('vendor_id', $vendor_id)
-                                ->select('qd.product_name', 'qd.quotation_detail_id', 'qd.product_id', 'qd.product_type_id', 'qd.unit_id', 'vendor_quotation_detail.vendor_part_no')
+                                ->select('vendor_quotation_detail.vendor_quotation_detail_id','qd.product_name', 'qd.quotation_detail_id', 'qd.product_id', 'qd.product_type_id', 'qd.unit_id', 'vendor_quotation_detail.vendor_part_no')
                                 ->first();
 
                             $quotationItem->product = Product::where('product_id', $quotationItem->product_id)->select("*", DB::raw("CONCAT(impa_code, ' ', name) as product_name"))->first();
@@ -213,8 +213,8 @@ class VendorQuotationController extends Controller
                 'id' => $id,
                 'quotation_detail_id' => $item->quotation_detail_id,
                 'vendor_quotation_detail_id' => $item->vendor_quotation_detail_id ?? null,
-                'created_by' => auth()->id(),
-                'updated_by' => auth()->id(),
+                'created_by' => $data['created_by_user'] ?? null,
+                'updated_by' => $data['created_by_user'] ?? null,
             ];
         }
 
