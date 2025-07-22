@@ -25,6 +25,7 @@ import purchaseInvoiceReducer from './features/purchaseInvoiceSlice';
 import saleInvoiceReducer from './features/saleInvoiceSlice';
 import purchaseOrderReducer from './features/purchaseOrderSlice';
 import quotationReducer from './features/quotationSlice';
+import vendorQuotationReducer from './features/vendorQuotationSlice';
 import salesmanReducer from './features/salesmanSlice';
 import serviceListReducer from './features/serviceListSlice';
 import shipmentReducer from './features/shipmentSlice';
@@ -91,7 +92,8 @@ const rootReducer = combineReducers({
   ijo: ijoReducer,
   shipment: shipmentReducer,
   serviceOrder: serviceOrderReducer,
-  CompanySetting: CompanySettingReducer
+  CompanySetting: CompanySettingReducer,
+  vendorQuotation: vendorQuotationReducer
 });
 
 export const store = configureStore({

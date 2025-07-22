@@ -916,10 +916,10 @@ function Routes() {
         ],
       },
       {
-        path: '/vendor-portal',
+        path: '/vendor-platform',
         children: [
           {
-            path: 'quotation',
+            path: 'quotation/:id',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <VendorPlatformQuotation />

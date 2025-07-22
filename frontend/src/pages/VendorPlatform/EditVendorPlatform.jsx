@@ -3,17 +3,17 @@ import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import QuotationForm from '../../components/Form/QuotationForm';
+import VendorQuotationForm from '../../components/Form/VendorQuotationForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
-import { getQuotation, updateQuotation } from '../../store/features/quotationSlice';
+import { getQuotation, updateQuotation } from '../../store/features/vendorQuotationSlice';
 
 const EditVendorPlatform = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();
   const { id } = useParams();
-  const { isItemLoading, initialFormValues } = useSelector((state) => state.quotation);
+  const { isItemLoading, initialFormValues } = useSelector((state) => state.vendorQuotation);
 
   const onQuotationUpdate = async (data) => {
     try {
@@ -36,7 +36,8 @@ const EditVendorPlatform = () => {
 
   useEffect(() => {
     try {
-      dispatch(getQuotation(id)).unwrap()
+      const res = dispatch(getQuotation(id)).unwrap();
+      console.log('res' , res)
     } catch (error) {
       handleError(error)
     };
@@ -46,8 +47,8 @@ const EditVendorPlatform = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>EDIT QUOTATION</PageHeading>
-        <Breadcrumb items={[{ title: 'Quotation' }, { title: 'Edit' }]} separator=">" />
+        <PageHeading>VIEW VENDOR QUOTATION</PageHeading>
+        <Breadcrumb items={[{ title: 'Vendor Quotation' }, { title: 'View' }]} separator=">" />
       </div>
 
       {isItemLoading && (
@@ -58,7 +59,7 @@ const EditVendorPlatform = () => {
 
       {!isItemLoading && initialFormValues ? (
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <QuotationForm mode="edit" onSubmit={onQuotationUpdate} onSave={onQuotationUpdates} />
+          <VendorQuotationForm mode="edit" onSubmit={onQuotationUpdate} onSave={onQuotationUpdates} />
         </div>
       ) : null}
     </>

@@ -465,7 +465,7 @@ const Sidebar = () => {
       // disabled: LogisticsPermission,
     },
     {
-      key: 'vendor platform',
+      key: 'vendor-platform',
       label: <Link to="/vendor-platform">Vendor Platform</Link>,
       icon: <TbBuildingStore size={18} />,
       // disabled: LogisticsPermission,

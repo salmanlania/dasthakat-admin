@@ -1,9 +1,19 @@
-import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Select, Table, Tooltip } from 'antd';
+import {
+  Breadcrumb,
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  Popconfirm,
+  Select,
+  Table,
+  Tooltip,
+} from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { FaEye } from 'react-icons/fa';
 import { GoTrash } from 'react-icons/go';
-import { MdOutlineEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect';
@@ -15,23 +25,22 @@ import useError from '../../hooks/useError';
 import {
   bulkDeleteQuotation,
   deleteQuotation,
-  getQuotationForPrint,
-  getQuotationList,
+  getVendorQuotationList,
   setQuotationDeleteIDs,
   setQuotationListParams,
-} from '../../store/features/quotationSlice';
-import generateQuotationExcel from '../../utils/excel/quotation-excel.js';
-import { createQuotationPrint } from '../../utils/prints/quotation-print';
+} from '../../store/features/vendorQuotationSlice.js';
 
 const VendorPlatform = () => {
+  const { RangePicker } = DatePicker;
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.quotation,
+    (state) => state.vendorQuotation,
   );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.quotation;
 
+  const [form] = Form.useForm();
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
@@ -49,7 +58,7 @@ const VendorPlatform = () => {
     try {
       await dispatch(deleteQuotation(id)).unwrap();
       toast.success('Quotation deleted successfully');
-      dispatch(getQuotationList(formattedParams)).unwrap();
+      dispatch(getVendorQuotationList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -60,35 +69,9 @@ const VendorPlatform = () => {
       await dispatch(bulkDeleteQuotation(deleteIDs)).unwrap();
       toast.success('Quotations deleted successfully');
       closeDeleteModal();
-      await dispatch(getQuotationList(formattedParams)).unwrap();
+      await dispatch(getVendorQuotationList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
-    }
-  };
-
-  const printQuotation = async (id) => {
-    const loadingToast = toast.loading('Loading print...');
-
-    try {
-      const data = await dispatch(getQuotationForPrint(id)).unwrap();
-      createQuotationPrint(data);
-    } catch (error) {
-      handleError(error);
-    } finally {
-      toast.dismiss(loadingToast);
-    }
-  };
-
-  const exportQuotation = async (id) => {
-    const loadingToast = toast.loading('Loading excel...');
-
-    try {
-      const data = await dispatch(getQuotationForPrint(id)).unwrap();
-      generateQuotationExcel(data);
-    } catch (error) {
-      handleError(error);
-    } finally {
-      toast.dismiss(loadingToast);
     }
   };
 
@@ -96,30 +79,7 @@ const VendorPlatform = () => {
     {
       title: (
         <div>
-          <p>Quotation Date</p>
-          <div onClick={(e) => e.stopPropagation()}>
-            <DatePicker
-              size="small"
-              value={params.document_date}
-              className="font-normal"
-              onChange={(date) => dispatch(setQuotationListParams({ document_date: date }))}
-              format="MM-DD-YYYY"
-            />
-          </div>
-        </div>
-      ),
-      dataIndex: 'document_date',
-      key: 'document_date',
-      sorter: true,
-      width: 150,
-      ellipsis: true,
-      render: (_, { document_date }) =>
-        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null,
-    },
-    {
-      title: (
-        <div>
-          <p>Quotation No</p>
+          <p>VQ #</p>
           <Input
             className="font-normal"
             size="small"
@@ -141,7 +101,7 @@ const VendorPlatform = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
-          <p>Customer</p>
+          <p>QT / CS</p>
           <AsyncSelect
             endpoint="/customer"
             size="small"
@@ -157,6 +117,27 @@ const VendorPlatform = () => {
       key: 'customer_name',
       sorter: true,
       width: 200,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>RFQ / VSN</p>
+          <AsyncSelect
+            endpoint="/event"
+            size="small"
+            className="w-full font-normal"
+            valueKey="event_id"
+            labelKey="event_code"
+            value={params.event_id}
+            onChange={(value) => dispatch(setQuotationListParams({ event_id: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'event_code',
+      key: 'event_code',
+      sorter: true,
+      width: 140,
       ellipsis: true,
     },
     {
@@ -182,87 +163,26 @@ const VendorPlatform = () => {
     },
     {
       title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Event</p>
-          <AsyncSelect
-            endpoint="/event"
-            size="small"
-            className="w-full font-normal"
-            valueKey="event_id"
-            labelKey="event_code"
-            value={params.event_id}
-            onChange={(value) => dispatch(setQuotationListParams({ event_id: value }))}
-          />
-        </div>
-      ),
-      dataIndex: 'event_code',
-      key: 'event_code',
-      sorter: true,
-      width: 140,
-      ellipsis: true,
-    },
-    {
-      title: (
         <div>
-          <p>Customer Ref</p>
-          <Input
-            className="font-normal"
-            allowClear
-            size="small"
-            onClick={(e) => e.stopPropagation()}
-            value={params.customer_ref}
-            onChange={(e) => dispatch(setQuotationListParams({ customer_ref: e.target.value }))}
-          />
+          <p>Date Required</p>
+          <div onClick={(e) => e.stopPropagation()}>
+            <DatePicker
+              size="small"
+              value={params.document_date}
+              className="font-normal"
+              onChange={(date) => dispatch(setQuotationListParams({ document_date: date }))}
+              format="MM-DD-YYYY"
+            />
+          </div>
         </div>
       ),
-      dataIndex: 'customer_ref',
-      key: 'customer_ref',
+      dataIndex: 'document_date',
+      key: 'document_date',
       sorter: true,
       width: 150,
       ellipsis: true,
-    },
-    {
-      title: (
-        <div>
-          <p>Total Amount</p>
-          <Input
-            className="font-normal"
-            size="small"
-            allowClear
-            onClick={(e) => e.stopPropagation()}
-            value={params.total_amount}
-            onChange={(e) => {
-              dispatch(setQuotationListParams({ total_amount: e.target.value }));
-            }}
-          />
-        </div>
-      ),
-      dataIndex: 'total_amount',
-      key: 'total_amount',
-      sorter: true,
-      width: 140,
-      ellipsis: true,
-    },
-    {
-      title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Port</p>
-          <AsyncSelect
-            endpoint="/port"
-            size="small"
-            className="w-full font-normal"
-            valueKey="port_id"
-            labelKey="name"
-            value={params.port_id}
-            onChange={(value) => dispatch(setQuotationListParams({ port_id: value }))}
-          />
-        </div>
-      ),
-      dataIndex: 'port_name',
-      key: 'port_name',
-      sorter: true,
-      width: 140,
-      ellipsis: true,
+      render: (_, { document_date }) =>
+        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null,
     },
     {
       title: (
@@ -285,69 +205,194 @@ const VendorPlatform = () => {
       ellipsis: true,
     },
     {
-      title: 'Updated By',
-      dataIndex: 'status_updated_by',
-      key: 'status_updated_by',
+      title: (
+        <div>
+          <p>Items</p>
+          <Input
+            className="font-normal"
+            size="small"
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.total_amount}
+            onChange={(e) => {
+              dispatch(setQuotationListParams({ total_amount: e.target.value }));
+            }}
+          />
+        </div>
+      ),
+      dataIndex: 'total_amount',
+      key: 'total_amount',
       sorter: true,
       width: 140,
       ellipsis: true,
     },
     {
-      title: 'Created At',
-      dataIndex: 'created_at',
-      key: 'created_at',
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Items Quoted</p>
+          <AsyncSelect
+            endpoint="/port"
+            size="small"
+            className="w-full font-normal"
+            valueKey="port_id"
+            labelKey="name"
+            value={params.port_id}
+            onChange={(value) => dispatch(setQuotationListParams({ port_id: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'total_amount',
+      key: 'total_amount',
       sorter: true,
-      width: 168,
-      render: (_, { created_at }) => dayjs(created_at).format('MM-DD-YYYY hh:mm A'),
+      width: 140,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div>
+          <p>Date Sent</p>
+          <Input
+            className="font-normal"
+            allowClear
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            value={params.customer_ref}
+            onChange={(e) => dispatch(setQuotationListParams({ customer_ref: e.target.value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'document_date',
+      key: 'document_date',
+      sorter: true,
+      width: 150,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div>
+          <p>Date Rtn</p>
+          <Input
+            className="font-normal"
+            allowClear
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            value={params.customer_ref}
+            onChange={(e) => dispatch(setQuotationListParams({ customer_ref: e.target.value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'document_date',
+      key: 'document_date',
+      sorter: true,
+      width: 150,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Vendor Code</p>
+          <AsyncSelect
+            endpoint="/event"
+            size="small"
+            className="w-full font-normal"
+            valueKey="event_id"
+            labelKey="event_code"
+            value={params.event_id}
+            onChange={(value) => dispatch(setQuotationListParams({ event_id: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'event_code',
+      key: 'event_code',
+      sorter: true,
+      width: 140,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Buyer</p>
+          <Select
+            size="small"
+            className="w-full font-normal"
+            allowClear
+            options={quotationStatusOptions}
+            value={params.status}
+            onChange={(value) => dispatch(setQuotationListParams({ status: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'status',
+      key: 'status',
+      sorter: true,
+      width: 180,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div>
+          <p>Intial Notif</p>
+          <Input
+            className="font-normal"
+            size="small"
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.total_amount}
+            onChange={(e) => {
+              dispatch(setQuotationListParams({ total_amount: e.target.value }));
+            }}
+          />
+        </div>
+      ),
+      dataIndex: 'total_amount',
+      key: 'total_amount',
+      sorter: true,
+      width: 140,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div>
+          <p>Flw Up Note</p>
+          <Input
+            className="font-normal"
+            size="small"
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.total_amount}
+            onChange={(e) => {
+              dispatch(setQuotationListParams({ total_amount: e.target.value }));
+            }}
+          />
+        </div>
+      ),
+      dataIndex: 'total_amount',
+      key: 'total_amount',
+      sorter: true,
+      width: 140,
+      ellipsis: true,
+    },
+    {
+      dataIndex: 'total_amount',
+      key: 'total_amount',
+      // sorter: true,
+      width: 140,
+      ellipsis: true,
     },
     {
       title: 'Action',
       key: 'action',
       render: (_, { quotation_id }) => (
         <div className="flex flex-col justify-center gap-1">
-          {/* <div className="flex items-center gap-1">
-            {permissions.edit ? (
-              <>
-                <Tooltip title="Print">
-                  <Button
-                    size="small"
-                    type="primary"
-                    className="bg-rose-600 hover:!bg-rose-500"
-                    icon={<FaRegFilePdf size={14} />}
-                    onClick={() => printQuotation(quotation_id)}
-                  />
-                </Tooltip>
-
-                <Tooltip title="Export">
-                  <Button
-                    size="small"
-                    type="primary"
-                    className="bg-emerald-800 hover:!bg-emerald-700"
-                    icon={<FaRegFileExcel size={14} />}
-                    onClick={() => exportQuotation(quotation_id)}
-                  />
-                </Tooltip>
-              </>
-            ) : null}
-            <Tooltip title="Charge Order">
-              <Button
-                size="small"
-                type="primary"
-                onClick={() => dispatch(setChargeQuotationID(quotation_id))}
-                icon={<HiRefresh size={14} />}
-              />
-            </Tooltip>
-          </div> */}
-
           <div className="flex items-center gap-1">
             {permissions.edit ? (
-              <Tooltip title="Edit">
+              <Tooltip title="View">
                 <Link to={`/vendor-platform/edit/${quotation_id}`}>
                   <Button
                     size="small"
                     type="primary"
                     className="bg-gray-500 hover:!bg-gray-400"
-                    icon={<MdOutlineEdit size={14} />}
+                    icon={<FaEye size={14} />}
                   />
                 </Link>
               </Tooltip>
@@ -379,7 +424,7 @@ const VendorPlatform = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    dispatch(getQuotationList(formattedParams)).unwrap().catch(handleError);
+    dispatch(getVendorQuotationList(formattedParams)).unwrap().catch(handleError);
   }, [
     params.page,
     params.limit,
@@ -405,27 +450,57 @@ const VendorPlatform = () => {
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
-        <div className="flex items-center justify-between gap-2">
-          <Input
-            placeholder="Search..."
-            allowClear
-            className="w-full sm:w-64"
-            value={params.search}
-            onChange={(e) => dispatch(setQuotationListParams({ search: e.target.value }))}
-          />
+        <Form form={form} name="quotation_report_form" layout="vertical">
+          <div className="flex flex-wrap items-center justify-start gap-4 px-4">
+            <div className="min-w-[150px]">
+              <Input
+                placeholder="Search..."
+                allowClear
+                className="sm:w-25 w-full"
+                value={params.search}
+                onChange={(e) => dispatch(setQuotationListParams({ search: e.target.value }))}
+              />
+            </div>
 
-          <div className="flex items-center gap-2">
-            {permissions.delete ? (
-              <Button
-                type="primary"
-                danger
-                onClick={() => setDeleteModalIsOpen(true)}
-                disabled={!deleteIDs.length}>
-                Delete
-              </Button>
-            ) : null}
+            <div className="min-w-[150px]">
+              <Form.Item name="date_range" label="Date Range" layout="vertical">
+                <RangePicker
+                  value={[
+                    params.start_date && params.start_date !== ''
+                      ? dayjs(params.start_date, 'YYYY-MM-DD')
+                      : null,
+                    params.end_date && params.end_date !== ''
+                      ? dayjs(params.end_date, 'YYYY-MM-DD')
+                      : null,
+                  ]}
+                  onChange={(dates) => {
+                    const newParams = {
+                      start_date: dates?.[0] ? dayjs(dates[0]).format('YYYY-MM-DD') : '',
+                      end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : '',
+                    };
+
+                    if (!dates || !dates[0] || !dates[1]) {
+                      newParams.start_date = null;
+                      newParams.end_date = null;
+                    }
+
+                    const fetchParams = { ...params, ...newParams, page: 1 };
+
+                    // dispatch(setQuotationListParams(fetchParams));
+
+                    // if (!newParams.start_date && !newParams.end_date) {
+                    //   dispatch(getQuotationListReport(fetchParams)).unwrap().catch(handleError);
+                    // }
+                  }}
+                  format="MM-DD-YYYY"
+                />
+              </Form.Item>
+            </div>
           </div>
-        </div>
+        </Form>
+      </div>
+
+      <div className="mt-4 rounded-md bg-white p-2">
         <Table
           size="small"
           rowSelection={
@@ -468,6 +543,34 @@ const VendorPlatform = () => {
             offsetHeader: 56,
           }}
         />
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center justify-start gap-2 px-4">
+        <Button className="bg-yellow-400 font-semibold text-black hover:bg-yellow-500">
+          Close
+        </Button>
+        <Button className="bg-sky-300 font-semibold text-black hover:bg-sky-400">
+          Send Notifications
+        </Button>
+        <Button className="bg-amber-300 font-semibold text-black hover:bg-amber-400">
+          Set VQs to Incomplete
+        </Button>
+        <Button className="bg-rose-300 font-semibold text-black hover:bg-rose-400">
+          Cancel/Uncancel VQs
+        </Button>
+        <Button
+          className="bg-gray-300 font-semibold text-black hover:bg-gray-400"
+          onClick={() =>
+            dispatch(getVendorQuotationList(formattedParams)).unwrap().catch(handleError)
+          }>
+          Refresh
+        </Button>
+        <Button className="bg-pink-300 font-semibold text-black hover:bg-pink-400">
+          Change Req’d Date
+        </Button>
+
+        <span className="mr-2 text-sm font-medium">Req. Date:</span>
+        <DatePicker size="small" format="MM/DD/YYYY" className="mr-4" />
       </div>
 
       <DeleteConfirmModal
