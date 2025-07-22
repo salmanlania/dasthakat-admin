@@ -32,7 +32,8 @@ class Authenticate
             'auth/refresh',
             'auth/logout',
             'auth/verify-email',
-            'vendor-platform/quotation/vendor/*'
+            'vendor-platform/quotation/vendor/*',
+            'vendor-platform/quotation/rfq/*',
         ];
 
 
