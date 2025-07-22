@@ -166,7 +166,7 @@ export const postVendorSelection = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
     }
-  }
+  },
 );
 
 export const postRfq = createAsyncThunk(
@@ -178,7 +178,7 @@ export const postRfq = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
     }
-  }
+  },
 );
 
 const initialState = {
@@ -195,7 +195,6 @@ const initialState = {
   quotationDetails: [],
   commissionAgentData: [],
   vendorQuotationDetails: [],
-  totalCommissionAmount: 0,
   vendorDetails: [],
   params: {
     page: 1,
@@ -219,7 +218,6 @@ export const quotationSlice = createSlice({
       state.quotationDetails = [];
       state.initialFormValues = null;
     },
-
     setQuotationListParams: (state, action) => {
       state.params = {
         ...state.params,
@@ -244,7 +242,6 @@ export const quotationSlice = createSlice({
         amount: null,
         row_status: 'I',
         markup: 0,
-        lastUpdatedField: null,
       };
 
       if (index || index === 0) {
@@ -298,7 +295,13 @@ export const quotationSlice = createSlice({
     changeQuotationDetailValue: (state, action) => {
       const { index, key, value } = action.payload;
 
+      // console.log('changeQuotationDetailValue', key, value);
+
       const detail = state.quotationDetails[index];
+
+      if (detail.row_status === 'U' && detail[key] !== value) {
+        detail.row_status = 'U';
+      }
 
       detail[key] = value;
       const productType = detail.product_type_id;
@@ -311,15 +314,31 @@ export const quotationSlice = createSlice({
         detail.markup !== undefined
       ) {
         detail.rate = roundUpto(+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
+        detail.full_rate = +detail.cost_price * (+detail.markup / 100) + +detail.cost_price;
+        detail.old_rate = roundUpto(
+          +detail.cost_price * (+detail.markup / 100) + +detail.cost_price,
+        );
       }
 
       if (detail.quantity && detail.rate) {
         detail.amount = roundUpto(+detail.quantity * +detail.rate);
 
         if (key === 'rate' && +detail.cost_price && +detail.rate) {
-          detail.markup = roundUpto(
-            ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100,
-          );
+          // detail.full_rate = detail.rate;
+          if (detail.old_rate != detail.rate) {
+            detail.markup = roundUpto(
+              ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100,
+            );
+          }
+          // // console.log(`rate:${detail.rate}, cost_price:${detail.cost_price}`);
+          // // console.log('beforeRoundUPTO, ', ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100)
+
+          //  console.log('detail' , {
+          //   full_rate : detail.full_rate,
+          //   rate : detail.rate,
+          //   cost_price : detail.cost_price,
+          //   markup : detail.markup,
+          //  });
         }
       } else {
         detail.amount = '';
@@ -379,6 +398,8 @@ export const quotationSlice = createSlice({
         ...detail,
         quantity: detail.stock_quantity,
         rate: detail.rate,
+        full_rate: detail.full_rate,
+        old_rate: detail.old_rate,
         cost_price: detail.cost_price,
         markup: detail.markup,
         amount: detail.rate * detail.stock_quantity,
@@ -405,6 +426,8 @@ export const quotationSlice = createSlice({
         supplier_id: detail.supplier_id,
         quantity: splittedQuantity,
         rate: detail.rate,
+        full_rate: detail.full_rate,
+        old_rate: detail.old_rate,
         amount: detail.rate * splittedQuantity,
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_percent
@@ -427,7 +450,6 @@ export const quotationSlice = createSlice({
     resetVendorDetails: (state) => {
       state.vendorDetails = [];
     },
-
   },
   extraReducers: ({ addCase }) => {
     addCase(getQuotationList.pending, (state) => {
@@ -496,63 +518,63 @@ export const quotationSlice = createSlice({
         internal_notes: data.internal_notes,
         salesman_id: data.salesman
           ? {
-            value: data.salesman.salesman_id,
-            label: data.salesman.name,
-          }
+              value: data.salesman.salesman_id,
+              label: data.salesman.name,
+            }
           : null,
         event_id: data.event
           ? {
-            value: data.event.event_id,
-            label: data.event.event_name,
-          }
+              value: data.event.event_id,
+              label: data.event.event_name,
+            }
           : null,
         vessel_id: data.vessel
           ? {
-            value: data.vessel.vessel_id,
-            label: data.vessel.name,
-          }
+              value: data.vessel.vessel_id,
+              label: data.vessel.name,
+            }
           : null,
         customer_id: data.customer
           ? {
-            value: data.customer.customer_id,
-            label: data.customer.name,
-          }
+              value: data.customer.customer_id,
+              label: data.customer.name,
+            }
           : null,
         class1_id: data.class1
           ? {
-            value: data.class1.class_id,
-            label: data.class1.name,
-          }
+              value: data.class1.class_id,
+              label: data.class1.name,
+            }
           : null,
         class2_id: data.class2
           ? {
-            value: data.class2.class_id,
-            label: data.class2.name,
-          }
+              value: data.class2.class_id,
+              label: data.class2.name,
+            }
           : null,
         flag_id: data.flag
           ? {
-            value: data.flag.flag_id,
-            label: data.flag.name,
-          }
+              value: data.flag.flag_id,
+              label: data.flag.name,
+            }
           : null,
         person_incharge_id: data.person_incharge
           ? {
-            value: data.person_incharge.user_id,
-            label: data.person_incharge.user_name,
-          }
+              value: data.person_incharge.user_id,
+              label: data.person_incharge.user_name,
+            }
           : null,
         validity_id: data.validity
           ? {
-            value: data.validity.validity_id,
-            label: data.validity.name,
-          }
+              value: data.validity.validity_id,
+              label: data.validity.name,
+            }
           : null,
         payment_id: data.payment
           ? {
-            value: data.payment.payment_id,
-            label: data.payment.name,
-          }
+              value: data.payment.payment_id,
+              label: data.payment.name,
+            }
           : null,
         customer_ref: data.customer_ref,
         due_date: data.due_date,
@@ -562,15 +584,15 @@ export const quotationSlice = createSlice({
         remarks: data.remarks,
         port_id: data.port
           ? {
-            value: data.port.port_id,
-            label: data.port.name,
-          }
+              value: data.port.port_id,
+              label: data.port.name,
+            }
           : null,
         port: data.port
           ? {
-            value: data.port.port_id,
-            label: data.port.name,
-          }
+              value: data.port.port_id,
+              label: data.port.name,
+            }
           : null,
         term_id: data.term_id || null,
         term_desc: data.term_desc,
@@ -595,9 +617,9 @@ export const quotationSlice = createSlice({
           : null,
         product_type_id: detail.product_type
           ? {
-            value: detail.product_type.product_type_id,
-            label: detail.product_type.name,
-          }
+              value: detail.product_type.product_type_id,
+              label: detail.product_type.name,
+            }
           : null,
         product_name: detail.product_name
           ? detail.product_name
@@ -621,6 +643,8 @@ export const quotationSlice = createSlice({
             : +detail.cost_price || +detail.rate,
         markup: detail.markup,
         rate: detail.rate,
+        full_rate: detail.rate,
+        old_rate: detail.rate,
         amount: detail.amount,
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_amount,
@@ -628,54 +652,59 @@ export const quotationSlice = createSlice({
         quotation_detail_id: detail?.quotation_detail_id,
         row_status: 'U',
         isDeleted: false,
-        lastUpdatedField: null,
       }));
 
-      state.vendorQuotationDetails = data.quotation_detail.map((detail) => ({
-        id: detail.quotation_detail_id,
-        product_code: detail.product ? detail.product.product_code : null,
-        product_id: detail.product
-          ? { value: detail.product.product_id, label: detail.product.product_name }
-          : null,
-        product_type_id: detail.product_type
-          ? {
-            value: detail.product_type.product_type_id,
-            label: detail.product_type.name,
-          }
-          : null,
-        product_name: detail.product_name
-          ? detail.product_name
-          : detail?.product?.product_name || null,
-        product_description: detail.product_description,
-        description: detail.description,
-        stock_quantity: detail?.product?.stock?.quantity
-          ? parseFloat(detail.product.stock.quantity)
-          : 0,
-        quantity: detail.quantity ? detail.quantity : null,
-        available_quantity: detail.available_quantity ? detail.available_quantity : null,
-        unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
-        supplier_id: detail.supplier
-          ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
-          : null,
-        vendor_part_no: detail.vendor_part_no,
-        internal_notes: detail.internal_notes,
-        cost_price:
-          detail?.product_type?.product_type_id === 4
-            ? detail.cost_price
-            : +detail.cost_price || +detail.rate,
-        markup: detail.markup,
-        rate: detail.rate,
-        amount: detail.amount,
-        discount_percent: detail.discount_percent,
-        discount_amount: detail.discount_amount,
-        gross_amount: detail.gross_amount,
-        quotation_detail_id: detail?.quotation_detail_id,
-        row_status: 'U',
-        isDeleted: false,
-      })).filter((detail) => [3, 4].includes(detail.product_type_id?.value));;
+      state.vendorQuotationDetails = data.quotation_detail
+        .map((detail) => ({
+          id: detail.quotation_detail_id,
+          product_code: detail.product ? detail.product.product_code : null,
+          product_id: detail.product
+            ? { value: detail.product.product_id, label: detail.product.product_name }
+            : null,
+          product_type_id: detail.product_type
+            ? {
+                value: detail.product_type.product_type_id,
+                label: detail.product_type.name,
+              }
+            : null,
+          product_name: detail.product_name
+            ? detail.product_name
+            : detail?.product?.product_name || null,
+          product_description: detail.product_description,
+          description: detail.description,
+          stock_quantity: detail?.product?.stock?.quantity
+            ? parseFloat(detail.product.stock.quantity)
+            : 0,
+          quantity: detail.quantity ? detail.quantity : null,
+          available_quantity: detail.available_quantity ? detail.available_quantity : null,
+          unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
+          supplier_id: detail.supplier
+            ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
+            : null,
+          vendor_part_no: detail.vendor_part_no,
+          internal_notes: detail.internal_notes,
+          cost_price:
+            detail?.product_type?.product_type_id === 4
+              ? detail.cost_price
+              : +detail.cost_price || +detail.rate,
+          markup: detail.markup,
+          rate: detail.rate,
+          amount: detail.amount,
+          discount_percent: detail.discount_percent,
+          discount_amount: detail.discount_amount,
+          gross_amount: detail.gross_amount,
+          quotation_detail_id: detail?.quotation_detail_id,
+          row_status: 'U',
+          isDeleted: false,
+        }))
+        .filter((detail) => [3, 4].includes(detail.product_type_id?.value));
 
       state.rebatePercentage = data?.rebate_percent ? data?.rebate_percent : 0;
-      state.salesmanPercentage = data?.salesman_percent ? data?.salesman_percent : data?.commission_percentage ? data?.commission_percentage : 0;
+      state.salesmanPercentage = data?.salesman_percent
+        ? data?.salesman_percent
+        : data?.commission_percentage
+          ? data?.commission_percentage
+          : 0;
     });
     addCase(getQuotation.rejected, (state) => {
       state.isItemLoading = false;
@@ -724,63 +753,63 @@ export const quotationSlice = createSlice({
         internal_notes: data.internal_notes,
         salesman_id: data.salesman
           ? {
-            value: data.salesman.salesman_id,
-            label: data.salesman.name,
-          }
+              value: data.salesman.salesman_id,
+              label: data.salesman.name,
+            }
           : null,
         event_id: data.event
           ? {
-            value: data.event.event_id,
-            label: data.event.event_name,
-          }
+              value: data.event.event_id,
+              label: data.event.event_name,
+            }
           : null,
         vessel_id: data.vessel
           ? {
-            value: data.vessel.vessel_id,
-            label: data.vessel.name,
-          }
+              value: data.vessel.vessel_id,
+              label: data.vessel.name,
+            }
           : null,
         customer_id: data.customer
           ? {
-            value: data.customer.customer_id,
-            label: data.customer.name,
-          }
+              value: data.customer.customer_id,
+              label: data.customer.name,
+            }
           : null,
         class1_id: data.class1
           ? {
-            value: data.class1.class_id,
-            label: data.class1.name,
-          }
+              value: data.class1.class_id,
+              label: data.class1.name,
+            }
           : null,
         class2_id: data.class2
           ? {
-            value: data.class2.class_id,
-            label: data.class2.name,
-          }
+              value: data.class2.class_id,
+              label: data.class2.name,
+            }
           : null,
         flag_id: data.flag
           ? {
-            value: data.flag.flag_id,
-            label: data.flag.name,
-          }
+              value: data.flag.flag_id,
+              label: data.flag.name,
+            }
           : null,
         person_incharge_id: data.person_incharge
           ? {
-            value: data.person_incharge.user_id,
-            label: data.person_incharge.user_name,
-          }
+              value: data.person_incharge.user_id,
+              label: data.person_incharge.user_name,
+            }
           : null,
         validity_id: data.validity
           ? {
-            value: data.validity.validity_id,
-            label: data.validity.name,
-          }
+              value: data.validity.validity_id,
+              label: data.validity.name,
+            }
           : null,
         payment_id: data.payment
           ? {
-            value: data.payment.payment_id,
-            label: data.payment.name,
-          }
+              value: data.payment.payment_id,
+              label: data.payment.name,
+            }
           : null,
         customer_ref: data.customer_ref,
         due_date: data.due_date,
@@ -790,15 +819,15 @@ export const quotationSlice = createSlice({
         remarks: data.remarks,
         port_id: data.port
           ? {
-            value: data.port.port_id,
-            label: data.port.name,
-          }
+              value: data.port.port_id,
+              label: data.port.name,
+            }
           : null,
         port: data.port
           ? {
-            value: data.port.port_id,
-            label: data.port.name,
-          }
+              value: data.port.port_id,
+              label: data.port.name,
+            }
           : null,
         term_id: data.term_id || null,
         term_desc: data.term_desc,
@@ -816,9 +845,9 @@ export const quotationSlice = createSlice({
           : null,
         product_type_id: detail.product_type
           ? {
-            value: detail.product_type.product_type_id,
-            label: detail.product_type.name,
-          }
+              value: detail.product_type.product_type_id,
+              label: detail.product_type.name,
+            }
           : null,
         product_name: detail.product_name
           ? detail.product_name
@@ -842,6 +871,8 @@ export const quotationSlice = createSlice({
             : +detail.cost_price || +detail.rate,
         markup: detail.markup,
         rate: detail.rate,
+        full_rate: detail.full_rate,
+        old_rate: detail.old_rate,
         amount: detail.amount,
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_amount,
@@ -851,7 +882,11 @@ export const quotationSlice = createSlice({
       }));
 
       state.rebatePercentage = data?.rebate_percent ? data?.rebate_percent : 0;
-      state.salesmanPercentage = data?.salesman_percent ? data?.salesman_percent : data?.commission_percentage ? data?.commission_percentage : 0;
+      state.salesmanPercentage = data?.salesman_percent
+        ? data?.salesman_percent
+        : data?.commission_percentage
+          ? data?.commission_percentage
+          : 0;
     });
     addCase(getQuotationModal.rejected, (state) => {
       state.isItemLoading = false;
@@ -898,6 +933,7 @@ export const {
   setQuotationDeleteIDs,
   addQuotationDetail,
   removeQuotationDetail,
+  setTotalCommissionAmount,
   copyQuotationDetail,
   changeQuotationDetailOrder,
   changeQuotationDetailValue,
@@ -906,7 +942,6 @@ export const {
   setSalesmanPercentage,
   resetQuotationState,
   splitQuotationQuantity,
-  setTotalCommissionAmount,
-  resetVendorDetails
+  resetVendorDetails,
 } = quotationSlice.actions;
 export default quotationSlice.reducer;
