@@ -226,12 +226,21 @@ class VendorQuotationController extends Controller
 
     public function fetchRFQ($id)
     {
-        $rfq = VpQuotationRfq::with('quotation', 'vendor', 'vendor_quotation_detail','vendor_quotation_detail.quotation_detail')
+        $rfq = VpQuotationRfq::with('quotation', 'vendor')
             ->where('id', $id)
             ->first();
 
+            foreach ($rfq->details as $detail) {
+            $detail->vendor_quotation_detail = VendorQuotationDetail::with('quotation_detail', 'quotation_detail.product_type', 'quotation_detail.product', 'quotation_detail.unit')
+                ->where('vendor_quotation_detail_id', $detail->vendor_quotation_detail_id)
+                ->first();
+        }
+
         if (!$rfq) {
             return $this->jsonResponse([], 404, 'RFQ Not Found!');
+        }
+        if (Carbon::parse($rfq->required_date)->lt(Carbon::now()->toDateString())) {
+            return $this->jsonResponse([], 400, 'RFQ has expired!');
         }
 
         return $this->jsonResponse($rfq, 200, 'RFQ Data Fetched Successfully!');
