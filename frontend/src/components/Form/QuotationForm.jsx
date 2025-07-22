@@ -183,7 +183,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     parseInt(totalCost || 0) +
     parseInt(totalCommissionAmount || 0);
 
-  const finalAmount = roundUpto(parseInt(totalNet || 0) - minusValue) || 0;
+  // const finalAmount = roundUpto(parseInt(totalNet || 0) - minusValue) || 0;
+  const finalAmount = parseInt(totalNet || 0) - minusValue || 0;
 
   totalProfit = roundUpto(finalAmount - totalCost);
 
