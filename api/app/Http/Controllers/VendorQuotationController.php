@@ -230,7 +230,7 @@ class VendorQuotationController extends Controller
             ->where('id', $id)
             ->first();
 
-            foreach ($rfq->details as $detail) {
+            foreach ($rfq->details as &$detail) {
             $detail->vendor_quotation_detail = VendorQuotationDetail::with('quotation_detail', 'quotation_detail.product_type', 'quotation_detail.product', 'quotation_detail.unit')
                 ->where('vendor_quotation_detail_id', $detail->vendor_quotation_detail_id)
                 ->first();
