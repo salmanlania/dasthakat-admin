@@ -14,8 +14,8 @@ import {
   Tooltip,
 } from 'antd';
 import dayjs from 'dayjs';
-import { useState } from 'react';
-import { TiDelete } from "react-icons/ti";
+import { useEffect, useState } from 'react';
+import { TiDelete } from 'react-icons/ti';
 import { FaEye } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { BiPlus } from 'react-icons/bi';
@@ -39,7 +39,8 @@ import {
   setRebatePercentage,
   setSalesmanPercentage,
   splitQuotationQuantity,
-  getQuotation
+  getQuotation,
+  setTotalCommissionAmount,
 } from '../../store/features/quotationSlice';
 import { getSalesman } from '../../store/features/salesmanSlice';
 import generateQuotationExcel from '../../utils/excel/quotation-excel.js';
@@ -56,12 +57,25 @@ import { render } from 'react-dom';
 
 import VendorSelectionModal from '../Modals/VendorSelectionModal.jsx';
 
-
 export const DetailSummaryInfo = ({ title, value }) => {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="ml-1 text-sm font-bold" style={{ color: 'black !important' }}>{title}</span>
+      <span className="ml-1 text-sm font-bold" style={{ color: 'black !important' }}>
+        {title}
+      </span>
       <span className="ml-1 text-sm text-gray-500">{value}</span>
+    </div>
+  );
+};
+
+export const DetailSummaryInformation = ({ title, value, icon }) => {
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <span className="ml-1 text-sm font-bold" style={{ color: 'black !important' }}>
+        {title}
+      </span>
+      <span className="ml-1 text-sm text-gray-500">{value}</span>
+      {icon && <span className="mx-1 cursor-pointer">{icon}</span>}
     </div>
   );
 };
@@ -69,7 +83,9 @@ export const DetailSummaryInfo = ({ title, value }) => {
 export const DetailSummary = ({ title, value }) => {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="ml-4 text-sm font-bold" style={{ color: 'black !important' }}>{title}</span>
+      <span className="ml-4 text-sm font-bold" style={{ color: 'black !important' }}>
+        {title}
+      </span>
       <span className="ml-4 text-sm text-gray-500">{value}</span>
     </div>
   );
@@ -78,24 +94,24 @@ export const DetailSummary = ({ title, value }) => {
 export const quotationStatusOptions = [
   {
     value: 'In Progress',
-    label: 'In Progress'
+    label: 'In Progress',
   },
   {
     value: 'Ready to Review',
-    label: 'Ready to Review'
+    label: 'Ready to Review',
   },
   {
     value: 'Approved',
-    label: 'Approved'
+    label: 'Approved',
   },
   {
     value: 'Sent to customer',
-    label: 'Sent to customer'
+    label: 'Sent to customer',
   },
   {
     value: 'Cancelled',
-    label: 'Cancelled'
-  }
+    label: 'Cancelled',
+  },
 ];
 
 const QuotationForm = ({ mode, onSubmit, onSave }) => {
@@ -106,11 +122,12 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
   const { id } = useParams();
   const {
     isFormSubmitting,
+    totalCommissionAmount,
     initialFormValues,
     quotationDetails,
     rebatePercentage,
     salesmanPercentage,
-    commissionAgentData
+    commissionAgentData,
   } = useSelector((state) => state.quotation);
   const { commissionAgent } = useSelector((state) => state.event);
   const [prevEvent, setPrevEvent] = useState(initialFormValues?.event_id);
@@ -121,7 +138,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     open: false,
     id: null,
     column: null,
-    notes: null
+    notes: null,
   });
 
   const [globalMarkup, setGlobalMarkup] = useState('');
@@ -129,6 +146,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
   const [vendorModalOpen, setVendorModalOpen] = useState(false);
   const [submitAction, setSubmitAction] = useState(null);
   const [hiddenAgentKeys, setHiddenAgentKeys] = useState([]);
+  const [isCommissionTableVisible, setIsCommissionTableVisible] = useState(false);
   let totalQuantity = 0;
   let totalCost = 0;
   let totalAmount = 0;
@@ -162,19 +180,36 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
   const finalAmount =
     roundUpto(
       parseInt(totalNet || 0) -
-      parseInt(rebateAmount?.toString().replace(/,/g, '') || 0) -
-      parseInt(salesmanAmount?.toString().replace(/,/g, '') || 0)
+        parseInt(rebateAmount?.toString().replace(/,/g, '') || 0) -
+        parseInt(salesmanAmount?.toString().replace(/,/g, '') || 0),
     ) || 0;
 
   totalProfit = roundUpto(finalAmount - totalCost);
 
-  const onFinish = (values) => {
+  useEffect(() => {
+    if (commissionAgent?.length > 0 && totalNet) {
+      const totalAmount = commissionAgent.reduce((sum, agent) => {
+        const percentage = parseFloat(agent.commission_percentage || 0);
+        const amount = roundUpto((percentage * totalNet) / 100);
+        return sum + (isNaN(amount) ? 0 : amount);
+      }, 0);
+      dispatch(setTotalCommissionAmount(totalAmount));
+    } else if (commissionAgentData?.length > 0 && totalNet) {
+      const totalAmount = commissionAgentData.reduce((sum, agent) => {
+        const percentage = parseFloat(agent.commission_percentage || 0);
+        const amount = roundUpto((percentage * totalNet) / 100);
+        return sum + (isNaN(amount) ? 0 : amount);
+      }, 0);
+      dispatch(setTotalCommissionAmount(totalAmount));
+    }
+  }, [commissionAgent, commissionAgentData, totalNet]);
 
+  const onFinish = (values) => {
     const safeTotalNet = totalNet || 0;
 
     const selectedCommissionAgents = commissionAgent
-      .filter(agent => !hiddenAgentKeys.includes(agent.commission_agent_id))
-      .map(agent => {
+      .filter((agent) => !hiddenAgentKeys.includes(agent.commission_agent_id))
+      .map((agent) => {
         const percentage = parseFloat(agent?.commission_percentage || 0);
         const amount = roundUpto((percentage * totalNet) / 100);
         return {
@@ -184,11 +219,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           percentage,
           amount,
           isDeleted: false,
-          sort_order: 1
+          sort_order: 1,
         };
       });
-
-    // dispatch(setCommissionAgentWithAmount(selectedCommissionAgents));
 
     if (rebatePercentage > 100) return toast.error('Rebate Percentage cannot be greater than 100');
     if (salesmanPercentage > 100)
@@ -197,7 +230,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     const deletedDetails = quotationDetails.filter((detail) => detail.isDeleted !== true);
 
     const filteredDetails = quotationDetails.filter(
-      (detail) => !(detail.isDeleted && detail.row_status === 'I')
+      (detail) => !(detail.isDeleted && detail.row_status === 'I'),
     );
 
     const mappingSource = edit === 'edit' ? quotationDetails : deletedDetails;
@@ -240,9 +273,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
             cost_price: detail.product_type_id?.value === 1 ? 0 : detail.cost_price,
             sort_order: index,
             quotation_detail_id: id ? id : null,
-            ...(edit === 'edit' ? { row_status } : {})
+            ...(edit === 'edit' ? { row_status } : {}),
           };
-        }
+        },
       ),
       total_quantity: totalQuantity,
       total_Cost: totalCost,
@@ -252,7 +285,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       rebate_percent: rebatePercentage,
       salesman_percent: salesmanPercentage,
       rebate_amount: rebateAmount,
-      salesman_amount: salesmanAmount
+      salesman_amount: salesmanAmount,
     };
 
     submitAction === 'save'
@@ -276,8 +309,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       changeQuotationDetailValue({
         index,
         key: column,
-        value: notes
-      })
+        value: notes,
+      }),
     );
 
     closeNotesModal();
@@ -297,11 +330,11 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       form.setFieldsValue({
         [`product_id-${index}`]: product?.product_id
           ? {
-            value: product.product_id,
-            label: product.product_name
-          }
+              value: product.product_id,
+              label: product.product_name,
+            }
           : null,
-        [`product_description-${index}`]: product?.product_name || ''
+        [`product_description-${index}`]: product?.product_name || '',
       });
 
       dispatch(
@@ -310,17 +343,17 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           key: 'product_id',
           value: {
             value: product.product_id,
-            label: product.product_name
-          }
-        })
+            label: product.product_name,
+          },
+        }),
       );
 
       dispatch(
         changeQuotationDetailValue({
           index,
           key: 'product_description',
-          value: product?.product_name || ''
-        })
+          value: product?.product_name || '',
+        }),
       );
 
       dispatch(
@@ -329,43 +362,43 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           key: 'product_type_id',
           value: product.product_type_id
             ? {
-              value: product.product_type_id,
-              label: product.product_type_name
-            }
-            : null
-        })
+                value: product.product_type_id,
+                label: product.product_type_name,
+              }
+            : null,
+        }),
       );
 
       dispatch(
         changeQuotationDetailValue({
           index,
           key: 'unit_id',
-          value: { value: product.unit_id, label: product.unit_name }
-        })
+          value: { value: product.unit_id, label: product.unit_name },
+        }),
       );
 
       dispatch(
         changeQuotationDetailValue({
           index,
           key: 'stock_quantity',
-          value: stockQuantity
-        })
+          value: stockQuantity,
+        }),
       );
 
       dispatch(
         changeQuotationDetailValue({
           index,
           key: 'cost_price',
-          value: product.cost_price
-        })
+          value: product.cost_price,
+        }),
       );
 
       dispatch(
         changeQuotationDetailValue({
           index,
           key: 'rate',
-          value: product.sale_price
-        })
+          value: product.sale_price,
+        }),
       );
     } catch (error) {
       handleError(error);
@@ -378,24 +411,24 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         changeQuotationDetailValue({
           index,
           key: 'product_code',
-          value: null
-        })
+          value: null,
+        }),
       );
 
       dispatch(
         changeQuotationDetailValue({
           index,
           key: 'unit_id',
-          value: null
-        })
+          value: null,
+        }),
       );
 
       dispatch(
         changeQuotationDetailValue({
           index,
           key: 'cost_price',
-          value: null
-        })
+          value: null,
+        }),
       );
       return;
     } else {
@@ -403,39 +436,39 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         changeQuotationDetailValue({
           index,
           key: 'rate',
-          value: null
-        })
+          value: null,
+        }),
       );
     }
 
     form.setFieldsValue({
-      [`product_description-${index}`]: selected?.label || ''
+      [`product_description-${index}`]: selected?.label || '',
     });
 
     dispatch(
       changeQuotationDetailValue({
         index,
         key: 'product_description',
-        value: selected?.label || ''
-      })
+        value: selected?.label || '',
+      }),
     );
     form.setFieldsValue({
-      [`product_name-${index}`]: selected?.label || ''
+      [`product_name-${index}`]: selected?.label || '',
     });
 
     dispatch(
       changeQuotationDetailValue({
         index,
         key: 'product_name',
-        value: selected?.label || ''
-      })
+        value: selected?.label || '',
+      }),
     );
     dispatch(
       changeQuotationDetailValue({
         index,
         key: 'product_id',
-        value: selected || ''
-      })
+        value: selected || '',
+      }),
     );
 
     try {
@@ -446,8 +479,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         changeQuotationDetailValue({
           index,
           key: 'product_code',
-          value: product.product_code
-        })
+          value: product.product_code,
+        }),
       );
 
       dispatch(
@@ -456,43 +489,43 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           key: 'product_type_id',
           value: product.product_type_id
             ? {
-              value: product.product_type_id,
-              label: product.product_type_name
-            }
-            : null
-        })
+                value: product.product_type_id,
+                label: product.product_type_name,
+              }
+            : null,
+        }),
       );
 
       dispatch(
         changeQuotationDetailValue({
           index,
           key: 'unit_id',
-          value: { value: product.unit_id, label: product.unit_name }
-        })
+          value: { value: product.unit_id, label: product.unit_name },
+        }),
       );
 
       dispatch(
         changeQuotationDetailValue({
           index,
           key: 'stock_quantity',
-          value: stockQuantity
-        })
+          value: stockQuantity,
+        }),
       );
 
       dispatch(
         changeQuotationDetailValue({
           index,
           key: 'cost_price',
-          value: product.cost_price
-        })
+          value: product.cost_price,
+        }),
       );
 
       dispatch(
         changeQuotationDetailValue({
           index,
           key: 'rate',
-          value: product.sale_price
-        })
+          value: product.sale_price,
+        }),
       );
     } catch (error) {
       handleError(error);
@@ -535,8 +568,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           changeQuotationDetailValue({
             index,
             key: 'discount_percent',
-            value: value
-          })
+            value: value,
+          }),
         );
       });
     }
@@ -555,16 +588,16 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
             changeQuotationDetailValue({
               index,
               key: 'markup',
-              value: 0
-            })
+              value: 0,
+            }),
           );
         } else if (row.product_type_id?.value !== 1) {
           dispatch(
             changeQuotationDetailValue({
               index,
               key: 'markup',
-              value: value
-            })
+              value: value,
+            }),
           );
         }
       });
@@ -609,7 +642,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         );
       },
       width: 50,
-      fixed: 'left'
+      fixed: 'left',
     },
     {
       title: 'Sr.',
@@ -619,7 +652,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         return <>{index + 1}.</>;
       },
       width: 50,
-      fixed: 'left'
+      fixed: 'left',
     },
     {
       title: 'P.Type',
@@ -636,9 +669,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
             value={
               product_type_id?.value
                 ? {
-                  value: product_type_id.value,
-                  label: product_type_id.label?.slice(0, 2) || ''
-                }
+                    value: product_type_id.value,
+                    label: product_type_id.label?.slice(0, 2) || '',
+                  }
                 : product_type_id
             }
             getOptionLabel={(item) => item.name?.slice(0, 2)}
@@ -648,15 +681,15 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                 changeQuotationDetailValue({
                   index,
                   key: 'product_type_id',
-                  value: selected
-                })
+                  value: selected,
+                }),
               );
             }}
           />
         );
       },
       width: 70,
-      fixed: 'left'
+      fixed: 'left',
     },
     {
       title: 'Product Name',
@@ -674,8 +707,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
               {
                 required: true,
                 whitespace: true,
-                message: 'Product Name is required'
-              }
+                message: 'Product Name is required',
+              },
             ]}>
             <DebounceInput
               value={product_name}
@@ -685,12 +718,12 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                   changeQuotationDetailValue({
                     index,
                     key: 'product_name',
-                    value: value
-                  })
+                    value: value,
+                  }),
                 );
 
                 form.setFieldsValue({
-                  [`product_description-${index}`]: value
+                  [`product_description-${index}`]: value,
                 });
               }}
             />
@@ -703,8 +736,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
             rules={[
               {
                 required: true,
-                message: 'Product Name is required'
-              }
+                message: 'Product Name is required',
+              },
             ]}>
             <AsyncSelect
               endpoint="/product"
@@ -723,7 +756,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         );
       },
       width: 130,
-      fixed: 'left'
+      fixed: 'left',
     },
     {
       title: 'Description',
@@ -741,8 +774,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                 {
                   required: true,
                   whitespace: true,
-                  message: 'Description is required'
-                }
+                  message: 'Description is required',
+                },
               ]}>
               <DebounceInput
                 value={product_description}
@@ -751,8 +784,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                     changeQuotationDetailValue({
                       index,
                       key: 'product_description',
-                      value: value
-                    })
+                      value: value,
+                    }),
                   );
 
                   if (product_type_id?.value === 4) {
@@ -760,11 +793,11 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                       changeQuotationDetailValue({
                         index,
                         key: 'product_name',
-                        value: value
-                      })
+                        value: value,
+                      }),
                     );
                     form.setFieldsValue({
-                      [`product_name-${index}`]: value
+                      [`product_name-${index}`]: value,
                     });
                   }
                 }}
@@ -774,7 +807,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         );
       },
       width: 270,
-      fixed: 'left'
+      fixed: 'left',
     },
     {
       title: 'Customer Notes',
@@ -794,7 +827,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                     open: true,
                     id: index,
                     column: 'description',
-                    notes: description
+                    notes: description,
                   })
                 }
               />
@@ -802,7 +835,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           </div>
         );
       },
-      width: 100
+      width: 100,
     },
     {
       title: 'Internal Notes',
@@ -822,7 +855,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                     open: true,
                     id: index,
                     column: 'internal_notes',
-                    notes: internal_notes
+                    notes: internal_notes,
                   })
                 }
               />
@@ -830,7 +863,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           </div>
         );
       },
-      width: 100
+      width: 100,
     },
     {
       title: 'Stock Quantity',
@@ -839,7 +872,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       render: (_, { stock_quantity }) => {
         return <Input value={stock_quantity} disabled />;
       },
-      width: 100
+      width: 100,
     },
     {
       title: 'Quantity',
@@ -865,7 +898,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
               rules={[
                 {
                   required: true,
-                  message: 'Quantity is required'
+                  message: 'Quantity is required',
                 },
                 {
                   validator: (_, value, callback, source) => {
@@ -880,8 +913,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                       return Promise.reject(`Less Than Received Quantity (${receivedQty})`);
                     }
                     return Promise.resolve();
-                  }
-                }
+                  },
+                },
               ]}>
               <DebouncedCommaSeparatedInput
                 decimalPlaces={2}
@@ -892,8 +925,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                     changeQuotationDetailValue({
                       index,
                       key: 'quantity',
-                      value: value
-                    })
+                      value: value,
+                    }),
                   )
                 }
               />
@@ -924,7 +957,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           </div>
         );
       },
-      width: 90
+      width: 90,
     },
     {
       title: 'Unit',
@@ -945,15 +978,15 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                 changeQuotationDetailValue({
                   index,
                   key: 'unit_id',
-                  value: selected
-                })
+                  value: selected,
+                }),
               )
             }
             addNewLink={permissions.unit.list && permissions.unit.add ? '/unit' : null}
           />
         );
       },
-      width: 100
+      width: 100,
     },
     {
       title: 'Vendor',
@@ -974,15 +1007,15 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                 changeQuotationDetailValue({
                   index,
                   key: 'supplier_id',
-                  value: selected
-                })
+                  value: selected,
+                }),
               )
             }
             addNewLink={permissions.supplier.add ? '/vendor/create' : null}
           />
         );
       },
-      width: 240
+      width: 240,
     },
     {
       title: 'Vendor Part #',
@@ -997,14 +1030,14 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                 changeQuotationDetailValue({
                   index,
                   key: 'vendor_part_no',
-                  value: value
-                })
+                  value: value,
+                }),
               )
             }
           />
         );
       },
-      width: 120
+      width: 120,
     },
     {
       title: 'Cost Price',
@@ -1019,9 +1052,13 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                 : cost_price === 0 || cost_price === '0'
                   ? '0'
                   : cost_price
-                    ? `${Number(cost_price).toString().includes('.') && Number(cost_price) % 1 !== 0
-                      ? Number(cost_price).toFixed(2).replace(/\.?0+$/, '')
-                      : Number(cost_price)}`
+                    ? `${
+                        Number(cost_price).toString().includes('.') && Number(cost_price) % 1 !== 0
+                          ? Number(cost_price)
+                              .toFixed(2)
+                              .replace(/\.?0+$/, '')
+                          : Number(cost_price)
+                      }`
                     : ''
             }
             disabled={product_type_id?.value == 1}
@@ -1030,14 +1067,14 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                 changeQuotationDetailValue({
                   index,
                   key: 'cost_price',
-                  value: value
-                })
+                  value: value,
+                }),
               )
             }
           />
         );
       },
-      width: 100
+      width: 100,
     },
     {
       title: (
@@ -1056,7 +1093,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
               fontSize: '12px',
               padding: '2px 4px',
               border: '1px solid #d9d9d9',
-              borderRadius: '4px'
+              borderRadius: '4px',
             }}
           />
         </div>
@@ -1064,13 +1101,13 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'markup',
       key: 'markup',
       render: (_, { markup, product_type_id, product_type }, index) => {
-        // const newMarkup = Number(markup)
-        //   .toString()
-        //   .replace(/(\.\d*?)0+$/, '$1')
-        //   .replace(/\.$/, '');
+        const newMarkup = Number(markup)
+          .toString()
+          .replace(/(\.\d*?)0+$/, '$1')
+          .replace(/\.$/, '');
         return (
           <DebouncedNumberInput
-            value={product_type_id?.value == 1 ? 0 : markup}
+            value={product_type_id?.value == 1 ? 0 : newMarkup}
             type="decimal"
             disabled={product_type_id?.value == 1 || product_type === 'Service'}
             onChange={(value) => {
@@ -1078,14 +1115,14 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                 changeQuotationDetailValue({
                   index,
                   key: 'markup',
-                  value: value
-                })
+                  value: value,
+                }),
               );
             }}
           />
         );
       },
-      width: 90
+      width: 90,
     },
     {
       title: 'Selling Price',
@@ -1101,25 +1138,27 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
             rules={[
               {
                 required: true,
-                message: 'Selling price is required'
-              }
+                message: 'Selling price is required',
+              },
             ]}>
             <DebouncedCommaSeparatedInput
               value={rate}
-              onChange={(value) =>
+              onChange={(value) => {
+                // if (parseFloat(value) !== parseFloat(rate)) {
                 dispatch(
                   changeQuotationDetailValue({
                     index,
                     key: 'rate',
-                    value: value
-                  })
-                )
-              }
+                    value: value,
+                  }),
+                );
+                // }
+              }}
             />
           </Form.Item>
         );
       },
-      width: 100
+      width: 100,
     },
     {
       title: 'Amount',
@@ -1128,7 +1167,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       render: (_, { amount }) => (
         <DebouncedCommaSeparatedInput value={amount ? amount + '' : ''} disabled />
       ),
-      width: 100
+      width: 100,
     },
     {
       title: (
@@ -1147,7 +1186,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
               fontSize: '12px',
               padding: '2px 4px',
               border: '1px solid #d9d9d9',
-              borderRadius: '4px'
+              borderRadius: '4px',
             }}
           />
         </div>
@@ -1156,7 +1195,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       key: 'discount_percent',
       render: (_, { discount_percent }, index) => {
         form.setFieldsValue({
-          [`discount_percent-${index}`]: discount_percent
+          [`discount_percent-${index}`]: discount_percent,
         });
         return (
           <Form.Item
@@ -1170,8 +1209,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                     return Promise.reject(new Error('Invalid discount percent.'));
                   }
                   return Promise.resolve();
-                }
-              }
+                },
+              },
             ]}>
             <DebouncedNumberInput
               value={discount_percent}
@@ -1181,15 +1220,15 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                   changeQuotationDetailValue({
                     index,
                     key: 'discount_percent',
-                    value: value
-                  })
+                    value: value,
+                  }),
                 )
               }
             />
           </Form.Item>
         );
       },
-      width: 80
+      width: 80,
     },
     {
       title: 'Discount Amt',
@@ -1203,7 +1242,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           />
         );
       },
-      width: 120
+      width: 120,
     },
     {
       title: 'Gross Amount',
@@ -1214,7 +1253,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           <DebouncedCommaSeparatedInput value={gross_amount ? gross_amount + '' : ''} disabled />
         );
       },
-      width: 150
+      width: 150,
     },
     {
       title: (
@@ -1237,20 +1276,20 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                 {
                   key: '1',
                   label: 'Add',
-                  onClick: () => dispatch(addQuotationDetail(index))
+                  onClick: () => dispatch(addQuotationDetail(index)),
                 },
                 {
                   key: '2',
                   label: 'Copy',
-                  onClick: () => dispatch(copyQuotationDetail(index))
+                  onClick: () => dispatch(copyQuotationDetail(index)),
                 },
                 {
                   key: '3',
                   label: 'Delete',
                   danger: true,
-                  onClick: () => dispatch(removeQuotationDetail(id))
-                }
-              ]
+                  onClick: () => dispatch(removeQuotationDetail(id)),
+                },
+              ],
             }}>
             <Button size="small">
               <BsThreeDotsVertical />
@@ -1259,8 +1298,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         );
       },
       width: 50,
-      fixed: 'right'
-    }
+      fixed: 'right',
+    },
   ];
 
   const [selectedCommissionAgentKeys, setSelectedCommissionAgentKeys] = useState([]);
@@ -1273,65 +1312,60 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       render: (text, record, index) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           Agent {index + 1}
-          {
-            permissions?.quotation?.commission_agent
-              ? <Tooltip title={text}>
-                <FaEye size={14} style={{ cursor: 'pointer' }} />
-              </Tooltip>
-              : null
-          }
+          {permissions?.quotation?.commission_agent ? (
+            <Tooltip title={text}>
+              <FaEye size={14} style={{ cursor: 'pointer' }} />
+            </Tooltip>
+          ) : null}
         </div>
-      )
+      ),
     },
     {
       title: 'Percentage',
       key: 'commission_percentage',
       dataIndex: 'commission_percentage',
-      render: (value) => `${value ?? 0}%`
+      render: (value) => `${value ?? 0}%`,
     },
     {
       title: 'Total Amount',
       key: 'amount',
       dataIndex: 'commission_percentage',
-      render: (percentage) => {
+      render: (percentage, record, index) => {
         const safePercentage = parseFloat(percentage || 0);
         const safeTotalNet = totalNet || 0;
         const amount = roundUpto((safePercentage * safeTotalNet) / 100);
         return isNaN(amount) ? 0 : amount;
-      }
+      },
     },
     ...(location.pathname.includes('quotation/create')
       ? [
-        {
-          title: 'Actions',
-          key: 'actions',
-          render: (_, record) => (
-            <Button
-              danger
-              size="small"
-              style={{
-                border: 'none',
-                outline: 'none',
-                background: 'none',
-                boxShadow: 'none'
-              }}
-              onClick={() =>
-                setHiddenAgentKeys((prev) => [...prev, record.commission_agent_id])
-              }
-            >
-              <TiDelete size={20} />
-            </Button>
-          )
-        }
-      ]
-      : [])
+          {
+            title: 'Actions',
+            key: 'actions',
+            render: (_, record) => (
+              <Button
+                danger
+                size="small"
+                style={{
+                  border: 'none',
+                  outline: 'none',
+                  background: 'none',
+                  boxShadow: 'none',
+                }}
+                onClick={() => setHiddenAgentKeys((prev) => [...prev, record.commission_agent_id])}>
+                <TiDelete size={20} />
+              </Button>
+            ),
+          },
+        ]
+      : []),
   ];
 
   const rowSelection = {
     selectedRowKeys: selectedCommissionAgentKeys,
     onChange: (selectedRowKeys) => {
       setSelectedCommissionAgentKeys(selectedRowKeys);
-    }
+    },
   };
 
   const onTermChange = (selected) => {
@@ -1360,7 +1394,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       class1_id: null,
       class2_id: null,
       flag_id: null,
-      salesman_id: null
+      salesman_id: null,
     });
     dispatch(setRebatePercentage(null));
     setPrevEvent(selected);
@@ -1376,12 +1410,10 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         class2_id: { value: data.class2_id, label: data.class2_name },
         flag_id: { value: data.flag_id, label: data.flag_name },
         payment_id: { value: data.payment_id, label: data.payment_name },
-        salesman_id: { value: data.salesman_id, label: data.salesman_name }
+        salesman_id: { value: data.salesman_id, label: data.salesman_name },
       });
       dispatch(setRebatePercentage(data.rebate_percent ? +data.rebate_percent : 0));
-      dispatch(
-        setSalesmanPercentage(data.commission_percentage ? +data.commission_percentage : 0)
-      );
+      dispatch(setSalesmanPercentage(data.commission_percentage ? +data.commission_percentage : 0));
     } catch (error) {
       handleError(error);
     }
@@ -1393,9 +1425,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
 
     try {
       const data = await dispatch(getSalesman(selected.value)).unwrap();
-      dispatch(
-        setSalesmanPercentage(data.commission_percentage ? +data.commission_percentage : 0)
-      );
+      dispatch(setSalesmanPercentage(data.commission_percentage ? +data.commission_percentage : 0));
     } catch (error) {
       handleError(error);
     }
@@ -1412,34 +1442,35 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         initialValues={
           mode === 'edit'
             ? {
-              ...initialFormValues,
-              document_date: initialFormValues.document_date
-                ? dayjs(initialFormValues.document_date)
-                : null,
-              service_date:
-                initialFormValues?.service_date === '0000-00-00' ||
+                ...initialFormValues,
+                document_date: initialFormValues.document_date
+                  ? dayjs(initialFormValues.document_date)
+                  : null,
+                service_date:
+                  initialFormValues?.service_date === '0000-00-00' ||
                   initialFormValues?.service_date === '1899-30-11'
-                  ? null
-                  : dayjs(initialFormValues?.service_date),
-              due_date:
-                initialFormValues?.due_date === '0000-00-00' ||
+                    ? null
+                    : dayjs(initialFormValues?.service_date),
+                due_date:
+                  initialFormValues?.due_date === '0000-00-00' ||
                   initialFormValues?.due_date === '1899-30-11'
-                  ? null
-                  : dayjs(initialFormValues?.due_date)
-            }
+                    ? null
+                    : dayjs(initialFormValues?.due_date),
+              }
             : {
-              document_date: dayjs(),
-              due_date: dayjs(),
-              status: 'In Progress'
-            }
+                document_date: dayjs(),
+                due_date: dayjs(),
+                status: 'In Progress',
+              }
         }
         scrollToFirstError>
         {/* Make this sticky */}
         <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-base font-semibold">
           <span className="text-sm text-gray-500">Quotation No:</span>
           <span
-            className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
-              } rounded px-1`}
+            className={`ml-4 text-amber-600 ${
+              mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
+            } rounded px-1`}
             onClick={() => {
               if (mode !== 'edit') return;
               navigator.clipboard.writeText(initialFormValues.document_identity);
@@ -1455,7 +1486,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
               label="Quotation Date"
               rules={[{ required: true, message: 'Quotation date is required' }]}
               className="w-full">
-              <DatePicker format="MM-DD-YYYY" className="w-full" />
+              <DatePicker format="MM-DD-YYYY" className="w-full" disabled />
             </Form.Item>
           </Col>
 
@@ -1647,7 +1678,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           <Form.Item name="term_desc" className="mb-3">
             <Input.TextArea
               autoSize={{
-                minRows: 2
+                minRows: 2,
               }}
               rows={2}
             />
@@ -1667,18 +1698,14 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={false}
           sticky={{
-            offsetHeader: 56
+            offsetHeader: 56,
           }}
         />
 
-        <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3 flex justify-between gap-4">
+        <div className="flex justify-between rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
           <div className="flex-1 lg:w-2/5">
             <Row gutter={[12, 12]}>
               <Col span={24} sm={12} md={6} lg={6}>
-                <DetailSummaryInfo
-                  title="Total Cost:"
-                  value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
-                />
                 <DetailSummaryInfo
                   title="Total Amount:"
                   value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
@@ -1691,20 +1718,10 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                   title="Net Amount:"
                   value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
                 />
-              </Col>
-              <div className="flex flex-col gap-2 text-right">
-                <DetailSummary
-                  title="Total Quantity:"
-                  value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
+                <DetailSummaryInfo
+                  title="Total Cost:"
+                  value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
                 />
-                <DetailSummary
-                  title="Total Profit:"
-                  value={formatThreeDigitCommas(roundUpto(totalProfit)) || 0}
-                />
-              </div>
-            </Row>
-            <Row gutter={[12, 12]}>
-              <Col span={24} sm={12} md={6} lg={6}>
                 <DetailSummaryInfo
                   title="Rebate:"
                   value={
@@ -1729,14 +1746,10 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                     </div>
                   }
                 />
-              </Col>
-            </Row>
-            <Row gutter={[12, 12]}>
-              <Col span={24} sm={12} md={6} lg={6}>
                 <DetailSummaryInfo
                   title="Salesman:"
                   value={
-                    <div className="item-center flex flex-row-reverse gap-12 mt-2">
+                    <div className="item-center mt-2 flex flex-row-reverse gap-12">
                       {salesmanAmount || 0}
                       <DebouncedNumberInput
                         type="decimal"
@@ -1757,42 +1770,59 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                     </div>
                   }
                 />
-              </Col>
-            </Row>
-            <Row gutter={[12, 12]}>
-              <Col span={24} sm={12} md={6} lg={6}>
+                {/* <div className="flex w-full items-center justify-between"> */}
+                <DetailSummaryInformation
+                  title="Other Commission:"
+                  value={formatThreeDigitCommas(roundUpto(totalCommissionAmount)) || 0}
+                  icon={
+                    permissions?.quotation?.commission_agent && (
+                      <FaEye
+                        size={14}
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => setIsCommissionTableVisible(!isCommissionTableVisible)}
+                      />
+                    )
+                  }
+                />
+                {/* </div> */}
                 <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
               </Col>
-            </Row>
-          </div>
-          {
-            commissionAgent.length > 0 ?
-              <div className="mt-4 rounded-lg border border-slate-300 bg-slate-50 p-4 flex-1 lg:w-3/5">
-                <Table
-                  columns={commissionAgentColumns}
-                  dataSource={commissionAgent}
-                  rowKey={(record) => record.commission_agent_id}
-                  size="small"
-                  pagination={false}
-                  rowSelection={null}
-                  rowClassName={(record) =>
-                    hiddenAgentKeys.includes(record.commission_agent_id) ? 'hidden-row' : ''
-                  }
-                // rowSelection={rowSelection}
-                />
-              </div>
-              : commissionAgentData.length > 0 ?
-                <div className="mt-4 rounded-lg border border-slate-300 bg-slate-50 p-4 flex-1 lg:w-3/5">
-                  <Table
-                    columns={commissionAgentColumns}
-                    dataSource={commissionAgentData}
-                    rowKey={(record) => record.commission_agent_id}
-                    size="small"
-                    pagination={false}
+              <Row gutter={[12, 12]}>
+                <div className="flex flex-col gap-2 text-right">
+                  <DetailSummary
+                    title="Total Quantity:"
+                    value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
                   />
                 </div>
-                : null
-          }
+              </Row>
+            </Row>
+          </div>
+          {isCommissionTableVisible && commissionAgent.length > 0 ? (
+            <div className="mt-4 flex-1 rounded-lg border border-slate-300 bg-slate-50 p-4 lg:w-3/5">
+              <Table
+                columns={commissionAgentColumns}
+                dataSource={commissionAgent}
+                rowKey={(record) => record.commission_agent_id}
+                size="small"
+                pagination={false}
+                rowSelection={null}
+                rowClassName={(record) =>
+                  hiddenAgentKeys.includes(record.commission_agent_id) ? 'hidden-row' : ''
+                }
+                // rowSelection={rowSelection}
+              />
+            </div>
+          ) : isCommissionTableVisible && commissionAgentData.length > 0 ? (
+            <div className="mt-4 flex-1 rounded-lg border border-slate-300 bg-slate-50 p-4 lg:w-3/5">
+              <Table
+                columns={commissionAgentColumns}
+                dataSource={commissionAgentData}
+                rowKey={(record) => record.commission_agent_id}
+                size="small"
+                pagination={false}
+              />
+            </div>
+          ) : null}
         </div>
 
         <div className="mt-4 flex items-center justify-end gap-2">
@@ -1837,14 +1867,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
             Save & Exit
           </Button>
 
-          {
-            mode === 'edit'
-              ?
-              <Button onClick={() => setVendorModalOpen(true)}>Vendors</Button>
-              :
-              ''
-          }
-
+          {mode === 'edit' ? <Button onClick={() => setVendorModalOpen(true)}>Vendors</Button> : ''}
         </div>
       </Form>
       <NotesModal
@@ -1860,13 +1883,13 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       <VendorSelectionModal
         open={vendorModalOpen}
         onClose={async () => {
-          setVendorModalOpen(false)
+          setVendorModalOpen(false);
           try {
-            await dispatch(getQuotation(id)).unwrap()
-            setVendorModalOpen(true)
+            await dispatch(getQuotation(id)).unwrap();
+            setVendorModalOpen(true);
           } catch (error) {
-            handleError(error)
-          };
+            handleError(error);
+          }
         }}
       />
     </>

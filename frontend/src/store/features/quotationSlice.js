@@ -195,6 +195,7 @@ const initialState = {
   quotationDetails: [],
   commissionAgentData: [],
   vendorQuotationDetails: [],
+  totalCommissionAmount: 0,
   vendorDetails: [],
   params: {
     page: 1,
@@ -218,6 +219,7 @@ export const quotationSlice = createSlice({
       state.quotationDetails = [];
       state.initialFormValues = null;
     },
+
     setQuotationListParams: (state, action) => {
       state.params = {
         ...state.params,
@@ -242,6 +244,7 @@ export const quotationSlice = createSlice({
         amount: null,
         row_status: 'I',
         markup: 0,
+        lastUpdatedField: null,
       };
 
       if (index || index === 0) {
@@ -263,6 +266,10 @@ export const quotationSlice = createSlice({
       };
 
       state.quotationDetails.splice(index + 1, 0, newDetail);
+    },
+
+    setTotalCommissionAmount: (state, action) => {
+      state.totalCommissionAmount = action.payload;
     },
 
     removeQuotationDetail: (state, action) => {
@@ -291,49 +298,28 @@ export const quotationSlice = createSlice({
     changeQuotationDetailValue: (state, action) => {
       const { index, key, value } = action.payload;
 
-      // console.log('changeQuotationDetailValue', key, value);
-
       const detail = state.quotationDetails[index];
-
-      if (detail.row_status === 'U' && detail[key] !== value) {
-        detail.row_status = 'U';
-      }
 
       detail[key] = value;
       const productType = detail.product_type_id;
-      
+
       if (
         productType?.label !== 'Service' &&
         (key === 'markup' || key === 'cost_price') &&
         detail.cost_price &&
         detail.markup !== null &&
         detail.markup !== undefined
-      ) { 
+      ) {
         detail.rate = roundUpto(+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
-        detail.full_rate = (+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
-        detail.old_rate = roundUpto(+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
       }
 
       if (detail.quantity && detail.rate) {
         detail.amount = roundUpto(+detail.quantity * +detail.rate);
 
-        if (key === 'rate' && +detail.cost_price && +detail.rate) { 
-          // detail.full_rate = detail.rate;
-          if(detail.old_rate != detail.rate){
-
-            detail.markup = roundUpto(
-              ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100,
-            );
-          }
-          // // console.log(`rate:${detail.rate}, cost_price:${detail.cost_price}`);
-          // // console.log('beforeRoundUPTO, ', ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100)
-
-          //  console.log('detail' , {
-          //   full_rate : detail.full_rate,
-          //   rate : detail.rate,
-          //   cost_price : detail.cost_price,
-          //   markup : detail.markup,
-          //  });
+        if (key === 'rate' && +detail.cost_price && +detail.rate) {
+          detail.markup = roundUpto(
+            ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100,
+          );
         }
       } else {
         detail.amount = '';
@@ -393,8 +379,6 @@ export const quotationSlice = createSlice({
         ...detail,
         quantity: detail.stock_quantity,
         rate: detail.rate,
-        full_rate: detail.full_rate,
-        old_rate: detail.old_rate,
         cost_price: detail.cost_price,
         markup: detail.markup,
         amount: detail.rate * detail.stock_quantity,
@@ -421,8 +405,6 @@ export const quotationSlice = createSlice({
         supplier_id: detail.supplier_id,
         quantity: splittedQuantity,
         rate: detail.rate,
-        full_rate: detail.full_rate,
-        old_rate: detail.old_rate,
         amount: detail.rate * splittedQuantity,
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_percent
@@ -639,8 +621,6 @@ export const quotationSlice = createSlice({
             : +detail.cost_price || +detail.rate,
         markup: detail.markup,
         rate: detail.rate,
-        full_rate: detail.rate,
-        old_rate: detail.rate,
         amount: detail.amount,
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_amount,
@@ -648,6 +628,7 @@ export const quotationSlice = createSlice({
         quotation_detail_id: detail?.quotation_detail_id,
         row_status: 'U',
         isDeleted: false,
+        lastUpdatedField: null,
       }));
 
       state.vendorQuotationDetails = data.quotation_detail.map((detail) => ({
@@ -706,7 +687,7 @@ export const quotationSlice = createSlice({
     addCase(getVendor.pending, (state) => {
       state.isItemVendorLoading = true;
     });
-    
+
     addCase(getVendor.fulfilled, (state, action) => {
       state.isItemVendorLoading = false;
       const data = action.payload;
@@ -861,8 +842,6 @@ export const quotationSlice = createSlice({
             : +detail.cost_price || +detail.rate,
         markup: detail.markup,
         rate: detail.rate,
-        full_rate: detail.full_rate,
-        old_rate: detail.old_rate,
         amount: detail.amount,
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_amount,
@@ -927,6 +906,7 @@ export const {
   setSalesmanPercentage,
   resetQuotationState,
   splitQuotationQuantity,
+  setTotalCommissionAmount,
   resetVendorDetails
 } = quotationSlice.actions;
 export default quotationSlice.reducer;
