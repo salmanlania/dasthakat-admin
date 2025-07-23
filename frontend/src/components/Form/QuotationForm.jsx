@@ -332,9 +332,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       form.setFieldsValue({
         [`product_id-${index}`]: product?.product_id
           ? {
-              value: product.product_id,
-              label: product.product_name,
-            }
+            value: product.product_id,
+            label: product.product_name,
+          }
           : null,
         [`product_description-${index}`]: product?.product_name || '',
       });
@@ -364,9 +364,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           key: 'product_type_id',
           value: product.product_type_id
             ? {
-                value: product.product_type_id,
-                label: product.product_type_name,
-              }
+              value: product.product_type_id,
+              label: product.product_type_name,
+            }
             : null,
         }),
       );
@@ -491,9 +491,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           key: 'product_type_id',
           value: product.product_type_id
             ? {
-                value: product.product_type_id,
-                label: product.product_type_name,
-              }
+              value: product.product_type_id,
+              label: product.product_type_name,
+            }
             : null,
         }),
       );
@@ -671,9 +671,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
             value={
               product_type_id?.value
                 ? {
-                    value: product_type_id.value,
-                    label: product_type_id.label?.slice(0, 2) || '',
-                  }
+                  value: product_type_id.value,
+                  label: product_type_id.label?.slice(0, 2) || '',
+                }
                 : product_type_id
             }
             getOptionLabel={(item) => item.name?.slice(0, 2)}
@@ -1054,13 +1054,12 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                 : cost_price === 0 || cost_price === '0'
                   ? '0'
                   : cost_price
-                    ? `${
-                        Number(cost_price).toString().includes('.') && Number(cost_price) % 1 !== 0
-                          ? Number(cost_price)
-                              .toFixed(2)
-                              .replace(/\.?0+$/, '')
-                          : Number(cost_price)
-                      }`
+                    ? `${Number(cost_price).toString().includes('.') && Number(cost_price) % 1 !== 0
+                      ? Number(cost_price)
+                        .toFixed(2)
+                        .replace(/\.?0+$/, '')
+                      : Number(cost_price)
+                    }`
                     : ''
             }
             disabled={product_type_id?.value == 1}
@@ -1339,28 +1338,24 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         return isNaN(amount) ? 0 : amount;
       },
     },
-    ...(location.pathname.includes('quotation/create')
-      ? [
-          {
-            title: 'Actions',
-            key: 'actions',
-            render: (_, record) => (
-              <Button
-                danger
-                size="small"
-                style={{
-                  border: 'none',
-                  outline: 'none',
-                  background: 'none',
-                  boxShadow: 'none',
-                }}
-                onClick={() => setHiddenAgentKeys((prev) => [...prev, record.commission_agent_id])}>
-                <TiDelete size={20} />
-              </Button>
-            ),
-          },
-        ]
-      : []),
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_, record) => (
+        <Button
+          danger
+          size="small"
+          style={{
+            border: 'none',
+            outline: 'none',
+            background: 'none',
+            boxShadow: 'none',
+          }}
+          onClick={() => setHiddenAgentKeys((prev) => [...prev, record.commission_agent_id])}>
+          <TiDelete size={20} />
+        </Button>
+      ),
+    },
   ];
 
   const rowSelection = {
@@ -1444,35 +1439,34 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         initialValues={
           mode === 'edit'
             ? {
-                ...initialFormValues,
-                document_date: initialFormValues.document_date
-                  ? dayjs(initialFormValues.document_date)
-                  : null,
-                service_date:
-                  initialFormValues?.service_date === '0000-00-00' ||
+              ...initialFormValues,
+              document_date: initialFormValues.document_date
+                ? dayjs(initialFormValues.document_date)
+                : null,
+              service_date:
+                initialFormValues?.service_date === '0000-00-00' ||
                   initialFormValues?.service_date === '1899-30-11'
-                    ? null
-                    : dayjs(initialFormValues?.service_date),
-                due_date:
-                  initialFormValues?.due_date === '0000-00-00' ||
+                  ? null
+                  : dayjs(initialFormValues?.service_date),
+              due_date:
+                initialFormValues?.due_date === '0000-00-00' ||
                   initialFormValues?.due_date === '1899-30-11'
-                    ? null
-                    : dayjs(initialFormValues?.due_date),
-              }
+                  ? null
+                  : dayjs(initialFormValues?.due_date),
+            }
             : {
-                document_date: dayjs(),
-                due_date: dayjs(),
-                status: 'In Progress',
-              }
+              document_date: dayjs(),
+              due_date: dayjs(),
+              status: 'In Progress',
+            }
         }
         scrollToFirstError>
         {/* Make this sticky */}
         <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-base font-semibold">
           <span className="text-sm text-gray-500">Quotation No:</span>
           <span
-            className={`ml-4 text-amber-600 ${
-              mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
-            } rounded px-1`}
+            className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
+              } rounded px-1`}
             onClick={() => {
               if (mode !== 'edit') return;
               navigator.clipboard.writeText(initialFormValues.document_identity);
@@ -1704,91 +1698,206 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           }}
         />
 
-        <div className="flex justify-between rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
-          <div className="flex-1 lg:w-2/5">
-            <Row gutter={[12, 12]}>
-              <Col span={24} sm={12} md={6} lg={6}>
-                <DetailSummaryInfo
-                  title="Total Amount:"
-                  value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
-                />
-                <DetailSummaryInfo
-                  title="Discount Amount:"
-                  value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
-                />
-                <DetailSummaryInfo
-                  title="Net Amount:"
-                  value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
-                />
-                <DetailSummaryInfo
-                  title="Total Cost:"
-                  value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
-                />
-                <DetailSummaryInfo
-                  title="Rebate:"
-                  value={
-                    <div className="item-center flex flex-row-reverse gap-12">
-                      {rebateAmount || 0}
-                      <DebouncedNumberInput
-                        type="decimal"
-                        size="small"
-                        className="w-[3.8rem] text-right"
-                        value={
-                          rebatePercentage === 0
-                            ? '0%'
-                            : rebatePercentage
-                              ? rebatePercentage.toString().endsWith('%')
-                                ? rebatePercentage
-                                : `${rebatePercentage}%`
-                              : ''
-                        }
-                        disabled
-                        onChange={(value) => dispatch(setRebatePercentage(value))}
-                      />
-                    </div>
-                  }
-                />
-                <DetailSummaryInfo
-                  title="Salesman:"
-                  value={
-                    <div className="item-center mt-2 flex flex-row-reverse gap-12">
-                      {salesmanAmount || 0}
-                      <DebouncedNumberInput
-                        type="decimal"
-                        size="small"
-                        className="w-[3.8rem] text-right"
-                        value={
-                          salesmanPercentage === 0
-                            ? '0%'
-                            : salesmanPercentage
-                              ? salesmanPercentage.toString().endsWith('%')
-                                ? salesmanPercentage
-                                : `${salesmanPercentage}%`
-                              : ''
-                        }
-                        disabled
-                        onChange={(value) => dispatch(setSalesmanPercentage(value))}
-                      />
-                    </div>
-                  }
-                />
-                {/* <div className="flex w-full items-center justify-between"> */}
-                <DetailSummaryInformation
-                  title="Other Commission:"
-                  value={formatThreeDigitCommas(roundUpto(totalCommissionAmount)) || 0}
-                  icon={
-                    permissions?.quotation?.commission_agent && (
-                      <FaEye
-                        size={14}
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => setIsCommissionTableVisible(!isCommissionTableVisible)}
-                      />
-                    )
-                  }
-                />
-                {/* </div> */}
-                <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
-              </Col>
+        {/* <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
+          <div className="flex w-full gap-0 items-center">
+            <div className="w-[65%] flex-shrink-0 max-h-[200px]">
+              <Row gutter={[12, 12]}>
+                <Col span={24} sm={12} md={12} lg={12}>
+                  <DetailSummaryInfo
+                    title="Total Amount:"
+                    value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
+                  />
+                  <DetailSummaryInfo
+                    title="Discount Amount:"
+                    value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
+                  />
+                  <DetailSummaryInfo
+                    title="Net Amount:"
+                    value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
+                  />
+                  <DetailSummaryInfo
+                    title="Total Cost:"
+                    value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
+                  />
+                  <DetailSummaryInfo
+                    title="Rebate:"
+                    value={
+                      <div className="item-center flex flex-row-reverse gap-12">
+                        {rebateAmount || 0}
+                        <DebouncedNumberInput
+                          type="decimal"
+                          size="small"
+                          className="w-[3.8rem] text-right"
+                          value={
+                            rebatePercentage === 0
+                              ? '0%'
+                              : rebatePercentage
+                                ? rebatePercentage.toString().endsWith('%')
+                                  ? rebatePercentage
+                                  : `${rebatePercentage}%`
+                                : ''
+                          }
+                          disabled
+                          onChange={(value) => dispatch(setRebatePercentage(value))}
+                        />
+                      </div>
+                    }
+                  />
+                  <DetailSummaryInfo
+                    title="Salesman:"
+                    value={
+                      <div className="item-center mt-2 flex flex-row-reverse gap-12">
+                        {salesmanAmount || 0}
+                        <DebouncedNumberInput
+                          type="decimal"
+                          size="small"
+                          className="w-[3.8rem] text-right"
+                          value={
+                            salesmanPercentage === 0
+                              ? '0%'
+                              : salesmanPercentage
+                                ? salesmanPercentage.toString().endsWith('%')
+                                  ? salesmanPercentage
+                                  : `${salesmanPercentage}%`
+                                : ''
+                          }
+                          disabled
+                          onChange={(value) => dispatch(setSalesmanPercentage(value))}
+                        />
+                      </div>
+                    }
+                  />
+                  <DetailSummaryInformation
+                    title="Other Commission:"
+                    value={formatThreeDigitCommas(roundUpto(totalCommissionAmount)) || 0}
+                    icon={
+                      permissions?.quotation?.commission_agent && (
+                        <FaEye
+                          size={14}
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => setIsCommissionTableVisible(!isCommissionTableVisible)}
+                        />
+                      )
+                    }
+                  />
+                  <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
+                </Col>
+              </Row>
+                <Row gutter={[12, 12]}>
+                  <div className="flex flex-col gap-2 text-right">
+                    <DetailSummary
+                      title="Total Quantity:"
+                      value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
+                    />
+                  </div>
+                </Row>
+            </div>
+            <div className="w-[30%]">
+              {isCommissionTableVisible && (commissionAgent.length > 0 || commissionAgentData.length > 0) ? (
+                <div className="rounded-lg p-4" style={{ backgroundColor: '#F8FAFC' }}>
+                  <Table
+                    columns={commissionAgentColumns}
+                    dataSource={commissionAgent.length > 0 ? commissionAgent : commissionAgentData}
+                    rowKey={(record) => record.commission_agent_id}
+                    size="small"
+                    pagination={false}
+                    rowSelection={null}
+                    rowClassName={(record) =>
+                      hiddenAgentKeys.includes(record.commission_agent_id) ? 'hidden-row' : ''
+                    }
+                    className="comission-agent-quotation-custom-table"
+                  />
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div> */}
+
+        <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
+          <div className="flex w-full gap-0 items-center flex-col md:flex-row">
+            <div className="w-full md:w-[65%] flex-shrink-0 max-h-[200px]">
+              <Row gutter={[12, 12]}>
+                <Col span={24} sm={12} md={12} lg={12}>
+                  <DetailSummaryInfo
+                    title="Total Amount:"
+                    value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
+                  />
+                  <DetailSummaryInfo
+                    title="Discount Amount:"
+                    value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
+                  />
+                  <DetailSummaryInfo
+                    title="Net Amount:"
+                    value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
+                  />
+                  <DetailSummaryInfo
+                    title="Total Cost:"
+                    value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
+                  />
+                  <DetailSummaryInfo
+                    title="Rebate:"
+                    value={
+                      <div className="item-center flex flex-row-reverse gap-12">
+                        {rebateAmount || 0}
+                        <DebouncedNumberInput
+                          type="decimal"
+                          size="small"
+                          className="w-[3.8rem] text-right"
+                          value={
+                            rebatePercentage === 0
+                              ? '0%'
+                              : rebatePercentage
+                                ? rebatePercentage.toString().endsWith('%')
+                                  ? rebatePercentage
+                                  : `${rebatePercentage}%`
+                                : ''
+                          }
+                          disabled
+                          onChange={(value) => dispatch(setRebatePercentage(value))}
+                        />
+                      </div>
+                    }
+                  />
+                  <DetailSummaryInfo
+                    title="Salesman:"
+                    value={
+                      <div className="item-center mt-2 flex flex-row-reverse gap-12">
+                        {salesmanAmount || 0}
+                        <DebouncedNumberInput
+                          type="decimal"
+                          size="small"
+                          className="w-[3.8rem] text-right"
+                          value={
+                            salesmanPercentage === 0
+                              ? '0%'
+                              : salesmanPercentage
+                                ? salesmanPercentage.toString().endsWith('%')
+                                  ? salesmanPercentage
+                                  : `${salesmanPercentage}%`
+                                : ''
+                          }
+                          disabled
+                          onChange={(value) => dispatch(setSalesmanPercentage(value))}
+                        />
+                      </div>
+                    }
+                  />
+                  <DetailSummaryInformation
+                    title="Other Commission:"
+                    value={formatThreeDigitCommas(roundUpto(totalCommissionAmount)) || 0}
+                    icon={
+                      permissions?.quotation?.commission_agent && (
+                        <FaEye
+                          size={14}
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => setIsCommissionTableVisible(!isCommissionTableVisible)}
+                        />
+                      )
+                    }
+                  />
+                  <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
+                </Col>
+              </Row>
               <Row gutter={[12, 12]}>
                 <div className="flex flex-col gap-2 text-right">
                   <DetailSummary
@@ -1797,34 +1906,28 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                   />
                 </div>
               </Row>
-            </Row>
+            </div>
+            <div className="w-full md:w-[30%] mt-4 md:mt-0">
+              {isCommissionTableVisible && (commissionAgent.length > 0 || commissionAgentData.length > 0) ? (
+                <div className="rounded-lg p-4" style={{ backgroundColor: '#F8FAFC' }}>
+                  <div className="max-w-full">
+                    <Table
+                      columns={commissionAgentColumns}
+                      dataSource={commissionAgent.length > 0 ? commissionAgent : commissionAgentData}
+                      rowKey={(record) => record.commission_agent_id}
+                      size="small"
+                      pagination={false}
+                      rowSelection={null}
+                      rowClassName={(record) =>
+                        hiddenAgentKeys.includes(record.commission_agent_id) ? 'hidden-row' : ''
+                      }
+                      className="comission-agent-quotation-custom-table"
+                    />
+                  </div>
+                </div>
+              ) : null}
+            </div>
           </div>
-          {isCommissionTableVisible && commissionAgent.length > 0 ? (
-            <div className="mt-4 flex-1 rounded-lg border border-slate-300 bg-slate-50 p-4 lg:w-3/5">
-              <Table
-                columns={commissionAgentColumns}
-                dataSource={commissionAgent}
-                rowKey={(record) => record.commission_agent_id}
-                size="small"
-                pagination={false}
-                rowSelection={null}
-                rowClassName={(record) =>
-                  hiddenAgentKeys.includes(record.commission_agent_id) ? 'hidden-row' : ''
-                }
-                // rowSelection={rowSelection}
-              />
-            </div>
-          ) : isCommissionTableVisible && commissionAgentData.length > 0 ? (
-            <div className="mt-4 flex-1 rounded-lg border border-slate-300 bg-slate-50 p-4 lg:w-3/5">
-              <Table
-                columns={commissionAgentColumns}
-                dataSource={commissionAgentData}
-                rowKey={(record) => record.commission_agent_id}
-                size="small"
-                pagination={false}
-              />
-            </div>
-          ) : null}
         </div>
 
         <div className="mt-4 flex items-center justify-end gap-2">
