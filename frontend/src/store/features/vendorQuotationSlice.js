@@ -122,13 +122,25 @@ export const getQuotationForPrint = createAsyncThunk(
   },
 );
 
-export const updateQuotation = createAsyncThunk(
-  'quotation/update',
-  async ({ id, data }, { rejectWithValue }) => {
+// export const updateQuotation = createAsyncThunk(
+//   'quotation/update',
+//   async ({ id, data }, { rejectWithValue }) => {
+//     try {
+//       await api.put(`/quotation/${id}`, data);
+//     } catch (err) {
+//       throw rejectWithValue(err);
+//     }
+//   },
+// );
+
+export const vendorQuotationActions = createAsyncThunk(
+  'vendorQuotationActions/update',
+  async (data, { rejectWithValue }) => {
     try {
-      await api.put(`/quotation/${id}`, data);
+      console.log('Sending payload:', data);
+      await api.post(`/vendor-platform/quotation/actions`, data);
     } catch (err) {
-      throw rejectWithValue(err);
+      return rejectWithValue(err);
     }
   },
 );
@@ -193,7 +205,6 @@ const initialState = {
   rebatePercentage: null,
   salesmanPercentage: null,
   quotationDetails: [],
-  commissionAgentData: [],
   vendorQuotationDetails: [],
   totalCommissionAmount: 0,
   vendorDetails: [],
@@ -441,7 +452,6 @@ export const vendorQuotationSlice = createSlice({
       state.isListLoading = false;
       const { data, ...rest } = action.payload;
       state.list = data;
-      console.log('Vendor Quotation List:', state.list);
       state.paginationInfo = {
         total_records: rest.total,
         total_pages: rest.last_page,
@@ -487,193 +497,58 @@ export const vendorQuotationSlice = createSlice({
     addCase(getVendorQuotation.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
-      state.initialFormValues = {
-        quotation_id: data.quotation_id,
-        document_identity: data.document_identity,
-        document_type_id: data.document_type_id,
-        document_date: data.document_date ? dayjs(data.document_date) : null,
-        service_date: data.service_date,
-        imo: data.vessel ? data.vessel.imo : null,
-        internal_notes: data.internal_notes,
-        salesman_id: data.salesman
-          ? {
-            value: data.salesman.salesman_id,
-            label: data.salesman.name,
-          }
-          : null,
-        event_id: data.event
-          ? {
-            value: data.event.event_id,
-            label: data.event.event_name,
-          }
-          : null,
-        vessel_id: data.vessel
-          ? {
-            value: data.vessel.vessel_id,
-            label: data.vessel.name,
-          }
-          : null,
-        customer_id: data.customer
-          ? {
-            value: data.customer.customer_id,
-            label: data.customer.name,
-          }
-          : null,
-        class1_id: data.class1
-          ? {
-            value: data.class1.class_id,
-            label: data.class1.name,
-          }
-          : null,
-        class2_id: data.class2
-          ? {
-            value: data.class2.class_id,
-            label: data.class2.name,
-          }
-          : null,
-        flag_id: data.flag
-          ? {
-            value: data.flag.flag_id,
-            label: data.flag.name,
-          }
-          : null,
-        person_incharge_id: data.person_incharge
-          ? {
-            value: data.person_incharge.user_id,
-            label: data.person_incharge.user_name,
-          }
-          : null,
-        validity_id: data.validity
-          ? {
-            value: data.validity.validity_id,
-            label: data.validity.name,
-          }
-          : null,
-        payment_id: data.payment
-          ? {
-            value: data.payment.payment_id,
-            label: data.payment.name,
-          }
-          : null,
-        customer_ref: data.customer_ref,
-        due_date: data.due_date,
-        attn: data.attn,
-        delivery: data.delivery,
-        inclosure: data.inclosure,
-        remarks: data.remarks,
-        port_id: data.port
-          ? {
-            value: data.port.port_id,
-            label: data.port.name,
-          }
-          : null,
-        port: data.port
-          ? {
-            value: data.port.port_id,
-            label: data.port.name,
-          }
-          : null,
-        term_id: data.term_id || null,
-        term_desc: data.term_desc,
-        status: data.status,
-      };
+      state.initialFormValues = data
 
-      // state.commissionAgentData = [data.commission_agent]
-      state.commissionAgentData = data.commission_agent.map((detail) => ({
-        name: detail?.name,
-        commission_percentage: detail?.percentage,
-        amount: detail?.amount,
-        row_status: 'U',
-        isDeleted: false,
-      }));
+      // if (!data.quotation_detail) return;
+      state.quotationDetails = data?.details?.map(item => {
+        const detail = item?.vendor_quotation_detail?.quotation_detail;
+        const vendorCost = item?.vendor_quotation_detail?.vendor_rate || 0;
 
-      if (!data.quotation_detail) return;
-      state.quotationDetails = data.quotation_detail.map((detail) => ({
-        id: detail.quotation_detail_id,
-        product_code: detail.product ? detail.product.product_code : null,
-        product_id: detail.product
-          ? { value: detail.product.product_id, label: detail.product.product_name }
-          : null,
-        product_type_id: detail.product_type
-          ? {
-            value: detail.product_type.product_type_id,
-            label: detail.product_type.name,
-          }
-          : null,
-        product_name: detail.product_name
-          ? detail.product_name
-          : detail?.product?.product_name || null,
-        product_description: detail.product_description,
-        description: detail.description,
-        stock_quantity: detail?.product?.stock?.quantity
-          ? parseFloat(detail.product.stock.quantity)
-          : 0,
-        quantity: detail.quantity ? detail.quantity : null,
-        available_quantity: detail.available_quantity ? detail.available_quantity : null,
-        unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
-        supplier_id: detail.supplier
-          ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
-          : null,
-        vendor_part_no: detail.vendor_part_no,
-        internal_notes: detail.internal_notes,
-        cost_price:
-          detail?.product_type?.product_type_id === 4
-            ? detail.cost_price
-            : +detail.cost_price || +detail.rate,
-        markup: detail.markup,
-        rate: detail.rate,
-        amount: detail.amount,
-        discount_percent: detail.discount_percent,
-        discount_amount: detail.discount_amount,
-        gross_amount: detail.gross_amount,
-        quotation_detail_id: detail?.quotation_detail_id,
-        row_status: 'U',
-        isDeleted: false,
-        lastUpdatedField: null,
-      }));
-
-      state.vendorQuotationDetails = data.quotation_detail.map((detail) => ({
-        id: detail.quotation_detail_id,
-        product_code: detail.product ? detail.product.product_code : null,
-        product_id: detail.product
-          ? { value: detail.product.product_id, label: detail.product.product_name }
-          : null,
-        product_type_id: detail.product_type
-          ? {
-            value: detail.product_type.product_type_id,
-            label: detail.product_type.name,
-          }
-          : null,
-        product_name: detail.product_name
-          ? detail.product_name
-          : detail?.product?.product_name || null,
-        product_description: detail.product_description,
-        description: detail.description,
-        stock_quantity: detail?.product?.stock?.quantity
-          ? parseFloat(detail.product.stock.quantity)
-          : 0,
-        quantity: detail.quantity ? detail.quantity : null,
-        available_quantity: detail.available_quantity ? detail.available_quantity : null,
-        unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
-        supplier_id: detail.supplier
-          ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
-          : null,
-        vendor_part_no: detail.vendor_part_no,
-        internal_notes: detail.internal_notes,
-        cost_price:
-          detail?.product_type?.product_type_id === 4
-            ? detail.cost_price
-            : +detail.cost_price || +detail.rate,
-        markup: detail.markup,
-        rate: detail.rate,
-        amount: detail.amount,
-        discount_percent: detail.discount_percent,
-        discount_amount: detail.discount_amount,
-        gross_amount: detail.gross_amount,
-        quotation_detail_id: detail?.quotation_detail_id,
-        row_status: 'U',
-        isDeleted: false,
-      })).filter((detail) => [3, 4].includes(detail.product_type_id?.value));;
+        return {
+          id: detail?.quotation_detail_id,
+          sort_order: detail?.sort_order || null,
+          product_code: detail?.product?.product_code || null,
+          product_id: detail?.product
+            ? { value: detail.product.product_id, label: detail.product.product_name }
+            : null,
+          product_type_id: detail?.product_type
+            ? {
+              value: detail.product_type.product_type_id,
+              label: detail.product_type.name,
+            }
+            : null,
+          product_name: detail?.product_name || detail?.product?.product_name || null,
+          product_description: detail?.product_description,
+          description: detail?.description,
+          stock_quantity: detail?.product?.stock?.quantity
+            ? parseFloat(detail.product.stock.quantity)
+            : 0,
+          quantity: detail?.quantity || null,
+          available_quantity: detail?.available_quantity || null,
+          unit_id: detail?.unit ? detail.unit.name : null,
+          supplier_id: detail?.supplier
+            ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
+            : null,
+          vendor_part_no: detail?.vendor_part_no,
+          internal_notes: detail?.internal_notes,
+          cost_price: vendorCost,
+          markup: detail?.markup,
+          rate: detail?.rate,
+          amount: detail?.amount,
+          discount_percent: detail?.discount_percent,
+          discount_amount: detail?.discount_amount,
+          gross_amount: detail?.gross_amount,
+          quotation_detail_id: detail?.quotation_detail_id,
+          net_cost: detail,
+          ext_cost: {
+            ...detail,
+            vendorCost,
+          },
+          row_status: 'U',
+          isDeleted: false,
+          lastUpdatedField: null,
+        };
+      });
 
       state.rebatePercentage = data?.rebate_percent ? data?.rebate_percent : 0;
       state.salesmanPercentage = data?.salesman_percent ? data?.salesman_percent : data?.commission_percentage ? data?.commission_percentage : 0;
@@ -861,25 +736,25 @@ export const vendorQuotationSlice = createSlice({
       state.salesmanPercentage = null;
     });
 
-    addCase(updateQuotation.pending, (state) => {
-      state.isFormSubmitting = true;
-    });
-    addCase(updateQuotation.fulfilled, (state) => {
-      state.isFormSubmitting = false;
-      state.quotationDetails = state.quotationDetails
-        .filter((item) => item.row_status !== 'D')
-        .map((item) => ({
-          ...item,
-          row_status: 'U',
-          isDeleted: false,
-        }));
-      state.initialFormValues = null;
-      state.rebatePercentage = null;
-      state.salesmanPercentage = null;
-    });
-    addCase(updateQuotation.rejected, (state) => {
-      state.isFormSubmitting = false;
-    });
+    // addCase(updateQuotation.pending, (state) => {
+    //   state.isFormSubmitting = true;
+    // });
+    // addCase(updateQuotation.fulfilled, (state) => {
+    //   state.isFormSubmitting = false;
+    //   state.quotationDetails = state.quotationDetails
+    //     .filter((item) => item.row_status !== 'D')
+    //     .map((item) => ({
+    //       ...item,
+    //       row_status: 'U',
+    //       isDeleted: false,
+    //     }));
+    //   state.initialFormValues = null;
+    //   state.rebatePercentage = null;
+    //   state.salesmanPercentage = null;
+    // });
+    // addCase(updateQuotation.rejected, (state) => {
+    //   state.isFormSubmitting = false;
+    // });
 
     addCase(bulkDeleteQuotation.pending, (state) => {
       state.isBulkDeleting = true;

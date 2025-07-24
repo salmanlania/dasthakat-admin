@@ -114,7 +114,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
     setData(newData);
   };
 
-  const onFinish = async () => {
+  const onFinish = async (values) => {
 
     const requiredDateValue = form.getFieldValue('required_date');
     const invalidRows = data.filter((product) =>
@@ -122,6 +122,10 @@ const VendorSelectionModal = ({ open, onClose }) => {
     );
     if (invalidRows.length > 0) {
       toast.error('Primary vendors must have a selected supplier.');
+      return;
+    }
+    if (!requiredDateValue) {
+      toast.error('Please select a required date.');
       return;
     }
 
@@ -187,21 +191,37 @@ const VendorSelectionModal = ({ open, onClose }) => {
       width: 140,
     },
     ...Array.from({ length: vendorCount }).flatMap((_, vendorIndex) => [
+      // {
+      //   title: `Primary`,
+      //   key: `vendor_primary_${vendorIndex}`,
+      //   width: 100,
+      //   ellipsis: true,
+      //   render: (_, record, productIndex) => (
+      //     <Radio
+      //       checked={record.vendors[vendorIndex].isPrimary}
+      //       onChange={() => handlePrimaryChange(productIndex, vendorIndex)}
+      //     />
+      //   ),
+      // },
       {
         title: `Vendor`,
         key: `supplier_id-${vendorIndex}`,
-        width: 130,
+        width: 330,
         ellipsis: false,
         render: (_, record, productIndex) => {
           const vendor = record.vendors[vendorIndex];
           return (
-            <div style={{ whiteSpace: 'normal', wordWrap: 'break-word', maxWidth: 100 }}>
+            <div className='flex ' style={{ whiteSpace: 'normal', wordWrap: 'break-word', maxWidth: 330 }}>
+              <Radio
+                checked={record.vendors[vendorIndex].isPrimary}
+                onChange={() => handlePrimaryChange(productIndex, vendorIndex)}
+              />
               <AsyncSelect
                 endpoint="/supplier"
                 valueKey="supplier_id"
                 labelKey="name"
                 labelInValue
-                style={{ width: '100%', minWidth: 100 }}
+                style={{ width: '100%', minWidth: 200 }}
                 className="w-full"
                 disabled={record.product_type_id?.value === 1 || record.product_type_id?.value === 2}
                 value={vendor?.supplier_id}
@@ -228,8 +248,8 @@ const VendorSelectionModal = ({ open, onClose }) => {
       {
         title: `Rate`,
         key: `rate-${vendorIndex}`,
-        width: 140,
-        maxWidth: 140,
+        width: 100,
+        maxWidth: 100,
         ellipsis: true,
         render: (_, record, productIndex) => (
           <Input
@@ -238,20 +258,6 @@ const VendorSelectionModal = ({ open, onClose }) => {
             placeholder="Rate"
             style={{ width: '100%' }}
           />
-        ),
-      },
-      {
-        title: `Primary`,
-        key: `vendor_primary_${vendorIndex}`,
-        width: 100,
-        ellipsis: true,
-        render: (_, record, productIndex) => (
-          <Radio
-            checked={record.vendors[vendorIndex].isPrimary}
-            onChange={() => handlePrimaryChange(productIndex, vendorIndex)}
-          >
-            Yes
-          </Radio>
         ),
       },
       {
@@ -265,8 +271,6 @@ const VendorSelectionModal = ({ open, onClose }) => {
             <Switch
               checked={vendor.rfqSent}
               onChange={(checked) => toggleRfq(productIndex, vendorIndex, checked)}
-              checkedChildren="Sent"
-              unCheckedChildren="Send"
             />
           );
         },

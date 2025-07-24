@@ -21,8 +21,9 @@ const EditQuotation = () => {
     try {
       await dispatch(updateQuotation({ id, data })).unwrap();
       toast.success('Quotation updated successfully');
-      dispatch(getQuotation(id)).unwrap().catch(handleError);
+      dispatch(getQuotation(id)).unwrap()
     } catch (error) {
+      console.log('Error updating quotation:', error);
       handleError(error);
     }
   };

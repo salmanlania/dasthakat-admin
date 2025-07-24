@@ -6,7 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import VendorQuotationForm from '../../components/Form/VendorQuotationForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
-import { getVendorQuotation, updateQuotation } from '../../store/features/vendorQuotationSlice';
+import { getVendorQuotation } from '../../store/features/vendorQuotationSlice';
 import ChargeOrderForm from '../../components/Form/ChargeOrderForm';
 
 const EditVendorPlatform = () => {
@@ -15,25 +15,6 @@ const EditVendorPlatform = () => {
   const handleError = useError();
   const { id } = useParams();
   // const { initialFormValues } = useSelector((state) => state.vendorQuotation);
-
-  const onQuotationUpdate = async (data) => {
-    try {
-      await dispatch(updateQuotation({ id, data })).unwrap();
-      toast.success('Quotation updated successfully');
-      dispatch(getVendorQuotation(id)).unwrap().catch(handleError);
-    } catch (error) {
-      handleError(error);
-    }
-  };
-  const onQuotationUpdates = async (data) => {
-    try {
-      await dispatch(updateQuotation({ id, data })).unwrap();
-      toast.success('Quotation updated successfully');
-      navigate('/quotation');
-    } catch (error) {
-      handleError(error);
-    }
-  };
 
   useEffect(() => {
     // if (initialFormValues) {
@@ -66,7 +47,7 @@ const EditVendorPlatform = () => {
 
       {/* {!isItemLoading && initialFormValues ? ( */}
       {/* <div className="mt-4 rounded-md bg-white p-2 sm:p-4"> */}
-      <VendorQuotationForm mode="edit" onSubmit={onQuotationUpdate} onSave={onQuotationUpdates} />
+      <VendorQuotationForm mode="edit" />
       {/* <VendorQuotationForm /> */}
       {/* <ChargeOrderForm /> */}
       {/* </div> */}

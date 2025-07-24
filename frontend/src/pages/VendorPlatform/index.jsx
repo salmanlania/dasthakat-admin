@@ -17,7 +17,6 @@ import { GoTrash } from 'react-icons/go';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect';
-import { quotationStatusOptions } from '../../components/Form/QuotationForm.jsx';
 import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
@@ -28,6 +27,7 @@ import {
   getVendorQuotationList,
   setQuotationDeleteIDs,
   setVendorQuotationListParams,
+  vendorQuotationActions
 } from '../../store/features/vendorQuotationSlice.js';
 
 const VendorPlatform = () => {
@@ -42,6 +42,7 @@ const VendorPlatform = () => {
 
   const [form] = Form.useForm();
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
+  const [requiredDate, setRequiredDate] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
@@ -74,6 +75,29 @@ const VendorPlatform = () => {
       handleError(error);
     }
   };
+
+  const quotationStatusOptions = [
+    {
+      value: 'Cancelled',
+      label: 'Cancelled',
+    },
+    {
+      value: 'Bid Sent',
+      label: 'Bid Sent',
+    },
+    {
+      value: 'Partial',
+      label: 'Partial',
+    },
+    {
+      value: 'Bid Received',
+      label: 'Bid Received',
+    },
+    {
+      value: 'Bid Expired',
+      label: 'Bid Expireds',
+    },
+  ];
 
   const columns = [
     {
@@ -170,9 +194,19 @@ const VendorPlatform = () => {
           <div onClick={(e) => e.stopPropagation()}>
             <DatePicker
               size="small"
-              value={params.document_date}
+              // value={params.date_required}
+              value={params.date_required ? dayjs(params.date_required, 'YYYY-MM-DD') : null}
               className="font-normal"
-              onChange={(date) => dispatch(setVendorQuotationListParams({ document_date: date }))}
+              onChange={(date) => {
+                if (!date) {
+                  dispatch(setVendorQuotationListParams({ date_required: null }));
+                  return;
+                }
+                const jsDate = date.$d; // or date.toDate()
+                const formattedDate = `${jsDate.getFullYear()}-${String(jsDate.getMonth() + 1).padStart(2, '0')}-${String(jsDate.getDate()).padStart(2, '0')}`;
+                dispatch(setVendorQuotationListParams({ date_required: formattedDate }))
+              }
+              }
               format="MM-DD-YYYY"
             />
           </div>
@@ -189,13 +223,23 @@ const VendorPlatform = () => {
     {
       title: (
         <div>
-          <p>Date Returned</p>
+          <p>Date Return</p>
           <div onClick={(e) => e.stopPropagation()}>
             <DatePicker
               size="small"
-              value={params.document_date}
+              // value={params.date_required}
+              value={params.date_returned ? dayjs(params.date_returned, 'YYYY-MM-DD') : null}
               className="font-normal"
-              onChange={(date) => dispatch(setVendorQuotationListParams({ date_returned: date }))}
+              onChange={(date) => {
+                if (!date) {
+                  dispatch(setVendorQuotationListParams({ date_returned: null }));
+                  return;
+                }
+                const jsDate = date.$d; // or date.toDate()
+                const formattedDate = `${jsDate.getFullYear()}-${String(jsDate.getMonth() + 1).padStart(2, '0')}-${String(jsDate.getDate()).padStart(2, '0')}`;
+                dispatch(setVendorQuotationListParams({ date_returned: formattedDate }))
+              }
+              }
               format="MM-DD-YYYY"
             />
           </div>
@@ -229,8 +273,9 @@ const VendorPlatform = () => {
             className="w-full font-normal"
             valueKey="user_id"
             labelKey="user_name"
-            value={params.person_incharge_name}
-            onChange={(value) => dispatch(setVendorQuotationListParams({ person_incharge_name: value }))}
+            allowClear
+            value={params.user_id}
+            onChange={(value) => dispatch(setVendorQuotationListParams({ user_id: value }))}
           />
         </div>
       ),
@@ -248,7 +293,7 @@ const VendorPlatform = () => {
             size="small"
             className="w-full font-normal"
             allowClear
-            // options={quotationStatusOptions}
+            options={quotationStatusOptions}
             value={params.status}
             onChange={(value) => dispatch(setVendorQuotationListParams({ status: value }))}
           />
@@ -308,15 +353,24 @@ const VendorPlatform = () => {
       title: (
         <div>
           <p>Date Sent</p>
-          <Input
-            className="font-normal"
-            allowClear
+          <DatePicker
             size="small"
-            onClick={(e) => e.stopPropagation()}
-            value={params.date_sent}
-            onChange={(e) => dispatch(setVendorQuotationListParams({ date_sent: e.target.value }))}
+            // value={params.date_required}
+            value={params.date_sent ? dayjs(params.date_sent, 'YYYY-MM-DD') : null}
+            className="font-normal"
+            onChange={(date) => {
+              if (!date) {
+                dispatch(setVendorQuotationListParams({ date_sent: null }));
+                return;
+              }
+              const jsDate = date.$d; // or date.toDate()
+              const formattedDate = `${jsDate.getFullYear()}-${String(jsDate.getMonth() + 1).padStart(2, '0')}-${String(jsDate.getDate()).padStart(2, '0')}`;
+              dispatch(setVendorQuotationListParams({ date_sent: formattedDate }))
+            }
+            }
+            format="MM-DD-YYYY"
           />
-        </div>
+        </div >
       ),
       dataIndex: 'date_sent',
       key: 'date_sent',
@@ -356,15 +410,15 @@ const VendorPlatform = () => {
             size="small"
             allowClear
             onClick={(e) => e.stopPropagation()}
-            value={params.total_amount}
+            value={params.notification_count}
             onChange={(e) => {
-              dispatch(setVendorQuotationListParams({ total_amount: e.target.value }));
+              dispatch(setVendorQuotationListParams({ notification_count: e.target.value }));
             }}
           />
         </div>
       ),
-      dataIndex: 'total_amount',
-      key: 'total_amount',
+      dataIndex: 'notification_count',
+      key: 'notification_count',
       sorter: true,
       width: 140,
       ellipsis: true,
@@ -378,12 +432,12 @@ const VendorPlatform = () => {
             {permissions.edit ? (
               <Tooltip title="View">
                 <Link to={`/vendor-platform/edit/${id}`}>
-                <Button
-                  size="small"
-                  type="primary"
-                  className="bg-gray-500 hover:!bg-gray-400"
-                  icon={<FaEye size={14} />}
-                />
+                  <Button
+                    size="small"
+                    type="primary"
+                    className="bg-gray-500 hover:!bg-gray-400"
+                    icon={<FaEye size={14} />}
+                  />
                 </Link>
               </Tooltip>
             ) : null}
@@ -412,8 +466,27 @@ const VendorPlatform = () => {
     columns.pop();
   }
 
+  const handleTableChange = (pagination, filters, sorter) => {
+    const sortParams = sorter.field
+      ? {
+        sort_column: sorter.field,
+        sort_direction: sorter.order === 'ascend' ? 'asc' : sorter.order === 'descend' ? 'desc' : undefined,
+      }
+      : {
+        sort_column: undefined,
+        sort_direction: undefined,
+      };
+
+    dispatch(
+      setVendorQuotationListParams({
+        ...sortParams,
+        page: pagination.current,
+        limit: pagination.pageSize,
+      }),
+    );
+  };
+
   useEffect(() => {
-    console.log('list', list);
     window.scrollTo(0, 0);
     dispatch(getVendorQuotationList(formattedParams)).unwrap().catch(handleError);
   }, [
@@ -432,11 +505,74 @@ const VendorPlatform = () => {
     params.date_sent,
     params.status,
     params.person_incharge_name,
+    params.date_returned,
+    params.date_required,
+    params.notification_count,
+    params.user_id,
     debouncedSearch,
     debouncedQuotationNo,
     debouncedCustomerRef,
     debouncedTotalAmount,
   ]);
+
+  const onFinish = async (actionType) => {
+    const selectedRows = list.filter((row) => deleteIDs.includes(row.document_identity));
+    if (selectedRows.length === 0) {
+      toast.error('No rows selected');
+      return;
+    }
+
+    if (actionType === 'change_required_date' && !requiredDate) {
+      toast.error('Please select a required date');
+      return;
+    }
+
+    const id = selectedRows.map((row) => row.id);
+    const payload = { id };
+
+    switch (actionType) {
+      case 'send_notifications':
+        payload.send_notification = 1;
+        break;
+
+      case 'change_required_date':
+        if (!requiredDate) {
+          toast.error('Please select a required date');
+          return;
+        }
+        payload.date_required = dayjs(requiredDate).format('YYYY-MM-DD');
+        break;
+
+      case 'cancel':
+        payload.toggle_is_cancelled = '1';
+        break;
+
+      case 'incomplete':
+        payload.status = 'partial';
+        break;
+
+      default:
+        toast.error('Invalid action');
+        return;
+    }
+
+    try {
+      await dispatch(vendorQuotationActions(payload)).unwrap();
+
+      const successMessages = {
+        send_notifications: 'Notifications sent successfully',
+        change_required_date: 'Required date updated successfully',
+        cancel: 'Quotations cancelled successfully',
+        incomplete: 'Quotations set to incomplete successfully',
+      };
+
+      toast.success(successMessages[actionType] || 'Action completed successfully');
+      dispatch(getVendorQuotationList(formattedParams)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
+
+  };
 
   return (
     <>
@@ -520,6 +656,7 @@ const VendorPlatform = () => {
           dataSource={list}
           showSorterTooltip={false}
           columns={columns}
+          onChange={handleTableChange}
           sticky={{
             offsetHeader: 56,
           }}
@@ -527,28 +664,27 @@ const VendorPlatform = () => {
       </div>
 
       <div className="mt-4 flex flex-wrap items-center justify-start gap-2 px-4">
-        <Button className="bg-sky-300 font-semibold text-black hover:bg-sky-400">
+        <Button className="bg-sky-300 font-semibold text-black hover:bg-sky-400" onClick={() => onFinish('send_notifications')}>
           Send Notifications
         </Button>
-        <Button className="bg-amber-300 font-semibold text-black hover:bg-amber-400">
+        <Button className="bg-amber-300 font-semibold text-black hover:bg-amber-400" onClick={() => onFinish('incomplete')}>
           Set VQs to Incomplete
         </Button>
-        <Button className="bg-rose-300 font-semibold text-black hover:bg-rose-400">
+        <Button className="bg-rose-300 font-semibold text-black hover:bg-rose-400" onClick={() => onFinish('cancel')}>
           Cancel/Uncancel VQs
         </Button>
-        <Button
-          className="bg-gray-300 font-semibold text-black hover:bg-gray-400"
-          onClick={() =>
-            dispatch(getVendorQuotationList(formattedParams)).unwrap().catch(handleError)
-          }>
-          Refresh
-        </Button>
-        <Button className="bg-pink-300 font-semibold text-black hover:bg-pink-400">
+        <Button className="bg-pink-300 font-semibold text-black hover:bg-pink-400" onClick={() => onFinish('change_required_date')}>
           Change Req’d Date
         </Button>
 
         <span className="mr-2 text-sm font-medium">Req. Date:</span>
-        <DatePicker size="small" format="MM/DD/YYYY" className="mr-4" />
+        <DatePicker
+          size="small"
+          format="MM/DD/YYYY"
+          className="mr-4"
+          value={requiredDate}
+          onChange={(date) => setRequiredDate(date)}
+        />
       </div>
 
       <DeleteConfirmModal
