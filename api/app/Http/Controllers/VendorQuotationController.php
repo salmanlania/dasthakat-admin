@@ -6,6 +6,7 @@ use App\Models\DocumentType;
 use App\Models\Product;
 use App\Models\ProductType;
 use App\Models\Quotation;
+use App\Models\QuotationCommissionAgent;
 use App\Models\QuotationDetail;
 use App\Models\Supplier;
 use App\Models\Unit;
@@ -329,6 +330,7 @@ class VendorQuotationController extends Controller
                             }
 
                             $quotation_detail->update();
+
                             $primaryVendorUpdates++;
                         }
                     }
@@ -354,6 +356,13 @@ class VendorQuotationController extends Controller
             $quotation->salesman_amount = $quotation->net_amount * $quotation->salesman_percent / 100;
             $quotation->final_amount = $quotation->net_amount - ($quotation->salesman_amount + $quotation->rebate_amount);
             $quotation->update();
+
+            $commissionAgents = QuotationCommissionAgent::where('quotation_id', $quotation_id)
+                ->get();
+            foreach ($commissionAgents as $agent) {
+                $agent->commission_amount = $quotation->net_amount * $agent->commission_percent / 100;
+                $agent->save();
+            }
 
             DB::commit();
 
@@ -472,7 +481,15 @@ class VendorQuotationController extends Controller
                 $quotation->final_amount = $quotation->net_amount - ($quotation->salesman_amount + $quotation->rebate_amount);
 
                 $quotation->save();
+
+                $commissionAgents = QuotationCommissionAgent::where('quotation_id', $quotation_id)
+                    ->get();
+                foreach ($commissionAgents as $agent) {
+                    $agent->commission_amount = $quotation->net_amount * $agent->commission_percent / 100;
+                    $agent->save();
+                }
             }
+
 
             $count = VendorQuotationDetail::where('quotation_id', $quotation_id)
                 ->where('quotation_detail_id', $row['quotation_detail_id'])
