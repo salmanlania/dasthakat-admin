@@ -137,7 +137,7 @@ class VpQuotationRfqController extends Controller
         return response()->json($data);
     }
 
-    public function actions($id, Request $request)
+    public function actions(Request $request)
     {
         $ids = $request->input('id', []);
         $date_required = $request->input('date_required', '');
