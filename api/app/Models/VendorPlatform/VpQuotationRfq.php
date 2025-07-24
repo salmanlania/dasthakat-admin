@@ -67,7 +67,7 @@ class VpQuotationRfq extends Model
     protected $casts = [
         'total_items' => 'integer',
         'items_quoted' => 'integer',
-        'date_required' => 'datetime',
+        'date_required' => 'date',
         'date_sent' => 'datetime',
         'date_returned' => 'datetime'
     ];
