@@ -31,7 +31,7 @@ CREATE TABLE vp_quotation_rfq (
     id CHAR(36) PRIMARY KEY,
     quotation_id CHAR(36) NOT NULL,
     vendor_id CHAR(36) NULL,
-    STATUS CHAR(50) NULL,
+    `status` CHAR(50) NULL,
     total_items INT NULL,
     items_quoted INT NULL,
     date_required DATETIME NULL,
