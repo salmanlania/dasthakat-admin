@@ -116,7 +116,7 @@ const OpeningStock = () => {
         purchase_order_id: selectedPO,
         supplier_id: supplier?.supplier_id,
         good_received_note_detail: details,
-        total_quantity: totalQuantity,
+        total_quantity: totalQuantity || 0
       };
 
       await dispatch(createOpeningStock(payload)).unwrap();

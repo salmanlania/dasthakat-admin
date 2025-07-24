@@ -5,10 +5,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { roundUpto } from '../../utils/number';
 
 export const getVendorQuotationList = createAsyncThunk(
-  'quotation/list',
+  'vendor-quotation/list',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get('/quotation', {
+      const res = await api.get('/vendor-platform/quotation', {
         params,
       });
       return res.data;
@@ -85,9 +85,9 @@ export const createQuotation = createAsyncThunk(
   },
 );
 
-export const getQuotation = createAsyncThunk('quotation/get', async (id, { rejectWithValue }) => {
+export const getVendorQuotation = createAsyncThunk('quotation/get', async (id, { rejectWithValue }) => {
   try {
-    const res = await api.get(`/quotation/${id}`);
+    const res = await api.get(`/vendor-platform/quotation/rfq/${id}`);
     return res.data.data;
   } catch (err) {
     throw rejectWithValue(err);
@@ -199,7 +199,7 @@ const initialState = {
   vendorDetails: [],
   params: {
     page: 1,
-    limit: 50,
+    limit: 30,
     search: '',
     sort_column: null,
     sort_direction: null,
@@ -210,7 +210,7 @@ const initialState = {
   },
 };
 
-export const quotationSlice = createSlice({
+export const vendorQuotationSlice = createSlice({
   name: 'vendorQuotation',
   initialState,
   reducers: {
@@ -220,7 +220,7 @@ export const quotationSlice = createSlice({
       state.initialFormValues = null;
     },
 
-    setQuotationListParams: (state, action) => {
+    setVendorQuotationListParams: (state, action) => {
       state.params = {
         ...state.params,
         ...action.payload,
@@ -441,6 +441,7 @@ export const quotationSlice = createSlice({
       state.isListLoading = false;
       const { data, ...rest } = action.payload;
       state.list = data;
+      console.log('Vendor Quotation List:', state.list);
       state.paginationInfo = {
         total_records: rest.total,
         total_pages: rest.last_page,
@@ -480,10 +481,10 @@ export const quotationSlice = createSlice({
       state.isFormSubmitting = false;
     });
 
-    addCase(getQuotation.pending, (state) => {
+    addCase(getVendorQuotation.pending, (state) => {
       state.isItemLoading = true;
     });
-    addCase(getQuotation.fulfilled, (state, action) => {
+    addCase(getVendorQuotation.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
       state.initialFormValues = {
@@ -677,7 +678,7 @@ export const quotationSlice = createSlice({
       state.rebatePercentage = data?.rebate_percent ? data?.rebate_percent : 0;
       state.salesmanPercentage = data?.salesman_percent ? data?.salesman_percent : data?.commission_percentage ? data?.commission_percentage : 0;
     });
-    addCase(getQuotation.rejected, (state) => {
+    addCase(getVendorQuotation.rejected, (state) => {
       state.isItemLoading = false;
       state.initialFormValues = null;
       state.rebatePercentage = null;
@@ -894,7 +895,7 @@ export const quotationSlice = createSlice({
 });
 
 export const {
-  setQuotationListParams,
+  setVendorQuotationListParams,
   setQuotationDeleteIDs,
   addQuotationDetail,
   removeQuotationDetail,
@@ -908,5 +909,5 @@ export const {
   splitQuotationQuantity,
   setTotalCommissionAmount,
   resetVendorDetails
-} = quotationSlice.actions;
-export default quotationSlice.reducer;
+} = vendorQuotationSlice.actions;
+export default vendorQuotationSlice.reducer;

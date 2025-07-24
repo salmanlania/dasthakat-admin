@@ -45,8 +45,7 @@ export const createSaleInvoice = createAsyncThunk(
   'saleInvoice/create',
   async (data, { rejectWithValue }) => {
     try {
-      const res = await api.post('/sale-invoice', data);
-      return res.data.data;
+      await api.post('/sale-invoice', data);
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -170,8 +169,8 @@ export const saleInvoiceSlice = createSlice({
       state.initialFormValues = {
         document_identity: data.document_identity || '',
         document_date: data.document_date || '',
-        totalQuantity: data.total_quantity || '',
-        totalAmount: data.total_amount || '',
+        totalQuantity: data.total_quantity || 0,
+        totalAmount: data.total_amount || 0,
         salesman_id: data?.charge_order?.salesman?.name,
         customer_po_no: data?.charge_order?.customer_po_no,
         vessel: data?.charge_order?.vessel,
@@ -212,13 +211,13 @@ export const saleInvoiceSlice = createSlice({
         description: detail.description,
         charge_order_detail_id: detail.charge_order_detail_id,
         vpart: detail.vpart,
-        quantity: detail.quantity ? parseFloat(detail.quantity) : null,
+        quantity: detail.quantity ? parseFloat(detail.quantity) : 0,
         unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
-        rate: detail.rate,
+        rate: detail.rate ? detail.rate : 0,
         vendor_notes: detail.vendor_notes,
-        amount: detail.amount,
+        amount: detail.amount ? detail.amount : 0,
         editable: detail.editable,
-        received_quantity: detail.received_quantity ? parseFloat(detail.received_quantity) : null,
+        received_quantity: detail.received_quantity ? parseFloat(detail.received_quantity) : 0,
         row_status: 'U',
         isDeleted: false
       }));

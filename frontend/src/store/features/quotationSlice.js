@@ -606,6 +606,7 @@ export const quotationSlice = createSlice({
         amount: detail?.amount,
         row_status: 'U',
         isDeleted: false,
+        commission_agent_id: detail?.commission_agent_id,
       }));
 
       if (!data.quotation_detail) return;

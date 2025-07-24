@@ -26,7 +26,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import NotesModal from '../../components/Modals/NotesModal.jsx';
 import useError from '../../hooks/useError';
-import { getEvent, resetCommissionAgent } from '../../store/features/eventSlice';
+import { getEvent } from '../../store/features/eventSlice';
 import { getProduct, getProductList } from '../../store/features/productSlice';
 import {
   addQuotationDetail,
@@ -40,8 +40,7 @@ import {
   setSalesmanPercentage,
   splitQuotationQuantity,
   getQuotation,
-  setTotalCommissionAmount,
-} from '../../store/features/quotationSlice';
+} from '../../store/features/vendorQuotationSlice.js';
 import { getSalesman } from '../../store/features/salesmanSlice';
 import generateQuotationExcel from '../../utils/excel/quotation-excel.js';
 import { formatThreeDigitCommas, roundUpto } from '../../utils/number';
@@ -74,10 +73,8 @@ export const DetailSummaryInformation = ({ title, value, icon }) => {
       <span className="ml-1 text-sm font-bold" style={{ color: 'black !important' }}>
         {title}
       </span>
-      <div className='flex items-center'>
-        <span className="ml-1 text-sm text-gray-500">{value}</span>
-        {icon && <span className="ml-[0.25rem] mr-[-1.1rem] cursor-pointer">{icon}</span>}
-      </div>
+      <span className="ml-1 text-sm text-gray-500">{value}</span>
+      {icon && <span className="mx-1 cursor-pointer">{icon}</span>}
     </div>
   );
 };
@@ -116,7 +113,7 @@ export const quotationStatusOptions = [
   },
 ];
 
-const QuotationForm = ({ mode, onSubmit, onSave }) => {
+const VendorQuotationForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const handleError = useError();
   const location = useLocation();
@@ -124,14 +121,12 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
   const { id } = useParams();
   const {
     isFormSubmitting,
-    totalCommissionAmount,
     initialFormValues,
     quotationDetails,
     rebatePercentage,
     salesmanPercentage,
-    commissionAgentData,
-  } = useSelector((state) => state.quotation);
-  const { commissionAgent } = useSelector((state) => state.event);
+  } = useSelector((state) => state.vendorQuotation);
+
   const [prevEvent, setPrevEvent] = useState(initialFormValues?.event_id);
 
   const { user } = useSelector((state) => state.auth);
@@ -148,7 +143,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
   const [vendorModalOpen, setVendorModalOpen] = useState(false);
   const [submitAction, setSubmitAction] = useState(null);
   const [hiddenAgentKeys, setHiddenAgentKeys] = useState([]);
-  const [isCommissionTableVisible, setIsCommissionTableVisible] = useState(false);
   let totalQuantity = 0;
   let totalCost = 0;
   let totalAmount = 0;
@@ -179,53 +173,17 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     ? formatThreeDigitCommas(roundUpto(totalNet * (parsedSalesman / 100)))
     : 0;
 
-  const minusValue =
-    parseInt(rebateAmount?.toString().replace(/,/g, '') || 0) +
-    parseInt(salesmanAmount?.toString().replace(/,/g, '') || 0) +
-    parseInt(totalCost || 0) +
-    parseInt(totalCommissionAmount || 0);
-
-  // const finalAmount = roundUpto(parseInt(totalNet || 0) - minusValue) || 0;
-  const finalAmount = parseInt(totalNet || 0) - minusValue || 0;
+  const finalAmount =
+    roundUpto(
+      parseInt(totalNet || 0) -
+        parseInt(rebateAmount?.toString().replace(/,/g, '') || 0) -
+        parseInt(salesmanAmount?.toString().replace(/,/g, '') || 0),
+    ) || 0;
 
   totalProfit = roundUpto(finalAmount - totalCost);
 
-  useEffect(() => {
-    if (commissionAgent?.length > 0 && totalNet) {
-      const totalAmount = commissionAgent.reduce((sum, agent) => {
-        const percentage = parseFloat(agent.commission_percentage || 0);
-        const amount = roundUpto((percentage * totalNet) / 100);
-        return sum + (isNaN(amount) ? 0 : amount);
-      }, 0);
-      dispatch(setTotalCommissionAmount(totalAmount));
-    } else if (commissionAgentData?.length > 0 && totalNet) {
-      const totalAmount = commissionAgentData.reduce((sum, agent) => {
-        const percentage = parseFloat(agent.commission_percentage || 0);
-        const amount = roundUpto((percentage * totalNet) / 100);
-        return sum + (isNaN(amount) ? 0 : amount);
-      }, 0);
-      dispatch(setTotalCommissionAmount(totalAmount));
-    }
-  }, [commissionAgent, commissionAgentData, totalNet]);
-
   const onFinish = (values) => {
     const safeTotalNet = totalNet || 0;
-
-    const selectedCommissionAgents = commissionAgentData
-      .filter((agent) => !hiddenAgentKeys.includes(agent.commission_agent_id))
-      .map((agent) => {
-        const percentage = parseFloat(agent?.commission_percentage || 0);
-        const amount = roundUpto((percentage * totalNet) / 100);
-        return {
-          vessel_id: agent.vessel_id || null,
-          customer_id: agent.customer_id || null,
-          commission_agent_id: agent.commission_agent_id,
-          percentage,
-          amount,
-          isDeleted: false,
-          sort_order: 1,
-        };
-      });
 
     if (rebatePercentage > 100) return toast.error('Rebate Percentage cannot be greater than 100');
     if (salesmanPercentage > 100)
@@ -263,7 +221,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       term_id: values.term_id && values.term_id.length ? values.term_id.map((v) => v.value) : null,
       status: values.status,
       remarks: values.remarks,
-      commission_agent: selectedCommissionAgents,
       quotation_detail: mappingSource.map(
         ({ id, row_status, isDeleted, product_type, ...detail }, index) => {
           return {
@@ -291,14 +248,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       rebate_amount: rebateAmount,
       salesman_amount: salesmanAmount,
     };
-
-    submitAction === 'save'
-      ? onSubmit(data).then(() => dispatch(resetCommissionAgent()))
-      : submitAction === 'saveAndExit'
-        ? onSave(data).then(() => dispatch(resetCommissionAgent()))
-        : null;
-
-    // submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
+    submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 
   const closeNotesModal = () => {
@@ -334,9 +284,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       form.setFieldsValue({
         [`product_id-${index}`]: product?.product_id
           ? {
-            value: product.product_id,
-            label: product.product_name,
-          }
+              value: product.product_id,
+              label: product.product_name,
+            }
           : null,
         [`product_description-${index}`]: product?.product_name || '',
       });
@@ -366,9 +316,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           key: 'product_type_id',
           value: product.product_type_id
             ? {
-              value: product.product_type_id,
-              label: product.product_type_name,
-            }
+                value: product.product_type_id,
+                label: product.product_type_name,
+              }
             : null,
         }),
       );
@@ -493,9 +443,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           key: 'product_type_id',
           value: product.product_type_id
             ? {
-              value: product.product_type_id,
-              label: product.product_type_name,
-            }
+                value: product.product_type_id,
+                label: product.product_type_name,
+              }
             : null,
         }),
       );
@@ -673,9 +623,9 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
             value={
               product_type_id?.value
                 ? {
-                  value: product_type_id.value,
-                  label: product_type_id.label?.slice(0, 2) || '',
-                }
+                    value: product_type_id.value,
+                    label: product_type_id.label?.slice(0, 2) || '',
+                  }
                 : product_type_id
             }
             getOptionLabel={(item) => item.name?.slice(0, 2)}
@@ -1056,12 +1006,13 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                 : cost_price === 0 || cost_price === '0'
                   ? '0'
                   : cost_price
-                    ? `${Number(cost_price).toString().includes('.') && Number(cost_price) % 1 !== 0
-                      ? Number(cost_price)
-                        .toFixed(2)
-                        .replace(/\.?0+$/, '')
-                      : Number(cost_price)
-                    }`
+                    ? `${
+                        Number(cost_price).toString().includes('.') && Number(cost_price) % 1 !== 0
+                          ? Number(cost_price)
+                              .toFixed(2)
+                              .replace(/\.?0+$/, '')
+                          : Number(cost_price)
+                      }`
                     : ''
             }
             disabled={product_type_id?.value == 1}
@@ -1305,71 +1256,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     },
   ];
 
-  const [selectedCommissionAgentKeys, setSelectedCommissionAgentKeys] = useState([]);
-
-  const commissionAgentColumns = [
-    {
-      title: 'Agent Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: (text, record, index) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          Agent {index + 1}
-          {permissions?.quotation?.commission_agent ? (
-            <Tooltip title={text}>
-              <FaEye size={14} style={{ cursor: 'pointer' }} />
-            </Tooltip>
-          ) : null}
-        </div>
-      ),
-    },
-    {
-      title: 'Percentage',
-      key: 'commission_percentage',
-      dataIndex: 'commission_percentage',
-      render: (value) => `${value ?? 0}%`,
-    },
-    {
-      title: 'Total Amount',
-      key: 'amount',
-      dataIndex: 'commission_percentage',
-      render: (percentage, record, index) => {
-        const safePercentage = parseFloat(percentage || 0);
-        const safeTotalNet = totalNet || 0;
-        const amount = roundUpto((safePercentage * safeTotalNet) / 100);
-        return isNaN(amount) ? 0 : amount;
-      },
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_, record) => (
-        <Button
-          danger
-          size="small"
-          style={{
-            border: 'none',
-            outline: 'none',
-            background: 'none',
-            boxShadow: 'none',
-          }}
-          onClick={() => {
-            setHiddenAgentKeys((prev) => [...prev, record.commission_agent_id])
-          }}
-        >
-          <TiDelete size={20} />
-        </Button>
-      ),
-    },
-  ];
-
-  const rowSelection = {
-    selectedRowKeys: selectedCommissionAgentKeys,
-    onChange: (selectedRowKeys) => {
-      setSelectedCommissionAgentKeys(selectedRowKeys);
-    },
-  };
-
   const onTermChange = (selected) => {
     if (!selected.length) {
       form.setFieldsValue({ term_desc: '' });
@@ -1415,7 +1301,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         salesman_id: { value: data.salesman_id, label: data.salesman_name },
       });
       dispatch(setRebatePercentage(data.rebate_percent ? +data.rebate_percent : 0));
-      dispatch(setSalesmanPercentage(data.commission_percentage ? +data.commission_percentage : 0));
     } catch (error) {
       handleError(error);
     }
@@ -1427,7 +1312,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
 
     try {
       const data = await dispatch(getSalesman(selected.value)).unwrap();
-      dispatch(setSalesmanPercentage(data.commission_percentage ? +data.commission_percentage : 0));
     } catch (error) {
       handleError(error);
     }
@@ -1444,40 +1328,42 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
         initialValues={
           mode === 'edit'
             ? {
-              ...initialFormValues,
-              document_date: initialFormValues.document_date
-                ? dayjs(initialFormValues.document_date)
-                : null,
-              service_date:
-                initialFormValues?.service_date === '0000-00-00' ||
+                ...initialFormValues,
+                // document_date: initialFormValues.document_date
+                //   ? dayjs(initialFormValues.document_date)
+                //   : null,
+                document_date: dayjs().format('MM-DD-YYYY'),
+                service_date:
+                  initialFormValues?.service_date === '0000-00-00' ||
                   initialFormValues?.service_date === '1899-30-11'
-                  ? null
-                  : dayjs(initialFormValues?.service_date),
-              due_date:
-                initialFormValues?.due_date === '0000-00-00' ||
+                    ? null
+                    : dayjs(initialFormValues?.service_date),
+                due_date:
+                  initialFormValues?.due_date === '0000-00-00' ||
                   initialFormValues?.due_date === '1899-30-11'
-                  ? null
-                  : dayjs(initialFormValues?.due_date),
-            }
+                    ? null
+                    : dayjs(initialFormValues?.due_date),
+              }
             : {
-              document_date: dayjs(),
-              due_date: dayjs(),
-              status: 'In Progress',
-            }
+                document_date: dayjs(),
+                due_date: dayjs(),
+                status: 'In Progress',
+              }
         }
         scrollToFirstError>
         {/* Make this sticky */}
         <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-base font-semibold">
           <span className="text-sm text-gray-500">Quotation No:</span>
           <span
-            className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
-              } rounded px-1`}
+            className={`ml-4 text-amber-600 ${
+              mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
+            } rounded px-1`}
             onClick={() => {
               if (mode !== 'edit') return;
               navigator.clipboard.writeText(initialFormValues.document_identity);
               toast.success('Copied');
             }}>
-            {mode === 'edit' ? initialFormValues.document_identity : 'AUTO'}
+            {/* {mode === 'edit' ? initialFormValues.document_identity : 'AUTO'} */}
           </span>
         </p>
         <Row gutter={12}>
@@ -1487,7 +1373,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
               label="Quotation Date"
               rules={[{ required: true, message: 'Quotation date is required' }]}
               className="w-full">
-              <DatePicker format="MM-DD-YYYY" className="w-full" disabled />
+              <DatePicker format="MM-DD-YYYY" className="w-full" />
             </Form.Item>
           </Col>
 
@@ -1703,128 +1589,85 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           }}
         />
 
-        <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
-          <div className="flex w-full gap-0 items-center flex-col md:flex-row">
-            <div className="w-full md:w-[65%] flex-shrink-0 max-h-[200px]">
+        <div className="flex justify-between rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
+          <div className="flex-1 lg:w-2/5">
+            <Row gutter={[12, 12]}>
+              <Col span={24} sm={12} md={6} lg={6}>
+                <DetailSummaryInfo
+                  title="Total Amount:"
+                  value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
+                />
+                <DetailSummaryInfo
+                  title="Discount Amount:"
+                  value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
+                />
+                <DetailSummaryInfo
+                  title="Net Amount:"
+                  value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
+                />
+                <DetailSummaryInfo
+                  title="Total Cost:"
+                  value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
+                />
+                <DetailSummaryInfo
+                  title="Rebate:"
+                  value={
+                    <div className="item-center flex flex-row-reverse gap-12">
+                      {rebateAmount || 0}
+                      <DebouncedNumberInput
+                        type="decimal"
+                        size="small"
+                        className="w-[3.8rem] text-right"
+                        value={
+                          rebatePercentage === 0
+                            ? '0%'
+                            : rebatePercentage
+                              ? rebatePercentage.toString().endsWith('%')
+                                ? rebatePercentage
+                                : `${rebatePercentage}%`
+                              : ''
+                        }
+                        disabled
+                        onChange={(value) => dispatch(setRebatePercentage(value))}
+                      />
+                    </div>
+                  }
+                />
+                <DetailSummaryInfo
+                  title="Salesman:"
+                  value={
+                    <div className="item-center mt-2 flex flex-row-reverse gap-12">
+                      {salesmanAmount || 0}
+                      <DebouncedNumberInput
+                        type="decimal"
+                        size="small"
+                        className="w-[3.8rem] text-right"
+                        value={
+                          salesmanPercentage === 0
+                            ? '0%'
+                            : salesmanPercentage
+                              ? salesmanPercentage.toString().endsWith('%')
+                                ? salesmanPercentage
+                                : `${salesmanPercentage}%`
+                              : ''
+                        }
+                        disabled
+                        onChange={(value) => dispatch(setSalesmanPercentage(value))}
+                      />
+                    </div>
+                  }
+                />
+                <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
+              </Col>
               <Row gutter={[12, 12]}>
-                <Col span={24} sm={12} md={12} lg={12}>
-                  <DetailSummaryInfo
-                    title="Total Amount:"
-                    value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
+                <div className="flex flex-col gap-2 text-right">
+                  <DetailSummary
+                    title="Total Quantity:"
+                    value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
                   />
-                  <DetailSummaryInfo
-                    title="Discount Amount:"
-                    value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
-                  />
-                  <DetailSummaryInfo
-                    title="Net Amount:"
-                    value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
-                  />
-                  <DetailSummaryInfo
-                    title="Total Cost:"
-                    value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
-                  />
-                  <DetailSummaryInfo
-                    title="Rebate:"
-                    value={
-                      <div className="flex flex-row gap-4 items-center">
-                        <DebouncedNumberInput
-                          type="decimal"
-                          size="small"
-                          className="w-[4rem] text-right"
-                          value={
-                            rebatePercentage === 0
-                              ? '0%'
-                              : rebatePercentage
-                                ? rebatePercentage.toString().endsWith('%')
-                                  ? rebatePercentage
-                                  : `${rebatePercentage}%`
-                                : ''
-                          }
-                          disabled
-                          onChange={(value) => dispatch(setRebatePercentage(value))}
-                        />
-
-                        <div className="w-[5rem] text-right">
-                          {rebateAmount || '0.00'}
-                        </div>
-                      </div>
-                    }
-                  />
-
-                  <DetailSummaryInfo
-                    title="Salesman:"
-                    value={
-                      <div className="flex flex-row gap-4 items-center mt-1">
-                        <DebouncedNumberInput
-                          type="decimal"
-                          size="small"
-                          className="w-[4rem] text-right"
-                          value={
-                            salesmanPercentage === 0
-                              ? '0%'
-                              : salesmanPercentage
-                                ? salesmanPercentage.toString().endsWith('%')
-                                  ? salesmanPercentage
-                                  : `${salesmanPercentage}%`
-                                : ''
-                          }
-                          disabled
-                          onChange={(value) => dispatch(setSalesmanPercentage(value))}
-                        />
-                        <div className="w-[5rem] text-right">
-                          {salesmanAmount || '0.00'}
-                        </div>
-                      </div>
-                    }
-                  />
-
-                  <DetailSummaryInformation
-                    title="Other Commission:"
-                    value={formatThreeDigitCommas(roundUpto(totalCommissionAmount)) || 0}
-                    icon={
-                      permissions?.quotation?.commission_agent && (
-                        <FaEye
-                          size={14}
-                          style={{ cursor: 'pointer' }}
-                          onClick={() => setIsCommissionTableVisible(!isCommissionTableVisible)}
-                        />
-                      )
-                    }
-                  />
-                  <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
-                </Col>
-                <Row gutter={[12, 12]}>
-                  <div className="flex flex-col gap-2 text-right">
-                    <DetailSummary
-                      title="Total Quantity:"
-                      value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
-                    />
-                  </div>
-                </Row>
-              </Row>
-            </div>
-            <div className="w-full md:w-[30%] mt-4 md:mt-0">
-              {isCommissionTableVisible && (commissionAgent.length > 0 || commissionAgentData.length > 0) ? (
-                <div className="rounded-lg p-4" style={{ backgroundColor: '#F8FAFC' }}>
-                  <div className="max-w-full">
-                    <Table
-                      columns={commissionAgentColumns}
-                      // dataSource={commissionAgent.length > 0 ? commissionAgent : commissionAgentData}
-                      dataSource={commissionAgentData}
-                      rowKey={(record) => record.commission_agent_id}
-                      size="small"
-                      pagination={false}
-                      rowSelection={null}
-                      rowClassName={(record) =>
-                        hiddenAgentKeys.includes(record.commission_agent_id) ? 'hidden-row' : ''
-                      }
-                      className="comission-agent-quotation-custom-table"
-                    />
-                  </div>
                 </div>
-              ) : null}
-            </div>
+              </Row>
+            </Row>
           </div>
         </div>
 
@@ -1899,4 +1742,4 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
   );
 };
 
-export default QuotationForm;
+export default VendorQuotationForm;

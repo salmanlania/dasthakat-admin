@@ -415,7 +415,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
             styles: { halign: 'left' }
           },
           {
-            content: detail.quantity ? parseFloat(detail.quantity) : '',
+            content: detail.quantity ? parseFloat(detail.quantity) : 0,
             styles: { textColor: '#d51902' }
           }
         ]);

@@ -115,7 +115,8 @@ const EditOpeningStock = lazy(() => import('./pages/OpeningStock/EditOpeningStoc
 
 const Quotation = lazy(() => import('./pages/Quotation'));
 const CreateQuotation = lazy(() => import('./pages/Quotation/CreateQuotation'));
-const EditQuotation = lazy(() => import('./pages/Quotation/EditQuotation'));
+// const EditQuotation = lazy(() => import('./pages/Quotation/EditQuotation'));
+import EditQuotation from './pages/Quotation/EditQuotation';
 
 const ChargeOrder = lazy(() => import('./pages/ChargeOrder'));
 const CreateChargeOrder = lazy(() => import('./pages/ChargeOrder/CreateChargeOrder'));

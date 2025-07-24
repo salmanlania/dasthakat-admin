@@ -22,7 +22,8 @@ const VendorPlatformQuotation = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await apiNoToken.get(`/vendor-platform/quotation/rfq/${id}`);
+        const res = await api.get(`/vendor-platform/quotation/rfq/${id}`);
+        console.log('Fetched data:', res);
         const fetchedData = res?.data?.data;
         setData(fetchedData);
       } catch (error) {

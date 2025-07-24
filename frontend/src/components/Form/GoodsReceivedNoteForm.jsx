@@ -641,12 +641,12 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
           .toString()
           .replace(/(\.\d*?)0+$/, '$1')
           .replace(/\.$/, '');
-        form.setFieldsValue({ [`quantity-${index}`]: newQuantity });
+        form.setFieldsValue({ [`quantity-${index}`]: newQuantity || 0 });
         return (
           <Form.Item
             className="m-0"
             name={`quantity-${index}`}
-            initialValue={newQuantity}
+            initialValue={newQuantity || 0}
             rules={[
               {
                 required: true,
@@ -655,7 +655,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
             ]}>
             <DebouncedCommaSeparatedInput
               decimalPlaces={2}
-              value={newQuantity}
+              value={newQuantity || 0}
               onChange={(value) =>
                 dispatch(
                   changeGoodsReceivedNoteDetailValue({

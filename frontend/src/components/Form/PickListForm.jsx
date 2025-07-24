@@ -28,7 +28,7 @@ const PickListForm = ({ mode, onSubmit, onSave, onRefresh }) => {
         if (initialFormValues) {
             try {
                 const salesmanId = initialFormValues?.salesman || '';
-                const quantity = initialFormValues?.totalQuantity || '';
+                const quantity = initialFormValues?.totalQuantity || 0;
                 const amount = initialFormValues?.totalAmount || '';
                 const customerPoNo = initialFormValues?.customer_po_no || '';
                 const eventName = initialFormValues?.event_id || '';
@@ -207,7 +207,7 @@ const PickListForm = ({ mode, onSubmit, onSave, onRefresh }) => {
                 return (
                     <DebouncedCommaSeparatedInput
                         decimalPlaces={2}
-                        value={newQuantity}
+                        value={newQuantity || 0}
                         disabled={true}
                     />
                 );
