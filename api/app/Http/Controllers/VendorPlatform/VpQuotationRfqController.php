@@ -68,7 +68,7 @@ class VpQuotationRfqController extends Controller
                     ->orWhere('v.name', 'like', '%' . $search . '%')
                     ->orWhere('e.event_code', 'like', '%' . $search . '%')
                     ->orWhere('s.name', 'like', '%' . $search . '%')
-                    ->orWhere('u.name', 'like', '%' . $search . '%')
+                    ->orWhere('u.user_name', 'like', '%' . $search . '%')
                     ->orWhere('vp_quotation_rfq.status', 'like', '%' . $search . '%');
             });
         }
@@ -86,7 +86,7 @@ class VpQuotationRfqController extends Controller
             'v.name as vessel_name',
             'e.event_code as event_code',
             's.name as vendor_name',
-            'u.name as person_incharge_name'
+            'u.user_name as person_incharge_name'
         );
 		
         $data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
