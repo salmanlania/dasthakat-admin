@@ -64,13 +64,13 @@ class VpQuotationRfqController extends Controller
             if ($status == 'Cancel') {
                 $data = $data->where('vp_quotation_rfq.is_cancelled', 1);
             } elseif ($status == 'Bid Sent') {
-                $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND vp_quotation_rfq.items_quoted = 0 AND vp_quotation_rfq.date_required < ?', [$currentDate]);
+                $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND vp_quotation_rfq.items_quoted = 0 AND vp_quotation_rfq.date_required >= ?', [$currentDate]);
             } elseif ($status == 'Partial') {
-                $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted < vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required < ?', [$currentDate]);
+                $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted >= vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required < ?', [$currentDate]);
             } elseif ($status == 'Bid Received') {
                 $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND vp_quotation_rfq.items_quoted = vp_quotation_rfq.total_items');
             } elseif ($status == 'Bid Expired') {
-                $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted < vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required > ?', [$currentDate]);
+                $data = $data->whereRaw('vp_quotation_rfq.date_required < ?', [$currentDate]);
             }
         }
 
@@ -104,11 +104,11 @@ class VpQuotationRfqController extends Controller
             // For status sorting, we need to use CASE statements
             $orderByCase = "CASE 
         WHEN vp_quotation_rfq.is_cancelled = 1 THEN 'Cancel'
-        WHEN vp_quotation_rfq.items_quoted = 0 AND vp_quotation_rfq.date_required < '$currentDate' THEN 'Bid Sent'
-        WHEN vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted < vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required < '$currentDate' THEN 'Partial'
+        WHEN vp_quotation_rfq.items_quoted = 0 AND vp_quotation_rfq.date_required >= '$currentDate' THEN 'Bid Sent'
+        WHEN vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted >= vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required < '$currentDate' THEN 'Partial'
         WHEN vp_quotation_rfq.items_quoted = vp_quotation_rfq.total_items THEN 'Bid Received'
-        WHEN vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted < vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required > '$currentDate' THEN 'Bid Expired'
-        ELSE 'Unknown'
+        WHEN vp_quotation_rfq.date_required < '$currentDate' THEN 'Bid Expired'
+        ELSE '-'
         END";
 
             $data = $data->orderByRaw("$orderByCase $sort_direction");
@@ -125,11 +125,11 @@ class VpQuotationRfqController extends Controller
             'u.user_name as person_incharge_name',
             DB::raw("CASE 
             WHEN vp_quotation_rfq.is_cancelled = 1 THEN 'Cancel'
-            WHEN vp_quotation_rfq.items_quoted = 0 AND vp_quotation_rfq.date_required < '$currentDate' THEN 'Bid Sent'
-            WHEN vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted < vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required < '$currentDate' THEN 'Partial'
+            WHEN vp_quotation_rfq.items_quoted = 0 AND vp_quotation_rfq.date_required >= '$currentDate' THEN 'Bid Sent'
+            WHEN vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted < vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required >= '$currentDate' THEN 'Partial'
             WHEN vp_quotation_rfq.items_quoted = vp_quotation_rfq.total_items THEN 'Bid Received'
-            WHEN vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted < vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required > '$currentDate' THEN 'Bid Expired'
-            ELSE 'Unknown'
+            WHEN vp_quotation_rfq.date_required < '$currentDate' THEN 'Bid Expired'
+            ELSE '-'
         END as status")
         );
 
