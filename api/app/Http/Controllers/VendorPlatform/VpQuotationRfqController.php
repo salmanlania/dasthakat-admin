@@ -54,14 +54,14 @@ class VpQuotationRfqController extends Controller
         if (!empty($date_required)) $data = $data->where('vp_quotation_rfq.date_required', $date_required);
         if (!empty($total_items)) $data = $data->where('vp_quotation_rfq.total_items', $total_items);
         if (!empty($items_quoted)) $data = $data->where('vp_quotation_rfq.items_quoted', $items_quoted);
-        if (!empty($date_sent)) $data = $data->where('vp_quotation_rfq.date_sent', $date_sent);
-        if (!empty($date_returned)) $data = $data->where('vp_quotation_rfq.date_returned', $date_returned);
+        if (!empty($date_sent)) $data = $data->whereDate('vp_quotation_rfq.date_sent', $date_sent);
+        if (!empty($date_returned)) $data = $data->whereDate('vp_quotation_rfq.date_returned', $date_returned);
         if (!empty($vendor_id)) $data = $data->where('vp_quotation_rfq.vendor_id', $vendor_id);
         if (!empty($person_incharge_id)) $data = $data->where('q.person_incharge_id', $person_incharge_id);
 
         // Status filtering using raw SQL conditions
         if (!empty($status)) {
-            if ($status == 'Cancel') {
+            if ($status == 'Cancelled') {
                 $data = $data->where('vp_quotation_rfq.is_cancelled', 1);
             } elseif ($status == 'Bid Sent') {
                 $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND vp_quotation_rfq.items_quoted = 0 AND vp_quotation_rfq.date_required >= ?', [$currentDate]);
@@ -103,7 +103,7 @@ class VpQuotationRfqController extends Controller
         if ($sort_column == 'status') {
             // For status sorting, we need to use CASE statements
             $orderByCase = "CASE 
-        WHEN vp_quotation_rfq.is_cancelled = 1 THEN 'Cancel'
+        WHEN vp_quotation_rfq.is_cancelled = 1 THEN 'Cancelled'
         WHEN vp_quotation_rfq.items_quoted = 0 AND vp_quotation_rfq.date_required >= '$currentDate' THEN 'Bid Sent'
         WHEN vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted >= vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required < '$currentDate' THEN 'Partial'
         WHEN vp_quotation_rfq.items_quoted = vp_quotation_rfq.total_items THEN 'Bid Received'
@@ -124,7 +124,7 @@ class VpQuotationRfqController extends Controller
             's.name as vendor_name',
             'u.user_name as person_incharge_name',
             DB::raw("CASE 
-            WHEN vp_quotation_rfq.is_cancelled = 1 THEN 'Cancel'
+            WHEN vp_quotation_rfq.is_cancelled = 1 THEN 'Cancelled'
             WHEN vp_quotation_rfq.items_quoted = 0 AND vp_quotation_rfq.date_required >= '$currentDate' THEN 'Bid Sent'
             WHEN vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted < vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required >= '$currentDate' THEN 'Partial'
             WHEN vp_quotation_rfq.items_quoted = vp_quotation_rfq.total_items THEN 'Bid Received'
@@ -139,35 +139,35 @@ class VpQuotationRfqController extends Controller
 
     public function actions($id, Request $request)
     {
-
         $ids = $request->input('id', []);
         $date_required = $request->input('date_required', '');
-        $status = $request->input('status', '');
         $send_notification = $request->input('send_notification', 0);
+        $toggleIsCancelled = $request->input('toggle_is_cancelled', 0);
+
         if (empty($ids)) {
             return $this->jsonResponse("No Records Selected", 400, "Request Failed!");
         }
+
         foreach ($ids as $id) {
             $rfq = VpQuotationRfq::find($id);
             if (!$rfq) {
                 return $this->jsonResponse("RFQ not found for ID: $id", 404, "Request Failed!");
             }
+
+            if ($toggleIsCancelled == 1) {
+                $rfq->is_cancelled = $rfq->is_cancelled == 1 ? 0 : 1;
+            }
+
             if (!empty($date_required)) {
                 $rfq->date_required = $date_required;
             }
-            if ($status == 'cancel') {
-                $rfq->is_cancelled = 1;
-            }
-            if ($status == 'uncancel') {
-                $rfq->is_cancelled = 0;
-            }
+
             $rfq->save();
 
             if ($send_notification == 1) {
                 $this->sendRFQNotification($id);
             }
         }
-
 
         return $this->jsonResponse([], 200, "Vendor Quotation RFQ updated successfully!");
     }
