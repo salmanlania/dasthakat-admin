@@ -52,15 +52,6 @@ class VpQuotationRfqDetail extends Model
         'updated_by'
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
 
     //relationships
     

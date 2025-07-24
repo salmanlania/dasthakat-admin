@@ -93,3 +93,10 @@ VALUES
 ALTER table `vp_quotation_rfq` 
   DROP COLUMN `status`,
   ADD COLUMN `is_cancelled` TINYINT(1) NOT NULL DEFAULT 0 AFTER `items_quoted`;
+
+ALTER TABLE `vp_quotation_rfq`
+  ADD COLUMN `notification_count` INT NOT NULL DEFAULT 0 AFTER `date_returned`;
+
+
+ALTER TABLE `vp_quotation_rfq`
+ MODIFY column `date_required` DATE NULL AFTER `items_quoted`;

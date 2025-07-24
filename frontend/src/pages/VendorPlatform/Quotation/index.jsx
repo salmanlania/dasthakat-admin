@@ -58,7 +58,7 @@ const VendorPlatformQuotation = () => {
       const quotationId = data?.quotation?.quotation_id;
       const vendorId = data?.vendor?.supplier_id;
 
-      await api.put(`/vendor-platform/quotation/vendor/${quotationId}`, {
+      await api.put(`/vendor-platform/quotation/vendor/${id}`, {
         quotation_id: quotationId,
         vendor_id: vendorId,
         quotation_detail: data?.quotation_detail,

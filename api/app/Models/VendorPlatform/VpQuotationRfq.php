@@ -56,7 +56,9 @@ class VpQuotationRfq extends Model
         'items_quoted',
         'date_required',
         'date_sent',
-        'date_returned'
+        'date_returned',
+        'created_by',
+        'updated_by',
     ];
 
     /**
@@ -67,9 +69,6 @@ class VpQuotationRfq extends Model
     protected $casts = [
         'total_items' => 'integer',
         'items_quoted' => 'integer',
-        'date_required' => 'date',
-        'date_sent' => 'datetime',
-        'date_returned' => 'datetime'
     ];
 
     //relationships

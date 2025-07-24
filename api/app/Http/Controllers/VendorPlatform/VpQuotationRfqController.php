@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\VendorPlatform\VpQuotationRfq;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class VpQuotationRfqController extends Controller
 {
@@ -88,11 +89,14 @@ class VpQuotationRfqController extends Controller
         }
 
         if (!empty($date_from) && !empty($date_to)) {
-            $data = $data->whereBetween('vp_quotation_rfq.date_sent', [$date_from, $date_to]);
+            $data = $data->whereBetween('vp_quotation_rfq.date_sent', [
+                $date_from . ' 00:00:00',
+                $date_to . ' 23:59:59'
+            ]);
         } elseif (!empty($date_from)) {
-            $data = $data->where('vp_quotation_rfq.date_sent', '>=', $date_from);
+            $data = $data->where('vp_quotation_rfq.date_sent', '>=', $date_from . ' 00:00:00');
         } elseif (!empty($date_to)) {
-            $data = $data->where('vp_quotation_rfq.date_sent', '<=', $date_to);
+            $data = $data->where('vp_quotation_rfq.date_sent', '<=', $date_to . ' 23:59:59');
         }
 
         // Add status sorting if needed
@@ -105,7 +109,7 @@ class VpQuotationRfqController extends Controller
         WHEN vp_quotation_rfq.items_quoted = vp_quotation_rfq.total_items THEN 'Bid Received'
         WHEN vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted < vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required > '$currentDate' THEN 'Bid Expired'
         ELSE 'Unknown'
-    END";
+        END";
 
             $data = $data->orderByRaw("$orderByCase $sort_direction");
         } else {
@@ -120,13 +124,13 @@ class VpQuotationRfqController extends Controller
             's.name as vendor_name',
             'u.user_name as person_incharge_name',
             DB::raw("CASE 
-        WHEN vp_quotation_rfq.is_cancelled = 1 THEN 'Cancel'
-        WHEN vp_quotation_rfq.items_quoted = 0 AND vp_quotation_rfq.date_required < '$currentDate' THEN 'Bid Sent'
-        WHEN vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted < vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required < '$currentDate' THEN 'Partial'
-        WHEN vp_quotation_rfq.items_quoted = vp_quotation_rfq.total_items THEN 'Bid Received'
-        WHEN vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted < vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required > '$currentDate' THEN 'Bid Expired'
-        ELSE 'Unknown'
-    END as status")
+            WHEN vp_quotation_rfq.is_cancelled = 1 THEN 'Cancel'
+            WHEN vp_quotation_rfq.items_quoted = 0 AND vp_quotation_rfq.date_required < '$currentDate' THEN 'Bid Sent'
+            WHEN vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted < vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required < '$currentDate' THEN 'Partial'
+            WHEN vp_quotation_rfq.items_quoted = vp_quotation_rfq.total_items THEN 'Bid Received'
+            WHEN vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted < vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required > '$currentDate' THEN 'Bid Expired'
+            ELSE 'Unknown'
+        END as status")
         );
 
         $data = $data->paginate($perPage, ['*'], 'page', $page);
@@ -170,19 +174,27 @@ class VpQuotationRfqController extends Controller
 
     public function sendRFQNotification($id)
     {
+        try {
 
-        $data = VpQuotationRfq::with('quotation', 'vendor')->find($id);
-        $link = env("VENDOR_URL") . "quotation/{$id}";
-        $payload = [
-            'template' => 'vendor_quotation_rate_update',
-            'data' => [
-                'link' => $link,
-            ],
-            'email' => $data->vendor->email,
-            'name' => $data->vendor->name,
-            'subject' => "RFQ Notification for Quotation ID: {$data->quotation->document_identity}",
-            'message' => '',
-        ];
-        $this->sendEmail($payload);
+            $data = VpQuotationRfq::with('quotation', 'vendor')->find($id);
+            $link = env("VENDOR_URL") . "quotation/{$id}";
+            $payload = [
+                'template' => 'vendor_quotation_rate_update',
+                'data' => [
+                    'link' => $link,
+                ],
+                'email' => $data->vendor->email,
+                'name' => $data->vendor->name,
+                'subject' => "RFQ Notification for Quotation ID: {$data->quotation->document_identity}",
+                'message' => '',
+            ];
+            $this->sendEmail($payload);
+        } catch (\Exception $e) {
+            Log::error("Error sending RFQ notification: " . $e->getMessage());
+            return $this->jsonResponse([], 500, "Failed to send RFQ notification.");
+        } finally {
+            $data->notification_count += 1;
+            $data->save();
+        }
     }
 }
