@@ -158,6 +158,8 @@ class VendorQuotationController extends Controller
                         'template' => 'vendor_quotation_rate_update',
                         'data' => [
                             'link' => $link,
+                            'quotation_no' => $data['quotation']->document_identity,
+                            'date_required' => Carbon::parse($data['date_required'])->format('d M Y'),
                         ],
                         'email' => $vendor->email,
                         'name' => $vendor->name,
@@ -252,7 +254,7 @@ class VendorQuotationController extends Controller
         if (!$rfq) {
             return $this->jsonResponse([], 404, 'RFQ Not Found!');
         }
-        if (Carbon::parse($rfq->required_date)->lt(Carbon::now()->toDateString())) {
+        if (Carbon::parse($rfq->date_required)->lt(Carbon::now()->toDateString())) {
             return $this->jsonResponse([], 400, 'RFQ has expired!');
         }
 
@@ -451,7 +453,7 @@ class VendorQuotationController extends Controller
                 }
             }
 
-                
+
 
 
             // Update quotation totals if needed
@@ -473,12 +475,12 @@ class VendorQuotationController extends Controller
             }
 
             $count = VendorQuotationDetail::where('quotation_id', $quotation_id)
-                    ->where('quotation_detail_id', $row['quotation_detail_id'])
-                    ->where('vendor_id', $request->vendor_id)
-                    ->whereNotNull('vendor_rate')
-                    ->count();
-                    VpQuotationRfq::where('id', $id)
-                        ->update(['items_quoted' => $count,'date_returned' => Carbon::now()]);
+                ->where('quotation_detail_id', $row['quotation_detail_id'])
+                ->where('vendor_id', $request->vendor_id)
+                ->whereNotNull('vendor_rate')
+                ->count();
+            VpQuotationRfq::where('id', $id)
+                ->update(['items_quoted' => $count, 'date_returned' => Carbon::now()]);
 
             DB::commit();
 

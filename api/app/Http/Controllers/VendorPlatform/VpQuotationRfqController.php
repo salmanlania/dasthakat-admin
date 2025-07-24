@@ -5,6 +5,7 @@ namespace App\Http\Controllers\VendorPlatform;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\VendorPlatform\VpQuotationRfq;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -182,6 +183,9 @@ class VpQuotationRfqController extends Controller
                 'template' => 'vendor_quotation_rate_update',
                 'data' => [
                     'link' => $link,
+                    'quotation_no' => $data->quotation->document_identity,
+                    'date_required' => Carbon::parse($data->date_required)->format('d M Y'),
+
                 ],
                 'email' => $data->vendor->email,
                 'name' => $data->vendor->name,
