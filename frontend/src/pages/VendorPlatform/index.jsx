@@ -372,18 +372,18 @@ const VendorPlatform = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_, { quotation_id }) => (
+      render: (_, { id }) => (
         <div className="flex flex-col justify-center gap-1">
           <div className="flex items-center gap-1">
             {permissions.edit ? (
               <Tooltip title="View">
-                <Link to={`/vendor-platform/edit/${quotation_id}`}>
-                  <Button
-                    size="small"
-                    type="primary"
-                    className="bg-gray-500 hover:!bg-gray-400"
-                    icon={<FaEye size={14} />}
-                  />
+                <Link to={`/vendor-platform/edit/${id}`}>
+                <Button
+                  size="small"
+                  type="primary"
+                  className="bg-gray-500 hover:!bg-gray-400"
+                  icon={<FaEye size={14} />}
+                />
                 </Link>
               </Tooltip>
             ) : null}

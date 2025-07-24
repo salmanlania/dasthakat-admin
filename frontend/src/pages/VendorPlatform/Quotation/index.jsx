@@ -153,7 +153,6 @@ const VendorPlatformQuotation = () => {
         <div className="flex flex-wrap items-center gap-x-16 gap-y-4">
           <div>
             <span className="mr-2 text-gray-600">Quotation No:</span>
-            <span>{data?.quotation?.document_identity}</span>
             <span>{data?.quotation ? data?.quotation?.document_identity : null}</span>
           </div>
           <div>
