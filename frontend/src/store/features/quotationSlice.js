@@ -397,7 +397,7 @@ export const quotationSlice = createSlice({
       const row = {
         ...detail,
         quantity: detail.stock_quantity,
-        rate: detail.rate,
+        rate: detail?.rate ? detail?.rate : 0,
         full_rate: detail.full_rate,
         old_rate: detail.old_rate,
         cost_price: detail.cost_price,
@@ -425,7 +425,7 @@ export const quotationSlice = createSlice({
         unit_id: detail.unit_id,
         supplier_id: detail.supplier_id,
         quantity: splittedQuantity,
-        rate: detail.rate,
+        rate: detail?.rate ? detail?.rate : 0,
         full_rate: detail.full_rate,
         old_rate: detail.old_rate,
         amount: detail.rate * splittedQuantity,
@@ -643,9 +643,9 @@ export const quotationSlice = createSlice({
             ? detail.cost_price
             : +detail.cost_price || +detail.rate,
         markup: detail.markup,
-        rate: detail.rate,
-        full_rate: detail.rate,
-        old_rate: detail.rate,
+        rate: detail?.rate ? detail?.rate : 0,
+        full_rate: detail?.rate ? detail?.rate : 0,
+        old_rate: detail?.rate ? detail?.rate : 0,
         amount: detail.amount,
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_amount,
@@ -689,7 +689,7 @@ export const quotationSlice = createSlice({
               ? detail.cost_price
               : +detail.cost_price || +detail.rate,
           markup: detail.markup,
-          rate: detail.rate,
+          rate: detail?.rate ? detail?.rate : 0,
           amount: detail.amount,
           discount_percent: detail.discount_percent,
           discount_amount: detail.discount_amount,
@@ -871,7 +871,7 @@ export const quotationSlice = createSlice({
             ? detail.cost_price
             : +detail.cost_price || +detail.rate,
         markup: detail.markup,
-        rate: detail.rate,
+        rate: detail?.rate ? detail?.rate : 0,
         full_rate: detail.full_rate,
         old_rate: detail.old_rate,
         amount: detail.amount,
