@@ -89,3 +89,7 @@ VALUES
   ADD COLUMN `document_no` int NOT NULL AFTER `document_type_id`,
   ADD COLUMN `document_prefix` varchar(255) NOT NULL AFTER `document_no`,
   ADD COLUMN `document_identity` varchar(255) NOT NULL AFTER `document_prefix`;
+
+ALTER table `vp_quotation_rfq` 
+  DROP COLUMN `status`,
+  ADD COLUMN `is_cancelled` TINYINT(1) NOT NULL DEFAULT 0 AFTER `items_quoted`;

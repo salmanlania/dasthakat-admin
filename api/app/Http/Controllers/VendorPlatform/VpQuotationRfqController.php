@@ -4,14 +4,8 @@ namespace App\Http\Controllers\VendorPlatform;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use App\Models\Agent;
-use App\Models\ChargeOrder;
-use App\Models\Quotation;
-use App\Models\Supplier;
 use App\Models\VendorPlatform\VpQuotationRfq;
-use App\Models\VendorQuotationDetail;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class VpQuotationRfqController extends Controller
 {
@@ -36,10 +30,12 @@ class VpQuotationRfqController extends Controller
         $date_from = $request->input('date_from', '');
         $date_to = $request->input('date_to', '');
 
-        $page =  $request->input('page', 1);
-        $perPage =  $request->input('limit', 10);
+        $page = $request->input('page', 1);
+        $perPage = $request->input('limit', 10);
         $sort_column = $request->input('sort_column', 'created_at');
         $sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
+
+        $currentDate = date('Y-m-d');
 
         $data = VpQuotationRfq::leftJoin('quotation as q', 'q.quotation_id', '=', 'vp_quotation_rfq.quotation_id')
             ->leftJoin('vessel as v', 'v.vessel_id', '=', 'q.vessel_id')
@@ -49,12 +45,12 @@ class VpQuotationRfqController extends Controller
 
         $data = $data->where('vp_quotation_rfq.company_id', '=', $request->company_id);
         $data = $data->where('vp_quotation_rfq.company_branch_id', '=', $request->company_branch_id);
+
         if (!empty($document_identity)) $data = $data->where('vp_quotation_rfq.document_identity', 'like', '%' . $document_identity . '%');
         if (!empty($quotation_no)) $data = $data->where('q.document_identity', 'like', '%' . $quotation_no . '%');
         if (!empty($vessel_id)) $data = $data->where('q.vessel_id', $vessel_id);
         if (!empty($event_id)) $data = $data->where('q.event_id', $event_id);
         if (!empty($date_required)) $data = $data->where('vp_quotation_rfq.date_required', $date_required);
-        if (!empty($status)) $data = $data->where('vp_quotation_rfq.status', $status);
         if (!empty($total_items)) $data = $data->where('vp_quotation_rfq.total_items', $total_items);
         if (!empty($items_quoted)) $data = $data->where('vp_quotation_rfq.items_quoted', $items_quoted);
         if (!empty($date_sent)) $data = $data->where('vp_quotation_rfq.date_sent', $date_sent);
@@ -62,6 +58,22 @@ class VpQuotationRfqController extends Controller
         if (!empty($vendor_id)) $data = $data->where('vp_quotation_rfq.vendor_id', $vendor_id);
         if (!empty($person_incharge_id)) $data = $data->where('q.person_incharge_id', $person_incharge_id);
 
+        // Status filtering using raw SQL conditions
+        if (!empty($status)) {
+            if ($status == 'Cancel') {
+                $data = $data->where('vp_quotation_rfq.is_cancelled', 1);
+            } elseif ($status == 'Bid Sent') {
+                $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND vp_quotation_rfq.items_quoted = 0 AND vp_quotation_rfq.date_required < ?', [$currentDate]);
+            } elseif ($status == 'Partial') {
+                $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted < vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required < ?', [$currentDate]);
+            } elseif ($status == 'Bid Received') {
+                $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND vp_quotation_rfq.items_quoted = vp_quotation_rfq.total_items');
+            } elseif ($status == 'Bid Expired') {
+                $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted < vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required > ?', [$currentDate]);
+            }
+        }
+
+        // Search functionality including status
         if (!empty($search)) {
             $search = strtolower($search);
             $data = $data->where(function ($query) use ($search) {
@@ -71,10 +83,10 @@ class VpQuotationRfqController extends Controller
                     ->orWhere('v.name', 'like', '%' . $search . '%')
                     ->orWhere('e.event_code', 'like', '%' . $search . '%')
                     ->orWhere('s.name', 'like', '%' . $search . '%')
-                    ->orWhere('u.user_name', 'like', '%' . $search . '%')
-                    ->orWhere('vp_quotation_rfq.status', 'like', '%' . $search . '%');
+                    ->orWhere('u.user_name', 'like', '%' . $search . '%');
             });
         }
+
         if (!empty($date_from) && !empty($date_to)) {
             $data = $data->whereBetween('vp_quotation_rfq.date_sent', [$date_from, $date_to]);
         } elseif (!empty($date_from)) {
@@ -83,16 +95,41 @@ class VpQuotationRfqController extends Controller
             $data = $data->where('vp_quotation_rfq.date_sent', '<=', $date_to);
         }
 
+        // Add status sorting if needed
+        if ($sort_column == 'status') {
+            // For status sorting, we need to use CASE statements
+            $orderByCase = "CASE 
+        WHEN vp_quotation_rfq.is_cancelled = 1 THEN 'Cancel'
+        WHEN vp_quotation_rfq.items_quoted = 0 AND vp_quotation_rfq.date_required < '$currentDate' THEN 'Bid Sent'
+        WHEN vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted < vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required < '$currentDate' THEN 'Partial'
+        WHEN vp_quotation_rfq.items_quoted = vp_quotation_rfq.total_items THEN 'Bid Received'
+        WHEN vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted < vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required > '$currentDate' THEN 'Bid Expired'
+        ELSE 'Unknown'
+    END";
+
+            $data = $data->orderByRaw("$orderByCase $sort_direction");
+        } else {
+            $data = $data->orderBy($sort_column, $sort_direction);
+        }
+
         $data = $data->select(
             'vp_quotation_rfq.*',
             'q.document_identity as quotation_no',
             'v.name as vessel_name',
             'e.event_code as event_code',
             's.name as vendor_name',
-            'u.user_name as person_incharge_name'
+            'u.user_name as person_incharge_name',
+            DB::raw("CASE 
+        WHEN vp_quotation_rfq.is_cancelled = 1 THEN 'Cancel'
+        WHEN vp_quotation_rfq.items_quoted = 0 AND vp_quotation_rfq.date_required < '$currentDate' THEN 'Bid Sent'
+        WHEN vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted < vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required < '$currentDate' THEN 'Partial'
+        WHEN vp_quotation_rfq.items_quoted = vp_quotation_rfq.total_items THEN 'Bid Received'
+        WHEN vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted < vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required > '$currentDate' THEN 'Bid Expired'
+        ELSE 'Unknown'
+    END as status")
         );
 
-        $data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
+        $data = $data->paginate($perPage, ['*'], 'page', $page);
         return response()->json($data);
     }
 
@@ -101,6 +138,7 @@ class VpQuotationRfqController extends Controller
 
         $ids = $request->input('id', []);
         $date_required = $request->input('date_required', '');
+        $status = $request->input('status', '');
         $send_notification = $request->input('send_notification', 0);
         if (empty($ids)) {
             return $this->jsonResponse("No Records Selected", 400, "Request Failed!");
@@ -112,6 +150,12 @@ class VpQuotationRfqController extends Controller
             }
             if (!empty($date_required)) {
                 $rfq->date_required = $date_required;
+            }
+            if ($status == 'cancel') {
+                $rfq->is_cancelled = 1;
+            }
+            if ($status == 'uncancel') {
+                $rfq->is_cancelled = 0;
             }
             $rfq->save();
 

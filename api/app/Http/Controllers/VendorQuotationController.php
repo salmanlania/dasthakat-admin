@@ -211,7 +211,6 @@ class VendorQuotationController extends Controller
             'document_identity' => $document['document_identity'] ?? null,
             'quotation_id' => $quotation_id,
             'vendor_id' => $vendor_id,
-            'status' => 'pending',
             'total_items' => count($quotationDetail),
             'items_quoted' => 0, // Initially set to 0, will be updated later
             'date_required' => $data['date_required'],
@@ -474,13 +473,10 @@ class VendorQuotationController extends Controller
             $count = VendorQuotationDetail::where('quotation_id', $quotation_id)
                     ->where('quotation_detail_id', $row['quotation_detail_id'])
                     ->where('vendor_id', $request->vendor_id)
-                    ->where(function($query) {
-                        $query->whereNull('vendor_rate')
-                            ->orWhere('vendor_rate', '');
-                    })
+                    ->whereNotNull('vendor_rate')
                     ->count();
                     VpQuotationRfq::where('id', $id)
-                        ->update(['items_quoted' => $count]);
+                        ->update(['items_quoted' => $count,'date_returned' => Carbon::now()]);
 
             DB::commit();
 

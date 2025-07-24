@@ -86,4 +86,5 @@ class VpQuotationRfq extends Model
     {
         return $this->belongsTo(Supplier::class, 'vendor_id', 'supplier_id');
     }
+    
 }
