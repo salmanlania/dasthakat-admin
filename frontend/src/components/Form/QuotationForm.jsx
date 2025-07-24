@@ -1137,7 +1137,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
           <Form.Item
             className="m-0"
             name={`rate-${index}`}
-            initialValue={rate}
+            initialValue={rate || "0"}
             rules={[
               {
                 required: true,
@@ -1145,14 +1145,14 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
               },
             ]}>
             <DebouncedCommaSeparatedInput
-              value={rate}
+              value={rate || "0"}
               onChange={(value) => {
                 // if (parseFloat(value) !== parseFloat(rate)) {
                 dispatch(
                   changeQuotationDetailValue({
                     index,
                     key: 'rate',
-                    value: value,
+                    value: value  || "0",
                   }),
                 );
                 // }
