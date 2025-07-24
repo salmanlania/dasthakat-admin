@@ -231,7 +231,7 @@ export const createStockReturnPrint = (data) => {
       index + 1,
       detail?.product?.impa_code || '',
       {
-        content: detail.quantity ? parseFloat(detail.quantity) : '',
+        content: detail.quantity ? parseFloat(detail.quantity) : 0,
         styles: { halign: 'right' }
       },
       detail.unit ? detail?.unit?.name : '',
@@ -240,11 +240,11 @@ export const createStockReturnPrint = (data) => {
         styles: { halign: 'left' }
       },
       {
-        content: detail.rate ? formatThreeDigitCommas(detail.rate) : '',
+        content: detail.rate ? formatThreeDigitCommas(detail.rate) : 0,
         styles: { halign: 'right' }
       },
       {
-        content: detail.amount ? formatThreeDigitCommas(detail.amount) : '',
+        content: detail.amount ? formatThreeDigitCommas(detail.amount) : '0',
         styles: { halign: 'right' }
       },
     ])

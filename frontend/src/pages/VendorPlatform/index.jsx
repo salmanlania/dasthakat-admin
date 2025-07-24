@@ -27,7 +27,7 @@ import {
   deleteQuotation,
   getVendorQuotationList,
   setQuotationDeleteIDs,
-  setQuotationListParams,
+  setVendorQuotationListParams,
 } from '../../store/features/vendorQuotationSlice.js';
 
 const VendorPlatform = () => {
@@ -86,9 +86,10 @@ const VendorPlatform = () => {
             allowClear
             onClick={(e) => e.stopPropagation()}
             value={params.document_identity}
-            onChange={(e) =>
-              dispatch(setQuotationListParams({ document_identity: e.target.value }))
-            }
+            onChange={(e) => {
+              const value = e.target.value || '';
+              dispatch(setVendorQuotationListParams({ document_identity: value }))
+            }}
           />
         </div>
       ),
@@ -102,19 +103,20 @@ const VendorPlatform = () => {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>QT / CS</p>
-          <AsyncSelect
-            endpoint="/customer"
+          <Input
+            className="font-normal"
             size="small"
-            className="w-full font-normal"
-            valueKey="customer_id"
-            labelKey="name"
-            value={params.customer_id}
-            onChange={(value) => dispatch(setQuotationListParams({ customer_id: value }))}
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.quotation_no}
+            onChange={(e) => {
+              dispatch(setVendorQuotationListParams({ quotation_no: e.target.value }));
+            }}
           />
         </div>
       ),
-      dataIndex: 'customer_name',
-      key: 'customer_name',
+      dataIndex: 'quotation_no',
+      key: 'quotation_no',
       sorter: true,
       width: 200,
       ellipsis: true,
@@ -130,7 +132,7 @@ const VendorPlatform = () => {
             valueKey="event_id"
             labelKey="event_code"
             value={params.event_id}
-            onChange={(value) => dispatch(setQuotationListParams({ event_id: value }))}
+            onChange={(value) => dispatch(setVendorQuotationListParams({ event_id: value }))}
           />
         </div>
       ),
@@ -151,7 +153,7 @@ const VendorPlatform = () => {
             valueKey="vessel_id"
             labelKey="name"
             value={params.vessel_id}
-            onChange={(value) => dispatch(setQuotationListParams({ vessel_id: value }))}
+            onChange={(value) => dispatch(setVendorQuotationListParams({ vessel_id: value }))}
           />
         </div>
       ),
@@ -170,19 +172,73 @@ const VendorPlatform = () => {
               size="small"
               value={params.document_date}
               className="font-normal"
-              onChange={(date) => dispatch(setQuotationListParams({ document_date: date }))}
+              onChange={(date) => dispatch(setVendorQuotationListParams({ document_date: date }))}
               format="MM-DD-YYYY"
             />
           </div>
         </div>
       ),
-      dataIndex: 'document_date',
-      key: 'document_date',
+      dataIndex: 'date_required',
+      key: 'date_required',
       sorter: true,
       width: 150,
       ellipsis: true,
-      render: (_, { document_date }) =>
-        document_date ? dayjs(document_date).format('MM-DD-YYYY') : null,
+      render: (_, { date_required }) =>
+        date_required ? dayjs(date_required).format('MM-DD-YYYY') : null,
+    },
+    {
+      title: (
+        <div>
+          <p>Date Returned</p>
+          <div onClick={(e) => e.stopPropagation()}>
+            <DatePicker
+              size="small"
+              value={params.document_date}
+              className="font-normal"
+              onChange={(date) => dispatch(setVendorQuotationListParams({ date_returned: date }))}
+              format="MM-DD-YYYY"
+            />
+          </div>
+        </div>
+      ),
+      dataIndex: 'date_returned',
+      key: 'date_returned',
+      sorter: true,
+      width: 150,
+      ellipsis: true,
+      render: (_, { date_returned }) =>
+        date_returned ? dayjs(date_returned).format('MM-DD-YYYY') : null,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Person Incharge</p>
+          {/* <Input
+            className="font-normal"
+            size="small"
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.person_incharge_name}
+            onChange={(e) => {
+              dispatch(setVendorQuotationListParams({ person_incharge_name: e.target.value }));
+            }}
+          /> */}
+          <AsyncSelect
+            endpoint="/user"
+            size="small"
+            className="w-full font-normal"
+            valueKey="user_id"
+            labelKey="user_name"
+            value={params.person_incharge_name}
+            onChange={(value) => dispatch(setVendorQuotationListParams({ person_incharge_name: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'person_incharge_name',
+      key: 'person_incharge_name',
+      sorter: true,
+      width: 140,
+      ellipsis: true,
     },
     {
       title: (
@@ -192,9 +248,9 @@ const VendorPlatform = () => {
             size="small"
             className="w-full font-normal"
             allowClear
-            options={quotationStatusOptions}
+            // options={quotationStatusOptions}
             value={params.status}
-            onChange={(value) => dispatch(setQuotationListParams({ status: value }))}
+            onChange={(value) => dispatch(setVendorQuotationListParams({ status: value }))}
           />
         </div>
       ),
@@ -206,22 +262,22 @@ const VendorPlatform = () => {
     },
     {
       title: (
-        <div>
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Items</p>
           <Input
             className="font-normal"
             size="small"
             allowClear
             onClick={(e) => e.stopPropagation()}
-            value={params.total_amount}
+            value={params.total_items}
             onChange={(e) => {
-              dispatch(setQuotationListParams({ total_amount: e.target.value }));
+              dispatch(setVendorQuotationListParams({ total_items: e.target.value }));
             }}
           />
         </div>
       ),
-      dataIndex: 'total_amount',
-      key: 'total_amount',
+      dataIndex: 'total_items',
+      key: 'total_items',
       sorter: true,
       width: 140,
       ellipsis: true,
@@ -230,19 +286,20 @@ const VendorPlatform = () => {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Items Quoted</p>
-          <AsyncSelect
-            endpoint="/port"
+          <Input
+            className="font-normal"
             size="small"
-            className="w-full font-normal"
-            valueKey="port_id"
-            labelKey="name"
-            value={params.port_id}
-            onChange={(value) => dispatch(setQuotationListParams({ port_id: value }))}
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.items_quoted}
+            onChange={(e) => {
+              dispatch(setVendorQuotationListParams({ items_quoted: e.target.value }));
+            }}
           />
         </div>
       ),
-      dataIndex: 'total_amount',
-      key: 'total_amount',
+      dataIndex: 'items_quoted',
+      key: 'items_quoted',
       sorter: true,
       width: 140,
       ellipsis: true,
@@ -256,36 +313,18 @@ const VendorPlatform = () => {
             allowClear
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.customer_ref}
-            onChange={(e) => dispatch(setQuotationListParams({ customer_ref: e.target.value }))}
+            value={params.date_sent}
+            onChange={(e) => dispatch(setVendorQuotationListParams({ date_sent: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: 'document_date',
-      key: 'document_date',
+      dataIndex: 'date_sent',
+      key: 'date_sent',
       sorter: true,
       width: 150,
       ellipsis: true,
-    },
-    {
-      title: (
-        <div>
-          <p>Date Rtn</p>
-          <Input
-            className="font-normal"
-            allowClear
-            size="small"
-            onClick={(e) => e.stopPropagation()}
-            value={params.customer_ref}
-            onChange={(e) => dispatch(setQuotationListParams({ customer_ref: e.target.value }))}
-          />
-        </div>
-      ),
-      dataIndex: 'document_date',
-      key: 'document_date',
-      sorter: true,
-      width: 150,
-      ellipsis: true,
+      render: (_, { date_sent }) =>
+        date_sent ? dayjs(date_sent).format('MM-DD-YYYY') : null,
     },
     {
       title: (
@@ -298,7 +337,7 @@ const VendorPlatform = () => {
             valueKey="event_id"
             labelKey="event_code"
             value={params.event_id}
-            onChange={(value) => dispatch(setQuotationListParams({ event_id: value }))}
+            onChange={(value) => dispatch(setVendorQuotationListParams({ event_id: value }))}
           />
         </div>
       ),
@@ -306,26 +345,6 @@ const VendorPlatform = () => {
       key: 'event_code',
       sorter: true,
       width: 140,
-      ellipsis: true,
-    },
-    {
-      title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Buyer</p>
-          <Select
-            size="small"
-            className="w-full font-normal"
-            allowClear
-            options={quotationStatusOptions}
-            value={params.status}
-            onChange={(value) => dispatch(setQuotationListParams({ status: value }))}
-          />
-        </div>
-      ),
-      dataIndex: 'status',
-      key: 'status',
-      sorter: true,
-      width: 180,
       ellipsis: true,
     },
     {
@@ -339,7 +358,7 @@ const VendorPlatform = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.total_amount}
             onChange={(e) => {
-              dispatch(setQuotationListParams({ total_amount: e.target.value }));
+              dispatch(setVendorQuotationListParams({ total_amount: e.target.value }));
             }}
           />
         </div>
@@ -347,35 +366,6 @@ const VendorPlatform = () => {
       dataIndex: 'total_amount',
       key: 'total_amount',
       sorter: true,
-      width: 140,
-      ellipsis: true,
-    },
-    {
-      title: (
-        <div>
-          <p>Flw Up Note</p>
-          <Input
-            className="font-normal"
-            size="small"
-            allowClear
-            onClick={(e) => e.stopPropagation()}
-            value={params.total_amount}
-            onChange={(e) => {
-              dispatch(setQuotationListParams({ total_amount: e.target.value }));
-            }}
-          />
-        </div>
-      ),
-      dataIndex: 'total_amount',
-      key: 'total_amount',
-      sorter: true,
-      width: 140,
-      ellipsis: true,
-    },
-    {
-      dataIndex: 'total_amount',
-      key: 'total_amount',
-      // sorter: true,
       width: 140,
       ellipsis: true,
     },
@@ -423,6 +413,7 @@ const VendorPlatform = () => {
   }
 
   useEffect(() => {
+    console.log('list', list);
     window.scrollTo(0, 0);
     dispatch(getVendorQuotationList(formattedParams)).unwrap().catch(handleError);
   }, [
@@ -435,7 +426,12 @@ const VendorPlatform = () => {
     params.vessel_id,
     params.event_id,
     params.port_id,
+    params.quotation_no,
+    params.items_quoted,
+    params.total_items,
+    params.date_sent,
     params.status,
+    params.person_incharge_name,
     debouncedSearch,
     debouncedQuotationNo,
     debouncedCustomerRef,
@@ -458,7 +454,7 @@ const VendorPlatform = () => {
                 allowClear
                 className="sm:w-25 w-full"
                 value={params.search}
-                onChange={(e) => dispatch(setQuotationListParams({ search: e.target.value }))}
+                onChange={(e) => dispatch(setVendorQuotationListParams({ search: e.target.value }))}
               />
             </div>
 
@@ -466,31 +462,27 @@ const VendorPlatform = () => {
               <Form.Item name="date_range" label="Date Range" layout="vertical">
                 <RangePicker
                   value={[
-                    params.start_date && params.start_date !== ''
-                      ? dayjs(params.start_date, 'YYYY-MM-DD')
+                    params.date_from && params.date_from !== ''
+                      ? dayjs(params.date_from, 'YYYY-MM-DD')
                       : null,
-                    params.end_date && params.end_date !== ''
-                      ? dayjs(params.end_date, 'YYYY-MM-DD')
+                    params.date_to && params.date_to !== ''
+                      ? dayjs(params.date_to, 'YYYY-MM-DD')
                       : null,
                   ]}
                   onChange={(dates) => {
                     const newParams = {
-                      start_date: dates?.[0] ? dayjs(dates[0]).format('YYYY-MM-DD') : '',
-                      end_date: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : '',
+                      date_from: dates?.[0] ? dayjs(dates[0]).format('YYYY-MM-DD') : '',
+                      date_to: dates?.[1] ? dayjs(dates[1]).format('YYYY-MM-DD') : '',
                     };
 
                     if (!dates || !dates[0] || !dates[1]) {
-                      newParams.start_date = null;
-                      newParams.end_date = null;
+                      newParams.date_from = null;
+                      newParams.date_to = null;
                     }
 
                     const fetchParams = { ...params, ...newParams, page: 1 };
 
-                    // dispatch(setQuotationListParams(fetchParams));
-
-                    // if (!newParams.start_date && !newParams.end_date) {
-                    //   dispatch(getQuotationListReport(fetchParams)).unwrap().catch(handleError);
-                    // }
+                    dispatch(getVendorQuotationList(fetchParams));
                   }}
                   format="MM-DD-YYYY"
                 />
@@ -506,35 +498,24 @@ const VendorPlatform = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: 'checkbox',
-                  selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setQuotationDeleteIDs(selectedRowKeys)),
-                  getCheckboxProps: (record) => ({
-                    disabled: record.isEventHeader,
-                  }),
-                }
+                type: 'checkbox',
+                selectedRowKeys: deleteIDs,
+                onChange: (selectedRowKeys) => dispatch(setQuotationDeleteIDs(selectedRowKeys)),
+                getCheckboxProps: (record) => ({
+                  disabled: record.isEventHeader,
+                }),
+              }
               : null
           }
           loading={isListLoading}
           className="mt-2"
-          rowKey={(record) => record.quotation_id}
+          rowKey={(record) => record.document_identity}
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
             showTotal: (total) => `Total ${total} vendor platform`,
-          }}
-          onChange={(page, _, sorting) => {
-            sessionStorage.setItem('quotationLimit', page.pageSize);
-            dispatch(
-              setQuotationListParams({
-                page: page.current,
-                limit: page.pageSize,
-                sort_column: sorting.field,
-                sort_direction: sorting.order,
-              }),
-            );
           }}
           dataSource={list}
           showSorterTooltip={false}
@@ -546,9 +527,6 @@ const VendorPlatform = () => {
       </div>
 
       <div className="mt-4 flex flex-wrap items-center justify-start gap-2 px-4">
-        <Button className="bg-yellow-400 font-semibold text-black hover:bg-yellow-500">
-          Close
-        </Button>
         <Button className="bg-sky-300 font-semibold text-black hover:bg-sky-400">
           Send Notifications
         </Button>

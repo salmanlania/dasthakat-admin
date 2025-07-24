@@ -361,15 +361,15 @@ export const goodsReceivedNoteSlice = createSlice({
           product_description: detail.product_description,
           description: detail.description,
           // quantity: detail.quantity ? parseFloat(detail.quantity) : null,
-          cost_price: detail?.product_type?.product_type_id === 2 ? detail.cost_price || +detail.rate : null,
-          quantity: detail.quantity ? detail.quantity : null,
+          cost_price: detail?.product_type?.product_type_id === 2 ? detail.cost_price || +detail.rate : 0,
+          quantity: detail.quantity ? detail.quantity : 0,
           unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
           warehouse_id: detail.warehouse
             ? { value: detail.warehouse.warehouse_id, label: detail.warehouse.name }
             : null,
-          rate: detail.rate,
+          rate: detail.rate ? detail.rate : 0,
           vendor_notes: detail.vendor_notes,
-          amount: detail.amount,
+          amount: detail.amount ? detail.amount : 0,
           row_status: 'U',
           isDeleted: false
         }));

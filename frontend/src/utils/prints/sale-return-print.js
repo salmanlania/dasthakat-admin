@@ -268,13 +268,13 @@ export const createSaleReturnPrint = async (data) => {
   if (data.sale_return_detail) {
     data.sale_return_detail.forEach((detail) => {
       const sr = detail.sort_order + 1;
-      const description = `${detail?.product_description || ''}${detail?.description ? `\n \n${detail.description}` : ''}`;
-      const quantity = detail.quantity ? formatThreeDigitCommas(parseFloat(detail.quantity)) : '';
+      const description = `${detail?.product_description || ''}${detail?.description ? `\n \n${detail.description}` : 0}`;
+      const quantity = detail.quantity ? formatThreeDigitCommas(parseFloat(detail.quantity)) : 0;
       const uom = detail.unit ? detail.unit.name : '';
       const pricePerUnit = detail.rate ? `$${formatThreeDigitCommas(detail.rate)}` : '';
-      const netAmount = detail.amount
+      const netAmount = detail.amount ? detail.amount : 0
         ? `$${formatThreeDigitCommas(detail.amount)}`
-        : '';
+        : 0;
 
       const row = [
         sr,

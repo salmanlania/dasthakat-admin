@@ -322,7 +322,7 @@ export const goodsReceivedNoteSlice = createSlice({
       state.goodsReceivedNoteDetails = data.grn_detail.map((detail) => ({
         id: detail.good_received_note_detail_id,
         purchase_order_detail_id: detail.purchase_order_detail_id,
-        poQuantity: detail?.purchase_order_detail?.quantity ? detail?.purchase_order_detail?.quantity : null,
+        poQuantity: detail?.purchase_order_detail?.quantity ? detail?.purchase_order_detail?.quantity : 0,
         product_code: detail.product ? detail.product.product_code : null,
         product_id: detail.product
           ? { value: detail.product.product_id, label: detail.product.product_name }
@@ -337,7 +337,7 @@ export const goodsReceivedNoteSlice = createSlice({
         product_description: detail.product_description,
         description: detail.description,
         // quantity: detail.quantity ? parseFloat(detail.quantity) : null,
-        quantity: detail.quantity ? detail.quantity : null,
+        quantity: detail.quantity ? detail.quantity : 0,
         unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
         warehouse_id: detail.warehouse
           ? { value: detail.warehouse.warehouse_id, label: detail.warehouse.name }

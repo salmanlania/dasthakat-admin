@@ -77,6 +77,10 @@
   display: none !important;
 }
 
+.comission-agent-quotation-custom-table .ant-table-tbody{
+  background-color: #F8FAFC !important;
+}
+
 .ant-table-thead th {
   word-wrap: break-word !important;
   white-space: normal !important;

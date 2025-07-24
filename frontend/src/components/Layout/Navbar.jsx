@@ -16,7 +16,7 @@ const Navbar = () => {
         <Button
           icon={
             <IoIosArrowBack
-              size={20}
+              size={16}
               className={`${isCollapsed ? 'rotate-180' : ''} transition-all`}
             />
           }

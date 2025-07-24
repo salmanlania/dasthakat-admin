@@ -25,7 +25,6 @@ import purchaseInvoiceReducer from './features/purchaseInvoiceSlice';
 import saleInvoiceReducer from './features/saleInvoiceSlice';
 import purchaseOrderReducer from './features/purchaseOrderSlice';
 import quotationReducer from './features/quotationSlice';
-import vendorQuotationReducer from './features/vendorQuotationSlice';
 import salesmanReducer from './features/salesmanSlice';
 import serviceListReducer from './features/serviceListSlice';
 import shipmentReducer from './features/shipmentSlice';
@@ -46,6 +45,7 @@ import CompanySettingReducer from './features/companySetting';
 import SaleReturnReducer from './features/saleReturnSlice';
 import StockReturnReducer from './features/stockReturnSlice';
 import PurchaseReturnReducer from './features/purchaseReturnSlice';
+import vendorQuotationReducer from './features/vendorQuotationSlice';
 
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
@@ -93,7 +93,7 @@ const rootReducer = combineReducers({
   shipment: shipmentReducer,
   serviceOrder: serviceOrderReducer,
   CompanySetting: CompanySettingReducer,
-  vendorQuotation: vendorQuotationReducer
+  vendorQuotation: vendorQuotationReducer,
 });
 
 export const store = configureStore({
