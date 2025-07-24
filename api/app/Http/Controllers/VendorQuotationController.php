@@ -216,6 +216,8 @@ class VendorQuotationController extends Controller
             'date_required' => $data['date_required'],
             'date_sent' => Carbon::now(),
             'date_returned' => null,
+            'created_by' => $data['created_by_user'] ?? null,
+            'created_at' => Carbon::now(),
         ]);
         $detail = [];
         foreach ($quotationDetail as $item) {
