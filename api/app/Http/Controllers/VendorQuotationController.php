@@ -255,9 +255,9 @@ class VendorQuotationController extends Controller
         if (!$rfq) {
             return $this->jsonResponse([], 404, 'RFQ Not Found!');
         }
-        if (Carbon::parse($rfq->date_required)->lt(Carbon::now()->toDateString())) {
-            return $this->jsonResponse([], 400, 'RFQ has expired!');
-        }
+        // if (Carbon::parse($rfq->date_required)->lt(Carbon::now()->toDateString())) {
+        //     return $this->jsonResponse([], 400, 'RFQ has expired!');
+        // }
 
         return $this->jsonResponse($rfq, 200, 'RFQ Data Fetched Successfully!');
     }
