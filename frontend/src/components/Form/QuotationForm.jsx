@@ -1810,8 +1810,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                   <div className="max-w-full">
                     <Table
                       columns={commissionAgentColumns}
-                      // dataSource={commissionAgent.length > 0 ? commissionAgent : commissionAgentData}
-                      dataSource={commissionAgentData}
+                      dataSource={commissionAgent.length > 0 ? commissionAgent : commissionAgentData}
+                      // dataSource={commissionAgentData}
                       rowKey={(record) => record.commission_agent_id}
                       size="small"
                       pagination={false}
