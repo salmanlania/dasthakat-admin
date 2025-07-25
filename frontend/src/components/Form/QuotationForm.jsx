@@ -209,9 +209,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
   }, [commissionAgent, commissionAgentData, totalNet]);
 
   const onFinish = (values) => {
-    const safeTotalNet = totalNet || 0;
-
-    const selectedCommissionAgents = commissionAgentData
+    const checkCommission = commissionAgentData?.length > 0 ? commissionAgentData : commissionAgent;
+    const selectedCommissionAgents = checkCommission
       .filter((agent) => !hiddenAgentKeys.includes(agent.commission_agent_id))
       .map((agent) => {
         const percentage = parseFloat(agent?.commission_percentage || 0);
@@ -1152,7 +1151,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                   changeQuotationDetailValue({
                     index,
                     key: 'rate',
-                    value: value  || "0",
+                    value: value || "0",
                   }),
                 );
                 // }
