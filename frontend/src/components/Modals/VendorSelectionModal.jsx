@@ -25,6 +25,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
   const [data, setData] = useState([]);
   const [vendorCount] = useState(4);
   const [isSaving, setIsSaving] = useState(false);
+  const [isExitSaving, setIsExitSaving] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [form] = Form.useForm();
   const hasFetchedVendors = useRef(false);
@@ -115,8 +116,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
     setData(newData);
   };
 
-  const onFinish = async (values) => {
-
+  const onFinish = async (value) => {
     const requiredDateValue = form.getFieldValue('required_date');
     const invalidRows = data.filter((product) =>
       product.vendors.some((vendor) => vendor.isPrimary && !vendor.supplier_id)
@@ -125,14 +125,26 @@ const VendorSelectionModal = ({ open, onClose }) => {
       toast.error('Primary vendors must have a selected supplier.');
       return;
     }
-    if (!requiredDateValue) {
+
+    const anyRfqSelected = data.some(product =>
+      product.vendors.some(vendor => vendor.rfqSent)
+    );
+
+    if (anyRfqSelected && !requiredDateValue) {
       toast.error('Please select a required date.');
       return;
     }
 
-    const formattedDate = dayjs(requiredDateValue).format('YYYY-MM-DD');
+    const formattedDate = requiredDateValue
+      ? dayjs(requiredDateValue).format('YYYY-MM-DD')
+      : null;
 
-    setIsSaving(true);
+    if (value === 'saveExit') {
+      setIsExitSaving(true);
+    } else {
+      setIsSaving(true);
+    }
+
     const payload = {
       quotation_id: initialFormValues?.quotation_id,
       quotation_detail: [],
@@ -155,15 +167,30 @@ const VendorSelectionModal = ({ open, onClose }) => {
         });
       });
     });
-    // return
     try {
       await dispatch(postVendorSelection(payload)).unwrap();
       toast.success('Quotation Vendors Saved Successfully!');
-      onClose();
+      if (value === 'saveExit') {
+        onClose();
+      } else {
+        if (id) {
+          try {
+            await dispatch(getVendor(id)).unwrap();
+          } catch (err) {
+            handleError(err);
+          }
+        }
+      }
     } catch (error) {
       handleError(error);
     } finally {
-      setIsSaving(false);
+      // setIsSaving(false);
+      // setIsExitSaving(false);
+      if (value === 'saveExit') {
+        setIsExitSaving(false);
+      } else {
+        setIsSaving(false);
+      }
     }
   };
 
@@ -175,10 +202,15 @@ const VendorSelectionModal = ({ open, onClose }) => {
 
   const handlePrimaryChange = (productIndex, vendorIndex) => {
     const newData = JSON.parse(JSON.stringify(data));
-    newData[productIndex].vendors = newData[productIndex].vendors.map((vendor, idx) => ({
-      ...vendor,
-      isPrimary: idx === vendorIndex,
-    }));
+    // newData[productIndex].vendors = newData[productIndex].vendors.map((vendor, idx) => ({
+    //   ...vendor,
+    //   isPrimary: idx === vendorIndex,
+    // }));
+    // setData(newData);
+    newData[productIndex].vendors.forEach((vendor, idx) => {
+      vendor.isPrimary = idx === vendorIndex;
+    });
+    newData[productIndex].vendors.sort((a, b) => (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0));
     setData(newData);
   };
 
@@ -297,7 +329,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
               label="Quote Required Date"
             >
               <DatePicker
-                format="YYYY-MM-DD"
+                format="MM-DD-YYYY"
                 placeholder="Select Date"
                 style={{ marginLeft: 16 }}
               />
@@ -314,6 +346,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
           pagination={false}
           scroll={{ x: 'calc(100% - 200px)', y: 400 }}
           summary={(pageData) => {
+            if (pageData.length === 0) return null;
             let totalQuantity = 0;
 
             pageData.forEach((item) => {
@@ -335,9 +368,12 @@ const VendorSelectionModal = ({ open, onClose }) => {
         />
       </Spin>
       <div className="mt-4 flex justify-end gap-2">
-        <Button onClick={onClose}>Cancel</Button>
-        <Button type="primary" onClick={onFinish} loading={isSaving}>
+        <Button onClick={onClose}>Exit</Button>
+        <Button className="w-28" type="primary" onClick={() => onFinish()} loading={isSaving}>
           Save
+        </Button>
+        <Button className="w-28 bg-green-600 hover:!bg-green-500" type="primary" onClick={() => onFinish('saveExit')} loading={isExitSaving}>
+          Save & Exit
         </Button>
       </div>
     </Modal>

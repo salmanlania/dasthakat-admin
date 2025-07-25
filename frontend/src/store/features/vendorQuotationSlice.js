@@ -90,7 +90,6 @@ export const getVendorQuotation = createAsyncThunk('quotation/get', async (id, {
     const res = await api.get(`/vendor-platform/quotation/rfq/${id}`);
     return res.data.data;
   } catch (err) {
-    console.error('Error fetching vendor quotation:', err);
     throw rejectWithValue(err);
   }
 });

@@ -256,16 +256,6 @@ const VendorPlatform = () => {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Person Incharge</p>
-          {/* <Input
-            className="font-normal"
-            size="small"
-            allowClear
-            onClick={(e) => e.stopPropagation()}
-            value={params.person_incharge_name}
-            onChange={(e) => {
-              dispatch(setVendorQuotationListParams({ person_incharge_name: e.target.value }));
-            }}
-          /> */}
           <AsyncSelect
             endpoint="/user"
             size="small"
@@ -563,9 +553,10 @@ const VendorPlatform = () => {
         <Breadcrumb items={[{ title: 'Vendor Platform' }, { title: 'List' }]} separator=">" />
       </div>
 
-      <div className="mt-4 rounded-md bg-white p-2">
+      <div className="mt-4 rounded-md bg-white">
         <Form form={form} name="quotation_report_form" layout="vertical">
-          <div className="flex flex-wrap items-center justify-start gap-4 px-4">
+          <div className="flex flex-wrap items-center justify-between gap-4 px-4">
+            
             <div className="min-w-[150px]">
               <Input
                 placeholder="Search..."
@@ -576,8 +567,8 @@ const VendorPlatform = () => {
               />
             </div>
 
-            <div className="min-w-[150px]">
-              <Form.Item name="date_range" label="Date Range" layout="vertical">
+            <div className="min-w-[150px] mt-4">
+              <Form.Item name="date_range" label="Date Range" layout="horizontal">
                 <RangePicker
                   value={[
                     params.date_from && params.date_from !== ''
@@ -606,6 +597,7 @@ const VendorPlatform = () => {
                 />
               </Form.Item>
             </div>
+            
           </div>
         </Form>
       </div>

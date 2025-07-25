@@ -97,8 +97,6 @@ const VendorPlatformQuotation = () => {
     const newQuotationDetail = [...sourceData];
     newQuotationDetail[index][key] = value;
 
-    console.log('newQuotationDetail', newQuotationDetail);
-
     setData({
       ...data,
       quotation_detail: newQuotationDetail,
@@ -242,6 +240,7 @@ const VendorPlatformQuotation = () => {
           dataSource={sourceData || []}
           loading={loading}
           summary={(pageData) => {
+            if (pageData.length === 0) return null;
             let totalQuantity = 0;
 
             pageData.forEach((item) => {

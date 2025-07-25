@@ -21,7 +21,6 @@ export function decodeRfqData(encodedData) {
     return data;
   } catch (error) {
     // If any step fails (e.g., invalid Base64 or JSON), it will throw an error.
-    console.error('Failed to decode RFQ data:', error);
     return null; // Return null to indicate failure.
   }
 }

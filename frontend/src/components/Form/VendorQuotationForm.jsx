@@ -210,7 +210,6 @@ const VendorQuotationForm = () => {
               </Col>
               <Col span={8}>
                 <Form.Item label="Disc" style={{ marginBottom: 8 }}>
-                  {/* <Input disabled value={formatThreeDigitCommas(Number(totalDiscount || 0))} /> */}
                   <Input disabled value={totalDiscount || 0} />
                 </Form.Item>
               </Col>
