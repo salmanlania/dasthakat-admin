@@ -295,8 +295,6 @@ export const quotationSlice = createSlice({
     changeQuotationDetailValue: (state, action) => {
       const { index, key, value } = action.payload;
 
-      // console.log('changeQuotationDetailValue', key, value);
-
       const detail = state.quotationDetails[index];
 
       if (detail.row_status === 'U' && detail[key] !== value) {
@@ -324,21 +322,11 @@ export const quotationSlice = createSlice({
         detail.amount = roundUpto(+detail.quantity * +detail.rate);
 
         if (key === 'rate' && +detail.cost_price && +detail.rate) {
-          // detail.full_rate = detail.rate;
           if (detail.old_rate != detail.rate) {
             detail.markup = roundUpto(
               ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100,
             );
           }
-          // // console.log(`rate:${detail.rate}, cost_price:${detail.cost_price}`);
-          // // console.log('beforeRoundUPTO, ', ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100)
-
-          //  console.log('detail' , {
-          //   full_rate : detail.full_rate,
-          //   rate : detail.rate,
-          //   cost_price : detail.cost_price,
-          //   markup : detail.markup,
-          //  });
         }
       } else {
         detail.amount = '';

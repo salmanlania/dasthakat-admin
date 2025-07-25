@@ -43,6 +43,7 @@ const VendorPlatform = () => {
   const [form] = Form.useForm();
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const [requiredDate, setRequiredDate] = useState(null);
+  const [loadingAction, setLoadingAction] = useState('');
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
@@ -194,7 +195,6 @@ const VendorPlatform = () => {
           <div onClick={(e) => e.stopPropagation()}>
             <DatePicker
               size="small"
-              // value={params.date_required}
               value={params.date_required ? dayjs(params.date_required, 'YYYY-MM-DD') : null}
               className="font-normal"
               onChange={(date) => {
@@ -202,7 +202,7 @@ const VendorPlatform = () => {
                   dispatch(setVendorQuotationListParams({ date_required: null }));
                   return;
                 }
-                const jsDate = date.$d; // or date.toDate()
+                const jsDate = date.$d;
                 const formattedDate = `${jsDate.getFullYear()}-${String(jsDate.getMonth() + 1).padStart(2, '0')}-${String(jsDate.getDate()).padStart(2, '0')}`;
                 dispatch(setVendorQuotationListParams({ date_required: formattedDate }))
               }
@@ -227,7 +227,6 @@ const VendorPlatform = () => {
           <div onClick={(e) => e.stopPropagation()}>
             <DatePicker
               size="small"
-              // value={params.date_required}
               value={params.date_returned ? dayjs(params.date_returned, 'YYYY-MM-DD') : null}
               className="font-normal"
               onChange={(date) => {
@@ -235,7 +234,7 @@ const VendorPlatform = () => {
                   dispatch(setVendorQuotationListParams({ date_returned: null }));
                   return;
                 }
-                const jsDate = date.$d; // or date.toDate()
+                const jsDate = date.$d;
                 const formattedDate = `${jsDate.getFullYear()}-${String(jsDate.getMonth() + 1).padStart(2, '0')}-${String(jsDate.getDate()).padStart(2, '0')}`;
                 dispatch(setVendorQuotationListParams({ date_returned: formattedDate }))
               }
@@ -355,7 +354,6 @@ const VendorPlatform = () => {
           <p>Date Sent</p>
           <DatePicker
             size="small"
-            // value={params.date_required}
             value={params.date_sent ? dayjs(params.date_sent, 'YYYY-MM-DD') : null}
             className="font-normal"
             onChange={(date) => {
@@ -363,7 +361,7 @@ const VendorPlatform = () => {
                 dispatch(setVendorQuotationListParams({ date_sent: null }));
                 return;
               }
-              const jsDate = date.$d; // or date.toDate()
+              const jsDate = date.$d;
               const formattedDate = `${jsDate.getFullYear()}-${String(jsDate.getMonth() + 1).padStart(2, '0')}-${String(jsDate.getDate()).padStart(2, '0')}`;
               dispatch(setVendorQuotationListParams({ date_sent: formattedDate }))
             }
@@ -427,44 +425,25 @@ const VendorPlatform = () => {
       title: 'Action',
       key: 'action',
       render: (_, { id }) => (
-        <div className="flex flex-col justify-center gap-1">
-          <div className="flex items-center gap-1">
-            {permissions.edit ? (
-              <Tooltip title="View">
-                <Link to={`/vendor-platform/edit/${id}`}>
-                  <Button
-                    size="small"
-                    type="primary"
-                    className="bg-gray-500 hover:!bg-gray-400"
-                    icon={<FaEye size={14} />}
-                  />
-                </Link>
-              </Tooltip>
-            ) : null}
-            {permissions.delete ? (
-              <Tooltip title="Delete">
-                <Popconfirm
-                  title="Are you sure you want to delete?"
-                  description="After deleting, You will not be able to recover it."
-                  okButtonProps={{ danger: true }}
-                  okText="Yes"
-                  cancelText="No"
-                  onConfirm={() => onQuotationDelete(quotation_id)}>
-                  <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
-                </Popconfirm>
-              </Tooltip>
-            ) : null}
-          </div>
-        </div>
+        <Tooltip title="View" className='flex justify-center'>
+          <Link to={`/vendor-platform/edit/${id}`}>
+            <Button
+              size="small"
+              type="primary"
+              className="bg-gray-500 hover:!bg-gray-400"
+              icon={<FaEye size={14} />}
+            />
+          </Link>
+        </Tooltip>
       ),
       width: 70,
       fixed: 'right',
     },
   ];
 
-  if (!permissions.edit && !permissions.delete) {
-    columns.pop();
-  }
+  // if (!permissions.edit && !permissions.delete) {
+  //   columns.pop();
+  // }
 
   const handleTableChange = (pagination, filters, sorter) => {
     const sortParams = sorter.field
@@ -557,6 +536,7 @@ const VendorPlatform = () => {
     }
 
     try {
+      setLoadingAction(actionType);
       await dispatch(vendorQuotationActions(payload)).unwrap();
 
       const successMessages = {
@@ -570,6 +550,8 @@ const VendorPlatform = () => {
       dispatch(getVendorQuotationList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
+    } finally {
+      setLoadingAction('');
     }
 
   };
@@ -631,18 +613,14 @@ const VendorPlatform = () => {
       <div className="mt-4 rounded-md bg-white p-2">
         <Table
           size="small"
-          rowSelection={
-            permissions.delete
-              ? {
-                type: 'checkbox',
-                selectedRowKeys: deleteIDs,
-                onChange: (selectedRowKeys) => dispatch(setQuotationDeleteIDs(selectedRowKeys)),
-                getCheckboxProps: (record) => ({
-                  disabled: record.isEventHeader,
-                }),
-              }
-              : null
-          }
+          rowSelection={{
+            type: 'checkbox',
+            selectedRowKeys: deleteIDs,
+            onChange: (selectedRowKeys) => dispatch(setQuotationDeleteIDs(selectedRowKeys)),
+            getCheckboxProps: (record) => ({
+              disabled: record.isEventHeader,
+            }),
+          }}
           loading={isListLoading}
           className="mt-2"
           rowKey={(record) => record.document_identity}
@@ -664,16 +642,39 @@ const VendorPlatform = () => {
       </div>
 
       <div className="mt-4 flex flex-wrap items-center justify-start gap-2 px-4">
-        <Button className="bg-sky-300 font-semibold text-black hover:bg-sky-400" onClick={() => onFinish('send_notifications')}>
+        <Button
+          className="bg-sky-300 font-semibold text-black hover:bg-sky-400"
+          loading={loadingAction === 'send_notifications'}
+          disabled={loadingAction !== ''}
+          onClick={() => onFinish('send_notifications')}
+        >
           Send Notifications
         </Button>
-        <Button className="bg-amber-300 font-semibold text-black hover:bg-amber-400" onClick={() => onFinish('incomplete')}>
+        {/* <Button
+          loading={loadingAction === 'incomplete'}
+          disabled={loadingAction !== ''}
+          className="bg-amber-300 font-semibold text-black hover:bg-amber-400"
+          onClick={() => onFinish('incomplete')}
+        > */}
+        <Button
+          className="bg-amber-300 font-semibold text-black hover:bg-amber-400"
+        >
           Set VQs to Incomplete
         </Button>
-        <Button className="bg-rose-300 font-semibold text-black hover:bg-rose-400" onClick={() => onFinish('cancel')}>
+        <Button
+          className="bg-rose-300 font-semibold text-black hover:bg-rose-400"
+          loading={loadingAction === 'cancel'}
+          disabled={loadingAction !== ''}
+          onClick={() => onFinish('cancel')}
+        >
           Cancel/Uncancel VQs
         </Button>
-        <Button className="bg-pink-300 font-semibold text-black hover:bg-pink-400" onClick={() => onFinish('change_required_date')}>
+        <Button
+          className="bg-pink-300 font-semibold text-black hover:bg-pink-400"
+          loading={loadingAction === 'change_required_date'}
+          disabled={loadingAction !== ''}
+          onClick={() => onFinish('change_required_date')}
+        >
           Change Req’d Date
         </Button>
 

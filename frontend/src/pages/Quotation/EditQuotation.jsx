@@ -23,7 +23,6 @@ const EditQuotation = () => {
       toast.success('Quotation updated successfully');
       dispatch(getQuotation(id)).unwrap()
     } catch (error) {
-      console.log('Error updating quotation:', error);
       handleError(error);
     }
   };

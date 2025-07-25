@@ -9,19 +9,47 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
-import { formatThreeDigitCommas, roundUpto } from '../../utils/number';
 import { useSelector } from 'react-redux';
+import { formatThreeDigitCommas, roundUpto } from '../../utils/number';
+import { useNavigate } from 'react-router-dom';
 
 const VendorQuotationForm = () => {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
+  const [totalExtCost, setTotalExtCost] = useState(0);
+  const [finalCost, setFinalCost] = useState(0);
+  const [totalDiscount, setTotalDiscount] = useState(0);
   const {
     initialFormValues,
     quotationDetails,
   } = useSelector((state) => state.vendorQuotation);
 
   useEffect(() => {
-    console.log('Initial Form Values:', initialFormValues);
-    console.log('quotationDetails:', quotationDetails);
+    if (!quotationDetails || quotationDetails.length === 0) return;
+
+    let extCostSum = 0;
+    let finalCostSum = 0;
+    let discountSum = 0;
+
+    quotationDetails.forEach((item) => {
+      const quantity = parseFloat(item.quantity) || 0;
+      const costPrice = parseFloat(item.cost_price) || 0;
+      const discountPercent = parseFloat(item.discount_percent) || 0;
+
+      const netCost = costPrice - ((costPrice * discountPercent) / 100);
+      const extCost = netCost * quantity;
+      const discountValue = discountPercent || 0;
+      const originalFinalCost = costPrice * quantity;
+
+      extCostSum += extCost;
+      finalCostSum += originalFinalCost;
+      discountSum += discountValue;
+    });
+
+    setTotalExtCost(roundUpto(extCostSum));
+    setFinalCost(roundUpto(finalCostSum));
+    setTotalDiscount(roundUpto(discountSum));
+
     form.setFieldsValue({
       ...initialFormValues,
       req_by: initialFormValues?.req_by || '',
@@ -29,25 +57,19 @@ const VendorQuotationForm = () => {
       vendor_ref: initialFormValues?.vendor_ref || '',
       status: initialFormValues?.status || '',
       quoted_by: initialFormValues?.quoted_by || '',
-      est_unit_weight: initialFormValues?.est_unit_weight || '0',
+      est_unit_weight: initialFormValues?.est_unit_weight || null,
       vendor_name: initialFormValues?.vendor_name || '',
-      disc: initialFormValues?.disc || '0',
-      total: initialFormValues?.total || formatThreeDigitCommas(roundUpto(calculateTotal())) || '0',
+      disc: initialFormValues?.disc || null,
+      total: initialFormValues?.total || formatThreeDigitCommas(roundUpto(totalExtCost)) || null,
       address: initialFormValues?.vendor_address || '',
       phone: initialFormValues?.vendor_phone || '',
       fax: initialFormValues?.vendor_fax || '',
       email: initialFormValues?.vendor_email || '',
       comments: initialFormValues?.comments || '',
     });
-  }, [initialFormValues, form]);
 
-  const calculateTotal = () => {
-    let total = 0;
-    quotationDetails.forEach((detail) => {
-      total += +detail.net_cost || 0;
-    });
-    return total;
-  };
+
+  }, [initialFormValues, form, quotationDetails]);
 
   const columns = [
     {
@@ -55,14 +77,14 @@ const VendorQuotationForm = () => {
       dataIndex: 'sort_order',
       key: 'sort_order',
       width: 50,
-      render: (text, record, index) => record?.sort_order + 1 || index + 1
+      render: (text, record, index) => record?.sort_order + 1 || null
     },
     {
       title: 'Qty',
       dataIndex: 'quantity',
       key: 'quantity',
       width: 70,
-      render: (text) => text || '0'
+      render: (text) => text || null
     },
     {
       title: 'Unit',
@@ -81,25 +103,25 @@ const VendorQuotationForm = () => {
       title: 'Our Cost',
       dataIndex: 'cost_price',
       key: 'cost_price',
-      width: 100, render: (text) => text || '0'
+      width: 100, render: (text) => text || null
     },
     {
       title: 'Disc %',
       dataIndex: 'discount_percent',
       key: 'discount_percent',
       width: 100,
-      render: (text) => text || '0'
+      render: (text) => text || 0
     },
     {
       title: 'Net Cost',
       dataIndex: 'net_cost',
       key: 'net_cost',
       width: 100,
-      render: (text) => {
-        const value = text?.cost_price * text?.discount_percent / 100;
-        const finalNetCost = text?.cost_price - value;
-        console.log('Net Cost:', finalNetCost);
-        return formatThreeDigitCommas(roundUpto(finalNetCost)) || '0';
+      render: (_, record) => {
+        const cost = parseFloat(record.cost_price) || 0;
+        const discount = parseFloat(record.discount_percent) || 0;
+        const net = cost - discount// ((cost * discount)) // / 100);
+        return formatThreeDigitCommas(roundUpto(net));
       }
     },
     {
@@ -107,10 +129,13 @@ const VendorQuotationForm = () => {
       dataIndex: 'ext_cost',
       key: 'ext_cost',
       width: 100,
-      render: (text) => {
-        console.log('Ext. Cost:', text);
-        const cal = text?.vendorCost * text?.quantity;
-        return formatThreeDigitCommas(roundUpto(cal)) || '0'
+      render: (_, record) => {
+        const quantity = parseFloat(record.quantity) || 0;
+        const cost = parseFloat(record.cost_price) || 0;
+        const discount = parseFloat(record.discount_percent) || 0;
+        const net = cost - ((cost * discount) / 100);
+        const ext = quantity * net;
+        return formatThreeDigitCommas(roundUpto(ext));
       }
     },
     {
@@ -122,8 +147,8 @@ const VendorQuotationForm = () => {
     },
     {
       title: 'Comment',
-      dataIndex: 'comment',
-      key: 'comment',
+      dataIndex: 'vendor_notes',
+      key: 'vendor_notes',
       width: 100,
       render: (text) => text || ''
     },
@@ -140,10 +165,10 @@ const VendorQuotationForm = () => {
           vendor_ref: initialFormValues?.vendor_ref || '',
           status: initialFormValues?.status || '',
           quoted_by: initialFormValues?.quoted_by || '',
-          est_unit_weight: initialFormValues?.est_unit_weight || '0',
+          est_unit_weight: initialFormValues?.est_unit_weight || null,
           vendor_name: initialFormValues?.vendor_name || '',
-          disc: initialFormValues?.disc || '0',
-          total: initialFormValues?.total || formatThreeDigitCommas(roundUpto(calculateTotal())) || '0',
+          disc: initialFormValues?.disc || null,
+          total: initialFormValues?.total || formatThreeDigitCommas(roundUpto(totalExtCost)) || null,
           address: initialFormValues?.vendor_address || '',
           phone: initialFormValues?.vendor_phone || '',
           fax: initialFormValues?.vendor_fax || '',
@@ -180,17 +205,18 @@ const VendorQuotationForm = () => {
             <Row gutter={12}>
               <Col span={8}>
                 <Form.Item label="Total" style={{ marginBottom: 8 }}>
-                  <Input disabled value={initialFormValues?.total || formatThreeDigitCommas(roundUpto(calculateTotal())) || '0'} />
+                  <Input disabled value={formatThreeDigitCommas(totalExtCost || 0)} />
                 </Form.Item>
               </Col>
               <Col span={8}>
                 <Form.Item label="Disc" style={{ marginBottom: 8 }}>
-                  <Input disabled value={initialFormValues?.total || formatThreeDigitCommas(roundUpto(calculateTotal())) || '0'} />
+                  {/* <Input disabled value={formatThreeDigitCommas(Number(totalDiscount || 0))} /> */}
+                  <Input disabled value={totalDiscount || 0} />
                 </Form.Item>
               </Col>
               <Col span={8}>
                 <Form.Item label="Final Total" style={{ marginBottom: 8 }}>
-                  <Input disabled value={initialFormValues?.total || formatThreeDigitCommas(roundUpto(calculateTotal())) || '0'} />
+                  <Input disabled value={formatThreeDigitCommas(finalCost || 0)} />
                 </Form.Item>
               </Col>
             </Row>
@@ -233,20 +259,27 @@ const VendorQuotationForm = () => {
           </Col>
         </Row>
 
-        <Table
-          columns={columns}
-          dataSource={quotationDetails}
-          pagination={false}
-          scroll={{ x: 'max-content' }}
-          size="small"
-          style={{ marginTop: '10px', backgroundColor: '#fff', border: '1px solid #d9d9d9', borderRadius: '10px !important' }}
-          rowClassName={(record, index) => index % 2 === 0 ? 'even-row' : 'odd-row'}
-        />
-        <div style={{ marginTop: '10px', textAlign: 'right' }}>
-          <Button type="primary">
-            Close
-          </Button>
-        </div>
+        {
+          quotationDetails.length > 0 && (
+            <>
+              <Table
+                columns={columns}
+                dataSource={quotationDetails}
+                pagination={false}
+                scroll={{ x: 'max-content' }}
+                rowKey={'id'}
+                size="small"
+                style={{ marginTop: '10px', backgroundColor: '#fff', border: '1px solid #d9d9d9', borderRadius: '10px !important' }}
+                rowClassName={(record, index) => index % 2 === 0 ? 'even-row' : 'odd-row'}
+              />
+              <div style={{ marginTop: '10px', textAlign: 'right' }}>
+                <Button type="primary" onClick={() => navigate('/vendor-platform/')}>
+                  Close
+                </Button>
+              </div>
+            </>
+          )
+        }
       </Form>
     </div>
   );

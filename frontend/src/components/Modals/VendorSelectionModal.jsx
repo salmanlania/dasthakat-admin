@@ -100,6 +100,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
               ? item.product_name
               : item.product_id?.label || item.product_name || 'Unnamed Product',
           product_type_id: item.product_type_id,
+          quantity: item.quantity,
           index,
           vendors,
         };
@@ -140,7 +141,6 @@ const VendorSelectionModal = ({ open, onClose }) => {
 
     data.forEach((product) => {
       const quotation_detail_id = product.quotation_detail_id;
-      console.log('product', product);
 
       product.vendors.forEach((vendor) => {
         const supplier = vendor?.supplier_id?.value || null;
@@ -190,32 +190,34 @@ const VendorSelectionModal = ({ open, onClose }) => {
       fixed: 'left',
       width: 140,
     },
+    {
+      title: 'Qty',
+      dataIndex: 'quantity',
+      key: 'quantity',
+      width: 70,
+    },
     ...Array.from({ length: vendorCount }).flatMap((_, vendorIndex) => [
-      // {
-      //   title: `Primary`,
-      //   key: `vendor_primary_${vendorIndex}`,
-      //   width: 100,
-      //   ellipsis: true,
-      //   render: (_, record, productIndex) => (
-      //     <Radio
-      //       checked={record.vendors[vendorIndex].isPrimary}
-      //       onChange={() => handlePrimaryChange(productIndex, vendorIndex)}
-      //     />
-      //   ),
-      // },
+      {
+        title: `PRM`,
+        key: `vendor_primary_${vendorIndex}`,
+        width: 70,
+        ellipsis: true,
+        render: (_, record, productIndex) => (
+          <Radio
+            checked={record.vendors[vendorIndex].isPrimary}
+            onChange={() => handlePrimaryChange(productIndex, vendorIndex)}
+          />
+        ),
+      },
       {
         title: `Vendor`,
         key: `supplier_id-${vendorIndex}`,
-        width: 330,
+        width: 280,
         ellipsis: false,
         render: (_, record, productIndex) => {
           const vendor = record.vendors[vendorIndex];
           return (
             <div className='flex ' style={{ whiteSpace: 'normal', wordWrap: 'break-word', maxWidth: 330 }}>
-              <Radio
-                checked={record.vendors[vendorIndex].isPrimary}
-                onChange={() => handlePrimaryChange(productIndex, vendorIndex)}
-              />
               <AsyncSelect
                 endpoint="/supplier"
                 valueKey="supplier_id"
@@ -248,7 +250,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
       {
         title: `Rate`,
         key: `rate-${vendorIndex}`,
-        width: 100,
+        width: 120,
         maxWidth: 100,
         ellipsis: true,
         render: (_, record, productIndex) => (
@@ -292,6 +294,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
               name="required_date"
               rules={[{ required: true, message: 'Please select a date' }]}
               style={{ marginBottom: 0 }}
+              label="Quote Required Date"
             >
               <DatePicker
                 format="YYYY-MM-DD"
@@ -310,6 +313,25 @@ const VendorSelectionModal = ({ open, onClose }) => {
           dataSource={data}
           pagination={false}
           scroll={{ x: 'calc(100% - 200px)', y: 400 }}
+          summary={(pageData) => {
+            let totalQuantity = 0;
+
+            pageData.forEach((item) => {
+              const qty = Number(item?.quantity);
+              if (!isNaN(qty)) totalQuantity += qty;
+            });
+
+            return (
+              <Table.Summary.Row>
+                <Table.Summary.Cell index={0}><strong>Total</strong></Table.Summary.Cell>
+                <Table.Summary.Cell index={1}><strong>{totalQuantity}</strong></Table.Summary.Cell>
+                <Table.Summary.Cell index={2} />
+                <Table.Summary.Cell index={3} />
+                <Table.Summary.Cell index={4} />
+                <Table.Summary.Cell index={5} />
+              </Table.Summary.Row>
+            );
+          }}
         />
       </Spin>
       <div className="mt-4 flex justify-end gap-2">

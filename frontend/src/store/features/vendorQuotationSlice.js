@@ -90,6 +90,7 @@ export const getVendorQuotation = createAsyncThunk('quotation/get', async (id, {
     const res = await api.get(`/vendor-platform/quotation/rfq/${id}`);
     return res.data.data;
   } catch (err) {
+    console.error('Error fetching vendor quotation:', err);
     throw rejectWithValue(err);
   }
 });
@@ -122,22 +123,10 @@ export const getQuotationForPrint = createAsyncThunk(
   },
 );
 
-// export const updateQuotation = createAsyncThunk(
-//   'quotation/update',
-//   async ({ id, data }, { rejectWithValue }) => {
-//     try {
-//       await api.put(`/quotation/${id}`, data);
-//     } catch (err) {
-//       throw rejectWithValue(err);
-//     }
-//   },
-// );
-
 export const vendorQuotationActions = createAsyncThunk(
   'vendorQuotationActions/update',
   async (data, { rejectWithValue }) => {
     try {
-      console.log('Sending payload:', data);
       await api.post(`/vendor-platform/quotation/actions`, data);
     } catch (err) {
       return rejectWithValue(err);
@@ -210,7 +199,7 @@ const initialState = {
   vendorDetails: [],
   params: {
     page: 1,
-    limit: 30,
+    limit: 50,
     search: '',
     sort_column: null,
     sort_direction: null,
@@ -499,10 +488,11 @@ export const vendorQuotationSlice = createSlice({
       const data = action.payload;
       state.initialFormValues = data
 
-      // if (!data.quotation_detail) return;
       state.quotationDetails = data?.details?.map(item => {
+        if (!item?.vendor_quotation_detail) return {};
         const detail = item?.vendor_quotation_detail?.quotation_detail;
-        const vendorCost = item?.vendor_quotation_detail?.vendor_rate || 0;
+        const vendorCost = item?.vendor_quotation_detail?.vendor_rate || null;
+        const vendor_notes = item?.vendor_quotation_detail?.vendor_notes || null;
 
         return {
           id: detail?.quotation_detail_id,
@@ -534,8 +524,9 @@ export const vendorQuotationSlice = createSlice({
           cost_price: vendorCost,
           markup: detail?.markup,
           rate: detail?.rate,
+          vendor_notes: vendor_notes,
           amount: detail?.amount,
-          discount_percent: detail?.discount_percent,
+          discount_percent: 0, // to be confirm either detail?.discount_percent but now it will be 0
           discount_amount: detail?.discount_amount,
           gross_amount: detail?.gross_amount,
           quotation_detail_id: detail?.quotation_detail_id,

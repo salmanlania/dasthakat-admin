@@ -14,20 +14,18 @@ const EditVendorPlatform = () => {
   const navigate = useNavigate();
   const handleError = useError();
   const { id } = useParams();
-  // const { initialFormValues } = useSelector((state) => state.vendorQuotation);
+  const { initialFormValues, isItemLoading } = useSelector((state) => state.vendorQuotation);
 
   useEffect(() => {
-    // if (initialFormValues) {
-    //   console.log('initialFormValues', initialFormValues);
-    // } else {
-    //   console.log('No initial form values found');
-    // }
-    try {
-      const res = dispatch(getVendorQuotation(id)).unwrap();
-      console.log('res', res)
-    } catch (error) {
-      handleError(error)
+    const fetchData = async () => {
+      try {
+        await dispatch(getVendorQuotation(id)).unwrap();
+      } catch (error) {
+        handleError(error);
+      }
     };
+
+    fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -39,19 +37,17 @@ const EditVendorPlatform = () => {
         <Breadcrumb items={[{ title: 'Vendor Quotation' }, { title: 'View' }]} separator=">" />
       </div>
 
-      {/* {isItemLoading && (
+      {isItemLoading && (
         <div className="mt-4 flex min-h-96 items-center justify-center rounded-md bg-white">
           <Spin size="large" />
         </div>
-      )} */}
+      )}
 
-      {/* {!isItemLoading && initialFormValues ? ( */}
-      {/* <div className="mt-4 rounded-md bg-white p-2 sm:p-4"> */}
-      <VendorQuotationForm mode="edit" />
-      {/* <VendorQuotationForm /> */}
-      {/* <ChargeOrderForm /> */}
-      {/* </div> */}
-      {/* // ) : null} */}
+      {!isItemLoading && initialFormValues ? (
+        <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
+          <VendorQuotationForm mode="edit" />
+        </div>
+      ) : null}
     </>
   );
 };

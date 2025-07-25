@@ -7,6 +7,7 @@ const useError = () => {
   const location = useLocation();
 
   const handleError = (error, showMessage = true) => {
+    const errorMessage = error?.response?.data
     // if:  if user unauthorize then logout and redirect to login page
     // else if: if network error then show error message
     // else: show error message
@@ -23,11 +24,13 @@ const useError = () => {
         });
     } else if (error?.response?.data?.status_code === 500) {
       showMessage && toast.error(error?.response?.data?.message || `We're unable to proceed at the moment. Please get in touch with your administrator for support.`);
+    } else if (errorMessage?.message) {
+      showMessage && toast.error(errorMessage?.message || `We're unable to proceed at the moment. Please get in touch with your administrator for support.`);
     } else {
       showMessage &&
         toast.error(
           error?.response?.data?.error ||
-            `We're unable to proceed at the moment. Please get in touch with your administrator for support.`
+          `We're unable to proceed at the moment. Please get in touch with your administrator for support.`
         );
     }
   };

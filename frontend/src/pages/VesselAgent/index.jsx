@@ -33,8 +33,6 @@ const VesselAgent = () => {
     (state) => state.vessel,
   );
 
-  console.log('commissionDetails', commissionDetails);
-
   const columns = [
     {
       title: (
