@@ -209,9 +209,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
   }, [commissionAgent, commissionAgentData, totalNet]);
 
   const onFinish = (values) => {
-    const safeTotalNet = totalNet || 0;
-
-    const selectedCommissionAgents = commissionAgentData
+    const checkCommission = commissionAgentData?.length > 0 ? commissionAgentData : commissionAgent;
+    const selectedCommissionAgents = checkCommission
       .filter((agent) => !hiddenAgentKeys.includes(agent.commission_agent_id))
       .map((agent) => {
         const percentage = parseFloat(agent?.commission_percentage || 0);
@@ -1810,8 +1809,8 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                   <div className="max-w-full">
                     <Table
                       columns={commissionAgentColumns}
-                      // dataSource={commissionAgent.length > 0 ? commissionAgent : commissionAgentData}
-                      dataSource={commissionAgentData}
+                      dataSource={commissionAgent.length > 0 ? commissionAgent : commissionAgentData}
+                      // dataSource={commissionAgentData}
                       rowKey={(record) => record.commission_agent_id}
                       size="small"
                       pagination={false}

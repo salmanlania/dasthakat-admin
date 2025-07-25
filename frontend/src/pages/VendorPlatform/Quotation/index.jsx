@@ -55,12 +55,13 @@ const VendorPlatformQuotation = () => {
           // })
           Swal.fire({
             title: '<strong>RFQ Expired</strong>',
-            html: `
-    <div style="font-size: 18px; line-height: 1.8;">
-      <p>This RFQ was required by <strong>${requiredDate.format('YYYY-MM-DD')}</strong>.</p>
-      <p>You can no longer submit a quotation for this request.</p>
-    </div>
-  `,
+            html:
+              `
+                <div style="font-size: 18px; line-height: 1.8;">
+                  <p>This RFQ was required by <strong>${requiredDate.format('YYYY-MM-DD')}</strong>.</p>
+                  <p>You can no longer submit a quotation for this request.</p>
+                </div>
+              `,
             width: '700px',
             padding: '2em',
             allowOutsideClick: false,
