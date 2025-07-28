@@ -360,7 +360,7 @@ class VendorQuotationController extends Controller
             $commissionAgents = QuotationCommissionAgent::where('quotation_id', $quotation_id)
                 ->get();
             foreach ($commissionAgents as $agent) {
-                $agent->commission_amount = $quotation->net_amount * $agent->commission_percent / 100;
+                $agent->amount = $quotation->net_amount * $agent->commission_percent / 100;
                 $agent->save();
             }
 
@@ -485,7 +485,7 @@ class VendorQuotationController extends Controller
                 $commissionAgents = QuotationCommissionAgent::where('quotation_id', $quotation_id)
                     ->get();
                 foreach ($commissionAgents as $agent) {
-                    $agent->commission_amount = $quotation->net_amount * $agent->commission_percent / 100;
+                    $agent->amount = $quotation->net_amount * $agent->commission_percent / 100;
                     $agent->save();
                 }
             }
