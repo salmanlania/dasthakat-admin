@@ -285,7 +285,7 @@ class VendorQuotationController extends Controller
             }
 
             // Delete existing vendor details
-            VendorQuotationDetail::where('quotation_id', $quotation_id)->delete();
+            // VendorQuotationDetail::where('quotation_id', $quotation_id)->delete();
 
             $data = [];
             $errors = [];
@@ -293,24 +293,36 @@ class VendorQuotationController extends Controller
             $quotation_details = $request->quotation_detail;
             foreach ($quotation_details as $row => $detail) {
                 try {
-                    $vendor_quotation_detail_id = $this->get_uuid();
-                    $detail['vendor_quotation_detail_id'] = $vendor_quotation_detail_id;
                     $row++;
-                    $data[] = [
-                        'company_id' => $request->company_id ?? '',
-                        'company_branch_id' => $request->company_branch_id ?? '',
-                        'vendor_quotation_detail_id' => $vendor_quotation_detail_id,
-                        'quotation_id' => $quotation_id,
-                        'sort_order' => $row,
-                        'quotation_detail_id' => $detail['quotation_detail_id'],
-                        'vendor_id' => $detail['vendor_id'] ?? '',
-                        'vendor_rate' => $detail['vendor_rate'] ?? 0,
-                        'is_primary_vendor' => $detail['is_primary_vendor'] ?? 0,
-                        'vendor_part_no' => $detail['vendor_part_no'] ?? '',
-                        'vendor_notes' => $detail['vendor_notes'] ?? '',
-                        'created_at' => Carbon::now(),
-                        'created_by' => $request->login_user_id,
-                    ];
+                    if (!empty($detail->vendor_quotation_detail_id)) {
+                        $update = [
+                            'vendor_rate' => $detail['vendor_rate'] ?? 0,
+                            'is_primary_vendor' => $detail['is_primary_vendor'] ?? 0,
+                            'vendor_part_no' => $detail['vendor_part_no'] ?? '',
+                            'vendor_notes' => $detail['vendor_notes'] ?? '',
+                        ];
+                        VendorQuotationDetail::where('vendor_quotation_detail_id', $detail->vendor_quotation_detail_id)
+                            ->update($update);
+                    } else {
+
+                        $vendor_quotation_detail_id = $this->get_uuid();
+                        $detail['vendor_quotation_detail_id'] = $vendor_quotation_detail_id;
+                        $data[] = [
+                            'company_id' => $request->company_id ?? '',
+                            'company_branch_id' => $request->company_branch_id ?? '',
+                            'vendor_quotation_detail_id' => $vendor_quotation_detail_id,
+                            'quotation_id' => $quotation_id,
+                            'sort_order' => $row,
+                            'quotation_detail_id' => $detail['quotation_detail_id'],
+                            'vendor_id' => $detail['vendor_id'] ?? '',
+                            'vendor_rate' => $detail['vendor_rate'] ?? 0,
+                            'is_primary_vendor' => $detail['is_primary_vendor'] ?? 0,
+                            'vendor_part_no' => $detail['vendor_part_no'] ?? '',
+                            'vendor_notes' => $detail['vendor_notes'] ?? '',
+                            'created_at' => Carbon::now(),
+                            'created_by' => $request->login_user_id,
+                        ];
+                    }
 
                     if (!empty($detail['vendor_id'])) {
                         if ($detail['is_primary_vendor'] == 1) {
