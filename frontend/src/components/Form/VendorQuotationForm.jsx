@@ -110,7 +110,7 @@ const VendorQuotationForm = () => {
       dataIndex: 'discount_percent',
       key: 'discount_percent',
       width: 100,
-      render: (text) => text || 0
+      render: (text) => text || null
     },
     {
       title: 'Net Cost',
