@@ -11,6 +11,7 @@ class ChargeOrder extends Model
     protected $table = 'charge_order';
     protected $primaryKey = 'charge_order_id';
     public $incrementing = false;
+    protected $keyType = 'string';
     protected $casts = [
         'technician_id' => 'array',
         'total_quantity' => 'float',

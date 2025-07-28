@@ -9,6 +9,8 @@ class UserPermission extends Model
     protected $table = 'user_permission';
     protected $primaryKey = 'user_permission_id';
     public $incrementing = false;
+    protected $keyType = 'string';
+
     
     protected $fillable = ['*'];
 

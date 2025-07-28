@@ -10,6 +10,7 @@ class Product extends Model
 
     protected $table = 'product';
     protected $primaryKey = 'product_id';
+    protected $keyType = 'string';
     public $incrementing = false;
 
     // protected $connection = 'mysql';

@@ -9,6 +9,7 @@ class ShipmentDetail extends Model
     protected $table = 'shipment_detail';
     protected $primaryKey = 'shipment_detail_id';
     public $incrementing = false;
+    protected $keyType = 'string';
     protected $fillable = [
         'shipment_id',
         'shipment_detail_id',
@@ -28,6 +29,9 @@ class ShipmentDetail extends Model
         'created_by',
         'updated_at',
         'updated_by',
+    ];
+    protected $casts = [
+        'quantity' => 'float',
     ];
 
     public function shipment()

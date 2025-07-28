@@ -8,6 +8,7 @@ class JobOrderDetailCertificate extends Model
 {
     protected $table = 'job_order_detail_certificate';
     protected $primaryKey = 'certificate_id';
+    protected $keyType = 'string';
     public $incrementing = false;
     protected $fillable = [
         'certificate_id',

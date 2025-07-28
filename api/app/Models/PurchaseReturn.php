@@ -11,6 +11,7 @@ class PurchaseReturn extends Model
     protected $table = 'purchase_return';
     protected $primaryKey = 'purchase_return_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         "company_id",
@@ -30,6 +31,11 @@ class PurchaseReturn extends Model
         "created_by",
         "updated_by"
     ];
+    protected $casts = [
+        'total_quantity' => 'float',
+        'total_amount' => 'float',
+    ];
+
 
     public function purchase_return_detail()
     {

@@ -1151,7 +1151,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                   changeQuotationDetailValue({
                     index,
                     key: 'rate',
-                    value: value  || "0",
+                    value: value || "0",
                   }),
                 );
                 // }

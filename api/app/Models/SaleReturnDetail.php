@@ -11,6 +11,7 @@ class SaleReturnDetail extends Model
     protected $table = 'sale_return_detail';
     protected $primaryKey = 'sale_return_detail_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
 
     protected $fillable = [
@@ -31,6 +32,12 @@ class SaleReturnDetail extends Model
         "created_by",
         "updated_by"
     ];
+    protected $casts = [
+        'quantity' => 'float',
+        'rate' => 'float',
+        'amount' => 'float',
+    ];
+
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id', 'product_id')->select('*',DB::raw("CONCAT(impa_code, ' ', name) as product_name"));

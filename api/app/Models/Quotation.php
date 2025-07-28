@@ -11,7 +11,8 @@ class Quotation extends Model
     protected $table = 'quotation';
     protected $primaryKey = 'quotation_id';
     public $incrementing = false;
-
+    protected $keyType = 'string';
+    
     protected $fillable = [
         "company_id",
         "company_branch_id",

@@ -9,6 +9,7 @@ class EventDispatch extends Model
 {
     protected $table = 'event_dispatch';
     protected $primaryKey = 'event_dispatch_id';
+    protected $keyType = 'string';
     public $incrementing = false;
     protected $casts = [
         'technician_id' => 'array',

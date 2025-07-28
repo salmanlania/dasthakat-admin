@@ -8,6 +8,7 @@ class Flag extends Model
 {
     protected $table = 'flag';
     protected $primaryKey = 'flag_id';
+    protected $keyType = 'string';
     public $incrementing = false;
     protected $fillable = [
         'company_id',

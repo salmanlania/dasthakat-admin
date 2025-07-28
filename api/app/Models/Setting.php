@@ -11,6 +11,7 @@ class Setting extends Model
   protected $primaryKey = 'id';
 
   // protected $connection = 'mysql';
+    protected $keyType = 'string';
   public $incrementing = false;
   protected $table = 'setting';
 

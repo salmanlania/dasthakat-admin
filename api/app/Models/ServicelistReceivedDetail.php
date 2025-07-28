@@ -11,6 +11,7 @@ class ServicelistReceivedDetail extends Model
     protected $table = 'servicelist_received_detail';
 protected $primaryKey = 'servicelist_received_detail_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         "servicelist_received_id",
@@ -24,6 +25,10 @@ protected $primaryKey = 'servicelist_received_detail_id';
         "created_by",
         "updated_by"
     ];
+    protected $casts = [
+        'quantity' => 'float',
+    ];
+
     public function servicelist_detail()
     {
         return $this->belongsTo(ServicelistDetail::class, 'servicelist_detail_id', 'servicelist_detail_id')->select('*');

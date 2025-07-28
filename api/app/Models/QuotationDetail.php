@@ -11,7 +11,7 @@ class QuotationDetail extends Model
     protected $table = 'quotation_detail';
     protected $primaryKey = 'quotation_detail_id';
     public $incrementing = false;
-
+    protected $keyType = 'string';
 
     protected $fillable = [
         "quotation_id",
@@ -42,7 +42,7 @@ class QuotationDetail extends Model
     protected $casts = [
         'quantity' => 'float',
         'cost_price' => 'float',
-        'markup' => 'float',
+        // 'markup' => 'float',
         'rate' => 'float',
         'amount' => 'float',
         'discount_amount' => 'float',

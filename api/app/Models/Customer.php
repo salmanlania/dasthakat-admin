@@ -15,6 +15,7 @@ class Customer extends Model implements AuthenticatableContract, AuthorizableCon
     use Authenticatable, Authorizable, HasFactory;
 
     protected $primaryKey = 'customer_id';
+    protected $keyType = 'string';
     public $incrementing = false;
 
     // protected $connection = 'mysql';

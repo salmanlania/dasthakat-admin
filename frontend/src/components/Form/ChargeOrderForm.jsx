@@ -883,7 +883,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
           <Form.Item
             className="m-0"
             name={`rate-${index}`}
-            initialValue={rate}
+            initialValue={rate || "0"}
             rules={[
               {
                 required: true,
@@ -891,14 +891,14 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
               }
             ]}>
             <DebouncedCommaSeparatedInput
-              value={rate}
+              value={rate || "0"}
               disabled={editable === false}
               onChange={(value) =>
                 dispatch(
                   changeChargeOrderDetailValue({
                     index,
                     key: 'rate',
-                    value: value
+                    value: value  || "0"
                   })
                 )
               }

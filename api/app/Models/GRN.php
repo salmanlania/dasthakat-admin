@@ -11,6 +11,7 @@ class GRN extends Model
     protected $table = 'good_received_note';
     protected $primaryKey = 'good_received_note_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         "company_id",
@@ -32,6 +33,11 @@ class GRN extends Model
         "created_by",
         "updated_by"
     ];
+    protected $casts = [
+        'total_quantity' => 'float',
+        'total_amount' => 'float',
+    ];
+
 
     public function grn_detail()
     {

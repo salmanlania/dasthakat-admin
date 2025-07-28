@@ -7,6 +7,7 @@ class Company extends Model
 {
     protected $table = 'company';
     public $incrementing = false; 
+    protected $keyType = 'string';
 
     protected $primaryKey = 'company_id'; 
     protected $fillable = [

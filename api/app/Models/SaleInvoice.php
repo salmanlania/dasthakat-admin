@@ -11,6 +11,7 @@ class SaleInvoice extends Model
     protected $table = 'sale_invoice';
     protected $primaryKey = 'sale_invoice_id';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         "company_id",
@@ -21,6 +22,7 @@ class SaleInvoice extends Model
         "document_prefix",
         "document_identity",
         "document_date",
+        // "ship_date",
         "vessel_billing_address",
         "charge_order_id",
         "total_quantity",
@@ -28,6 +30,11 @@ class SaleInvoice extends Model
         "created_by",
         "updated_by"
     ];
+    protected $casts = [
+        'total_quantity' => 'float',
+        'total_amount' => 'float',
+    ];
+
   
     public function sale_invoice_detail()
     {
