@@ -266,7 +266,7 @@ class VendorQuotationController extends Controller
 
     public function store(Request $request)
     {
-        if (!isPermission('add', 'vendor_quotation', $request->permission_list)) {
+        if (!isPermission('add', 'vp_quotation', $request->permission_list)) {
             return $this->jsonResponse('Permission Denied!', 403, "No Permission");
         }
         $isError = $this->validateStoreRequest($request->all());
