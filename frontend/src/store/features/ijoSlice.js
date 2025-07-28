@@ -248,7 +248,7 @@ export const ijoSlice = createSlice({
       job_order_detail.forEach(({ charge_order, job_order_detail_id, ...detail }) => {
         jobOrderDetails.push({
           id: job_order_detail_id,
-          charge_order_no: charge_order.document_identity,
+          charge_order_no: charge_order?.document_identity ? charge_order?.document_identity : null,
           product_type: detail?.product_type?.name,
           product_code: detail?.product?.product_code || null,
           product_name:

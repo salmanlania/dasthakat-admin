@@ -138,6 +138,7 @@ const Sidebar = () => {
   const LogisticsPermission = !permissions?.dispatch?.list;
   const systemPermission = !permissions?.audit?.list;
   const reportsPermission = !permissions?.quote_report?.show && !permissions?.bid_response?.show;
+  const vpQuotationPermission = !permissions?.vp_quotation?.list
 
   const items = [
     {
@@ -465,10 +466,17 @@ const Sidebar = () => {
       // disabled: LogisticsPermission,
     },
     {
-      key: 'vendor-platform',
-      label: <Link to="/vendor-platform">Vendor Platform</Link>,
+      key: 'vendor platform',
+      label: 'Vendor Plateform',
       icon: <TbBuildingStore size={18} />,
-      // disabled: LogisticsPermission,
+      disabled: vpQuotationPermission,
+      children: [
+        {
+          key: 'vendor-platform',
+          label: <Link to="/vendor-platform">Vendor Quote</Link>,
+          disabled: !permissions?.vp_quotation?.list,
+        },
+      ],
     },
   ];
   const levelKeys = getLevelKeys(items);
@@ -545,9 +553,8 @@ const Sidebar = () => {
       collapsedWidth="0"
       theme="light"
       collapsed={isCollapsed}
-      className={`${isSmallScreen ? '!fixed' : '!sticky'} ${
-        isCollapsed ? '' : 'border-r'
-      } scrollbar !left-0 !top-0 z-50 h-screen overflow-y-auto`}
+      className={`${isSmallScreen ? '!fixed' : '!sticky'} ${isCollapsed ? '' : 'border-r'
+        } scrollbar !left-0 !top-0 z-50 h-screen overflow-y-auto`}
       width={240}>
       <div className="m-2 flex flex-col items-center justify-center gap-2 rounded-xl bg-slate-200 p-4 px-2">
         {isSmallScreen && (

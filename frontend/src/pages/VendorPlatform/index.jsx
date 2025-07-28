@@ -38,7 +38,7 @@ const VendorPlatform = () => {
     (state) => state.vendorQuotation,
   );
   const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.quotation;
+  const permissions = user.permission.vp_quotation;
 
   const [form] = Form.useForm();
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
@@ -431,9 +431,9 @@ const VendorPlatform = () => {
     },
   ];
 
-  // if (!permissions.edit && !permissions.delete) {
-  //   columns.pop();
-  // }
+  if (!permissions.edit && !permissions.list) {
+    columns.pop();
+  }
 
   const handleTableChange = (pagination, filters, sorter) => {
     const sortParams = sorter.field
@@ -556,7 +556,7 @@ const VendorPlatform = () => {
       <div className="mt-4 rounded-md bg-white">
         <Form form={form} name="quotation_report_form" layout="vertical">
           <div className="flex flex-wrap items-center justify-between gap-4 px-4">
-            
+
             <div className="min-w-[150px]">
               <Input
                 placeholder="Search..."
@@ -597,7 +597,7 @@ const VendorPlatform = () => {
                 />
               </Form.Item>
             </div>
-            
+
           </div>
         </Form>
       </div>
@@ -633,52 +633,56 @@ const VendorPlatform = () => {
         />
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center justify-start gap-2 px-4">
-        <Button
-          className="bg-sky-300 font-semibold text-black hover:bg-sky-400"
-          loading={loadingAction === 'send_notifications'}
-          disabled={loadingAction !== ''}
-          onClick={() => onFinish('send_notifications')}
-        >
-          Send Notifications
-        </Button>
-        {/* <Button
+      {
+        permissions?.edit && (
+          <div className="mt-4 flex flex-wrap items-center justify-start gap-2 px-4">
+            <Button
+              className="bg-sky-300 font-semibold text-black hover:bg-sky-400"
+              loading={loadingAction === 'send_notifications'}
+              disabled={loadingAction !== ''}
+              onClick={() => onFinish('send_notifications')}
+            >
+              Send Notifications
+            </Button>
+            {/* <Button
           loading={loadingAction === 'incomplete'}
           disabled={loadingAction !== ''}
           className="bg-amber-300 font-semibold text-black hover:bg-amber-400"
           onClick={() => onFinish('incomplete')}
         > */}
-        <Button
-          className="bg-amber-300 font-semibold text-black hover:bg-amber-400"
-        >
-          Set VQs to Incomplete
-        </Button>
-        <Button
-          className="bg-rose-300 font-semibold text-black hover:bg-rose-400"
-          loading={loadingAction === 'cancel'}
-          disabled={loadingAction !== ''}
-          onClick={() => onFinish('cancel')}
-        >
-          Cancel/Uncancel VQs
-        </Button>
-        <Button
-          className="bg-pink-300 font-semibold text-black hover:bg-pink-400"
-          loading={loadingAction === 'change_required_date'}
-          disabled={loadingAction !== ''}
-          onClick={() => onFinish('change_required_date')}
-        >
-          Change Req’d Date
-        </Button>
+            <Button
+              className="bg-amber-300 font-semibold text-black hover:bg-amber-400"
+            >
+              Set VQs to Incomplete
+            </Button>
+            <Button
+              className="bg-rose-300 font-semibold text-black hover:bg-rose-400"
+              loading={loadingAction === 'cancel'}
+              disabled={loadingAction !== ''}
+              onClick={() => onFinish('cancel')}
+            >
+              Cancel/Uncancel VQs
+            </Button>
+            <Button
+              className="bg-pink-300 font-semibold text-black hover:bg-pink-400"
+              loading={loadingAction === 'change_required_date'}
+              disabled={loadingAction !== ''}
+              onClick={() => onFinish('change_required_date')}
+            >
+              Change Req’d Date
+            </Button>
 
-        <span className="mr-2 text-sm font-medium">Req. Date:</span>
-        <DatePicker
-          size="small"
-          format="MM/DD/YYYY"
-          className="mr-4"
-          value={requiredDate}
-          onChange={(date) => setRequiredDate(date)}
-        />
-      </div>
+            <span className="mr-2 text-sm font-medium">Req. Date:</span>
+            <DatePicker
+              size="small"
+              format="MM/DD/YYYY"
+              className="mr-4"
+              value={requiredDate}
+              onChange={(date) => setRequiredDate(date)}
+            />
+          </div>
+        )
+      }
 
       <DeleteConfirmModal
         open={deleteModalIsOpen ? true : false}

@@ -1704,7 +1704,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
 
         <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
           <div className="flex w-full gap-0 items-center flex-col md:flex-row">
-            <div className="w-full md:w-[65%] flex-shrink-0 max-h-[200px]">
+            <div className="w-full md:w-[60%] flex-shrink-0 max-h-[200px]">
               <Row gutter={[12, 12]}>
                 <Col span={24} sm={12} md={12} lg={12}>
                   <DetailSummaryInfo
@@ -1803,7 +1803,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                 </Row>
               </Row>
             </div>
-            <div className="w-full md:w-[30%] mt-4 md:mt-0">
+            <div className="w-full md:w-[35%] mt-4 md:mt-0">
               {isCommissionTableVisible && (commissionAgent.length > 0 || commissionAgentData.length > 0) ? (
                 <div className="rounded-lg p-4" style={{ backgroundColor: '#F8FAFC' }}>
                   <div className="max-w-full">
@@ -1814,11 +1814,13 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                       rowKey={(record) => record.commission_agent_id}
                       size="small"
                       pagination={false}
+                      // scroll={{ x: 'calc(100% - 200px)' }}
                       rowSelection={null}
                       rowClassName={(record) =>
                         hiddenAgentKeys.includes(record.commission_agent_id) ? 'hidden-row' : ''
                       }
                       className="comission-agent-quotation-custom-table"
+                      // tableLayout="fixed"
                     />
                   </div>
                 </div>
@@ -1869,7 +1871,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
             Save & Exit
           </Button>
 
-          {mode === 'edit' ? <Button onClick={() => setVendorModalOpen(true)}>Vendors</Button> : ''}
+          {mode === 'edit' && permissions?.vp_quotation?.add ? <Button onClick={() => setVendorModalOpen(true)}>Vendors</Button> : ''}
         </div>
       </Form>
       <NotesModal
