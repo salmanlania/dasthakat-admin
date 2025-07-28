@@ -573,7 +573,7 @@ class QuotationController extends Controller
 				}
 			}
 
-			if ($request->commission_agent) {
+			// if ($request->commission_agent) {
 				QuotationCommissionAgent::where('quotation_id', $id)->delete();
 				foreach ($request->commission_agent as $key => $value) {
 					$detail_uuid = $this->get_uuid();
@@ -591,7 +591,7 @@ class QuotationController extends Controller
 					];
 					QuotationCommissionAgent::create($insert);
 				}
-			}
+			// }
 
 			DB::commit();  // Success
 
