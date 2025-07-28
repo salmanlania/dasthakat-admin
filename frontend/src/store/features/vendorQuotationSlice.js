@@ -518,7 +518,7 @@ export const vendorQuotationSlice = createSlice({
           supplier_id: detail?.supplier
             ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
             : null,
-          vendor_part_no: detail?.vendor_part_no,
+          vendor_part_no: item?.vendor_quotation_detail?.vendor_part_no || null,
           internal_notes: detail?.internal_notes,
           cost_price: vendorCost,
           markup: detail?.markup,
