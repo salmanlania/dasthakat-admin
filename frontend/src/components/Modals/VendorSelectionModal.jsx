@@ -280,7 +280,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
         },
       },
       {
-        title: `Rate`,
+        title: `Cost`,
         key: `rate-${vendorIndex}`,
         width: 120,
         maxWidth: 100,
