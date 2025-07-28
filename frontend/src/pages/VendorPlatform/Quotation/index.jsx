@@ -151,7 +151,7 @@ const VendorPlatformQuotation = () => {
         record?.quotation_detail?.quantity ? record?.quotation_detail?.quantity : null,
     },
     {
-      title: 'Rate',
+      title: 'Price',
       dataIndex: 'vendor_rate',
       key: 'vendor_rate',
       width: 120,
