@@ -499,30 +499,18 @@ const VendorPlatform = () => {
     const id = selectedRows.map((row) => row.id);
     const payload = { id };
 
-    switch (actionType) {
-      case 'send_notifications':
-        payload.send_notification = 1;
-        break;
+    if (actionType === 'send_notifications') {
+      payload.send_notification = 1;
 
-      case 'change_required_date':
-        if (!requiredDate) {
-          toast.error('Please select a required date');
-          return;
-        }
-        payload.date_required = dayjs(requiredDate).format('YYYY-MM-DD');
-        break;
+    } else if (actionType === 'change_required_date') {
+      payload.date_required = dayjs(requiredDate).format('YYYY-MM-DD');
 
-      case 'cancel':
-        payload.toggle_is_cancelled = '1';
-        break;
+    } else if (actionType === 'cancel') {
+      payload.toggle_is_cancelled = '1';
 
-      case 'incomplete':
-        payload.status = 'partial';
-        break;
+    } else if (actionType === 'incomplete') {
+      payload.status = 'partial';
 
-      default:
-        toast.error('Invalid action');
-        return;
     }
 
     try {
@@ -536,7 +524,7 @@ const VendorPlatform = () => {
         incomplete: 'Quotations set to incomplete successfully',
       };
 
-      toast.success(successMessages[actionType] || 'Action completed successfully');
+      toast.success(successMessages[actionType] || 'Task completed successfully');
       dispatch(getVendorQuotationList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
