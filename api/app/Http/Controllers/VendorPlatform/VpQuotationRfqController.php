@@ -140,6 +140,9 @@ class VpQuotationRfqController extends Controller
 
     public function actions(Request $request)
     {
+        	if (!isPermission('edit', 'vp_quotation', $request->permission_list))
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+
         $ids = $request->input('id', []);
         $date_required = $request->input('date_required', '');
         $send_notification = $request->input('send_notification', 0);
