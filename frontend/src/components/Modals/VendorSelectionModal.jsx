@@ -81,6 +81,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
                 : null,
               rfqSent: existingVendor.rfq === 1,
               vendor_part_no: existingVendor.vendor_part_no || '',
+              vendor_quotation_detail_id: existingVendor.vendor_quotation_detail_id || null,
             }
             : {
               name: `Vendor`,
@@ -96,6 +97,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
         return {
           key: item.quotation_detail_id || String(index + 1),
           quotation_detail_id: item.quotation_detail_id,
+          vendor_quotation_detail_id: item.vendor_quotation_detail_id,
           product_name:
             item.product_type_id?.value === 4
               ? item.product_name
@@ -164,6 +166,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
           is_primary_vendor: vendor.isPrimary ? 1 : 0,
           rfq: vendor.rfqSent ? 1 : 0,
           vendor_part_no: vendor.vendor_part_no || '',
+          vendor_quotation_detail_id: vendor.vendor_quotation_detail_id || '',
         });
       });
     });

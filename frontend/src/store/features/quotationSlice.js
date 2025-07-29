@@ -729,6 +729,7 @@ export const quotationSlice = createSlice({
           ? { supplier_id: item.vendor.supplier_id, name: item.vendor.name }
           : null,
         vendor_rate: item.vendor_rate,
+        vendor_quotation_detail_id: item.vendor_quotation_detail_id ? item.vendor_quotation_detail_id : null,
         is_primary_vendor: item.is_primary_vendor,
         rfq: item.rfq,
         vendor_part_no: item.vendor_part_no,
