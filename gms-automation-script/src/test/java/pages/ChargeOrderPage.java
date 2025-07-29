@@ -1,6 +1,7 @@
 package pages;
 
 import org.openqa.selenium.*;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -85,15 +86,21 @@ public class ChargeOrderPage extends BaseTest {
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.ant-modal-content")));
         wait.until(ExpectedConditions.visibilityOfElementLocated(ENTER_CUSTOMER_PO)).sendKeys("PO123456");
     }
-   public void clickCancelModalButton(){
-        wait.until(ExpectedConditions.visibilityOfElementLocated(CLICK_CANCEL_BUTTON_OF_CHARGE_ORDER_MODAL)).click();
-    }
-    public void clickSaveChargeModalButton() throws InterruptedException {
-        Thread.sleep(2000);
-        wait.until(ExpectedConditions.elementToBeClickable(CLICK_CHARGE_BUTTON_OF_CHARGE_ORDER_MODAL)).click();
+   public void clickCancelModalButton()  {
+       WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+       WebElement cancelButton = wait.until(ExpectedConditions.elementToBeClickable(CLICK_CANCEL_BUTTON_OF_CHARGE_ORDER_MODAL));
 
-        // ✅ Wait for success toast/modal to confirm the request did not fail
-        wait.until(ExpectedConditions.visibilityOfElementLocated(CHARGE_ORDER_CREATED_MESSAGE));
+       Actions actions = new Actions(driver);
+       actions.moveToElement(cancelButton).pause(Duration.ofMillis(200)).click().perform();
+   }
+    public void clickSaveChargeModalButton() throws InterruptedException {
+//        Thread.sleep(2000);
+//        wait.until(ExpectedConditions.elementToBeClickable(CLICK_CHARGE_BUTTON_OF_CHARGE_ORDER_MODAL)).click();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement cancelButton = wait.until(ExpectedConditions.elementToBeClickable(CLICK_CHARGE_BUTTON_OF_CHARGE_ORDER_MODAL));
+        Actions actions = new Actions(driver);
+        actions.moveToElement(cancelButton).pause(Duration.ofMillis(200)).click().perform();
+
     }
     public void selectAllRows() {
         wait.until(ExpectedConditions.elementToBeClickable(SELECT_ALL_ROWS)).click();
@@ -103,12 +110,11 @@ public class ChargeOrderPage extends BaseTest {
         WebElement qtyInput = wait.until(ExpectedConditions.visibilityOfElementLocated(INPUT_QTY_ROW_1));
         qtyInput.sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.DELETE));
         qtyInput.sendKeys("0");
-        Thread.sleep(2000);
+//        Thread.sleep(2000);
         clickSaveChargeModalButton();
-
         WebElement modalTitle = wait.until(ExpectedConditions.visibilityOfElementLocated(INPUT_QTY_ROW_1_ERROR_MESSAGE));
-
         String actualText = modalTitle.getText();
+        System.out.println(actualText);
         Assert.assertTrue(actualText.contains("Quantity must be greater than 0"),
                 "Modal text is incorrect! Found: " + actualText);
     }

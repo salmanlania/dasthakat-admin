@@ -6,7 +6,10 @@
 
     <test name="Test Create Customer">
         <classes>
-            <class name="tests.QuotationTest"/>
+<!--            <class name="tests.UserTest"/>-->
+<!--            <class name="tests.CustomerTest"/>-->
+            <class name="tests.ChargeOrderTest"/>
+<!--            <class name="tests.QuotationTest"/>-->
         </classes>
     </test>
 

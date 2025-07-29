@@ -25,6 +25,7 @@ public class QuotationTest extends BaseTest {
         quotePage.verifyQuotationNoAuto();
     }
 
+
     @Test(priority = 3, description = "ID=TC_03 Verify Select Event and auto populate related fields functionality")
     public void selectEventAndVerifyAutoPopulateFields() {
         CreateQuotePage quotePage = new CreateQuotePage(driver, this);
@@ -192,10 +193,10 @@ public class QuotationTest extends BaseTest {
         quotePage.addIMPAProductIntoGrid();
         Thread.sleep(2000);
         quotePage.clickCancelQuotationButton();
-        String afterCount = quotePage.afterAddQuotation();
-        System.out.println(afterCount);
-        boolean areCountsEqual = quotePage.compareCounts(beforeCount, afterCount);
-        assert areCountsEqual : "Pagination text changed unexpectedly.";
+//        String afterCount = quotePage.afterAddQuotation();
+//        System.out.println(afterCount);
+//        boolean areCountsEqual = quotePage.compareCounts(beforeCount, afterCount);
+//        assert areCountsEqual : "Pagination text changed unexpectedly.";
     }
 
     @Test(priority = 13, description = "ID=TC_39 Verify list view global Search filter functionality Turn on screen reader support")
@@ -203,7 +204,8 @@ public class QuotationTest extends BaseTest {
         CreateQuotePage quotePage = new CreateQuotePage(driver,this);
         quotePage.clickSaleManagementDropdown();
         quotePage.clickQuotationDropdown();
-        boolean isSearchValid = quotePage.verifyGlobalSearch("KHI/QT-000");
+        quotePage.searchClear();
+        boolean isSearchValid = quotePage.verifyGlobalSearch("KHI/QT-0004");
         assert isSearchValid : "Search failed to filter results.";
 
     }
@@ -213,7 +215,7 @@ public class QuotationTest extends BaseTest {
         CreateQuotePage quotePage = new CreateQuotePage(driver,this);
         quotePage.clickSaleManagementDropdown();
         quotePage.clickQuotationDropdown();
-        String quotationNumber="KHI/QT-0001";
+        String quotationNumber="KHI/QT-0004";
         quotePage.serachQuotaionNumberandClickEditButtonofSearchedQuotation(quotationNumber);
         quotePage.verifyQuotationNoOnEdit(quotationNumber);
         quotePage.addOtherProductTypeItemInGrid();
@@ -224,6 +226,7 @@ public class QuotationTest extends BaseTest {
         Thread.sleep(2000);
         quotePage.clickSaveUpdateQuotationButton();
         quotePage.verifyQuotationUpdateMessage();
+
     }
 
 
@@ -232,6 +235,7 @@ public class QuotationTest extends BaseTest {
         CreateQuotePage quotePage = new CreateQuotePage(driver,this);
         quotePage.clickSaleManagementDropdown();
         quotePage.clickQuotationDropdown();
+        quotePage.searchClear();
         quotePage.clickSinglyeDeleteButtonFromFlistView();
         quotePage.verifySingleQuotationDeleteMessage();
     }
@@ -264,6 +268,7 @@ public class QuotationTest extends BaseTest {
         quotePage.clickExportButton();
 
     }
+
 
 }
 

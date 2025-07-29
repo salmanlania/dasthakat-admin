@@ -10,17 +10,6 @@ import utils.ReportManager;
 
 public class UserTest extends BaseTest {
 
-    @BeforeMethod
-    public void loginBeforeTests() {
-        // Assuming you are still on the login page
-        ReportManager.createTest("Create User Test Case");
-
-        LoginPage login = new LoginPage(driver);
-        String email = ConfigReader.getProperty("admin.email");
-        String password = ConfigReader.getProperty("admin.password");
-        login.login(email, password);
-    }
-
     @Test(description = "Test Case for Creating User")
     public void createUserTestCase() throws InterruptedException {
         ReportManager.logInfo("Creating a user...");
