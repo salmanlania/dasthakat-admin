@@ -567,6 +567,12 @@ class QuotationController extends Controller
 							'updated_by' => $request->login_user_id,
 						];
 						QuotationDetail::where('quotation_detail_id', $value['quotation_detail_id'])->update($update);
+						VendorQuotationDetail::where('quotation_detail_id', $value['quotation_detail_id'])->where('is_primary_vendor', 1)
+							->update([
+								'vendor_id' => $value['supplier_id'] ?? '',
+								'vendor_rate' => $value['cost_price'] ?? '',
+								'vendor_part_no' => $value['vendor_part_no'] ?? '',
+							]);
 					}
 					if ($value['row_status'] == 'D') {
 						QuotationDetail::where('quotation_detail_id', $value['quotation_detail_id'])->delete();
