@@ -80,7 +80,7 @@ class VpQuotationRfq extends Model
     }
     public function details()
     {
-        return $this->hasMany(VpQuotationRfqDetail::class, 'id');
+        return $this->hasMany(VpQuotationRfqDetail::class, 'id')->orderBy('sort_order');
     }
 
     public function vendor()
