@@ -119,4 +119,4 @@ ALTER TABLE `vp_quotation_rfq_detail`
 
 ALTER TABLE `vp_quotation_rfq`
 ADD COLUMN `vendor_ref_no` VARCHAR(255) NULL AFTER `document_identity`,
-ADD COLUMN `vendor_remarks` DATE NULL AFTER `vendor_ref_no`;
+ADD COLUMN `vendor_remarks` VARCHAR(255) NULL AFTER `vendor_ref_no`;
