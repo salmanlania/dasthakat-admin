@@ -112,7 +112,9 @@ public class CreateCustomerPage {
             baseTest.switchToParentWindow(parentWindow);
             // back to parent window and click the salesman and select the created salesman
             // Use a broader selector for the first item in the list
+            Thread.sleep(1000);
             wait.until(ExpectedConditions.visibilityOfElementLocated(selectSalesman)).click();
+            wait.until(ExpectedConditions.visibilityOfElementLocated(selectSalesman)).sendKeys(salesName);
             By firstItemLocator = By.cssSelector(".rc-virtual-list-holder-inner div");
 
             // Wait until the first item is present and clickable

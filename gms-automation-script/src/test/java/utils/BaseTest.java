@@ -135,7 +135,7 @@ public class BaseTest {
     }
 
     public void switchToSecondWindow() {
-        driver.close();
+//        driver.close();
         List<String> windowList = new ArrayList<>(driver.getWindowHandles());
 
         if (windowList.size() >= 2) {
@@ -150,6 +150,46 @@ public class BaseTest {
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript("document.body.style.zoom='75%';");
     }
+
+    public void switchToThirdWindow() {
+//        driver.close(); // Close the current window
+        List<String> windowList = new ArrayList<>(driver.getWindowHandles());
+
+        if (windowList.size() >= 3) {
+            driver.switchTo().window(windowList.get(2)); // index 2 = third window
+            System.out.println("I'm shifted to third window");
+        } else {
+            System.out.println("Third window not available.");
+            return;
+        }
+
+        // Maximize the window
+        driver.manage().window().maximize();
+
+        // Set zoom level to 75% using JavaScript
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("document.body.style.zoom='75%';");
+    }
+    public String switchToNewWindowAfterAction(Set<String> beforeHandles) {
+        Set<String> afterHandles = driver.getWindowHandles();
+        afterHandles.removeAll(beforeHandles); // Get the newly opened window(s)
+
+        if (afterHandles.size() == 1) {
+            String newWindow = afterHandles.iterator().next();
+            driver.switchTo().window(newWindow);
+            driver.manage().window().maximize();
+
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            js.executeScript("document.body.style.zoom='75%';");
+
+            return newWindow; // <-- return the handle
+        } else {
+            System.out.println("New window not found or multiple new windows opened.");
+            return null;
+        }
+    }
+
+
 
 
     /**

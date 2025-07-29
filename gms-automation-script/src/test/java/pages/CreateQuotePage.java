@@ -22,6 +22,7 @@ public class CreateQuotePage extends BaseTest {
     WebDriver driver;
     WebDriverWait wait;
     String impaCode = "IMPA_CODE" + System.currentTimeMillis();
+    List<String> windowStack = new ArrayList<>();
 
     private final By CLICK_SALES_MANAGEMENT_DROPDOWN = By.cssSelector(".ant-layout-sider-children ul li:nth-child(3) div");
     private final By CLICK_QUOTATION_DROPDOWN = By.cssSelector(".ant-layout-sider-children ul li:nth-child(3) ul li span a");
@@ -35,11 +36,17 @@ public class CreateQuotePage extends BaseTest {
     private final By SELECT_PORT_FROM_DROPDOWN = By.cssSelector("#quotation_port_id_list ~ div.rc-virtual-list div.ant-select-item-option-active");
     private final By SELECT_VALIDITY_FROM_DROPDOWN = By.cssSelector("#quotation_validity_id_list ~ div.rc-virtual-list div.ant-select-item-option-active");
     private final By CLICK_EVENT_INPUT = By.id("quotation_event_id");
+    private final By INSERT_IMO = By.id("vessel_imo");
+    private final By INSERT_VESSEL_NAME = By.id("vessel_name");
     private final By SELECT_EVENT_FROM_DROPDOWN = By.cssSelector("#quotation_event_id_list ~ div.rc-virtual-list div.ant-select-item-option-active");
     private final By SELECT_PRODUCT_FROM_DROPDOWN = By.cssSelector("#quotation_product_name-0_list ~ div.rc-virtual-list div.ant-select-item-option-active");
     private final By SELECT_CATEGORY_FROM_DROPDOWN_ON_PRODUCT_POPUP = By.cssSelector("#product_category_id_list~div.rc-virtual-list div.ant-select-item-option-active");
     private final By SELECT_SUB_CATEGORY_FROM_DROPDOWN_ON_PRODUCT_POPUP = By.cssSelector("#product_sub_category_id_list~div.rc-virtual-list div.ant-select-item-option-active");
     private final By SELECT_EVENT_PLUS_BUTTON = By.cssSelector("#quotation> div.ant-row.css-dev-only-do-not-override-1u61tqm > div:nth-child(3) > div > div > div.ant-col.ant-form-item-control.css-dev-only-do-not-override-1u61tqm > div > div > div > span > svg");
+    private final By SELECT_EVENT_VESSEL_POPUP_PLUS_BUTTON = By.cssSelector("#event> div.ant-row.css-dev-only-do-not-override-1u61tqm > div:nth-child(3) > div > div > div.ant-col.ant-form-item-control.css-dev-only-do-not-override-1u61tqm > div > div > div > span > svg");
+    private final By SELECT_FLAG_VESSEL_POPUP_PLUS_BUTTON = By.cssSelector("#vessel> div.ant-row.css-dev-only-do-not-override-1u61tqm > div:nth-child(4) > div > div > div.ant-col.ant-form-item-control.css-dev-only-do-not-override-1u61tqm > div > div > div > span > svg");
+    private final By SELECT_CLASS_1_VESSEL_POPUP_PLUS_BUTTON = By.cssSelector("#vessel> div.ant-row.css-dev-only-do-not-override-1u61tqm > div:nth-child(5) > div > div > div.ant-col.ant-form-item-control.css-dev-only-do-not-override-1u61tqm > div > div > div > span > svg");
+    private final By SELECT_CLASS_2_VESSEL_POPUP_PLUS_BUTTON = By.cssSelector("#vessel> div.ant-row.css-dev-only-do-not-override-1u61tqm > div:nth-child(6) > div > div > div.ant-col.ant-form-item-control.css-dev-only-do-not-override-1u61tqm > div > div > div > span > svg");
     private final By SELECT_SALESMAN_PLUS_BUTTON = By.cssSelector("#quotation> div.ant-row.css-dev-only-do-not-override-1u61tqm > div:nth-child(2) > div > div > div.ant-col.ant-form-item-control.css-dev-only-do-not-override-1u61tqm > div > div > div > span > svg");
     private final By SELECT_PAYMENT_TERMS_PLUS_BUTTON = By.cssSelector("#quotation> div.ant-row.css-dev-only-do-not-override-1u61tqm > div:nth-child(16) > div > div > div.ant-col.ant-form-item-control.css-dev-only-do-not-override-1u61tqm > div > div > div > span > svg");
     private final By SELECT_PORT_PLUS_BUTTON = By.cssSelector("#quotation> div.ant-row.css-dev-only-do-not-override-1u61tqm > div:nth-child(17) > div > div > div.ant-col.ant-form-item-control.css-dev-only-do-not-override-1u61tqm > div > div > div > span > svg");
@@ -47,14 +54,24 @@ public class CreateQuotePage extends BaseTest {
     private final By SELECT_TERMS_PLUS_BUTTON = By.cssSelector("#quotation> div.rounded-lg div div div div div div div svg");
 
     private final By CLICK_CUSTOMER_INPUT_ON_EVENT_POPUP = By.id("event_customer_id");
+    private final By CLICK_CUSTOMER_INPUT_ON_VESEL_POPUP = By.id("vessel_customer_id");
+    private final By CLICK_FLAG_INPUT_ON_VESEL_POPUP = By.id("vessel_flag_id");
+    private final By CLICK_CLASS_1_INPUT_ON_VESEL_POPUP = By.id("vessel_class1_id");
+    private final By CLICK_CLASS_2_INPUT_ON_VESEL_POPUP = By.id("vessel_class2_id");
     private final By SELECT_CUSTOMER_FROM_DROPDOWN_ON_EVENT_POPUP = By.cssSelector("#event_customer_id_list ~ div.rc-virtual-list div.ant-select-item-option-active");
+    private final By SELECT_CUSTOMER_FROM_DROPDOWN_ON_VESSEL_POPUP = By.cssSelector("#vessel_customer_id_list ~ div.rc-virtual-list div.ant-select-item-option-active");
+    private final By SELECT_VESSEL_FROM_DROPDOWN_ON_VESSEL_POPUP = By.cssSelector("#vessel_flag_id_list ~ div.rc-virtual-list div.ant-select-item-option-active");
     private final By CLICK_VESSEL_INPUT_ON_EVENT_POPUP = By.id("event_vessel_id");
     private final By SELECT_VESSEL_FROM_DROPDOWN_ON_EVENT_POPUP = By.cssSelector("#event_vessel_id_list ~ div.rc-virtual-list div.ant-select-item-option-active");
+    private final By SELECT_FLAG_FROM_DROPDOWN_ON_VESSEL_POPUP = By.cssSelector("#vessel_flag_id_list ~ div.rc-virtual-list div.ant-select-item-option-active");
+    private final By SELECT_CLASS_1_FROM_DROPDOWN_ON_VESSEL_POPUP = By.cssSelector("#vessel_class1_id_list ~ div.rc-virtual-list div.ant-select-item-option-active");
+    private final By SELECT_CLASS_2_FROM_DROPDOWN_ON_VESSEL_POPUP = By.cssSelector("#vessel_class2_id_list ~ div.rc-virtual-list div.ant-select-item-option-active");
     private final By CLICK_CLASS1_INPUT_ON_EVENT_POPUP = By.id("event_class1_id");
     private final By SELECT_CLASS1_FROM_DROPDOWN_ON_EVENT_POPUP = By.cssSelector("#event_class1_id_list ~ div.rc-virtual-list div.ant-select-item-option-active");
     private final By CLICK_CLASS2_INPUT_ON_EVENT_POPUP = By.id("event_class2_id");
     private final By SELECT_CLASS2_FROM_DROPDOWN_ON_EVENT_POPUP = By.cssSelector("#event_class2_id_list ~ div.rc-virtual-list div.ant-select-item-option-active");
     private final By CLICK_SAVE_EVENT_POPUP_BUTTON = By.cssSelector(".justify-end button[type=submit]");
+    private final By CLICK_SAVE_VESSEL_POPUP_BUTTON = By.cssSelector(".justify-end button[type=submit]");
     private final By CLICK_PERSON_INCHARGE_INPUT = By.id("quotation_person_incharge_id");
     private final By SELECT_PERSON_INCHARGE = By.cssSelector("#quotation_person_incharge_id_list ~ div.rc-virtual-list div.ant-select-item-option-active");
 
@@ -73,7 +90,7 @@ public class CreateQuotePage extends BaseTest {
     private final By ADD_OTHER_PTYPE_DESCRIPTION = By.cssSelector("tr.ant-table-row:last-child td:nth-child(5) div div div div div input");
     private final By ADD_QTY_OF_ITEM = By.cssSelector("tr.ant-table-row:last-child td:nth-child(9) div div div div div input");
     private final By ADD_CUSTOMER_NOTES_EDIT_BUTTON_OF_ITEM = By.cssSelector("tr.ant-table-row:last-child td:nth-child(6) div div");
-    private final By CLICK_DELETE_BUTTON_ON_MODAL = By.cssSelector(".mt-6 button:nth-child(2)");
+    private final By CLICK_DELETE_BUTTON_ON_MODAL = By.xpath("/html/body/div[2]/div/div[2]/div/div[1]/div/div/div/div/button[2]/span");
     private final By ADD_INTERNAL_NOTES_EDIT_BUTTON_OF_ITEM = By.cssSelector("tr.ant-table-row:last-child td:nth-child(7) div div");
     private final By ADD_CUSTOMER_NOTES_TEXT = By.cssSelector(".ant-modal-content form");
     private final By ADD_CUSTOMER_NOTES_SAVE_BUTTON = By.cssSelector(".justify-center button:nth-child(2)");
@@ -99,17 +116,20 @@ public class CreateQuotePage extends BaseTest {
     private final By CLICK_PRODUCT_CATEGORY_PLUS_BUTTON = By.cssSelector("#product div div div div:nth-child(5) div div div:nth-child(2) div div div span[unselectable=\"on\"] svg");
     private final By CLICK_ADD_NEW_CATEGORY_BUTTON = By.xpath("//span[contains(text(), 'Add New')]");
     private final By CLICK_ADD_NEW_SALESMAN_BUTTON = By.xpath("//span[contains(text(), 'Add New')]");
+    private final By CLICK_ADD_NEW_FLAG_BUTTON = By.xpath("//span[contains(text(), 'Add New')]");
     private final By CLICK_ADD_NEW_PAYMENT_TERMS_BUTTON = By.xpath("//span[contains(text(), 'Add New')]");
     private final By CLICK_ADD_NEW_PORT_BUTTON = By.xpath("//span[contains(text(), 'Add New')]");
     private final By CLICK_ADD_NEW_VALIDTY_BUTTON = By.xpath("//span[contains(text(), 'Add New')]");
     private final By CLICK_ADD_NEW_TERMS_BUTTON = By.xpath("//span[contains(text(), 'Add New')]");
     private final By INSERT_SALESMAN_NAME = By.cssSelector(".ant-table-tbody tr:nth-child(2) td:nth-child(2) input");
+    private final By INSERT_FLAG_NAME = By.cssSelector(".ant-table-tbody tr:nth-child(2) td:nth-child(2) input");
     private final By INSERT_PAYMENT_TERMS_NAME = By.cssSelector(".ant-table-tbody tr:nth-child(2) td:nth-child(2) input");
     private final By INSERT_PORT_NAME = By.cssSelector(".ant-table-tbody tr:nth-child(2) td:nth-child(2) input");
     private final By INSERT_VALIDITY_NAME = By.cssSelector(".ant-table-tbody tr:nth-child(2) td:nth-child(2) input");
     private final By INSERT_TERMS_NAME = By.cssSelector(".ant-table-tbody tr:nth-child(2) td:nth-child(2) input");
     private final By INSERT_SALESMAN_PERCENTAGE = By.cssSelector(".ant-table-tbody tr:nth-child(2) td:nth-child(3) input");
     private final By CLICK_SALESMAN_SAVE_BUTTON = By.cssSelector(".ant-table-tbody tr:nth-child(2) td:nth-child(5) div button:nth-child(2)");
+    private final By CLICK_FLAG_SAVE_BUTTON = By.cssSelector(".ant-table-tbody tr:nth-child(2) td:nth-child(4) div button:nth-child(2)");
     private final By CLICK_PAYMENT_TERMS_SAVE_BUTTON = By.cssSelector(".ant-table-tbody tr:nth-child(2) td:nth-child(4) div button:nth-child(2)");
     private final By CLICK_PORT_SAVE_BUTTON = By.cssSelector(".ant-table-tbody tr:nth-child(2) td:nth-child(4) div button:nth-child(2)");
     private final By CLICK_VALIDITY_SAVE_BUTTON = By.cssSelector(".ant-table-tbody tr:nth-child(2) td:nth-child(4) div button:nth-child(2)");
@@ -176,7 +196,7 @@ public class CreateQuotePage extends BaseTest {
         this.driver = driver;
 //        this.baseTest = baseTest;
         // Set an explicit wait timeout of 10 seconds (adjust as needed)
-        wait = new WebDriverWait(driver, Duration.ofSeconds(40));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     public void clickSaleManagementDropdown() {
@@ -555,11 +575,290 @@ public class CreateQuotePage extends BaseTest {
         wait.until(ExpectedConditions.elementToBeClickable(CLICK_CUSTOMER_INPUT_ON_EVENT_POPUP)).click();
         wait.until(ExpectedConditions.elementToBeClickable(SELECT_CUSTOMER_FROM_DROPDOWN_ON_EVENT_POPUP)).click();
     }
+    public void selectCustomerFromVesselFromPopup() {
+        // Wait for element to be clickable then click
+        wait.until(ExpectedConditions.elementToBeClickable(CLICK_CUSTOMER_INPUT_ON_VESEL_POPUP)).click();
+        wait.until(ExpectedConditions.elementToBeClickable(SELECT_CUSTOMER_FROM_DROPDOWN_ON_VESSEL_POPUP)).click();
+        boolean isListVisible1;
+        try {
+            System.out.println("Waiting for the Event list to become visible...");
+            By listLocator = By.cssSelector("#vesel_customer_id_list ~ div.rc-virtual-list");
+            wait.until(ExpectedConditions.visibilityOfElementLocated(listLocator)); // ✅ The real check
+            isListVisible1 = true;
+            System.out.println("Event list found and visible.");
+        } catch (TimeoutException e) {
+            isListVisible1 = false;
+            System.out.println("Event list not found within the timeout.");
+        }
+
+// Handle both cases - the rest of the code will run after either block
+        if (isListVisible1) {
+            System.out.println("Selecting the first item from the Event list...");
+            By firstItemLocator = SELECT_CUSTOMER_FROM_DROPDOWN_ON_VESSEL_POPUP;
+            try {
+                WebElement firstItem = wait.until(ExpectedConditions.presenceOfElementLocated(firstItemLocator));
+                System.out.println("First item HTML: " + firstItem.getAttribute("outerHTML"));
+                wait.until(ExpectedConditions.elementToBeClickable(firstItem)).click();
+                System.out.println("First item selected from the list.");
+            } catch (Exception e) {
+                System.out.println("Error selecting first item: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Customer is not available so please create first and try again");
+
+        }
+    }
+  public void selectFlagFromVesselFromPopup() {
+      // Wait for element to be clickable then click
+      wait.until(ExpectedConditions.elementToBeClickable(CLICK_FLAG_INPUT_ON_VESEL_POPUP)).click();
+
+      // Wait for the Event element and click it
+      wait.until(ExpectedConditions.attributeToBe(CLICK_FLAG_INPUT_ON_VESEL_POPUP, "aria-expanded", "true"));
+      // Initialize the isListVisible flag
+      boolean isListVisible1;
+      try {
+          System.out.println("Waiting for the Event list to become visible...");
+          By listLocator = By.cssSelector("#vessel_flag_id_list ~ div.rc-virtual-list");
+          wait.until(ExpectedConditions.visibilityOfElementLocated(listLocator)); // ✅ The real check
+          isListVisible1 = true;
+          System.out.println("Event list found and visible.");
+      } catch (TimeoutException e) {
+          isListVisible1 = false;
+          System.out.println("Event list not found within the timeout.");
+      }
+
+// Handle both cases - the rest of the code will run after either block
+      if (isListVisible1) {
+          System.out.println("Selecting the first item from the Event list...");
+          By firstItemLocator = SELECT_FLAG_FROM_DROPDOWN_ON_VESSEL_POPUP;
+          try {
+              WebElement firstItem = wait.until(ExpectedConditions.presenceOfElementLocated(firstItemLocator));
+              System.out.println("First item HTML: " + firstItem.getAttribute("outerHTML"));
+              wait.until(ExpectedConditions.elementToBeClickable(firstItem)).click();
+              System.out.println("First item selected from the list.");
+          } catch (Exception e) {
+              System.out.println("Error selecting first item: " + e.getMessage());
+          }
+      } else {
+          System.out.println("Taking fallback path...");
+          try {
+
+
+              Set<String> before = driver.getWindowHandles();
+              wait.until(ExpectedConditions.visibilityOfElementLocated(SELECT_FLAG_VESSEL_POPUP_PLUS_BUTTON)).click();
+              String flagWindow = switchToNewWindowAfterAction(before);
+              driver.switchTo().window(flagWindow);
+              windowStack.add(flagWindow);
+              wait.until(ExpectedConditions.visibilityOfElementLocated(CLICK_ADD_NEW_FLAG_BUTTON)).click();
+              wait.until(ExpectedConditions.visibilityOfElementLocated(INSERT_FLAG_NAME)).sendKeys("Test FLad");
+              wait.until(ExpectedConditions.visibilityOfElementLocated(CLICK_FLAG_SAVE_BUTTON)).click();
+              Thread.sleep(5000);
+              driver.close();
+              driver.switchTo().window(windowStack.get(windowStack.size() - 2));
+              windowStack.remove(windowStack.size() - 1);
+              wait.until(ExpectedConditions.elementToBeClickable(CLICK_FLAG_INPUT_ON_VESEL_POPUP)).sendKeys("test");
+              By firstItemLocator = SELECT_FLAG_FROM_DROPDOWN_ON_VESSEL_POPUP;
+              WebElement firstItem = wait.until(ExpectedConditions.presenceOfElementLocated(firstItemLocator));
+              System.out.println("First item HTML: " + firstItem.getAttribute("outerHTML"));
+              wait.until(ExpectedConditions.elementToBeClickable(firstItem)).click();
+              System.out.println("First item selected from the list.");
+          } catch (Exception e) {
+              System.out.println("Error in fallback path: " + e.getMessage());
+          }
+      }
+    }
+  public void selectClass1FromVesselFromPopup() {
+      // Wait for element to be clickable then click
+      wait.until(ExpectedConditions.elementToBeClickable(CLICK_CLASS_1_INPUT_ON_VESEL_POPUP)).sendKeys("Test Class 1");
+
+      // Wait for the Event element and click it
+      wait.until(ExpectedConditions.attributeToBe(CLICK_CLASS_1_INPUT_ON_VESEL_POPUP, "aria-expanded", "true"));
+      // Initialize the isListVisible flag
+      boolean isListVisible1;
+      try {
+          System.out.println("Waiting for the Event list to become visible...");
+          By listLocator = By.cssSelector("#vessel_class1_id_list ~ div.rc-virtual-list");
+          wait.until(ExpectedConditions.visibilityOfElementLocated(listLocator)); // ✅ The real check
+          isListVisible1 = true;
+          System.out.println("Event list found and visible.");
+      } catch (TimeoutException e) {
+          isListVisible1 = false;
+          System.out.println("Event list not found within the timeout.");
+      }
+
+// Handle both cases - the rest of the code will run after either block
+      if (isListVisible1) {
+          System.out.println("Selecting the first item from the Event list...");
+          By firstItemLocator = SELECT_CLASS_1_FROM_DROPDOWN_ON_VESSEL_POPUP;
+          try {
+              WebElement firstItem = wait.until(ExpectedConditions.presenceOfElementLocated(firstItemLocator));
+              System.out.println("First item HTML: " + firstItem.getAttribute("outerHTML"));
+              wait.until(ExpectedConditions.elementToBeClickable(firstItem)).click();
+              System.out.println("First item selected from the list.");
+          } catch (Exception e) {
+              System.out.println("Error selecting first item: " + e.getMessage());
+          }
+      } else {
+          System.out.println("Taking fallback path...");
+          try {
+
+
+              Set<String> before = driver.getWindowHandles();
+              wait.until(ExpectedConditions.visibilityOfElementLocated(SELECT_CLASS_1_VESSEL_POPUP_PLUS_BUTTON)).sendKeys("Test Class 1");
+              String flagWindow = switchToNewWindowAfterAction(before);
+              driver.switchTo().window(flagWindow);
+              windowStack.add(flagWindow);
+              Thread.sleep(5000);
+              wait.until(ExpectedConditions.visibilityOfElementLocated(CLICK_ADD_NEW_FLAG_BUTTON)).click();
+              wait.until(ExpectedConditions.visibilityOfElementLocated(INSERT_FLAG_NAME)).sendKeys("Test CLASS 1");
+              wait.until(ExpectedConditions.visibilityOfElementLocated(CLICK_FLAG_SAVE_BUTTON)).click();
+              Thread.sleep(5000);
+              driver.close();
+              driver.switchTo().window(windowStack.get(windowStack.size() - 2));
+              windowStack.remove(windowStack.size() - 1);
+              wait.until(ExpectedConditions.elementToBeClickable(CLICK_CLASS_1_INPUT_ON_VESEL_POPUP)).sendKeys("Test Class 1");
+              By firstItemLocator = SELECT_CLASS_1_FROM_DROPDOWN_ON_VESSEL_POPUP;
+              WebElement firstItem = wait.until(ExpectedConditions.presenceOfElementLocated(firstItemLocator));
+              System.out.println("First item HTML: " + firstItem.getAttribute("outerHTML"));
+              wait.until(ExpectedConditions.elementToBeClickable(firstItem)).click();
+              System.out.println("First item selected from the list.");
+          } catch (Exception e) {
+              System.out.println("Error in fallback path: " + e.getMessage());
+          }
+      }
+    }
+  public void selectClass2FromVesselFromPopup() {
+      // Wait for element to be clickable then click
+      wait.until(ExpectedConditions.elementToBeClickable(CLICK_CLASS_2_INPUT_ON_VESEL_POPUP)).sendKeys("Test Class 2");
+
+      // Wait for the Event element and click it
+      wait.until(ExpectedConditions.attributeToBe(CLICK_CLASS_2_INPUT_ON_VESEL_POPUP, "aria-expanded", "true"));
+      // Initialize the isListVisible flag
+      boolean isListVisible1;
+      try {
+          System.out.println("Waiting for the Event list to become visible...");
+          By listLocator = By.cssSelector("#vessel_class2_id_list ~ div.rc-virtual-list");
+          wait.until(ExpectedConditions.visibilityOfElementLocated(listLocator)); // ✅ The real check
+          isListVisible1 = true;
+          System.out.println("Event list found and visible.");
+      } catch (TimeoutException e) {
+          isListVisible1 = false;
+          System.out.println("Event list not found within the timeout.");
+      }
+
+// Handle both cases - the rest of the code will run after either block
+      if (isListVisible1) {
+          System.out.println("Selecting the first item from the Event list...");
+          By firstItemLocator = SELECT_CLASS_2_FROM_DROPDOWN_ON_VESSEL_POPUP;
+          try {
+              WebElement firstItem = wait.until(ExpectedConditions.presenceOfElementLocated(firstItemLocator));
+              System.out.println("First item HTML: " + firstItem.getAttribute("outerHTML"));
+              wait.until(ExpectedConditions.elementToBeClickable(firstItem)).click();
+              System.out.println("First item selected from the list.");
+          } catch (Exception e) {
+              System.out.println("Error selecting first item: " + e.getMessage());
+          }
+      } else {
+          System.out.println("Taking fallback path...");
+          try {
+
+
+              Set<String> before = driver.getWindowHandles();
+              wait.until(ExpectedConditions.visibilityOfElementLocated(SELECT_CLASS_2_VESSEL_POPUP_PLUS_BUTTON)).click();
+              String class2Window = switchToNewWindowAfterAction(before);
+              driver.switchTo().window(class2Window);
+              windowStack.add(class2Window);
+              Thread.sleep(5000);
+              wait.until(ExpectedConditions.visibilityOfElementLocated(CLICK_ADD_NEW_FLAG_BUTTON)).click();
+              wait.until(ExpectedConditions.visibilityOfElementLocated(INSERT_FLAG_NAME)).sendKeys("Test CLASS 2");
+              wait.until(ExpectedConditions.visibilityOfElementLocated(CLICK_FLAG_SAVE_BUTTON)).click();
+              Thread.sleep(5000);
+              driver.close();
+              driver.switchTo().window(windowStack.get(windowStack.size() - 2));
+              windowStack.remove(windowStack.size() - 1);
+              wait.until(ExpectedConditions.elementToBeClickable(CLICK_CLASS_2_INPUT_ON_VESEL_POPUP)).sendKeys("test");
+              By firstItemLocator = SELECT_CLASS_2_FROM_DROPDOWN_ON_VESSEL_POPUP;
+              WebElement firstItem = wait.until(ExpectedConditions.presenceOfElementLocated(firstItemLocator));
+              System.out.println("First item HTML: " + firstItem.getAttribute("outerHTML"));
+              wait.until(ExpectedConditions.elementToBeClickable(firstItem)).click();
+              System.out.println("First item selected from the list.");
+          } catch (Exception e) {
+              System.out.println("Error in fallback path: " + e.getMessage());
+          }
+      }
+    }
+
+
 
     public void selectVesselFromEventPopup() {
+        String parentWindow = baseTest.getCurrentWindowHandle();
         // Wait for element to be clickable then click
         wait.until(ExpectedConditions.elementToBeClickable(CLICK_VESSEL_INPUT_ON_EVENT_POPUP)).click();
-        wait.until(ExpectedConditions.elementToBeClickable(SELECT_VESSEL_FROM_DROPDOWN_ON_EVENT_POPUP)).click();
+
+        // Wait for the Event element and click it
+        wait.until(ExpectedConditions.attributeToBe(CLICK_VESSEL_INPUT_ON_EVENT_POPUP, "aria-expanded", "true"));
+        // Initialize the isListVisible flag
+        boolean isListVisible1;
+        try {
+            System.out.println("Waiting for the Event list to become visible...");
+            By listLocator = By.cssSelector("#event_vessel_id_list ~ div.rc-virtual-list");
+            wait.until(ExpectedConditions.visibilityOfElementLocated(listLocator)); // ✅ The real check
+            isListVisible1 = true;
+            System.out.println("Event list found and visible.");
+        } catch (TimeoutException e) {
+            isListVisible1 = false;
+            System.out.println("Event list not found within the timeout.");
+        }
+
+// Handle both cases - the rest of the code will run after either block
+        if (isListVisible1) {
+            System.out.println("Selecting the first item from the Event list...");
+            By firstItemLocator = SELECT_VESSEL_FROM_DROPDOWN_ON_EVENT_POPUP;
+            try {
+                WebElement firstItem = wait.until(ExpectedConditions.presenceOfElementLocated(firstItemLocator));
+                System.out.println("First item HTML: " + firstItem.getAttribute("outerHTML"));
+                wait.until(ExpectedConditions.elementToBeClickable(firstItem)).click();
+                System.out.println("First item selected from the list.");
+            } catch (Exception e) {
+                System.out.println("Error selecting first item: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Taking fallback path...");
+            try {
+
+                Set<String> before = driver.getWindowHandles();
+                wait.until(ExpectedConditions.visibilityOfElementLocated(SELECT_EVENT_VESSEL_POPUP_PLUS_BUTTON)).click();
+                String vesselWindow = switchToNewWindowAfterAction(before);
+                driver.switchTo().window(vesselWindow);
+                windowStack.add(vesselWindow);
+//                baseTest.switchToSecondWindow();
+                wait.until(ExpectedConditions.elementToBeClickable(INSERT_IMO)).sendKeys("IMo-0101");
+                wait.until(ExpectedConditions.elementToBeClickable(INSERT_VESSEL_NAME)).sendKeys("Test Vessel name");
+                selectCustomerFromVesselFromPopup();
+                selectFlagFromVesselFromPopup();
+                selectClass1FromVesselFromPopup();
+                selectClass2FromVesselFromPopup();
+                WebElement dropdown = driver.findElement(By.id("vessel_block_status")); // Use correct locator
+                Actions actions = new Actions(driver);
+                actions.moveToElement(dropdown).click().sendKeys(Keys.ARROW_DOWN).sendKeys(Keys.ENTER).build().perform();
+                clickSaveVesselPopupButton();
+                Thread.sleep(2000);
+                driver.close();
+                driver.switchTo().window(windowStack.get(windowStack.size() - 2));
+                windowStack.remove(windowStack.size() - 1);
+                wait.until(ExpectedConditions.elementToBeClickable(CLICK_VESSEL_INPUT_ON_EVENT_POPUP)).sendKeys("Test Vessel name");
+                By firstItemLocator = SELECT_VESSEL_FROM_DROPDOWN_ON_EVENT_POPUP;
+                WebElement firstItem = wait.until(ExpectedConditions.presenceOfElementLocated(firstItemLocator));
+                System.out.println("First item HTML: " + firstItem.getAttribute("outerHTML"));
+                wait.until(ExpectedConditions.elementToBeClickable(firstItem)).click();
+                System.out.println("First item selected from the list.");
+
+
+            } catch (Exception e) {
+                System.out.println("Error in fallback path: " + e.getMessage());
+            }
+        }
+
     }
 
     public void selectClass1FromEventPopup() {
@@ -576,6 +875,9 @@ public class CreateQuotePage extends BaseTest {
 
     public void clickSaveEventPopupButton() {
         wait.until((ExpectedConditions.elementToBeClickable(CLICK_SAVE_EVENT_POPUP_BUTTON))).click();
+    }
+    public void clickSaveVesselPopupButton() {
+        wait.until((ExpectedConditions.elementToBeClickable(CLICK_SAVE_VESSEL_POPUP_BUTTON))).click();
     }
 
     public void clickSaveProductPopupButton() {
@@ -594,6 +896,7 @@ public class CreateQuotePage extends BaseTest {
         try {
             System.out.println("Waiting for the Event list to become visible...");
             By listLocator = By.cssSelector("#quotation_event_id_list ~ div.rc-virtual-list");
+            wait.until(ExpectedConditions.visibilityOfElementLocated(listLocator)); // ✅ The real check
             isListVisible1 = true;
             System.out.println("Event list found and visible.");
         } catch (TimeoutException e) {
@@ -616,8 +919,11 @@ public class CreateQuotePage extends BaseTest {
         } else {
             System.out.println("Taking fallback path...");
             try {
-                wait.until(ExpectedConditions.visibilityOfElementLocated(SELECT_EVENT_PLUS_BUTTON)).click();
-                baseTest.switchToNewWindow();
+                Set<String> before = driver.getWindowHandles();
+                wait.until(ExpectedConditions.elementToBeClickable(SELECT_EVENT_PLUS_BUTTON)).click();
+                String eventWindow = switchToNewWindowAfterAction(before);
+                windowStack.add(eventWindow);
+//                baseTest.switchToNewWindow();
                 selectCustomerFromEventPopup();
                 selectVesselFromEventPopup();
 //                selectClass1FromEventPopup();
@@ -693,7 +999,8 @@ public class CreateQuotePage extends BaseTest {
         try {
             System.out.println("Waiting for the Event list to become visible...");
             By listLocator = By.cssSelector("#product_category_id_list~div.rc-virtual-list");
-            WebElement list = wait.until(ExpectedConditions.visibilityOfElementLocated(listLocator));
+            wait.until(ExpectedConditions.visibilityOfElementLocated(listLocator)); // ✅ The real check
+
             isListVisible1 = true;
             System.out.println("Event list found and visible.");
         } catch (TimeoutException e) {
@@ -707,6 +1014,7 @@ public class CreateQuotePage extends BaseTest {
             By firstItemLocator = SELECT_CATEGORY_FROM_DROPDOWN_ON_PRODUCT_POPUP;
 
             try {
+
                 WebElement firstItem = wait.until(ExpectedConditions.presenceOfElementLocated(firstItemLocator));
                 System.out.println("First item HTML: " + firstItem.getAttribute("outerHTML"));
                 wait.until(ExpectedConditions.elementToBeClickable(firstItem)).click();
@@ -719,6 +1027,7 @@ public class CreateQuotePage extends BaseTest {
             try {
                 wait.until(ExpectedConditions.visibilityOfElementLocated(CLICK_PRODUCT_CATEGORY_PLUS_BUTTON)).click();
                 baseTest.switchToLastWindow();
+                Thread.sleep(2000);
                 clickAddNewCategoryButton();
                 insertNameOfProductCategory();
                 Thread.sleep(1000);
@@ -754,7 +1063,7 @@ public class CreateQuotePage extends BaseTest {
         try {
             System.out.println("Waiting for the Event list to become visible...");
             By listLocator = By.cssSelector("#product_sub_category_id_list~div.rc-virtual-list");
-            WebElement list = wait.until(ExpectedConditions.visibilityOfElementLocated(listLocator));
+            wait.until(ExpectedConditions.visibilityOfElementLocated(listLocator)); // ✅ The real check
             isListVisible1 = true;
             System.out.println("Event list found and visible.");
         } catch (TimeoutException e) {
@@ -787,6 +1096,7 @@ public class CreateQuotePage extends BaseTest {
                 clickSaveButtonOfProductSubCategory();
                 Thread.sleep(2000);
                 baseTest.switchToSecondWindow();
+                Thread.sleep(2000);
                 wait.until(ExpectedConditions.elementToBeClickable(CLICK_PRODUCT_SUB_CATEGORY_INPUT)).click();
                 Thread.sleep(4000);
                 wait.until(ExpectedConditions.elementToBeClickable(CLICK_PRODUCT_SUB_CATEGORY_INPUT)).sendKeys("This is");
@@ -842,6 +1152,7 @@ public class CreateQuotePage extends BaseTest {
             try {
                 wait.until(ExpectedConditions.visibilityOfElementLocated(CLICK_PRODUCT_BRAND_PLUS_BUTTON)).click();
                 baseTest.switchToLastWindow();
+                Thread.sleep(2000);
                 clickAddNewBrandButton();
                 insertNameOfProductBrand();
                 clickSaveButtonOfProductBrand();
@@ -1560,7 +1871,7 @@ public class CreateQuotePage extends BaseTest {
         try {
             System.out.println("Waiting for the Event list to become visible...");
             By listLocator = By.cssSelector("#quotation_validity_id_list ~ div.rc-virtual-list");
-            WebElement list = wait.until(ExpectedConditions.visibilityOfElementLocated(listLocator));
+            wait.until(ExpectedConditions.visibilityOfElementLocated(listLocator)); // ✅ The real check
             isListVisible1 = true;
             System.out.println("Event list found and visible.");
         } catch (TimeoutException e) {
@@ -1586,12 +1897,13 @@ public class CreateQuotePage extends BaseTest {
             try {
                 wait.until(ExpectedConditions.visibilityOfElementLocated(SELECT_VALIDITY_PLUS_BUTTON)).click();
                 baseTest.switchToNewWindow();
+                Thread.sleep(5000);
                 wait.until(ExpectedConditions.visibilityOfElementLocated(CLICK_ADD_NEW_VALIDTY_BUTTON)).click();
                 wait.until(ExpectedConditions.visibilityOfElementLocated(INSERT_VALIDITY_NAME)).sendKeys(validity);
                 wait.until(ExpectedConditions.visibilityOfElementLocated(CLICK_VALIDITY_SAVE_BUTTON)).click();
                 Thread.sleep(5000);
                 baseTest.switchToParentWindow(parentWindow);
-                wait.until(ExpectedConditions.elementToBeClickable(CLICK_VALIDITY_INPUT)).sendKeys("validity ");
+                wait.until(ExpectedConditions.elementToBeClickable(CLICK_VALIDITY_INPUT)).sendKeys("validity");
                 Thread.sleep(5000);
                 By firstItemofEvent = SELECT_VALIDITY_FROM_DROPDOWN;
                 Thread.sleep(5000);
@@ -1627,7 +1939,7 @@ public class CreateQuotePage extends BaseTest {
         try {
             System.out.println("Waiting for the Event list to become visible...");
             By listLocator = By.cssSelector("#quotation_term_id_list ~ div.rc-virtual-list");
-            WebElement list = wait.until(ExpectedConditions.visibilityOfElementLocated(listLocator));
+            wait.until(ExpectedConditions.visibilityOfElementLocated(listLocator)); // ✅ The real check
             isListVisible1 = true;
             System.out.println("Event list found and visible.");
         } catch (TimeoutException e) {
@@ -1651,6 +1963,7 @@ public class CreateQuotePage extends BaseTest {
             try {
                 wait.until(ExpectedConditions.visibilityOfElementLocated(SELECT_TERMS_PLUS_BUTTON)).click();
                 baseTest.switchToNewWindow();
+                Thread.sleep(5000);
                 wait.until(ExpectedConditions.visibilityOfElementLocated(CLICK_ADD_NEW_TERMS_BUTTON)).click();
                 wait.until(ExpectedConditions.visibilityOfElementLocated(INSERT_TERMS_NAME)).sendKeys(additionalTextForNote);
                 wait.until(ExpectedConditions.visibilityOfElementLocated(CLICK_TERMS_SAVE_BUTTON)).click();
@@ -1741,9 +2054,18 @@ public class CreateQuotePage extends BaseTest {
     }
 
     public void serachQuotaionNumberandClickEditButtonofSearchedQuotation(String searchQuoteNo) throws InterruptedException {
-        wait.until(ExpectedConditions.elementToBeClickable(GLOBAL_SEARCH_INPUT_ON_LIST_VIEW_LOCATOR)).sendKeys(searchQuoteNo);
+        WebElement input = wait.until(ExpectedConditions.elementToBeClickable(GLOBAL_SEARCH_INPUT_ON_LIST_VIEW_LOCATOR));
+        input.sendKeys(Keys.chord(Keys.CONTROL, "a")); // Select all text
+        input.sendKeys(Keys.DELETE);                   // Delete selected text
+        input.sendKeys(searchQuoteNo);                 // Enter new value
         Thread.sleep(5000);
         wait.until(ExpectedConditions.elementToBeClickable(CLICK_SEARCHED_EDIT_BUTTON_QUOTATION_ON_LIST_VIEW)).click();
+
+    }
+    public void searchClear() {
+        WebElement input = wait.until(ExpectedConditions.elementToBeClickable(GLOBAL_SEARCH_INPUT_ON_LIST_VIEW_LOCATOR));
+        input.sendKeys(Keys.chord(Keys.CONTROL, "a")); // Select all text
+        input.sendKeys(Keys.DELETE);                   // Delete selected text
 
     }
 
@@ -1786,8 +2108,10 @@ public class CreateQuotePage extends BaseTest {
         }
     }
     public void clickDeleteButtonForModal() {
-        wait.until(ExpectedConditions.elementToBeClickable(CLICK_DELETE_BUTTON_ON_MODAL)).click();
-    }
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        WebElement deleteButton = wait.until(ExpectedConditions.visibilityOfElementLocated(CLICK_DELETE_BUTTON_ON_MODAL));
+        wait.until(ExpectedConditions.elementToBeClickable(deleteButton)).click();    }
     public void clickPrintButtonOnListView() {
         // Save the original tab's handle
         String originalTab = driver.getWindowHandle();
