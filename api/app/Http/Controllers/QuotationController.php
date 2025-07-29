@@ -11,6 +11,7 @@ use App\Models\QuotationDetail;
 use App\Models\QuotationStatus;
 use App\Models\StockLedger;
 use App\Models\Terms;
+use App\Models\VendorQuotationDetail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
@@ -569,6 +570,7 @@ class QuotationController extends Controller
 					}
 					if ($value['row_status'] == 'D') {
 						QuotationDetail::where('quotation_detail_id', $value['quotation_detail_id'])->delete();
+						VendorQuotationDetail::where('quotation_detail_id', $value['quotation_detail_id'])->delete();
 					}
 				}
 			}

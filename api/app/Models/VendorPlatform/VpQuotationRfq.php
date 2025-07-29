@@ -49,6 +49,8 @@ class VpQuotationRfq extends Model
         'document_no',
         'document_prefix',
         'document_identity',
+        'vendor_ref_no',
+        'vendor_remarks',
         'quotation_id',
         'vendor_id',
         'status',

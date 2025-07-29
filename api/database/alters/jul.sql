@@ -100,3 +100,23 @@ ALTER TABLE `vp_quotation_rfq`
 
 ALTER TABLE `vp_quotation_rfq`
  MODIFY column `date_required` DATE NULL AFTER `items_quoted`;
+
+ 
+ALTER TABLE `sale_invoice` MODIFY COLUMN `document_no` INT(11);
+
+
+ALTER TABLE `vp_quotation_rfq_detail`
+  ADD COLUMN `product_id` CHAR(36) NULL AFTER `quotation_detail_id`,
+  ADD COLUMN `product_name` VARCHAR(255) NULL AFTER `product_id`,
+  ADD COLUMN `product_description` TEXT NULL AFTER `product_name`,
+  ADD COLUMN `product_type_id` CHAR(36) NULL AFTER `product_description`,
+  ADD COLUMN `unit_id` CHAR(36) NULL AFTER `product_type_id`,
+  ADD COLUMN `sort_order` INT(11) NOT NULL DEFAULT 0 AFTER `unit_id`,
+  ADD COLUMN `quantity` DECIMAL(10,2) NOT NULL DEFAULT 0.00 AFTER `sort_order`,
+  ADD COLUMN `vendor_rate` DECIMAL(10,2) NOT NULL DEFAULT 0.00 AFTER `quantity`,
+  ADD COLUMN `vendor_part_no` VARCHAR(255) NULL AFTER `vendor_rate`,
+  ADD COLUMN `vendor_notes` VARCHAR(255) NULL AFTER `vendor_part_no`;
+
+ALTER TABLE `vp_quotation_rfq`
+ADD COLUMN `vendor_ref_no` VARCHAR(255) NULL AFTER `document_identity`,
+ADD COLUMN `vendor_remarks` DATE NULL AFTER `vendor_ref_no`;
