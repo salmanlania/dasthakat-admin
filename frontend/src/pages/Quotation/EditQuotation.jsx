@@ -42,7 +42,6 @@ const EditQuotation = () => {
       const res = await dispatch(updateQuotation({ id, data })).unwrap();
       return res;
     } catch (error) {
-      console.log('error' , error)
       handleError(error);
     }
   };

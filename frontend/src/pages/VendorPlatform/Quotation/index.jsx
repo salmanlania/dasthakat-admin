@@ -26,10 +26,6 @@ const VendorPlatformQuotation = () => {
   const { id } = useParams();
 
   useEffect(() => {
-    console.log('state', {
-      vendorReferenceNo,
-      vendorRemarks
-    })
     const style = document.createElement('style');
     style.innerHTML = `
     .ant-table-thead > tr > th {
@@ -47,6 +43,39 @@ const VendorPlatformQuotation = () => {
     .ant-table-tbody > tr:hover > td {
       background-color: #d6e4ff !important;
     }
+
+    .deleted-row {
+      opacity: 0.5;
+      pointer-events: all !important;
+      background-color: #f5f5f5 !important;
+      cursor: not-allowed !important;
+    }
+    
+    .deleted-row:hover > td {
+      background-color: #f5f5f5 !important;
+      cursor: not-allowed !important;
+    }
+    
+    .deleted-row td {
+      color: #999 !important;
+      cursor: not-allowed !important;
+      user-select: none !important;
+    }
+
+    .deleted-row td * {
+      pointer-events: none !important;
+      cursor: not-allowed !important;
+    }
+
+    .deleted-row input,
+    .deleted-row button,
+    .deleted-row select,
+    .deleted-row textarea {
+      pointer-events: none !important;
+      cursor: not-allowed !important;
+      background-color: #f5f5f5 !important;
+      color: #999 !important;
+    }
   `;
     document.head.appendChild(style);
     return () => {
@@ -62,7 +91,6 @@ const VendorPlatformQuotation = () => {
         const fetchedData = res?.data?.data;
 
         const todayDate = dayjs()
-        // const requiredDate = dayjs(fetchedData?.date_required);
         const requiredDate = dayjs(fetchedData?.date_required).startOf('day');
 
 
@@ -88,11 +116,6 @@ const VendorPlatformQuotation = () => {
           });
           return
         }
-        const vendorQuotationDetails = fetchedData?.details?.map((item) => item?.vendor_quotation_detail || {});
-        // setData({
-        //   ...fetchedData,
-        //   quotation_detail: vendorQuotationDetails,
-        // });
         setData(fetchedData);
 
         setVendorReferenceNo(fetchedData?.vendor_ref_no || '');
@@ -109,24 +132,20 @@ const VendorPlatformQuotation = () => {
     fetchData();
   }, []);
 
-  // const sourceData = (data?.details || []).map((item) => {
-  //   return item?.vendor_quotation_detail || {};
-  // });
-
-  const sourceData = (data?.details || []).map((item) => ({
-    ...item?.vendor_quotation_detail,
-    quotation_detail: item?.quotation_detail, // needed for product name & unit
-  }));
-
-  // const updateDetailValue = (index, key, value) => {
-  //   const newQuotationDetail = [...sourceData];
-  //   newQuotationDetail[index][key] = value;
-
-  //   setData({
-  //     ...data,
-  //     quotation_detail: newQuotationDetail,
-  //   });
-  // };
+  const sourceData = (data?.details || []).map((item, index) => {
+    return {
+      ...item?.vendor_quotation_detail,
+      product_name: item.product_name,
+      quantity: item.quantity,
+      unit: item.unit,
+      product_type_id: item.product_type_id,
+      vendor_rate: item.vendor_rate,
+      uom: item?.unit?.name,
+      product: item.product,
+      detail_id: item.detail_id,
+      is_deleted: item.is_deleted
+    };
+  });
 
   const updateDetailValue = (index, key, value) => {
     const updatedDetails = [...data.details];
@@ -152,8 +171,12 @@ const VendorPlatformQuotation = () => {
       const quotationId = data?.quotation?.quotation_id;
       const vendorId = data?.vendor?.supplier_id;
 
-      // const quotationDetail = data?.quotation_detail || sourceData;
-      const quotationDetail = data?.details?.map(d => d.vendor_quotation_detail) || [];
+      const quotationDetail = data?.details
+        ?.filter(d => !d.is_deleted)
+        ?.map(d => ({
+        ...d.vendor_quotation_detail,
+        detail_id: d.detail_id
+      })) || [];
 
       if (!quotationDetail || quotationDetail.length === 0) {
         toast.error('No quotation details to submit.');
@@ -171,12 +194,6 @@ const VendorPlatformQuotation = () => {
 
       const res = await api.get(`/vendor-platform/quotation/rfq/${id}`);
       const fetchedData = res?.data?.data;
-      const vendorQuotationDetails = fetchedData?.details?.map((item) => item?.vendor_quotation_detail || {});
-
-      // setData({
-      //   ...fetchedData,
-      //   quotation_detail: vendorQuotationDetails,
-      // });
       setData(fetchedData);
     } catch (error) {
       handleError(error);
@@ -191,10 +208,14 @@ const VendorPlatformQuotation = () => {
       dataIndex: 'product_name',
       key: 'product_name',
       width: 270,
-      render: (_, record) =>
-        record?.quotation_detail?.product_type_id == '4'
-          ? record?.quotation_detail?.product_name
-          : record?.quotation_detail?.product?.name,
+      render: (_, record) => {
+        return (
+          record?.is_deleted ? record?.product_name :
+            record?.quotation_detail?.product_type_id == '4'
+              ? record?.quotation_detail?.product_name
+              : record?.quotation_detail?.product?.name
+        );
+      }
     },
     {
       title: 'Quantity',
@@ -202,7 +223,7 @@ const VendorPlatformQuotation = () => {
       key: 'quantity',
       width: 100,
       render: (_, record) =>
-        record?.quotation_detail?.quantity ? record?.quotation_detail?.quantity : null,
+        record?.is_deleted ? record?.quantity : record?.quotation_detail?.quantity ? record?.quotation_detail?.quantity : null,
     },
     {
       title: 'Price',
@@ -223,8 +244,9 @@ const VendorPlatformQuotation = () => {
       dataIndex: 'uom',
       key: 'uom',
       width: 120,
-      render: (_, record) =>
-        record?.quotation_detail?.unit?.name ? record?.quotation_detail?.unit?.name : null,
+      render: (_, record) => {
+        return record?.is_deleted ? record?.unit?.name : record?.quotation_detail?.unit?.name ? record?.quotation_detail?.unit?.name : null;
+      }
     },
     {
       title: 'Vendor Part #',
@@ -246,7 +268,6 @@ const VendorPlatformQuotation = () => {
       key: 'vendor_notes',
       width: 270,
       render: (_, record, index) => {
-        console.log('record', record)
         return (
           <DebounceInput
             value={record?.vendor_notes ? record?.vendor_notes : ''}
@@ -260,13 +281,11 @@ const VendorPlatformQuotation = () => {
   if (checkingExpiry) return null;
   if (isExpired) return null;
   return (
-    // <div className="p-6 md:p-12">
     <div style={{ padding: '24px', backgroundColor: '#f4f7fa', minHeight: '100vh' }}>
       <div className="flex items-center justify-center">
         <img src={GMSLogo} alt="GMS Logo" className="h-32 w-32" />
       </div>
 
-      {/* <div className="mt-4 rounded border border-gray-200 p-4 shadow-sm"> */}
       <div
         style={{
           marginTop: '24px',
@@ -277,36 +296,6 @@ const VendorPlatformQuotation = () => {
           boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
         }}
       >
-        {/* <div className='flex flex-col justify-center items-center gap-4'>
-          <div className="flex flex-wrap items-center gap-x-16 gap-y-4">
-            <div>
-              <span className="mr-2 text-gray-600">Quotation No:</span>
-              <span>{data?.quotation ? data?.quotation?.document_identity : null}</span>
-            </div>
-            <div>
-              <span className="mr-2 text-gray-600">Event:</span>
-              <span>{data?.quotation?.event?.event_code}</span>
-            </div>
-            <div>
-              <span className="mr-2 text-gray-600">Vessel:</span>
-              <span>{data?.quotation?.vessel?.name}</span>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-x-16 gap-y-4">
-            <div>
-              <span className="mr-2 text-gray-600">Document ID:</span>
-              <span>{data?.document_identity ? data?.document_identity : null}</span>
-            </div>
-            <div>
-              <span className="mr-2 text-gray-600">Vendor Refrence No:</span>
-              <input style={{ border: '1px solid' }} className='p-1' value={data?.document_identity ? data?.document_identity : null} />
-            </div>
-            <div>
-              <span className="mr-2 text-gray-600">Vendor Remarks:</span>
-              <input style={{ border: '1px solid' }} className='p-1' value={data?.document_identity ? data?.document_identity : null} />
-            </div>
-          </div>
-        </div> */}
 
         <div
           style={{
@@ -322,7 +311,6 @@ const VendorPlatformQuotation = () => {
             boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
           }}
         >
-          {/* First Row */}
           <div
             style={{
               display: 'flex',
@@ -344,8 +332,6 @@ const VendorPlatformQuotation = () => {
               <span style={{ fontWeight: 600 }}>{data?.quotation?.vessel?.name || '-'}</span>
             </div>
           </div>
-
-          {/* Second Row */}
           <div
             style={{
               display: 'flex',
@@ -391,7 +377,6 @@ const VendorPlatformQuotation = () => {
           </div>
         </div>
 
-        {/* <Divider className="pb-2 pt-6">Items</Divider> */}
         <Divider style={{ borderColor: '#d0d7e2', color: '#1f3a93', fontWeight: '600' }}>Items</Divider>
 
         <Table
@@ -401,6 +386,7 @@ const VendorPlatformQuotation = () => {
           rowKey={'quotation_detail_id'}
           dataSource={sourceData || []}
           loading={loading}
+          rowClassName={(record) => record.is_deleted ? 'deleted-row' : ''}
           summary={(pageData) => {
             if (pageData.length === 0) return null;
             let totalQuantity = 0;

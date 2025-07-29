@@ -68,6 +68,16 @@ const VendorQuotationForm = () => {
       comments: initialFormValues?.comments || '',
     });
 
+    const style = document.createElement('style');
+    style.innerHTML = `
+    .disabled-row {
+      background-color: #f5f5f5 !important;
+      color: #999 !important;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+  `;
+    document.head.appendChild(style);
 
   }, [initialFormValues, form, quotationDetails]);
 
@@ -269,7 +279,11 @@ const VendorQuotationForm = () => {
                 rowKey={'id'}
                 size="small"
                 style={{ marginTop: '10px', backgroundColor: '#fff', border: '1px solid #d9d9d9', borderRadius: '10px !important' }}
-                rowClassName={(record, index) => index % 2 === 0 ? 'even-row' : 'odd-row'}
+                // rowClassName={(record, index) => index % 2 === 0 ? 'even-row' : 'odd-row'}
+                rowClassName={(record, index) => {
+                  if (record.is_deleted) return 'disabled-row';
+                  return index % 2 === 0 ? 'even-row' : 'odd-row';
+                }}
               />
               <div style={{ marginTop: '10px', textAlign: 'right' }}>
                 <Button type="primary" onClick={() => navigate('/vendor-platform/')}>
