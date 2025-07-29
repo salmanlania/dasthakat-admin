@@ -223,6 +223,7 @@ class VendorQuotationController extends Controller
             'created_at' => Carbon::now(),
         ]);
         $detail = [];
+        $sort_order = VpQuotationRfqDetail::max('sort_order') ?? 0;
         foreach ($quotationDetail as $item) {
             $quotationDetail = QuotationDetail::where('quotation_detail_id', $item['quotation_detail_id'])->first();
             $vQuotationDetail = VendorQuotationDetail::where('vendor_quotation_detail_id', $item['vendor_quotation_detail_id'])->first();
@@ -236,7 +237,7 @@ class VendorQuotationController extends Controller
                 'product_description' => $quotationDetail->product_description ?? null,
                 'product_type_id' => $quotationDetail->product_type_id ?? null,
                 'unit_id' => $quotationDetail->unit_id ?? null,
-                'sort_order' => $vQuotationDetail->sort_order ?? null,
+                'sort_order' => $sort_order++,
                 'quantity' => $quotationDetail->quantity ?? 0,
                 'vendor_rate' => $vQuotationDetail->vendor_rate ?? 0,
                 'vendor_part_no' => $vQuotationDetail->vendor_part_no ?? null,
@@ -262,20 +263,19 @@ class VendorQuotationController extends Controller
             $detail->vendor_quotation_detail = VendorQuotationDetail::with('quotation_detail', 'quotation_detail.product_type', 'quotation_detail.product', 'quotation_detail.unit')
                 ->where('vendor_quotation_detail_id', $detail->vendor_quotation_detail_id)
                 ->first();
-           
-            
-                if (!isset($detail->quotation_detail) || empty($detail->quotation_detail)) {
-                    $detail->load('product_type', 'product', 'unit');
+
+
+            if (!isset($detail->quotation_detail) || empty($detail->quotation_detail)) {
+                $detail->load('product_type', 'product', 'unit');
                 $detail->is_deleted = true;
             } else {
                 $detail->is_deleted = false;
             }
-
         }
-            if (!$rfq) {
-                return $this->jsonResponse([], 404, 'RFQ Not Found!');
-            }
-            return $this->jsonResponse($rfq, 200, 'RFQ Data Fetched Successfully!');
+        if (!$rfq) {
+            return $this->jsonResponse([], 404, 'RFQ Not Found!');
+        }
+        return $this->jsonResponse($rfq, 200, 'RFQ Data Fetched Successfully!');
     }
 
 
@@ -599,7 +599,16 @@ class VendorQuotationController extends Controller
                     $data->updated_at = Carbon::now();
                     $data->updated_by = $request->vendor_id;
                     $data->save();
+                    if (isset($row['detail_id'])) {
+                        $vpQDetail = VpQuotationRfqDetail::where('detail_id', $row['detail_id'])->first();
+                        if (!$vpQDetail) {
 
+                            $vpQDetail->vendor_rate = $row['vendor_rate'] ?? null;
+                            $vpQDetail->vendor_part_no = $row['vendor_part_no'] ?? null;
+                            $vpQDetail->vendor_notes = $row['vendor_notes'] ?? null;
+                            $vpQDetail->save();
+                        }
+                    }
                     // Update quotation detail if this is primary vendor
                     if (!empty($row['vendor_rate'])) {
                         $quotation_detail = QuotationDetail::where('quotation_detail_id', $row['quotation_detail_id'])
@@ -661,7 +670,7 @@ class VendorQuotationController extends Controller
                 ->whereNotNull('vendor_rate')
                 ->count();
             VpQuotationRfq::where('id', $id)
-                ->update(['items_quoted' => $count, 'date_returned' => Carbon::now(),'vendor_ref_no' => $request->vendor_ref_no ?? null, 'vendor_remarks' => $request->vendor_remarks ?? null]);
+                ->update(['items_quoted' => $count, 'date_returned' => Carbon::now(), 'vendor_ref_no' => $request->vendor_ref_no ?? null, 'vendor_remarks' => $request->vendor_remarks ?? null]);
 
             DB::commit();
 
