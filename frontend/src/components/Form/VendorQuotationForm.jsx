@@ -180,7 +180,7 @@ const VendorQuotationForm = () => {
           <Col span={12}>
             <Row gutter={12}>
               <Col span={12}>
-                <Form.Item label="VQ #" style={{ marginBottom: 8 }}>
+                <Form.Item label="V.Plat #" style={{ marginBottom: 8 }}>
                   <Input disabled value={initialFormValues?.document_identity || ''} />
                 </Form.Item>
               </Col>

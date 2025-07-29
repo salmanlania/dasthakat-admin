@@ -41,6 +41,7 @@ import {
   splitQuotationQuantity,
   getQuotation,
   setTotalCommissionAmount,
+  setVendorModalOpen
 } from '../../store/features/quotationSlice';
 import { getSalesman } from '../../store/features/salesmanSlice';
 import generateQuotationExcel from '../../utils/excel/quotation-excel.js';
@@ -93,6 +94,17 @@ export const DetailSummary = ({ title, value }) => {
   );
 };
 
+export const DetailSummaryGp = ({ title, value }) => {
+  return (
+    <div className="flex items-center justify-between gap-2 ml-[9px]">
+      <span className="ml-4 text-sm font-bold" style={{ color: 'black !important' }}>
+        {title}
+      </span>
+      <span className="ml-4 text-sm text-gray-500">{value}</span>
+    </div>
+  );
+};
+
 export const quotationStatusOptions = [
   {
     value: 'In Progress',
@@ -116,7 +128,7 @@ export const quotationStatusOptions = [
   },
 ];
 
-const QuotationForm = ({ mode, onSubmit, onSave }) => {
+const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
   const [form] = Form.useForm();
   const handleError = useError();
   const location = useLocation();
@@ -130,6 +142,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     rebatePercentage,
     salesmanPercentage,
     commissionAgentData,
+    isVendorModalOpen
   } = useSelector((state) => state.quotation);
   const { commissionAgent } = useSelector((state) => state.event);
   const [prevEvent, setPrevEvent] = useState(initialFormValues?.event_id);
@@ -145,7 +158,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
 
   const [globalMarkup, setGlobalMarkup] = useState('');
   const [globalDiscount, setGlobalDiscount] = useState('');
-  const [vendorModalOpen, setVendorModalOpen] = useState(false);
+  const [isLoadingVendor, setIsLoadingVendor] = useState(false);
   const [submitAction, setSubmitAction] = useState(null);
   const [hiddenAgentKeys, setHiddenAgentKeys] = useState([]);
   const [isCommissionTableVisible, setIsCommissionTableVisible] = useState(false);
@@ -156,6 +169,7 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
   let totalNet = 0;
   let totalProfit = 0;
   let typeId = 0;
+  let gp = 0;
 
   quotationDetails.forEach((detail) => {
     typeId = detail?.product_type_id?.value;
@@ -185,28 +199,30 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     parseInt(totalCost || 0) +
     parseInt(totalCommissionAmount || 0);
 
-  // const finalAmount = roundUpto(parseInt(totalNet || 0) - minusValue) || 0;
   const finalAmount = parseInt(totalNet || 0) - minusValue || 0;
-
   totalProfit = roundUpto(finalAmount - totalCost);
 
+  quotationDetails.forEach((detail) => {
+    gp = finalAmount * 100 / totalNet
+  });
+
   useEffect(() => {
-    if (commissionAgent?.length > 0 && totalNet) {
-      const totalAmount = commissionAgent.reduce((sum, agent) => {
-        const percentage = parseFloat(agent.commission_percentage || 0);
-        const amount = roundUpto((percentage * totalNet) / 100);
-        return sum + (isNaN(amount) ? 0 : amount);
-      }, 0);
+    const activeAgents =
+      commissionAgent?.length > 0 ? commissionAgent : commissionAgentData;
+
+    if (activeAgents?.length > 0 && totalNet) {
+      const totalAmount = activeAgents
+        .filter((agent) => !hiddenAgentKeys.includes(agent.commission_agent_id))
+        .reduce((sum, agent) => {
+          const percentage = parseFloat(agent.commission_percentage || 0);
+          const amount = roundUpto((percentage * totalNet) / 100);
+          return sum + (isNaN(amount) ? 0 : amount);
+        }, 0);
       dispatch(setTotalCommissionAmount(totalAmount));
-    } else if (commissionAgentData?.length > 0 && totalNet) {
-      const totalAmount = commissionAgentData.reduce((sum, agent) => {
-        const percentage = parseFloat(agent.commission_percentage || 0);
-        const amount = roundUpto((percentage * totalNet) / 100);
-        return sum + (isNaN(amount) ? 0 : amount);
-      }, 0);
-      dispatch(setTotalCommissionAmount(totalAmount));
+    } else {
+      dispatch(setTotalCommissionAmount(0));
     }
-  }, [commissionAgent, commissionAgentData, totalNet]);
+  }, [commissionAgent, commissionAgentData, totalNet, hiddenAgentKeys, dispatch]);
 
   const onFinish = (values) => {
     const checkCommission = commissionAgentData?.length > 0 ? commissionAgentData : commissionAgent;
@@ -295,9 +311,24 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       ? onSubmit(data).then(() => dispatch(resetCommissionAgent()))
       : submitAction === 'saveAndExit'
         ? onSave(data).then(() => dispatch(resetCommissionAgent()))
-        : null;
-
-    // submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
+        : submitAction === 'rfq'
+          ? (setIsLoadingVendor(true),
+            onVendor(data)
+              .then(async () => {
+                try {
+                  await dispatch(getQuotation(id)).unwrap();
+                  dispatch(setVendorModalOpen(true));
+                } catch (error) {
+                  handleError(error);
+                } finally {
+                  setIsLoadingVendor(false);
+                }
+              })
+              .catch((error) => {
+                handleError(error);
+                setIsLoadingVendor(false);
+              }))
+          : null;
   };
 
   const closeNotesModal = () => {
@@ -317,95 +348,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
     );
 
     closeNotesModal();
-  };
-
-  const onProductCodeChange = async (index, value) => {
-    const productCode = String(value).trim();
-    if (!productCode) return;
-    try {
-      const res = await dispatch(getProductList({ product_code: value, stock: true })).unwrap();
-
-      if (!res.data.length) return;
-
-      const product = res.data[0];
-      const stockQuantity = product?.stock?.quantity || 0;
-
-      form.setFieldsValue({
-        [`product_id-${index}`]: product?.product_id
-          ? {
-            value: product.product_id,
-            label: product.product_name,
-          }
-          : null,
-        [`product_description-${index}`]: product?.product_name || '',
-      });
-
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'product_id',
-          value: {
-            value: product.product_id,
-            label: product.product_name,
-          },
-        }),
-      );
-
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'product_description',
-          value: product?.product_name || '',
-        }),
-      );
-
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'product_type_id',
-          value: product.product_type_id
-            ? {
-              value: product.product_type_id,
-              label: product.product_type_name,
-            }
-            : null,
-        }),
-      );
-
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'unit_id',
-          value: { value: product.unit_id, label: product.unit_name },
-        }),
-      );
-
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'stock_quantity',
-          value: stockQuantity,
-        }),
-      );
-
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'cost_price',
-          value: product.cost_price,
-        }),
-      );
-
-      dispatch(
-        changeQuotationDetailValue({
-          index,
-          key: 'rate',
-          value: product.sale_price,
-        }),
-      );
-    } catch (error) {
-      handleError(error);
-    }
   };
 
   const onProductChange = async (index, selected) => {
@@ -1146,7 +1088,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
             <DebouncedCommaSeparatedInput
               value={rate || "0"}
               onChange={(value) => {
-                // if (parseFloat(value) !== parseFloat(rate)) {
                 dispatch(
                   changeQuotationDetailValue({
                     index,
@@ -1154,7 +1095,6 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                     value: value || "0",
                   }),
                 );
-                // }
               }}
             />
           </Form.Item>
@@ -1794,10 +1734,14 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                   <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
                 </Col>
                 <Row gutter={[12, 12]}>
-                  <div className="flex flex-col gap-2 text-right">
+                  <div className="flex flex-col gap-2 text-right justify-between">
                     <DetailSummary
                       title="Total Quantity:"
                       value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
+                    />
+                    <DetailSummaryGp
+                      title="GP %:"
+                      value={`${formatThreeDigitCommas(roundUpto(gp)) || 0}%`}
                     />
                   </div>
                 </Row>
@@ -1810,17 +1754,14 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
                     <Table
                       columns={commissionAgentColumns}
                       dataSource={commissionAgent.length > 0 ? commissionAgent : commissionAgentData}
-                      // dataSource={commissionAgentData}
                       rowKey={(record) => record.commission_agent_id}
                       size="small"
                       pagination={false}
-                      // scroll={{ x: 'calc(100% - 200px)' }}
                       rowSelection={null}
                       rowClassName={(record) =>
                         hiddenAgentKeys.includes(record.commission_agent_id) ? 'hidden-row' : ''
                       }
                       className="comission-agent-quotation-custom-table"
-                      // tableLayout="fixed"
                     />
                   </div>
                 </div>
@@ -1871,7 +1812,11 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
             Save & Exit
           </Button>
 
-          {mode === 'edit' && permissions?.vp_quotation?.add ? <Button onClick={() => setVendorModalOpen(true)}>Vendors</Button> : ''}
+          {mode === 'edit' && permissions?.vp_quotation?.add ?
+            <Button onClick={() => {
+              setSubmitAction('rfq');
+              form.submit();
+            }}>RFQ</Button> : ''}
         </div>
       </Form>
       <NotesModal
@@ -1885,16 +1830,16 @@ const QuotationForm = ({ mode, onSubmit, onSave }) => {
       />
 
       <VendorSelectionModal
-        open={vendorModalOpen}
+        open={isVendorModalOpen}
         onClose={async () => {
-          setVendorModalOpen(false);
+          dispatch(setVendorModalOpen(false))
           try {
             await dispatch(getQuotation(id)).unwrap();
-            setVendorModalOpen(true);
           } catch (error) {
-            handleError(error);
+            handleError(error)
           }
         }}
+        loading={isLoadingVendor}
       />
     </>
   );

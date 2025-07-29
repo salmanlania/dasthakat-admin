@@ -104,7 +104,7 @@ const VendorPlatform = () => {
     {
       title: (
         <div>
-          <p>VQ #</p>
+          <p>V.Plat #</p>
           <Input
             className="font-normal"
             size="small"

@@ -126,7 +126,8 @@ export const updateQuotation = createAsyncThunk(
   'quotation/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      await api.put(`/quotation/${id}`, data);
+      const res = await api.put(`/quotation/${id}`, data);
+      return res.data
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -183,6 +184,7 @@ export const postRfq = createAsyncThunk(
 
 const initialState = {
   isListLoading: false,
+  isVendorModalOpen: false,
   isFormSubmitting: false,
   isBulkDeleting: false,
   initialFormValues: null,
@@ -218,11 +220,16 @@ export const quotationSlice = createSlice({
       state.quotationDetails = [];
       state.initialFormValues = null;
     },
+
     setQuotationListParams: (state, action) => {
       state.params = {
         ...state.params,
         ...action.payload,
       };
+    },
+
+    setVendorModalOpen: (state, action) => {
+      state.isVendorModalOpen = action.payload;
     },
 
     setQuotationDeleteIDs: (state, action) => {
@@ -295,8 +302,6 @@ export const quotationSlice = createSlice({
     changeQuotationDetailValue: (state, action) => {
       const { index, key, value } = action.payload;
 
-      // console.log('changeQuotationDetailValue', key, value);
-
       const detail = state.quotationDetails[index];
 
       if (detail.row_status === 'U' && detail[key] !== value) {
@@ -324,21 +329,11 @@ export const quotationSlice = createSlice({
         detail.amount = roundUpto(+detail.quantity * +detail.rate);
 
         if (key === 'rate' && +detail.cost_price && +detail.rate) {
-          // detail.full_rate = detail.rate;
           if (detail.old_rate != detail.rate) {
             detail.markup = roundUpto(
               ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100,
             );
           }
-          // // console.log(`rate:${detail.rate}, cost_price:${detail.cost_price}`);
-          // // console.log('beforeRoundUPTO, ', ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100)
-
-          //  console.log('detail' , {
-          //   full_rate : detail.full_rate,
-          //   rate : detail.rate,
-          //   cost_price : detail.cost_price,
-          //   markup : detail.markup,
-          //  });
         }
       } else {
         detail.amount = '';
@@ -655,7 +650,7 @@ export const quotationSlice = createSlice({
         row_status: 'U',
         isDeleted: false,
       }));
-
+      
       state.vendorQuotationDetails = data.quotation_detail
         .map((detail) => ({
           id: detail.quotation_detail_id,
@@ -946,5 +941,6 @@ export const {
   resetQuotationState,
   splitQuotationQuantity,
   resetVendorDetails,
+  setVendorModalOpen
 } = quotationSlice.actions;
 export default quotationSlice.reducer;
