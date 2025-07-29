@@ -224,11 +224,23 @@ class VendorQuotationController extends Controller
         ]);
         $detail = [];
         foreach ($quotationDetail as $item) {
+            $quotationDetail = QuotationDetail::where('quotation_detail_id', $item['quotation_detail_id'])->first();
+            $vQuotationDetail = VendorQuotationDetail::where('vendor_quotation_detail_id', $item['vendor_quotation_detail_id'])->first();
             $detail[] = [
                 'detail_id' => $this->get_uuid(),
                 'id' => $id,
                 'quotation_detail_id' => $item->quotation_detail_id,
                 'vendor_quotation_detail_id' => $item->vendor_quotation_detail_id ?? null,
+                'product_id' => $quotationDetail->product_id ?? null,
+                'product_name' => $quotationDetail->product_name ?? null,
+                'product_description' => $quotationDetail->product_description ?? null,
+                'product_type_id' => $quotationDetail->product_type_id ?? null,
+                'unit_id' => $quotationDetail->unit_id ?? null,
+                'sort_order' => $vQuotationDetail->sort_order ?? null,
+                'quantity' => $quotationDetail->quantity ?? 0,
+                'vendor_rate' => $vQuotationDetail->vendor_rate ?? 0,
+                'vendor_part_no' => $vQuotationDetail->vendor_part_no ?? null,
+                'vendor_notes' => $vQuotationDetail->vendor_notes ?? null,
                 'created_by' => $data['created_by_user'] ?? null,
                 'updated_by' => $data['created_by_user'] ?? null,
             ];
