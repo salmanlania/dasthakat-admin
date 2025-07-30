@@ -622,6 +622,7 @@ class VendorQuotationController extends Controller
                         if ($data->is_primary_vendor == 1) {
                             $updateQuote = true;
                             $quotation_detail->vendor_part_no = $row['vendor_part_no'] ?? "";
+                            $quotation_detail->vendor_notes = $row['vendor_notes'] ?? "";
                             $quotation_detail->cost_price = $row['vendor_rate'];
                             $quotation_detail->rate = $quotation_detail->cost_price +  ($quotation_detail->cost_price * $quotation_detail->markup) / 100;
                             $quotation_detail->amount = $quotation_detail->quantity * $row['vendor_rate'];

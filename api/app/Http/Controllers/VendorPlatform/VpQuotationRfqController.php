@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\VendorPlatform\VpQuotationRfq;
 use App\Models\VendorPlatform\VpQuotationRfqDetail;
+use App\Models\VendorQuotationDetail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -165,7 +166,15 @@ class VpQuotationRfqController extends Controller
                 $rfq->is_cancelled = 0;
                 VpQuotationRfqDetail::where('id', $id)->update([
                     'vendor_rate' => null,
+                    'vendor_part_no' => null,
+                    'vendor_notes' => null,
                 ]);
+                VendorQuotationDetail::whereIn('vendor_quotation_detail_id', VpQuotationRfqDetail::where('id', $id)->pluck('vendor_quotation_detail_id'))
+                    ->update([
+                        'vendor_rate' => null,
+                        'vendor_part_no' => null,
+                        'vendor_notes' => null,
+                    ]);
             }
 
             if ($toggleIsCancelled == 1) {
