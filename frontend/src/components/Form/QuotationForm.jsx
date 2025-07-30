@@ -7,41 +7,41 @@ import {
   Dropdown,
   Form,
   Input,
-  Row,
   Popover,
+  Row,
   Select,
   Table,
   Tooltip,
 } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
-import { TiDelete } from 'react-icons/ti';
-import { FaEye } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { BiPlus } from 'react-icons/bi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
+import { FaEye } from 'react-icons/fa';
 import { IoIosWarning, IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { TbEdit } from 'react-icons/tb';
+import { TiDelete } from 'react-icons/ti';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams, useLocation } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import NotesModal from '../../components/Modals/NotesModal.jsx';
 import useError from '../../hooks/useError';
 import { getEvent, resetCommissionAgent } from '../../store/features/eventSlice';
-import { getProduct, getProductList } from '../../store/features/productSlice';
+import { getProduct } from '../../store/features/productSlice';
 import {
   addQuotationDetail,
   changeQuotationDetailOrder,
   changeQuotationDetailValue,
   copyQuotationDetail,
+  getQuotation,
   getQuotationForPrint,
   removeQuotationDetail,
   resetQuotationDetail,
   setRebatePercentage,
   setSalesmanPercentage,
-  splitQuotationQuantity,
-  getQuotation,
   setTotalCommissionAmount,
-  setVendorModalOpen
+  setVendorModalOpen,
+  splitQuotationQuantity
 } from '../../store/features/quotationSlice';
 import { getSalesman } from '../../store/features/salesmanSlice';
 import generateQuotationExcel from '../../utils/excel/quotation-excel.js';
@@ -53,8 +53,6 @@ import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate.jsx';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebouncedNumberInput from '../Input/DebouncedNumberInput';
 import DebounceInput from '../Input/DebounceInput';
-
-import { render } from 'react-dom';
 
 import VendorSelectionModal from '../Modals/VendorSelectionModal.jsx';
 
@@ -1244,8 +1242,6 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
     },
   ];
 
-  const [selectedCommissionAgentKeys, setSelectedCommissionAgentKeys] = useState([]);
-
   const commissionAgentColumns = [
     {
       title: 'Agent Name',
@@ -1301,13 +1297,6 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
       ),
     },
   ];
-
-  const rowSelection = {
-    selectedRowKeys: selectedCommissionAgentKeys,
-    onChange: (selectedRowKeys) => {
-      setSelectedCommissionAgentKeys(selectedRowKeys);
-    },
-  };
 
   const onTermChange = (selected) => {
     if (!selected.length) {
