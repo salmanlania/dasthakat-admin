@@ -601,7 +601,8 @@ class VendorQuotationController extends Controller
                     $data->save();
                     if (isset($row['detail_id'])) {
                         $vpQDetail = VpQuotationRfqDetail::where('detail_id', $row['detail_id'])->first();
-                        if (!$vpQDetail) {
+                        
+                        if (!empty($vpQDetail)) {
 
                             $vpQDetail->vendor_rate = $row['vendor_rate'] ?? null;
                             $vpQDetail->vendor_part_no = $row['vendor_part_no'] ?? null;
