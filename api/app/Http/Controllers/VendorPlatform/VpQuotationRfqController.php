@@ -15,130 +15,177 @@ class VpQuotationRfqController extends Controller
 {
     protected $db;
 
-    public function index(Request $request)
-    {
-        $document_identity = $request->input('document_identity', '');
-        $quotation_no = $request->input('quotation_no', '');
-        $vessel_id = $request->input('vessel_id', '');
-        $event_id = $request->input('event_id', '');
-        $date_required = $request->input('date_required', '');
-        $status = $request->input('status', '');
-        $total_items = $request->input('total_items', '');
-        $items_quoted = $request->input('items_quoted', '');
-        $date_sent = $request->input('date_sent', '');
-        $date_returned = $request->input('date_returned', '');
-        $vendor_id = $request->input('vendor_id', '');
-        $person_incharge_id = $request->input('person_incharge_id', '');
+  public function index(Request $request)
+{
+    // Request inputs
+    $document_identity = $request->input('document_identity', '');
+    $quotation_no = $request->input('quotation_no', '');
+    $vessel_id = $request->input('vessel_id', '');
+    $event_id = $request->input('event_id', '');
+    $date_required = $request->input('date_required', '');
+    $status = $request->input('status', '');
+    $total_items = $request->input('total_items', '');
+    $items_quoted = $request->input('items_quoted', '');
+    $date_sent = $request->input('date_sent', '');
+    $date_returned = $request->input('date_returned', '');
+    $vendor_id = $request->input('vendor_id', '');
+    $notification_count = $request->input('notification_count', '');
+    $person_incharge_id = $request->input('person_incharge_id', '');
 
-        $search = $request->input('search', '');
-        $date_from = $request->input('date_from', '');
-        $date_to = $request->input('date_to', '');
+    $search = $request->input('search', '');
+    $date_from = $request->input('date_from', '');
+    $date_to = $request->input('date_to', '');
 
-        $page = $request->input('page', 1);
-        $perPage = $request->input('limit', 10);
-        $sort_column = $request->input('sort_column', 'created_at');
-        $sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
+    $page = $request->input('page', 1);
+    $perPage = $request->input('limit', 10);
+    $sort_column = $request->input('sort_column', 'created_at');
+    $sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
-        $currentDate = date('Y-m-d');
+    $currentDate = date('Y-m-d');
 
-        $data = VpQuotationRfq::leftJoin('quotation as q', 'q.quotation_id', '=', 'vp_quotation_rfq.quotation_id')
-            ->leftJoin('vessel as v', 'v.vessel_id', '=', 'q.vessel_id')
-            ->leftJoin('event as e', 'e.event_id', '=', 'q.event_id')
-            ->leftJoin('supplier as s', 's.supplier_id', '=', 'vp_quotation_rfq.vendor_id')
-            ->leftJoin('user as u', 'u.user_id', '=', 'q.person_incharge_id');
+    // Base query with joins
+    $data = VpQuotationRfq::leftJoin('quotation as q', 'q.quotation_id', '=', 'vp_quotation_rfq.quotation_id')
+        ->leftJoin('vessel as v', 'v.vessel_id', '=', 'q.vessel_id')
+        ->leftJoin('event as e', 'e.event_id', '=', 'q.event_id')
+        ->leftJoin('supplier as s', 's.supplier_id', '=', 'vp_quotation_rfq.vendor_id')
+        ->leftJoin('user as u', 'u.user_id', '=', 'q.person_incharge_id');
 
-        $data = $data->where('vp_quotation_rfq.company_id', '=', $request->company_id);
-        $data = $data->where('vp_quotation_rfq.company_branch_id', '=', $request->company_branch_id);
+    // Mandatory filters
+    $data = $data->where('vp_quotation_rfq.company_id', '=', $request->company_id);
+    $data = $data->where('vp_quotation_rfq.company_branch_id', '=', $request->company_branch_id);
 
-        if (!empty($document_identity)) $data = $data->where('vp_quotation_rfq.document_identity', 'like', '%' . $document_identity . '%');
-        if (!empty($quotation_no)) $data = $data->where('q.document_identity', 'like', '%' . $quotation_no . '%');
-        if (!empty($vessel_id)) $data = $data->where('q.vessel_id', $vessel_id);
-        if (!empty($event_id)) $data = $data->where('q.event_id', $event_id);
-        if (!empty($date_required)) $data = $data->where('vp_quotation_rfq.date_required', $date_required);
-        if (!empty($total_items)) $data = $data->where('vp_quotation_rfq.total_items', $total_items);
-        if (!empty($items_quoted)) $data = $data->where('vp_quotation_rfq.items_quoted', $items_quoted);
-        if (!empty($date_sent)) $data = $data->whereDate('vp_quotation_rfq.date_sent', $date_sent);
-        if (!empty($date_returned)) $data = $data->whereDate('vp_quotation_rfq.date_returned', $date_returned);
-        if (!empty($vendor_id)) $data = $data->where('vp_quotation_rfq.vendor_id', $vendor_id);
-        if (!empty($person_incharge_id)) $data = $data->where('q.person_incharge_id', $person_incharge_id);
+    // Apply existing filters
+    if (!empty($document_identity)) {
+        $data = $data->where('vp_quotation_rfq.document_identity', 'like', '%' . $document_identity . '%');
+    }
+    if (!empty($quotation_no)) {
+        $data = $data->where('q.document_identity', 'like', '%' . $quotation_no . '%');
+    }
+    if (!empty($vessel_id)) {
+        $data = $data->where('q.vessel_id', $vessel_id);
+    }
+    if(!empty($notification_count)) {
+        $data = $data->where('vp_quotation_rfq.notification_count', $notification_count);
+    }
+    if (!empty($event_id)) {
+        $data = $data->where('q.event_id', $event_id);
+    }
+    if (!empty($date_required)) {
+        $data = $data->where('vp_quotation_rfq.date_required', $date_required);
+    }
+    if (!empty($date_sent)) {
+        $data = $data->whereDate('vp_quotation_rfq.date_sent', $date_sent);
+    }
+    if (!empty($date_returned)) {
+        $data = $data->whereDate('vp_quotation_rfq.date_returned', $date_returned);
+    }
+    if (!empty($vendor_id)) {
+        $data = $data->where('vp_quotation_rfq.vendor_id', $vendor_id);
+    }
+    if (!empty($person_incharge_id)) {
+        $data = $data->where('q.person_incharge_id', $person_incharge_id);
+    }
 
-        // Status filtering using raw SQL conditions
-        if (!empty($status)) {
-            if ($status == 'Cancelled') {
-                $data = $data->where('vp_quotation_rfq.is_cancelled', 1);
-            } elseif ($status == 'Bid Sent') {
-                $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND vp_quotation_rfq.items_quoted = 0 AND vp_quotation_rfq.date_required >= ?', [$currentDate]);
-            } elseif ($status == 'Partial') {
-                $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted >= vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required < ?', [$currentDate]);
-            } elseif ($status == 'Bid Received') {
-                $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND vp_quotation_rfq.items_quoted = vp_quotation_rfq.total_items');
-            } elseif ($status == 'Bid Expired') {
-                $data = $data->whereRaw('vp_quotation_rfq.date_required < ?', [$currentDate]);
-            }
+    // Status filtering using subqueries
+    if (!empty($status)) {
+        if ($status == 'Cancelled') {
+            $data = $data->where('vp_quotation_rfq.is_cancelled', 1);
+        } elseif ($status == 'Bid Sent') {
+            $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != "") = 0 AND vp_quotation_rfq.date_required >= ?', [$currentDate]);
+        } elseif ($status == 'Partial') {
+            $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != "") > 0 AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != "") < (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id) AND vp_quotation_rfq.date_required >= ?', [$currentDate]);
+        } elseif ($status == 'Bid Received') {
+            $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != "") = (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id)');
+        } elseif ($status == 'Bid Expired') {
+            $data = $data->whereRaw('vp_quotation_rfq.date_required < ?', [$currentDate]);
         }
+    }
 
-        // Search functionality including status
-        if (!empty($search)) {
-            $search = strtolower($search);
-            $data = $data->where(function ($query) use ($search) {
-                $query
-                    ->where('vp_quotation_rfq.document_identity', 'like', '%' . $search . '%')
-                    ->orWhere('q.document_identity', 'like', '%' . $search . '%')
-                    ->orWhere('v.name', 'like', '%' . $search . '%')
-                    ->orWhere('e.event_code', 'like', '%' . $search . '%')
-                    ->orWhere('s.name', 'like', '%' . $search . '%')
-                    ->orWhere('u.user_name', 'like', '%' . $search . '%');
-            });
-        }
+    // Search functionality
+    if (!empty($search)) {
+        $search = strtolower($search);
+        $data = $data->where(function ($query) use ($search) {
+            $query
+                ->where('vp_quotation_rfq.document_identity', 'like', '%' . $search . '%')
+                ->orWhere('q.document_identity', 'like', '%' . $search . '%')
+                ->orWhere('v.name', 'like', '%' . $search . '%')
+                ->orWhere('e.event_code', 'like', '%' . $search . '%')
+                ->orWhere('s.name', 'like', '%' . $search . '%')
+                ->orWhere('u.user_name', 'like', '%' . $search . '%');
+        });
+    }
 
-        if (!empty($date_from) && !empty($date_to)) {
-            $data = $data->whereBetween('vp_quotation_rfq.date_sent', [
-                $date_from . ' 00:00:00',
-                $date_to . ' 23:59:59'
-            ]);
-        } elseif (!empty($date_from)) {
-            $data = $data->where('vp_quotation_rfq.date_sent', '>=', $date_from . ' 00:00:00');
-        } elseif (!empty($date_to)) {
-            $data = $data->where('vp_quotation_rfq.date_sent', '<=', $date_to . ' 23:59:59');
-        }
+    // Date range filtering
+    if (!empty($date_from) && !empty($date_to)) {
+        $data = $data->whereBetween('vp_quotation_rfq.date_sent', [
+            $date_from . ' 00:00:00',
+            $date_to . ' 23:59:59'
+        ]);
+    } elseif (!empty($date_from)) {
+        $data = $data->where('vp_quotation_rfq.date_sent', '>=', $date_from . ' 00:00:00');
+    } elseif (!empty($date_to)) {
+        $data = $data->where('vp_quotation_rfq.date_sent', '<=', $date_to . ' 23:59:59');
+    }
 
-        // Add status sorting if needed
-        if ($sort_column == 'status') {
-            // For status sorting, we need to use CASE statements
-            $orderByCase = "CASE 
-        WHEN vp_quotation_rfq.is_cancelled = 1 THEN 'Cancelled'
-        WHEN vp_quotation_rfq.items_quoted = 0 AND vp_quotation_rfq.date_required >= '$currentDate' THEN 'Bid Sent'
-        WHEN vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted >= vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required < '$currentDate' THEN 'Partial'
-        WHEN vp_quotation_rfq.items_quoted = vp_quotation_rfq.total_items THEN 'Bid Received'
-        WHEN vp_quotation_rfq.date_required < '$currentDate' THEN 'Bid Expired'
-        ELSE '-'
+    // Exact match filters for total_items and items_quoted
+    if (is_numeric($total_items) && $total_items >= 0) {
+        $data = $data->havingRaw('(SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id) = ?', [$total_items]);
+    }
+    if (is_numeric($items_quoted) && $items_quoted >= 0) {
+        $data = $data->havingRaw('(SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != "") = ?', [$items_quoted]);
+    }
+
+    // Status sorting
+    if ($sort_column == 'status') {
+        $orderByCase = "CASE 
+            WHEN vp_quotation_rfq.is_cancelled = 1 THEN 'Cancelled'
+            WHEN (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != '') = 0 AND vp_quotation_rfq.date_required >= '$currentDate' THEN 'Bid Sent'
+            WHEN (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != '') > 0 AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != '') < (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id) AND vp_quotation_rfq.date_required >= '$currentDate' THEN 'Partial'
+            WHEN (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != '') = (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id) THEN 'Bid Received'
+            WHEN vp_quotation_rfq.date_required < '$currentDate' THEN 'Bid Expired'
+            ELSE '-'
         END";
+        $data = $data->orderByRaw("$orderByCase $sort_direction");
+    } else {
+        // Validate sort_column to prevent SQL injection
+        $allowed_columns = ['created_at', 'document_identity', 'date_sent', 'date_required', 'total_items', 'items_quoted'];
+        $sort_column = in_array($sort_column, $allowed_columns) ? $sort_column : 'created_at';
 
-            $data = $data->orderByRaw("$orderByCase $sort_direction");
+        // Handle sorting for total_items and items_quoted
+        if ($sort_column == 'total_items') {
+            $data = $data->orderByRaw('(SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id) ' . $sort_direction);
+        } elseif ($sort_column == 'items_quoted') {
+            $data = $data->orderByRaw('(SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != "") ' . $sort_direction);
         } else {
             $data = $data->orderBy($sort_column, $sort_direction);
         }
+    }
 
-        $data = $data->select(
-            'vp_quotation_rfq.*',
-            'q.document_identity as quotation_no',
-            'v.name as vessel_name',
-            'e.event_code as event_code',
-            's.name as vendor_name',
-            'u.user_name as person_incharge_name',
-            DB::raw("CASE 
+    // Select fields with dynamic counts
+    $data = $data->select(
+        'vp_quotation_rfq.*',
+        'q.document_identity as quotation_no',
+        'v.name as vessel_name',
+        'e.event_code as event_code',
+        's.name as vendor_name',
+        'u.user_name as person_incharge_name',
+        DB::raw("(SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id) as total_items"),
+        DB::raw("(SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != '') as items_quoted"),
+        DB::raw("CASE 
             WHEN vp_quotation_rfq.is_cancelled = 1 THEN 'Cancelled'
-            WHEN vp_quotation_rfq.items_quoted = 0 AND vp_quotation_rfq.date_required >= '$currentDate' THEN 'Bid Sent'
-            WHEN vp_quotation_rfq.items_quoted > 0 AND vp_quotation_rfq.items_quoted < vp_quotation_rfq.total_items AND vp_quotation_rfq.date_required >= '$currentDate' THEN 'Partial'
-            WHEN vp_quotation_rfq.items_quoted = vp_quotation_rfq.total_items THEN 'Bid Received'
+            WHEN (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != '') = 0 AND vp_quotation_rfq.date_required >= '$currentDate' THEN 'Bid Sent'
+            WHEN (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != '') > 0 AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != '') < (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id) AND vp_quotation_rfq.date_required >= '$currentDate' THEN 'Partial'
+            WHEN (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != '') = (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id) THEN 'Bid Received'
             WHEN vp_quotation_rfq.date_required < '$currentDate' THEN 'Bid Expired'
             ELSE '-'
         END as status")
-        );
+    );
 
-        $data = $data->paginate($perPage, ['*'], 'page', $page);
-        return response()->json($data);
-    }
+    // Paginate results
+    $data = $data->paginate($perPage, ['*'], 'page', $page);
+
+    return response()->json($data);
+}
 
     public function actions(Request $request)
     {

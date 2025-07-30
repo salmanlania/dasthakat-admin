@@ -122,4 +122,8 @@ ADD COLUMN `vendor_ref_no` VARCHAR(255) NULL AFTER `document_identity`,
 ADD COLUMN `vendor_remarks` VARCHAR(255) NULL AFTER `vendor_ref_no`;
 
 ALTER TABLE `quotation_detail`
-ADD COLUMN `vendor_notes` VARCHAR(255) NULL AFTER `vendor_part_no`,
+ADD COLUMN `vendor_notes` VARCHAR(255) NULL AFTER `vendor_part_no`;
+
+ALTER TABLE `vp_quotation_rfq`
+DROP COLUMN `total_items`,
+DROP COLUMN `items_quoted`;
