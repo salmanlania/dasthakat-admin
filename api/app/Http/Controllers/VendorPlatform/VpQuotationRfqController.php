@@ -208,7 +208,6 @@ class VpQuotationRfqController extends Controller
                 return $this->jsonResponse("RFQ not found for ID: $id", 404, "Request Failed!");
             }
             if ($rfq_reset == 1) {
-                $rfq->items_quoted = 0;
                 $rfq->date_returned = null;
                 $rfq->is_cancelled = 0;
                 VpQuotationRfqDetail::where('id', $id)->update([
