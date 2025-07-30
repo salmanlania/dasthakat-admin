@@ -54,8 +54,6 @@ class VpQuotationRfq extends Model
         'quotation_id',
         'vendor_id',
         'status',
-        'total_items',
-        'items_quoted',
         'date_required',
         'date_sent',
         'date_returned',

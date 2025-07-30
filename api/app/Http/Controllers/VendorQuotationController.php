@@ -214,8 +214,6 @@ class VendorQuotationController extends Controller
             'document_identity' => $document['document_identity'] ?? null,
             'quotation_id' => $quotation_id,
             'vendor_id' => $vendor_id,
-            'total_items' => count($quotationDetail),
-            'items_quoted' => 0, // Initially set to 0, will be updated later
             'date_required' => $data['date_required'],
             'date_sent' => Carbon::now(),
             'date_returned' => null,
