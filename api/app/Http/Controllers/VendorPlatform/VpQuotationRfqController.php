@@ -5,6 +5,7 @@ namespace App\Http\Controllers\VendorPlatform;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\VendorPlatform\VpQuotationRfq;
+use App\Models\VendorPlatform\VpQuotationRfqDetail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -140,13 +141,14 @@ class VpQuotationRfqController extends Controller
 
     public function actions(Request $request)
     {
-        	if (!isPermission('edit', 'vp_quotation', $request->permission_list))
-			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+        if (!isPermission('edit', 'vp_quotation', $request->permission_list))
+            return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
         $ids = $request->input('id', []);
         $date_required = $request->input('date_required', '');
         $send_notification = $request->input('send_notification', 0);
         $toggleIsCancelled = $request->input('toggle_is_cancelled', 0);
+        $rfq_reset = $request->input('rfq_reset', 0);
 
         if (empty($ids)) {
             return $this->jsonResponse("No Records Selected", 400, "Request Failed!");
@@ -156,6 +158,14 @@ class VpQuotationRfqController extends Controller
             $rfq = VpQuotationRfq::find($id);
             if (!$rfq) {
                 return $this->jsonResponse("RFQ not found for ID: $id", 404, "Request Failed!");
+            }
+            if ($rfq_reset == 1) {
+                $rfq->items_quoted = 0;
+                $rfq->date_returned = null;
+                $rfq->is_cancelled = 0;
+                VpQuotationRfqDetail::where('id', $id)->update([
+                    'vendor_rate' => null,
+                ]);
             }
 
             if ($toggleIsCancelled == 1) {
