@@ -511,6 +511,7 @@ export const quotationSlice = createSlice({
         service_date: data.service_date,
         imo: data.vessel ? data.vessel.imo : null,
         internal_notes: data.internal_notes,
+        vendor_notes: data.vendor_notes,
         salesman_id: data.salesman
           ? {
               value: data.salesman.salesman_id,
@@ -634,6 +635,7 @@ export const quotationSlice = createSlice({
           : null,
         vendor_part_no: detail.vendor_part_no,
         internal_notes: detail.internal_notes,
+        vendor_notes: detail.vendor_notes,
         cost_price:
           detail?.product_type?.product_type_id === 4
             ? detail.cost_price
@@ -680,6 +682,7 @@ export const quotationSlice = createSlice({
             : null,
           vendor_part_no: detail.vendor_part_no,
           internal_notes: detail.internal_notes,
+          vendor_notes: detail.vendor_notes,
           cost_price:
             detail?.product_type?.product_type_id === 4
               ? detail.cost_price
@@ -749,6 +752,7 @@ export const quotationSlice = createSlice({
         service_date: data.service_date,
         imo: data.vessel ? data.vessel.imo : null,
         internal_notes: data.internal_notes,
+        vendor_notes: data.vendor_notes,
         salesman_id: data.salesman
           ? {
               value: data.salesman.salesman_id,
@@ -863,6 +867,7 @@ export const quotationSlice = createSlice({
           : null,
         vendor_part_no: detail.vendor_part_no,
         internal_notes: detail.internal_notes,
+        vendor_notes: detail.vendor_notes,
         cost_price:
           detail?.product_type?.product_type_id === 4
             ? detail.cost_price

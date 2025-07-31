@@ -154,6 +154,12 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
     notes: null,
   });
 
+  const notesTitleMap = {
+    description: 'Customer Notes',
+    vendor_notes: 'Vendor Notes',
+    internal_notes: 'Internal Notes',
+  };
+
   const [globalMarkup, setGlobalMarkup] = useState('');
   const [globalDiscount, setGlobalDiscount] = useState('');
   const [isLoadingVendor, setIsLoadingVendor] = useState(false);
@@ -809,6 +815,34 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
       width: 100,
     },
     {
+      title: 'Vendor Notes',
+      dataIndex: 'vendor_notes',
+      key: 'vendor_notes',
+      render: (_, { vendor_notes }, index) => {
+        return (
+          <div className="relative">
+            <p>{vendor_notes}</p>
+            <div
+              className={`absolute -right-2 ${vendor_notes?.trim() ? '-top-[2px]' : '-top-[12px]'} flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-white`}>
+              <TbEdit
+                size={22}
+                className="text-primary hover:text-blue-600"
+                onClick={() =>
+                  setNotesModalIsOpen({
+                    open: true,
+                    id: index,
+                    column: 'vendor_notes',
+                    notes: vendor_notes,
+                  })
+                }
+              />
+            </div>
+          </div>
+        );
+      },
+      width: 100,
+    },
+    {
       title: 'Stock Quantity',
       dataIndex: 'stock_quantity',
       key: 'stock_quantity',
@@ -1247,16 +1281,22 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
       title: 'Agent Name',
       dataIndex: 'name',
       key: 'name',
-      render: (text, record, index) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          Agent {index + 1}
-          {permissions?.quotation?.commission_agent ? (
-            <Tooltip title={text}>
-              <FaEye size={14} style={{ cursor: 'pointer' }} />
-            </Tooltip>
-          ) : null}
-        </div>
-      ),
+      render: (text, record, index) => {
+        if (record.isStatic) {
+          return <span>{record.name}</span>;
+        }
+
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            Agent {index + 1}
+            {permissions?.quotation?.commission_agent && (
+              <Tooltip title={text}>
+                <FaEye size={14} style={{ cursor: 'pointer' }} />
+              </Tooltip>
+            )}
+          </div>
+        );
+      },
     },
     {
       title: 'Percentage',
@@ -1278,23 +1318,42 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_, record) => (
-        <Button
-          danger
-          size="small"
-          style={{
-            border: 'none',
-            outline: 'none',
-            background: 'none',
-            boxShadow: 'none',
-          }}
-          onClick={() => {
-            setHiddenAgentKeys((prev) => [...prev, record.commission_agent_id])
-          }}
-        >
-          <TiDelete size={20} />
-        </Button>
-      ),
+      render: (_, record) =>
+        record.isStatic ? null : (
+          <Button
+            danger
+            size="small"
+            style={{
+              border: 'none',
+              outline: 'none',
+              background: 'none',
+              boxShadow: 'none',
+            }}
+            onClick={() => {
+              setHiddenAgentKeys((prev) => [...prev, record.commission_agent_id])
+            }}
+          >
+            <TiDelete size={20} />
+          </Button>
+        ),
+    },
+  ];
+
+  const extendedCommissionData = [
+    ...(commissionAgent.length > 0 ? commissionAgent : commissionAgentData),
+    {
+      commission_agent_id: 'rebate_row',
+      name: 'Rebate',
+      commission_percentage: rebatePercentage,
+      amount: rebateAmount,
+      isStatic: true,
+    },
+    {
+      commission_agent_id: 'salesman_row',
+      name: 'Salesman',
+      commission_percentage: salesmanPercentage,
+      amount: salesmanAmount,
+      isStatic: true,
     },
   ];
 
@@ -1633,7 +1692,7 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
 
         <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
           <div className="flex w-full gap-0 items-center flex-col md:flex-row">
-            <div className="w-full md:w-[60%] flex-shrink-0 max-h-[200px]">
+            <div className="w-full md:w-[60%] flex-shrink-0 max-h-[300px] gap-5">
               <Row gutter={[12, 12]}>
                 <Col span={24} sm={12} md={12} lg={12}>
                   <DetailSummaryInfo
@@ -1651,60 +1710,6 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
                   <DetailSummaryInfo
                     title="Total Cost:"
                     value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
-                  />
-                  <DetailSummaryInfo
-                    title="Rebate:"
-                    value={
-                      <div className="flex flex-row gap-4 items-center">
-                        <DebouncedNumberInput
-                          type="decimal"
-                          size="small"
-                          className="w-[4rem] text-right"
-                          value={
-                            rebatePercentage === 0
-                              ? '0%'
-                              : rebatePercentage
-                                ? rebatePercentage.toString().endsWith('%')
-                                  ? rebatePercentage
-                                  : `${rebatePercentage}%`
-                                : ''
-                          }
-                          disabled
-                          onChange={(value) => dispatch(setRebatePercentage(value))}
-                        />
-
-                        <div className="w-[5rem] text-right">
-                          {rebateAmount || '0.00'}
-                        </div>
-                      </div>
-                    }
-                  />
-
-                  <DetailSummaryInfo
-                    title="Salesman:"
-                    value={
-                      <div className="flex flex-row gap-4 items-center mt-1">
-                        <DebouncedNumberInput
-                          type="decimal"
-                          size="small"
-                          className="w-[4rem] text-right"
-                          value={
-                            salesmanPercentage === 0
-                              ? '0%'
-                              : salesmanPercentage
-                                ? salesmanPercentage.toString().endsWith('%')
-                                  ? salesmanPercentage
-                                  : `${salesmanPercentage}%`
-                                : ''
-                          }
-                          disabled
-                          onChange={(value) => dispatch(setSalesmanPercentage(value))}
-                        />
-                        <div className="w-[5rem] text-right">
-                          {salesmanAmount || '0.00'}
-                        </div>
-                      </div>
-                    }
                   />
 
                   <DetailSummaryInformation
@@ -1742,7 +1747,8 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
                   <div className="max-w-full">
                     <Table
                       columns={commissionAgentColumns}
-                      dataSource={commissionAgent.length > 0 ? commissionAgent : commissionAgentData}
+                      // dataSource={commissionAgent.length > 0 ? commissionAgent : commissionAgentData}
+                      dataSource={extendedCommissionData}
                       rowKey={(record) => record.commission_agent_id}
                       size="small"
                       pagination={false}
@@ -1809,7 +1815,14 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
         </div>
       </Form>
       <NotesModal
-        title={notesModalIsOpen.column === 'description' ? 'Customer Notes' : 'Internal Notes'}
+        // title={
+        //   notesModalIsOpen.column === 'description'
+        //     ? 'Customer Notes'
+        //     : notesModalIsOpen.column === 'vendor_notes'
+        //       ? 'Vendor Notes'
+        //       : 'Internal Notes'
+        // }
+        title={notesTitleMap[notesModalIsOpen.column] || 'Notes'}
         initialValue={notesModalIsOpen.notes}
         isSubmitting={false}
         open={notesModalIsOpen.open}

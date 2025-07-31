@@ -541,7 +541,7 @@ export const vendorQuotationSlice = createSlice({
           is_deleted: item?.is_deleted,
         };
         }
-
+if(!item?.is_deleted){
         return {
           id: detail?.quotation_detail_id,
           sort_order: detail?.sort_order || null,
@@ -587,6 +587,52 @@ export const vendorQuotationSlice = createSlice({
           isDeleted: false,
           lastUpdatedField: null,
         };
+}
+        // return {
+        //   id: detail?.quotation_detail_id,
+        //   sort_order: detail?.sort_order || null,
+        //   product_code: detail?.product?.product_code || null,
+        //   product_id: detail?.product
+        //     ? { value: detail.product.product_id, label: detail.product.product_name }
+        //     : null,
+        //   product_type_id: detail?.product_type
+        //     ? {
+        //       value: detail.product_type.product_type_id,
+        //       label: detail.product_type.name,
+        //     }
+        //     : null,
+        //   product_name: detail?.product_name || detail?.product?.product_name || null,
+        //   product_description: detail?.product_description,
+        //   description: detail?.description,
+        //   stock_quantity: detail?.product?.stock?.quantity
+        //     ? parseFloat(detail.product.stock.quantity)
+        //     : 0,
+        //   quantity: detail?.quantity || null,
+        //   available_quantity: detail?.available_quantity || null,
+        //   unit_id: detail?.unit ? detail.unit.name : null,
+        //   supplier_id: detail?.supplier
+        //     ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
+        //     : null,
+        //   vendor_part_no: detail?.vendor_part_no,
+        //   internal_notes: detail?.internal_notes,
+        //   cost_price: vendorCost,
+        //   markup: detail?.markup,
+        //   rate: detail?.rate,
+        //   vendor_notes: vendor_notes,
+        //   amount: detail?.amount,
+        //   discount_percent: 0, // to be confirm either detail?.discount_percent but now it will be 0
+        //   discount_amount: detail?.discount_amount,
+        //   gross_amount: detail?.gross_amount,
+        //   quotation_detail_id: detail?.quotation_detail_id,
+        //   net_cost: detail,
+        //   ext_cost: {
+        //     ...detail,
+        //     vendorCost,
+        //   },
+        //   row_status: 'U',
+        //   isDeleted: false,
+        //   lastUpdatedField: null,
+        // };
       });
 
       state.rebatePercentage = data?.rebate_percent ? data?.rebate_percent : 0;
