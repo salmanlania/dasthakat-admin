@@ -430,7 +430,7 @@ const VendorPlatform = () => {
           </Link>
         </Tooltip>
       ),
-      width: 70,
+      width: 80,
       fixed: 'right',
     },
   ];
