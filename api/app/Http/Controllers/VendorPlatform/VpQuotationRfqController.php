@@ -87,19 +87,57 @@ class VpQuotationRfqController extends Controller
     }
 
     // Status filtering using subqueries
+    // if (!empty($status)) {
+    //     if ($status == 'Cancelled') {
+    //         $data = $data->where('vp_quotation_rfq.is_cancelled', 1);
+    //     } elseif ($status == 'Bid Sent') {
+    //         $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != "") = 0 AND vp_quotation_rfq.date_required >= ?', [$currentDate]);
+    //     } elseif ($status == 'Partial') {
+    //         $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != "") > 0 AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != "") < (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id) AND vp_quotation_rfq.date_required >= ?', [$currentDate]);
+    //     } elseif ($status == 'Bid Received') {
+    //         $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != "") = (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id)');
+    //     } elseif ($status == 'Bid Expired') {
+    //         $data = $data->whereRaw('vp_quotation_rfq.date_required < ? AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != "") != (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id)', [$currentDate]);
+    //     }
+    // }
     if (!empty($status)) {
-        if ($status == 'Cancelled') {
-            $data = $data->where('vp_quotation_rfq.is_cancelled', 1);
-        } elseif ($status == 'Bid Sent') {
-            $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != "") = 0 AND vp_quotation_rfq.date_required >= ?', [$currentDate]);
-        } elseif ($status == 'Partial') {
-            $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != "") > 0 AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != "") < (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id) AND vp_quotation_rfq.date_required >= ?', [$currentDate]);
-        } elseif ($status == 'Bid Received') {
-            $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != "") = (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id)');
-        } elseif ($status == 'Bid Expired') {
-            $data = $data->whereRaw('vp_quotation_rfq.date_required < ? AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != "") != (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id)', [$currentDate]);
+            if ($status == 'Cancelled') {
+                $data = $data->where('vp_quotation_rfq.is_cancelled', 1);
+            } elseif ($status == 'Bid Sent') {
+                $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 
+            AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd 
+                 WHERE vqd.id = vp_quotation_rfq.id 
+                 AND vqd.vendor_rate IS NOT NULL 
+                 AND vqd.vendor_rate != "") = 0 
+            AND vp_quotation_rfq.date_required >= ?', [$currentDate]);
+            } elseif ($status == 'Partial') {
+                $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 
+            AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd 
+                 WHERE vqd.id = vp_quotation_rfq.id 
+                 AND vqd.vendor_rate IS NOT NULL 
+                 AND vqd.vendor_rate != "") > 0 
+            AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd 
+                 WHERE vqd.id = vp_quotation_rfq.id 
+                 AND vqd.vendor_rate IS NOT NULL 
+                 AND vqd.vendor_rate != "") < (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd 
+                                                WHERE vqd.id = vp_quotation_rfq.id) 
+            AND vp_quotation_rfq.date_required >= ?', [$currentDate]);
+            } elseif ($status == 'Bid Received') {
+                $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 
+            AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd 
+                 WHERE vqd.id = vp_quotation_rfq.id 
+                 AND vqd.vendor_rate IS NOT NULL 
+                 AND vqd.vendor_rate != "") = (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd 
+                                                WHERE vqd.id = vp_quotation_rfq.id)');
+            } elseif ($status == 'Bid Expired') {
+                $data = $data->whereRaw('vp_quotation_rfq.date_required < ? 
+            AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd 
+                 WHERE vqd.id = vp_quotation_rfq.id 
+                 AND vqd.vendor_rate IS NOT NULL 
+                 AND vqd.vendor_rate != "") != (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd 
+                                                 WHERE vqd.id = vp_quotation_rfq.id)', [$currentDate]);
+            }
         }
-    }
 
     // Search functionality
     if (!empty($search)) {
