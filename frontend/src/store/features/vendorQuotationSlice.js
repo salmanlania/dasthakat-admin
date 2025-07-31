@@ -490,7 +490,7 @@ export const vendorQuotationSlice = createSlice({
       state.quotationDetails = data?.details?.map(item => {
         // if (!item?.is_deleted) return {};
         const detail = item?.vendor_quotation_detail?.quotation_detail;
-        const vendorCost = item?.vendor_quotation_detail?.vendor_rate || null;
+        const vendorCost = item?.vendor_rate || null;
         const vendor_notes = item?.vendor_quotation_detail?.vendor_notes || null;
 
         if(item?.is_deleted){
