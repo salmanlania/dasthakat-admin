@@ -670,7 +670,7 @@ class VendorQuotationController extends Controller
                 ->whereNotNull('vendor_rate')
                 ->count();
             VpQuotationRfq::where('id', $id)
-                ->update(['items_quoted' => $count, 'date_returned' => Carbon::now(), 'vendor_ref_no' => $request->vendor_ref_no ?? null, 'vendor_remarks' => $request->vendor_remarks ?? null]);
+                ->update([ 'date_returned' => Carbon::now(), 'vendor_ref_no' => $request->vendor_ref_no ?? null, 'vendor_remarks' => $request->vendor_remarks ?? null]);
 
             DB::commit();
 

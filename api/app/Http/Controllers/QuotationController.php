@@ -556,6 +556,7 @@ class QuotationController extends Controller
 							'unit_id' => $value['unit_id'] ?? '',
 							'supplier_id' => $value['supplier_id'] ?? '',
 							'vendor_part_no' => $value['vendor_part_no'] ?? '',
+							'vendor_notes' => $value['vendor_notes'] ?? '',
 							'internal_notes' => $value['internal_notes'] ?? '',
 							'quantity' => $value['quantity'] ?? '',
 							'cost_price' => $value['cost_price'] ?? '',
