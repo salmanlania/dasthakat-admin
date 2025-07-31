@@ -519,12 +519,12 @@ export const vendorQuotationSlice = createSlice({
           supplier_id: item?.supplier
             ? { value: item.supplier.supplier_id, label: detail.supplier.name }
             : null,
-          vendor_part_no: item?.vendor_part_no,
+          vendor_part_no: item?.vendor_part_no ? item?.vendor_part_no : null,
           internal_notes: item?.internal_notes,
           cost_price: item?.vendor_rate,
           markup: item?.markup,
           rate: item?.rate,
-          vendor_notes: vendor_notes,
+          vendor_notes: item?.vendor_notes ? item?.vendor_notes : null,
           amount: item?.amount,
           discount_percent: 0, // to be confirm either detail?.discount_percent but now it will be 0
           discount_amount: item?.discount_amount,
@@ -540,8 +540,9 @@ export const vendorQuotationSlice = createSlice({
           lastUpdatedField: null,
           is_deleted: item?.is_deleted,
         };
-        }
-if(!item?.is_deleted){
+      }
+      
+      if(!item?.is_deleted){
         return {
           id: detail?.quotation_detail_id,
           sort_order: detail?.sort_order || null,
@@ -567,7 +568,7 @@ if(!item?.is_deleted){
           supplier_id: detail?.supplier
             ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
             : null,
-          vendor_part_no: detail?.vendor_part_no,
+          vendor_part_no: item?.vendor_quotation_detail?.vendor_part_no ? item?.vendor_quotation_detail?.vendor_part_no : null,
           internal_notes: detail?.internal_notes,
           cost_price: vendorCost,
           markup: detail?.markup,

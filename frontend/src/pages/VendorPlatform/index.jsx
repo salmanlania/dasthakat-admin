@@ -29,8 +29,10 @@ import {
   setVendorQuotationListParams,
   vendorQuotationActions
 } from '../../store/features/vendorQuotationSlice.js';
+import useDocumentTitle from '../../hooks/useDocumentTitle.js';
 
 const VendorPlatform = () => {
+  useDocumentTitle('Vendor Platform Quotation');
   const { RangePicker } = DatePicker;
   const dispatch = useDispatch();
   const handleError = useError();
@@ -506,12 +508,14 @@ const VendorPlatform = () => {
 
     } else if (actionType === 'change_required_date') {
       payload.date_required = dayjs(requiredDate).format('YYYY-MM-DD');
+      payload.send_notification = 1;
 
     } else if (actionType === 'cancel') {
       payload.toggle_is_cancelled = '1';
 
     } else if (actionType === 'incomplete') {
       payload.rfq_reset = 1;
+      payload.send_notification = 1;
     }
 
     try {
@@ -526,6 +530,8 @@ const VendorPlatform = () => {
       };
 
       toast.success(successMessages[actionType] || 'Task completed successfully');
+      dispatch(setQuotationDeleteIDs([]));
+      setRequiredDate(null)
       dispatch(getVendorQuotationList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
@@ -663,6 +669,7 @@ const VendorPlatform = () => {
               size="small"
               format="MM/DD/YYYY"
               className="mr-4"
+              allowClear
               value={requiredDate}
               onChange={(date) => setRequiredDate(date)}
             />

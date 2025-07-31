@@ -197,13 +197,23 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
     ? formatThreeDigitCommas(roundUpto(totalNet * (parsedSalesman / 100)))
     : 0;
 
+    const total = parseInt(totalCommissionAmount || 0);
+    const salesman = parseInt(salesmanAmount || 0);
+    const rebate = parseInt(rebateAmount || 0);
+  
+    const otherComission =
+      (isNaN(total) ? 0 : total) +
+      (isNaN(salesman) ? 0 : salesman) +
+      (isNaN(rebate) ? 0 : rebate);
+
   const minusValue =
-    parseInt(rebateAmount?.toString().replace(/,/g, '') || 0) +
-    parseInt(salesmanAmount?.toString().replace(/,/g, '') || 0) +
+    // parseInt(salesmanAmount?.toString().replace(/,/g, '') || 0) +
+    // parseInt(rebateAmount?.toString().replace(/,/g, '') || 0) +
     parseInt(totalCost || 0) +
-    parseInt(totalCommissionAmount || 0);
+    parseInt(otherComission || 0);
 
   const finalAmount = parseInt(totalNet || 0) - minusValue || 0;
+  
   totalProfit = roundUpto(finalAmount - totalCost);
 
   quotationDetails.forEach((detail) => {
@@ -1714,7 +1724,7 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
 
                   <DetailSummaryInformation
                     title="Other Commission:"
-                    value={formatThreeDigitCommas(roundUpto(totalCommissionAmount)) || 0}
+                    value={formatThreeDigitCommas(roundUpto(otherComission)) || 0}
                     icon={
                       permissions?.quotation?.commission_agent && (
                         <FaEye

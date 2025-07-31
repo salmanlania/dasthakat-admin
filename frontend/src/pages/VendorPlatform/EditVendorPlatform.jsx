@@ -1,15 +1,16 @@
 import { Breadcrumb, Spin } from 'antd';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import VendorQuotationForm from '../../components/Form/VendorQuotationForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
 import { getVendorQuotation } from '../../store/features/vendorQuotationSlice';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const EditVendorPlatform = () => {
+  useDocumentTitle('Edit Vendor Platform Quotation');
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const handleError = useError();
   const { id } = useParams();
   const { initialFormValues, isItemLoading } = useSelector((state) => state.vendorQuotation);

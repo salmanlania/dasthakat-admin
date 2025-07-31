@@ -26,6 +26,7 @@ const VendorQuotationForm = () => {
 
   useEffect(() => {
     if (!quotationDetails || quotationDetails.length === 0) return;
+    console.log('initialFormValues' , initialFormValues)
 
     let extCostSum = 0;
     let finalCostSum = 0;
@@ -202,6 +203,18 @@ const VendorQuotationForm = () => {
             </Row>
             <Row gutter={12}>
               <Col span={12}>
+                <Form.Item label="Vendor Reference No" style={{ marginBottom: 8 }}>
+                  <Input disabled value={initialFormValues?.vendor_ref_no ? initialFormValues.vendor_ref_no : ''} />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item label="Vendor Remarks" style={{ marginBottom: 8 }}>
+                  <Input disabled value={initialFormValues?.vendor_remarks ? initialFormValues.vendor_remarks : ''} />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={12}>
+              <Col span={12}>
                 <Form.Item label="Required Date" style={{ marginBottom: 8 }}>
                   <Input disabled value={initialFormValues?.date_required ? dayjs(initialFormValues.date_required).format('MM-DD-YYYY') : ''} />
                 </Form.Item>
@@ -235,7 +248,7 @@ const VendorQuotationForm = () => {
               style={{
                 background: '#fff',
                 border: '1px solid #d9d9d9',
-                padding: '10px',
+                padding: '25px',
                 height: '100%',
                 fontSize: '14px',
               }}
