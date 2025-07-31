@@ -215,12 +215,7 @@ class VpQuotationRfqController extends Controller
                     'vendor_part_no' => null,
                     'vendor_notes' => null,
                 ]);
-                VendorQuotationDetail::whereIn('vendor_quotation_detail_id', VpQuotationRfqDetail::where('id', $id)->pluck('vendor_quotation_detail_id'))
-                    ->update([
-                        'vendor_rate' => null,
-                        'vendor_part_no' => null,
-                        'vendor_notes' => null,
-                    ]);
+             
             }
 
             if ($toggleIsCancelled == 1) {
