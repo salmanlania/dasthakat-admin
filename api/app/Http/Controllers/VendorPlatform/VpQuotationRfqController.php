@@ -97,7 +97,7 @@ class VpQuotationRfqController extends Controller
         } elseif ($status == 'Bid Received') {
             $data = $data->whereRaw('vp_quotation_rfq.is_cancelled = 0 AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != "") = (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id)');
         } elseif ($status == 'Bid Expired') {
-            $data = $data->whereRaw('vp_quotation_rfq.date_required < ?', [$currentDate]);
+            $data = $data->whereRaw('vp_quotation_rfq.date_required < ? AND (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != "") != (SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id)', [$currentDate]);
         }
     }
 
