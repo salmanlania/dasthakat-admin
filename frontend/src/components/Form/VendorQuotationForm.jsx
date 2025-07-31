@@ -26,6 +26,7 @@ const VendorQuotationForm = () => {
 
   useEffect(() => {
     if (!quotationDetails || quotationDetails.length === 0) return;
+    console.log('initialFormValues' , initialFormValues)
 
     let extCostSum = 0;
     let finalCostSum = 0;
@@ -68,6 +69,16 @@ const VendorQuotationForm = () => {
       comments: initialFormValues?.comments || '',
     });
 
+    const style = document.createElement('style');
+    style.innerHTML = `
+    .disabled-row {
+      background-color: #f5f5f5 !important;
+      color: #999 !important;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+  `;
+    document.head.appendChild(style);
 
   }, [initialFormValues, form, quotationDetails]);
 
@@ -180,13 +191,25 @@ const VendorQuotationForm = () => {
           <Col span={12}>
             <Row gutter={12}>
               <Col span={12}>
-                <Form.Item label="VQ #" style={{ marginBottom: 8 }}>
+                <Form.Item label="V.Plat #" style={{ marginBottom: 8 }}>
                   <Input disabled value={initialFormValues?.document_identity || ''} />
                 </Form.Item>
               </Col>
               <Col span={12}>
                 <Form.Item label="Quoted By" style={{ marginBottom: 8 }}>
                   <Input disabled value={initialFormValues?.quotation?.document_identity ? initialFormValues?.quotation?.document_identity : ''} />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={12}>
+              <Col span={12}>
+                <Form.Item label="Vendor Reference No" style={{ marginBottom: 8 }}>
+                  <Input disabled value={initialFormValues?.vendor_ref_no ? initialFormValues.vendor_ref_no : ''} />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item label="Vendor Remarks" style={{ marginBottom: 8 }}>
+                  <Input disabled value={initialFormValues?.vendor_remarks ? initialFormValues.vendor_remarks : ''} />
                 </Form.Item>
               </Col>
             </Row>
@@ -225,7 +248,7 @@ const VendorQuotationForm = () => {
               style={{
                 background: '#fff',
                 border: '1px solid #d9d9d9',
-                padding: '10px',
+                padding: '25px',
                 height: '100%',
                 fontSize: '14px',
               }}
@@ -269,7 +292,11 @@ const VendorQuotationForm = () => {
                 rowKey={'id'}
                 size="small"
                 style={{ marginTop: '10px', backgroundColor: '#fff', border: '1px solid #d9d9d9', borderRadius: '10px !important' }}
-                rowClassName={(record, index) => index % 2 === 0 ? 'even-row' : 'odd-row'}
+                // rowClassName={(record, index) => index % 2 === 0 ? 'even-row' : 'odd-row'}
+                rowClassName={(record, index) => {
+                  if (record.is_deleted) return 'disabled-row';
+                  return index % 2 === 0 ? 'even-row' : 'odd-row';
+                }}
               />
               <div style={{ marginTop: '10px', textAlign: 'right' }}>
                 <Button type="primary" onClick={() => navigate('/vendor-platform/')}>

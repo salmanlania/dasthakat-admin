@@ -467,7 +467,7 @@ const Sidebar = () => {
     },
     {
       key: 'vendor platform',
-      label: 'Vendor Plateform',
+      label: 'Vendor Platform',
       icon: <TbBuildingStore size={18} />,
       disabled: vpQuotationPermission,
       children: [

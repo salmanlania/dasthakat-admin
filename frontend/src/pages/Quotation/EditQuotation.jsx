@@ -26,11 +26,21 @@ const EditQuotation = () => {
       handleError(error);
     }
   };
+
   const onQuotationUpdates = async (data) => {
     try {
       await dispatch(updateQuotation({ id, data })).unwrap();
       toast.success('Quotation updated successfully');
       navigate('/quotation');
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const onQuotationUpdateVendor = async (data) => {
+    try {
+      const res = await dispatch(updateQuotation({ id, data })).unwrap();
+      return res;
     } catch (error) {
       handleError(error);
     }
@@ -60,7 +70,7 @@ const EditQuotation = () => {
 
       {!isItemLoading && initialFormValues ? (
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <QuotationForm mode="edit" onSubmit={onQuotationUpdate} onSave={onQuotationUpdates} />
+          <QuotationForm mode="edit" onSubmit={onQuotationUpdate} onSave={onQuotationUpdates} onVendor={onQuotationUpdateVendor} />
         </div>
       ) : null}
     </>

@@ -26,7 +26,6 @@ const VendorSelectionModal = ({ open, onClose }) => {
   const [vendorCount] = useState(4);
   const [isSaving, setIsSaving] = useState(false);
   const [isExitSaving, setIsExitSaving] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(null);
   const [form] = Form.useForm();
   const hasFetchedVendors = useRef(false);
   const lastFetchedId = useRef(null);
@@ -54,7 +53,12 @@ const VendorSelectionModal = ({ open, onClose }) => {
 
     fetchVendors();
 
-  }, [id, open, dispatch, handleError]);
+    if (open) {
+      const tomorrow = dayjs().add(1, 'day');
+      form.setFieldValue('required_date', tomorrow);
+    }
+
+  }, [id, open, dispatch, handleError, form]);
 
   useEffect(() => {
     if (!vendorQuotationDetails?.length) {
@@ -71,6 +75,20 @@ const VendorSelectionModal = ({ open, onClose }) => {
 
         const vendors = Array.from({ length: vendorCount }, (_, vendorIndex) => {
           const existingVendor = existingVendors[vendorIndex] || null;
+
+          if (vendorIndex === 0 && !existingVendor && existingVendors.length === 0) {
+            return {
+              name: `Vendor`,
+              rate: item.rate || 0,
+              isPrimary: true,
+              supplier_id: item.supplier_id ? {
+                value: item.supplier_id.value,
+                label: item.supplier_id.label
+              } : null,
+              rfqSent: false,
+              vendor_part_no: item.vendor_part_no || '',
+            };
+          }
           return existingVendor
             ? {
               name: `Vendor`,
@@ -81,6 +99,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
                 : null,
               rfqSent: existingVendor.rfq === 1,
               vendor_part_no: existingVendor.vendor_part_no || '',
+              vendor_quotation_detail_id: existingVendor.vendor_quotation_detail_id || null,
             }
             : {
               name: `Vendor`,
@@ -96,6 +115,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
         return {
           key: item.quotation_detail_id || String(index + 1),
           quotation_detail_id: item.quotation_detail_id,
+          vendor_quotation_detail_id: item.vendor_quotation_detail_id,
           product_name:
             item.product_type_id?.value === 4
               ? item.product_name
@@ -164,6 +184,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
           is_primary_vendor: vendor.isPrimary ? 1 : 0,
           rfq: vendor.rfqSent ? 1 : 0,
           vendor_part_no: vendor.vendor_part_no || '',
+          vendor_quotation_detail_id: vendor.vendor_quotation_detail_id || '',
         });
       });
     });
@@ -184,8 +205,6 @@ const VendorSelectionModal = ({ open, onClose }) => {
     } catch (error) {
       handleError(error);
     } finally {
-      // setIsSaving(false);
-      // setIsExitSaving(false);
       if (value === 'saveExit') {
         setIsExitSaving(false);
       } else {
@@ -202,11 +221,6 @@ const VendorSelectionModal = ({ open, onClose }) => {
 
   const handlePrimaryChange = (productIndex, vendorIndex) => {
     const newData = JSON.parse(JSON.stringify(data));
-    // newData[productIndex].vendors = newData[productIndex].vendors.map((vendor, idx) => ({
-    //   ...vendor,
-    //   isPrimary: idx === vendorIndex,
-    // }));
-    // setData(newData);
     newData[productIndex].vendors.forEach((vendor, idx) => {
       vendor.isPrimary = idx === vendorIndex;
     });

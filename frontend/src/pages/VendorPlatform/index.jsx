@@ -29,8 +29,10 @@ import {
   setVendorQuotationListParams,
   vendorQuotationActions
 } from '../../store/features/vendorQuotationSlice.js';
+import useDocumentTitle from '../../hooks/useDocumentTitle.js';
 
 const VendorPlatform = () => {
+  useDocumentTitle('Vendor Platform Quotation');
   const { RangePicker } = DatePicker;
   const dispatch = useDispatch();
   const handleError = useError();
@@ -104,7 +106,7 @@ const VendorPlatform = () => {
     {
       title: (
         <div>
-          <p>VQ #</p>
+          <p>V.Plat #</p>
           <Input
             className="font-normal"
             size="small"
@@ -379,7 +381,9 @@ const VendorPlatform = () => {
             valueKey="event_id"
             labelKey="event_code"
             value={params.event_id}
-            onChange={(value) => dispatch(setVendorQuotationListParams({ event_id: value }))}
+            onChange={(value) => {
+              dispatch(setVendorQuotationListParams({ event_id: value }))
+            }}
           />
         </div>
       ),
@@ -426,7 +430,7 @@ const VendorPlatform = () => {
           </Link>
         </Tooltip>
       ),
-      width: 70,
+      width: 80,
       fixed: 'right',
     },
   ];
@@ -439,7 +443,7 @@ const VendorPlatform = () => {
     const sortParams = sorter.field
       ? {
         sort_column: sorter.field,
-        sort_direction: sorter.order === 'ascend' ? 'asc' : sorter.order === 'descend' ? 'desc' : undefined,
+        sort_direction: sorter.order === 'ascend' ? 'ascend' : sorter.order === 'descend' ? 'descend' : undefined,
       }
       : {
         sort_column: undefined,
@@ -504,13 +508,14 @@ const VendorPlatform = () => {
 
     } else if (actionType === 'change_required_date') {
       payload.date_required = dayjs(requiredDate).format('YYYY-MM-DD');
+      payload.send_notification = 1;
 
     } else if (actionType === 'cancel') {
       payload.toggle_is_cancelled = '1';
 
     } else if (actionType === 'incomplete') {
-      payload.status = 'partial';
-
+      payload.rfq_reset = 1;
+      payload.send_notification = 1;
     }
 
     try {
@@ -525,6 +530,8 @@ const VendorPlatform = () => {
       };
 
       toast.success(successMessages[actionType] || 'Task completed successfully');
+      dispatch(setQuotationDeleteIDs([]));
+      setRequiredDate(null)
       dispatch(getVendorQuotationList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
@@ -632,14 +639,11 @@ const VendorPlatform = () => {
             >
               Send Notifications
             </Button>
-            {/* <Button
-          loading={loadingAction === 'incomplete'}
-          disabled={loadingAction !== ''}
-          className="bg-amber-300 font-semibold text-black hover:bg-amber-400"
-          onClick={() => onFinish('incomplete')}
-        > */}
             <Button
+              loading={loadingAction === 'incomplete'}
+              disabled={loadingAction !== ''}
               className="bg-amber-300 font-semibold text-black hover:bg-amber-400"
+              onClick={() => onFinish('incomplete')}
             >
               Set VQs to Incomplete
             </Button>
@@ -665,6 +669,7 @@ const VendorPlatform = () => {
               size="small"
               format="MM/DD/YYYY"
               className="mr-4"
+              allowClear
               value={requiredDate}
               onChange={(date) => setRequiredDate(date)}
             />
