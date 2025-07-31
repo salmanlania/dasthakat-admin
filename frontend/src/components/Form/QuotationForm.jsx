@@ -1752,7 +1752,7 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
               </Row>
             </div>
             <div className="w-full md:w-[35%] mt-4 md:mt-0">
-              {isCommissionTableVisible && (commissionAgent.length > 0 || commissionAgentData.length > 0) ? (
+              {isCommissionTableVisible ? (
                 <div className="rounded-lg p-4" style={{ backgroundColor: '#F8FAFC' }}>
                   <div className="max-w-full">
                     <Table
