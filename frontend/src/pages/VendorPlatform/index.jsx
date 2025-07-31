@@ -98,7 +98,7 @@ const VendorPlatform = () => {
     },
     {
       value: 'Bid Expired',
-      label: 'Bid Expireds',
+      label: 'Bid Expired',
     },
   ];
 
