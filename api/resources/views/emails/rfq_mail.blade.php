@@ -142,7 +142,7 @@ Global Marine Safety - America</p>  -->
                     <p>Dear <strong>{{ $data['name'] ?? "" }}</strong>,</p>
                     <p>
                         You have been invited to submit your quotation for the items listed below.
-                        Please review the details and click the button below to submit your rate.
+                        Please review the details and click the button below to submit your price.
                     </p>
 
                     <p><strong>Quotation No:</strong> {{ $data['data']['quotation_no'] ?? "" }} <br />
@@ -153,7 +153,7 @@ Global Marine Safety - America</p>  -->
                     <!-- CTA BUTTON -->
                     <p style="text-align:center;">
                         <a href="{{$data['data']['link'] ?? "#"}}"
-                            class="cta-button">Submit Your Rate</a>
+                            class="cta-button">Submit Your Price</a>
                     </p>
 
                     <p style="font-size: 14px;">If the button doesn’t work, click this link:<br />
