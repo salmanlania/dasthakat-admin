@@ -1,4 +1,3 @@
-
 import { Button, Divider, Modal, Table } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
@@ -39,7 +38,7 @@ const VendorPlatformQuotation = () => {
     details
       ?.filter((item) => !item.is_deleted)
       .forEach((item) => {
-        const itemQty = Number(item.quantity) || 0;
+        const itemQty = Number(item?.vendor_quotation_detail ? item?.vendor_quotation_detail?.quotation_detail?.quantity : item?.quantity ? item?.quantity : 0)
         const itemPrice = Number(item.vendor_rate?.toString()?.replace(/,/g, '')) || 0;
         const itemTotal = itemQty * itemPrice;
 
@@ -434,8 +433,10 @@ const VendorPlatformQuotation = () => {
           loading={loading}
           rowClassName={(record) => record.is_deleted ? 'deleted-row' : ''}
           summary={() => {
-            if (!data?.details?.length) return null;
-
+            if (!data?.details?.length) {
+              return null;
+            }
+            const newCal = totals.totalQuantity * totals.totalPrice
             return (
               <>
                 <Table.Summary.Row>
@@ -448,8 +449,7 @@ const VendorPlatformQuotation = () => {
                 </Table.Summary.Row>
                 <Table.Summary.Row>
                   <Table.Summary.Cell index={0}><strong>Total Amount</strong></Table.Summary.Cell>
-                  {/* <Table.Summary.Cell index={1}><strong>{totalAmount}</strong></Table.Summary.Cell> */}
-                  <Table.Summary.Cell index={1}><strong>{totals.totalAmount.toLocaleString()}</strong></Table.Summary.Cell>
+                  <Table.Summary.Cell index={1}><strong>{newCal}</strong></Table.Summary.Cell>
                   <Table.Summary.Cell index={2} />
                   <Table.Summary.Cell index={3} />
                   <Table.Summary.Cell index={4} />
