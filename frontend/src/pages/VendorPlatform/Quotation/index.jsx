@@ -25,6 +25,36 @@ const VendorPlatformQuotation = () => {
   const handleError = useError();
   const { id } = useParams();
 
+  const [totals, setTotals] = useState({
+    totalQuantity: 0,
+    totalPrice: 0,
+    totalAmount: 0
+  });
+
+  const calculateTotals = (details) => {
+    let totalQuantity = 0;
+    let totalPrice = 0;
+    let totalAmount = 0;
+
+    details
+      ?.filter((item) => !item.is_deleted)
+      .forEach((item) => {
+        const itemQty = Number(item.quantity) || 0;
+        const itemPrice = Number(item.vendor_rate?.toString()?.replace(/,/g, '')) || 0;
+        const itemTotal = itemQty * itemPrice;
+
+        totalQuantity += itemQty;
+        totalPrice += itemPrice;
+        totalAmount += itemTotal;
+      });
+
+    return {
+      totalQuantity,
+      totalPrice,
+      totalAmount,
+    };
+  };
+
   useEffect(() => {
     const style = document.createElement('style');
     style.innerHTML = `
@@ -120,6 +150,8 @@ const VendorPlatformQuotation = () => {
 
         setVendorReferenceNo(fetchedData?.vendor_ref_no || '');
         setVendorRemarks(fetchedData?.vendor_remarks || '');
+        const initialTotals = calculateTotals(fetchedData?.details || []);
+        setTotals(initialTotals);
 
       } catch (error) {
         handleError(error);
@@ -134,7 +166,7 @@ const VendorPlatformQuotation = () => {
 
   const sourceData = (data?.details || []).map((item, index) => {
     return {
-      ...item?.vendor_quotation_detail,
+      ...item,
       product_name: item.product_name,
       quantity: item.quantity,
       unit: item.unit,
@@ -157,6 +189,16 @@ const VendorPlatformQuotation = () => {
 
     detail.vendor_quotation_detail[key] = value;
 
+    if (key === 'vendor_rate') {
+      const qty = Number(detail?.quantity) || 0;
+      const price = Number(value?.toString()?.replace(/,/g, '')) || 0;
+      detail.vendor_quotation_detail.total_amount = qty * price;
+      detail.vendor_rate = price;
+
+      const updatedTotals = calculateTotals(updatedDetails);
+      setTotals(updatedTotals);
+    }
+
     setData({
       ...data,
       details: updatedDetails,
@@ -174,9 +216,9 @@ const VendorPlatformQuotation = () => {
       const quotationDetail = data?.details
         ?.filter(d => !d.is_deleted)
         ?.map(d => ({
-        ...d.vendor_quotation_detail,
-        detail_id: d.detail_id
-      })) || [];
+          ...d.vendor_quotation_detail,
+          detail_id: d.detail_id
+        })) || [];
 
       if (!quotationDetail || quotationDetail.length === 0) {
         toast.error('No quotation details to submit.');
@@ -195,6 +237,10 @@ const VendorPlatformQuotation = () => {
       const res = await api.get(`/vendor-platform/quotation/rfq/${id}`);
       const fetchedData = res?.data?.data;
       setData(fetchedData);
+
+      const updatedTotals = calculateTotals(fetchedData?.details || []);
+      setTotals(updatedTotals);
+
     } catch (error) {
       handleError(error);
     } finally {
@@ -211,9 +257,9 @@ const VendorPlatformQuotation = () => {
       render: (_, record) => {
         return (
           record?.is_deleted ? record?.product_name :
-            record?.quotation_detail?.product_type_id == '4'
-              ? record?.quotation_detail?.product_name
-              : record?.quotation_detail?.product?.name
+            record?.vendor_quotation_detail?.quotation_detail?.product_type_id == '4'
+              ? record?.vendor_quotation_detail?.quotation_detail?.product_name
+              : record?.vendor_quotation_detail?.quotation_detail?.product?.name
         );
       }
     },
@@ -223,17 +269,17 @@ const VendorPlatformQuotation = () => {
       key: 'quantity',
       width: 100,
       render: (_, record) =>
-        record?.is_deleted ? record?.quantity : record?.quotation_detail?.quantity ? record?.quotation_detail?.quantity : null,
+        record?.is_deleted ? record?.quantity : record?.vendor_quotation_detail?.quotation_detail?.quantity ? record?.vendor_quotation_detail?.quotation_detail?.quantity : null,
     },
     {
       title: 'Price',
       dataIndex: 'vendor_rate',
       key: 'vendor_rate',
       width: 120,
-      render: (_, { vendor_rate }, index) => {
+      render: (_, record, index) => {
         return (
           <DebouncedCommaSeparatedInput
-            value={vendor_rate}
+            value={record?.vendor_rate}
             onChange={(value) => updateDetailValue(index, 'vendor_rate', value)}
           />
         );
@@ -245,7 +291,7 @@ const VendorPlatformQuotation = () => {
       key: 'uom',
       width: 120,
       render: (_, record) => {
-        return record?.is_deleted ? record?.unit?.name : record?.quotation_detail?.unit?.name ? record?.quotation_detail?.unit?.name : null;
+        return record?.is_deleted ? record?.unit?.name : record?.vendor_quotation_detail?.quotation_detail?.unit?.name ? record?.vendor_quotation_detail?.quotation_detail?.unit?.name : null;
       }
     },
     {
@@ -256,7 +302,7 @@ const VendorPlatformQuotation = () => {
       render: (_, record, index) => {
         return (
           <DebounceInput
-            value={record?.vendor_part_no ? record?.vendor_part_no : ''}
+            value={record?.is_deleted ? record?.vendor_part_no : record?.vendor_quotation_detail?.vendor_part_no ? record?.vendor_quotation_detail?.vendor_part_no : ''}
             onChange={(value) => updateDetailValue(index, 'vendor_part_no', value)}
           />
         );
@@ -270,7 +316,7 @@ const VendorPlatformQuotation = () => {
       render: (_, record, index) => {
         return (
           <DebounceInput
-            value={record?.vendor_notes ? record?.vendor_notes : ''}
+            value={record?.is_deleted ? record?.vendor_notes : record?.vendor_quotation_detail?.vendor_notes ? record?.vendor_quotation_detail?.vendor_notes : ''}
             onChange={(value) => updateDetailValue(index, 'vendor_notes', value)}
           />
         );
@@ -387,34 +433,23 @@ const VendorPlatformQuotation = () => {
           dataSource={sourceData || []}
           loading={loading}
           rowClassName={(record) => record.is_deleted ? 'deleted-row' : ''}
-          summary={(pageData) => {
-            if (pageData.length === 0) return null;
-            let totalQuantity = 0;
-            let totalPrice = 0;
-            let totalAmount = 0
-
-            pageData.forEach((item) => {
-              const qty = Number(item?.quotation_detail?.quantity);
-              const price = Number(item?.vendor_rate?.toString()?.replace(/,/g, '')) || 0;
-              const totalCal = qty * price
-              if (!isNaN(qty)) totalQuantity += qty;
-              if (!isNaN(price)) totalPrice += price;
-              if (!isNaN(price)) totalAmount += totalCal;
-            });
+          summary={() => {
+            if (!data?.details?.length) return null;
 
             return (
               <>
                 <Table.Summary.Row>
                   <Table.Summary.Cell index={0}><strong>Total</strong></Table.Summary.Cell>
-                  <Table.Summary.Cell index={1}><strong>{totalQuantity}</strong></Table.Summary.Cell>
-                  <Table.Summary.Cell index={2}><strong>{totalPrice}</strong></Table.Summary.Cell>
+                  <Table.Summary.Cell index={1}><strong>{totals.totalQuantity}</strong></Table.Summary.Cell>
+                  <Table.Summary.Cell index={2} />
                   <Table.Summary.Cell index={3} />
                   <Table.Summary.Cell index={4} />
                   <Table.Summary.Cell index={5} />
                 </Table.Summary.Row>
                 <Table.Summary.Row>
                   <Table.Summary.Cell index={0}><strong>Total Amount</strong></Table.Summary.Cell>
-                  <Table.Summary.Cell index={1}><strong>{totalAmount}</strong></Table.Summary.Cell>
+                  {/* <Table.Summary.Cell index={1}><strong>{totalAmount}</strong></Table.Summary.Cell> */}
+                  <Table.Summary.Cell index={1}><strong>{totals.totalAmount.toLocaleString()}</strong></Table.Summary.Cell>
                   <Table.Summary.Cell index={2} />
                   <Table.Summary.Cell index={3} />
                   <Table.Summary.Cell index={4} />

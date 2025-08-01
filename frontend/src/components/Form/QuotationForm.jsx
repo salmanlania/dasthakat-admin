@@ -197,14 +197,14 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
     ? formatThreeDigitCommas(roundUpto(totalNet * (parsedSalesman / 100)))
     : 0;
 
-    const total = parseInt(totalCommissionAmount || 0);
-    const salesman = parseInt(salesmanAmount || 0);
-    const rebate = parseInt(rebateAmount || 0);
-  
-    const otherComission =
-      (isNaN(total) ? 0 : total) +
-      (isNaN(salesman) ? 0 : salesman) +
-      (isNaN(rebate) ? 0 : rebate);
+  const total = parseInt(totalCommissionAmount || 0);
+  const salesman = parseInt(salesmanAmount || 0);
+  const rebate = parseInt(rebateAmount || 0);
+
+  const otherComission =
+    (isNaN(total) ? 0 : total) +
+    (isNaN(salesman) ? 0 : salesman) +
+    (isNaN(rebate) ? 0 : rebate);
 
   const minusValue =
     // parseInt(salesmanAmount?.toString().replace(/,/g, '') || 0) +
@@ -213,7 +213,7 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
     parseInt(otherComission || 0);
 
   const finalAmount = parseInt(totalNet || 0) - minusValue || 0;
-  
+
   totalProfit = roundUpto(finalAmount - totalCost);
 
   quotationDetails.forEach((detail) => {
@@ -1701,8 +1701,8 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
         />
 
         <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
-          <div className="flex w-full gap-0 items-center flex-col md:flex-row">
-            <div className="w-full md:w-[60%] flex-shrink-0 max-h-[300px] gap-5">
+          <div className="flex w-full gap-0 items-start flex-col md:flex-row mt-1">
+            <div className="w-full md:w-[60%] flex-shrink-0 max-h-[300px]">
               <Row gutter={[12, 12]}>
                 <Col span={24} sm={12} md={12} lg={12}>
                   <DetailSummaryInfo
@@ -1751,10 +1751,17 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
                 </Row>
               </Row>
             </div>
-            <div className="w-full md:w-[35%] mt-4 md:mt-0">
+            <div className="w-full md:w-[35%]">
               {isCommissionTableVisible ? (
                 <div className="rounded-lg p-4" style={{ backgroundColor: '#F8FAFC' }}>
-                  <div className="max-w-full">
+                  <div
+                    className="max-w-full"
+                    style={{
+                      maxHeight: extendedCommissionData.length > 4 ? 240 : 'auto',
+                      overflowY: extendedCommissionData.length > 4 ? 'auto' : 'visible',
+                      overflowX: 'none',
+                    }}
+                  >
                     <Table
                       columns={commissionAgentColumns}
                       // dataSource={commissionAgent.length > 0 ? commissionAgent : commissionAgentData}
