@@ -27,66 +27,240 @@ class EventController extends Controller
 {
 	protected $db;
 
+	// public function index(Request $request)
+	// {
+	// 	$event_code = $request->input('event_code', '');
+	// 	$customer_id = $request->input('customer_id', '');
+	// 	$vessel_id = $request->input('vessel_id', '');
+	// 	$class1_id = $request->input('class1_id', '');
+	// 	$class2_id = $request->input('class2_id', '');
+	// 	$status = $request->input('status', '');
+	// 	$all = $request->input('all', '');
+
+	// 	$search = $request->input('search', '');
+	// 	$page =  $request->input('page', 1);
+	// 	$perPage =  $request->input('limit', 10);
+	// 	$sort_column = $request->input('sort_column', 'event.created_at');
+	// 	$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
+
+	// 	$data =  Event::LeftJoin('customer as c', 'event.customer_id', 'c.customer_id')
+	// 		->LeftJoin('vessel as v', 'event.vessel_id', 'v.vessel_id')
+	// 		->LeftJoin('class as c1', 'c1.class_id', 'event.class1_id')
+	// 		->LeftJoin('class as c2', 'c2.class_id', 'event.class2_id');
+	// 	$data = $data->where('event.company_id', '=', $request->company_id);
+	// 	$data = $data->where('event.company_branch_id', '=', $request->company_branch_id);
+
+
+
+	// 	if ($all != 1) $data = $data->where('event.status', '=', 1);
+	// 	if (!empty($status) || $status == '0') $data = $data->where('event.status', '=', $status);
+	// 	if (!empty($event_code)) $data = $data->where('event_code', 'like', '%' . $event_code . '%');
+	// 	if (!empty($customer_id)) $data = $data->where('event.customer_id', '=', $customer_id);
+	// 	if (!empty($vessel_id)) $data = $data->where('event.vessel_id', '=', $vessel_id);
+	// 	if (!empty($class1_id)) $data = $data->where('c1.class_id', '=', $class1_id);
+	// 	if (!empty($class2_id)) $data = $data->where('c2.class_id', '=', $class2_id);
+
+
+	// 	if (!empty($search)) {
+	// 		$search = strtolower($search);
+	// 		$data = $data->where(function ($query) use ($search) {
+	// 			$query
+	// 				->where('v.name', 'like', '%' . $search . '%')
+	// 				->orWhere('c.name', 'like', '%' . $search . '%')
+	// 				->orWhere('c1.name', 'like', '%' . $search . '%')
+	// 				->orWhere('c2.name', 'like', '%' . $search . '%')
+	// 				->orWhere('event.status', '=', $search)
+	// 				->orWhere('event.event_code', 'like', '%' . $search . '%');
+	// 		});
+	// 	}
+
+	// 	$data = $data->select(
+	// 		"event.*",
+	// 		DB::raw("
+    //         CASE
+    //             WHEN event.status IN (0, 1) THEN (
+    //                 CASE
+    //                     WHEN event.status = 1 THEN (
+    //                         CASE
+    //                             WHEN (
+    //                                 -- Check if any shipments exist for the event
+    //                                 SELECT COUNT(*)
+    //                                 FROM shipment s
+    //                                 WHERE s.event_id = event.event_id
+    //                             ) = 0 THEN 1 -- No shipments exist
+    //                             WHEN (
+    //                                 -- Check if all charge orders have complete shipments
+    //                                 SELECT COUNT(*)
+    //                                 FROM charge_order co
+    //                                 LEFT JOIN (
+    //                                     SELECT co2.charge_order_id AS charge_order_id,
+    //                                            COUNT(cod.charge_order_detail_id) AS total_details,
+    //                                            SUM(CASE
+    //                                                WHEN sd.quantity = cod.quantity THEN 1
+    //                                                ELSE 0
+    //                                            END) AS matched_details
+    //                                     FROM charge_order co2
+    //                                     JOIN charge_order_detail cod ON co2.charge_order_id = cod.charge_order_id
+    //                                     LEFT JOIN shipment s ON s.event_id = co2.event_id
+    //                                     LEFT JOIN shipment_detail sd ON s.shipment_id = sd.shipment_id
+    //                                         AND sd.charge_order_id = cod.charge_order_id
+    //                                         AND sd.charge_order_detail_id = cod.charge_order_detail_id
+    //                                     WHERE co2.event_id = event.event_id
+    //                                     GROUP BY co2.charge_order_id
+    //                                     HAVING total_details = matched_details
+    //                                 ) AS shipment_status ON co.charge_order_id = shipment_status.charge_order_id
+    //                                 WHERE co.event_id = event.event_id
+    //                                 GROUP BY co.event_id
+    //                                 HAVING COUNT(co.charge_order_id) = SUM(CASE WHEN shipment_status.charge_order_id IS NOT NULL THEN 1 ELSE 0 END)
+    //                             ) > 0 THEN 3 -- All charge orders have complete shipments
+    //                             ELSE 2 -- Not all shipments complete
+    //                         END
+    //                     )
+    //                     ELSE 0 -- Status is 0, keep it unchanged
+    //                 END
+    //             )
+    //             ELSE event.status -- Keep existing status for values other than 0 or 1
+    //         END AS status
+    //     "),
+	// 		DB::raw("CONCAT(event.event_code, ' (', v.name, ')') as event_name"),
+	// 		"c.name as customer_name",
+	// 		"v.name as vessel_name",
+	// 		"c1.name as class1_name",
+	// 		"c2.name as class2_name"
+	// 	);
+	// 	$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
+
+	// 	return response()->json($data);
+	// }
+
 	public function index(Request $request)
-	{
-		$event_code = $request->input('event_code', '');
-		$customer_id = $request->input('customer_id', '');
-		$vessel_id = $request->input('vessel_id', '');
-		$class1_id = $request->input('class1_id', '');
-		$class2_id = $request->input('class2_id', '');
-		$status = $request->input('status', '');
-		$all = $request->input('all', '');
+{
+    $event_code = $request->input('event_code', '');
+    $customer_id = $request->input('customer_id', '');
+    $vessel_id = $request->input('vessel_id', '');
+    $class1_id = $request->input('class1_id', '');
+    $class2_id = $request->input('class2_id', '');
+    $status = $request->input('status', '');
+    $all = $request->input('all', '');
+    $search = $request->input('search', '');
+    $page = $request->input('page', 1);
+    $perPage = $request->input('limit', 10);
+    $sort_column = $request->input('sort_column', 'created_at');
+    $sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
-		$search = $request->input('search', '');
-		$page =  $request->input('page', 1);
-		$perPage =  $request->input('limit', 10);
-		$sort_column = $request->input('sort_column', 'event.created_at');
-		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
+    // Base query with computed status
+    $subQuery = Event::leftJoin('customer as c', 'event.customer_id', 'c.customer_id')
+        ->leftJoin('vessel as v', 'event.vessel_id', 'v.vessel_id')
+        ->leftJoin('class as c1', 'c1.class_id', 'event.class1_id')
+        ->leftJoin('class as c2', 'c2.class_id', 'event.class2_id')
+        ->where('event.company_id', '=', $request->company_id)
+        ->where('event.company_branch_id', '=', $request->company_branch_id)
+        ->select(
+            'event.*',
+            DB::raw("
+                CASE
+                    WHEN event.status IN (0, 1) THEN (
+                        CASE
+                            WHEN event.status = 1 THEN (
+                                CASE
+                                    WHEN (
+                                        -- Check if any shipments exist for the event
+                                        SELECT COUNT(*)
+                                        FROM shipment s
+                                        WHERE s.event_id = event.event_id
+                                    ) = 0 THEN 1 -- No shipments exist (available)
+                                    WHEN (
+                                        -- Check if all charge orders have complete shipments
+                                        SELECT COUNT(*)
+                                        FROM charge_order co
+                                        LEFT JOIN (
+                                            SELECT co2.charge_order_id AS charge_order_id,
+                                                   COUNT(cod.charge_order_detail_id) AS total_details,
+                                                   SUM(CASE
+                                                       WHEN sd.quantity = cod.quantity THEN 1
+                                                       ELSE 0
+                                                   END) AS matched_details
+                                            FROM charge_order co2
+                                            JOIN charge_order_detail cod ON co2.charge_order_id = cod.charge_order_id
+                                            LEFT JOIN shipment s ON s.event_id = co2.event_id
+                                            LEFT JOIN shipment_detail sd ON s.shipment_id = sd.shipment_id
+                                                AND sd.charge_order_id = cod.charge_order_id
+                                                AND sd.charge_order_detail_id = cod.charge_order_detail_id
+                                            WHERE co2.event_id = event.event_id
+                                            GROUP BY co2.charge_order_id
+                                            HAVING total_details = matched_details
+                                        ) AS shipment_status ON co.charge_order_id = shipment_status.charge_order_id
+                                        WHERE co.event_id = event.event_id
+                                        GROUP BY co.event_id
+                                        HAVING COUNT(co.charge_order_id) = SUM(CASE WHEN shipment_status.charge_order_id IS NOT NULL THEN 1 ELSE 0 END)
+                                    ) > 0 THEN 3 -- All charge orders have complete shipments (complete)
+                                    ELSE 2 -- Not all shipments complete (partial)
+                                END
+                            )
+                            ELSE 0 -- Status is 0, keep it unchanged (inactive)
+                        END
+                    )
+                    ELSE event.status -- Keep existing status for values other than 0 or 1
+                END AS computed_status
+            "),
+            DB::raw("CONCAT(event.event_code, ' (', v.name, ')') as event_name"),
+            'c.name as customer_name',
+            'v.name as vessel_name',
+            'c1.name as class1_name',
+            'c2.name as class2_name'
+        );
 
-		$data =  Event::LeftJoin('customer as c', 'event.customer_id', 'c.customer_id')
-			->LeftJoin('vessel as v', 'event.vessel_id', 'v.vessel_id')
-			->LeftJoin('class as c1', 'c1.class_id', 'event.class1_id')
-			->LeftJoin('class as c2', 'c2.class_id', 'event.class2_id');
-		$data = $data->where('event.company_id', '=', $request->company_id);
-		$data = $data->where('event.company_branch_id', '=', $request->company_branch_id);
+    // Wrap the subquery to allow filtering on computed_status
+    $data = DB::table(DB::raw("({$subQuery->toSql()}) as sub"))
+        ->mergeBindings($subQuery->getQuery());
 
+    // Apply filters
+    if ($all != 1) {
+        $data = $data->where('status', '=', 1); // Restrict to raw event.status = 1
+    }
+    if ($status !== '' || $status === '0') { // Allow filtering on computed_status (0, 1, 2, 3)
+        $data = $data->where('computed_status', '=', $status);
+    }
+    if (!empty($event_code)) {
+        $data = $data->where('event_code', 'like', '%' . $event_code . '%');
+    }
+    if (!empty($customer_id)) {
+        $data = $data->where('customer_id', '=', $customer_id);
+    }
+    if (!empty($vessel_id)) {
+        $data = $data->where('vessel_id', '=', $vessel_id);
+    }
+    if (!empty($class1_id)) {
+        $data = $data->where('class1_id', '=', $class1_id);
+    }
+    if (!empty($class2_id)) {
+        $data = $data->where('class2_id', '=', $class2_id);
+    }
 
+    if (!empty($search)) {
+        $search = strtolower($search);
+        $data = $data->where(function ($query) use ($search) {
+            $query
+                ->where('vessel_name', 'like', '%' . $search . '%')
+                ->orWhere('customer_name', 'like', '%' . $search . '%')
+                ->orWhere('class1_name', 'like', '%' . $search . '%')
+                ->orWhere('class2_name', 'like', '%' . $search . '%')
+                ->orWhere('computed_status', '=', $search) // Search on computed_status
+                ->orWhere('event_code', 'like', '%' . $search . '%');
+        });
+    }
 
-		if ($all != 1) $data = $data->where('event.status', '=', 1);
-		if (!empty($status) || $status == '0') $data = $data->where('event.status', '=', $status);
-		if (!empty($event_code)) $data = $data->where('event_code', 'like', '%' . $event_code . '%');
-		if (!empty($customer_id)) $data = $data->where('event.customer_id', '=', $customer_id);
-		if (!empty($vessel_id)) $data = $data->where('event.vessel_id', '=', $vessel_id);
-		if (!empty($class1_id)) $data = $data->where('c1.class_id', '=', $class1_id);
-		if (!empty($class2_id)) $data = $data->where('c2.class_id', '=', $class2_id);
+    // Select all columns and rename computed_status to status for the response
+    $data = $data->select(
+        '*',
+        DB::raw('computed_status AS status')
+    );
 
+    // Apply sorting and pagination
+    $data = $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
-		if (!empty($search)) {
-			$search = strtolower($search);
-			$data = $data->where(function ($query) use ($search) {
-				$query
-					->where('v.name', 'like', '%' . $search . '%')
-					->orWhere('c.name', 'like', '%' . $search . '%')
-					->orWhere('c1.name', 'like', '%' . $search . '%')
-					->orWhere('c2.name', 'like', '%' . $search . '%')
-					->orWhere('event.status', '=', $search)
-					->orWhere('event.event_code', 'like', '%' . $search . '%');
-			});
-		}
-
-		$data = $data->select(
-			"event.*",
-			DB::raw("CONCAT(event.event_code, ' (', v.name, ')') as event_name"),
-			"c.name as customer_name",
-			"v.name as vessel_name",
-			"c1.name as class1_name",
-			"c2.name as class2_name"
-		);
-		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
-
-		return response()->json($data);
-	}
-
+    return response()->json($data);
+}
 
 
 	public function getChargeOrders($id)
@@ -347,8 +521,8 @@ class EventController extends Controller
 			)
 			->where('event_id', $id)->first();
 
-			$data->vessel_commission_agent = VesselCommissionAgent::with('commission_agent')->where('vessel_id', $data->vessel_id)->orderBy('sort_order')->get();
-			$data->customer_commission_agent = CustomerCommissionAgent::with('commission_agent')->where('customer_id', $data->customer_id)->orderBy('sort_order')->get();
+		$data->vessel_commission_agent = VesselCommissionAgent::with('commission_agent')->where('vessel_id', $data->vessel_id)->orderBy('sort_order')->get();
+		$data->customer_commission_agent = CustomerCommissionAgent::with('commission_agent')->where('customer_id', $data->customer_id)->orderBy('sort_order')->get();
 
 
 		if ($jsonResponse) {

@@ -73,6 +73,16 @@ class ChargeOrder extends Model
     {
         return $this->hasOne(Salesman::class, 'salesman_id', 'salesman_id')->select('salesman_id', 'name');
     }
+    // public function event()
+    // {
+    //     return $this->hasOne(Event::class, 'event_id', 'event_id')
+    //         ->join('vessel', 'vessel.vessel_id', '=', 'event.vessel_id')
+    //         ->select(
+    //             'event.event_id',
+    //             'event.event_code',
+    //             DB::raw("CONCAT(event.event_code, ' (', COALESCE(vessel.name, 'Unknown'), ')') as event_name")
+    //         );
+    // }
     public function event()
     {
         return $this->hasOne(Event::class, 'event_id', 'event_id')

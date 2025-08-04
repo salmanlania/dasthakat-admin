@@ -82,15 +82,63 @@ class ChargeOrderController extends Controller
 			});
 		}
 
-		$data = $data->select("charge_order.*", DB::raw("CONCAT(e.event_code, ' (', CASE 
-		WHEN e.status = 1 THEN 'Active' 
-		ELSE 'Inactive' 
-	END, ')') AS event_code"), "c.name as customer_name", "v.name as vessel_name", "p.name as port_name");
+		$data = $data->select(
+			"charge_order.*",
+			DB::raw("CONCAT(e.event_code, ' (',
+                CASE
+                    WHEN e.status IN (0, 1) THEN (
+                        CASE
+                            WHEN e.status = 1 THEN (
+                                CASE
+                                    WHEN (
+                                        -- Check if any shipments exist for the event
+                                        SELECT COUNT(*)
+                                        FROM shipment s
+                                        WHERE s.event_id = e.event_id
+                                    ) = 0 THEN 'Active' -- No shipments exist (available)
+                                    WHEN (
+                                        -- Check if all charge orders have complete shipments
+                                        SELECT COUNT(*)
+                                        FROM charge_order co
+                                        LEFT JOIN (
+                                            SELECT co2.charge_order_id AS charge_order_id,
+                                                   COUNT(cod.charge_order_detail_id) AS total_details,
+                                                   SUM(CASE
+                                                       WHEN sd.quantity = cod.quantity THEN 1
+                                                       ELSE 0
+                                                   END) AS matched_details
+                                            FROM charge_order co2
+                                            JOIN charge_order_detail cod ON co2.charge_order_id = cod.charge_order_id
+                                            LEFT JOIN shipment s ON s.event_id = co2.event_id
+                                            LEFT JOIN shipment_detail sd ON s.shipment_id = sd.shipment_id
+                                                AND sd.charge_order_id = cod.charge_order_id
+                                                AND sd.charge_order_detail_id = cod.charge_order_detail_id
+                                            WHERE co2.event_id = e.event_id
+                                            GROUP BY co2.charge_order_id
+                                            HAVING total_details = matched_details
+                                        ) AS shipment_status ON co.charge_order_id = shipment_status.charge_order_id
+                                        WHERE co.event_id = e.event_id
+                                        GROUP BY co.event_id
+                                        HAVING COUNT(co.charge_order_id) = SUM(CASE WHEN shipment_status.charge_order_id IS NOT NULL THEN 1 ELSE 0 END)
+                                    ) > 0 THEN 'Complete' -- All charge orders have complete shipments (complete)
+                                    ELSE 'Partial' -- Not all shipments complete (partial)
+                                END
+                            )
+                            ELSE 'Inactive' -- Status is 0, keep it unchanged (inactive)
+                        END
+                    )
+                    ELSE e.status -- Keep existing status for values other than 0 or 1
+                END, ')') AS event_code
+            "),
+			"c.name as customer_name",
+			"v.name as vessel_name",
+			"p.name as port_name"
+		);
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
 	}
-	
+
 	public function show($id, Request $request)
 	{
 		// Main query with eager loading
@@ -109,7 +157,7 @@ class ChargeOrderController extends Controller
 			// "charge_order_detail.unit",
 			// "charge_order_detail.product_type"
 		])->where('charge_order_id', $id)->first();
-	
+
 		if (!$data) {
 			return $this->jsonResponse(null, 404, "Charge Order not found");
 		}
@@ -120,13 +168,13 @@ class ChargeOrderController extends Controller
 			"unit",
 			"product_type"
 		])->where('charge_order_id', $id)->orderBy('sort_order')->get();
-	
+
 		// Load technicians (assuming technician_id stores JSON array)
 		$technicianIds = is_array($data->technician_id) ? $data->technician_id : [];
-		$data->technicians = !empty($technicianIds) 
+		$data->technicians = !empty($technicianIds)
 			? User::whereIn('user_id', $technicianIds)->get()
 			: null;
-	
+
 		// Process charge order details
 		$data->charge_order_detail->each(function ($detail) use ($request) {
 			$detail->picked_quantity = $this->getPickedQuantity($detail);
@@ -134,7 +182,7 @@ class ChargeOrderController extends Controller
 				$detail->product->stock = StockLedger::Check($detail->product, $request->all());
 			}
 		});
-	
+
 		return $this->jsonResponse($data, 200, "Charge Order Data");
 	}
 
@@ -216,91 +264,91 @@ class ChargeOrderController extends Controller
 
 		$chargeOrder = ChargeOrder::where('charge_order_id', $chargeOrderId)->first();
 		$Quotation = Quotation::where('document_identity', $chargeOrder->ref_document_identity)->first();
-	
-		try{
-		foreach ($data['vendors'] as $vendor) {
-			$supplierId = $vendor['supplier_id'] ?? null;
-			$requiredDate = $vendor['required_date'] ?? null;
-			$shipVia = $vendor['ship_via'] ?? null;
-			$shipTo = $vendor['ship_to'] ?? null;
 
-			$chargeOrderDetails = ChargeOrderDetail::whereHas('charge_order', function ($query) use ($chargeOrderId, $supplierId) {
-				$query->where('charge_order_id', $chargeOrderId)
-					->where('supplier_id', $supplierId);
-			})->with('product')->get();
+		try {
+			foreach ($data['vendors'] as $vendor) {
+				$supplierId = $vendor['supplier_id'] ?? null;
+				$requiredDate = $vendor['required_date'] ?? null;
+				$shipVia = $vendor['ship_via'] ?? null;
+				$shipTo = $vendor['ship_to'] ?? null;
 
-			if ($chargeOrderDetails->isEmpty()) {
-				continue;
-			}
+				$chargeOrderDetails = ChargeOrderDetail::whereHas('charge_order', function ($query) use ($chargeOrderId, $supplierId) {
+					$query->where('charge_order_id', $chargeOrderId)
+						->where('supplier_id', $supplierId);
+				})->with('product')->get();
 
-			$uuid = $this->get_uuid();
-			$document = DocumentType::getNextDocument(40, $request);
+				if ($chargeOrderDetails->isEmpty()) {
+					continue;
+				}
 
-			$totalQuantity = $chargeOrderDetails->sum('quantity');
-			$totalAmount = $chargeOrderDetails->sum(fn($item) => $item->quantity * $item->cost_price);
-			$vendorDetails = Supplier::where('supplier_id', $supplierId)->firstOrFail();
+				$uuid = $this->get_uuid();
+				$document = DocumentType::getNextDocument(40, $request);
 
-			$purchaseOrder = [
-				'company_id'        => $request->company_id,
-				'company_branch_id' => $request->company_branch_id,
-				'purchase_order_id' => $uuid,
-				'charge_order_id'   => $chargeOrderId ?? "", // Linking Charge Order ID
-				'quotation_id'   => $Quotation->quotation_id ?? "", // Linking Charge Order ID
-				'document_type_id'  => $document['document_type_id'] ?? "",
-				'document_no'       => $document['document_no'] ?? "",
-				'document_prefix'   => $document['document_prefix'] ?? "",
-				'document_identity' => $document['document_identity'] ?? "",
-				'document_date'     => Carbon::now(),
-				'supplier_id'       => $supplierId,
-				'payment_id'       => $vendorDetails['payment_id'] ?? "",
-				'type'              => "Buyout",
-				'buyer_id'          => $request->login_user_id,
-				'total_quantity'    => $totalQuantity,
-				'total_amount'      => $totalAmount,
-				'required_date'     => $requiredDate ?? "",
-				'ship_via'          => $shipVia ?? "",
-				'ship_to'           => $shipTo ?? "",
-				'created_at'        => Carbon::now(),
-				'created_by'        => $request->login_user_id,
-			];
+				$totalQuantity = $chargeOrderDetails->sum('quantity');
+				$totalAmount = $chargeOrderDetails->sum(fn($item) => $item->quantity * $item->cost_price);
+				$vendorDetails = Supplier::where('supplier_id', $supplierId)->firstOrFail();
 
-			PurchaseOrder::insert($purchaseOrder);
-
-			// Insert Purchase Order Details
-			foreach ($chargeOrderDetails as $index => $detail) {
-				$purchase_order_detail_id = $this->get_uuid();
-
-				$purchaseOrderDetail = [
-					'purchase_order_id'        => $uuid,
-					'purchase_order_detail_id' => $purchase_order_detail_id,
-					'charge_order_detail_id'   => $detail->charge_order_detail_id,
-					'sort_order'               => $detail->sort_order,
-					'product_id'               => $detail->product_id ?? "",
-					'product_type_id'          => $detail->product_type_id ?? "",
-					'product_name'             => $detail->product_name ?? "",
-					'product_description'      => $detail->product_description ?? "",
-					'description'              => $detail->description ?? "",
-					'vpart'                    => $detail->vendor_part_no ?? "",
-					'unit_id'                  => $detail->unit_id ?? "",
-					'quantity'                 => $detail->quantity ?? "",
-					'rate'                     => $detail->cost_price ?? "",
-					'amount'                   => ($detail->quantity ?? 0) * ($detail->cost_price ?? 0),
-					'created_at'               => Carbon::now(),
-					'created_by'               => $request->login_user_id,
+				$purchaseOrder = [
+					'company_id'        => $request->company_id,
+					'company_branch_id' => $request->company_branch_id,
+					'purchase_order_id' => $uuid,
+					'charge_order_id'   => $chargeOrderId ?? "", // Linking Charge Order ID
+					'quotation_id'   => $Quotation->quotation_id ?? "", // Linking Charge Order ID
+					'document_type_id'  => $document['document_type_id'] ?? "",
+					'document_no'       => $document['document_no'] ?? "",
+					'document_prefix'   => $document['document_prefix'] ?? "",
+					'document_identity' => $document['document_identity'] ?? "",
+					'document_date'     => Carbon::now(),
+					'supplier_id'       => $supplierId,
+					'payment_id'       => $vendorDetails['payment_id'] ?? "",
+					'type'              => "Buyout",
+					'buyer_id'          => $request->login_user_id,
+					'total_quantity'    => $totalQuantity,
+					'total_amount'      => $totalAmount,
+					'required_date'     => $requiredDate ?? "",
+					'ship_via'          => $shipVia ?? "",
+					'ship_to'           => $shipTo ?? "",
+					'created_at'        => Carbon::now(),
+					'created_by'        => $request->login_user_id,
 				];
 
-				PurchaseOrderDetail::insert($purchaseOrderDetail);
+				PurchaseOrder::insert($purchaseOrder);
 
-				// ChargeOrderDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)
-				// 	->update([
-				// 		'purchase_order_id'        => $uuid,
-				// 		'purchase_order_detail_id' => $purchase_order_detail_id,
-				// 	]);
+				// Insert Purchase Order Details
+				foreach ($chargeOrderDetails as $index => $detail) {
+					$purchase_order_detail_id = $this->get_uuid();
+
+					$purchaseOrderDetail = [
+						'purchase_order_id'        => $uuid,
+						'purchase_order_detail_id' => $purchase_order_detail_id,
+						'charge_order_detail_id'   => $detail->charge_order_detail_id,
+						'sort_order'               => $detail->sort_order,
+						'product_id'               => $detail->product_id ?? "",
+						'product_type_id'          => $detail->product_type_id ?? "",
+						'product_name'             => $detail->product_name ?? "",
+						'product_description'      => $detail->product_description ?? "",
+						'description'              => $detail->description ?? "",
+						'vpart'                    => $detail->vendor_part_no ?? "",
+						'unit_id'                  => $detail->unit_id ?? "",
+						'quantity'                 => $detail->quantity ?? "",
+						'rate'                     => $detail->cost_price ?? "",
+						'amount'                   => ($detail->quantity ?? 0) * ($detail->cost_price ?? 0),
+						'created_at'               => Carbon::now(),
+						'created_by'               => $request->login_user_id,
+					];
+
+					PurchaseOrderDetail::insert($purchaseOrderDetail);
+
+					// ChargeOrderDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)
+					// 	->update([
+					// 		'purchase_order_id'        => $uuid,
+					// 		'purchase_order_detail_id' => $purchase_order_detail_id,
+					// 	]);
+				}
 			}
-		}
-		
-		DB::commit();
-		return $this->jsonResponse(null, 200, "Purchase Orders Created Successfully.");
+
+			DB::commit();
+			return $this->jsonResponse(null, 200, "Purchase Orders Created Successfully.");
 		} catch (\Exception $e) {
 			DB::rollBack(); // Rollback on error
 			Log::error('Purchase Orders Store Error: ' . $e->getMessage());
@@ -313,8 +361,8 @@ class ChargeOrderController extends Controller
 		if (!isPermission('add', 'picklist', $request->permission_list)) {
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		}
-		
-		$chargeOrder->refresh(); 
+
+		$chargeOrder->refresh();
 
 		$inventoryDetails = $chargeOrder->charge_order_detail
 			->where('product_type_id', 2)
@@ -407,9 +455,9 @@ class ChargeOrderController extends Controller
 		if (!isPermission('add', 'servicelist', $request->permission_list)) {
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		}
-		
-		$chargeOrder->refresh(); 
-		
+
+		$chargeOrder->refresh();
+
 		$inventoryDetails = $chargeOrder->charge_order_detail
 			->where('product_type_id', 1)
 			->where('servicelist_detail_id', null);
@@ -508,9 +556,9 @@ class ChargeOrderController extends Controller
 		$COD = $chargeOrder->charge_order_detail;
 
 		if ($COD->isEmpty()) {
-			 Log::warning('updateServiceOrder was called for a ChargeOrder with no details.', [
-            'charge_order_id' => $chargeOrder->charge_order_id
-        ]);
+			Log::warning('updateServiceOrder was called for a ChargeOrder with no details.', [
+				'charge_order_id' => $chargeOrder->charge_order_id
+			]);
 			return;
 		}
 
@@ -610,7 +658,7 @@ class ChargeOrderController extends Controller
 		if (!isPermission('add', 'job_order', $request->permission_list)) {
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		}
-		$chargeOrder->refresh(); 
+		$chargeOrder->refresh();
 		$COD = $chargeOrder->charge_order_detail;
 
 		if ($COD->isEmpty()) {
@@ -730,7 +778,7 @@ class ChargeOrderController extends Controller
 
 	private function createCertificate(string $jobOrderId, string $detailId, $detail, string $userId): void
 	{
-		
+
 		$Product = Product::with('category')->where('product_id', $detail['product_id'])->first();
 		$Category = $Product->category->name ?? '';
 		$certificateData = [
@@ -784,90 +832,90 @@ class ChargeOrderController extends Controller
 		DB::beginTransaction();
 		try {
 
-		$uuid = $this->get_uuid();
-		$document = DocumentType::getNextDocument($this->document_type_id, $request);
-		$insertArr = [
-			'company_id' => $request->company_id ?? "",
-			'company_branch_id' => $request->company_branch_id ?? "",
-			'charge_order_id' => $uuid,
-			'document_type_id' => $document['document_type_id'] ?? "",
-			'document_no' => $document['document_no'] ?? "",
-			'document_identity' => $document['document_identity'] ?? "",
-			'document_prefix' => $document['document_prefix'] ?? "",
-			'ref_document_type_id' => $request->ref_document_type_id ?? "",
-			'ref_document_identity' => $request->ref_document_identity ?? "",
-			'document_date' => ($request->document_date) ?? "",
-			'salesman_id' => $request->salesman_id ?? "",
-			'customer_po_no' => $request->customer_po_no ?? "",
-			'customer_id' => $request->customer_id ?? "",
-			'event_id' => $request->event_id ?? "",
-			'vessel_id' => $request->vessel_id ?? "",
-			'flag_id' => $request->flag_id ?? "",
-			'port_id' => $request->port_id ?? "",
-			'class1_id' => $request->class1_id ?? "",
-			'class2_id' => $request->class2_id ?? "",
-			'agent_id' => $request->agent_id ?? "",
-			'technician_id' => $request->technician_id ?? "",
-			'agent_notes' => $request->agent_notes ?? "",
-			'technician_notes' => $request->technician_notes ?? "",
-			'remarks' => $request->remarks ?? "",
-			'total_quantity' => $request->total_quantity ?? "",
-			'total_amount' => $request->total_amount ?? 0,
-			'discount_amount' => $request->discount_amount ?? 0,
-			'net_amount' => $request->net_amount ?? 0,
-			'created_at' => Carbon::now(),
-			'created_by' => $request->login_user_id,
-		];
-		$chargeOrder = ChargeOrder::create($insertArr);
-		if ($request->port_id) {
+			$uuid = $this->get_uuid();
+			$document = DocumentType::getNextDocument($this->document_type_id, $request);
+			$insertArr = [
+				'company_id' => $request->company_id ?? "",
+				'company_branch_id' => $request->company_branch_id ?? "",
+				'charge_order_id' => $uuid,
+				'document_type_id' => $document['document_type_id'] ?? "",
+				'document_no' => $document['document_no'] ?? "",
+				'document_identity' => $document['document_identity'] ?? "",
+				'document_prefix' => $document['document_prefix'] ?? "",
+				'ref_document_type_id' => $request->ref_document_type_id ?? "",
+				'ref_document_identity' => $request->ref_document_identity ?? "",
+				'document_date' => ($request->document_date) ?? "",
+				'salesman_id' => $request->salesman_id ?? "",
+				'customer_po_no' => $request->customer_po_no ?? "",
+				'customer_id' => $request->customer_id ?? "",
+				'event_id' => $request->event_id ?? "",
+				'vessel_id' => $request->vessel_id ?? "",
+				'flag_id' => $request->flag_id ?? "",
+				'port_id' => $request->port_id ?? "",
+				'class1_id' => $request->class1_id ?? "",
+				'class2_id' => $request->class2_id ?? "",
+				'agent_id' => $request->agent_id ?? "",
+				'technician_id' => $request->technician_id ?? "",
+				'agent_notes' => $request->agent_notes ?? "",
+				'technician_notes' => $request->technician_notes ?? "",
+				'remarks' => $request->remarks ?? "",
+				'total_quantity' => $request->total_quantity ?? "",
+				'total_amount' => $request->total_amount ?? 0,
+				'discount_amount' => $request->discount_amount ?? 0,
+				'net_amount' => $request->net_amount ?? 0,
+				'created_at' => Carbon::now(),
+				'created_by' => $request->login_user_id,
+			];
+			$chargeOrder = ChargeOrder::create($insertArr);
+			if ($request->port_id) {
 
-			EventDispatch::where('event_id', $request->event_id)->update(['port_id' => $request->port_id]);
-		}
-		if ($request->charge_order_detail) {
-			foreach ($request->charge_order_detail as $key => $value) {
-				$detail_uuid = $this->get_uuid();
-				$insert = [
-					'charge_order_id' => $insertArr['charge_order_id'],
-					'charge_order_detail_id' => $detail_uuid,
-					'sort_order' => $value['sort_order'] ?? "",
-					'product_code' => $value['product_code'] ?? "",
-					'product_id' => $value['product_id'] ?? "",
-					'product_name' => $value['product_name'] ?? "",
-					'product_description' => $value['product_description'] ?? "",
-					'product_type_id' => $value['product_type_id'] ?? "",
-					'quotation_detail_id' => $value['quotation_detail_id'] ?? "",
-					'internal_notes' => $value['internal_notes'] ?? "",
-					'description' => $value['description'] ?? "",
-					'warehouse_id' => $value['warehouse_id'] ?? "",
-					'unit_id' => $value['unit_id'] ?? "",
-					'supplier_id' => $value['supplier_id'] ?? "",
-					'vendor_part_no' => $value['vendor_part_no'] ?? "",
-					'cost_price' => $value['cost_price'] ?? "",
-					'markup' => $value['markup'] ?? "",
-					'quantity' => $value['quantity'] ?? "",
-					'rate' => $value['rate'] ?? "",
-					'amount' => $value['amount'] ?? "",
-					'discount_amount' => $value['discount_amount'] ?? "",
-					'discount_percent' => $value['discount_percent'] ?? "",
-					'gross_amount' => $value['gross_amount'] ?? "",
-					'created_at' => Carbon::now(),
-					'created_by' => $request->login_user_id,
-				];
-
-				ChargeOrderDetail::create($insert);
+				EventDispatch::where('event_id', $request->event_id)->update(['port_id' => $request->port_id]);
 			}
-		}
-		EventDispatch::where('event_id', $request->event_id)->update([
-			'event_date' => Carbon::now(),
-			'event_time' => '00:01'
-		]);
-		$this->updatePicklist($request, $chargeOrder);
-		$this->updateServicelist($request, $chargeOrder);
-		$this->updateJobOrder($request, $chargeOrder);
-		$this->updateServiceOrder($request, $chargeOrder);
+			if ($request->charge_order_detail) {
+				foreach ($request->charge_order_detail as $key => $value) {
+					$detail_uuid = $this->get_uuid();
+					$insert = [
+						'charge_order_id' => $insertArr['charge_order_id'],
+						'charge_order_detail_id' => $detail_uuid,
+						'sort_order' => $value['sort_order'] ?? "",
+						'product_code' => $value['product_code'] ?? "",
+						'product_id' => $value['product_id'] ?? "",
+						'product_name' => $value['product_name'] ?? "",
+						'product_description' => $value['product_description'] ?? "",
+						'product_type_id' => $value['product_type_id'] ?? "",
+						'quotation_detail_id' => $value['quotation_detail_id'] ?? "",
+						'internal_notes' => $value['internal_notes'] ?? "",
+						'description' => $value['description'] ?? "",
+						'warehouse_id' => $value['warehouse_id'] ?? "",
+						'unit_id' => $value['unit_id'] ?? "",
+						'supplier_id' => $value['supplier_id'] ?? "",
+						'vendor_part_no' => $value['vendor_part_no'] ?? "",
+						'cost_price' => $value['cost_price'] ?? "",
+						'markup' => $value['markup'] ?? "",
+						'quantity' => $value['quantity'] ?? "",
+						'rate' => $value['rate'] ?? "",
+						'amount' => $value['amount'] ?? "",
+						'discount_amount' => $value['discount_amount'] ?? "",
+						'discount_percent' => $value['discount_percent'] ?? "",
+						'gross_amount' => $value['gross_amount'] ?? "",
+						'created_at' => Carbon::now(),
+						'created_by' => $request->login_user_id,
+					];
 
-		DB::commit(); // Success
-		return $this->jsonResponse(['charge_order_id' => $uuid], 200, "Add Charge Order Successfully!");
+					ChargeOrderDetail::create($insert);
+				}
+			}
+			EventDispatch::where('event_id', $request->event_id)->update([
+				'event_date' => Carbon::now(),
+				'event_time' => '00:01'
+			]);
+			$this->updatePicklist($request, $chargeOrder);
+			$this->updateServicelist($request, $chargeOrder);
+			$this->updateJobOrder($request, $chargeOrder);
+			$this->updateServiceOrder($request, $chargeOrder);
+
+			DB::commit(); // Success
+			return $this->jsonResponse(['charge_order_id' => $uuid], 200, "Add Charge Order Successfully!");
 		} catch (\Exception $e) {
 			DB::rollBack(); // Rollback on error
 			Log::error('Charge Order Store Error: ' . $e->getMessage());
@@ -887,39 +935,39 @@ class ChargeOrderController extends Controller
 
 		DB::beginTransaction();
 		try {
-		$chargeOrder = ChargeOrder::findOrFail($id);
-		$oldChargeOrder = clone $chargeOrder;
-		$chargeOrder->fill([
-			'company_id' => $request->company_id,
-			'company_branch_id' => $request->company_branch_id,
-			'document_date' => $request->document_date,
-			'salesman_id' => $request->salesman_id,
-			'customer_po_no' => $request->customer_po_no,
-			'customer_id' => $request->customer_id,
-			'event_id' => $request->event_id,
-			'vessel_id' => $request->vessel_id,
-			'port_id' => $request->port_id,
-			'flag_id' => $request->flag_id,
-			'class1_id' => $request->class1_id,
-			'class2_id' => $request->class2_id,
-			'agent_id' => $request->agent_id,
-			'technician_id' => $request->technician_id,
-			'agent_notes' => $request->agent_notes,
-			'technician_notes' => $request->technician_notes,
-			'remarks' => $request->remarks,
-			'total_quantity' => $request->total_quantity,
-			'total_amount' => $request->total_amount,
-			'discount_amount' => $request->discount_amount,
-			'net_amount' => $request->net_amount,
-			'updated_by' => $request->login_user_id,
-		])->save();
+			$chargeOrder = ChargeOrder::findOrFail($id);
+			$oldChargeOrder = clone $chargeOrder;
+			$chargeOrder->fill([
+				'company_id' => $request->company_id,
+				'company_branch_id' => $request->company_branch_id,
+				'document_date' => $request->document_date,
+				'salesman_id' => $request->salesman_id,
+				'customer_po_no' => $request->customer_po_no,
+				'customer_id' => $request->customer_id,
+				'event_id' => $request->event_id,
+				'vessel_id' => $request->vessel_id,
+				'port_id' => $request->port_id,
+				'flag_id' => $request->flag_id,
+				'class1_id' => $request->class1_id,
+				'class2_id' => $request->class2_id,
+				'agent_id' => $request->agent_id,
+				'technician_id' => $request->technician_id,
+				'agent_notes' => $request->agent_notes,
+				'technician_notes' => $request->technician_notes,
+				'remarks' => $request->remarks,
+				'total_quantity' => $request->total_quantity,
+				'total_amount' => $request->total_amount,
+				'discount_amount' => $request->discount_amount,
+				'net_amount' => $request->net_amount,
+				'updated_by' => $request->login_user_id,
+			])->save();
 
-		if ($request->port_id) {
+			if ($request->port_id) {
 
-			EventDispatch::where('event_id', $request->event_id)->update(['port_id' => $request->port_id]);
-		}
-		if ($request->charge_order_detail) {
-			foreach ($request->charge_order_detail as $value) {
+				EventDispatch::where('event_id', $request->event_id)->update(['port_id' => $request->port_id]);
+			}
+			if ($request->charge_order_detail) {
+				foreach ($request->charge_order_detail as $value) {
 					if ($value['row_status'] == 'I') {
 						$detail_uuid = $this->get_uuid();
 						$insertArr = [
@@ -1034,27 +1082,25 @@ class ChargeOrderController extends Controller
 					if ($value['row_status'] == 'D') {
 						ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id'])->delete();
 					}
-				
+				}
 			}
-		}
 
-		if (isset($request->is_event_changed) && $request->is_event_changed == 1) {
-			$event_id =	$oldChargeOrder->event_id;
-			JobOrderDetail::where('charge_order_id', $id)->whereHas('job_order', function ($q) use ($event_id) {
-				$q->where('event_id', $event_id);
-			})->delete();
-			ServiceOrder::where('charge_order_id', $id)->update(['event_id'=>$request->event_id]);
-			
-		}
+			if (isset($request->is_event_changed) && $request->is_event_changed == 1) {
+				$event_id =	$oldChargeOrder->event_id;
+				JobOrderDetail::where('charge_order_id', $id)->whereHas('job_order', function ($q) use ($event_id) {
+					$q->where('event_id', $event_id);
+				})->delete();
+				ServiceOrder::where('charge_order_id', $id)->update(['event_id' => $request->event_id]);
+			}
 
 
-		$this->updatePicklist($request, $chargeOrder);
-		$this->updateServicelist($request, $chargeOrder);
-		$this->updateJobOrder($request, $chargeOrder);
-		$this->updateServiceOrder($request, $chargeOrder);
+			$this->updatePicklist($request, $chargeOrder);
+			$this->updateServicelist($request, $chargeOrder);
+			$this->updateJobOrder($request, $chargeOrder);
+			$this->updateServiceOrder($request, $chargeOrder);
 
-		DB::commit();
-		return $this->jsonResponse(['charge_order_id' => $id], 200, "Update Charge Order Successfully!");
+			DB::commit();
+			return $this->jsonResponse(['charge_order_id' => $id], 200, "Update Charge Order Successfully!");
 		} catch (\Exception $e) {
 			DB::rollBack(); // Rollback on error
 			Log::error('Charge Order Update Error: ' . $e->getMessage());

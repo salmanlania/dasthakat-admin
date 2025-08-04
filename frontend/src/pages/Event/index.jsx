@@ -175,6 +175,14 @@ const Event = () => {
                 label: 'Active',
               },
               {
+                value: 2,
+                label: 'Partial',
+              },
+              {
+                value: 3,
+                label: 'Complete',
+              },
+              {
                 value: 0,
                 label: 'Inactive',
               },
@@ -189,9 +197,17 @@ const Event = () => {
       key: 'status',
       sorter: true,
       render: (status) =>
-        status === 1 ? (
+        status == 1 ? (
           <Tag color="success" className="w-16 text-center">
             Active
+          </Tag>
+        ) : status == 2 ? (
+          <Tag color="warning" className="w-16 text-center">
+            Partial
+          </Tag>
+        ) : status == 3 ? (
+          <Tag color="blue" className="w-18 text-center">
+            Complete
           </Tag>
         ) : (
           <Tag color="error" className="w-16 text-center">
@@ -304,10 +320,10 @@ const Event = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: 'checkbox',
-                  selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setEventDeleteIDs(selectedRowKeys)),
-                }
+                type: 'checkbox',
+                selectedRowKeys: deleteIDs,
+                onChange: (selectedRowKeys) => dispatch(setEventDeleteIDs(selectedRowKeys)),
+              }
               : null
           }
           loading={isListLoading}
