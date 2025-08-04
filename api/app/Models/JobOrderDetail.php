@@ -31,6 +31,7 @@ class JobOrderDetail extends Model
         "unit_id",
         "supplier_id",
         "quantity",
+        "is_deleted",
         "created_by",
         "updated_by"
     ];

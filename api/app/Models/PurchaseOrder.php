@@ -35,6 +35,7 @@ class PurchaseOrder extends Model
         "remarks",
         "total_quantity",
         "total_amount",
+        "is_deleted",
         "created_by",
         "updated_by"
     ];

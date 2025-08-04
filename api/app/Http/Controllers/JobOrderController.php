@@ -116,7 +116,10 @@ class JobOrderController extends Controller
 		)->where('job_order_id', $id)->first();
 
 		if ($data) {
-			$details = $data->job_order_detail->sort(function ($a, $b) {
+
+			$details = $data->job_order_detail->filter(function ($detail) {
+				return $detail->is_deleted == 0;
+			})->sort(function ($a, $b) {
 				$docA = $a->charge_order->document_identity ?? '';
 				$docB = $b->charge_order->document_identity ?? '';
 
@@ -130,15 +133,15 @@ class JobOrderController extends Controller
 
 			unset($data->job_order_detail);
 			$data->job_order_detail = $details;
-			
-			foreach ($data->job_order_detail as &$detail) {
-							$shippedRow = ShipmentDetail::with("shipment")
-								->where('charge_order_detail_id', $detail->charge_order_detail_id)
-								->where('charge_order_id', $detail->charge_order_id)
-								->first();
 
-							$detail->shipment = $shippedRow?->shipment ?: null;
-						}
+			foreach ($data->job_order_detail as &$detail) {
+				$shippedRow = ShipmentDetail::with("shipment")
+					->where('charge_order_detail_id', $detail->charge_order_detail_id)
+					->where('charge_order_id', $detail->charge_order_id)
+					->first();
+
+				$detail->shipment = $shippedRow?->shipment ?: null;
+			}
 		}
 
 		return $this->jsonResponse($data, 200, "Job Order Data");
@@ -163,12 +166,12 @@ class JobOrderController extends Controller
 		if (!isPermission('add', 'job_order', $request->permission_list)) {
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		}
-		
+
 		$isError = $this->Validator($request->all());
 		if (!empty($isError)) {
 			return $this->jsonResponse($isError, 400, "Request Failed!");
 		}
-		
+
 		DB::beginTransaction(); // Start transaction
 		try {
 			// Generate UUID and document data
@@ -230,7 +233,7 @@ class JobOrderController extends Controller
 				$this->prepareJobOrderDetailData($request, $jobOrderId, $detailId, $chargeOrderDetail)
 			);
 
-			if ($chargeOrderDetail['product_type']['product_type_id'] == 1 || $chargeOrderDetail['product_type']['product_type_id'] == 3 ) {
+			if ($chargeOrderDetail['product_type']['product_type_id'] == 1 || $chargeOrderDetail['product_type']['product_type_id'] == 3) {
 				$this->createCertificate($jobOrderId, $detailId, $chargeOrderDetail, $request->login_user_id);
 			}
 
@@ -306,50 +309,50 @@ class JobOrderController extends Controller
 			}
 		}
 	}
-	public function generateCertificate(Request $request,$id)
+	public function generateCertificate(Request $request, $id)
 	{
 		DB::beginTransaction();
-		try{
-		$Certificate = $request->input('certificate', []);
-		foreach ($Certificate as $key => $value) {
-		$certificateData = [
-			'certificate_id' => $this->get_uuid(),
-			'job_order_id' => $id,
-			'job_order_detail_id' => "",
-			'type' => $value['type'],
-			'certificate_date' => Carbon::now(),
-			'created_at' => Carbon::now(),
-			'created_by' => $request->login_user_id,
-		];
+		try {
+			$Certificate = $request->input('certificate', []);
+			foreach ($Certificate as $key => $value) {
+				$certificateData = [
+					'certificate_id' => $this->get_uuid(),
+					'job_order_id' => $id,
+					'job_order_detail_id' => "",
+					'type' => $value['type'],
+					'certificate_date' => Carbon::now(),
+					'created_at' => Carbon::now(),
+					'created_by' => $request->login_user_id,
+				];
 
-		$certificateConfig = [
-			'LSA/FFE' => ['prefix' => 'GMSH', 'type' => 'LSA/FFE'],
-			'Calibration' => ['prefix' => 'GMSHC', 'type' => 'Calibration'],
-			'LB' => ['prefix' => 'GMSHL', 'type' => 'LB'],
-		];
+				$certificateConfig = [
+					'LSA/FFE' => ['prefix' => 'GMSH', 'type' => 'LSA/FFE'],
+					'Calibration' => ['prefix' => 'GMSHC', 'type' => 'Calibration'],
+					'LB' => ['prefix' => 'GMSHL', 'type' => 'LB'],
+				];
 
-		if (isset($certificateConfig[$value['type']])) {
-			$config = $certificateConfig[$value['type']];
-			$lastCertificate = JobOrderDetailCertificate::where('type', $config['type'])
-				->orderBy('sort_order', 'desc')
-				->first();
+				if (isset($certificateConfig[$value['type']])) {
+					$config = $certificateConfig[$value['type']];
+					$lastCertificate = JobOrderDetailCertificate::where('type', $config['type'])
+						->orderBy('sort_order', 'desc')
+						->first();
 
-			$certificateData['sort_order'] = ($lastCertificate->sort_order ?? 0) + 1;
-			$certificateData['certificate_number'] = sprintf(
-				'%s/%d/%s',
-				$config['prefix'],
-				$certificateData['sort_order'],
-				Carbon::now()->format('m/Y')
-			);
-			if (!JobOrderDetailCertificate::where('job_order_id', $id)->where('type', $value['type'])->exists()) {
-				JobOrderDetailCertificate::create($certificateData);
+					$certificateData['sort_order'] = ($lastCertificate->sort_order ?? 0) + 1;
+					$certificateData['certificate_number'] = sprintf(
+						'%s/%d/%s',
+						$config['prefix'],
+						$certificateData['sort_order'],
+						Carbon::now()->format('m/Y')
+					);
+					if (!JobOrderDetailCertificate::where('job_order_id', $id)->where('type', $value['type'])->exists()) {
+						JobOrderDetailCertificate::create($certificateData);
+					}
+				}
 			}
-		}
-	}
 
-		DB::commit();
-		return $this->jsonResponse(['job_order_id' => $id], 200, "Update Job Order Successfully!");
-		}catch (\Exception $e) {
+			DB::commit();
+			return $this->jsonResponse(['job_order_id' => $id], 200, "Update Job Order Successfully!");
+		} catch (\Exception $e) {
 			DB::rollBack(); // Rollback on error
 			Log::error('Internal Job Order Create Certificate Error: ' . $e->getMessage());
 			return $this->jsonResponse("Something went wrong while creating Internal Job Order Certificate.", 500, "Transaction Failed");
@@ -384,36 +387,36 @@ class JobOrderController extends Controller
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 		DB::beginTransaction();
 
-		try{
-		$data  = JobOrder::where('job_order_id', $id)->first();
-		$data->company_id = $request->company_id;
-		$data->company_branch_id = $request->company_branch_id;
-		$data->document_date = $request->document_date;
-		$data->customer_id = $request->customer_id;
-		$data->event_id = $request->event_id;
-		$data->vessel_id = $request->vessel_id;
-		$data->flag_id = $request->flag_id;
-		$data->class1_id = $request->class1_id;
-		$data->class2_id = $request->class2_id;
-		$data->salesman_id = $request->salesman_id;
-		$data->agent_id = $request->agent_id;
-		$data->updated_at = date('Y-m-d H:i:s');
-		$data->updated_by = $request->login_user_id;
-		$data->update();
+		try {
+			$data  = JobOrder::where('job_order_id', $id)->first();
+			$data->company_id = $request->company_id;
+			$data->company_branch_id = $request->company_branch_id;
+			$data->document_date = $request->document_date;
+			$data->customer_id = $request->customer_id;
+			$data->event_id = $request->event_id;
+			$data->vessel_id = $request->vessel_id;
+			$data->flag_id = $request->flag_id;
+			$data->class1_id = $request->class1_id;
+			$data->class2_id = $request->class2_id;
+			$data->salesman_id = $request->salesman_id;
+			$data->agent_id = $request->agent_id;
+			$data->updated_at = date('Y-m-d H:i:s');
+			$data->updated_by = $request->login_user_id;
+			$data->update();
 
 
 
-		foreach ($request->details as $detail) {
-			$detail = JobOrderDetail::where('job_order_detail_id', $detail['job_order_detail_id'])->first();
-			$this->createCertificate($id, $detail['job_order_detail_id'], $detail, $request->login_user_id);
+			foreach ($request->details as $detail) {
+				$detail = JobOrderDetail::where('job_order_detail_id', $detail['job_order_detail_id'])->first();
+				$this->createCertificate($id, $detail['job_order_detail_id'], $detail, $request->login_user_id);
+			}
+			DB::commit();
+			return $this->jsonResponse(['job_order_id' => $id], 200, "Update Job Order Successfully!");
+		} catch (\Exception $e) {
+			DB::rollBack(); // Rollback on error
+			Log::error('Internal Job Order Update Error: ' . $e->getMessage());
+			return $this->jsonResponse("Something went wrong while updating Internal Job Order.", 500, "Transaction Failed");
 		}
-		DB::commit();
-		return $this->jsonResponse(['job_order_id' => $id], 200, "Update Job Order Successfully!");
-	} catch (\Exception $e) {
-		DB::rollBack(); // Rollback on error
-		Log::error('Internal Job Order Update Error: ' . $e->getMessage());
-		return $this->jsonResponse("Something went wrong while updating Internal Job Order.", 500, "Transaction Failed");
-	}
 	}
 	public function delete($id, Request $request)
 	{

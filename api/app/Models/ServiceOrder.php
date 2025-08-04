@@ -22,6 +22,7 @@ class ServiceOrder extends Model
         "document_date",
         "event_id",
         'charge_order_id',
+        'is_deleted',
         'created_at',
         'created_by',
         'updated_at',

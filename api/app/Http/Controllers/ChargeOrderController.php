@@ -15,6 +15,7 @@ use App\Models\JobOrderDetailCertificate;
 use App\Models\Picklist;
 use App\Models\PicklistDetail;
 use App\Models\PicklistReceived;
+use App\Models\PicklistReceivedDetail;
 use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
@@ -23,9 +24,11 @@ use App\Models\Salesman;
 use App\Models\Servicelist;
 use App\Models\ServicelistDetail;
 use App\Models\ServicelistReceived;
+use App\Models\ServicelistReceivedDetail;
 use App\Models\ServiceOrder;
 use App\Models\ServiceOrderDetail;
 use App\Models\Shipment;
+use App\Models\ShipmentDetail;
 use App\Models\StockLedger;
 use App\Models\Supplier;
 use App\Models\Technician;
@@ -923,6 +926,40 @@ class ChargeOrderController extends Controller
 		}
 	}
 
+	public function actions(Request $request)
+	{
+		// if (!isPermission('action', 'charge_order', $request->permission_list))
+		// 	return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+
+		$is_deleted = $request->is_deleted ?? false;
+		$ids = $request->ids ?? [];
+
+		if (empty($ids)) {
+			return $this->jsonResponse("No Charge Order Selected!", 400, "Request Failed");
+		}
+
+		foreach ($ids as $id) {
+			if (!ShipmentDetail::where('charge_order_id', $id)->exists() && $is_deleted) {
+				
+				Servicelist::where('charge_order_id', $id)->update(['is_deleted' => 1]);
+				$servicelistReceivedIds = ServicelistReceived::where('charge_order_id', $id)->pluck('servicelist_received_id')->toArray();
+				ServicelistReceived::whereIn('servicelist_received_id', $servicelistReceivedIds)->delete();
+				ServicelistReceivedDetail::whereIn('servicelist_received_id', $servicelistReceivedIds)->delete();
+
+
+				Picklist::where('charge_order_id', $id)->update(['is_deleted' => 1]);
+				$picklistReceivedIds = PicklistReceived::where('charge_order_id', $id)->pluck('picklist_received_id')->toArray();
+				PicklistReceived::whereIn('picklist_received_id', $picklistReceivedIds)->delete();
+				PicklistReceivedDetail::whereIn('picklist_received_id', $picklistReceivedIds)->delete();
+				StockLedger::whereIn('document_id',$picklistReceivedIds)->delete();
+				
+				ServiceOrder::where('charge_order_id', $id)->update(['is_deleted' => 1]);
+				JobOrderDetail::where('charge_order_id', $id)->update(['is_deleted' => 1]);
+			} else {
+				return $this->jsonResponse('Shipment Exists!', 400, "Request Failed");
+			}
+		}
+	}
 	public function update(Request $request, $id)
 	{
 		if (!isPermission('edit', 'charge_order', $request->permission_list))

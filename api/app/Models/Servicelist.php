@@ -23,6 +23,7 @@ class Servicelist extends Model
         "document_date",
         "charge_order_id",
         "total_quantity",
+        "is_deleted",
         "created_by",
         "updated_by"
     ];

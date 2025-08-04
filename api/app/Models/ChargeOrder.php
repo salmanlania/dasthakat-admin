@@ -49,6 +49,7 @@ class ChargeOrder extends Model
         "total_amount",
         "total_discount",
         "net_amount",
+        "is_deleted",
         "created_by",
         "updated_by"
     ];

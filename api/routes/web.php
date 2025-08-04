@@ -322,6 +322,8 @@ $router->group(['prefix' => 'charge-order'], function ($router) {
    $router->post('/{id}/purchase-orders', 'ChargeOrderController@createPurchaseOrders');
    $router->post('/', 'ChargeOrderController@store');
    $router->put('/{id}', 'ChargeOrderController@update');
+   $router->post('/actions', 'ChargeOrderController@actions');
+
    $router->delete('/{id}', 'ChargeOrderController@delete');
    $router->post('/bulk-delete', 'ChargeOrderController@bulkDelete');
 });
