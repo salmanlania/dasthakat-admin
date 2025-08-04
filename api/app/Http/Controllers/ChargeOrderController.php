@@ -928,17 +928,17 @@ class ChargeOrderController extends Controller
 
 	public function actions(Request $request)
 	{
-		// if (!isPermission('action', 'charge_order', $request->permission_list))
+		// if (!isPermission('cancel', 'charge_order', $request->permission_list))
 		// 	return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
 		$is_deleted = $request->is_deleted ?? false;
-		$ids = $request->ids ?? [];
+		$id = $request->id;
 
-		if (empty($ids)) {
+		if (empty($id)) {
 			return $this->jsonResponse("No Charge Order Selected!", 400, "Request Failed");
 		}
 
-		foreach ($ids as $id) {
+		
 			if (!ShipmentDetail::where('charge_order_id', $id)->exists() && $is_deleted) {
 				
 				Servicelist::where('charge_order_id', $id)->update(['is_deleted' => 1]);
@@ -955,9 +955,8 @@ class ChargeOrderController extends Controller
 				
 				ServiceOrder::where('charge_order_id', $id)->update(['is_deleted' => 1]);
 				JobOrderDetail::where('charge_order_id', $id)->update(['is_deleted' => 1]);
-			} else {
-				return $this->jsonResponse('Shipment Exists!', 400, "Request Failed");
-			}
+			
+				return $this->jsonResponse("Charge Order Cancelled Successfully!", 200, "Success");
 		}
 	}
 	public function update(Request $request, $id)
