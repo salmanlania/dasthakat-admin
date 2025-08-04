@@ -126,7 +126,8 @@ export const updateQuotation = createAsyncThunk(
   'quotation/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      await api.put(`/quotation/${id}`, data);
+      const res = await api.put(`/quotation/${id}`, data);
+      return res.data
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -183,6 +184,7 @@ export const postRfq = createAsyncThunk(
 
 const initialState = {
   isListLoading: false,
+  isVendorModalOpen: false,
   isFormSubmitting: false,
   isBulkDeleting: false,
   initialFormValues: null,
@@ -218,11 +220,16 @@ export const quotationSlice = createSlice({
       state.quotationDetails = [];
       state.initialFormValues = null;
     },
+
     setQuotationListParams: (state, action) => {
       state.params = {
         ...state.params,
         ...action.payload,
       };
+    },
+
+    setVendorModalOpen: (state, action) => {
+      state.isVendorModalOpen = action.payload;
     },
 
     setQuotationDeleteIDs: (state, action) => {
@@ -295,8 +302,6 @@ export const quotationSlice = createSlice({
     changeQuotationDetailValue: (state, action) => {
       const { index, key, value } = action.payload;
 
-      // console.log('changeQuotationDetailValue', key, value);
-
       const detail = state.quotationDetails[index];
 
       if (detail.row_status === 'U' && detail[key] !== value) {
@@ -324,21 +329,11 @@ export const quotationSlice = createSlice({
         detail.amount = roundUpto(+detail.quantity * +detail.rate);
 
         if (key === 'rate' && +detail.cost_price && +detail.rate) {
-          // detail.full_rate = detail.rate;
           if (detail.old_rate != detail.rate) {
             detail.markup = roundUpto(
               ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100,
             );
           }
-          // // console.log(`rate:${detail.rate}, cost_price:${detail.cost_price}`);
-          // // console.log('beforeRoundUPTO, ', ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100)
-
-          //  console.log('detail' , {
-          //   full_rate : detail.full_rate,
-          //   rate : detail.rate,
-          //   cost_price : detail.cost_price,
-          //   markup : detail.markup,
-          //  });
         }
       } else {
         detail.amount = '';
@@ -516,6 +511,7 @@ export const quotationSlice = createSlice({
         service_date: data.service_date,
         imo: data.vessel ? data.vessel.imo : null,
         internal_notes: data.internal_notes,
+        vendor_notes: data.vendor_notes,
         salesman_id: data.salesman
           ? {
               value: data.salesman.salesman_id,
@@ -639,6 +635,7 @@ export const quotationSlice = createSlice({
           : null,
         vendor_part_no: detail.vendor_part_no,
         internal_notes: detail.internal_notes,
+        vendor_notes: detail.vendor_notes,
         cost_price:
           detail?.product_type?.product_type_id === 4
             ? detail.cost_price
@@ -655,7 +652,7 @@ export const quotationSlice = createSlice({
         row_status: 'U',
         isDeleted: false,
       }));
-
+      
       state.vendorQuotationDetails = data.quotation_detail
         .map((detail) => ({
           id: detail.quotation_detail_id,
@@ -685,6 +682,7 @@ export const quotationSlice = createSlice({
             : null,
           vendor_part_no: detail.vendor_part_no,
           internal_notes: detail.internal_notes,
+          vendor_notes: detail.vendor_notes,
           cost_price:
             detail?.product_type?.product_type_id === 4
               ? detail.cost_price
@@ -729,6 +727,7 @@ export const quotationSlice = createSlice({
           ? { supplier_id: item.vendor.supplier_id, name: item.vendor.name }
           : null,
         vendor_rate: item.vendor_rate,
+        vendor_quotation_detail_id: item.vendor_quotation_detail_id ? item.vendor_quotation_detail_id : null,
         is_primary_vendor: item.is_primary_vendor,
         rfq: item.rfq,
         vendor_part_no: item.vendor_part_no,
@@ -753,6 +752,7 @@ export const quotationSlice = createSlice({
         service_date: data.service_date,
         imo: data.vessel ? data.vessel.imo : null,
         internal_notes: data.internal_notes,
+        vendor_notes: data.vendor_notes,
         salesman_id: data.salesman
           ? {
               value: data.salesman.salesman_id,
@@ -867,6 +867,7 @@ export const quotationSlice = createSlice({
           : null,
         vendor_part_no: detail.vendor_part_no,
         internal_notes: detail.internal_notes,
+        vendor_notes: detail.vendor_notes,
         cost_price:
           detail?.product_type?.product_type_id === 4
             ? detail.cost_price
@@ -945,5 +946,6 @@ export const {
   resetQuotationState,
   splitQuotationQuantity,
   resetVendorDetails,
+  setVendorModalOpen
 } = quotationSlice.actions;
 export default quotationSlice.reducer;

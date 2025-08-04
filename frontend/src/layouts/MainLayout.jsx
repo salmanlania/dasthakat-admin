@@ -152,8 +152,10 @@ const MainLayout = () => {
     return <NotFound />;
 
   if (href === '/bid-response-report' && !permissions?.bid_response?.show) return <NotFound />;
-   if (href === '/quotation-report' && !permissions?.quote_report?.show) return <NotFound />;
+  if (href === '/quotation-report' && !permissions?.quote_report?.show) return <NotFound />;
 
+  if (href === '/vendor-platform' && !permissions.vp_quotation.list) return <NotFound />;
+  if (href.startsWith('/vendor-platform/edit') && !permissions.vp_quotation.edit) return <NotFound />;
   return (
     <Layout className="min-h-screen">
       <Sidebar />

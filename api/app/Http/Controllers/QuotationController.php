@@ -11,6 +11,7 @@ use App\Models\QuotationDetail;
 use App\Models\QuotationStatus;
 use App\Models\StockLedger;
 use App\Models\Terms;
+use App\Models\VendorQuotationDetail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
@@ -368,6 +369,7 @@ class QuotationController extends Controller
 						'unit_id' => $value['unit_id'] ?? '',
 						'supplier_id' => $value['supplier_id'] ?? '',
 						'vendor_part_no' => $value['vendor_part_no'] ?? '',
+						'vendor_notes' => $value['vendor_notes'] ?? '',
 						'quantity' => $value['quantity'] ?? '',
 						'cost_price' => $value['cost_price'] ?? '',
 						'markup' => $value['markup'] ?? '',
@@ -521,6 +523,7 @@ class QuotationController extends Controller
 							'unit_id' => $value['unit_id'] ?? '',
 							'supplier_id' => $value['supplier_id'] ?? '',
 							'vendor_part_no' => $value['vendor_part_no'] ?? '',
+							'vendor_notes' => $value['vendor_notes'] ?? '',
 							'internal_notes' => $value['internal_notes'] ?? '',
 							'quantity' => $value['quantity'] ?? '',
 							'cost_price' => $value['cost_price'] ?? '',
@@ -553,6 +556,7 @@ class QuotationController extends Controller
 							'unit_id' => $value['unit_id'] ?? '',
 							'supplier_id' => $value['supplier_id'] ?? '',
 							'vendor_part_no' => $value['vendor_part_no'] ?? '',
+							'vendor_notes' => $value['vendor_notes'] ?? '',
 							'internal_notes' => $value['internal_notes'] ?? '',
 							'quantity' => $value['quantity'] ?? '',
 							'cost_price' => $value['cost_price'] ?? '',
@@ -566,9 +570,17 @@ class QuotationController extends Controller
 							'updated_by' => $request->login_user_id,
 						];
 						QuotationDetail::where('quotation_detail_id', $value['quotation_detail_id'])->update($update);
+						VendorQuotationDetail::where('quotation_detail_id', $value['quotation_detail_id'])->where('is_primary_vendor', 1)
+							->update([
+								'vendor_id' => $value['supplier_id'] ?? '',
+								'vendor_rate' => $value['cost_price'] ?? '',
+								'vendor_part_no' => $value['vendor_part_no'] ?? '',
+								'vendor_notes' => $value['vendor_notes'] ?? '',
+							]);
 					}
 					if ($value['row_status'] == 'D') {
 						QuotationDetail::where('quotation_detail_id', $value['quotation_detail_id'])->delete();
+						VendorQuotationDetail::where('quotation_detail_id', $value['quotation_detail_id'])->delete();
 					}
 				}
 			}

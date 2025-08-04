@@ -8,6 +8,7 @@ import PageHeading from '../../components/Heading/PageHeading';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import { getUserPermission, updateUserPermission } from '../../store/features/userPermissionSlice';
+import { setUser } from '../../store/features/authSlice';
 
 const EditUserPermission = () => {
   useDocumentTitle('Edit User Permission');
@@ -31,6 +32,15 @@ const EditUserPermission = () => {
     )
       .unwrap()
       .then(() => {
+        const user = localStorage.getItem('user');
+        if (user) {
+          const userData = JSON.parse(user);
+          if (userData.permission_id === id) {
+            userData.permission = permissionsGroup;
+            dispatch(setUser(userData));
+          }
+        }
+
         toast.success('Permission updated successfully');
         navigate('/user-permission');
       })

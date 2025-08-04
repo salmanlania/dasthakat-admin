@@ -323,6 +323,7 @@ class CustomerController extends Controller
 					$update = [
 						'sort_order' => $row['sort_order'] ?? 0,
 						'type' => $row['type'] ?? "",
+						'commission_agent_id' => $row['commission_agent_id'] ?? "",
 						'commission_percentage' => $row['commission_percentage'] ?? 0,
 						'status' => $row['status'],
 						'updated_at' => Carbon::now(),

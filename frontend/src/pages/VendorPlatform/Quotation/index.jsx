@@ -1,4 +1,3 @@
-
 import { Button, Divider, Modal, Table } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
@@ -20,8 +19,99 @@ const VendorPlatformQuotation = () => {
   const [isExpired, setIsExpired] = useState(false);
   const [checkingExpiry, setCheckingExpiry] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [vendorReferenceNo, setVendorReferenceNo] = useState('');
+  const [vendorRemarks, setVendorRemarks] = useState('');
   const handleError = useError();
   const { id } = useParams();
+
+  const [totals, setTotals] = useState({
+    totalQuantity: 0,
+    totalPrice: 0,
+    totalAmount: 0
+  });
+
+  const calculateTotals = (details) => {
+    let totalQuantity = 0;
+    let totalPrice = 0;
+    let totalAmount = 0;
+
+    details
+      ?.filter((item) => !item.is_deleted)
+      .forEach((item) => {
+        const itemQty = Number(item?.vendor_quotation_detail ? item?.vendor_quotation_detail?.quotation_detail?.quantity : item?.quantity ? item?.quantity : 0)
+        const itemPrice = Number(item.vendor_rate?.toString()?.replace(/,/g, '')) || 0;
+        const itemTotal = itemQty * itemPrice;
+
+        totalQuantity += itemQty;
+        totalPrice += itemPrice;
+        totalAmount += itemTotal;
+      });
+
+    return {
+      totalQuantity,
+      totalPrice,
+      totalAmount,
+    };
+  };
+
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.innerHTML = `
+    .ant-table-thead > tr > th {
+      background-color: #003366 !important;
+      color: #ffffff !important;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .ant-table-tbody > tr:nth-child(even) > td {
+      background-color: #f9fcff !important;
+    }
+    .ant-table-tbody > tr:nth-child(odd) > td {
+      background-color: #eef3f9 !important;
+    }
+    .ant-table-tbody > tr:hover > td {
+      background-color: #d6e4ff !important;
+    }
+
+    .deleted-row {
+      opacity: 0.5;
+      pointer-events: all !important;
+      background-color: #f5f5f5 !important;
+      cursor: not-allowed !important;
+    }
+    
+    .deleted-row:hover > td {
+      background-color: #f5f5f5 !important;
+      cursor: not-allowed !important;
+    }
+    
+    .deleted-row td {
+      color: #999 !important;
+      cursor: not-allowed !important;
+      user-select: none !important;
+    }
+
+    .deleted-row td * {
+      pointer-events: none !important;
+      cursor: not-allowed !important;
+    }
+
+    .deleted-row input,
+    .deleted-row button,
+    .deleted-row select,
+    .deleted-row textarea {
+      pointer-events: none !important;
+      cursor: not-allowed !important;
+      background-color: #f5f5f5 !important;
+      color: #999 !important;
+    }
+  `;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,29 +120,11 @@ const VendorPlatformQuotation = () => {
         const fetchedData = res?.data?.data;
 
         const todayDate = dayjs()
-        // const requiredDate = dayjs(fetchedData?.date_required);
         const requiredDate = dayjs(fetchedData?.date_required).startOf('day');
 
 
         if (requiredDate.isBefore(todayDate)) {
           setIsExpired(true);
-          // Modal.error({
-          //   title: 'RFQ Expired',
-          //   content: (
-          //     <div style={{ fontSize: '18px', lineHeight: 1.6 }}>
-          //       <p>This RFQ was required by <strong>{requiredDate.format('YYYY-MM-DD')}</strong>.</p>
-          //       <p>You can no longer submit a quotation for this request.</p>
-          //     </div>
-          //   ),
-          //   width: 800,
-          //   style: {
-          //     top: 50,
-          //     padding: 30,
-          //   },
-          //   maskClosable: false,
-          //   keyboard: false,
-          //   footer: null,
-          // })
           Swal.fire({
             title: '<strong>RFQ Expired</strong>',
             html:
@@ -73,11 +145,13 @@ const VendorPlatformQuotation = () => {
           });
           return
         }
-        const vendorQuotationDetails = fetchedData?.details?.map((item) => item?.vendor_quotation_detail || {});
-        setData({
-          ...fetchedData,
-          quotation_detail: vendorQuotationDetails,
-        });
+        setData(fetchedData);
+
+        setVendorReferenceNo(fetchedData?.vendor_ref_no || '');
+        setVendorRemarks(fetchedData?.vendor_remarks || '');
+        const initialTotals = calculateTotals(fetchedData?.details || []);
+        setTotals(initialTotals);
+
       } catch (error) {
         handleError(error);
       } finally {
@@ -89,17 +163,44 @@ const VendorPlatformQuotation = () => {
     fetchData();
   }, []);
 
-  const sourceData = (data?.details || []).map((item) => {
-    return item?.vendor_quotation_detail || {};
+  const sourceData = (data?.details || []).map((item, index) => {
+    return {
+      ...item,
+      product_name: item.product_name,
+      quantity: item.quantity,
+      unit: item.unit,
+      product_type_id: item.product_type_id,
+      vendor_rate: item.vendor_rate,
+      uom: item?.unit?.name,
+      product: item.product,
+      detail_id: item.detail_id,
+      is_deleted: item.is_deleted
+    };
   });
 
   const updateDetailValue = (index, key, value) => {
-    const newQuotationDetail = [...sourceData];
-    newQuotationDetail[index][key] = value;
+    const updatedDetails = [...data.details];
+    const detail = updatedDetails[index];
+
+    if (!detail.vendor_quotation_detail) {
+      detail.vendor_quotation_detail = {};
+    }
+
+    detail.vendor_quotation_detail[key] = value;
+
+    if (key === 'vendor_rate') {
+      const qty = Number(detail?.quantity) || 0;
+      const price = Number(value?.toString()?.replace(/,/g, '')) || 0;
+      detail.vendor_quotation_detail.total_amount = qty * price;
+      detail.vendor_rate = price;
+
+      const updatedTotals = calculateTotals(updatedDetails);
+      setTotals(updatedTotals);
+    }
 
     setData({
       ...data,
-      quotation_detail: newQuotationDetail,
+      details: updatedDetails,
     });
   };
 
@@ -111,7 +212,12 @@ const VendorPlatformQuotation = () => {
       const quotationId = data?.quotation?.quotation_id;
       const vendorId = data?.vendor?.supplier_id;
 
-      const quotationDetail = data?.quotation_detail || sourceData;
+      const quotationDetail = data?.details
+        ?.filter(d => !d.is_deleted)
+        ?.map(d => ({
+          ...d.vendor_quotation_detail,
+          detail_id: d.detail_id
+        })) || [];
 
       if (!quotationDetail || quotationDetail.length === 0) {
         toast.error('No quotation details to submit.');
@@ -120,10 +226,20 @@ const VendorPlatformQuotation = () => {
       await api.put(`/vendor-platform/quotation/vendor/${id}`, {
         quotation_id: quotationId,
         vendor_id: vendorId,
+        vendor_ref_no: vendorReferenceNo,
+        vendor_remarks: vendorRemarks,
         quotation_detail: quotationDetail,
       });
 
       toast.success('Details updated successfully');
+
+      const res = await api.get(`/vendor-platform/quotation/rfq/${id}`);
+      const fetchedData = res?.data?.data;
+      setData(fetchedData);
+
+      const updatedTotals = calculateTotals(fetchedData?.details || []);
+      setTotals(updatedTotals);
+
     } catch (error) {
       handleError(error);
     } finally {
@@ -137,10 +253,14 @@ const VendorPlatformQuotation = () => {
       dataIndex: 'product_name',
       key: 'product_name',
       width: 270,
-      render: (_, record) =>
-        record?.quotation_detail?.product_type_id == '4'
-          ? record?.quotation_detail?.product_name
-          : record?.quotation_detail?.product?.name,
+      render: (_, record) => {
+        return (
+          record?.is_deleted ? record?.product_name :
+            record?.vendor_quotation_detail?.quotation_detail?.product_type_id == '4'
+              ? record?.vendor_quotation_detail?.quotation_detail?.product_name
+              : record?.vendor_quotation_detail?.quotation_detail?.product?.name
+        );
+      }
     },
     {
       title: 'Quantity',
@@ -148,17 +268,17 @@ const VendorPlatformQuotation = () => {
       key: 'quantity',
       width: 100,
       render: (_, record) =>
-        record?.quotation_detail?.quantity ? record?.quotation_detail?.quantity : null,
+        record?.is_deleted ? record?.quantity : record?.vendor_quotation_detail?.quotation_detail?.quantity ? record?.vendor_quotation_detail?.quotation_detail?.quantity : null,
     },
     {
       title: 'Price',
       dataIndex: 'vendor_rate',
       key: 'vendor_rate',
       width: 120,
-      render: (_, { vendor_rate }, index) => {
+      render: (_, record, index) => {
         return (
           <DebouncedCommaSeparatedInput
-            value={vendor_rate}
+            value={record?.vendor_rate}
             onChange={(value) => updateDetailValue(index, 'vendor_rate', value)}
           />
         );
@@ -169,18 +289,19 @@ const VendorPlatformQuotation = () => {
       dataIndex: 'uom',
       key: 'uom',
       width: 120,
-      render: (_, record) =>
-        record?.quotation_detail?.unit?.name ? record?.quotation_detail?.unit?.name : null,
+      render: (_, record) => {
+        return record?.is_deleted ? record?.unit?.name : record?.vendor_quotation_detail?.quotation_detail?.unit?.name ? record?.vendor_quotation_detail?.quotation_detail?.unit?.name : null;
+      }
     },
     {
       title: 'Vendor Part #',
       dataIndex: 'vendor_part_no',
       key: 'vendor_part_no',
       width: 120,
-      render: (_, { vendor_part_no }, index) => {
+      render: (_, record, index) => {
         return (
           <DebounceInput
-            value={vendor_part_no}
+            value={record?.is_deleted ? record?.vendor_part_no : record?.vendor_quotation_detail?.vendor_part_no ? record?.vendor_quotation_detail?.vendor_part_no : ''}
             onChange={(value) => updateDetailValue(index, 'vendor_part_no', value)}
           />
         );
@@ -191,10 +312,10 @@ const VendorPlatformQuotation = () => {
       dataIndex: 'vendor_notes',
       key: 'vendor_notes',
       width: 270,
-      render: (_, { vendor_notes }, index) => {
+      render: (_, record, index) => {
         return (
           <DebounceInput
-            value={vendor_notes}
+            value={record?.is_deleted ? record?.vendor_notes : record?.vendor_quotation_detail?.vendor_notes ? record?.vendor_quotation_detail?.vendor_notes : ''}
             onChange={(value) => updateDetailValue(index, 'vendor_notes', value)}
           />
         );
@@ -205,32 +326,103 @@ const VendorPlatformQuotation = () => {
   if (checkingExpiry) return null;
   if (isExpired) return null;
   return (
-    <div className="p-6 md:p-12">
+    <div style={{ padding: '24px', backgroundColor: '#f4f7fa', minHeight: '100vh' }}>
       <div className="flex items-center justify-center">
         <img src={GMSLogo} alt="GMS Logo" className="h-32 w-32" />
       </div>
 
-      <div className="mt-4 rounded border border-gray-200 p-4 shadow-sm">
-        <div className="flex flex-wrap items-center gap-x-16 gap-y-4">
-          <div>
-            <span className="mr-2 text-gray-600">Quotation No:</span>
-            <span>{data?.quotation ? data?.quotation?.document_identity : null}</span>
+      <div
+        style={{
+          marginTop: '24px',
+          padding: '24px',
+          backgroundColor: '#ffffff',
+          border: '1px solid #e0e0e0',
+          borderRadius: '12px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+        }}
+      >
+
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'flex-start',
+            gap: '24px',
+            padding: '24px',
+            backgroundColor: '#ffffff',
+            border: '1px solid #e0e0e0',
+            borderRadius: '12px',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              gap: '32px',
+            }}
+          >
+            <div style={{ minWidth: '200px' }}>
+              <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Quotation No:</span>
+              <span style={{ fontWeight: 600 }}>{data?.quotation?.document_identity || '-'}</span>
+            </div>
+            <div style={{ minWidth: '200px' }}>
+              <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Event:</span>
+              <span style={{ fontWeight: 600 }}>{data?.quotation?.event?.event_code || '-'}</span>
+            </div>
+            <div style={{ minWidth: '200px' }}>
+              <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Vessel:</span>
+              <span style={{ fontWeight: 600 }}>{data?.quotation?.vessel?.name || '-'}</span>
+            </div>
           </div>
-          <div>
-            <span className="mr-2 text-gray-600">Event:</span>
-            <span>{data?.quotation?.event?.event_code}</span>
-          </div>
-          <div>
-            <span className="mr-2 text-gray-600">Vessel:</span>
-            <span>{data?.quotation?.vessel?.name}</span>
-          </div>
-          <div>
-            <span className="mr-2 text-gray-600">Document ID:</span>
-            <span>{data?.document_identity ? data?.document_identity : null}</span>
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              gap: '32px',
+            }}
+          >
+            <div style={{ minWidth: '200px' }}>
+              <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Document ID:</span>
+              <span style={{ fontWeight: 600 }}>{data?.document_identity || '-'}</span>
+            </div>
+            <div style={{ minWidth: '250px' }}>
+              <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Vendor Reference No:</span>
+              <DebounceInput
+                value={vendorReferenceNo}
+                onChange={(value) => setVendorReferenceNo(value)}
+                placeholder="Enter Vendor Reference No"
+                style={{
+                  padding: '6px 10px',
+                  border: '1px solid #ccc',
+                  borderRadius: '6px',
+                  width: '100%',
+                  fontSize: '14px',
+                }}
+              />
+            </div>
+            <div style={{ minWidth: '250px' }}>
+              <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Vendor Remarks:</span>
+              <DebounceInput
+                value={vendorRemarks}
+                onChange={(value) => setVendorRemarks(value)}
+                placeholder="Enter Vendor Remarks"
+                style={{
+                  padding: '6px 10px',
+                  border: '1px solid #ccc',
+                  borderRadius: '6px',
+                  width: '100%',
+                  fontSize: '14px',
+                }}
+              />
+            </div>
           </div>
         </div>
 
-        <Divider className="pb-2 pt-6">Items</Divider>
+        <Divider style={{ borderColor: '#d0d7e2', color: '#1f3a93', fontWeight: '600' }}>Items</Divider>
 
         <Table
           size="small"
@@ -239,24 +431,31 @@ const VendorPlatformQuotation = () => {
           rowKey={'quotation_detail_id'}
           dataSource={sourceData || []}
           loading={loading}
-          summary={(pageData) => {
-            if (pageData.length === 0) return null;
-            let totalQuantity = 0;
-
-            pageData.forEach((item) => {
-              const qty = Number(item?.quotation_detail?.quantity);
-              if (!isNaN(qty)) totalQuantity += qty;
-            });
-
+          rowClassName={(record) => record.is_deleted ? 'deleted-row' : ''}
+          summary={() => {
+            if (!data?.details?.length) {
+              return null;
+            }
+            const newCal = totals.totalQuantity * totals.totalPrice
             return (
-              <Table.Summary.Row>
-                <Table.Summary.Cell index={0}><strong>Total</strong></Table.Summary.Cell>
-                <Table.Summary.Cell index={1}><strong>{totalQuantity}</strong></Table.Summary.Cell>
-                <Table.Summary.Cell index={2} />
-                <Table.Summary.Cell index={3} />
-                <Table.Summary.Cell index={4} />
-                <Table.Summary.Cell index={5} />
-              </Table.Summary.Row>
+              <>
+                <Table.Summary.Row>
+                  <Table.Summary.Cell index={0}><strong>Total</strong></Table.Summary.Cell>
+                  <Table.Summary.Cell index={1}><strong>{totals.totalQuantity}</strong></Table.Summary.Cell>
+                  <Table.Summary.Cell index={2} />
+                  <Table.Summary.Cell index={3} />
+                  <Table.Summary.Cell index={4} />
+                  <Table.Summary.Cell index={5} />
+                </Table.Summary.Row>
+                <Table.Summary.Row>
+                  <Table.Summary.Cell index={0}><strong>Total Amount</strong></Table.Summary.Cell>
+                  <Table.Summary.Cell index={1}><strong>{newCal}</strong></Table.Summary.Cell>
+                  <Table.Summary.Cell index={2} />
+                  <Table.Summary.Cell index={3} />
+                  <Table.Summary.Cell index={4} />
+                  <Table.Summary.Cell index={5} />
+                </Table.Summary.Row>
+              </>
             );
           }}
         />

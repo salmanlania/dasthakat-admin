@@ -49,11 +49,11 @@ class VpQuotationRfq extends Model
         'document_no',
         'document_prefix',
         'document_identity',
+        'vendor_ref_no',
+        'vendor_remarks',
         'quotation_id',
         'vendor_id',
         'status',
-        'total_items',
-        'items_quoted',
         'date_required',
         'date_sent',
         'date_returned',
@@ -78,7 +78,7 @@ class VpQuotationRfq extends Model
     }
     public function details()
     {
-        return $this->hasMany(VpQuotationRfqDetail::class, 'id');
+        return $this->hasMany(VpQuotationRfqDetail::class, 'id')->orderBy('sort_order');
     }
 
     public function vendor()

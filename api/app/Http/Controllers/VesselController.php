@@ -303,6 +303,7 @@ class VesselController extends Controller
 						'sort_order' => $row['sort_order'] ?? 0,
 						'type' => $row['type'] ?? "",
 						'commission_percentage' => $row['commission_percentage'] ?? 0,
+						'commission_agent_id' => $row['commission_agent_id'] ?? "",
 						'status' => $row['status'],
 						'updated_at' => Carbon::now(),
 						'updated_by' => $request->login_user_id,

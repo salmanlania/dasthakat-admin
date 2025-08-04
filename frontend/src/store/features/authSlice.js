@@ -55,7 +55,12 @@ const initialState = {
 export const authSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {},
+  reducers: {
+    setUser(state, action){
+      state.user = action.payload;
+      localStorage.setItem('user', JSON.stringify(action.payload));
+    }
+  },
   extraReducers: ({ addCase }) => {
     addCase(loginHandler.pending, (state) => {
       state.isLoggingIn = true;
@@ -117,5 +122,7 @@ export const authSlice = createSlice({
     });
   }
 });
+
+export const { setUser } = authSlice.actions;
 
 export default authSlice.reducer;
