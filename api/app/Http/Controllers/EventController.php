@@ -364,7 +364,11 @@ class EventController extends Controller
 		if ($records) {
 			foreach ($records as $key => &$data) {
 
-				$details = $data->job_order_detail->sort(function ($a, $b) {
+				$details = $data->job_order_detail->
+				filter(function ($detail) {
+					return $detail->is_deleted == 0;
+				})->
+				sort(function ($a, $b) {
 					$docA = $a->charge_order->document_identity ?? '';
 					$docB = $b->charge_order->document_identity ?? '';
 
