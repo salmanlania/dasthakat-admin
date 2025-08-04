@@ -30,10 +30,10 @@ class SaleInvoiceController extends Controller
 
 		$document_identity = $request->input('document_identity', '');
 		$document_date = $request->input('document_date', '');
-		$quotation_id = $request->input('quotation_id', '');
+		$quotation_no = $request->input('quotation_no', '');
 		$event_id = $request->input('event_id', '');
 		$vessel_id = $request->input('vessel_id', '');
-		$charge_order_id = $request->input('charge_order_id', '');
+		$charge_no = $request->input('charge_no', '');
 
 		$search = $request->input('search', '');
 		$page =  $request->input('page', 1);
@@ -49,10 +49,10 @@ class SaleInvoiceController extends Controller
 		$data = $data->where('sale_invoice.company_id', '=', $request->company_id);
 		$data = $data->where('sale_invoice.company_branch_id', '=', $request->company_branch_id);
 
-		if (!empty($quotation_id)) $data = $data->where('sale_invoice.quotation_id', '=',  $quotation_id);
+		if (!empty($quotation_no)) $data = $data->where('q.document_identity', 'like', "%". $quotation_no."%");
 		if (!empty($vessel_id)) $data = $data->where('co.vessel_id', '=',  $vessel_id);
 		if (!empty($event_id)) $data = $data->where('co.event_id', '=',  $event_id);
-		if (!empty($charge_order_id)) $data = $data->where('sale_invoice.charge_order_id', '=',  $charge_order_id);
+		if (!empty($charge_no)) $data = $data->where('co.document_identity', 'like', "%". $charge_no."%");
 		if (!empty($document_identity)) $data = $data->where('sale_invoice.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($document_date)) $data = $data->where('sale_invoice.document_date', '=',  $document_date);
 
@@ -62,6 +62,7 @@ class SaleInvoiceController extends Controller
 				$query
 
 					->Where('co.document_identity', 'like', '%' . $search . '%')
+					->Where('q.document_identity', 'like', '%' . $search . '%')
 					->OrWhere('v.name', 'like', '%' . $search . '%')
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
 					->OrWhere('sale_invoice.document_identity', 'like', '%' . $search . '%');
