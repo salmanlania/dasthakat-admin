@@ -932,31 +932,33 @@ class ChargeOrderController extends Controller
 		// 	return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
 		$is_deleted = $request->is_deleted ?? false;
-		$id = $request->id;
+		$id = $request->id ;
 
 		if (empty($id)) {
 			return $this->jsonResponse("No Charge Order Selected!", 400, "Request Failed");
 		}
 
-		
-			if (!ShipmentDetail::where('charge_order_id', $id)->exists() && $is_deleted) {
-				
-				Servicelist::where('charge_order_id', $id)->update(['is_deleted' => 1]);
-				$servicelistReceivedIds = ServicelistReceived::where('charge_order_id', $id)->pluck('servicelist_received_id')->toArray();
-				ServicelistReceived::whereIn('servicelist_received_id', $servicelistReceivedIds)->delete();
-				ServicelistReceivedDetail::whereIn('servicelist_received_id', $servicelistReceivedIds)->delete();
+
+		if (!ShipmentDetail::where('charge_order_id', $id)->exists() && $is_deleted) {
+
+			ChargeOrder::where('charge_order_id', $id)->update(['is_deleted' => 1]);
+			Servicelist::where('charge_order_id', $id)->update(['is_deleted' => 1]);
+			$servicelistReceivedIds = ServicelistReceived::where('charge_order_id', $id)->pluck('servicelist_received_id')->toArray();
+			ServicelistReceived::whereIn('servicelist_received_id', $servicelistReceivedIds)->delete();
+			ServicelistReceivedDetail::whereIn('servicelist_received_id', $servicelistReceivedIds)->delete();
 
 
-				Picklist::where('charge_order_id', $id)->update(['is_deleted' => 1]);
-				$picklistReceivedIds = PicklistReceived::where('charge_order_id', $id)->pluck('picklist_received_id')->toArray();
-				PicklistReceived::whereIn('picklist_received_id', $picklistReceivedIds)->delete();
-				PicklistReceivedDetail::whereIn('picklist_received_id', $picklistReceivedIds)->delete();
-				StockLedger::whereIn('document_id',$picklistReceivedIds)->delete();
-				
-				ServiceOrder::where('charge_order_id', $id)->update(['is_deleted' => 1]);
-				JobOrderDetail::where('charge_order_id', $id)->update(['is_deleted' => 1]);
-			
-				return $this->jsonResponse("Charge Order Cancelled Successfully!", 200, "Success");
+			Picklist::where('charge_order_id', $id)->update(['is_deleted' => 1]);
+			$picklistReceivedIds = PicklistReceived::where('charge_order_id', $id)->pluck('picklist_received_id')->toArray();
+			PicklistReceived::whereIn('picklist_received_id', $picklistReceivedIds)->delete();
+			PicklistReceivedDetail::whereIn('picklist_received_id', $picklistReceivedIds)->delete();
+			StockLedger::whereIn('document_id', $picklistReceivedIds)->delete();
+
+			ServiceOrder::where('charge_order_id', $id)->update(['is_deleted' => 1]);
+			JobOrderDetail::where('charge_order_id', $id)->update(['is_deleted' => 1]);
+			return $this->jsonResponse("Charge Order Cancelled Successfully!", 200, "Success");
+		}else{
+			return $this->jsonResponse("Charge Order cannot be deleted as it has Shipment Details!", 400, "Request Failed");
 		}
 	}
 	public function update(Request $request, $id)
