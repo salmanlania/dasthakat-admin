@@ -422,6 +422,9 @@ class Controller extends BaseController
         } else
 		if ($row->product_type_id == 2) {
             $quantity = PicklistReceivedDetail::query()
+                ->whereHas('picklist_received', function ($query) {
+                    $query->where('is_deleted', 0);
+                })
                 ->where('charge_order_detail_id', $row->charge_order_detail_id)
                 ->sum('quantity');
 
