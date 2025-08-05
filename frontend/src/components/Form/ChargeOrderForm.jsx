@@ -54,6 +54,8 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
     (state) => state.chargeOrder
   );
 
+  const isDisable = mode === 'edit' && initialFormValues?.is_deleted === 1
+
   chargeOrderDetails.forEach((item, index) => {
     form.setFieldsValue({
       [`product_description-${index}`]: item.product_description,
@@ -363,6 +365,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
           className="!w-8"
           icon={<BiPlus size={14} />}
           onClick={() => dispatch(addChargeOrderDetail())}
+          disabled={isDisable}
         />
       ),
       key: 'order',
@@ -374,7 +377,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
               className="h-4"
               size="small"
               icon={<IoMdArrowDropup size={16} />}
-              disabled={index === 0}
+              disabled={index === 0 || isDisable}
               onClick={() => {
                 dispatch(changeChargeOrderDetailOrder({ from: index, to: index - 1 }));
               }}
@@ -383,7 +386,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
               className="h-4"
               size="small"
               icon={<IoMdArrowDropdown size={16} />}
-              disabled={index === chargeOrderDetails.length - 1}
+              disabled={index === chargeOrderDetails.length - 1 || isDisable}
               onClick={() => {
                 dispatch(changeChargeOrderDetailOrder({ from: index, to: index + 1 }));
               }}
@@ -393,6 +396,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
       },
       width: 50,
       fixed: 'left'
+
     },
     {
       title: 'Sr.',
@@ -412,6 +416,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
         return (
           <AsyncSelectNoPaginate
             endpoint="/lookups/product-types"
+            disabled={isDisable}
             valueKey="product_type_id"
             labelKey="name"
             labelInValue
@@ -463,7 +468,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
             ]}>
             <DebounceInput
               value={product_name}
-              disabled={product_type_id?.value === 4}
+              disabled={product_type_id?.value === 4 || isDisable}
               onChange={(value) => {
                 dispatch(
                   changeChargeOrderDetailValue({
@@ -503,6 +508,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
               valueKey="product_id"
               labelKey="product_name"
               labelInValue
+              disabled={isDisable}
               className="w-full"
               value={product_id}
               onChange={(selected) => onProductChange(index, selected)}
@@ -538,6 +544,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
               ]}>
               <DebounceInput
                 value={product_description}
+                disabled={isDisable}
                 onChange={(value) => {
                   dispatch(
                     changeChargeOrderDetailValue({
@@ -581,14 +588,18 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
               className={`absolute -right-2 ${description?.trim() ? '-top-[2px]' : '-top-[12px]'} flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-white`}>
               <TbEdit
                 size={22}
-                className="text-primary hover:text-blue-600"
-                onClick={() =>
-                  setNotesModalIsOpen({
-                    open: true,
-                    id: index,
-                    column: 'description',
-                    notes: description
-                  })
+                className={`text-primary hover:text-blue-600 ${isDisable ? 'pointer-events-none opacity-50' : ''}`}
+                onClick={() => {
+                  if (!isDisable) {
+                    setNotesModalIsOpen({
+                      open: true,
+                      id: index,
+                      column: 'description',
+                      notes: description
+                    })
+                  }
+                }
+
                 }
               />
             </div>
@@ -609,14 +620,17 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
               className={`absolute -right-2 ${internal_notes?.trim() ? '-top-[2px]' : '-top-[12px]'} flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-white`}>
               <TbEdit
                 size={22}
-                className="text-primary hover:text-blue-600"
-                onClick={() =>
-                  setNotesModalIsOpen({
-                    open: true,
-                    id: index,
-                    column: 'internal_notes',
-                    notes: internal_notes
-                  })
+                className={`text-primary hover:text-blue-600 ${isDisable ? 'pointer-events-none opacity-50' : ''}`}
+                onClick={() => {
+                  if (!isDisable) {
+                    setNotesModalIsOpen({
+                      open: true,
+                      id: index,
+                      column: 'internal_notes',
+                      notes: internal_notes
+                    })
+                  }
+                }
                 }
               />
             </div>
@@ -674,7 +688,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
               <DebouncedCommaSeparatedInput
                 decimalPlaces={2}
                 value={newQuantity}
-                disabled={editable === false}
+                disabled={editable === false || isDisable}
                 onChange={(value) =>
                   dispatch(
                     changeChargeOrderDetailValue({
@@ -724,7 +738,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
             endpoint="/unit"
             valueKey="unit_id"
             labelKey="name"
-            disabled={product_type_id?.value != 4 || editable === false}
+            disabled={product_type_id?.value != 4 || editable === false || isDisable}
             labelInValue
             className="w-full"
             value={unit_id}
@@ -756,7 +770,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
             labelInValue
             className="w-full"
             disabled={
-              product_type_id?.value == 1 || product_type_id?.value == 2 || editable === false
+              product_type_id?.value == 1 || product_type_id?.value == 2 || editable === false || isDisable
             }
             value={supplier_id}
             onChange={(selected) =>
@@ -782,6 +796,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
         return (
           <DebounceInput
             value={vendor_part_no}
+            disabled={isDisable}
             onChange={(value) =>
               dispatch(
                 changeChargeOrderDetailValue({
@@ -814,7 +829,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
                       : Number(cost_price)}`
                     : ''
             }
-            disabled={product_type_id?.value == 1}
+            disabled={product_type_id?.value == 1 || isDisable}
             onChange={(value) =>
               dispatch(
                 changeChargeOrderDetailValue({
@@ -835,6 +850,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
           <span>Markup %</span>
           <input
             value={globalMarkup}
+            disabled={isDisable}
             onChange={(e) => {
               const value = e.target.value;
               setGlobalMarkup(value);
@@ -858,7 +874,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
           <DebouncedNumberInput
             value={product_type_id?.value == 1 ? 0 : markup}
             type="decimal"
-            disabled={product_type_id?.value == 1 || product_type === 'Service'}
+            disabled={product_type_id?.value == 1 || product_type === 'Service' || isDisable}
             onChange={(value) => {
               dispatch(
                 changeChargeOrderDetailValue({
@@ -892,13 +908,13 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
             ]}>
             <DebouncedCommaSeparatedInput
               value={rate || "0"}
-              disabled={editable === false}
+              disabled={editable === false || isDisable}
               onChange={(value) =>
                 dispatch(
                   changeChargeOrderDetailValue({
                     index,
                     key: 'rate',
-                    value: value  || "0"
+                    value: value || "0"
                   })
                 )
               }
@@ -923,6 +939,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
           <span>Dis %</span>
           <input
             value={globalDiscount}
+            disabled={isDisable}
             onChange={(e) => {
               const value = e.target.value;
               setGlobalDiscount(value);
@@ -962,6 +979,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
             ]}>
             <DebouncedNumberInput
               value={discount_percent}
+              disabled={isDisable}
               type="decimal"
               onChange={(value) =>
                 dispatch(
@@ -1007,6 +1025,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
       title: (
         <Button
           size="small"
+          disabled={isDisable}
           type="primary"
           className="!w-8"
           icon={<BiPlus size={14} />}
@@ -1021,6 +1040,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
         return (
           <Dropdown
             trigger={['click']}
+            disabled={isDisable}
             arrow
             menu={{
               items: [
@@ -1115,12 +1135,12 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
               name="document_date"
               label="Charge Order Date"
               rules={[{ required: true, message: 'charge order date is required' }]}>
-              <DatePicker format="MM-DD-YYYY" className="w-full" />
+              <DatePicker format="MM-DD-YYYY" className="w-full" disabled={isDisable} />
             </Form.Item>
           </Col>
           <Col span={24} sm={12} md={6} lg={6}>
             <Form.Item name="customer_po_no" label="Customer PO No">
-              <Input />
+              <Input disabled={isDisable} />
             </Form.Item>
           </Col>
           <Col span={24} sm={12} md={5} lg={5}>
@@ -1138,6 +1158,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
                 valueKey="salesman_id"
                 labelKey="name"
                 labelInValue
+                disabled={isDisable}
                 addNewLink={
                   permissions.salesman.list && permissions.salesman.add ? '/salesman' : null
                 }
@@ -1154,6 +1175,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
                 valueKey="event_id"
                 labelKey="event_name"
                 labelInValue
+                disabled={isDisable}
                 onChange={onEventChange}
                 addNewLink={permissions.event.add ? '/event/create' : null}
               />
@@ -1189,7 +1211,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
                   ? { value: initialFormValues.port_id, label: initialFormValues.name }
                   : null
               }>
-              <AsyncSelect endpoint="/port" valueKey="port_id" labelKey="name" labelInValue />
+              <AsyncSelect endpoint="/port" valueKey="port_id" labelKey="name" labelInValue disabled={isDisable} />
             </Form.Item>
           </Col>
           <Col span={24} sm={12} md={6} lg={6}>
@@ -1211,13 +1233,14 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
                 labelKey="user_name"
                 mode="multiple"
                 labelInValue
+                disabled={isDisable}
                 addNewLink={permissions.user.add ? '/user/create' : null}
               />
             </Form.Item>
           </Col>
           <Col span={24} sm={12} md={8} lg={8}>
             <Form.Item name="technician_notes" label="Technician Notes">
-              <Input.TextArea rows={1} />
+              <Input.TextArea rows={1} disabled={isDisable} />
             </Form.Item>
           </Col>
           <Col span={24} sm={12} md={8} lg={8}>
@@ -1227,13 +1250,14 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
                 valueKey="agent_id"
                 labelKey="name"
                 labelInValue
+                disabled={isDisable}
                 addNewLink={permissions.agent.add ? '/agent/create' : null}
               />
             </Form.Item>
           </Col>
           <Col span={24} sm={24} md={24} lg={24}>
             <Form.Item name="remarks" label="Remarks">
-              <Input.TextArea rows={1} />
+              <Input.TextArea rows={1} disabled={isDisable} />
             </Form.Item>
           </Col>
         </Row>
@@ -1285,6 +1309,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
                 <Button
                   type="primary"
                   loading={isFormSubmitting === 'CREATE_PO' && !poChargeID}
+                  disabled={isDisable}
                   onClick={() => (isFormSubmitting ? null : onFinish('savePo', 'CREATE_PO'))}>
                   Save & Create PO
                 </Button>
@@ -1295,6 +1320,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
           <Button
             type="primary"
             className="w-28"
+            disabled={isDisable}
             loading={isFormSubmitting && submitAction === 'save'}
             onClick={() => {
               onFinish('save');
@@ -1304,6 +1330,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
           <Button
             type="primary"
             className="w-28 bg-green-600 hover:!bg-green-500"
+            disabled={isDisable}
             loading={isFormSubmitting && submitAction === 'saveAndExit'}
             onClick={() => {
               onFinish('saveAndExit');

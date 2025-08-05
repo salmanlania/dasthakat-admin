@@ -6,7 +6,7 @@ import { FaEye, FaFileInvoice } from 'react-icons/fa';
 import { GoTrash } from 'react-icons/go';
 import { IoCheckmarkDoneCircleSharp } from 'react-icons/io5';
 import { LuClipboardList } from 'react-icons/lu';
-import { MdOutlineEdit } from 'react-icons/md';
+import { MdOutlineEdit, MdCancel } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect';
@@ -25,6 +25,7 @@ import {
   setAnalysisChargeOrderID,
   setChargeOrderDeleteIDs,
   setChargeOrderListParams,
+  cancelledChargeOrder
 } from '../../store/features/chargeOrderSlice';
 import { getEventJobOrders, getEventServiceOrder } from '../../store/features/dispatchSlice.js';
 import { setChargePoID } from '../../store/features/purchaseOrderSlice';
@@ -98,6 +99,16 @@ const ChargeOrder = () => {
     }
   };
 
+  const onChargeOrderCancel = async (id) => {
+    try {
+      await dispatch(cancelledChargeOrder(id)).unwrap();
+      toast.success('Charge order cancelled successfully');
+      dispatch(getChargeOrderList(formattedParams)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
   const onBulkDelete = async () => {
     try {
       await dispatch(bulkDeleteChargeOrder(deleteIDs)).unwrap();
@@ -116,9 +127,8 @@ const ChargeOrder = () => {
       toast.custom(
         (t) => (
           <div
-            className={`${
-              t.visible ? 'animate-enter' : 'animate-leave'
-            } pointer-events-auto flex w-full max-w-md rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5`}>
+            className={`${t.visible ? 'animate-enter' : 'animate-leave'
+              } pointer-events-auto flex w-full max-w-md rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5`}>
             <div className="w-0 flex-1 p-4">
               <div className="flex items-start">
                 <div className="flex-shrink-0 pt-0.5">
@@ -231,6 +241,17 @@ const ChargeOrder = () => {
       sorter: true,
       width: 180,
       ellipsis: true,
+      render: (text, record) => (
+        <span>
+          {record.is_deleted === 1 ? (
+            <>
+              {text} <span style={{ color: 'red' }}>(Cancelled)</span>
+            </>
+          ) : (
+            text
+          )}
+        </span>
+      ),
     },
     {
       title: (
@@ -331,90 +352,137 @@ const ChargeOrder = () => {
     {
       title: <div style={{ textAlign: 'center', width: '100%' }}>Action</div>,
       key: 'action',
-      render: (_, { charge_order_id, event_id }) => {
+      render: (record, { charge_order_id, event_id }) => {
         return (
-          <div className="flex flex-wrap items-center gap-2">
-            <Tooltip title="Create PO">
-              <Button
-                size="small"
-                type="primary"
-                icon={<LuClipboardList size={14} />}
-                onClick={() => dispatch(setChargePoID(charge_order_id))}
-              />
-            </Tooltip>
-            {permissions.edit ? (
-              <Tooltip title="Edit">
-                <Link to={`/charge-order/edit/${charge_order_id}`}>
-                  <Button
-                    size="small"
-                    type="primary"
-                    className="bg-gray-500 hover:!bg-gray-400"
-                    icon={<MdOutlineEdit size={14} />}
-                  />
-                </Link>
-              </Tooltip>
-            ) : null}
-            {permissions.delete ? (
-              <Tooltip title="Delete">
-                <Popconfirm
-                  title="Are you sure you want to delete?"
-                  description="After deleting, You will not be able to recover it."
-                  okButtonProps={{ danger: true }}
-                  okText="Yes"
-                  cancelText="No"
-                  onConfirm={() => onChargeOrderDelete(charge_order_id)}>
-                  <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
-                </Popconfirm>
-              </Tooltip>
-            ) : null}
-            <Tooltip title="Product Status">
-              <Link>
+          record?.is_deleted === 1 ? (
+            <div className="flex flex-wrap items-center gap-2">
+              {permissions.edit ? (
+                <Tooltip title="Edit">
+                  <Link to={`/charge-order/edit/${charge_order_id}`}>
+                    <Button
+                      size="small"
+                      type="primary"
+                      className="bg-gray-500 hover:!bg-gray-400"
+                      icon={<MdOutlineEdit size={14} />}
+                    />
+                  </Link>
+                </Tooltip>
+              ) : null}
+              <Tooltip title="Print IJO">
                 <Button
                   size="small"
                   type="primary"
-                  icon={<FaEye size={14} />}
-                  onClick={() => {
-                    dispatch(setAnalysisChargeOrderID(charge_order_id));
+                  className="w-20"
+                  icon={<span style={{ fontSize: 12, fontWeight: 'bold' }}>IJO</span>}
+                  onClick={() => printIJO(event_id)}></Button>
+              </Tooltip>
+              <Tooltip title="Print SO">
+                <Button
+                  size="small"
+                  type="primary"
+                  className="w-20 bg-green-600 hover:!bg-green-500"
+                  icon={<span style={{ fontSize: 12, fontWeight: 'bold' }}>SO</span>}
+                  onClick={() => printServiceOrder(event_id)}></Button>
+              </Tooltip>
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center gap-2">
+              <Tooltip title="Create PO">
+                <Button
+                  size="small"
+                  type="primary"
+                  icon={<LuClipboardList size={14} />}
+                  onClick={() => dispatch(setChargePoID(charge_order_id))}
+                />
+              </Tooltip>
+              {permissions.edit ? (
+                <Tooltip title="Edit">
+                  <Link to={`/charge-order/edit/${charge_order_id}`}>
+                    <Button
+                      size="small"
+                      type="primary"
+                      className="bg-gray-500 hover:!bg-gray-400"
+                      icon={<MdOutlineEdit size={14} />}
+                    />
+                  </Link>
+                </Tooltip>
+              ) : null}
+              {permissions.delete ? (
+                <Tooltip title="Delete">
+                  <Popconfirm
+                    title="Are you sure you want to delete?"
+                    description="After deleting, You will not be able to recover it."
+                    okButtonProps={{ danger: true }}
+                    okText="Yes"
+                    cancelText="No"
+                    onConfirm={() => onChargeOrderDelete(charge_order_id)}>
+                    <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
+                  </Popconfirm>
+                </Tooltip>
+              ) : null}
+              <Tooltip title="Product Status">
+                <Link>
+                  <Button
+                    size="small"
+                    type="primary"
+                    icon={<FaEye size={14} />}
+                    onClick={() => {
+                      dispatch(setAnalysisChargeOrderID(charge_order_id));
+                    }}
+                  />
+                </Link>
+              </Tooltip>
+              <Tooltip title="Sale Invoice">
+                <Button
+                  size="small"
+                  type="primary"
+                  icon={<FaFileInvoice size={14} />}
+                  onClick={async () => {
+                    try {
+                      const document_date = dayjs().format('YYYY-MM-DD');
+                      await dispatch(createSaleInvoice({ charge_order_id, document_date })).unwrap();
+                      toast.success('Sale invoice created successfully');
+                    } catch (error) {
+                      handleError(error);
+                    }
                   }}
                 />
-              </Link>
-            </Tooltip>
-            <Tooltip title="Sale Invoice">
-              <Button
-                size="small"
-                type="primary"
-                icon={<FaFileInvoice size={14} />}
-                onClick={async () => {
-                  try {
-                    const document_date = dayjs().format('YYYY-MM-DD');
-                    await dispatch(createSaleInvoice({ charge_order_id, document_date })).unwrap();
-                    toast.success('Sale invoice created successfully');
-                  } catch (error) {
-                    handleError(error);
-                  }
-                }}
-              />
-            </Tooltip>
-            <Tooltip title="Print IJO">
-              <Button
-                size="small"
-                type="primary"
-                className="w-20"
-                icon={<span style={{ fontSize: 12, fontWeight: 'bold' }}>IJO</span>}
-                onClick={() => printIJO(event_id)}></Button>
-            </Tooltip>
-            <Tooltip title="Print SO">
-              <Button
-                size="small"
-                type="primary"
-                className="w-20 bg-green-600 hover:!bg-green-500"
-                icon={<span style={{ fontSize: 12, fontWeight: 'bold' }}>SO</span>}
-                onClick={() => printServiceOrder(event_id)}></Button>
-            </Tooltip>
-          </div>
+              </Tooltip>
+              <Tooltip title="Print IJO">
+                <Button
+                  size="small"
+                  type="primary"
+                  className="w-20"
+                  icon={<span style={{ fontSize: 12, fontWeight: 'bold' }}>IJO</span>}
+                  onClick={() => printIJO(event_id)}></Button>
+              </Tooltip>
+              <Tooltip title="Print SO">
+                <Button
+                  size="small"
+                  type="primary"
+                  className="w-20 bg-green-600 hover:!bg-green-500"
+                  icon={<span style={{ fontSize: 12, fontWeight: 'bold' }}>SO</span>}
+                  onClick={() => printServiceOrder(event_id)}></Button>
+              </Tooltip>
+              {permissions.cancel ? (
+                <Tooltip title="Cancel">
+                  <Popconfirm
+                    title="Are you sure you want to cancel?"
+                    description="After cancelling, You will not be able to recover it."
+                    okButtonProps={{ danger: true }}
+                    okText="Yes"
+                    cancelText="No"
+                    onConfirm={() => onChargeOrderCancel(charge_order_id)}
+                  >
+                    <Button className='bg-teal-500-500 hover:!bg-teal-500-400' size="small" type="primary" icon={<MdCancel size={14} />} />
+                  </Popconfirm>
+                </Tooltip>
+              ) : null}
+            </div>
+          )
         );
       },
-      width: 150,
+      width: 120,
       fixed: 'right',
     },
   ];
@@ -482,15 +550,15 @@ const ChargeOrder = () => {
               rowSelection={
                 permissions.delete
                   ? {
-                      type: 'checkbox',
-                      selectedRowKeys: deleteIDs,
-                      onChange: (selectedRowKeys) =>
-                        dispatch(setChargeOrderDeleteIDs(selectedRowKeys)),
-                      getCheckboxProps: (record) => ({
-                        disabled: record.isEventHeader,
-                        name: record.charge_order_id,
-                      }),
-                    }
+                    type: 'checkbox',
+                    selectedRowKeys: deleteIDs,
+                    onChange: (selectedRowKeys) =>
+                      dispatch(setChargeOrderDeleteIDs(selectedRowKeys)),
+                    getCheckboxProps: (record) => ({
+                      disabled: record.isEventHeader,
+                      name: record.charge_order_id,
+                    }),
+                  }
                   : null
               }
               loading={isListLoading}

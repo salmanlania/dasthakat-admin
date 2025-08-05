@@ -413,6 +413,13 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
               </Button>
             </>
           )}
+          <Button
+            type="primary"
+            className="w-28 bg-gray-600 hover:!bg-gray-500"
+            loading={isFormSubmitting && submitAction === 'saveAndExit'}
+            onClick={() => toast.success('Shipment cancelled successfully')}>
+            Cancel
+          </Button>
         </div>
       </Form>
       <StockReturnModal

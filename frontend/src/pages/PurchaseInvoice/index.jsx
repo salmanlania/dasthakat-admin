@@ -83,7 +83,8 @@ const PurchaseInvoice = () => {
       title: (
         <div>
           <p>Purchase Invoice Date</p>
-          <div onClick={(e) => e.stopPropagation()}>
+          <div onClick={(e) => e.stopPropagation()}
+allowClear>
             <DatePicker
               size="small"
               value={params.document_date}
@@ -110,10 +111,12 @@ const PurchaseInvoice = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+            allowClear
             value={params.document_identity}
             onChange={(e) =>
               dispatch(
                 setPurchaseInvoiceListParams({
+                  ...params,
                   document_identity: e.target.value,
                 }),
               )
@@ -134,11 +137,13 @@ const PurchaseInvoice = () => {
           <Input
             className="font-normal"
             size="small"
+            allowClear
             onClick={(e) => e.stopPropagation()}
             value={params.purchase_order_no}
             onChange={(e) =>
               dispatch(
                 setPurchaseInvoiceListParams({
+                  ...params,
                   purchase_order_no: e.target.value,
                 }),
               )
@@ -160,10 +165,12 @@ const PurchaseInvoice = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+allowClear
             value={params.supplier_name}
             onChange={(e) =>
               dispatch(
                 setPurchaseInvoiceListParams({
+                  ...params,
                   supplier_name: e.target.value,
                 }),
               )
@@ -185,10 +192,12 @@ const PurchaseInvoice = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+allowClear
             value={params.vendor_invoice_no}
             onChange={(e) =>
               dispatch(
                 setPurchaseInvoiceListParams({
+                  ...params,
                   vendor_invoice_no: e.target.value,
                 }),
               )
@@ -210,10 +219,12 @@ const PurchaseInvoice = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+allowClear
             value={params.charge_no}
             onChange={(e) =>
               dispatch(
                 setPurchaseInvoiceListParams({
+                  ...params,
                   charge_no: e.target.value,
                 }),
               )
@@ -235,10 +246,12 @@ const PurchaseInvoice = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
+allowClear
             value={params.ship_via}
             onChange={(e) =>
               dispatch(
                 setPurchaseInvoiceListParams({
+                  ...params,
                   ship_via: e.target.value,
                 }),
               )

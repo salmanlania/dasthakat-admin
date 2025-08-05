@@ -100,6 +100,17 @@ const PickList = () => {
       key: 'charge_order_no',
       sorter: true,
       width: 180,
+      render: (text, record) => (
+        <span>
+          {record.is_deleted === 1 ? (
+            <>
+              {text} <span style={{ color: 'red' }}>(Cancelled)</span>
+            </>
+          ) : (
+            text
+          )}
+        </span>
+      ),
     },
     {
       title: (
@@ -243,37 +254,41 @@ const PickList = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_, { id }) => (
-        <div className="flex items-center justify-center gap-2">
-          {permissions.receive ? (
-            <Tooltip title="Items Receive">
+      render: (record) => {
+        return (
+          <div className="flex items-center justify-center gap-2">
+            {record.is_deleted !== 1 && permissions.receive ? (
+              <Tooltip title="Items Receive">
+                <Button
+                  size="small"
+                  type="primary"
+                  icon={<LuListChecks size={18} />}
+                  onClick={() => dispatch(setPickListOpenModalId(record.id))}
+                />
+              </Tooltip>
+            ) : null}
+            <Tooltip title="Print">
               <Button
                 size="small"
                 type="primary"
-                icon={<LuListChecks size={18} />}
-                onClick={() => dispatch(setPickListOpenModalId(id))}
+                className="bg-rose-600 hover:!bg-rose-500"
+                icon={<FaRegFilePdf size={14} />}
+                onClick={() => printPickList(record.id)}
               />
             </Tooltip>
-          ) : null}
-          <Tooltip title="Print">
-            <Button
-              size="small"
-              type="primary"
-              className="bg-rose-600 hover:!bg-rose-500"
-              icon={<FaRegFilePdf size={14} />}
-              onClick={() => printPickList(id)}
-            />
-          </Tooltip>
-          <Link to={`/pick-list/edit/${id}`}>
-            <Button
-              size="small"
-              type="primary"
-              className="bg-gray-500 hover:!bg-gray-400"
-              icon={<MdOutlineEdit size={14} />}
-            />
-          </Link>
-        </div>
-      ),
+            {record.is_deleted !== 1 ? (
+              <Link to={`/pick-list/edit/${record.id}`}>
+                <Button
+                  size="small"
+                  type="primary"
+                  className="bg-gray-500 hover:!bg-gray-400"
+                  icon={<MdOutlineEdit size={14} />}
+                />
+              </Link>
+            ) : null}
+          </div>
+        );
+      },
       width: 105,
       fixed: 'right',
     },
@@ -305,6 +320,7 @@ const PickList = () => {
     created_at: item.created_at,
     id: item.picklist_id,
     key: item.picklist_id,
+    is_deleted: item.is_deleted
   }));
 
   return (

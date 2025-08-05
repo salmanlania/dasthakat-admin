@@ -39,6 +39,9 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
   const { isFormSubmitting, initialFormValues, purchaseOrderDetails } = useSelector(
     (state) => state.purchaseOrder
   );
+
+  const isDisable = mode === 'edit' && initialFormValues?.is_deleted === 1
+
   const [submitAction, setSubmitAction] = useState(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -299,6 +302,7 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
           size="small"
           type="primary"
           className="!w-8"
+          disabled={isDisable}
           icon={<BiPlus size={14} />}
           onClick={() => dispatch(addPurchaseOrderDetail())}
         />
@@ -350,7 +354,7 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
             endpoint="/lookups/product-types"
             valueKey="product_type_id"
             labelKey="name"
-            disabled={editable === false}
+            disabled={editable === false || isDisable}
             labelInValue
             className="w-full"
             value={product_type_id}
@@ -386,7 +390,7 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
                 })
               )
             }
-            disabled={product_type_id?.value == 4}
+            disabled={product_type_id?.value == 4 || isDisable}
             onBlur={(e) => onProductCodeChange(index, e.target.value)}
             onPressEnter={(e) => onProductCodeChange(index, e.target.value)}
           />
@@ -415,6 +419,7 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
             ]}>
             <DebounceInput
               value={product_name}
+              disabled={isDisable}
               onChange={(value) => {
                 dispatch(
                   changePurchaseOrderDetailValue({
@@ -454,6 +459,7 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
               valueKey="product_id"
               labelKey="product_name"
               labelInValue
+              disabled={isDisable}
               className="w-full"
               value={product_id}
               onChange={(selected) => onProductChange(index, selected)}
@@ -487,7 +493,7 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
             ]}>
             <DebounceInput
               value={product_description}
-              disabled={product_type_id?.value == 4}
+              disabled={product_type_id?.value == 4 || isDisable}
               onChange={(value) =>
                 dispatch(
                   changePurchaseOrderDetailValue({
@@ -511,7 +517,7 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
         return (
           <DebounceInput
             value={description}
-            disabled={editable === false}
+            disabled={editable === false || isDisable}
             onChange={(value) =>
               dispatch(
                 changePurchaseOrderDetailValue({
@@ -534,7 +540,7 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
         return (
           <DebounceInput
             value={vpart}
-            disabled={editable === false}
+            disabled={editable === false || isDisable}
             onChange={(value) =>
               dispatch(
                 changePurchaseOrderDetailValue({
@@ -583,7 +589,7 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
             <DebouncedCommaSeparatedInput
               decimalPlaces={2}
               value={newQuantity}
-              disabled={editable === false}
+              disabled={editable === false || isDisable}
               onChange={(value) =>
                 dispatch(
                   changePurchaseOrderDetailValue({
@@ -609,7 +615,7 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
             endpoint="/unit"
             valueKey="unit_id"
             labelKey="name"
-            disabled={product_type_id?.value != 4 || editable === false}
+            disabled={product_type_id?.value != 4 || editable === false || isDisable}
             labelInValue
             className="w-full"
             value={unit_id}
@@ -634,12 +640,13 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'rate',
       key: 'rate',
       render: (_, { rate, editable }, index) => {
+        const newRate = rate === 0 ? 0 : rate
         form.setFieldsValue({ [`rate-${index}`]: rate });
         return (
           <Form.Item
             className="m-0"
             name={`rate-${index}`}
-            initialValue={rate}
+            initialValue={rate || "0"}
             rules={[
               {
                 required: true,
@@ -647,14 +654,14 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
               }
             ]}>
             <DebouncedCommaSeparatedInput
-              value={rate}
-              disabled={editable === false}
+              value={rate || "0"}
+              disabled={editable === false || isDisable}
               onChange={(value) =>
                 dispatch(
                   changePurchaseOrderDetailValue({
                     index,
                     key: 'rate',
-                    value: value
+                    value: value || "0"
                   })
                 )
               }
@@ -681,7 +688,7 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
         return (
           <DebounceInput
             value={vendor_notes}
-            disabled={editable === false}
+            disabled={editable === false || isDisable}
             onChange={(value) =>
               dispatch(
                 changePurchaseOrderDetailValue({
@@ -702,6 +709,7 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
           size="small"
           type="primary"
           className="!w-8"
+          disabled={isDisable}
           icon={<BiPlus size={14} />}
           onClick={() => dispatch(addPurchaseOrderDetail())}
         />
@@ -711,6 +719,7 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
         return (
           <Dropdown
             trigger={['click']}
+            disabled={isDisable}
             arrow
             menu={{
               items: [
@@ -755,6 +764,7 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
         autoComplete="off"
         form={form}
         onFinish={onFinish}
+        disabled={isDisable}
         initialValues={
           mode === 'edit'
             ? initialFormValues
@@ -947,7 +957,7 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
 
         <div className="mt-4 flex items-center justify-end gap-2">
           <Link to="/purchase-order">
-            <Button className="w-28">Exit</Button>
+            <Button className="w-28" disabled={false}>Exit</Button>
           </Link>
           {mode === 'edit' ? (
             <Button
