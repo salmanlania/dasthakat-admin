@@ -185,7 +185,7 @@ class ShipmentController extends Controller
 					'unit',
 					'supplier',
 				]);
-			$query = $query->whereHas('charge_order', fn($q) => $q->where('event_id', $request->event_id));
+			$query = $query->whereHas('charge_order', fn($q) => $q->where('event_id', $request->event_id)->where('is_deleted',0));
 			if ($request->charge_order_id) {
 
 				$query = $query->where('charge_order_id', $request->charge_order_id);
