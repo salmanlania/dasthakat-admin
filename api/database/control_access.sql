@@ -149,6 +149,7 @@
   ('Sale Management', 'Purchase Order', 'purchase_order', 'add', 'Add', 1.102),
   ('Sale Management', 'Purchase Order', 'purchase_order', 'edit', 'Edit', 1.103),
   ('Sale Management', 'Purchase Order', 'purchase_order', 'delete', 'Delete', 1.104),
+  ('Sale Management', 'Purchase Order', 'purchase_order', 'cancel', 'Cancel', 1.105),
 
   ('Sale Management', 'Internal Job Order', 'job_order', 'list', 'List', 1.101),
   ('Sale Management', 'Internal Job Order', 'job_order', 'add', 'Add', 1.102),
