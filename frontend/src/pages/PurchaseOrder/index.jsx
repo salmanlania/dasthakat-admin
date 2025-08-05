@@ -14,7 +14,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { FaRegFilePdf } from 'react-icons/fa';
 import { GoTrash } from 'react-icons/go';
-import { MdOutlineEdit } from 'react-icons/md';
+import { MdOutlineEdit, MdCancel } from 'react-icons/md';
 import { FaFileInvoice } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -31,6 +31,7 @@ import {
   getPurchaseOrderList,
   setPurchaseOrderDeleteIDs,
   setPurchaseOrderListParams,
+  cancelledPurchaseOrder
 } from '../../store/features/purchaseOrderSlice';
 import { createPurchaseInvoice } from '../../store/features/purchaseInvoiceSlice';
 import { createPurchaseOrderPrint } from '../../utils/prints/purchase-order-print';
@@ -80,6 +81,16 @@ const PurchaseOrder = () => {
     try {
       await dispatch(deletePurchaseOrder(id)).unwrap();
       toast.success('Purchase order deleted successfully');
+      dispatch(getPurchaseOrderList(formattedParams)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const onPurchaseOrderCancel = async (id) => {
+    try {
+      await dispatch(cancelledPurchaseOrder(id)).unwrap();
+      toast.success('Purchase order cancelled successfully');
       dispatch(getPurchaseOrderList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
@@ -152,6 +163,7 @@ const PurchaseOrder = () => {
           <Input
             className="font-normal"
             size="small"
+            allowClear
             onClick={(e) => e.stopPropagation()}
             value={params.document_identity}
             onChange={(e) =>
@@ -169,6 +181,17 @@ const PurchaseOrder = () => {
       sorter: true,
       width: 165,
       ellipsis: true,
+      render: (text, record) => (
+        <span>
+          {record.is_deleted === 1 ? (
+            <>
+              {text} <span style={{ color: 'red' }}>(Cancelled)</span>
+            </>
+          ) : (
+            text
+          )}
+        </span>
+      ),
     },
     {
       title: (
@@ -401,74 +424,92 @@ const PurchaseOrder = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_, { purchase_order_id }) => (
-        <div className="flex flex-wrap items-center gap-2">
-          {permissions.edit ? (
-            <>
-              <Tooltip title="Print without rate">
+      render: (record, { purchase_order_id }) => {
+        return (
+          <div className="flex flex-wrap items-center gap-2">
+            {permissions.edit ? (
+              <>
+                <Tooltip title="Print without rate">
+                  <Button
+                    size="small"
+                    type="primary"
+                    className="bg-indigo-600 hover:!bg-indigo-500"
+                    icon={<FaRegFilePdf size={14} />}
+                    onClick={() => printPurchaseOrderWithoutRate(purchase_order_id)}
+                  />
+                </Tooltip>
+                <Tooltip title="Print">
+                  <Button
+                    size="small"
+                    type="primary"
+                    className="bg-rose-600 hover:!bg-rose-500"
+                    icon={<FaRegFilePdf size={14} />}
+                    onClick={() => printPurchaseOrder(purchase_order_id)}
+                  />
+                </Tooltip>
+                <Tooltip title="Edit">
+                  <Link to={`/purchase-order/edit/${purchase_order_id}`}>
+                    <Button
+                      size="small"
+                      type="primary"
+                      className="bg-gray-500 hover:!bg-gray-400"
+                      icon={<MdOutlineEdit size={14} />}
+                    />
+                  </Link>
+                </Tooltip>
+              </>
+            ) : null}
+            {permissions.delete && record.is_deleted !== 1 ? (
+              <Tooltip title="Delete">
+                <Popconfirm
+                  title="Are you sure you want to delete?"
+                  description="After deleting, You will not be able to recover it."
+                  okButtonProps={{ danger: true }}
+                  okText="Yes"
+                  cancelText="No"
+                  onConfirm={() => onPurchaseOrderDelete(purchase_order_id)}>
+                  <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
+                </Popconfirm>
+              </Tooltip>
+            ) : null}
+            {record.is_deleted !== 1 ? (
+              <Tooltip title="Purchase Invoice">
                 <Button
                   size="small"
                   type="primary"
                   className="bg-indigo-600 hover:!bg-indigo-500"
-                  icon={<FaRegFilePdf size={14} />}
-                  onClick={() => printPurchaseOrderWithoutRate(purchase_order_id)}
+                  icon={<FaFileInvoice size={14} />}
+                  onClick={async () => {
+                    try {
+                      const document_date = dayjs().format('YYYY-MM-DD');
+                      await dispatch(
+                        createPurchaseInvoice({ purchase_order_id, document_date }),
+                      ).unwrap();
+                      toast.success('Purchase invoice created successfully');
+                    } catch (error) {
+                      handleError(error);
+                    }
+                  }}
                 />
               </Tooltip>
-              <Tooltip title="Print">
-                <Button
-                  size="small"
-                  type="primary"
-                  className="bg-rose-600 hover:!bg-rose-500"
-                  icon={<FaRegFilePdf size={14} />}
-                  onClick={() => printPurchaseOrder(purchase_order_id)}
-                />
+            ) : null}
+            {record.is_deleted !== 1 && permissions.cancel ? (
+              <Tooltip title="Cancel">
+                <Popconfirm
+                  title="Are you sure you want to cancel?"
+                  description="After cancelling, You will not be able to recover it."
+                  okButtonProps={{ danger: true }}
+                  okText="Yes"
+                  cancelText="No"
+                  onConfirm={() => onPurchaseOrderCancel(purchase_order_id)}
+                >
+                  <Button className='bg-teal-500-500 hover:!bg-teal-500-400' size="small" type="primary" icon={<MdCancel size={14} />} />
+                </Popconfirm>
               </Tooltip>
-              <Tooltip title="Edit">
-                <Link to={`/purchase-order/edit/${purchase_order_id}`}>
-                  <Button
-                    size="small"
-                    type="primary"
-                    className="bg-gray-500 hover:!bg-gray-400"
-                    icon={<MdOutlineEdit size={14} />}
-                  />
-                </Link>
-              </Tooltip>
-            </>
-          ) : null}
-          {permissions.delete ? (
-            <Tooltip title="Delete">
-              <Popconfirm
-                title="Are you sure you want to delete?"
-                description="After deleting, You will not be able to recover it."
-                okButtonProps={{ danger: true }}
-                okText="Yes"
-                cancelText="No"
-                onConfirm={() => onPurchaseOrderDelete(purchase_order_id)}>
-                <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
-              </Popconfirm>
-            </Tooltip>
-          ) : null}
-          <Tooltip title="Purchase Invoice">
-            <Button
-              size="small"
-              type="primary"
-              className="bg-indigo-600 hover:!bg-indigo-500"
-              icon={<FaFileInvoice size={14} />}
-              onClick={async () => {
-                try {
-                  const document_date = dayjs().format('YYYY-MM-DD');
-                  await dispatch(
-                    createPurchaseInvoice({ purchase_order_id, document_date }),
-                  ).unwrap();
-                  toast.success('Purchase invoice created successfully');
-                } catch (error) {
-                  handleError(error);
-                }
-              }}
-            />
-          </Tooltip>
-        </div>
-      ),
+            ) : null}
+          </div>
+        )
+      },
       width: 105,
       fixed: 'right',
     },
@@ -539,11 +580,11 @@ const PurchaseOrder = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: 'checkbox',
-                  selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) =>
-                    dispatch(setPurchaseOrderDeleteIDs(selectedRowKeys)),
-                }
+                type: 'checkbox',
+                selectedRowKeys: deleteIDs,
+                onChange: (selectedRowKeys) =>
+                  dispatch(setPurchaseOrderDeleteIDs(selectedRowKeys)),
+              }
               : null
           }
           loading={isListLoading}

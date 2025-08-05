@@ -89,6 +89,20 @@ export const bulkDeletePurchaseOrder = createAsyncThunk(
   }
 );
 
+export const cancelledPurchaseOrder = createAsyncThunk(
+  'purchaseOrder/cancel',
+  async ( id , { rejectWithValue }) => {
+    try {
+      return await api.post('/purchase-order/actions', {
+        id,
+        is_deleted: true,
+      });
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 const initialState = {
   isListLoading: false,
   isFormSubmitting: false,
@@ -267,6 +281,7 @@ export const purchaseOrderSlice = createSlice({
       state.isItemLoading = false;
       const data = action.payload;
       state.initialFormValues = {
+        is_deleted: data?.is_deleted,
         document_identity: data.document_identity,
         document_date: data.document_date ? dayjs(data.document_date) : null,
         required_date: data.required_date ? dayjs(data.required_date) : null,

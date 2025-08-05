@@ -40,6 +40,20 @@ export const createChargeOrder = createAsyncThunk(
   }
 );
 
+export const cancelledChargeOrder = createAsyncThunk(
+  'chargeOrder/cancel',
+  async ( id , { rejectWithValue }) => {
+    try {
+      return await api.post('/charge-order/actions', {
+        id,
+        is_deleted: true,
+      });
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const temporaryServiceOrder = createAsyncThunk(
   'temporary/service_order',
   async ({ data }, { rejectWithValue }) => {
@@ -476,6 +490,7 @@ export const chargeOrderSlice = createSlice({
       state.isItemLoading = false;
       const data = action.payload;
       state.initialFormValues = {
+        is_deleted: data?.is_deleted,
         document_identity: data.document_identity,
         document_date: data.document_date ? dayjs(data.document_date) : null,
         customer_po_no: data.customer_po_no,

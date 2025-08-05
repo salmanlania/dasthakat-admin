@@ -16,6 +16,7 @@ import toast from 'react-hot-toast';
 import { FaRegFilePdf } from 'react-icons/fa';
 import { GoTrash } from 'react-icons/go';
 import { MdOutlineEdit } from 'react-icons/md';
+import { MdCancel } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect/index.jsx';
@@ -187,9 +188,9 @@ const Shipment = () => {
       form.setFieldsValue({
         event_id: res.event
           ? {
-              value: res.event.event_id,
-              label: res.event.event_code,
-            }
+            value: res.event.event_id,
+            label: res.event.event_code,
+          }
           : null,
       });
     } catch (error) {
@@ -428,46 +429,48 @@ const Shipment = () => {
       title: 'Action',
       key: 'action',
       render: (_, { shipment_id }) => (
-        <div className="flex items-center justify-center gap-2">
-          {permissions.edit ? (
-            <Tooltip title="Edit">
-              <Link to={`/shipment/edit/${shipment_id}`}>
+        <div className="flex flex-col justify-center gap-1">
+          <div className="flex items-center gap-1">
+            {permissions.edit ? (
+              <Tooltip title="Edit">
+                <Link to={`/shipment/edit/${shipment_id}`}>
+                  <Button
+                    size="small"
+                    type="primary"
+                    className="bg-gray-500 hover:!bg-gray-400"
+                    icon={<MdOutlineEdit size={14} />}
+                  />
+                </Link>
+              </Tooltip>
+            ) : null}
+            {permissions.delete ? (
+              <Tooltip title="Delete">
+                <Popconfirm
+                  title="Are you sure you want to delete?"
+                  description="After deleting, You will not be able to recover it."
+                  okButtonProps={{ danger: true }}
+                  okText="Yes"
+                  cancelText="No"
+                  onConfirm={() => onShipmentDelete(shipment_id)}>
+                  <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
+                </Popconfirm>
+              </Tooltip>
+            ) : null}
+            <Tooltip title="Print">
+              <Link>
                 <Button
                   size="small"
                   type="primary"
-                  className="bg-gray-500 hover:!bg-gray-400"
-                  icon={<MdOutlineEdit size={14} />}
+                  className="bg-green-500 hover:!bg-green-400"
+                  icon={<FaRegFilePdf size={14} />}
+                  onClick={() => printSODO(shipment_id)}
                 />
               </Link>
             </Tooltip>
-          ) : null}
-          {permissions.delete ? (
-            <Tooltip title="Delete">
-              <Popconfirm
-                title="Are you sure you want to delete?"
-                description="After deleting, You will not be able to recover it."
-                okButtonProps={{ danger: true }}
-                okText="Yes"
-                cancelText="No"
-                onConfirm={() => onShipmentDelete(shipment_id)}>
-                <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
-              </Popconfirm>
-            </Tooltip>
-          ) : null}
-          <Tooltip title="Print">
-            <Link>
-              <Button
-                size="small"
-                type="primary"
-                className="bg-green-500 hover:!bg-green-400"
-                icon={<FaRegFilePdf size={14} />}
-                onClick={() => printSODO(shipment_id)}
-              />
-            </Link>
-          </Tooltip>
+          </div>
         </div>
       ),
-      width: 100,
+      width: 80,
       fixed: 'right',
     },
   ];
@@ -519,7 +522,7 @@ const Shipment = () => {
           </Form.Item>
           <Form.Item name="charge_order_id" label="Charge Order" className="m-0 w-48">
             <AsyncSelect
-              endpoint="/charge-order"
+              endpoint="/charge-order?is_deleted=true"
               valueKey="charge_order_id"
               labelKey="document_identity"
               labelInValue
@@ -572,10 +575,10 @@ const Shipment = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: 'checkbox',
-                  selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setShipmentDeleteIDs(selectedRowKeys)),
-                }
+                type: 'checkbox',
+                selectedRowKeys: deleteIDs,
+                onChange: (selectedRowKeys) => dispatch(setShipmentDeleteIDs(selectedRowKeys)),
+              }
               : null
           }
           loading={isListLoading}

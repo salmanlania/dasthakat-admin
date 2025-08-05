@@ -279,6 +279,17 @@ const ServiceOrder = () => {
       sorter: true,
       width: 180,
       ellipsis: true,
+      render: (text, record) => (
+        <span>
+          {record.is_deleted === 1 ? (
+            <>
+              {text} <span style={{ color: 'red' }}>(Cancelled)</span>
+            </>
+          ) : (
+            text
+          )}
+        </span>
+      ),
     },
     {
       title: (
@@ -310,7 +321,7 @@ const ServiceOrder = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_, { service_order_id }) => (
+      render: (record, { service_order_id }) => (
         <div className="flex items-center justify-center gap-2">
           <Tooltip title="Print">
             <Link>
@@ -323,7 +334,7 @@ const ServiceOrder = () => {
               />
             </Link>
           </Tooltip>
-          {permissions.delete ? (
+          {record.is_deleted !== 1 && permissions.delete ? (
             <Tooltip title="Delete">
               <Popconfirm
                 title="Are you sure you want to delete?"
@@ -405,11 +416,11 @@ const ServiceOrder = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: 'checkbox',
-                  selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) =>
-                    dispatch(setServiceOrderDeleteIDs(selectedRowKeys)),
-                }
+                type: 'checkbox',
+                selectedRowKeys: deleteIDs,
+                onChange: (selectedRowKeys) =>
+                  dispatch(setServiceOrderDeleteIDs(selectedRowKeys)),
+              }
               : null
           }
           loading={isListLoading}

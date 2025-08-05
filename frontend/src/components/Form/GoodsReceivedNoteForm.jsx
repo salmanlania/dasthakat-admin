@@ -854,7 +854,7 @@ const GoodsReceivedNoteForm = ({ mode, onSubmit, onSave }) => {
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item name="purchase_order_id" label="Purchase Order">
             <AsyncSelect
-              endpoint="/purchase-order"
+              endpoint="/purchase-order?is_deleted=true"
               valueKey="purchase_order_id"
               labelKey="document_identity"
               labelInValue

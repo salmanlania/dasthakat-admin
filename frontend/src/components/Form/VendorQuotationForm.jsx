@@ -26,7 +26,6 @@ const VendorQuotationForm = () => {
 
   useEffect(() => {
     if (!quotationDetails || quotationDetails.length === 0) return;
-    console.log('initialFormValues' , initialFormValues)
 
     let extCostSum = 0;
     let finalCostSum = 0;

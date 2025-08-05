@@ -529,6 +529,13 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
               </>
               : null
           }
+          <Button
+            type="primary"
+            className="w-28 bg-gray-600 hover:!bg-gray-500"
+            loading={isFormSubmitting && submitAction === 'saveAndExit'}
+            onClick={() => toast.success('Sale Invoice cancelled successfully')}>
+            Cancel
+          </Button>
         </div>
       </Form>
 

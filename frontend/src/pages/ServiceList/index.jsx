@@ -101,6 +101,17 @@ const ServiceList = () => {
       key: 'charge_order_no',
       sorter: true,
       width: 180,
+      render: (text, record) => (
+        <span>
+          {record.isDeleted === 1 ? (
+            <>
+              {text} <span style={{ color: 'red' }}>(Cancelled)</span>
+            </>
+          ) : (
+            text
+          )}
+        </span>
+      ),
     },
     {
       title: (
@@ -243,29 +254,31 @@ const ServiceList = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_, { id }) => (
-        <div className="flex items-center justify-center gap-2">
-          {permissions.receive ? (
-            <Tooltip title="Items Receive">
+      render: (record, { id }) => {
+        return (
+          <div className="flex items-center justify-center gap-2">
+            {record.isDeleted !== 1 && permissions.receive ? (
+              <Tooltip title="Items Receive">
+                <Button
+                  size="small"
+                  type="primary"
+                  icon={<LuListChecks size={18} />}
+                  onClick={() => dispatch(setServiceListOpenModalId(id))}
+                />
+              </Tooltip>
+            ) : null}
+            <Tooltip title="Print">
               <Button
                 size="small"
                 type="primary"
-                icon={<LuListChecks size={18} />}
-                onClick={() => dispatch(setServiceListOpenModalId(id))}
+                className="bg-rose-600 hover:!bg-rose-500"
+                icon={<FaRegFilePdf size={14} />}
+                onClick={() => printServiceList(id)}
               />
             </Tooltip>
-          ) : null}
-          <Tooltip title="Print">
-            <Button
-              size="small"
-              type="primary"
-              className="bg-rose-600 hover:!bg-rose-500"
-              icon={<FaRegFilePdf size={14} />}
-              onClick={() => printServiceList(id)}
-            />
-          </Tooltip>
-        </div>
-      ),
+          </div>
+        )
+      },
       width: 80,
       fixed: 'right',
     },
@@ -296,6 +309,7 @@ const ServiceList = () => {
     servicelist_status: item.servicelist_status,
     id: item.servicelist_id,
     key: item.servicelist_id,
+    isDeleted: item.is_deleted
   }));
 
   return (

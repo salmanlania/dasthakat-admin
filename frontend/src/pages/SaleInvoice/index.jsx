@@ -235,41 +235,43 @@ const SaleInvoice = () => {
       title: <div style={{ textAlign: 'center', width: '100%' }}>Action</div>,
       key: 'action',
       render: (_, { sale_invoice_id }) => (
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex flex-col justify-center gap-1">
           {permissions.edit ? (
             <>
-              <Tooltip title="Print">
-                <Button
-                  size="small"
-                  type="primary"
-                  className="bg-rose-600 hover:!bg-rose-500"
-                  icon={<FaRegFilePdf size={14} />}
-                  onClick={() => printSaleInvoice(sale_invoice_id)}
-                />
-              </Tooltip>
-              <Tooltip title="Edit">
-                <Link to={`/sale-invoice/edit/${sale_invoice_id}`}>
+              <div className="flex items-center gap-1">
+                <Tooltip title="Print">
                   <Button
                     size="small"
                     type="primary"
-                    className="bg-gray-500 hover:!bg-gray-400"
-                    icon={<MdOutlineEdit size={14} />}
+                    className="bg-rose-600 hover:!bg-rose-500"
+                    icon={<FaRegFilePdf size={14} />}
+                    onClick={() => printSaleInvoice(sale_invoice_id)}
                   />
-                </Link>
-              </Tooltip>
-              {permissions.delete ? (
-                <Tooltip title="Delete">
-                  <Popconfirm
-                    title="Are you sure you want to delete?"
-                    description="After deleting, You will not be able to recover it."
-                    okButtonProps={{ danger: true }}
-                    okText="Yes"
-                    cancelText="No"
-                    onConfirm={() => onSaleInvoiceDelete(sale_invoice_id)}>
-                    <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
-                  </Popconfirm>
                 </Tooltip>
-              ) : null}
+                <Tooltip title="Edit">
+                  <Link to={`/sale-invoice/edit/${sale_invoice_id}`}>
+                    <Button
+                      size="small"
+                      type="primary"
+                      className="bg-gray-500 hover:!bg-gray-400"
+                      icon={<MdOutlineEdit size={14} />}
+                    />
+                  </Link>
+                </Tooltip>
+                {permissions.delete ? (
+                  <Tooltip title="Delete">
+                    <Popconfirm
+                      title="Are you sure you want to delete?"
+                      description="After deleting, You will not be able to recover it."
+                      okButtonProps={{ danger: true }}
+                      okText="Yes"
+                      cancelText="No"
+                      onConfirm={() => onSaleInvoiceDelete(sale_invoice_id)}>
+                      <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
+                    </Popconfirm>
+                  </Tooltip>
+                ) : null}
+              </div>
             </>
           ) : null}
         </div>
@@ -337,10 +339,10 @@ const SaleInvoice = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: 'checkbox',
-                  selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setSaleInvoiceDeleteIDs(selectedRowKeys)),
-                }
+                type: 'checkbox',
+                selectedRowKeys: deleteIDs,
+                onChange: (selectedRowKeys) => dispatch(setSaleInvoiceDeleteIDs(selectedRowKeys)),
+              }
               : null
           }
           loading={isListLoading}
