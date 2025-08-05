@@ -56,7 +56,7 @@ class ChargeOrderController extends Controller
 		$perPage =  $request->input('limit', 10);
 		$sort_column = $request->input('sort_column', 'charge_order.created_at');
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
-
+		$is_deleted = $request->input('is_deleted',false);
 		$data = ChargeOrder::LeftJoin('customer as c', 'c.customer_id', '=', 'charge_order.customer_id')
 			->LeftJoin('port as p', 'p.port_id', '=', 'charge_order.port_id')
 			->LeftJoin('event as e', 'e.event_id', '=', 'charge_order.event_id')
@@ -71,7 +71,7 @@ class ChargeOrderController extends Controller
 		if (!empty($document_identity)) $data = $data->where('charge_order.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($document_date)) $data = $data->where('charge_order.document_date', '=',  $document_date);
 		if (!empty($ref_document_identity)) $data = $data->where('charge_order.ref_document_identity', 'like', '%' .  $ref_document_identity . '%');
-
+		if($is_deleted == true) $data = $data->where('charge_order.is_deleted',$is_deleted);
 		if (!empty($search)) {
 			$search = strtolower($search);
 			$data = $data->where(function ($query) use ($search) {

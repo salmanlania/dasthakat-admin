@@ -35,6 +35,7 @@ class PurchaseOrderController extends Controller
 		$vessel_id = $request->input('vessel_id', '');
 		$type = $request->input('type', '');
 		$status = $request->input('grn_status', '');
+		$is_deleted = $request->input('is_deleted',false);
 
 		$search = $request->input('search', '');
 		$page = $request->input('page', 1);
@@ -63,6 +64,7 @@ class PurchaseOrderController extends Controller
 		if (!empty($vessel_id)) $data->where('co.vessel_id', $vessel_id);
 		if (!empty($event_id)) $data->where('co.event_id', $event_id);
 		if (!empty($type)) $data->where('purchase_order.type', $type);
+		if($is_deleted == true) $data = $data->where('purchase_order.is_deleted',$is_deleted);
 
 		if (!empty($search)) {
 			$search = strtolower($search);
