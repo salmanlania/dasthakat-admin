@@ -406,6 +406,8 @@ $router->group(['prefix' => 'purchase-order'], function ($router) {
    $router->put('/{id}', 'PurchaseOrderController@update');
    $router->delete('/{id}', 'PurchaseOrderController@delete');
    $router->post('/bulk-delete', 'PurchaseOrderController@bulkDelete');
+   $router->post('/actions', 'PurchaseOrderController@actions');
+
 });
 
 $router->group(['prefix' => 'purchase-invoice'], function ($router) {

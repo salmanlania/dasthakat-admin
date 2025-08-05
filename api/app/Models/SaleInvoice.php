@@ -27,24 +27,27 @@ class SaleInvoice extends Model
         "charge_order_id",
         "total_quantity",
         "total_amount",
+        "total_discount",
+        "net_amount",
         "created_by",
         "updated_by"
     ];
     protected $casts = [
         'total_quantity' => 'float',
         'total_amount' => 'float',
+        'total_discount' => 'float',
+        'net_amount' => 'float',
     ];
 
-  
+
     public function sale_invoice_detail()
     {
-        return $this->hasMany(SaleInvoiceDetail::class, 'sale_invoice_id','sale_invoice_id')->orderBy('sort_order');
+        return $this->hasMany(SaleInvoiceDetail::class, 'sale_invoice_id', 'sale_invoice_id')->orderBy('sort_order');
     }
-   
-   
+
+
     public function charge_order()
     {
-        return $this->hasOne(ChargeOrder::class, 'charge_order_id','charge_order_id')->select('*');
+        return $this->hasOne(ChargeOrder::class, 'charge_order_id', 'charge_order_id')->select('*');
     }
-   
 }

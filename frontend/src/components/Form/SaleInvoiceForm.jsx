@@ -12,6 +12,7 @@ import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput'
 import DebounceInput from '../Input/DebounceInput';
 import { DetailSummaryInfo } from './QuotationForm';
 import SaleReturnModal from '../Modals/ReturnModal'
+import { formatThreeDigitCommas } from '../../utils/number';
 
 const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
@@ -89,6 +90,8 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
       const salesmanId = initialFormValues?.salesman_id || '';
       const quantity = initialFormValues?.totalQuantity || '';
       const amount = initialFormValues?.totalAmount || '';
+      // const totalDiscount = initialFormValues?.totalDiscount || '';
+      // const netAmount = initialFormValues?.netAmount || '';
       const customerPoNo = initialFormValues?.customer_po_no || '';
       const eventName = initialFormValues?.event_id || '';
       const vesselName = initialFormValues?.vessel_id || '';
@@ -104,6 +107,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
         salesman_id: salesmanId,
         totalQuantity: quantity,
         totalAmount: amount,
+ 
         customer_po_no: customerPoNo,
         event_id: eventName,
         vessel_id: vesselName,
@@ -277,6 +281,33 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
       ),
       width: 120
     },
+    {
+      title: 'Dis %',
+      dataIndex: 'discount_percent',
+      key: 'discount_percent',
+      render: (_, { discount_percent }) => (
+        <DebouncedCommaSeparatedInput value={discount_percent ? discount_percent + '' : '0'} disabled />
+      ),
+      width: 120
+    }, 
+    {
+      title: 'Discount Amt',
+      dataIndex: 'discount_amount',
+      key: 'discount_amount',
+      render: (_, { discount_amount }) => (
+        <DebouncedCommaSeparatedInput value={discount_amount ? discount_amount + '' : '0'} disabled />
+      ),
+      width: 120
+    },
+    {
+      title: 'Gross Amount',
+      dataIndex: 'gross_amount',
+      key: 'gross_amount',
+      render: (_, { gross_amount }) => (
+        <DebouncedCommaSeparatedInput value={gross_amount ? gross_amount + '' : ''} disabled />
+      ),
+      width: 120
+    },
   ];
 
   const saleReturnRows = selectedRows.filter(row =>
@@ -432,11 +463,19 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
             <Col span={24} sm={12} md={6} lg={6}>
               <DetailSummaryInfo
                 title="Total Quantity:"
-                value={totalQuantity || 0}
+                value={formatThreeDigitCommas(totalQuantity || 0)}
               />
               <DetailSummaryInfo
                 title="Total Amount:"
-                value={totalAmount || 0}
+                value={formatThreeDigitCommas(totalAmount || 0)}
+              />
+              <DetailSummaryInfo
+                title="Total Discount:"
+                value={formatThreeDigitCommas(initialFormValues?.totalDiscount || 0)}
+              />
+              <DetailSummaryInfo
+                title="Net Amount:"
+                value={formatThreeDigitCommas(initialFormValues?.netAmount || 0)}
               />
             </Col>
           </Row>

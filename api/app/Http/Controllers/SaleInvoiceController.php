@@ -198,6 +198,8 @@ class SaleInvoiceController extends Controller
 		// 5. Loop Through Charge Order Details
 		$totalQuantity = 0;
 		$totalAmount = 0;
+		$discountAmount = 0;
+		$grossAmount = 0;
 		$index = 0;
 		if ($chargeOrder->charge_order_detail) {
 
@@ -214,6 +216,9 @@ class SaleInvoiceController extends Controller
 					$amount = $detail->rate * $actualQty;
 					$totalQuantity += $actualQty;
 					$totalAmount += $amount;
+					$discountAmount += $detail->discount_amount ?? 0;
+					$grossAmount += ($amount -  $detail->discount_amount);
+
 
 					SaleInvoiceDetail::create([
 						'sale_invoice_detail_id'   => $this->get_uuid(),
@@ -228,6 +233,9 @@ class SaleInvoiceController extends Controller
 						'quantity'                 => $actualQty,
 						'rate'                     => $detail->rate,
 						'amount'                   => $amount,
+						'discount_amount'          => $detail->discount_amount,
+						'discount_percent'         => $detail->discount_percent,
+						'gross_amount'            => $detail->gross_amount,
 						'created_at'               => Carbon::now(),
 						'created_by'               => $request->login_user_id,
 					]);
@@ -237,6 +245,8 @@ class SaleInvoiceController extends Controller
 			// 6. Finalize Invoice
 			$invoiceData['total_quantity'] = $totalQuantity;
 			$invoiceData['total_amount']   = $totalAmount;
+			$invoiceData['total_discount'] = $discountAmount;
+			$invoiceData['net_amount']     = $grossAmount;
 		}
 
 		if ($totalQuantity > 0) {

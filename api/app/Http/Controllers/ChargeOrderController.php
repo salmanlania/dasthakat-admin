@@ -928,8 +928,8 @@ class ChargeOrderController extends Controller
 
 	public function actions(Request $request)
 	{
-		// if (!isPermission('cancel', 'charge_order', $request->permission_list))
-		// 	return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+		if (!isPermission('cancel', 'charge_order', $request->permission_list))
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
 		$is_deleted = $request->is_deleted ?? false;
 		$id = $request->id ;

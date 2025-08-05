@@ -237,6 +237,28 @@ class PurchaseOrderController extends Controller
 	}
 
 
+	public function actions(Request $request)
+	{
+		if (!isPermission('cancel', 'purchase_order', $request->permission_list))
+			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+
+		$is_deleted = $request->is_deleted ?? false;
+		$id = $request->id;
+
+		if (empty($id)) {
+			return $this->jsonResponse("No Purchase Order Selected!", 400, "Request Failed");
+		}
+
+
+		if (!GRN::where('purchase_order_id', $id)->exists() && $is_deleted) {
+
+			PurchaseOrder::where('purchase_order_id', $id)->update(['is_deleted' => 1]);
+			
+			return $this->jsonResponse("Purchase Order Cancelled Successfully!", 200, "Success");
+		}else{
+			return $this->jsonResponse("Cannot cancel Purchase Order with existing GRN!", 400, "Request Failed");
+		}
+	}
 
 	public function store(Request $request)
 	{
@@ -251,65 +273,65 @@ class PurchaseOrderController extends Controller
 
 		DB::beginTransaction();
 		try {
-		
-		$uuid = $this->get_uuid();
-		$document = DocumentType::getNextDocument($this->document_type_id, $request);
-		$insertArr = [
-			'company_id' => $request->company_id ?? "",
-			'company_branch_id' => $request->company_branch_id ?? "",
-			'purchase_order_id' => $uuid,
-			'document_type_id' => $document['document_type_id'] ?? "",
-			'document_no' => $document['document_no'] ?? "",
-			'document_prefix' => $document['document_prefix'] ?? "",
-			'document_identity' => $document['document_identity'] ?? "",
-			'document_date' => $request->document_date ?? "",
-			'required_date' => $request->required_date ?? "",
-			'supplier_id' => $request->supplier_id ?? "",
-			'buyer_id' => $request->buyer_id ?? "",
-			'ship_via' => $request->ship_via ?? "",
-			'ship_to' => $request->ship_to ?? "",
-			'department' => $request->department ?? "",
-			'type' => $request->type ?? "",
-			'quotation_id' => $request->quotation_id ?? "",
-			'charge_order_id' => $request->charge_order_id ?? "",
-			'payment_id' => $request->payment_id ?? "",
-			'remarks' => $request->remarks ?? "",
-			'total_quantity' => $request->total_quantity ?? "",
-			'total_amount' => $request->total_amount ?? "",
-			'created_at' => Carbon::now(),
-			'created_by' => $request->login_user_id,
-		];
-		PurchaseOrder::create($insertArr);
 
-		if ($request->purchase_order_detail) {
-			foreach ($request->purchase_order_detail as $key => $value) {
-				$detail_uuid = $this->get_uuid();
-				$insert = [
-					'purchase_order_id' => $insertArr['purchase_order_id'],
-					'purchase_order_detail_id' => $detail_uuid,
-					'sort_order' => $value['sort_order'] ?? "",
-					'product_id' => $value['product_id'] ?? "",
-					'product_type_id' => $value['product_type_id'] ?? "",
-					'product_name' => $value['product_name'] ?? "",
-					'product_description' => $value['product_description'] ?? "",
-					'description' => $value['description'] ?? "",
-					'vpart' => $value['vpart'] ?? "",
-					'unit_id' => $value['unit_id'] ?? "",
-					'supplier_id' => $value['supplier_id'] ?? "",
-					'quantity' => $value['quantity'] ?? "",
-					'rate' => $value['rate'] ?? "",
-					'amount' => $value['amount'] ?? "",
-					'vendor_notes' => $value['vendor_notes'] ?? "",
-					'created_at' => Carbon::now(),
-					'created_by' => $request->login_user_id,
-				];
+			$uuid = $this->get_uuid();
+			$document = DocumentType::getNextDocument($this->document_type_id, $request);
+			$insertArr = [
+				'company_id' => $request->company_id ?? "",
+				'company_branch_id' => $request->company_branch_id ?? "",
+				'purchase_order_id' => $uuid,
+				'document_type_id' => $document['document_type_id'] ?? "",
+				'document_no' => $document['document_no'] ?? "",
+				'document_prefix' => $document['document_prefix'] ?? "",
+				'document_identity' => $document['document_identity'] ?? "",
+				'document_date' => $request->document_date ?? "",
+				'required_date' => $request->required_date ?? "",
+				'supplier_id' => $request->supplier_id ?? "",
+				'buyer_id' => $request->buyer_id ?? "",
+				'ship_via' => $request->ship_via ?? "",
+				'ship_to' => $request->ship_to ?? "",
+				'department' => $request->department ?? "",
+				'type' => $request->type ?? "",
+				'quotation_id' => $request->quotation_id ?? "",
+				'charge_order_id' => $request->charge_order_id ?? "",
+				'payment_id' => $request->payment_id ?? "",
+				'remarks' => $request->remarks ?? "",
+				'total_quantity' => $request->total_quantity ?? "",
+				'total_amount' => $request->total_amount ?? "",
+				'created_at' => Carbon::now(),
+				'created_by' => $request->login_user_id,
+			];
+			PurchaseOrder::create($insertArr);
 
-				PurchaseOrderDetail::create($insert);
+			if ($request->purchase_order_detail) {
+				foreach ($request->purchase_order_detail as $key => $value) {
+					$detail_uuid = $this->get_uuid();
+					$insert = [
+						'purchase_order_id' => $insertArr['purchase_order_id'],
+						'purchase_order_detail_id' => $detail_uuid,
+						'sort_order' => $value['sort_order'] ?? "",
+						'product_id' => $value['product_id'] ?? "",
+						'product_type_id' => $value['product_type_id'] ?? "",
+						'product_name' => $value['product_name'] ?? "",
+						'product_description' => $value['product_description'] ?? "",
+						'description' => $value['description'] ?? "",
+						'vpart' => $value['vpart'] ?? "",
+						'unit_id' => $value['unit_id'] ?? "",
+						'supplier_id' => $value['supplier_id'] ?? "",
+						'quantity' => $value['quantity'] ?? "",
+						'rate' => $value['rate'] ?? "",
+						'amount' => $value['amount'] ?? "",
+						'vendor_notes' => $value['vendor_notes'] ?? "",
+						'created_at' => Carbon::now(),
+						'created_by' => $request->login_user_id,
+					];
+
+					PurchaseOrderDetail::create($insert);
+				}
 			}
-		}
 
-		DB::commit();
-		return $this->jsonResponse(['purchase_order_id' => $uuid], 200, "Add Purchase Order Successfully!");
+			DB::commit();
+			return $this->jsonResponse(['purchase_order_id' => $uuid], 200, "Add Purchase Order Successfully!");
 		} catch (\Exception $e) {
 			DB::rollBack(); // Rollback on error
 			Log::error('Purchase Order Store Error: ' . $e->getMessage());
@@ -329,115 +351,115 @@ class PurchaseOrderController extends Controller
 
 		DB::beginTransaction();
 		try {
-		$data  = PurchaseOrder::where('purchase_order_id', $id)->first();
-		$data->company_id = $request->company_id;
-		$data->company_branch_id = $request->company_branch_id;
-		$data->document_date = $request->document_date;
-		$data->required_date = $request->required_date;
-		$data->supplier_id = $request->supplier_id;
-		$data->buyer_id = $request->buyer_id;
-		$data->ship_via = $request->ship_via;
-		$data->ship_to = $request->ship_to;
-		$data->department = $request->department;
-		$data->type = $request->type;
-		$data->quotation_id = $request->quotation_id;
-		$data->charge_order_id = $request->charge_order_id;
-		$data->payment_id = $request->payment_id;
-		$data->remarks = $request->remarks;
-		$data->total_quantity = $request->total_quantity;
-		$data->total_amount = $request->total_amount;
-		$data->updated_at = Carbon::now();
-		$data->updated_by = $request->login_user_id;
+			$data  = PurchaseOrder::where('purchase_order_id', $id)->first();
+			$data->company_id = $request->company_id;
+			$data->company_branch_id = $request->company_branch_id;
+			$data->document_date = $request->document_date;
+			$data->required_date = $request->required_date;
+			$data->supplier_id = $request->supplier_id;
+			$data->buyer_id = $request->buyer_id;
+			$data->ship_via = $request->ship_via;
+			$data->ship_to = $request->ship_to;
+			$data->department = $request->department;
+			$data->type = $request->type;
+			$data->quotation_id = $request->quotation_id;
+			$data->charge_order_id = $request->charge_order_id;
+			$data->payment_id = $request->payment_id;
+			$data->remarks = $request->remarks;
+			$data->total_quantity = $request->total_quantity;
+			$data->total_amount = $request->total_amount;
+			$data->updated_at = Carbon::now();
+			$data->updated_by = $request->login_user_id;
 
-		if ($request->purchase_order_detail) {
-			$data->save();
-			foreach ($request->purchase_order_detail as $value) {
-				if ($value['row_status'] == 'I') {
-					$detail_uuid = $this->get_uuid();
-					$insert = [
-						'purchase_order_id' => $id,
-						'purchase_order_detail_id' => $detail_uuid,
-						'sort_order' => $value['sort_order'] ?? 0,
-						'product_id' => $value['product_id'] ?? "",
-						'product_type_id' => $value['product_type_id'] ?? "",
-						'charge_order_detail_id' => $value['charge_order_detail_id'] ?? "",
-						'product_name' => $value['product_name'] ?? "",
-						'product_description' => $value['product_description'] ?? "",
-						'description' => $value['description'] ?? "",
-						'vpart' => $value['vpart'] ?? "",
-						'unit_id' => $value['unit_id'] ?? "",
-						'quantity' => $value['quantity'] ?? "",
-						'rate' => $value['rate'] ?? "",
-						'amount' => $value['amount'] ?? "",
-						'vendor_notes' => $value['vendor_notes'] ?? "",
-						'created_at' => Carbon::now(),
-						'created_by' => $request->login_user_id,
-					];
-					PurchaseOrderDetail::create($insert);
-				}
-				if ($value['row_status'] == 'U') {
-					$update = [
-						'sort_order' => $value['sort_order'] ?? 0,
-						'product_id' => $value['product_id'] ?? "",
-						'product_type_id' => $value['product_type_id'] ?? "",
-						'charge_order_detail_id' => $value['charge_order_detail_id'] ?? "",
-						'product_name' => $value['product_name'] ?? "",
-						'product_description' => $value['product_description'] ?? "",
-						'description' => $value['description'] ?? "",
-						'vpart' => $value['vpart'] ?? "",
-						'unit_id' => $value['unit_id'] ?? "",
-						'quantity' => $value['quantity'] ?? "",
-						'rate' => $value['rate'] ?? "",
-						'amount' => $value['amount'] ?? "",
-						'vendor_notes' => $value['vendor_notes'] ?? "",
-						'updated_at' => Carbon::now(),
-						'updated_by' => $request->login_user_id,
-					];
-					PurchaseOrderDetail::where('purchase_order_detail_id', $value['purchase_order_detail_id'])->update($update);
+			if ($request->purchase_order_detail) {
+				$data->save();
+				foreach ($request->purchase_order_detail as $value) {
+					if ($value['row_status'] == 'I') {
+						$detail_uuid = $this->get_uuid();
+						$insert = [
+							'purchase_order_id' => $id,
+							'purchase_order_detail_id' => $detail_uuid,
+							'sort_order' => $value['sort_order'] ?? 0,
+							'product_id' => $value['product_id'] ?? "",
+							'product_type_id' => $value['product_type_id'] ?? "",
+							'charge_order_detail_id' => $value['charge_order_detail_id'] ?? "",
+							'product_name' => $value['product_name'] ?? "",
+							'product_description' => $value['product_description'] ?? "",
+							'description' => $value['description'] ?? "",
+							'vpart' => $value['vpart'] ?? "",
+							'unit_id' => $value['unit_id'] ?? "",
+							'quantity' => $value['quantity'] ?? "",
+							'rate' => $value['rate'] ?? "",
+							'amount' => $value['amount'] ?? "",
+							'vendor_notes' => $value['vendor_notes'] ?? "",
+							'created_at' => Carbon::now(),
+							'created_by' => $request->login_user_id,
+						];
+						PurchaseOrderDetail::create($insert);
+					}
+					if ($value['row_status'] == 'U') {
+						$update = [
+							'sort_order' => $value['sort_order'] ?? 0,
+							'product_id' => $value['product_id'] ?? "",
+							'product_type_id' => $value['product_type_id'] ?? "",
+							'charge_order_detail_id' => $value['charge_order_detail_id'] ?? "",
+							'product_name' => $value['product_name'] ?? "",
+							'product_description' => $value['product_description'] ?? "",
+							'description' => $value['description'] ?? "",
+							'vpart' => $value['vpart'] ?? "",
+							'unit_id' => $value['unit_id'] ?? "",
+							'quantity' => $value['quantity'] ?? "",
+							'rate' => $value['rate'] ?? "",
+							'amount' => $value['amount'] ?? "",
+							'vendor_notes' => $value['vendor_notes'] ?? "",
+							'updated_at' => Carbon::now(),
+							'updated_by' => $request->login_user_id,
+						];
+						PurchaseOrderDetail::where('purchase_order_detail_id', $value['purchase_order_detail_id'])->update($update);
 
-					// Update Charge Order Detail if linked
-					if (!empty($value['charge_order_detail_id'])) {
-						$chargeOrderDetail = ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id']);
-						$data = $chargeOrderDetail->first();
-						$quantity = $value['quantity'] ?? 0;
-						$rate = $data->rate ?? 0;
-						$amount = $quantity * $rate;
-						$discount_percent = $data->discount_percent ?? 0;
-						$discount_amount = ($amount * $discount_percent) / 100;
-						$gross_amount = $amount - $discount_amount;
+						// Update Charge Order Detail if linked
+						if (!empty($value['charge_order_detail_id'])) {
+							$chargeOrderDetail = ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id']);
+							$data = $chargeOrderDetail->first();
+							$quantity = $value['quantity'] ?? 0;
+							$rate = $data->rate ?? 0;
+							$amount = $quantity * $rate;
+							$discount_percent = $data->discount_percent ?? 0;
+							$discount_amount = ($amount * $discount_percent) / 100;
+							$gross_amount = $amount - $discount_amount;
 
-						$chargeOrderDetail->update([
-							'quantity' => $quantity,
-							'rate' => $rate,
-							'amount' => $amount,
-							'discount_percent' => $discount_percent,
-							'discount_amount' => $discount_amount,
-							'gross_amount' => $gross_amount
-						]);
+							$chargeOrderDetail->update([
+								'quantity' => $quantity,
+								'rate' => $rate,
+								'amount' => $amount,
+								'discount_percent' => $discount_percent,
+								'discount_amount' => $discount_amount,
+								'gross_amount' => $gross_amount
+							]);
+						}
+					}
+					if ($value['row_status'] == 'D') {
+						PurchaseOrderDetail::where('purchase_order_detail_id', $value['purchase_order_detail_id'])->delete();
 					}
 				}
-				if ($value['row_status'] == 'D') {
-					PurchaseOrderDetail::where('purchase_order_detail_id', $value['purchase_order_detail_id'])->delete();
+				if (!empty($request->charge_order_id)) {
+					$data = ChargeOrder::where('charge_order_id', $request->charge_order_id)->first();
+					$detail = ChargeOrderDetail::where('charge_order_id', $request->charge_order_id);
+					$data->total_quantity = $detail->sum('quantity');
+					$data->total_amount = $detail->sum('amount');
+					$data->discount_amount = $detail->sum('discount_amount');
+					$data->net_amount = $detail->sum('gross_amount');
+					$data->update();
 				}
 			}
-			if (!empty($request->charge_order_id)) {
-				$data = ChargeOrder::where('charge_order_id', $request->charge_order_id)->first();
-				$detail = ChargeOrderDetail::where('charge_order_id', $request->charge_order_id);
-				$data->total_quantity = $detail->sum('quantity');
-				$data->total_amount = $detail->sum('amount');
-				$data->discount_amount = $detail->sum('discount_amount');
-				$data->net_amount = $detail->sum('gross_amount');
-				$data->update();
-			}
-		}
-		DB::commit();
+			DB::commit();
 
-		return $this->jsonResponse(['purchase_order_id' => $id], 200, "Update Purchase Order Successfully!");
-	} catch (\Exception $e) {
-		DB::rollBack(); // Rollback on error
-		Log::error('Purchase Order Updating Error: ' . $e->getMessage());
-		return $this->jsonResponse("Something went wrong while updating Purchase Order.", 500, "Transaction Failed");
-	}
+			return $this->jsonResponse(['purchase_order_id' => $id], 200, "Update Purchase Order Successfully!");
+		} catch (\Exception $e) {
+			DB::rollBack(); // Rollback on error
+			Log::error('Purchase Order Updating Error: ' . $e->getMessage());
+			return $this->jsonResponse("Something went wrong while updating Purchase Order.", 500, "Transaction Failed");
+		}
 	}
 	public function delete($id, Request $request)
 	{
