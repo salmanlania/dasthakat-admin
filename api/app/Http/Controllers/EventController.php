@@ -203,6 +203,7 @@ class EventController extends Controller
             //         ELSE event.status -- Keep existing status for values other than 0 or 1
             //     END AS computed_status
             // "),
+			"e.status as computed_status",
             DB::raw("CONCAT(event.event_code, ' (', v.name, ')') as event_name"),
             'c.name as customer_name',
             'v.name as vessel_name',
