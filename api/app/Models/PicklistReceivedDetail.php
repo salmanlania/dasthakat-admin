@@ -32,6 +32,12 @@ class PicklistReceivedDetail extends Model
     {
         return $this->belongsTo(PicklistDetail::class, 'picklist_detail_id', 'picklist_detail_id')->select('*');
     }
+    
+    public function picklist_received()
+    {
+        return $this->belongsTo(PicklistReceived::class, 'picklist_received_id', 'picklist_received_id')->select('*');
+    }
+
     public function charge_order_detail()
     {
         return $this->belongsTo(ChargeOrderDetail::class, 'charge_order_detail_id', 'charge_order_detail_id')->select('*');
