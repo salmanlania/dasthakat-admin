@@ -959,7 +959,7 @@ class ChargeOrderController extends Controller
 			JobOrderDetail::where('charge_order_id', $id)->update(['is_deleted' => 1]);
 			return $this->jsonResponse("Charge Order Cancelled Successfully!", 200, "Success");
 		}else{
-			return $this->jsonResponse("Charge Order cannot be deleted as it has Shipment Details!", 400, "Request Failed");
+			return $this->jsonResponse("Charge Order cannot be deleted as it has Shipment Details!", 400, "Charge Order cannot be deleted as it has Shipment Details!");
 		}
 	}
 	public function update(Request $request, $id)
