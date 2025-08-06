@@ -106,7 +106,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   ].filter(Boolean);
 
   const billTo = doc.splitTextToSize(customerInfo.join('\n'), boxWidth);
-  const billToHeight = billTo.length * 5;
+  const billToHeight = billTo.length * 4;
 
   // Ship To content
   const vesselInfo = [
@@ -116,7 +116,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   ].filter(Boolean).join('\n');
 
   const shipTo = doc.splitTextToSize(vesselInfo, boxWidth);
-  const shipToHeight = shipTo.length * 5;
+  const shipToHeight = shipTo.length * 4;
 
   // Determine max height to equalize box height
   const contentY = 42;
@@ -129,16 +129,18 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   doc.rect(boxX2 - 2, contentY, boxWidth + 4, maxBoxHeight + 4);
   doc.text(shipTo, boxX2, contentY + 4);
 
+  const invoiceY = contentY + 40
+
   // ESTIMATE
   doc.setFontSize(26);
   doc.setFont('times', 'bold');
-  doc.text('INVOICE', pageWidth / 2, 76, {
+  doc.text('INVOICE', pageWidth / 2, invoiceY, {
     align: 'center'
   });
   doc.setDrawColor(32, 50, 114);
   doc.setLineWidth(0.6);
   // doc.line(pageWidth / 2 + 16, 64, 89, 64);
-  doc.line(pageWidth / 2 - doc.getTextWidth('INVOICE') / 2, 78, pageWidth / 2 + doc.getTextWidth('INVOICE') / 2, 78);
+  doc.line(pageWidth / 2 - doc.getTextWidth('INVOICE') / 2, invoiceY + 2, pageWidth / 2 + doc.getTextWidth('INVOICE') / 2, invoiceY + 2);
 
   doc.setFont('times', 'normal');
   doc.setFontSize(10);
@@ -184,7 +186,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   ];
 
   doc.autoTable({
-    startY: 82,
+    startY: invoiceY + 8,
     head: [table1Column],
     body: table1Rows,
     margin: { left: sideMargin, right: sideMargin, bottom: 27 },
@@ -277,11 +279,11 @@ export const createSaleInvoicePrint = async (data) => {
     });
   }
 
-  const filledRows = fillEmptyRows(table2Rows, 11, descriptions.length + 1);
+  const filledRows = fillEmptyRows(table2Rows, 10, descriptions.length + 1);
 
   // Adding Table
   doc.autoTable({
-    startY: 106,
+    startY: 110,
     head: [table2Column],
     body: filledRows,
     margin: { left: sideMargin, right: sideMargin, bottom: 2, top: 106 },
