@@ -58,6 +58,10 @@ class ChargeOrder extends Model
     {
         return $this->hasMany(ChargeOrderDetail::class, 'charge_order_id', 'charge_order_id')->orderBy('sort_order');
     }
+    public function shipmentDetail()
+    {
+        return $this->hasMany(ShipmentDetail::class, 'charge_order_id', 'charge_order_id')->orderBy('sort_order');
+    }
     public function quotation()
     {
         return $this->hasOne(Quotation::class, 'document_identity', 'ref_document_identity');

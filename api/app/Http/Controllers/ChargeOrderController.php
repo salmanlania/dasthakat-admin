@@ -42,8 +42,112 @@ class ChargeOrderController extends Controller
 	protected $document_type_id = 39;
 	protected $db;
 
+	// public function index(Request $request)
+	// {
+	// 	$customer_id = $request->input('customer_id', '');
+	// 	$port_id = $request->input('port_id', '');
+	// 	$document_identity = $request->input('document_identity', '');
+	// 	$ref_document_identity = $request->input('ref_document_identity', '');
+	// 	$document_date = $request->input('document_date', '');
+	// 	$vessel_id = $request->input('vessel_id', '');
+	// 	$event_id = $request->input('event_id', '');
+	// 	$search = $request->input('search', '');
+	// 	$page =  $request->input('page', 1);
+	// 	$perPage =  $request->input('limit', 10);
+	// 	$sort_column = $request->input('sort_column', 'charge_order.created_at');
+	// 	$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
+	// 	$is_deleted = $request->input('is_deleted',false);
+	// 	$data = ChargeOrder::LeftJoin('customer as c', 'c.customer_id', '=', 'charge_order.customer_id')
+	// 		->LeftJoin('port as p', 'p.port_id', '=', 'charge_order.port_id')
+	// 		->LeftJoin('event as e', 'e.event_id', '=', 'charge_order.event_id')
+	// 		->LeftJoin('vessel as v', 'v.vessel_id', '=', 'charge_order.vessel_id');
+	// 	$data = $data->where('charge_order.company_id', '=', $request->company_id);
+	// 	$data = $data->where('charge_order.company_branch_id', '=', $request->company_branch_id);
+
+	// 	if (!empty($port_id)) $data = $data->where('charge_order.port_id', '=',  $port_id);
+	// 	if (!empty($customer_id)) $data = $data->where('charge_order.customer_id', '=',  $customer_id);
+	// 	if (!empty($vessel_id)) $data = $data->where('charge_order.vessel_id', '=',  $vessel_id);
+	// 	if (!empty($event_id)) $data = $data->where('charge_order.event_id', '=',  $event_id);
+	// 	if (!empty($document_identity)) $data = $data->where('charge_order.document_identity', 'like', '%' . $document_identity . '%');
+	// 	if (!empty($document_date)) $data = $data->where('charge_order.document_date', '=',  $document_date);
+	// 	if (!empty($ref_document_identity)) $data = $data->where('charge_order.ref_document_identity', 'like', '%' .  $ref_document_identity . '%');
+	// 	if($is_deleted == true) $data = $data->where('charge_order.is_deleted',$is_deleted);
+	// 	if (!empty($search)) {
+	// 		$search = strtolower($search);
+	// 		$data = $data->where(function ($query) use ($search) {
+	// 			$query
+	// 				->where('p.name', 'like', '%' . $search . '%')
+	// 				->where('c.name', 'like', '%' . $search . '%')
+	// 				->OrWhere('v.name', 'like', '%' . $search . '%')
+	// 				->OrWhere('ref_document_identity', 'like', '%' . $search . '%')
+	// 				->OrWhere('e.event_code', 'like', '%' . $search . '%')
+	// 				->OrWhere('charge_order.document_identity', 'like', '%' . $search . '%');
+	// 		});
+	// 	}
+
+	// 	$data = $data->select(
+	// 		"charge_order.*",
+	// 		"e.event_code",
+	// 		DB::raw("CONCAT(e.event_code, ' (',
+	//             CASE
+	//                 WHEN e.status IN (0, 1) THEN (
+	//                     CASE
+	//                         WHEN e.status = 1 THEN (
+	//                             CASE
+	//                                 WHEN (
+	//                                     -- Check if any shipments exist for the event
+	//                                     SELECT COUNT(*)
+	//                                     FROM shipment s
+	//                                     WHERE s.event_id = e.event_id
+	//                                 ) = 0 THEN 'Active' -- No shipments exist (available)
+	//                                 WHEN (
+	//                                     -- Check if all charge orders have complete shipments
+	//                                     SELECT COUNT(*)
+	//                                     FROM charge_order co
+	//                                     LEFT JOIN (
+	//                                         SELECT co2.charge_order_id AS charge_order_id,
+	//                                                COUNT(cod.charge_order_detail_id) AS total_details,
+	//                                                SUM(CASE
+	//                                                    WHEN sd.quantity = cod.quantity THEN 1
+	//                                                    ELSE 0
+	//                                                END) AS matched_details
+	//                                         FROM charge_order co2
+	//                                         JOIN charge_order_detail cod ON co2.charge_order_id = cod.charge_order_id
+	//                                         LEFT JOIN shipment s ON s.event_id = co2.event_id
+	//                                         LEFT JOIN shipment_detail sd ON s.shipment_id = sd.shipment_id
+	//                                             AND sd.charge_order_id = cod.charge_order_id
+	//                                             AND sd.charge_order_detail_id = cod.charge_order_detail_id
+	//                                         WHERE co2.event_id = e.event_id
+	//                                         GROUP BY co2.charge_order_id
+	//                                         HAVING total_details = matched_details
+	//                                     ) AS shipment_status ON co.charge_order_id = shipment_status.charge_order_id
+	//                                     WHERE co.event_id = e.event_id
+	//                                     GROUP BY co.event_id
+	//                                     HAVING COUNT(co.charge_order_id) = SUM(CASE WHEN shipment_status.charge_order_id IS NOT NULL THEN 1 ELSE 0 END)
+	//                                 ) > 0 THEN 'Complete' -- All charge orders have complete shipments (complete)
+	//                                 ELSE 'Partial' -- Not all shipments complete (partial)
+	//                             END
+	//                         )
+	//                         ELSE 'Inactive' -- Status is 0, keep it unchanged (inactive)
+	//                     END
+	//                 )
+	//                 ELSE e.status -- Keep existing status for values other than 0 or 1
+	//             END, ')') AS event_code
+	//         "),
+	// 		"c.name as customer_name",
+	// 		"v.name as vessel_name",
+	// 		"p.name as port_name"
+	// 	);
+	// 	$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
+
+	// 	return response()->json($data);
+	// }
+
+	// attemp 2
+
 	public function index(Request $request)
 	{
+		// Input validation and sanitization
 		$customer_id = $request->input('customer_id', '');
 		$port_id = $request->input('port_id', '');
 		$document_identity = $request->input('document_identity', '');
@@ -52,96 +156,508 @@ class ChargeOrderController extends Controller
 		$vessel_id = $request->input('vessel_id', '');
 		$event_id = $request->input('event_id', '');
 		$search = $request->input('search', '');
-		$page =  $request->input('page', 1);
-		$perPage =  $request->input('limit', 10);
+		$page = $request->input('page', 1);
+		$perPage = $request->input('limit', 10);
 		$sort_column = $request->input('sort_column', 'charge_order.created_at');
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
-		$is_deleted = $request->input('is_deleted',false);
-		$data = ChargeOrder::LeftJoin('customer as c', 'c.customer_id', '=', 'charge_order.customer_id')
-			->LeftJoin('port as p', 'p.port_id', '=', 'charge_order.port_id')
-			->LeftJoin('event as e', 'e.event_id', '=', 'charge_order.event_id')
-			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'charge_order.vessel_id');
-		$data = $data->where('charge_order.company_id', '=', $request->company_id);
-		$data = $data->where('charge_order.company_branch_id', '=', $request->company_branch_id);
+		$is_deleted = $request->input('is_deleted', false);
 
-		if (!empty($port_id)) $data = $data->where('charge_order.port_id', '=',  $port_id);
-		if (!empty($customer_id)) $data = $data->where('charge_order.customer_id', '=',  $customer_id);
-		if (!empty($vessel_id)) $data = $data->where('charge_order.vessel_id', '=',  $vessel_id);
-		if (!empty($event_id)) $data = $data->where('charge_order.event_id', '=',  $event_id);
-		if (!empty($document_identity)) $data = $data->where('charge_order.document_identity', 'like', '%' . $document_identity . '%');
-		if (!empty($document_date)) $data = $data->where('charge_order.document_date', '=',  $document_date);
-		if (!empty($ref_document_identity)) $data = $data->where('charge_order.ref_document_identity', 'like', '%' .  $ref_document_identity . '%');
-		if($is_deleted == true) $data = $data->where('charge_order.is_deleted',$is_deleted);
-		if (!empty($search)) {
-			$search = strtolower($search);
-			$data = $data->where(function ($query) use ($search) {
-				$query
-					->where('p.name', 'like', '%' . $search . '%')
-					->where('c.name', 'like', '%' . $search . '%')
-					->OrWhere('v.name', 'like', '%' . $search . '%')
-					->OrWhere('ref_document_identity', 'like', '%' . $search . '%')
-					->OrWhere('e.event_code', 'like', '%' . $search . '%')
-					->OrWhere('charge_order.document_identity', 'like', '%' . $search . '%');
-			});
+		// Validate pagination parameters
+		$page = max(1, (int)$page);
+		$perPage = min(100, max(1, (int)$perPage)); // Limit max results per page
+
+		// Validate sort column to prevent SQL injection
+		$allowedSortColumns = [
+			'charge_order.created_at',
+			'charge_order.document_identity',
+			'charge_order.document_date',
+			'c.name',
+			'v.name',
+			'p.name'
+		];
+		if (!in_array($sort_column, $allowedSortColumns)) {
+			$sort_column = 'charge_order.created_at';
 		}
 
-		$data = $data->select(
-			"charge_order.*",
-			// DB::raw("CONCAT(e.event_code, ' (',
-            //     CASE
-            //         WHEN e.status IN (0, 1) THEN (
-            //             CASE
-            //                 WHEN e.status = 1 THEN (
-            //                     CASE
-            //                         WHEN (
-            //                             -- Check if any shipments exist for the event
-            //                             SELECT COUNT(*)
-            //                             FROM shipment s
-            //                             WHERE s.event_id = e.event_id
-            //                         ) = 0 THEN 'Active' -- No shipments exist (available)
-            //                         WHEN (
-            //                             -- Check if all charge orders have complete shipments
-            //                             SELECT COUNT(*)
-            //                             FROM charge_order co
-            //                             LEFT JOIN (
-            //                                 SELECT co2.charge_order_id AS charge_order_id,
-            //                                        COUNT(cod.charge_order_detail_id) AS total_details,
-            //                                        SUM(CASE
-            //                                            WHEN sd.quantity = cod.quantity THEN 1
-            //                                            ELSE 0
-            //                                        END) AS matched_details
-            //                                 FROM charge_order co2
-            //                                 JOIN charge_order_detail cod ON co2.charge_order_id = cod.charge_order_id
-            //                                 LEFT JOIN shipment s ON s.event_id = co2.event_id
-            //                                 LEFT JOIN shipment_detail sd ON s.shipment_id = sd.shipment_id
-            //                                     AND sd.charge_order_id = cod.charge_order_id
-            //                                     AND sd.charge_order_detail_id = cod.charge_order_detail_id
-            //                                 WHERE co2.event_id = e.event_id
-            //                                 GROUP BY co2.charge_order_id
-            //                                 HAVING total_details = matched_details
-            //                             ) AS shipment_status ON co.charge_order_id = shipment_status.charge_order_id
-            //                             WHERE co.event_id = e.event_id
-            //                             GROUP BY co.event_id
-            //                             HAVING COUNT(co.charge_order_id) = SUM(CASE WHEN shipment_status.charge_order_id IS NOT NULL THEN 1 ELSE 0 END)
-            //                         ) > 0 THEN 'Complete' -- All charge orders have complete shipments (complete)
-            //                         ELSE 'Partial' -- Not all shipments complete (partial)
-            //                     END
-            //                 )
-            //                 ELSE 'Inactive' -- Status is 0, keep it unchanged (inactive)
-            //             END
-            //         )
-            //         ELSE e.status -- Keep existing status for values other than 0 or 1
-            //     END, ')') AS event_code
-            // "),
-			"e.event_code",
-			"c.name as customer_name",
-			"v.name as vessel_name",
-			"p.name as port_name"
-		);
-		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
+		// Check if required company parameters exist
+		if (!$request->has('company_id') || !$request->has('company_branch_id')) {
+			return response()->json(['error' => 'Company ID and Branch ID are required'], 400);
+		}
 
-		return response()->json($data);
+		try {
+			// Build the base query with proper join syntax
+			$data = ChargeOrder::leftJoin('customer as c', 'c.customer_id', '=', 'charge_order.customer_id')
+				->leftJoin('port as p', 'p.port_id', '=', 'charge_order.port_id')
+				->leftJoin('event as e', 'e.event_id', '=', 'charge_order.event_id')
+				->leftJoin('vessel as v', 'v.vessel_id', '=', 'charge_order.vessel_id');
+
+			// Apply company filters
+			$data = $data->where('charge_order.company_id', '=', $request->company_id);
+			$data = $data->where('charge_order.company_branch_id', '=', $request->company_branch_id);
+
+			// Apply filters only if values are not empty
+			if (!empty($port_id)) {
+				$data = $data->where('charge_order.port_id', '=', $port_id);
+			}
+			if (!empty($customer_id)) {
+				$data = $data->where('charge_order.customer_id', '=', $customer_id);
+			}
+			if (!empty($vessel_id)) {
+				$data = $data->where('charge_order.vessel_id', '=', $vessel_id);
+			}
+			if (!empty($event_id)) {
+				$data = $data->where('charge_order.event_id', '=', $event_id);
+			}
+			if (!empty($document_identity)) {
+				$data = $data->where('charge_order.document_identity', 'like', '%' . $document_identity . '%');
+			}
+			if (!empty($document_date)) {
+				$data = $data->whereDate('charge_order.document_date', '=', $document_date);
+			}
+			if (!empty($ref_document_identity)) {
+				$data = $data->where('charge_order.ref_document_identity', 'like', '%' . $ref_document_identity . '%');
+			}
+
+			// Fix boolean comparison
+			if ($is_deleted === true || $is_deleted === 'true' || $is_deleted === 1 || $is_deleted === '1') {
+				$data = $data->where('charge_order.is_deleted', true);
+			}
+
+			// Fix search query logic - use orWhere properly within a where group
+			if (!empty($search)) {
+				$search = strtolower($search);
+				$data = $data->where(function ($query) use ($search) {
+					$query->where('p.name', 'like', '%' . $search . '%')
+						->orWhere('c.name', 'like', '%' . $search . '%')
+						->orWhere('v.name', 'like', '%' . $search . '%')
+						->orWhere('charge_order.ref_document_identity', 'like', '%' . $search . '%')
+						->orWhere('e.event_code', 'like', '%' . $search . '%')
+						->orWhere('charge_order.document_identity', 'like', '%' . $search . '%');
+				});
+			}
+
+			// Get basic data first
+			$data = $data->select(
+				"charge_order.*",
+				"e.event_code as raw_event_code",
+				"e.status as event_status",
+				"c.name as customer_name",
+				"v.name as vessel_name",
+				"p.name as port_name"
+			);
+
+			// Execute query with pagination
+			$result = $data->orderBy($sort_column, $sort_direction)
+				->paginate($perPage, ['*'], 'page', $page);
+
+			// Process event_code logic in PHP after fetching data
+			$result->getCollection()->transform(function ($item) {
+				$statusText = $this->calculateEventStatus($item->event_status, $item->event_id);
+				$item->event_code = $item->raw_event_code . ' (' . $statusText . ')';
+				unset($item->raw_event_code); // Clean up temporary field
+				return $item;
+			});
+
+			return json_encode($result);
+		} catch (\Exception $e) {
+			// Log the error for debugging
+			Log::error('Error in ChargeOrder index method: ' . $e->getMessage());
+
+			return response()->json([
+				'success' => false,
+				'error' => 'An error occurred while fetching data'
+			], 500);
+		}
 	}
+
+	/**
+	 * Calculate event status based on business logic
+	 * This replaces the complex subquery with PHP logic
+	 */
+	private function calculateEventStatus($status, $eventId)
+	{
+		// Handle basic status cases
+		if ($status == 0) {
+			return 'Inactive';
+		}
+
+		if ($status != 1) {
+			return (string) $status; // Return as string for other status values
+		}
+
+		// For status = 1, we need to check shipment completeness
+		// Get all charge orders for this event
+		$chargeOrders = ChargeOrder::where('event_id', $eventId)
+			->with(['charge_order_detail', 'shipmentDetail'])
+			->get();
+
+		if ($chargeOrders->isEmpty()) {
+			return 'Active';
+		}
+
+		// Check if any shipments exist for this event
+		$hasShipments = DB::table('shipment')
+			->where('event_id', $eventId)
+			->exists();
+
+		if (!$hasShipments) {
+			return 'Active'; // No shipments exist
+		}
+
+		// Check completion status of all charge orders
+		$totalChargeOrders = $chargeOrders->count();
+		$completeChargeOrders = 0;
+
+		foreach ($chargeOrders as $chargeOrder) {
+			if ($this->isChargeOrderComplete($chargeOrder)) {
+				$completeChargeOrders++;
+			}
+		}
+
+		// Determine final status
+		if ($completeChargeOrders == 0) {
+			return 'Active'; // No completed charge orders
+		} elseif ($completeChargeOrders == $totalChargeOrders) {
+			return 'Complete'; // All charge orders complete
+		} else {
+			return 'Partial'; // Some charge orders complete
+		}
+	}
+
+	/**
+	 * Check if a charge order is complete by comparing with shipment details
+	 */
+	private function isChargeOrderComplete($chargeOrder)
+	{
+		// Get all details for this charge order
+		$chargeOrderDetails = DB::table('charge_order_detail')
+			->where('charge_order_id', $chargeOrder->charge_order_id)
+			->get();
+
+		if ($chargeOrderDetails->isEmpty()) {
+			return true; // No details means complete
+		}
+
+		// Check if all details have matching shipment quantities
+		foreach ($chargeOrderDetails as $detail) {
+			$shipmentDetail = DB::table('shipment_detail')
+				->join('shipment', 'shipment.shipment_id', '=', 'shipment_detail.shipment_id')
+				->where('shipment.event_id', $chargeOrder->event_id)
+				->where('shipment_detail.charge_order_id', $detail->charge_order_id)
+				->where('shipment_detail.charge_order_detail_id', $detail->charge_order_detail_id)
+				->first();
+
+			if (!$shipmentDetail || $shipmentDetail->quantity != $detail->quantity) {
+				return false; // This detail is not complete
+			}
+		}
+
+		return true; // All details are complete
+	}
+	// attempt3
+	// public function index(Request $request)
+	// {
+	// 	// Input validation and sanitization
+	// 	$customer_id = $request->input('customer_id', '');
+	// 	$port_id = $request->input('port_id', '');
+	// 	$document_identity = $request->input('document_identity', '');
+	// 	$ref_document_identity = $request->input('ref_document_identity', '');
+	// 	$document_date = $request->input('document_date', '');
+	// 	$vessel_id = $request->input('vessel_id', '');
+	// 	$event_id = $request->input('event_id', '');
+	// 	$search = $request->input('search', '');
+
+	// 	// Additional filters for computed fields
+	// 	$event_status_filter = $request->input('event_status_filter', ''); // Filter by Active/Inactive/Complete/Partial
+
+	// 	$page = $request->input('page', 1);
+	// 	$perPage = $request->input('limit', 10);
+	// 	$sort_column = $request->input('sort_column', 'charge_order.created_at');
+	// 	$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
+	// 	$is_deleted = $request->input('is_deleted', false);
+
+	// 	// Validate pagination parameters
+	// 	$page = max(1, (int)$page);
+	// 	$perPage = min(100, max(1, (int)$perPage)); // Limit max results per page
+
+	// 	// Validate sort column to prevent SQL injection
+	// 	$allowedSortColumns = [
+	// 		'charge_order.created_at',
+	// 		'charge_order.document_identity',
+	// 		'charge_order.document_date',
+	// 		'c.name',
+	// 		'v.name',
+	// 		'p.name',
+	// 		'e.event_code',
+	// 		'event_code' // For computed event_code sorting
+	// 	];
+	// 	if (!in_array($sort_column, $allowedSortColumns)) {
+	// 		$sort_column = 'charge_order.created_at';
+	// 	}
+
+	// 	// Determine if we need to sort by computed event_code
+	// 	$sortByEventCode = ($sort_column === 'event_code');
+
+	// 	// If sorting by computed field, use a sortable field for initial query
+	// 	$actualSortColumn = $sortByEventCode ? 'e.event_code' : $sort_column;
+
+	// 	// Check if required company parameters exist
+	// 	if (!$request->has('company_id') || !$request->has('company_branch_id')) {
+	// 		return response()->json(['error' => 'Company ID and Branch ID are required'], 400);
+	// 	}
+
+	// 	try {
+	// 		// Build the base query with proper join syntax
+	// 		$data = ChargeOrder::leftJoin('customer as c', 'c.customer_id', '=', 'charge_order.customer_id')
+	// 			->leftJoin('port as p', 'p.port_id', '=', 'charge_order.port_id')
+	// 			->leftJoin('event as e', 'e.event_id', '=', 'charge_order.event_id')
+	// 			->leftJoin('vessel as v', 'v.vessel_id', '=', 'charge_order.vessel_id');
+
+	// 		// Apply company filters
+	// 		$data = $data->where('charge_order.company_id', '=', $request->company_id);
+	// 		$data = $data->where('charge_order.company_branch_id', '=', $request->company_branch_id);
+
+	// 		// Apply filters only if values are not empty
+	// 		if (!empty($port_id)) {
+	// 			$data = $data->where('charge_order.port_id', '=', $port_id);
+	// 		}
+	// 		if (!empty($customer_id)) {
+	// 			$data = $data->where('charge_order.customer_id', '=', $customer_id);
+	// 		}
+	// 		if (!empty($vessel_id)) {
+	// 			$data = $data->where('charge_order.vessel_id', '=', $vessel_id);
+	// 		}
+	// 		if (!empty($event_id)) {
+	// 			$data = $data->where('charge_order.event_id', '=', $event_id);
+	// 		}
+	// 		if (!empty($document_identity)) {
+	// 			$data = $data->where('charge_order.document_identity', 'like', '%' . $document_identity . '%');
+	// 		}
+	// 		if (!empty($document_date)) {
+	// 			$data = $data->whereDate('charge_order.document_date', '=', $document_date);
+	// 		}
+	// 		if (!empty($ref_document_identity)) {
+	// 			$data = $data->where('charge_order.ref_document_identity', 'like', '%' . $ref_document_identity . '%');
+	// 		}
+
+	// 		// Fix boolean comparison
+	// 		if ($is_deleted === true || $is_deleted === 'true' || $is_deleted === 1 || $is_deleted === '1') {
+	// 			$data = $data->where('charge_order.is_deleted', true);
+	// 		}
+
+	// 		// Fix search query logic - use orWhere properly within a where group
+	// 		if (!empty($search)) {
+	// 			$search = strtolower($search);
+	// 			$data = $data->where(function ($query) use ($search) {
+	// 				$query->where('p.name', 'like', '%' . $search . '%')
+	// 					->orWhere('c.name', 'like', '%' . $search . '%')
+	// 					->orWhere('v.name', 'like', '%' . $search . '%')
+	// 					->orWhere('charge_order.ref_document_identity', 'like', '%' . $search . '%')
+	// 					->orWhere('e.event_code', 'like', '%' . $search . '%')
+	// 					->orWhere('charge_order.document_identity', 'like', '%' . $search . '%');
+	// 			});
+	// 		}
+
+	// 		// Get basic data first
+	// 		$data = $data->select(
+	// 			"charge_order.*",
+	// 			"e.event_code as raw_event_code",
+	// 			"e.status as event_status",
+	// 			"e.event_id",
+	// 			"c.name as customer_name",
+	// 			"v.name as vessel_name",
+	// 			"p.name as port_name"
+	// 		);
+
+	// 		// Handle sorting - if sorting by computed field, get more data for sorting
+	// 		if ($sortByEventCode || !empty($event_status_filter)) {
+	// 			// For computed field sorting/filtering, we need to get all data first
+	// 			$allData = $data->orderBy($actualSortColumn, $sort_direction)->get();
+
+	// 			// Process event_code logic for all items
+	// 			$processedData = $allData->map(function ($item) {
+	// 				$statusText = $this->calculateEventStatus($item->event_status, $item->event_id);
+	// 				$item->event_code = $item->raw_event_code . ' (' . $statusText . ')';
+	// 				$item->event_code_sortable = $item->raw_event_code . '_' . $statusText; // For sorting
+	// 				$item->computed_status = $statusText; // For filtering
+	// 				unset($item->raw_event_code);
+	// 				return $item;
+	// 			});
+
+	// 			// Apply computed field filters
+	// 			if (!empty($event_status_filter)) {
+	// 				$statusFilter = strtolower($event_status_filter);
+	// 				$processedData = $processedData->filter(function ($item) use ($statusFilter) {
+	// 					return strtolower($item->computed_status) === $statusFilter;
+	// 				});
+	// 			}
+
+	// 			// Sort by computed event_code if needed
+	// 			if ($sortByEventCode) {
+	// 				$processedData = $sort_direction === 'asc'
+	// 					? $processedData->sortBy('event_code_sortable')
+	// 					: $processedData->sortByDesc('event_code_sortable');
+	// 			}
+
+	// 			// Manual pagination
+	// 			$result = $this->paginateCollection($processedData, $perPage, $page, $request);
+	// 		} else {
+	// 			// Normal sorting - execute query with pagination first
+	// 			$result = $data->orderBy($actualSortColumn, $sort_direction)
+	// 				->paginate($perPage, ['*'], 'page', $page);
+
+	// 			// Process event_code logic only for paginated results
+	// 			$result->getCollection()->transform(function ($item) {
+	// 				$statusText = $this->calculateEventStatus($item->event_status, $item->event_id);
+	// 				$item->event_code = $item->raw_event_code . ' (' . $statusText . ')';
+	// 				unset($item->raw_event_code);
+	// 				return $item;
+	// 			});
+	// 		}
+
+	// 		// Clean up temporary fields
+	// 		if ($sortByEventCode || !empty($event_status_filter)) {
+	// 			$result->getCollection()->transform(function ($item) {
+	// 				unset($item->event_code_sortable, $item->computed_status);
+	// 				return $item;
+	// 			});
+	// 		}
+	// 		return json_encode($result);
+	// 	} catch (\Exception $e) {
+	// 		// Log the error for debugging
+	// 		Log::error('Error in ChargeOrder index method: ' . $e->getMessage());
+
+	// 		return response()->json([
+	// 			'success' => false,
+	// 			'error' => 'An error occurred while fetching data'
+	// 		], 500);
+	// 	}
+	// }
+
+	// /**
+	//  * Calculate event status based on business logic
+	//  * This replaces the complex subquery with PHP logic
+	//  */
+	// private function calculateEventStatus($status, $eventId)
+	// {
+	// 	// Handle basic status cases
+	// 	if ($status == 0) {
+	// 		return 'Inactive';
+	// 	}
+
+	// 	if ($status != 1) {
+	// 		return (string) $status; // Return as string for other status values
+	// 	}
+
+	// 	// For status = 1, we need to check shipment completeness
+	// 	// Get all charge orders for this event
+	// 	$chargeOrders = ChargeOrder::where('event_id', $eventId)
+	// 		->with(['charge_order_detail', 'shipmentDetail'])
+	// 		->get();
+
+	// 	if ($chargeOrders->isEmpty()) {
+	// 		return 'Active';
+	// 	}
+
+	// 	// Check if any shipments exist for this event
+	// 	$hasShipments = DB::table('shipment')
+	// 		->where('event_id', $eventId)
+	// 		->exists();
+
+	// 	if (!$hasShipments) {
+	// 		return 'Active'; // No shipments exist
+	// 	}
+
+	// 	// Check completion status of all charge orders
+	// 	$totalChargeOrders = $chargeOrders->count();
+	// 	$completeChargeOrders = 0;
+
+	// 	foreach ($chargeOrders as $chargeOrder) {
+	// 		if ($this->isChargeOrderComplete($chargeOrder)) {
+	// 			$completeChargeOrders++;
+	// 		}
+	// 	}
+
+	// 	// Determine final status
+	// 	if ($completeChargeOrders == 0) {
+	// 		return 'Active'; // No completed charge orders
+	// 	} elseif ($completeChargeOrders == $totalChargeOrders) {
+	// 		return 'Complete'; // All charge orders complete
+	// 	} else {
+	// 		return 'Partial'; // Some charge orders complete
+	// 	}
+	// }
+
+	// /**
+	//  * Check if a charge order is complete by comparing with shipment details
+	//  */
+	// private function isChargeOrderComplete($chargeOrder)
+	// {
+	// 	// Get all details for this charge order
+	// 	$chargeOrderDetails = DB::table('charge_order_detail')
+	// 		->where('charge_order_id', $chargeOrder->charge_order_id)
+	// 		->get();
+
+	// 	if ($chargeOrderDetails->isEmpty()) {
+	// 		return true; // No details means complete
+	// 	}
+
+	// 	// Check if all details have matching shipment quantities
+	// 	foreach ($chargeOrderDetails as $detail) {
+	// 		$shipmentDetail = DB::table('shipment_detail')
+	// 			->join('shipment', 'shipment.shipment_id', '=', 'shipment_detail.shipment_id')
+	// 			->where('shipment.event_id', $chargeOrder->event_id)
+	// 			->where('shipment_detail.charge_order_id', $detail->charge_order_id)
+	// 			->where('shipment_detail.charge_order_detail_id', $detail->charge_order_detail_id)
+	// 			->first();
+
+	// 		if (!$shipmentDetail || $shipmentDetail->quantity != $detail->quantity) {
+	// 			return false; // This detail is not complete
+	// 		}
+	// 	}
+
+	// 	return true; // All details are complete
+	// }
+
+	// /**
+	//  * Manually paginate a collection
+	//  */
+	// private function paginateCollection($collection, $perPage, $page, $request)
+	// {
+	// 	$total = $collection->count();
+	// 	$offset = ($page - 1) * $perPage;
+	// 	$items = $collection->slice($offset, $perPage)->values();
+
+	// 	$paginator = new \Illuminate\Pagination\LengthAwarePaginator(
+	// 		$items,
+	// 		$total,
+	// 		$perPage,
+	// 		$page,
+	// 		[
+	// 			'path' => $request->url(),
+	// 			'pageName' => 'page'
+	// 		]
+	// 	);
+
+	// 	return $paginator;
+	// }
+
+	// /**
+	//  * Apply advanced filtering for computed fields
+	//  */
+	// private function applyComputedFieldFilters($collection, $filters)
+	// {
+	// 	if (!empty($filters['event_status_filter'])) {
+	// 		$statusFilter = strtolower($filters['event_status_filter']);
+	// 		$collection = $collection->filter(function ($item) use ($statusFilter) {
+	// 			$eventCodeLower = strtolower($item->event_code);
+	// 			return strpos($eventCodeLower, $statusFilter) !== false;
+	// 		});
+	// 	}
+
+	// 	return $collection;
+	// }
+
 
 	public function show($id, Request $request)
 	{
@@ -933,7 +1449,7 @@ class ChargeOrderController extends Controller
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
 		$is_deleted = $request->is_deleted ?? false;
-		$id = $request->id ;
+		$id = $request->id;
 
 		if (empty($id)) {
 			return $this->jsonResponse("No Charge Order Selected!", 400, "Request Failed");
@@ -958,7 +1474,7 @@ class ChargeOrderController extends Controller
 			ServiceOrder::where('charge_order_id', $id)->update(['is_deleted' => 1]);
 			JobOrderDetail::where('charge_order_id', $id)->update(['is_deleted' => 1]);
 			return $this->jsonResponse("Charge Order Cancelled Successfully!", 200, "Success");
-		}else{
+		} else {
 			return $this->jsonResponse("Charge Order cannot be deleted as it has Shipment Details!", 400, "Charge Order cannot be deleted as it has Shipment Details!");
 		}
 	}
