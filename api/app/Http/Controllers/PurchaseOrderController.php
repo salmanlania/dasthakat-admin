@@ -248,7 +248,7 @@ class PurchaseOrderController extends Controller
 		$id = $request->id;
 
 		if (empty($id)) {
-			return $this->jsonResponse("No Purchase Order Selected!", 400, "Request Failed");
+			return $this->jsonResponse("No Purchase Order Selected!", 400, "No Purchase Order Selected!");
 		}
 
 
@@ -258,7 +258,7 @@ class PurchaseOrderController extends Controller
 			
 			return $this->jsonResponse("Purchase Order Cancelled Successfully!", 200, "Success");
 		}else{
-			return $this->jsonResponse("Cannot cancel Purchase Order with existing GRN!", 400, "Request Failed");
+			return $this->jsonResponse("Cannot cancel Purchase Order with existing GRN!", 400, "Cannot cancel Purchase Order with existing GRN!");
 		}
 	}
 
