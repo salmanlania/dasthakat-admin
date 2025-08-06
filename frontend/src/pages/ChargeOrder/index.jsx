@@ -206,6 +206,7 @@ const ChargeOrder = () => {
             <DatePicker
               size="small"
               value={params.document_date}
+              allowClear
               className="font-normal"
               onChange={(date) => dispatch(setChargeOrderListParams({ document_date: date }))}
               format="MM-DD-YYYY"
@@ -228,6 +229,7 @@ const ChargeOrder = () => {
           <Input
             className="font-normal"
             size="small"
+            allowClear
             onClick={(e) => e.stopPropagation()}
             value={params.document_identity}
             onChange={(e) =>
@@ -260,6 +262,7 @@ const ChargeOrder = () => {
           <Input
             className="font-normal"
             size="small"
+            allowClear
             onClick={(e) => e.stopPropagation()}
             value={params.ref_document_identity}
             onChange={(e) =>
@@ -280,6 +283,7 @@ const ChargeOrder = () => {
           <p>Customer</p>
           <AsyncSelect
             endpoint="/customer"
+            allowClear
             size="small"
             className="w-full font-normal"
             valueKey="customer_id"
@@ -304,6 +308,7 @@ const ChargeOrder = () => {
             size="small"
             className="w-full font-normal"
             valueKey="vessel_id"
+            allowClear
             labelKey="name"
             value={params.vessel_id}
             onChange={(value) => dispatch(setChargeOrderListParams({ vessel_id: value }))}
@@ -323,6 +328,7 @@ const ChargeOrder = () => {
           <AsyncSelect
             endpoint="/event"
             size="small"
+            allowClear
             className="w-full font-normal"
             valueKey="event_id"
             labelKey="event_code"
