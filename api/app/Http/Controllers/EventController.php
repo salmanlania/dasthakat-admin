@@ -157,52 +157,52 @@ class EventController extends Controller
         ->where('event.company_branch_id', '=', $request->company_branch_id)
         ->select(
             'event.*',
-            DB::raw("
-                CASE
-                    WHEN event.status IN (0, 1) THEN (
-                        CASE
-                            WHEN event.status = 1 THEN (
-                                CASE
-                                    WHEN (
-                                        -- Check if any shipments exist for the event
-                                        SELECT COUNT(*)
-                                        FROM shipment s
-                                        WHERE s.event_id = event.event_id
-                                    ) = 0 THEN 1 -- No shipments exist (available)
-                                    WHEN (
-                                        -- Check if all charge orders have complete shipments
-                                        SELECT COUNT(*)
-                                        FROM charge_order co
-                                        LEFT JOIN (
-                                            SELECT co2.charge_order_id AS charge_order_id,
-                                                   COUNT(cod.charge_order_detail_id) AS total_details,
-                                                   SUM(CASE
-                                                       WHEN sd.quantity = cod.quantity THEN 1
-                                                       ELSE 0
-                                                   END) AS matched_details
-                                            FROM charge_order co2
-                                            JOIN charge_order_detail cod ON co2.charge_order_id = cod.charge_order_id
-                                            LEFT JOIN shipment s ON s.event_id = co2.event_id
-                                            LEFT JOIN shipment_detail sd ON s.shipment_id = sd.shipment_id
-                                                AND sd.charge_order_id = cod.charge_order_id
-                                                AND sd.charge_order_detail_id = cod.charge_order_detail_id
-                                            WHERE co2.event_id = event.event_id
-                                            GROUP BY co2.charge_order_id
-                                            HAVING total_details = matched_details
-                                        ) AS shipment_status ON co.charge_order_id = shipment_status.charge_order_id
-                                        WHERE co.event_id = event.event_id
-                                        GROUP BY co.event_id
-                                        HAVING COUNT(co.charge_order_id) = SUM(CASE WHEN shipment_status.charge_order_id IS NOT NULL THEN 1 ELSE 0 END)
-                                    ) > 0 THEN 3 -- All charge orders have complete shipments (complete)
-                                    ELSE 2 -- Not all shipments complete (partial)
-                                END
-                            )
-                            ELSE 0 -- Status is 0, keep it unchanged (inactive)
-                        END
-                    )
-                    ELSE event.status -- Keep existing status for values other than 0 or 1
-                END AS computed_status
-            "),
+            // DB::raw("
+            //     CASE
+            //         WHEN event.status IN (0, 1) THEN (
+            //             CASE
+            //                 WHEN event.status = 1 THEN (
+            //                     CASE
+            //                         WHEN (
+            //                             -- Check if any shipments exist for the event
+            //                             SELECT COUNT(*)
+            //                             FROM shipment s
+            //                             WHERE s.event_id = event.event_id
+            //                         ) = 0 THEN 1 -- No shipments exist (available)
+            //                         WHEN (
+            //                             -- Check if all charge orders have complete shipments
+            //                             SELECT COUNT(*)
+            //                             FROM charge_order co
+            //                             LEFT JOIN (
+            //                                 SELECT co2.charge_order_id AS charge_order_id,
+            //                                        COUNT(cod.charge_order_detail_id) AS total_details,
+            //                                        SUM(CASE
+            //                                            WHEN sd.quantity = cod.quantity THEN 1
+            //                                            ELSE 0
+            //                                        END) AS matched_details
+            //                                 FROM charge_order co2
+            //                                 JOIN charge_order_detail cod ON co2.charge_order_id = cod.charge_order_id
+            //                                 LEFT JOIN shipment s ON s.event_id = co2.event_id
+            //                                 LEFT JOIN shipment_detail sd ON s.shipment_id = sd.shipment_id
+            //                                     AND sd.charge_order_id = cod.charge_order_id
+            //                                     AND sd.charge_order_detail_id = cod.charge_order_detail_id
+            //                                 WHERE co2.event_id = event.event_id
+            //                                 GROUP BY co2.charge_order_id
+            //                                 HAVING total_details = matched_details
+            //                             ) AS shipment_status ON co.charge_order_id = shipment_status.charge_order_id
+            //                             WHERE co.event_id = event.event_id
+            //                             GROUP BY co.event_id
+            //                             HAVING COUNT(co.charge_order_id) = SUM(CASE WHEN shipment_status.charge_order_id IS NOT NULL THEN 1 ELSE 0 END)
+            //                         ) > 0 THEN 3 -- All charge orders have complete shipments (complete)
+            //                         ELSE 2 -- Not all shipments complete (partial)
+            //                     END
+            //                 )
+            //                 ELSE 0 -- Status is 0, keep it unchanged (inactive)
+            //             END
+            //         )
+            //         ELSE event.status -- Keep existing status for values other than 0 or 1
+            //     END AS computed_status
+            // "),
             DB::raw("CONCAT(event.event_code, ' (', v.name, ')') as event_name"),
             'c.name as customer_name',
             'v.name as vessel_name',
