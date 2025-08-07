@@ -51,7 +51,9 @@ import toastConfirm from '../../utils/toastConfirm';
 import AsyncSelect from '../AsyncSelect';
 import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate.jsx';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
+import DebouncedCommaSeparatedInputRate from '../Input/DebouncedCommaSeparatedInputRate';
 import DebouncedNumberInput from '../Input/DebouncedNumberInput';
+import DebouncedNumberInputMarkup from '../Input/DebouncedNumberInputMarkup';
 import DebounceInput from '../Input/DebounceInput';
 
 import VendorSelectionModal from '../Modals/VendorSelectionModal.jsx';
@@ -907,7 +909,7 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
                 decimalPlaces={2}
                 value={newQuantity}
                 disabled={editable === false}
-                onChange={(value) =>
+                onChange={(value) => {
                   dispatch(
                     changeQuotationDetailValue({
                       index,
@@ -915,6 +917,7 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
                       value: value,
                     }),
                   )
+                }
                 }
               />
             </Form.Item>
@@ -1032,7 +1035,7 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
       key: 'cost_price',
       render: (_, { cost_price, product_type_id }, index) => {
         return (
-          <DebouncedCommaSeparatedInput
+          <DebouncedCommaSeparatedInputRate
             value={
               product_type_id?.value === 1
                 ? '0'
@@ -1045,18 +1048,19 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
                         .replace(/\.?0+$/, '')
                       : Number(cost_price)
                     }`
-                    : ''
+                    : '0'
             }
             disabled={product_type_id?.value == 1}
             delay={600}
-            onChange={(value) =>
+            onChange={(value) => {
               dispatch(
                 changeQuotationDetailValue({
                   index,
                   key: 'cost_price',
-                  value: value,
+                  value: value || "0",
                 }),
               )
+            }
             }
           />
         );
@@ -1093,7 +1097,7 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
           .replace(/(\.\d*?)0+$/, '$1')
           .replace(/\.$/, '');
         return (
-          <DebouncedNumberInput
+          <DebouncedNumberInputMarkup
             value={product_type_id?.value == 1 ? 0 : newMarkup}
             type="decimal"
             disabled={product_type_id?.value == 1 || product_type === 'Service'}
@@ -1129,7 +1133,7 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
                 message: 'Selling price is required',
               },
             ]}>
-            <DebouncedCommaSeparatedInput
+            <DebouncedCommaSeparatedInputRate
               value={rate || "0"}
               delay={600}
               onChange={(value) => {
