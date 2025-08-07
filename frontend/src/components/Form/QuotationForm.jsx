@@ -52,7 +52,6 @@ import AsyncSelect from '../AsyncSelect';
 import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate.jsx';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebouncedCommaSeparatedInputRate from '../Input/DebouncedCommaSeparatedInputRate';
-import DebouncedNumberInput from '../Input/DebouncedNumberInput';
 import DebouncedNumberInputMarkup from '../Input/DebouncedNumberInputMarkup';
 import DebounceInput from '../Input/DebounceInput';
 
@@ -1203,7 +1202,7 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
                 },
               },
             ]}>
-            <DebouncedNumberInput
+            <DebouncedNumberInputMarkup
               value={discount_percent}
               type="decimal"
               onChange={(value) =>

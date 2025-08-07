@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   Button,
   Col,
@@ -13,15 +12,16 @@ import {
   Tooltip
 } from 'antd';
 import dayjs from 'dayjs';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiPlus } from 'react-icons/bi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
-import { TbEdit } from 'react-icons/tb';
 import { IoIosWarning, IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
+import { TbEdit } from 'react-icons/tb';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import useError from '../../hooks/useError';
 import NotesModal from '../../components/Modals/NotesModal.jsx';
+import useError from '../../hooks/useError';
 import {
   addChargeOrderDetail,
   changeChargeOrderDetailOrder,
@@ -29,20 +29,19 @@ import {
   copyChargeOrderDetail,
   removeChargeOrderDetail,
   resetChargeOrderDetail,
-  splitChargeOrderQuantity,
-  getChargeOrder
+  splitChargeOrderQuantity
 } from '../../store/features/chargeOrderSlice';
 import { getEvent } from '../../store/features/eventSlice';
-import { getProduct, getProductList } from '../../store/features/productSlice';
+import { getProduct } from '../../store/features/productSlice';
 import { setChargePoID } from '../../store/features/purchaseOrderSlice.js';
 import { formatThreeDigitCommas, roundUpto } from '../../utils/number';
 import AsyncSelect from '../AsyncSelect';
 import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate';
 import DebounceInput from '../Input/DebounceInput';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
-import DebouncedNumberInput from '../Input/DebouncedNumberInput';
+import DebouncedCommaSeparatedInputRate from '../Input/DebouncedCommaSeparatedInputRate';
+import DebouncedNumberInputMarkup from '../Input/DebouncedNumberInputMarkup.jsx';
 import { DetailSummaryInfo } from './QuotationForm';
-import { AiOutlineConsoleSql } from 'react-icons/ai';
 
 // eslint-disable-next-line react/prop-types
 const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
@@ -817,7 +816,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
       key: 'cost_price',
       render: (_, { cost_price, product_type_id }, index) => {
         return (
-          <DebouncedCommaSeparatedInput
+          <DebouncedCommaSeparatedInputRate
             value={
               product_type_id?.value === 1
                 ? '0'
@@ -871,7 +870,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
       key: 'markup',
       render: (_, { markup, product_type_id, product_type }, index) => {
         return (
-          <DebouncedNumberInput
+          <DebouncedNumberInputMarkup
             value={product_type_id?.value == 1 ? 0 : markup}
             type="decimal"
             disabled={product_type_id?.value == 1 || product_type === 'Service' || isDisable}
@@ -906,7 +905,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
                 message: 'Selling price is required'
               }
             ]}>
-            <DebouncedCommaSeparatedInput
+            <DebouncedCommaSeparatedInputRate
               value={rate || "0"}
               disabled={editable === false || isDisable}
               onChange={(value) =>
@@ -977,7 +976,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
                 }
               }
             ]}>
-            <DebouncedNumberInput
+            <DebouncedNumberInputMarkup
               value={discount_percent}
               disabled={isDisable}
               type="decimal"
