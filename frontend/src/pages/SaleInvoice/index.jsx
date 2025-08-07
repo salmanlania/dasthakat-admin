@@ -89,7 +89,7 @@ const SaleInvoice = () => {
               size="small"
               value={params.document_date}
               className="font-normal"
-              onChange={(date) => dispatch(setSaleInvoiceListParams({ document_date: date }))}
+              onChange={(date) => dispatch(setSaleInvoiceListParams({ document_date: date || null}))}
               format="MM-DD-YYYY"
             />
           </div>
@@ -116,7 +116,7 @@ const SaleInvoice = () => {
             onChange={(e) =>
               dispatch(
                 setSaleInvoiceListParams({
-                  document_identity: e.target.value,
+                  document_identity: e.target.value || "",
                 }),
               )
             }
@@ -192,7 +192,7 @@ const SaleInvoice = () => {
             valueKey="event_id"
             labelKey="event_code"
             value={params.event_id}
-            onChange={(value) => dispatch(setSaleInvoiceListParams({ event_id: value }))}
+            onChange={(value) => dispatch(setSaleInvoiceListParams({ event_id: value || null }))}
           />
         </div>
       ),
@@ -213,7 +213,7 @@ const SaleInvoice = () => {
             valueKey="vessel_id"
             labelKey="name"
             value={params.vessel_id}
-            onChange={(value) => dispatch(setSaleInvoiceListParams({ vessel_id: value }))}
+            onChange={(value) => dispatch(setSaleInvoiceListParams({ vessel_id: value || null }))}
           />
         </div>
       ),
@@ -317,7 +317,7 @@ const SaleInvoice = () => {
             placeholder="Search..."
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) => dispatch(setSaleInvoiceListParams({ search: e.target.value }))}
+            onChange={(e) => dispatch(setSaleInvoiceListParams({ search: e.target.value || '' }))}
             allowClear
           />
 
