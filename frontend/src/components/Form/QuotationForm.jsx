@@ -144,24 +144,6 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
   } = useSelector((state) => state.quotation);
   const { commissionAgent } = useSelector((state) => state.event);
   const [prevEvent, setPrevEvent] = useState(initialFormValues?.event_id);
-  const [tempValues, setTempValues] = useState({});
-
-  const updateTempValue = (index, key, value) => {
-    setTempValues((prev) => ({
-      ...prev,
-      [`${key}-${index}`]: value,
-    }));
-  };
-
-  const dispatchValue = (index, key, value) => {
-    dispatch(
-      changeQuotationDetailValue({
-        index,
-        key,
-        value: value || (key === 'rate' ? '0' : ''),
-      }),
-    );
-  };
 
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
@@ -225,6 +207,8 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
     (isNaN(rebate) ? 0 : rebate);
 
   const minusValue =
+    // parseInt(salesmanAmount?.toString().replace(/,/g, '') || 0) +
+    // parseInt(rebateAmount?.toString().replace(/,/g, '') || 0) +
     parseInt(totalCost || 0) +
     parseInt(otherComission || 0);
 
@@ -1064,18 +1048,16 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
                     : ''
             }
             disabled={product_type_id?.value == 1}
-            onChange={(value) => updateTempValue(index, 'cost_price', value)}
-            onKeyDown={(e) => {
-              if (e.keyCode === 9) {
-                dispatchValue(index, 'cost_price', tempValues[`cost_price-${index}`]);
-              }
-            }}
-            onBlur={() => {
-              dispatchValue(index, 'cost_price', tempValues[`cost_price-${index}`]);
-            }}
-            onFocus={() => {
-              dispatchValue(index, 'cost_price', tempValues[`cost_price-${index}`]);
-            }}
+            delay={600}
+            onChange={(value) =>
+              dispatch(
+                changeQuotationDetailValue({
+                  index,
+                  key: 'cost_price',
+                  value: value,
+                }),
+              )
+            }
           />
         );
       },
@@ -1115,17 +1097,15 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
             value={product_type_id?.value == 1 ? 0 : newMarkup}
             type="decimal"
             disabled={product_type_id?.value == 1 || product_type === 'Service'}
-            onChange={(value) => updateTempValue(index, 'markup', value)}
-            onKeyDown={(e) => {
-              if (e.keyCode === 9) {
-                dispatchValue(index, 'markup', tempValues[`markup-${index}`]);
-              }
-            }}
-            onBlur={() => {
-              dispatchValue(index, 'markup', tempValues[`markup-${index}`]);
-            }}
-            onFocus={() => {
-              dispatchValue(index, 'markup', tempValues[`markup-${index}`]);
+            delay={600}
+            onChange={(value) => {
+              dispatch(
+                changeQuotationDetailValue({
+                  index,
+                  key: 'markup',
+                  value: value,
+                }),
+              );
             }}
           />
         );
@@ -1151,18 +1131,15 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
             ]}>
             <DebouncedCommaSeparatedInput
               value={rate || "0"}
-
-              onChange={(value) => updateTempValue(index, 'rate', value)}
-              onKeyDown={(e) => {
-                if (e.keyCode === 9) {
-                  dispatchValue(index, 'rate', tempValues[`rate-${index}`]);
-                }
-              }}
-              onBlur={() => {
-                dispatchValue(index, 'markup', tempValues[`markup-${index}`]);
-              }}
-              onFocus={() => {
-                dispatchValue(index, 'markup', tempValues[`markup-${index}`]);
+              delay={600}
+              onChange={(value) => {
+                dispatch(
+                  changeQuotationDetailValue({
+                    index,
+                    key: 'rate',
+                    value: value || "0",
+                  }),
+                );
               }}
             />
           </Form.Item>
@@ -1351,28 +1328,32 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
         return isNaN(amount) ? 0 : amount;
       },
     },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_, record) =>
-        record.isStatic ? null : (
-          <Button
-            danger
-            size="small"
-            style={{
-              border: 'none',
-              outline: 'none',
-              background: 'none',
-              boxShadow: 'none',
-            }}
-            onClick={() => {
-              setHiddenAgentKeys((prev) => [...prev, record.commission_agent_id])
-            }}
-          >
-            <TiDelete size={20} />
-          </Button>
-        ),
-    },
+    ...(commissionAgent.length > 0 || commissionAgentData.length > 0
+      ? [
+        {
+          title: 'Actions',
+          key: 'actions',
+          render: (_, record) =>
+            record.isStatic ? null : (
+              <Button
+                danger
+                size="small"
+                style={{
+                  border: 'none',
+                  outline: 'none',
+                  background: 'none',
+                  boxShadow: 'none',
+                }}
+                onClick={() => {
+                  setHiddenAgentKeys((prev) => [...prev, record.commission_agent_id])
+                }}
+              >
+                <TiDelete size={20} />
+              </Button>
+            ),
+        },
+      ] : []
+    )
   ];
 
   const extendedCommissionData = [
@@ -1790,6 +1771,7 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
                   >
                     <Table
                       columns={commissionAgentColumns}
+                      // dataSource={commissionAgent.length > 0 ? commissionAgent : commissionAgentData}
                       dataSource={extendedCommissionData}
                       rowKey={(record) => record.commission_agent_id}
                       size="small"
@@ -1857,6 +1839,13 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
         </div>
       </Form>
       <NotesModal
+        // title={
+        //   notesModalIsOpen.column === 'description'
+        //     ? 'Customer Notes'
+        //     : notesModalIsOpen.column === 'vendor_notes'
+        //       ? 'Vendor Notes'
+        //       : 'Internal Notes'
+        // }
         title={notesTitleMap[notesModalIsOpen.column] || 'Notes'}
         initialValue={notesModalIsOpen.notes}
         isSubmitting={false}
