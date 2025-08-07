@@ -330,30 +330,83 @@ export const chargeOrderSlice = createSlice({
       state.chargeOrderDetails[to] = temp;
     },
 
-    changeChargeOrderDetailValue: (state, action) => {
+    // changeChargeOrderDetailValue: (state, action) => {
+    //   const { index, key, value } = action.payload;
+    //   const detail = state.chargeOrderDetails[index];
+
+    //   if (
+    //     detail.row_status === 'U' &&
+    //     detail[key] !== value
+    //   ) {
+    //     detail.row_status = 'U';
+    //   }
+
+    //   detail[key] = value;
+
+    //   const productType = detail.product_type_id;
+
+    //   if (
+    //     productType?.label !== 'Service' &&
+    //     !['rate', 'supplier_id', 'vendor_part_no', 'unit_id'].includes(key) &&
+    //     detail.cost_price &&
+    //     detail.markup
+    //   ) {
+    //     detail.rate = roundUpto(+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
+    //     detail.full_rate = (+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
+    //     detail.old_rate = roundUpto(+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
+    //   }
+
+    //   if (detail.quantity && detail.rate) {
+    //     detail.amount = roundUpto(+detail.quantity * +detail.rate);
+
+    //     if (key === 'rate' && +detail.cost_price && +detail.rate) {
+    //       if (detail.old_rate != detail.rate) {
+    //         detail.markup = roundUpto(
+    //           ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100
+    //         );
+    //       }
+    //     }
+    //   } else {
+    //     detail.amount = '';
+    //   }
+
+    //   if (detail.discount_percent && detail.amount) {
+    //     detail.discount_amount = roundUpto(+detail.amount * (+detail.discount_percent / 100));
+    //   } else {
+    //     detail.discount_amount = '';
+    //   }
+
+    //   if (detail.amount) {
+    //     detail.gross_amount = roundUpto(+detail.amount - +detail.discount_amount) || 0;
+    //   } else {
+    //     detail.gross_amount = '';
+    //   }
+    // },
+
+        changeChargeOrderDetailValue: (state, action) => {
       const { index, key, value } = action.payload;
+
       const detail = state.chargeOrderDetails[index];
 
-      if (
-        detail.row_status === 'U' &&
-        detail[key] !== value
-      ) {
+      if (detail.row_status === 'U' && detail[key] !== value) {
         detail.row_status = 'U';
       }
 
       detail[key] = value;
-
       const productType = detail.product_type_id;
 
       if (
         productType?.label !== 'Service' &&
-        !['rate', 'supplier_id', 'vendor_part_no', 'unit_id'].includes(key) &&
+        (key === 'markup' || key === 'cost_price') &&
         detail.cost_price &&
-        detail.markup
+        detail.markup !== null &&
+        detail.markup !== undefined
       ) {
         detail.rate = roundUpto(+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
-        detail.full_rate = (+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
-        detail.old_rate = roundUpto(+detail.cost_price * (+detail.markup / 100) + +detail.cost_price);
+        detail.full_rate = +detail.cost_price * (+detail.markup / 100) + +detail.cost_price;
+        detail.old_rate = roundUpto(
+          +detail.cost_price * (+detail.markup / 100) + +detail.cost_price,
+        );
       }
 
       if (detail.quantity && detail.rate) {
@@ -362,7 +415,7 @@ export const chargeOrderSlice = createSlice({
         if (key === 'rate' && +detail.cost_price && +detail.rate) {
           if (detail.old_rate != detail.rate) {
             detail.markup = roundUpto(
-              ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100
+              ((+detail.rate - +detail.cost_price) / +detail.cost_price) * 100,
             );
           }
         }
