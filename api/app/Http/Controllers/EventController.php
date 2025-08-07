@@ -293,7 +293,7 @@ class EventController extends Controller
 		$allowedSortColumns = [
 			'event.created_at',
 			'event.event_code',
-			'event.status',
+			'status',
 			'computed_status', // For computed status sorting
 			'c.name',
 			'v.name',
@@ -305,7 +305,7 @@ class EventController extends Controller
 		}
 
 		// Determine if we need to sort by computed status
-		$sortByComputedStatus = ($sort_column === 'computed_status');
+		$sortByComputedStatus = ($sort_column === 'status');
 
 		// If sorting by computed field, use a sortable field for initial query
 		$actualSortColumn = $sortByComputedStatus ? 'event.status' : $sort_column;
@@ -366,7 +366,12 @@ class EventController extends Controller
 
 			// Get basic data first
 			$data = $data->select(
-				"event.*",
+				"event.event_id",
+				"event.event_code",
+				"event.customer_id",
+				"event.vessel_id",
+				"event.class1_id",
+				"event.class2_id",
 				"event.status as original_status", // Keep original for computation
 				DB::raw("CONCAT(event.event_code, ' (', v.name, ')') as event_name"),
 				"c.name as customer_name",
@@ -376,7 +381,7 @@ class EventController extends Controller
 			);
 
 			// Handle sorting/filtering for computed status
-			if ($sortByComputedStatus || !empty($computed_status_filter)) {
+			if ($sortByComputedStatus || !empty($computed_status_filter) || $computed_status_filter == '0') {
 				// For computed status operations, get all data first
 				$allData = $data->orderBy($actualSortColumn, $sort_direction)->get();
 
@@ -389,7 +394,7 @@ class EventController extends Controller
 				});
 
 				// Apply computed status filter
-				if (!empty($computed_status_filter)) {
+				if (!empty($computed_status_filter) || $computed_status_filter == '0') {
 					$processedData = $processedData->filter(function ($item) use ($computed_status_filter) {
 						return $item->computed_status == $computed_status_filter;
 					});

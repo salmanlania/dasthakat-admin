@@ -220,7 +220,7 @@ class ChargeOrderController extends Controller
 
 			// Fix boolean comparison
 			if ($is_deleted === true || $is_deleted === 'true' || $is_deleted === 1 || $is_deleted === '1') {
-				$data = $data->where('charge_order.is_deleted', true);
+				$data = $data->where('charge_order.is_deleted', 0);
 			}
 
 			// Fix search query logic - use orWhere properly within a where group
