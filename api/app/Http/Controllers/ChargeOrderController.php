@@ -945,6 +945,9 @@ class ChargeOrderController extends Controller
 			if (isset($existingDetails[$item->charge_order_detail_id])) {
 				// Update existing detail
 				$existingDetails[$item->charge_order_detail_id]->update([
+					'sort_order' => $item->sort_order ?? 0,
+					'product_id' => $item->product_id ?? "",
+					'product_description' => $item->product_description ?? "",
 					'quantity'   => $item->quantity ?? 0,
 					'updated_at' =>  Carbon::now(),
 					'updated_by' => $request->login_user_id,
@@ -1040,6 +1043,7 @@ class ChargeOrderController extends Controller
 			if (isset($existingDetails[$item->charge_order_detail_id])) {
 				// Update existing detail
 				$existingDetails[$item->charge_order_detail_id]->update([
+					'product_id' => $item->product_id,
 					'quantity'   => $item->quantity ?? 0,
 					'updated_at' =>  Carbon::now(),
 					'updated_by' => $request->login_user_id,
@@ -1131,6 +1135,7 @@ class ChargeOrderController extends Controller
 		$index = ServiceOrderDetail::where('service_order_id', $SO->service_order_id)->max('sort_order') ?? 0;
 
 		foreach ($COD as $item) {
+			
 			if (isset($existingDetails[$item->charge_order_detail_id])) {
 				// Update existing detail
 				$existingDetails[$item->charge_order_detail_id]->update([
@@ -1140,6 +1145,7 @@ class ChargeOrderController extends Controller
 					'product_description' => $item->product_description ?? "",
 					'description' => $item->description ?? "",
 					'internal_notes' => $item->internal_notes ?? "",
+					'sort_order' => $item->sort_order ?? 0,
 					'supplier_id' => $item->supplier_id ?? "",
 					'unit_id' => $item->unit_id ?? "",
 					'quantity'   => $item->quantity ?? 0,
@@ -1250,6 +1256,8 @@ class ChargeOrderController extends Controller
 			if (isset($existingDetails[$item->charge_order_detail_id])) {
 				// Update existing detail
 				$existingDetails[$item->charge_order_detail_id]->update([
+					"sort_order" => $item->sort_order ?? 0,
+					"product_id" => $item->product_id ?? "",
 					"description" => $item->description ?? "",
 					"product_name" => $item->product_name ?? "",
 					"product_description" => $item->product_description ?? "",
@@ -1258,6 +1266,7 @@ class ChargeOrderController extends Controller
 					"unit_id" => $item->unit_id ?? "",
 					"supplier_id" => $item->supplier_id ?? "",
 					'quantity'   => $item->quantity ?? 0,
+					'status' => $item->status ?? "",
 					'updated_at' =>  Carbon::now(),
 					'updated_by' => $request->login_user_id,
 				]);
