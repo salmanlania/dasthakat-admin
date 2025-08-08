@@ -72,7 +72,7 @@ class ServicelistController extends Controller
 		if (!empty($charge_order_id)) $query = $query->where('c.charge_order_id', '=',  $charge_order_id);
 		if (!empty($vessel_id)) $query = $query->where('v.vessel_id', '=', $vessel_id);
 		if (!empty($event_id)) $query = $query->where('e.event_id', '=', $event_id);
-		if (!empty($total_quantity)) $query = $query->where('total_quantity', 'like', '%' . $total_quantity . '%');
+		if (!empty($total_quantity)) $query = $query->where('servicelist.total_quantity', 'like', '%' . $total_quantity . '%');
 
 
 		if ($servicelist_status = $request->input('servicelist_status')) {
