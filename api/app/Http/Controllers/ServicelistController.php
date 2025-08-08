@@ -162,6 +162,7 @@ class ServicelistController extends Controller
 			$items[] = [
 				"servicelist_detail_id" => $servicelistDetailId,
 				"product" => $detail->product ?? null,
+				"product_description" => ChargeOrderDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->first()?->product_description ?? null,
 				"original_quantity" => $detail->quantity,
 				"total_received_quantity" => $totalReceivedQty,
 				"remarks" => $remarks ?: null, // Show null if empty
@@ -237,6 +238,7 @@ class ServicelistController extends Controller
 					'sort_order' => $index++,
 					'charge_order_detail_id' => $item['charge_order_detail_id'],
 					'product_id' => $item['product_id'],
+					'product_description' => $item['product_description'],
 					'quantity' => $item['quantity'] ?? 0,
 					'created_at' => Carbon::now(),
 					'created_by' => $request->login_user_id,
