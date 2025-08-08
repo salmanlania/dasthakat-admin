@@ -115,7 +115,7 @@ export const createServiceListPrint = (data) => {
             index + 1,
             item?.product?.product_code || '',
             {
-              content: item?.product?.name || '',
+              content: item?.product_description || '',
               styles: {
                 halign: 'left'
               }
