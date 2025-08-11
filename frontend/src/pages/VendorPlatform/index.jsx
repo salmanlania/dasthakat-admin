@@ -374,21 +374,20 @@ const VendorPlatform = () => {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Vendor Code</p>
-          <AsyncSelect
-            endpoint="/event"
+          <Input
+            className="font-normal"
             size="small"
-            className="w-full font-normal"
-            valueKey="event_id"
-            labelKey="event_code"
-            value={params.event_id}
-            onChange={(value) => {
-              dispatch(setVendorQuotationListParams({ event_id: value }))
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.supplier_code}
+            onChange={(e) => {
+              dispatch(setVendorQuotationListParams({ supplier_code: e.target.value }));
             }}
           />
         </div>
       ),
-      dataIndex: 'event_code',
-      key: 'event_code',
+      dataIndex: 'supplier_code',
+      key: 'supplier_code',
       sorter: true,
       width: 140,
       ellipsis: true,
@@ -474,6 +473,7 @@ const VendorPlatform = () => {
     params.port_id,
     params.quotation_no,
     params.items_quoted,
+    params.supplier_code,
     params.total_items,
     params.date_sent,
     params.status,
