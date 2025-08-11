@@ -16,3 +16,15 @@ ALTER TABLE `sale_invoice_detail`
 ADD COLUMN `discount_amount` DECIMAL(10,2) NOT NULL DEFAULT 0.00 AFTER `amount`,
 ADD COLUMN `discount_percent` DECIMAL(10,2) NOT NULL DEFAULT 0.00 AFTER `discount_amount`,
 ADD COLUMN `gross_amount` DECIMAL(10,2) NOT NULL DEFAULT 0.00 AFTER `discount_percent`;
+
+
+-- SET @rownum := 0;
+-- UPDATE `supplier`
+-- SET `supplier_code` = (@rownum := @rownum + 1)
+-- ORDER BY `created_at`;
+-- ALTER TABLE `gms`.`supplier` CHANGE `supplier_code` `supplier_code` INT(11) NOT NULL;
+  
+  
+
+
+  
