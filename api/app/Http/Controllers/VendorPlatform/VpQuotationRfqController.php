@@ -22,6 +22,7 @@ class VpQuotationRfqController extends Controller
         $quotation_no = $request->input('quotation_no', '');
         $vessel_id = $request->input('vessel_id', '');
         $event_id = $request->input('event_id', '');
+        $supplier_code = $request->input('supplier_code', '');
         $date_required = $request->input('date_required', '');
         $status = $request->input('status', '');
         $total_items = $request->input('total_items', '');
@@ -69,6 +70,9 @@ class VpQuotationRfqController extends Controller
         }
         if (!empty($event_id)) {
             $data = $data->where('q.event_id', $event_id);
+        }
+        if (!empty($supplier_code)) {
+            $data = $data->where('s.supplier_code', $supplier_code);
         }
         if (!empty($date_required)) {
             $data = $data->where('vp_quotation_rfq.date_required', $date_required);
@@ -150,6 +154,7 @@ class VpQuotationRfqController extends Controller
                     ->orWhere('v.name', 'like', '%' . $search . '%')
                     ->orWhere('e.event_code', 'like', '%' . $search . '%')
                     ->orWhere('s.name', 'like', '%' . $search . '%')
+                    ->orWhere('s.supplier_code', 'like', '%' . $search . '%')
                     ->orWhere('u.user_name', 'like', '%' . $search . '%');
             });
         }
@@ -207,6 +212,7 @@ class VpQuotationRfqController extends Controller
             'v.name as vessel_name',
             'e.event_code as event_code',
             's.name as vendor_name',
+            's.supplier_code as supplier_code',
             'u.user_name as person_incharge_name',
             DB::raw("(SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id) as total_items"),
             DB::raw("(SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != '') as items_quoted"),
