@@ -266,7 +266,7 @@ const VendorPlatform = () => {
             labelKey="user_name"
             allowClear
             value={params.user_id}
-            onChange={(value) => dispatch(setVendorQuotationListParams({ user_id: value }))}
+            onChange={(value) => dispatch(setVendorQuotationListParams({ person_incharge_id: value }))}
           />
         </div>
       ),
@@ -481,6 +481,7 @@ const VendorPlatform = () => {
     params.date_returned,
     params.date_required,
     params.notification_count,
+    params.person_incharge_id,
     params.user_id,
     debouncedSearch,
     debouncedQuotationNo,
