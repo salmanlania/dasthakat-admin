@@ -35,7 +35,7 @@ class PurchaseOrderController extends Controller
 		$vessel_id = $request->input('vessel_id', '');
 		$type = $request->input('type', '');
 		$status = $request->input('grn_status', '');
-		$is_deleted = $request->input('is_deleted',false);
+		$is_deleted = $request->input('is_deleted', false);
 
 		$search = $request->input('search', '');
 		$page = $request->input('page', 1);
@@ -64,7 +64,7 @@ class PurchaseOrderController extends Controller
 		if (!empty($vessel_id)) $data->where('co.vessel_id', $vessel_id);
 		if (!empty($event_id)) $data->where('co.event_id', $event_id);
 		if (!empty($type)) $data->where('purchase_order.type', $type);
-		if($is_deleted == true) $data = $data->where('purchase_order.is_deleted',$is_deleted);
+		if ($is_deleted == true) $data = $data->where('purchase_order.is_deleted', $is_deleted);
 
 		if (!empty($search)) {
 			$search = strtolower($search);
@@ -118,9 +118,10 @@ class PurchaseOrderController extends Controller
 			DB::raw(
 				"
 				CASE
-					WHEN NOT EXISTS (
-						SELECT 1
-						FROM purchase_order_detail pod
+				WHEN purchase_order.is_deleted = 1 THEN 4  -- Cancelled
+				WHEN NOT EXISTS (
+					SELECT 1
+					FROM purchase_order_detail pod
 						WHERE pod.purchase_order_id = purchase_order.purchase_order_id
 					) THEN 3  -- No details exist
 					WHEN NOT EXISTS (
@@ -149,6 +150,7 @@ class PurchaseOrderController extends Controller
 			$data->whereRaw(
 				"
 				CASE
+					WHEN purchase_order.is_deleted = 1 THEN 4  -- Cancelled
 					WHEN NOT EXISTS (
 						SELECT 1
 						FROM purchase_order_detail pod
@@ -255,9 +257,9 @@ class PurchaseOrderController extends Controller
 		if (!GRN::where('purchase_order_id', $id)->exists() && $is_deleted) {
 
 			PurchaseOrder::where('purchase_order_id', $id)->update(['is_deleted' => 1]);
-			
+
 			return $this->jsonResponse("Purchase Order Cancelled Successfully!", 200, "Success");
-		}else{
+		} else {
 			return $this->jsonResponse("Cannot cancel Purchase Order with existing GRN!", 400, "Cannot cancel Purchase Order with existing GRN!");
 		}
 	}

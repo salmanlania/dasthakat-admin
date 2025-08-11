@@ -71,6 +71,7 @@ const PurchaseOrder = () => {
     1: 'Complete',
     2: 'Partial',
     3: 'In Progress',
+    4: 'Cancelled',
   };
   const formattedParams = {
     ...params,
@@ -374,6 +375,10 @@ const PurchaseOrder = () => {
                 value: 3,
                 label: GRNStatus[3],
               },
+              {
+                value: 4,
+                label: GRNStatus[4],
+              },
             ]}
             value={params.grn_status}
             onChange={(value) => dispatch(setPurchaseOrderListParams({ grn_status: value }))}
@@ -388,7 +393,7 @@ const PurchaseOrder = () => {
         if (grn_status == 1) {
           return (
             <div className="flex items-center justify-center">
-              <Tag color="success" className="w-28 text-center">
+              <Tag color="green" className="w-28 text-center">
                 {GRNStatus[1]}
               </Tag>
             </div>
@@ -396,16 +401,24 @@ const PurchaseOrder = () => {
         } else if (grn_status == 2) {
           return (
             <div className="flex items-center justify-center">
-              <Tag color="yellow" className="w-28 text-center">
+              <Tag color="blue" className="w-28 text-center">
                 {GRNStatus[2]}
               </Tag>
             </div>
           );
-        } else {
+        } else if (grn_status == 3) {
+          return (
+            <div className="flex items-center justify-center">
+              <Tag color="orange" className="w-28 text-center">
+                {GRNStatus[3]}
+              </Tag>
+            </div>
+          );
+        }else{
           return (
             <div className="flex items-center justify-center">
               <Tag color="volcano" className="w-28 text-center">
-                {GRNStatus[3]}
+                {GRNStatus[4]}
               </Tag>
             </div>
           );

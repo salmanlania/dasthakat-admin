@@ -40,6 +40,7 @@ class ServicelistController extends Controller
 			->selectRaw("
         servicelist.*,e.event_id,e.event_code,v.vessel_id,v.name as vessel_name,c.document_identity as charge_order_no,
         CASE 
+			WHEN servicelist.is_deleted = 1 THEN 4  -- Cancelled
             -- If no received records exist, status = 3 (Nothing received)
             WHEN NOT EXISTS (
                 SELECT 1 FROM servicelist_received_detail prd 
@@ -95,6 +96,7 @@ class ServicelistController extends Controller
 		if ($sortColumn === 'servicelist_status') {
 			$query->orderByRaw("
             CASE 
+				WHEN servicelist.is_deleted = 1 THEN 4  -- Cancelled
                 WHEN NOT EXISTS (
                     SELECT 1 FROM servicelist_received_detail prd 
                     JOIN servicelist_received pr ON pr.servicelist_received_id = prd.servicelist_received_id 

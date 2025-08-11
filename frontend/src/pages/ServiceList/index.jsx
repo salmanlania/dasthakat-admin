@@ -23,6 +23,7 @@ const serviceListStatus = {
   1: 'Complete',
   2: 'In Complete',
   3: 'In Progress',
+  4: 'Cancelled',
 };
 
 const ServiceList = () => {
@@ -203,6 +204,10 @@ const ServiceList = () => {
                 value: 3,
                 label: serviceListStatus[3],
               },
+              {
+                value: 4,
+                label: serviceListStatus[4],
+              },
             ]}
             value={params.servicelist_status}
             onChange={(value) => dispatch(setServiceListListParams({ servicelist_status: value }))}
@@ -217,7 +222,7 @@ const ServiceList = () => {
         if (servicelist_status == 1) {
           return (
             <div className="flex items-center justify-center">
-              <Tag color="success" className="w-28 text-center">
+              <Tag color="green" className="w-28 text-center">
                 {serviceListStatus[1]}
               </Tag>
             </div>
@@ -225,16 +230,24 @@ const ServiceList = () => {
         } else if (servicelist_status == 2) {
           return (
             <div className="flex items-center justify-center">
-              <Tag color="volcano" className="w-28 text-center">
+              <Tag color="blue" className="w-28 text-center">
                 {serviceListStatus[2]}
+              </Tag>
+            </div>
+          );
+        } else if (servicelist_status == 3) {
+          return (
+            <div className="flex items-center justify-center">
+              <Tag color="orange" className="w-28 text-center">
+                {serviceListStatus[3]}
               </Tag>
             </div>
           );
         } else {
           return (
             <div className="flex items-center justify-center">
-              <Tag color="yellow" className="w-28 text-center">
-                {serviceListStatus[3]}
+              <Tag color="volcano" className="w-28 text-center">
+                {serviceListStatus[4]}
               </Tag>
             </div>
           );

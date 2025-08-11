@@ -25,6 +25,7 @@ const pickListStatus = {
   1: 'Complete',
   2: 'Partial',
   3: 'In Progress',
+  4: 'Cancelled',
 };
 
 const PickList = () => {
@@ -202,6 +203,10 @@ const PickList = () => {
                 value: 3,
                 label: pickListStatus[3],
               },
+              {
+                value: 4,
+                label: pickListStatus[4],
+              },
             ]}
             value={params.picklist_status}
             onChange={(value) => dispatch(setPickListListParams({ picklist_status: value }))}
@@ -216,7 +221,7 @@ const PickList = () => {
         if (picklist_status == 1) {
           return (
             <div className="flex items-center justify-center">
-              <Tag color="success" className="w-28 text-center">
+              <Tag color="green" className="w-28 text-center">
                 {pickListStatus[1]}
               </Tag>
             </div>
@@ -224,16 +229,24 @@ const PickList = () => {
         } else if (picklist_status == 2) {
           return (
             <div className="flex items-center justify-center">
-              <Tag color="volcano" className="w-28 text-center">
+              <Tag color="blue" className="w-28 text-center">
                 {pickListStatus[2]}
+              </Tag>
+            </div>
+          );
+        } else if (picklist_status == 3) {
+          return (
+            <div className="flex items-center justify-center">
+              <Tag color="orange" className="w-28 text-center">
+                {pickListStatus[3]}
               </Tag>
             </div>
           );
         } else {
           return (
             <div className="flex items-center justify-center">
-              <Tag color="yellow" className="w-28 text-center">
-                {pickListStatus[3]}
+              <Tag color="volcano" className="w-28 text-center">
+                {pickListStatus[4]}
               </Tag>
             </div>
           );

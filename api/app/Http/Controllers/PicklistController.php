@@ -40,6 +40,7 @@ class PicklistController extends Controller
 			->selectRaw("
         picklist.*,e.event_id,e.event_code,v.vessel_id,v.name as vessel_name,c.document_identity as charge_order_no,
         CASE 
+			WHEN picklist.is_deleted = 1 THEN 4  -- Cancelled
             -- If no received records exist, status = 3 (Nothing received)
             WHEN NOT EXISTS (
                 SELECT 1 FROM picklist_received_detail prd 
@@ -95,6 +96,7 @@ class PicklistController extends Controller
 		if ($sortColumn === 'picklist_status') {
 			$query->orderByRaw("
             CASE 
+				WHEN picklist.is_deleted = 1 THEN 4  -- Cancelled
                 WHEN NOT EXISTS (
                     SELECT 1 FROM picklist_received_detail prd 
                     JOIN picklist_received pr ON pr.picklist_received_id = prd.picklist_received_id 
