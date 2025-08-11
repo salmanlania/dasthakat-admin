@@ -509,6 +509,7 @@ const ChargeOrder = () => {
     params.customer_id,
     params.vessel_id,
     params.event_id,
+    params.ref_document_identity,
     debouncedSearch,
     debouncedDocNo,
   ]);

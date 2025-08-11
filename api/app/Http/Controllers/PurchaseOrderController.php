@@ -27,6 +27,7 @@ class PurchaseOrderController extends Controller
 		$document_identity = $request->input('document_identity', '');
 		$document_date = $request->input('document_date', '');
 		$required_date = $request->input('required_date', '');
+		$quotation_no = $request->input('quotation_no', '');
 		$quotation_id = $request->input('quotation_id', '');
 		$customer_id = $request->input('customer_id', '');
 		$charge_order_id = $request->input('charge_order_id', '');
@@ -54,6 +55,7 @@ class PurchaseOrderController extends Controller
 		$data = $data->where('purchase_order.company_branch_id', '=', $request->company_branch_id);
 
 		if (!empty($supplier_id)) $data->where('purchase_order.supplier_id', $supplier_id);
+		if (!empty($quotation_no)) $data->where('q.document_identity', 'like', "%" . $quotation_no . "%");
 		if (!empty($quotation_id)) $data->where('purchase_order.quotation_id', $quotation_id);
 		if (!empty($charge_order_id)) $data->where('purchase_order.charge_order_id', $charge_order_id);
 		if (!empty($charge_no)) $data->where('co.document_identity', 'like', "%" . $charge_no . "%");
