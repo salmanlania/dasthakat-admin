@@ -322,7 +322,8 @@ const ServiceList = () => {
     servicelist_status: item.servicelist_status,
     id: item.servicelist_id,
     key: item.servicelist_id,
-    isDeleted: item.is_deleted
+    isDeleted: item.is_deleted,
+    created_at: item.created_at,
   }));
 
   return (
