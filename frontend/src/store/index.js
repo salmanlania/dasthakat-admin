@@ -23,6 +23,9 @@ import portReducer from './features/portSlice';
 import productReducer from './features/productSlice';
 import purchaseInvoiceReducer from './features/purchaseInvoiceSlice';
 import saleInvoiceReducer from './features/saleInvoiceSlice';
+import coaOneReducer from './features/coaOneSlice';
+import coaTwoReducer from './features/coaTwoSlice';
+import coaThreeReducer from './features/coaThreeSlice';
 import purchaseOrderReducer from './features/purchaseOrderSlice';
 import quotationReducer from './features/quotationSlice';
 import salesmanReducer from './features/salesmanSlice';
@@ -82,6 +85,9 @@ const rootReducer = combineReducers({
   purchaseOrder: purchaseOrderReducer,
   purchaseInvoice: purchaseInvoiceReducer,
   saleInvoice: saleInvoiceReducer,
+  coaOne: coaOneReducer,
+  coaTwo: coaTwoReducer,
+  coaThree: coaThreeReducer,
   saleReturn: SaleReturnReducer,
   stockReturn: StockReturnReducer,
   purchaseReturn: PurchaseReturnReducer,

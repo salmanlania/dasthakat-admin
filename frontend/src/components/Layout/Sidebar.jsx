@@ -1,13 +1,13 @@
 import { Avatar, Layout, Menu, Select, Modal } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { BiChevronLeft } from 'react-icons/bi';
-import { FaRegUser, FaRegSave } from 'react-icons/fa';
+import { FaRegUser, FaRegSave} from 'react-icons/fa';
 import { TbBuildingStore } from 'react-icons/tb';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import { TbReportAnalytics } from 'react-icons/tb';
 import { IoSearchSharp } from 'react-icons/io5';
 import { LuCalculator, LuClipboardList, LuWarehouse, LuPackage, LuServer } from 'react-icons/lu';
-import { MdOutlineAdminPanelSettings, MdOutlineDashboard } from 'react-icons/md';
+import { MdOutlineAdminPanelSettings, MdOutlineDashboard, MdOutlineAccountTree } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toggleSidebar } from '../../store/features/sidebarSlice';
@@ -475,6 +475,42 @@ const Sidebar = () => {
           key: 'vendor-platform',
           label: <Link to="/vendor-platform">Vendor Quote</Link>,
           disabled: !permissions?.vp_quotation?.list,
+        },
+      ],
+    },
+    {
+      key: 'general ledger',
+      label: 'General Ledger',
+      icon: <LuClipboardList size={18} />,
+      disabled: saleManagementPermission,
+      children: [
+        {
+          key: 'gl setup',
+          label: 'GL Setup',
+          icon: <MdOutlineAccountTree size={18} />,
+          disabled: !permissions?.quotation?.list,
+          children: [
+            {
+              key: 'gl module setting',
+              label: 'GL Module Setting',
+              // disabled: !permissions?.quotation?.list,
+            },
+            {
+              key: 'chart of accounting level 1',
+              label: <Link to="/general-ledger/coa/level1">Chart Of Accounting Level 1</Link>,
+              disabled: !permissions?.quotation?.list,
+            },
+            {
+              key: 'chart of accounting level 2',
+              label: <Link to="/general-ledger/coa/level2">Chart Of Accounting Level 2</Link>,
+              disabled: !permissions?.quotation?.list,
+            },
+            {
+              key: 'chart of accounting level 3',
+              label: <Link to="/general-ledger/coa/level3">Chart Of Accounting Level 3</Link>,
+              disabled: !permissions?.quotation?.list,
+            },
+          ]
         },
       ],
     },
