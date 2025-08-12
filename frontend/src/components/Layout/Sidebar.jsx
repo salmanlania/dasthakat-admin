@@ -493,7 +493,7 @@ const Sidebar = () => {
             {
               key: 'gl module setting',
               label: 'GL Module Setting',
-              // disabled: !permissions?.quotation?.list,
+              // disabled: !permissions?.quotation?.list
             },
             {
               key: 'chart of accounting level 1',
