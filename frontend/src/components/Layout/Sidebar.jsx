@@ -496,17 +496,17 @@ const Sidebar = () => {
               // disabled: !permissions?.quotation?.list,
             },
             {
-              key: 'chart of accounting level 1',
+              key: 'Chart of accounting level 1',
               label: <Link to="/general-ledger/coa/level1">Chart Of Accounting Level 1</Link>,
               disabled: !permissions?.quotation?.list,
             },
             {
-              key: 'chart of accounting level 2',
+              key: 'Chart of accounting level 2',
               label: <Link to="/general-ledger/coa/level2">Chart Of Accounting Level 2</Link>,
               disabled: !permissions?.quotation?.list,
             },
             {
-              key: 'chart of accounting level 3',
+              key: 'Chart of accounting level 3',
               label: <Link to="/general-ledger/coa/level3">Chart Of Accounting Level 3</Link>,
               disabled: !permissions?.quotation?.list,
             },
