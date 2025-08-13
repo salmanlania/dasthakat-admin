@@ -1494,7 +1494,7 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
               label="Quotation Date"
               rules={[{ required: true, message: 'Quotation date is required' }]}
               className="w-full">
-              <DatePicker format="MM-DD-YYYY" className="w-full" disabled />
+              <DatePicker format="MM-DD-YYYY" className="w-full" />
             </Form.Item>
           </Col>
 
