@@ -14,45 +14,66 @@ class CoaLevel1Controller extends Controller
 {
     public function index(Request $request)
     {
-        $level1_code   = $request->input('level1_code', '');
-        $name          = $request->input('name', '');
-        $gl_type_id    = $request->input('gl_type_id', '');
-        $status        = $request->input('status', '');
-        $search        = $request->input('search', '');
-        $page          = $request->input('page', 1);
-        $perPage       = $request->input('limit', 10);
-        $sort_column   = $request->input('sort_column', 'c1.created_at');
-        $sort_direction= ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
+        $level1_code    = $request->input('level1_code', '');
+        $name           = $request->input('name', '');
+        $gl_type_id     = $request->input('gl_type_id', '');
+        $status         = $request->input('status', '');
+        $search         = $request->input('search', '');
+        $page           = $request->input('page', 1);
+        $perPage        = $request->input('limit', 10);
+        $sort_column    = $request->input('sort_column', 'c1.created_at');
+        $sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
-        $data = CoaLevel1::alias('c1');
-        $data = $data->join(ConstGlType::class . ' as gl_type', 'c1.gl_type_id', '=', 'gl_type.gl_type_id');
+        // Dynamic table names
+        $coaLevel1Table = (new CoaLevel1)->getTable();
+        $glTypeTable    = (new ConstGlType)->getTable();
+
+        $data = CoaLevel1::from($coaLevel1Table . ' as c1')
+            ->join($glTypeTable . ' as gl_type', 'c1.gl_type_id', '=', 'gl_type.gl_type_id');
+
         if (!empty($request->company_id)) {
-            $data = $data->where('c1.company_id', '=', $request->company_id);
+            $data->where('c1.company_id', '=', $request->company_id);
         }
 
-        if (!empty($level1_code)) $data = $data->where('c1.level1_code', 'like', '%'.$level1_code.'%');
-        if (!empty($name))        $data = $data->where('c1.name', 'like', '%'.$name.'%');
-        if ($gl_type_id !== '' && $gl_type_id !== null) $data = $data->where('c1.gl_type_id', $gl_type_id);
-        if ($status !== '' && $status !== null)         $data = $data->where('c1.status', $status);
+        if (!empty($level1_code)) {
+            $data->where('c1.level1_code', 'like', '%' . $level1_code . '%');
+        }
+        if (!empty($name)) {
+            $data->where('c1.name', 'like', '%' . $name . '%');
+        }
+        if ($gl_type_id !== '' && $gl_type_id !== null) {
+            $data->where('c1.gl_type_id', $gl_type_id);
+        }
+        if ($status !== '' && $status !== null) {
+            $data->where('c1.status', $status);
+        }
 
         if (!empty($search)) {
             $s = strtolower($search);
-            $data = $data->where(function($q) use ($s) {
-                $q->where('c1.name', 'like', '%'.$s.'%')
-                  ->orWhere('c1.level1_code', 'like', '%'.$s.'%');
+            $data->where(function ($q) use ($s) {
+                $q->where('c1.name', 'like', '%' . $s . '%')
+                    ->orWhere('c1.level1_code', 'like', '%' . $s . '%');
             });
         }
 
         $data = $data->select('c1.*', 'gl_type.name as gl_type')
-                     ->orderBy($sort_column, $sort_direction)
-                     ->paginate($perPage, ['*'], 'page', $page);
+            ->orderBy($sort_column, $sort_direction)
+            ->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json($data);
     }
 
     public function show($id, Request $request)
     {
-        $data = CoaLevel1::alias('c1')->join(ConstGlType::class . ' as gl_type', 'c1.gl_type_id', '=', 'gl_type.gl_type_id')->where('c1.coa_level1_id', $id)->select('c1.*', 'gl_type.name as gl_type')->first();
+        $coaLevel1Table = (new CoaLevel1)->getTable();
+        $glTypeTable = (new ConstGlType)->getTable();
+
+        $data = CoaLevel1::from($coaLevel1Table . ' as c1')
+            ->join($glTypeTable . ' as gl_type', 'c1.gl_type_id', '=', 'gl_type.gl_type_id')
+            ->where('c1.coa_level1_id', $id)
+            ->select('c1.*', 'gl_type.name as gl_type')
+            ->first();
+
         return $this->jsonResponse($data, 200, 'COA Level1 Data');
     }
 
