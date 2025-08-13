@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use App\Models\CoaLevel1;
 use App\Models\CoaLevel2;
+use App\Models\ConstGlType;
 use Carbon\Carbon;
 
 class CoaLevel1Controller extends Controller
@@ -20,28 +21,29 @@ class CoaLevel1Controller extends Controller
         $search        = $request->input('search', '');
         $page          = $request->input('page', 1);
         $perPage       = $request->input('limit', 10);
-        $sort_column   = $request->input('sort_column', 'created_at');
+        $sort_column   = $request->input('sort_column', 'c1.created_at');
         $sort_direction= ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
-        $data = new CoaLevel1;
+        $data = CoaLevel1::alias('c1');
+        $data = $data->join(ConstGlType::class . ' as gl_type', 'c1.gl_type_id', '=', 'gl_type.gl_type_id');
         if (!empty($request->company_id)) {
-            $data = $data->where('company_id', '=', $request->company_id);
+            $data = $data->where('c1.company_id', '=', $request->company_id);
         }
 
-        if (!empty($level1_code)) $data = $data->where('level1_code', 'like', '%'.$level1_code.'%');
-        if (!empty($name))        $data = $data->where('name', 'like', '%'.$name.'%');
-        if ($gl_type_id !== '' && $gl_type_id !== null) $data = $data->where('gl_type_id', $gl_type_id);
-        if ($status !== '' && $status !== null)         $data = $data->where('status', $status);
+        if (!empty($level1_code)) $data = $data->where('c1.level1_code', 'like', '%'.$level1_code.'%');
+        if (!empty($name))        $data = $data->where('c1.name', 'like', '%'.$name.'%');
+        if ($gl_type_id !== '' && $gl_type_id !== null) $data = $data->where('c1.gl_type_id', $gl_type_id);
+        if ($status !== '' && $status !== null)         $data = $data->where('c1.status', $status);
 
         if (!empty($search)) {
             $s = strtolower($search);
             $data = $data->where(function($q) use ($s) {
-                $q->where('name', 'like', '%'.$s.'%')
-                  ->orWhere('level1_code', 'like', '%'.$s.'%');
+                $q->where('c1.name', 'like', '%'.$s.'%')
+                  ->orWhere('c1.level1_code', 'like', '%'.$s.'%');
             });
         }
 
-        $data = $data->select('*')
+        $data = $data->select('c1.*', 'gl_type.name as gl_type')
                      ->orderBy($sort_column, $sort_direction)
                      ->paginate($perPage, ['*'], 'page', $page);
 
@@ -50,7 +52,7 @@ class CoaLevel1Controller extends Controller
 
     public function show($id, Request $request)
     {
-        $data = CoaLevel1::where('coa_level1_id', $id)->first();
+        $data = CoaLevel1::alias('c1')->join(ConstGlType::class . ' as gl_type', 'c1.gl_type_id', '=', 'gl_type.gl_type_id')->where('c1.coa_level1_id', $id)->select('c1.*', 'gl_type.name as gl_type')->first();
         return $this->jsonResponse($data, 200, 'COA Level1 Data');
     }
 
