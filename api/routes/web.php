@@ -303,6 +303,7 @@ $router->group(['prefix' => 'lookups'], function ($router) {
    $router->get('/company-and-branches', 'LookUpsController@getCompanyAndBranches');
    $router->get('/modules', 'LookUpsController@getModules');
    $router->get('/short-codes', 'LookUpsController@getShortCodes');
+   $router->get('/gl-types', 'LookUpsController@getGlTypes');
 });
 
 $router->group(['prefix' => 'quotation'], function ($router) {

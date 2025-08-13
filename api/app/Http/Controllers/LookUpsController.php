@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\ProductType;
 use App\Models\User;
 use App\Models\UserBranchAccess;
+use App\Models\ConstGlType;
 use Illuminate\Http\Request;
 
 class LookUpsController extends Controller
@@ -60,6 +61,20 @@ class LookUpsController extends Controller
         return response()->json($rows);
     }
 
+
+
+    public function getGlTypes(Request $request)
+    {
+        $search = $request->input('search', '');
+      
+        $query = ConstGlType::query();
+        if (!empty($search)) {
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+        $rows = $query->orderBy('name', 'asc')->get();
+
+        return response()->json($rows);
+    }
 
 
     public function getCompany(Request $request)
