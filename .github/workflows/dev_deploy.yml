@@ -1,9 +1,9 @@
-name: Staging Deploy to cPanel via FTP
+name: Development Deploy to cPanel via FTP
 
 on:
   push:
     branches:
-    - development
+    - develope
 
 jobs:
   frontend-deploy:
@@ -21,7 +21,7 @@ jobs:
 
     - name: Create Frontend .env
       working-directory: frontend
-      run: echo "VITE_BASE_URL=${{ secrets.FRONTEND_DIR }}" > .env
+      run: echo "VITE_BASE_URL=/gms/dev" > .env
 
     - name: Install & Build Frontend
       working-directory: frontend
@@ -40,7 +40,7 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: frontend/dist/
-        server-dir: /public_html/${{ secrets.FRONTEND_DIR }}
+        server-dir: /public_html/gms/dev
         dangerous-clean-slate: false
         exclude: |
           config.json
@@ -67,7 +67,7 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: api/
-        server-dir: ${{ secrets.BACKEND_DIR }}
+        server-dir: /public_html/gms/dev/api
         exclude: |
           vendor/**
 
@@ -79,10 +79,10 @@ jobs:
     steps:
     - name: Trigger Remote Vendor Unzip
       run: |
-        curl -X GET "${{ secrets.APP_URL }}api/deployKit/unzip.php" \
+        curl -X GET "https://dev82.bharmalsystems.net/gms/dev/tools/unzip.php" \
         -H "X-DEPLOY-TOKEN: ${{ secrets.APP_KEY }}"
 
     - name: Trigger Remote Migrations
       run: |
-        curl -X GET ${{ secrets.APP_URL }}api/deploy/migrations \
+        curl -X GET "https://dev82.bharmalsystems.net/gms/dev/api/deploy/migrations" \
         -H "X-DEPLOY-TOKEN: ${{ secrets.APP_KEY }}"
