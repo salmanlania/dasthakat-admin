@@ -25,25 +25,32 @@ class CoaLevel3Controller extends Controller
         $sort_column    = $request->input('sort_column', 'created_at');
         $sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
-        $data = new CoaLevel3;
+        $coaLevel1Table = (new CoaLevel1)->getTable();
+        $coaLevel2Table = (new CoaLevel2)->getTable();
+        $coaLevel3Table = (new CoaLevel3)->getTable();
+        $data = CoaLevel3::from($coaLevel3Table . ' as c3')
+            ->join($coaLevel2Table . ' as c2', 'c3.coa_level2_id', '=', 'c2.coa_level2_id')
+            ->join($coaLevel1Table . ' as c1', 'c2.coa_level1_id', '=', 'c1.coa_level1_id');
         if (!empty($request->company_id)) {
-            $data = $data->where('company_id', '=', $request->company_id);
+            $data = $data->where('c3.company_id', '=', $request->company_id);
         }
-        if (!empty($coa_level1_id)) $data = $data->where('coa_level1_id', $coa_level1_id);
-        if (!empty($coa_level2_id)) $data = $data->where('coa_level2_id', $coa_level2_id);
-        if (!empty($level3_code))  $data = $data->where('level3_code', 'like', '%'.$level3_code.'%');
-        if (!empty($name))         $data = $data->where('name', 'like', '%'.$name.'%');
-        if ($status !== '' && $status !== null) $data = $data->where('status', $status);
+        if (!empty($coa_level1_id)) $data = $data->where('c1.coa_level1_id', $coa_level1_id);
+        if (!empty($coa_level2_id)) $data = $data->where('c2.coa_level2_id', $coa_level2_id);
+        if (!empty($level3_code))  $data = $data->where('c3.level3_code', 'like', '%'.$level3_code.'%');
+        if (!empty($name))         $data = $data->where('c3.name', 'like', '%'.$name.'%');
+        if ($status !== '' && $status !== null) $data = $data->where('c3.status', $status);
 
         if (!empty($search)) {
             $s = strtolower($search);
             $data = $data->where(function($q) use ($s) {
-                $q->where('name', 'like', '%'.$s.'%')
-                  ->orWhere('level3_code', 'like', '%'.$s.'%');
+                $q->where('c3.name', 'like', '%'.$s.'%')
+                  ->orWhere('c3.level3_code', 'like', '%'.$s.'%')
+                  ->orWhere('c2.name', 'like', '%'.$s.'%')
+                  ->orWhere('c1.name', 'like', '%'.$s.'%');
             });
         }
 
-        $data = $data->select('*')
+        $data = $data->select('c3.*', 'c2.name as coa_level2_name', 'c1.name as coa_level1_name')
                      ->orderBy($sort_column, $sort_direction)
                      ->paginate($perPage, ['*'], 'page', $page);
 
@@ -52,7 +59,7 @@ class CoaLevel3Controller extends Controller
 
     public function show($id, Request $request)
     {
-        $data = CoaLevel3::where('coa_level3_id', $id)->first();
+        $data = CoaLevel3::with('coa_level2', 'coa_level1')->where('coa_level3_id', $id)->first();
         return $this->jsonResponse($data, 200, 'COA Level3 Data');
     }
 

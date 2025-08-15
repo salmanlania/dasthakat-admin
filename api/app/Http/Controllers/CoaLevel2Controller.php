@@ -23,25 +23,29 @@ class CoaLevel2Controller extends Controller
         $perPage        = $request->input('limit', 10);
         $sort_column    = $request->input('sort_column', 'created_at');
         $sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
+        $coaLevel1Table = (new CoaLevel1)->getTable();
+        $coaLevel2Table = (new CoaLevel2)->getTable();
 
-        $data = new CoaLevel2;
+        $data = CoaLevel2::from($coaLevel2Table . ' as c2')
+            ->join($coaLevel1Table . ' as c1', 'c2.coa_level1_id', '=', 'c1.coa_level1_id');
         if (!empty($request->company_id)) {
-            $data = $data->where('company_id', '=', $request->company_id);
+            $data = $data->where('c2.company_id', '=', $request->company_id);
         }
-        if (!empty($coa_level1_id)) $data = $data->where('coa_level1_id', $coa_level1_id);
-        if (!empty($level2_code))  $data = $data->where('level2_code', 'like', '%'.$level2_code.'%');
-        if (!empty($name))         $data = $data->where('name', 'like', '%'.$name.'%');
-        if ($status !== '' && $status !== null) $data = $data->where('status', $status);
+        if (!empty($coa_level1_id)) $data = $data->where('c2.coa_level1_id', $coa_level1_id);
+        if (!empty($level2_code))  $data = $data->where('c2.level2_code', 'like', '%'.$level2_code.'%');
+        if (!empty($name))         $data = $data->where('c2.name', 'like', '%'.$name.'%');
+        if ($status !== '' && $status !== null) $data = $data->where('c2.status', $status);
 
         if (!empty($search)) {
             $s = strtolower($search);
             $data = $data->where(function($q) use ($s) {
-                $q->where('name', 'like', '%'.$s.'%')
-                  ->orWhere('level2_code', 'like', '%'.$s.'%');
+                $q->where('c2.name', 'like', '%'.$s.'%')
+                  ->orWhere('c2.level2_code', 'like', '%'.$s.'%')
+                  ->orWhere('c1.name', 'like', '%'.$s.'%');
             });
         }
 
-        $data = $data->select('*')
+        $data = $data->select('c2.*', 'c1.name as coa_level1_name')
                      ->orderBy($sort_column, $sort_direction)
                      ->paginate($perPage, ['*'], 'page', $page);
 
@@ -50,7 +54,7 @@ class CoaLevel2Controller extends Controller
 
     public function show($id, Request $request)
     {
-        $data = CoaLevel2::where('coa_level2_id', $id)->first();
+        $data = CoaLevel2::with('coa_level1')->where('coa_level2_id', $id)->first();
         return $this->jsonResponse($data, 200, 'COA Level2 Data');
     }
 
