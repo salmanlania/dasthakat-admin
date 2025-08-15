@@ -63,7 +63,7 @@ class CoaLevel3Controller extends Controller
 
     public function show($id, Request $request)
     {
-        $data = CoaLevel3::with('coa_level2', 'coa_level1')->where('coa_level3_id', $id)->first();
+        $data = CoaLevel3::with('level2', 'level1')->where('coa_level3_id', $id)->first();
         return $this->jsonResponse($data, 200, 'COA Level3 Data');
     }
 
