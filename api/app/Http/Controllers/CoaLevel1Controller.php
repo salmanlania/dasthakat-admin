@@ -9,6 +9,7 @@ use App\Models\CoaLevel1;
 use App\Models\CoaLevel2;
 use App\Models\ConstGlType;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class CoaLevel1Controller extends Controller
 {
@@ -56,7 +57,8 @@ class CoaLevel1Controller extends Controller
             });
         }
 
-        $data = $data->select('c1.*', 'gl_type.name as gl_type')
+        $data = $data->select('c1.*', 'gl_type.name as gl_type',
+                DB::raw("CONCAT(c1.level1_code, ':', c1.name) as level1_display_name"))
             ->orderBy($sort_column, $sort_direction)
             ->paginate($perPage, ['*'], 'page', $page);
 
