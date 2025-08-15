@@ -150,13 +150,31 @@ const ServiceList = () => {
               dispatch(setServiceListListParams({ event_id: selected ? selected.value : null }))
             }
             allowClear
+            components={{
+              SingleValue: (props) => {
+                const label = props.data.label || '';
+                const truncated = label.length > 15 ? label.slice(0, 15) + '...' : label;
+                return (
+                  <Tooltip title={label}>
+                    <components.SingleValue {...props}>
+                      {truncated}
+                    </components.SingleValue>
+                  </Tooltip>
+                );
+              }
+            }}
           />
         </div>
       ),
       dataIndex: 'event_code',
       key: 'event_code',
       sorter: true,
-      width: 180,
+      width: 120,
+      render: (text) => (
+        <Tooltip title={text}>
+          {text ? text.slice(0, 15) + (text.length > 15 ? '...' : '') : ''}
+        </Tooltip>
+      )
     },
     {
       title: (
