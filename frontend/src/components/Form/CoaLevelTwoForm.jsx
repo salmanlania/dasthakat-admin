@@ -128,7 +128,7 @@ const CoaLevelTwoForm = ({ mode, onSubmit, onSave }) => {
                 disabled={mode === 'edit' ? true : false}
                 onChange={(selected) => {
                   if (selected?.value) {
-                    dispatch(getCoaLevelTwo({ gl_type_id: selected.value }));
+                    dispatch(getCoaLevelTwo({ coa_level1_id: selected.value }));
                     if (mode !== 'edit') {
                       dispatch(getCoaLevelTwoCode(
                         {

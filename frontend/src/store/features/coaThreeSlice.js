@@ -88,7 +88,7 @@ export const bulkDeleteCoaLevelThree = createAsyncThunk(
   async (ids, { rejectWithValue }) => {
     try {
       await api.post('/coa-level3/bulk-delete', {
-        coa_level1_ids: ids
+        coa_level3_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);

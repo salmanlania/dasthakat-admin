@@ -64,7 +64,7 @@ const CoaLevelTwo = () => {
     closeDeleteModal();
     try {
       await dispatch(bulkDeleteCoaLevelTwo(deleteIDs)).unwrap();
-      toast.success('Chart Of Account Level Twos deleted successfully');
+      toast.success('Chart Of Account Level Two deleted successfully');
       closeDeleteModal();
       await dispatch(getCoaLevelTwo(formattedParams)).unwrap();
     } catch (error) {
@@ -178,39 +178,39 @@ const CoaLevelTwo = () => {
       key: 'action',
       render: (record, { coa_level2_id }) => {
         return (
-        <div className="flex flex-col justify-center gap-1">
-          {permissions.edit ? (
-            <>
-              <div className="flex items-center gap-1">
-                <Tooltip title="Edit">
-                  <Link to={`/general-ledger/coa/level2/edit/${coa_level2_id}`}>
-                    <Button
-                      size="small"
-                      type="primary"
-                      className="bg-gray-500 hover:!bg-gray-400"
-                      icon={<MdOutlineEdit size={14} />}
-                    />
-                  </Link>
-                </Tooltip>
-                {permissions.delete ? (
-                  <Tooltip title="Delete">
-                    <Popconfirm
-                      title="Are you sure you want to delete?"
-                      description="After deleting, You will not be able to recover it."
-                      okButtonProps={{ danger: true }}
-                      okText="Yes"
-                      cancelText="No"
-                      onConfirm={() => onCoaLevelTwoDelete(coa_level2_id)}>
-                      <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
-                    </Popconfirm>
+          <div className="flex flex-col justify-center gap-1">
+            {permissions.edit ? (
+              <>
+                <div className="flex items-center gap-1">
+                  <Tooltip title="Edit">
+                    <Link to={`/general-ledger/coa/level2/edit/${coa_level2_id}`}>
+                      <Button
+                        size="small"
+                        type="primary"
+                        className="bg-gray-500 hover:!bg-gray-400"
+                        icon={<MdOutlineEdit size={14} />}
+                      />
+                    </Link>
                   </Tooltip>
-                ) : null}
-              </div>
-            </>
-          ) : null}
-        </div>
-      )
-    },
+                  {permissions.delete ? (
+                    <Tooltip title="Delete">
+                      <Popconfirm
+                        title="Are you sure you want to delete?"
+                        description="After deleting, You will not be able to recover it."
+                        okButtonProps={{ danger: true }}
+                        okText="Yes"
+                        cancelText="No"
+                        onConfirm={() => onCoaLevelTwoDelete(coa_level2_id)}>
+                        <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
+                      </Popconfirm>
+                    </Tooltip>
+                  ) : null}
+                </div>
+              </>
+            ) : null}
+          </div>
+        )
+      },
       width: 40,
       fixed: 'right',
     },
@@ -290,13 +290,17 @@ const CoaLevelTwo = () => {
               ? {
                 type: 'checkbox',
                 selectedRowKeys: deleteIDs,
-                onChange: (selectedRowKeys) => dispatch(setCoaLevelTwoDeleteIDs(selectedRowKeys)),
+                onChange: (selectedRowKeys) => {
+                  console.log('selectedRowKeys changed: ', selectedRowKeys);
+                  // return
+                  dispatch(setCoaLevelTwoDeleteIDs(selectedRowKeys));
+                },
               }
               : null
           }
           loading={isListLoading}
           className="mt-2"
-          rowKey="coa_level1_id"
+          rowKey="coa_level2_id"
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
