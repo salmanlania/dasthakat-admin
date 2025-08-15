@@ -20,7 +20,7 @@ return new class extends Migration
             $table->increments('control_access_id'); // INT(11) unsigned NOT NULL AUTO_INCREMENT
             $table->string('module_name');
             $table->string('form_name');
-            $table->string('route')->unique(); // Routes should be unique
+            $table->string('route')->nullable();
             $table->char('permission_id', 36);
             $table->string('permission_name')->nullable();
             $table->decimal('sort_order', 15, 2)->default(0.00);
