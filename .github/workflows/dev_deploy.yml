@@ -49,11 +49,12 @@ jobs:
       run: |
         set -e
         URL="https://dev82.bharmalsystems.net/gms/dev/config.json"
-        STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
-        if [ "$STATUS" -eq 200 ]; then
-          echo "config.json already exists on server. Skipping upload."
+        BODY=$(curl -s -L "$URL" || true)
+        FIRST_CHAR=$(printf '%s' "$BODY" | head -c 1)
+        if [ -n "$BODY" ] && printf '%s' "$FIRST_CHAR" | grep -qE '^{|\['; then
+          echo "config.json already exists on server (detected JSON). Skipping upload."
         else
-          echo "config.json not found on server (status=$STATUS). Uploading..."
+          echo "config.json not found or not JSON (first_char='${FIRST_CHAR:-none}'). Uploading..."
           if [ ! -f frontend/dist/config.json ]; then
             echo "Error: frontend/dist/config.json does not exist in build output." >&2
             exit 1
@@ -129,7 +130,7 @@ jobs:
     needs: backend-deploy
     runs-on: ubuntu-latest
 
-    
+
     steps:
     - name: Trigger Remote Vendor Unzip
       run: |
