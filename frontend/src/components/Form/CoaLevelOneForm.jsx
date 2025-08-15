@@ -1,129 +1,57 @@
 /* eslint-disable react/prop-types */
-import { Button, Col, Form, Input, Row, Select, Table } from 'antd';
+import { Button, Col, Form, Input, Row, Table } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import useError from '../../hooks/useError';
-import { getProduct } from '../../store/features/productSlice';
-import AsyncSelect from '../AsyncSelect';
-import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
+import { getCoaLevelOne, getCoaLevelsCode } from '../../store/features/coaOneSlice';
+import AsyncSelectLedger from '../AsyncSelectLedger';
 import DebounceInput from '../Input/DebounceInput';
-import SaleReturnModal from '../Modals/ReturnModal';
 
 const CoaLevelOneForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
-  const handleError = useError();
   const dispatch = useDispatch();
-  const { isFormSubmitting, initialFormValues, saleInvoiceDetail } = useSelector(
+  const { isFormSubmitting, initialFormValues, coaLevelOneList, initialFormCodeValues } = useSelector(
     (state) => state.coaOne
   );
 
-  const [totalQuantity, setTotalQuantity] = useState('');
-  const [totalAmount, setTotalAmount] = useState('');
   const [submitAction, setSubmitAction] = useState(null);
-  const [selectedRows, setSelectedRows] = useState([]);
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [returnModalVisible, setReturnModalVisible] = useState(false);
 
   const onFinish = (values) => {
-    if (!totalAmount) return toast.error('Total Amount cannot be zero');
-
-    const formatDate = (date) => (date ? dayjs(date).format('YYYY-MM-DD') : null);
 
     const data = {
-      ...values,
-      ship_date: formatDate(values.ship_date),
-      document_date: formatDate(values.document_date),
-      required_date: formatDate(values.required_date),
-      vessel_billing_address: values?.vessel_billing_address ? values?.vessel_billing_address : null
+      gl_type_id: values?.gl_types?.value ? values?.gl_types?.value : null,
+      level1_code: values?.code ? values?.code : null,
+      name: values?.coa_name ? values?.coa_name : null,
     };
 
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 
-  const onProductChange = async (index, selected) => {
-    dispatch(
-      changePurchaseInvoiceDetailValue({
-        index,
-        key: 'product_id',
-        value: selected
-      })
-    );
-    if (!selected) return;
-    try {
-      const product = await dispatch(getProduct(selected.value)).unwrap();
-
-      dispatch(
-        changePurchaseInvoiceDetailValue({
-          index,
-          key: 'product_code',
-          value: product.product_code
-        })
-      );
-
-      dispatch(
-        changePurchaseInvoiceDetailValue({
-          index,
-          key: 'unit_id',
-          value: { value: product.unit_id, label: product.unit_name }
-        })
-      );
-
-      dispatch(
-        changePurchaseInvoiceDetailValue({
-          index,
-          key: 'rate',
-          value: product.cost_price
-        })
-      );
-    } catch (error) {
-      handleError(error);
-    }
-  };
-
   useEffect(() => {
     if (mode === 'edit' && initialFormValues) {
-      const salesmanId = initialFormValues?.salesman_id || '';
-      const quantity = initialFormValues?.totalQuantity || '';
-      const amount = initialFormValues?.totalAmount || '';
-      const customerPoNo = initialFormValues?.customer_po_no || '';
-      const eventName = initialFormValues?.event_id || '';
-      const vesselName = initialFormValues?.vessel_id || '';
-      const customerName = initialFormValues?.customer_id || '';
-      const portName = initialFormValues?.port_id || '';
-      const refDocumentIdentity = initialFormValues?.ref_document_identity || '';
-      const chargeOrderNo = initialFormValues?.charger_order_id || '';
-      const billingAddress = initialFormValues?.vessel_billing_address ? initialFormValues?.vessel_billing_address : initialFormValues?.vessel?.billing_address || '';
-
-      setTotalQuantity(quantity);
-      setTotalAmount(amount);
+      const gl_types = initialFormValues?.gl_types || '';
+      const gl_type_id = initialFormValues?.gl_type_id || '';
+      const code = initialFormValues?.code || '';
+      const coa_name = initialFormValues?.coa_name || '';
       form.setFieldsValue({
-        salesman_id: salesmanId,
-        totalQuantity: quantity,
-        totalAmount: amount,
+        // gl_types: gl_types,
+        gl_types: gl_type_id
+          ? { value: gl_type_id, label: gl_types }
+          : undefined,
+        code: code,
+        coa_name: coa_name,
+      });
 
-        customer_po_no: customerPoNo,
-        event_id: eventName,
-        vessel_id: vesselName,
-        customer_id: customerName,
-        charger_order_id: chargeOrderNo,
-        port_id: portName,
-        vessel_billing_address: billingAddress,
-        ref_document_identity: refDocumentIdentity,
-        document_date: initialFormValues.document_date
-          ? dayjs(initialFormValues.document_date)
-          : null,
-        required_date: initialFormValues.required_date
-          ? dayjs(initialFormValues.required_date)
-          : null,
-        ship_date: initialFormValues?.ship_date
-          ? dayjs(dayjs(initialFormValues.ship_date).format('YYYY-MM-DD'))
-          : null,
+      if (gl_type_id) {
+        dispatch(getCoaLevelOne({ gl_type_id: gl_type_id }));
+      }
+    } else if (mode !== 'edit' && initialFormCodeValues) {
+      form.setFieldsValue({
+        code: initialFormCodeValues?.code
       });
     }
-  }, [initialFormValues, form, mode]);
+  }, [initialFormValues, initialFormCodeValues, form, mode]);
 
   const columns = [
     {
@@ -137,14 +65,13 @@ const CoaLevelOneForm = ({ mode, onSubmit, onSave }) => {
     },
     {
       title: 'Account Type',
-      dataIndex: 'product_type_id',
-      key: 'product_type_id',
+      dataIndex: 'gl_type',
+      key: 'gl_type',
       render: (_, record, index) => {
-        const fullValue = record.product_type_id?.label.toString() || '';
         return (
           <DebounceInput
             disabled
-            value={fullValue}
+            value={record?.gl_type}
           />
         );
       },
@@ -152,56 +79,27 @@ const CoaLevelOneForm = ({ mode, onSubmit, onSave }) => {
     },
     {
       title: 'Code',
-      dataIndex: 'quantity',
-      key: 'quantity',
-      render: (_, { quantity }, index) => {
-        form.setFieldsValue({ [`quantity-${index}`]: quantity });
+      dataIndex: 'level1_code',
+      key: 'level1_code',
+      render: (_, record, { product_id }, index) => {
         return (
-          <Form.Item
-            className="m-0"
-            name={`quantity-${index}`}
-            initialValue={quantity}
-            rules={[
-              {
-                required: true,
-                message: 'Quantity is required'
-              }
-            ]}>
-            <DebouncedCommaSeparatedInput
-              disabled
-              decimalPlaces={2}
-              value={quantity}
-            />
-          </Form.Item>
+          <Input value={record.level1_code} disabled />
         );
       },
       width: 100
     },
     {
       title: 'Name',
-      dataIndex: 'product_name',
-      key: 'product_name',
+      dataIndex: 'name',
+      key: 'name',
       render: (_, record, { product_id }, index) => {
         return (
-          <AsyncSelect
-            endpoint="/product"
-            valueKey="product_id"
-            labelKey="product_name"
-            labelInValue
-            className="w-full"
-            disabled
-            value={record.product_name}
-            onChange={(selected) => onProductChange(index, selected)}
-          />
+          <Input value={record.name} disabled />
         );
       },
       width: 280
     },
   ];
-
-  const saleReturnRows = selectedRows.filter(row =>
-    row.product_type_no !== '1' || row.product_type_no !== 1
-  );
 
   return (
     <>
@@ -222,46 +120,52 @@ const CoaLevelOneForm = ({ mode, onSubmit, onSave }) => {
 
         <Row gutter={12}>
           <Col span={24} sm={12} md={8} lg={8}>
-            <Form.Item name="event_id" label="Account Type">
-              <Select
+            <Form.Item name="gl_types" label="Account Type">
+              <AsyncSelectLedger
+                endpoint="/lookups/gl-types"
+                valueKey="gl_type_id"
+                disabled={mode === 'edit' ? true : false}
+                labelKey="name"
                 labelInValue
-                options={[
-                  { value: '1', label: 'Asset' },
-                  { value: '2', label: 'Liability' },
-                  { value: '3', label: 'Equity' },
-                  { value: '4', label: 'Revenue' },
-                  { value: '5', label: 'Expense' }
-                ]}
+                className="w-full"
+                onChange={(selected) => {
+                  if (selected?.value) {
+                    dispatch(getCoaLevelOne({ gl_type_id: selected.value }));
+                    if (mode !== 'edit') {
+                      dispatch(getCoaLevelsCode(
+                        {
+                          gl_type_id: selected.value,
+                          level: 1,
+                          coa_level2_id: null,
+                          coa_level1_id: null
+                        }
+                      ));
+                    }
+                  }
+                }}
               />
             </Form.Item>
           </Col>
           <Col span={24} sm={12} md={4} lg={4}>
-            <Form.Item name="charger_order_id" label="Code">
-              <Input />
+            <Form.Item name="code" label="Code">
+              <Input required disabled={mode === 'edit' ? true : false} type="number"inputMode="numeric" />
             </Form.Item>
           </Col>
           <Col span={24} sm={12} md={12} lg={12}>
-            <Form.Item name="customer_id" label="Name">
-              <Input />
+            <Form.Item name="coa_name" label="Name">
+              <Input required />
             </Form.Item>
           </Col>
         </Row>
         <Table
           columns={columns}
-          dataSource={saleInvoiceDetail}
-          rowKey={'charge_order_detail_id'}
+          dataSource={Array.isArray(coaLevelOneList) ? coaLevelOneList : []}
+          rowKey={'coa_level1_id'}
           size="small"
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={false}
           sticky={{
             offsetHeader: 56
-          }}
-          rowSelection={{
-            selectedRowKeys,
-            onChange: (newSelectedRowKeys, newSelectedRows) => {
-              setSelectedRowKeys(newSelectedRowKeys);
-              setSelectedRows(newSelectedRows);
-            }
           }}
         />
 
@@ -269,6 +173,7 @@ const CoaLevelOneForm = ({ mode, onSubmit, onSave }) => {
           <Link to="/general-ledger/coa/level1">
             <Button className="w-28">Exit</Button>
           </Link>
+
           <Button
             type="primary"
             className="w-28"
@@ -279,57 +184,20 @@ const CoaLevelOneForm = ({ mode, onSubmit, onSave }) => {
             }}>
             Save
           </Button>
+
           <Button
             type="primary"
             className="w-28 bg-green-600 hover:!bg-green-500"
             loading={isFormSubmitting && submitAction === 'saveAndExit'}
             onClick={() => {
               setSubmitAction('saveAndExit');
-              form.submit();
+              form.submit()
             }}>
             Save & Exit
           </Button>
-          {
-            saleInvoiceDetail?.some(i => i?.product_type_no !== 1) ?
-              <>
-                <Button
-                  className="w-32 bg-amber-500 text-white hover:!bg-amber-400"
-                  type="primary"
-                  disabled={saleReturnRows.length === 0}
-                  onClick={() => {
-                    const hasRestrictedProduct = selectedRows.some(
-                      row => row.product_type_no === '1' || row.product_type_no === 1
-                    );
 
-                    if (hasRestrictedProduct) {
-                      toast.error(`Service Product Can't be return`)
-                      return
-                    }
-                    setReturnModalVisible(true);
-                  }}
-                >
-                  Return
-                </Button>
-              </>
-              : null
-          }
-          <Button
-            type="primary"
-            className="w-28 bg-gray-600 hover:!bg-gray-500"
-            loading={isFormSubmitting && submitAction === 'saveAndExit'}
-            onClick={() => toast.success('Sale Invoice cancelled successfully')}>
-            Cancel
-          </Button>
         </div>
       </Form>
-
-      <SaleReturnModal
-        visible={returnModalVisible}
-        onClose={() => {
-          setReturnModalVisible(false)
-        }}
-        data={saleReturnRows}
-      />
     </>
   );
 };

@@ -7,7 +7,7 @@ import CoaLevelOneForm from '../../../components/Form/CoaLevelOneForm';
 import PageHeading from '../../../components/Heading/PageHeading';
 import useDocumentTitle from '../../../hooks/useDocumentTitle';
 import useError from '../../../hooks/useError';
-import { getSaleInvoice, updateSaleInvoiceForm, resetSaleInvoiceForm } from '../../../store/features/coaOneSlice';
+import { createCoaLevelOne, resetCoaLevelOne } from '../../../store/features/coaOneSlice';
 
 const CreateCoaLevelOne = () => {
   useDocumentTitle('Create Chart Of Account Level One');
@@ -16,20 +16,21 @@ const CreateCoaLevelOne = () => {
   const handleError = useError();
   const { id } = useParams();
 
-  const onSaleInvoiceCreate = async (data) => {
+  const onCoaLevelOneCreate = async (data) => {
     try {
-      await dispatch(updateSaleInvoiceForm({ id, data })).unwrap();
-      toast.success('COA level one updated successfully');
-      dispatch(getSaleInvoice(id)).unwrap();
+      const res = await dispatch(createCoaLevelOne(data)).unwrap();
+      const id = res?.data?.coa_level1_id
+      toast.success('COA level one created successfully');
+      navigate(`/general-ledger/coa/level1/edit/${id}`);
     } catch (error) {
       handleError(error);
     }
   };
 
-  const onSaleInvoiceCreates = async (data) => {
+  const onCoaLevelOneCreates = async (data) => {
     try {
-      await dispatch(updateSaleInvoiceForm({ id, data })).unwrap();
-      toast.success('COA level one updated successfully');
+      await dispatch(createCoaLevelOne(data)).unwrap();
+      toast.success('COA level one created successfully');
       navigate('/general-ledger/coa/level1');
     } catch (error) {
       handleError(error);
@@ -38,7 +39,7 @@ const CreateCoaLevelOne = () => {
 
   useEffect(() => {
     try {
-      dispatch(resetSaleInvoiceForm());
+      dispatch(resetCoaLevelOne());
     } catch (error) {
       handleError();
     }
@@ -52,7 +53,7 @@ const CreateCoaLevelOne = () => {
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-        <CoaLevelOneForm onSubmit={onSaleInvoiceCreate} onSave={onSaleInvoiceCreates} />
+        <CoaLevelOneForm onSave={onCoaLevelOneCreates} onSubmit={onCoaLevelOneCreate} />
       </div>
     </>
   );

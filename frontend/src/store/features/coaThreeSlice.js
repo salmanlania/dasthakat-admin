@@ -1,11 +1,11 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import api from '../../axiosInstance';
 
-export const getSaleInvoiceList = createAsyncThunk(
-  'saleInvoice/list',
+export const getCoaLevelThree = createAsyncThunk(
+  'coaLevelThree/list',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get('/sale-invoice', {
+      const res = await api.get('/coa-level3', {
         params: {
           ...params,
           all: 1
@@ -18,11 +18,11 @@ export const getSaleInvoiceList = createAsyncThunk(
   }
 );
 
-export const getSaleInvoice = createAsyncThunk(
-  'saleInvoice/get',
+export const getCoaLevelThreeEdit = createAsyncThunk(
+  'coaLevel1/get',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/sale-invoice/${id}`);
+      const res = await api.get(`/coa-level3/${id}`);
       return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);
@@ -30,45 +30,46 @@ export const getSaleInvoice = createAsyncThunk(
   }
 );
 
-export const updateSaleInvoiceForm = createAsyncThunk(
+export const updateCoaLevelThreeForm = createAsyncThunk(
   'saleInvoice/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      await api.put(`/sale-invoice/${id}`, data);
+      await api.put(`/coa-level3/${id}`, data);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const createSaleInvoice = createAsyncThunk(
-  'saleInvoice/create',
+export const createCoaLevelThree = createAsyncThunk(
+  'coaLevelThree/create',
   async (data, { rejectWithValue }) => {
     try {
-      await api.post('/sale-invoice', data);
+      const res = await api.post('/coa-level3', data);
+      return res?.data
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const deleteSaleInvoice = createAsyncThunk(
-  'saleInvoice/delete',
+export const deleteCoaLevelThree = createAsyncThunk(
+  'coaLevelThree/delete',
   async (id, { rejectWithValue }) => {
     try {
-      await api.delete(`/sale-invoice/${id}`);
+      await api.delete(`/coa-level3/${id}`);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const bulkDeleteSaleInvoice = createAsyncThunk(
-  'saleInvoice/bulkDelete',
+export const bulkDeleteCoaLevelThree = createAsyncThunk(
+  'coaLevelThree/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post('/sale-invoice/bulk-delete', {
-        sale_invoice_ids: ids
+      await api.post('/coa-level3/bulk-delete', {
+        coa_level1_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -81,7 +82,7 @@ const initialState = {
   isFormSubmitting: false,
   isBulkDeleting: false,
   initialFormValues: null,
-  saleInvoiceDetail: null,
+  coaLevelThreeList: null,
   isItemLoading: false,
   list: [],
   listID: [],
@@ -103,142 +104,88 @@ export const coaThreeSlice = createSlice({
   name: 'coaThree',
   initialState,
   reducers: {
-    setSaleInvoiceListParams: (state, action) => {
+    setCoaLevelThreeListParams: (state, action) => {
       state.params = {
         ...state.params,
         ...action.payload
       };
     },
 
-    setSaleInvoiceDeleteIDs: (state, action) => {
+    setCoaLevelThreeDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
     },
 
-    resetSaleInvoiceForm: (state) => {
+    resetCoaLevelThree: (state) => {
       state.initialFormValues = null;
-      state.saleInvoiceDetail = null;
+      state.coaLevelThreeList = null;
       state.isItemLoading = false;
     }
   },
   extraReducers: ({ addCase }) => {
-    addCase(getSaleInvoiceList.pending, (state) => {
+    addCase(getCoaLevelThree.pending, (state) => {
       state.isListLoading = true;
       state.initialFormValues = null;
     });
-    addCase(getSaleInvoiceList.fulfilled, (state, action) => {
+    addCase(getCoaLevelThree.fulfilled, (state, action) => {
       state.isListLoading = false;
       const { data, ...rest } = action.payload;
       state.list = data;
-      state.listID = data.map((item) => {
-        return item.sale_invoice_id;
-      });
+      state.coaLevelThreeList = data
       state.paginationInfo = {
         total_records: rest.total,
         total_pages: rest.last_page
       };
     });
-    addCase(getSaleInvoiceList.rejected, (state) => {
+    addCase(getCoaLevelThree.rejected, (state) => {
       state.isListLoading = false;
     });
 
-    addCase(createSaleInvoice.pending, (state) => {
+    addCase(createCoaLevelThree.pending, (state) => {
       state.isFormSubmitting = true;
     });
-    addCase(createSaleInvoice.fulfilled, (state) => {
+    addCase(createCoaLevelThree.fulfilled, (state) => {
       state.isFormSubmitting = false;
     });
-    addCase(createSaleInvoice.rejected, (state) => {
+    addCase(createCoaLevelThree.rejected, (state) => {
       state.isFormSubmitting = false;
     });
 
     // start bulk delete
 
-    addCase(bulkDeleteSaleInvoice.pending, (state) => {
+    addCase(bulkDeleteCoaLevelThree.pending, (state) => {
       state.isBulkDeleting = true;
     });
-    addCase(bulkDeleteSaleInvoice.fulfilled, (state) => {
+    addCase(bulkDeleteCoaLevelThree.fulfilled, (state) => {
       state.isBulkDeleting = false;
       state.deleteIDs = [];
     });
-    addCase(bulkDeleteSaleInvoice.rejected, (state) => {
+    addCase(bulkDeleteCoaLevelThree.rejected, (state) => {
       state.isBulkDeleting = false;
     });
 
     // end bulk delete
 
-    addCase(getSaleInvoice.pending, (state) => {
+    addCase(getCoaLevelThreeEdit.pending, (state) => {
       state.isItemLoading = true;
     });
-    addCase(getSaleInvoice.fulfilled, (state, action) => {
+    addCase(getCoaLevelThreeEdit.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
       state.initialFormValues = {
-        document_identity: data.document_identity || '',
-        document_date: data.document_date || '',
-        totalQuantity: data.total_quantity || 0,
-        totalAmount: data.total_amount || 0,
-        totalDiscount: data.total_discount || 0,
-        netAmount: data.net_amount || 0,
-        salesman_id: data?.charge_order?.salesman?.name,
-        customer_po_no: data?.charge_order?.customer_po_no,
-        vessel: data?.charge_order?.vessel,
-        vessel_billing_address: data?.vessel_billing_address,
-        event_id: data?.charge_order?.event?.event_name,
-        vessel_id: data?.charge_order?.vessel?.name,
-        customer_id: data?.charge_order?.customer?.name,
-        charger_order_id: data?.charge_order?.document_identity,
-        port_id: data?.charge_order?.port?.name,
-        ship_date: data?.ship_date ? data?.ship_date : data?.shipment ? data?.shipment?.document_date : '',
-        ref_document_identity: data?.charge_order?.ref_document_identity
+        coa_level1: data?.level1?.name || '',
+        coa_level2: data?.level2?.name || '',
+        gl_types: data.gl_type || '',
+        gl_type_id: data.gl_type_id || '',
+        level3_code: data.level3_code || '',
+        coa_name: data.name || '',
       };
-      state.saleInvoiceDetail = data.sale_invoice_detail.map((detail) => ({
-        id: detail.charge_order_detail_id,
-        sale_invoice_id: detail.sale_invoice_id,
-        sale_invoice_detail_id: detail.sale_invoice_detail_id,
-        picklist_id: detail?.picklist ? detail?.picklist?.picklist_id : detail?.picklist_detail ? detail?.picklist_detail?.picklist_id : null,
-        purchase_order_id: detail?.purchase_order?.purchase_order_id ? detail?.purchase_order?.purchase_order_id : detail?.purchase_order_detail?.purchase_order_id ? detail?.purchase_order_detail?.purchase_order_id : null,
-        purchase_order_detail_id: detail?.purchase_order_detail?.purchase_order_detail_id ? detail?.purchase_order_detail?.purchase_order_detail_id : null,
-        picklist_detail_id: detail?.picklist_detail ? detail?.picklist_detail?.picklist_detail_id : null,
-        product_code: detail.product ? detail.product.product_code : null,
-        product_id: detail.product
-          ? { value: detail.product.product_id, label: detail.product.product_name || '' }
-          : null,
-        product_type_no: detail?.product ? detail?.product?.product_type_id : 4,
-        product_type_id: detail?.product_type
-          ? {
-            value: detail?.product_type?.product_type_id,
-            label: detail?.product_type?.name
-          }
-          : 'Other',
-        product_name:
-          detail.product?.name
-            ? detail?.product?.name || detail?.product_name || ''
-            : detail.product_name || detail.charge_order_detail.product_name || '',
-        product_description: detail.product_description,
-        charge_order_detail_id: detail.charge_order_detail_id,
-        description: detail.description,
-        charge_order_detail_id: detail.charge_order_detail_id,
-        vpart: detail.vpart,
-        quantity: detail.quantity ? parseFloat(detail.quantity) : 0,
-        unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
-        rate: detail.rate ? detail.rate : 0,
-        vendor_notes: detail.vendor_notes,
-        amount: detail.amount ? detail.amount : 0,
-        discount_amount: detail.discount_amount ? detail.discount_amount : 0,
-        discount_percent: detail.discount_percent ? detail.discount_percent : 0,
-        gross_amount: detail.gross_amount ? detail.gross_amount : 0,
-        editable: detail.editable,
-        received_quantity: detail.received_quantity ? parseFloat(detail.received_quantity) : 0,
-        row_status: 'U',
-        isDeleted: false
-      }));
     });
-    addCase(getSaleInvoice.rejected, (state) => {
+    addCase(getCoaLevelThreeEdit.rejected, (state) => {
       state.isItemLoading = false;
       state.initialFormValues = null;
     });
   }
 });
 
-export const { setSaleInvoiceListParams, setSaleInvoiceDeleteIDs , resetSaleInvoiceForm} = coaThreeSlice.actions;
+export const { setCoaLevelThreeListParams, setCoaLevelThreeDeleteIDs , resetCoaLevelThree} = coaThreeSlice.actions;
 export default coaThreeSlice.reducer;

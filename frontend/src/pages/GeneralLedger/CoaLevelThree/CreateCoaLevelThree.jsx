@@ -7,7 +7,7 @@ import CoaLevelThreeForm from '../../../components/Form/CoaLevelThreeForm';
 import PageHeading from '../../../components/Heading/PageHeading';
 import useDocumentTitle from '../../../hooks/useDocumentTitle';
 import useError from '../../../hooks/useError';
-import { getSaleInvoice, updateSaleInvoiceForm , resetSaleInvoiceForm} from '../../../store/features/coaThreeSlice';
+import { createCoaLevelThree, resetCoaLevelThree } from '../../../store/features/coaThreeSlice';
 
 const CreateCoaLevelThree = () => {
   useDocumentTitle('Create Chart Of Account Level Three');
@@ -16,19 +16,20 @@ const CreateCoaLevelThree = () => {
   const handleError = useError();
   const { id } = useParams();
 
-  const onSaleInvoiceCreate = async (data) => {
+  const onCoaLevelThreeCreate = async (data) => {
     try {
-      await dispatch(updateSaleInvoiceForm({ id, data })).unwrap();
+      const res = await dispatch(createCoaLevelThree(data)).unwrap();
+      const id = res?.data?.coa_level3_id
       toast.success('COA level three created successfully');
-      dispatch(getSaleInvoice(id)).unwrap();
+      navigate(`/general-ledger/coa/level3/edit/${id}`);
     } catch (error) {
       handleError(error);
     }
   };
 
-  const onSaleInvoiceCreates = async (data) => {
+  const onCoaLevelThreeCreates = async (data) => {
     try {
-      await dispatch(updateSaleInvoiceForm({ id, data })).unwrap();
+      await dispatch(createCoaLevelThree(data)).unwrap();
       toast.success('COA level three created successfully');
       navigate('/general-ledger/coa/level3');
     } catch (error) {
@@ -38,7 +39,7 @@ const CreateCoaLevelThree = () => {
 
   useEffect(() => {
     try {
-      dispatch(resetSaleInvoiceForm());
+      dispatch(resetCoaLevelThree());
     } catch (error) {
       handleError();
     }
@@ -47,13 +48,12 @@ const CreateCoaLevelThree = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        {/* <PageHeading>CREATE COA LEVEL THREE</PageHeading> */}
-        <PageHeading></PageHeading>
+        <PageHeading>CREATE COA LEVEL THREE</PageHeading>
         <Breadcrumb items={[{ title: 'General Ledger' }, { title: 'COA Level Three' }, { title: 'Create' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-        <CoaLevelThreeForm onSubmit={onSaleInvoiceCreate} onSave={onSaleInvoiceCreates} />
+        <CoaLevelThreeForm onSave={onCoaLevelThreeCreates} onSubmit={onCoaLevelThreeCreate} />
       </div>
     </>
   );

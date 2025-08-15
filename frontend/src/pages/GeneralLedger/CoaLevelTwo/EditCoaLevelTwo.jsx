@@ -1,13 +1,13 @@
-import { Breadcrumb } from 'antd';
+import { Breadcrumb, Spin } from 'antd';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import CoaLevelTwoForm from '../../../components/Form/CoaLevelTwoForm';
 import PageHeading from '../../../components/Heading/PageHeading';
 import useDocumentTitle from '../../../hooks/useDocumentTitle';
 import useError from '../../../hooks/useError';
-import { getSaleInvoice, updateSaleInvoiceForm } from '../../../store/features/coaTwoSlice';
+import { getCoaLevelTwoEdit, updateCoaLevelTwoForm } from '../../../store/features/coaTwoSlice';
 
 const EditCoaLevelTwo = () => {
   useDocumentTitle('Edit Chart Of Account Level Two');
@@ -15,22 +15,23 @@ const EditCoaLevelTwo = () => {
   const navigate = useNavigate();
   const handleError = useError();
   const { id } = useParams();
+  const { isItemLoading } = useSelector((state) => state.coaTwo);
 
-  const onSaleInvoiceUpdate = async (data) => {
+  const onCoaLevelTwoUpdate = async (data) => {
     try {
-      await dispatch(updateSaleInvoiceForm({ id, data })).unwrap();
-      toast.success('COA level one updated successfully');
-      dispatch(getSaleInvoice(id)).unwrap();
+      await dispatch(updateCoaLevelTwoForm({ id, data })).unwrap();
+      toast.success('COA level Two updated successfully');
+      dispatch(getCoaLevelTwoEdit(id)).unwrap();
     } catch (error) {
       handleError(error);
     }
   };
 
-  const onSaleInvoiceUpdates = async (data) => {
+  const onCoaLevelTwoUpdates = async (data) => {
     try {
-      await dispatch(updateSaleInvoiceForm({ id, data })).unwrap();
-      toast.success('COA level one updated successfully');
-      navigate('/general-ledger/coa/level1');
+      await dispatch(updateCoaLevelTwoForm({ id, data })).unwrap();
+      toast.success('COA level Two updated successfully');
+      navigate('/general-ledger/coa/level2');
     } catch (error) {
       handleError(error);
     }
@@ -38,7 +39,7 @@ const EditCoaLevelTwo = () => {
 
   useEffect(() => {
     try {
-      dispatch(getSaleInvoice(id)).unwrap();
+      dispatch(getCoaLevelTwoEdit(id)).unwrap();
     } catch (error) {
       handleError();
     }
@@ -47,13 +48,21 @@ const EditCoaLevelTwo = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>EDIT COA LEVEL ONE</PageHeading>
+        <PageHeading>EDIT COA LEVEL TWO</PageHeading>
         <Breadcrumb items={[{ title: 'General Ledger' }, { title: 'COA Level Two' }, { title: 'Edit' }]} separator=">" />
       </div>
 
-      <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-        <CoaLevelTwoForm mode="edit" onSubmit={onSaleInvoiceUpdate} onSave={onSaleInvoiceUpdates} />
-      </div>
+      {isItemLoading && (
+        <div className="mt-4 flex min-h-96 items-center justify-center rounded-md bg-white">
+          <Spin size="large" />
+        </div>
+      )}
+
+      {!isItemLoading ? (
+        <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
+          <CoaLevelTwoForm mode="edit" onSubmit={onCoaLevelTwoUpdate} onSave={onCoaLevelTwoUpdates} />
+        </div>
+      ) : null}
     </>
   );
 };

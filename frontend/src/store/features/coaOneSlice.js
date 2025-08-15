@@ -1,11 +1,11 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import api from '../../axiosInstance';
 
-export const getSaleInvoiceList = createAsyncThunk(
-  'saleInvoice/list',
+export const getCoaLevelOne = createAsyncThunk(
+  'coalevelone/list',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get('/sale-invoice', {
+      const res = await api.get('/coa-level1', {
         params: {
           ...params,
           all: 1
@@ -18,11 +18,30 @@ export const getSaleInvoiceList = createAsyncThunk(
   }
 );
 
-export const getSaleInvoice = createAsyncThunk(
-  'saleInvoice/get',
+export const getCoaLevelsCode = createAsyncThunk(
+  'coaLevel1Code/get',
+  async ({ gl_type_id, level, coa_level2_id, coa_level1_id }, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/lookups/next-coa-level-code`, {
+        params: {
+          gl_type_id,
+          level,
+          coa_level2_id,
+          coa_level1_id
+        }
+      });
+      return res.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
+export const getCoaLevelOneEdit = createAsyncThunk(
+  'coaLevel1/get',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/sale-invoice/${id}`);
+      const res = await api.get(`/coa-level1/${id}`);
       return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);
@@ -30,45 +49,46 @@ export const getSaleInvoice = createAsyncThunk(
   }
 );
 
-export const updateSaleInvoiceForm = createAsyncThunk(
+export const updateCoaLevelOneForm = createAsyncThunk(
   'saleInvoice/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      await api.put(`/sale-invoice/${id}`, data);
+      await api.put(`/coa-level1/${id}`, data);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const createSaleInvoice = createAsyncThunk(
-  'saleInvoice/create',
+export const createCoaLevelOne = createAsyncThunk(
+  'coaLevelOne/create',
   async (data, { rejectWithValue }) => {
     try {
-      await api.post('/sale-invoice', data);
+      const res = await api.post('/coa-level1', data);
+      return res?.data
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const deleteSaleInvoice = createAsyncThunk(
-  'saleInvoice/delete',
+export const deleteCoaLevelOne = createAsyncThunk(
+  'coaLevelOne/delete',
   async (id, { rejectWithValue }) => {
     try {
-      await api.delete(`/sale-invoice/${id}`);
+      await api.delete(`/coa-level1/${id}`);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const bulkDeleteSaleInvoice = createAsyncThunk(
-  'saleInvoice/bulkDelete',
+export const bulkDeleteCoaLevelOne = createAsyncThunk(
+  'coaLevelOne/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post('/sale-invoice/bulk-delete', {
-        sale_invoice_ids: ids
+      await api.post('/coa-level1/bulk-delete', {
+        coa_level1_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -81,7 +101,8 @@ const initialState = {
   isFormSubmitting: false,
   isBulkDeleting: false,
   initialFormValues: null,
-  saleInvoiceDetail: null,
+  initialFormCodeValues: null,
+  coaLevelOneList: null,
   isItemLoading: false,
   list: [],
   listID: [],
@@ -103,142 +124,100 @@ export const coaOneSlice = createSlice({
   name: 'coaOne',
   initialState,
   reducers: {
-    setSaleInvoiceListParams: (state, action) => {
+    setCoaLevelOneListParams: (state, action) => {
       state.params = {
         ...state.params,
         ...action.payload
       };
     },
 
-    setSaleInvoiceDeleteIDs: (state, action) => {
+    setCoaLevelOneDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
     },
 
-    resetSaleInvoiceForm: (state) => {
+    resetCoaLevelOne: (state) => {
       state.initialFormValues = null;
-      state.saleInvoiceDetail = null;
+      state.coaLevelOneList = null;
       state.isItemLoading = false;
     }
   },
   extraReducers: ({ addCase }) => {
-    addCase(getSaleInvoiceList.pending, (state) => {
+    addCase(getCoaLevelOne.pending, (state) => {
       state.isListLoading = true;
       state.initialFormValues = null;
     });
-    addCase(getSaleInvoiceList.fulfilled, (state, action) => {
+    addCase(getCoaLevelOne.fulfilled, (state, action) => {
       state.isListLoading = false;
       const { data, ...rest } = action.payload;
       state.list = data;
-      state.listID = data.map((item) => {
-        return item.sale_invoice_id;
-      });
+      state.coaLevelOneList = data
       state.paginationInfo = {
         total_records: rest.total,
         total_pages: rest.last_page
       };
     });
-    addCase(getSaleInvoiceList.rejected, (state) => {
+    addCase(getCoaLevelOne.rejected, (state) => {
       state.isListLoading = false;
     });
 
-    addCase(createSaleInvoice.pending, (state) => {
+    addCase(createCoaLevelOne.pending, (state) => {
       state.isFormSubmitting = true;
     });
-    addCase(createSaleInvoice.fulfilled, (state) => {
+    addCase(createCoaLevelOne.fulfilled, (state) => {
       state.isFormSubmitting = false;
     });
-    addCase(createSaleInvoice.rejected, (state) => {
+    addCase(createCoaLevelOne.rejected, (state) => {
       state.isFormSubmitting = false;
     });
 
     // start bulk delete
 
-    addCase(bulkDeleteSaleInvoice.pending, (state) => {
+    addCase(bulkDeleteCoaLevelOne.pending, (state) => {
       state.isBulkDeleting = true;
     });
-    addCase(bulkDeleteSaleInvoice.fulfilled, (state) => {
+    addCase(bulkDeleteCoaLevelOne.fulfilled, (state) => {
       state.isBulkDeleting = false;
       state.deleteIDs = [];
     });
-    addCase(bulkDeleteSaleInvoice.rejected, (state) => {
+    addCase(bulkDeleteCoaLevelOne.rejected, (state) => {
       state.isBulkDeleting = false;
     });
 
     // end bulk delete
 
-    addCase(getSaleInvoice.pending, (state) => {
+    addCase(getCoaLevelOneEdit.pending, (state) => {
       state.isItemLoading = true;
     });
-    addCase(getSaleInvoice.fulfilled, (state, action) => {
+    addCase(getCoaLevelOneEdit.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
       state.initialFormValues = {
-        document_identity: data.document_identity || '',
-        document_date: data.document_date || '',
-        totalQuantity: data.total_quantity || 0,
-        totalAmount: data.total_amount || 0,
-        totalDiscount: data.total_discount || 0,
-        netAmount: data.net_amount || 0,
-        salesman_id: data?.charge_order?.salesman?.name,
-        customer_po_no: data?.charge_order?.customer_po_no,
-        vessel: data?.charge_order?.vessel,
-        vessel_billing_address: data?.vessel_billing_address,
-        event_id: data?.charge_order?.event?.event_name,
-        vessel_id: data?.charge_order?.vessel?.name,
-        customer_id: data?.charge_order?.customer?.name,
-        charger_order_id: data?.charge_order?.document_identity,
-        port_id: data?.charge_order?.port?.name,
-        ship_date: data?.ship_date ? data?.ship_date : data?.shipment ? data?.shipment?.document_date : '',
-        ref_document_identity: data?.charge_order?.ref_document_identity
+        coa_level1_id: data.coa_level1_id || '',
+        gl_types: data.gl_type || '',
+        gl_type_id: data.gl_type_id || '',
+        code: data.level1_code || '',
+        coa_name: data.name || '',
       };
-      state.saleInvoiceDetail = data.sale_invoice_detail.map((detail) => ({
-        id: detail.charge_order_detail_id,
-        sale_invoice_id: detail.sale_invoice_id,
-        sale_invoice_detail_id: detail.sale_invoice_detail_id,
-        picklist_id: detail?.picklist ? detail?.picklist?.picklist_id : detail?.picklist_detail ? detail?.picklist_detail?.picklist_id : null,
-        purchase_order_id: detail?.purchase_order?.purchase_order_id ? detail?.purchase_order?.purchase_order_id : detail?.purchase_order_detail?.purchase_order_id ? detail?.purchase_order_detail?.purchase_order_id : null,
-        purchase_order_detail_id: detail?.purchase_order_detail?.purchase_order_detail_id ? detail?.purchase_order_detail?.purchase_order_detail_id : null,
-        picklist_detail_id: detail?.picklist_detail ? detail?.picklist_detail?.picklist_detail_id : null,
-        product_code: detail.product ? detail.product.product_code : null,
-        product_id: detail.product
-          ? { value: detail.product.product_id, label: detail.product.product_name || '' }
-          : null,
-        product_type_no: detail?.product ? detail?.product?.product_type_id : 4,
-        product_type_id: detail?.product_type
-          ? {
-            value: detail?.product_type?.product_type_id,
-            label: detail?.product_type?.name
-          }
-          : 'Other',
-        product_name:
-          detail.product?.name
-            ? detail?.product?.name || detail?.product_name || ''
-            : detail.product_name || detail.charge_order_detail.product_name || '',
-        product_description: detail.product_description,
-        charge_order_detail_id: detail.charge_order_detail_id,
-        description: detail.description,
-        charge_order_detail_id: detail.charge_order_detail_id,
-        vpart: detail.vpart,
-        quantity: detail.quantity ? parseFloat(detail.quantity) : 0,
-        unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
-        rate: detail.rate ? detail.rate : 0,
-        vendor_notes: detail.vendor_notes,
-        amount: detail.amount ? detail.amount : 0,
-        discount_amount: detail.discount_amount ? detail.discount_amount : 0,
-        discount_percent: detail.discount_percent ? detail.discount_percent : 0,
-        gross_amount: detail.gross_amount ? detail.gross_amount : 0,
-        editable: detail.editable,
-        received_quantity: detail.received_quantity ? parseFloat(detail.received_quantity) : 0,
-        row_status: 'U',
-        isDeleted: false
-      }));
     });
-    addCase(getSaleInvoice.rejected, (state) => {
+    addCase(getCoaLevelOneEdit.rejected, (state) => {
+      state.isItemLoading = false;
+      state.initialFormValues = null;
+    });
+    
+    addCase(getCoaLevelsCode.pending, (state) => {
+      state.isItemLoading = true;
+    });
+    addCase(getCoaLevelsCode.fulfilled, (state, action) => {
+      state.isItemLoading = false;
+      const data = action.payload;
+      state.initialFormCodeValues = data || null;
+    });
+    addCase(getCoaLevelsCode.rejected, (state) => {
       state.isItemLoading = false;
       state.initialFormValues = null;
     });
   }
 });
 
-export const { setSaleInvoiceListParams, setSaleInvoiceDeleteIDs , resetSaleInvoiceForm} = coaOneSlice.actions;
+export const { setCoaLevelOneListParams, setCoaLevelOneDeleteIDs, resetCoaLevelOne } = coaOneSlice.actions;
 export default coaOneSlice.reducer;
