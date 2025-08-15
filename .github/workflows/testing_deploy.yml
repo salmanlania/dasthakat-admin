@@ -1,9 +1,9 @@
-name: Development Deploy to cPanel via FTP
+name: Testing Deploy to cPanel via FTP
 
 on:
   push:
     branches:
-    - develope
+    - testing
 
 jobs:
   frontend-deploy:
@@ -21,7 +21,7 @@ jobs:
 
     - name: Create Frontend .env
       working-directory: frontend
-      run: echo "VITE_BASE_URL=/gms/dev" > .env
+      run: echo "VITE_BASE_URL=/gms/testing" > .env
 
     - name: Install & Build Frontend
       working-directory: frontend
@@ -40,7 +40,7 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: frontend/dist/
-        server-dir: /public_html/gms/dev/
+        server-dir: /public_html/gms/testing/
         dangerous-clean-slate: false
         exclude: |
           config.json
@@ -48,7 +48,7 @@ jobs:
     - name: Upload config.json if missing
       run: |
         set -e
-        URL="https://dev82.bharmalsystems.net/gms/dev/config.json"
+        URL="https://dev82.bharmalsystems.net/gms/testing/config.json"
         STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
         if [ "$STATUS" -eq 200 ]; then
           echo "config.json already exists on server. Skipping upload."
@@ -61,33 +61,33 @@ jobs:
           curl --ftp-create-dirs \
                --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" \
                -T frontend/dist/config.json \
-               "ftp://${{ secrets.FTP_HOST }}/public_html/gms/dev/config.json"
+               "ftp://${{ secrets.FTP_HOST }}/public_html/gms/testing/config.json"
           echo "config.json uploaded."
         fi
 
-        - name: Ensure .htaccess present in dev root
-        run: |
-          printf '%s\n' \
-          '<IfModule mod_rewrite.c>' \
-          '  RewriteEngine On' \
-          '  RewriteBase /gms/dev/' \
-          '' \
-          '  # Redirect Trailing Slashes...' \
-          '  RewriteCond %{REQUEST_FILENAME} !-d' \
-          '  RewriteRule ^(.*)/$ /$1 [L,R=301]' \
-          '' \
-          '  # Handle Front Controller...' \
-          '  RewriteCond %{REQUEST_FILENAME} !-f' \
-          '  RewriteCond %{REQUEST_FILENAME} !-d' \
-          '  RewriteRule ^ index.html [L]' \
-          '</IfModule>' \
-          > /tmp/htaccess_testing
-          curl --ftp-create-dirs \
-               --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" \
-               -T /tmp/htaccess_testing \
-               "ftp://${{ secrets.FTP_HOST }}/public_html/gms/dev/.htaccess"
-          echo ".htaccess uploaded to dev root."
-  
+    - name: Ensure .htaccess present in testing root
+      run: |
+        printf '%s\n' \
+        '<IfModule mod_rewrite.c>' \
+        '  RewriteEngine On' \
+        '  RewriteBase /gms/testing/' \
+        '' \
+        '  # Redirect Trailing Slashes...' \
+        '  RewriteCond %{REQUEST_FILENAME} !-d' \
+        '  RewriteRule ^(.*)/$ /$1 [L,R=301]' \
+        '' \
+        '  # Handle Front Controller...' \
+        '  RewriteCond %{REQUEST_FILENAME} !-f' \
+        '  RewriteCond %{REQUEST_FILENAME} !-d' \
+        '  RewriteRule ^ index.html [L]' \
+        '</IfModule>' \
+        > /tmp/htaccess_testing
+        curl --ftp-create-dirs \
+             --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" \
+             -T /tmp/htaccess_testing \
+             "ftp://${{ secrets.FTP_HOST }}/public_html/gms/testing/.htaccess"
+        echo ".htaccess uploaded to testing root."
+
   backend-deploy:
     name: Deploy Backend
     needs: frontend-deploy # Waits for frontend to complete
@@ -110,7 +110,7 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: api/
-        server-dir: /public_html/gms/dev/api/
+        server-dir: /public_html/gms/testing/api/
         exclude: |
           vendor/**
 
@@ -121,7 +121,7 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: tools/
-        server-dir: /public_html/gms/dev/tools/
+        server-dir: /public_html/gms/testing/tools/
         dangerous-clean-slate: false
 
   live-actions:
@@ -132,10 +132,10 @@ jobs:
     steps:
     - name: Trigger Remote Vendor Unzip
       run: |
-        curl -X GET "https://dev82.bharmalsystems.net/gms/dev/tools/unzip.php" \
-        -H "X-DEPLOY-TOKEN: ${{ secrets.DEV_APP_KEY }}"
+        curl -X GET "https://dev82.bharmalsystems.net/gms/testing/tools/unzip.php" \
+        -H "X-DEPLOY-TOKEN: ${{ secrets.TEST_APP_KEY }}"
 
     - name: Trigger Remote Migrations
       run: |
-        curl -X GET "https://dev82.bharmalsystems.net/gms/dev/api/deploy/migrations" \
-        -H "X-DEPLOY-TOKEN: ${{ secrets.DEV_APP_KEY }}"
+        curl -X GET "https://dev82.bharmalsystems.net/gms/testing/api/deploy/migrations" \
+        -H "X-DEPLOY-TOKEN: ${{ secrets.TEST_APP_KEY }}"
