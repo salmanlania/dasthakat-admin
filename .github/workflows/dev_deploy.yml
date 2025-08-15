@@ -45,6 +45,26 @@ jobs:
         exclude: |
           config.json
 
+    - name: Upload config.json if missing
+      run: |
+        set -e
+        URL="https://dev82.bharmalsystems.net/gms/dev/config.json"
+        STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+        if [ "$STATUS" -eq 200 ]; then
+          echo "config.json already exists on server. Skipping upload."
+        else
+          echo "config.json not found on server (status=$STATUS). Uploading..."
+          if [ ! -f frontend/dist/config.json ]; then
+            echo "Error: frontend/dist/config.json does not exist in build output." >&2
+            exit 1
+          fi
+          curl --ftp-create-dirs \
+               --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" \
+               -T frontend/dist/config.json \
+               "ftp://${{ secrets.FTP_HOST }}/public_html/gms/dev/config.json"
+          echo "config.json uploaded."
+        fi
+
   backend-deploy:
     name: Deploy Backend
     needs: frontend-deploy # Waits for frontend to complete
