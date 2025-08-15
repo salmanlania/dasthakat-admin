@@ -40,7 +40,7 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: frontend/dist/
-        server-dir: /public_html/gms/dev
+        server-dir: /public_html/gms/dev/
         dangerous-clean-slate: false
         exclude: |
           config.json
@@ -67,7 +67,7 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: api/
-        server-dir: /public_html/gms/dev/api
+        server-dir: /public_html/gms/dev/api/
         exclude: |
           vendor/**
 
