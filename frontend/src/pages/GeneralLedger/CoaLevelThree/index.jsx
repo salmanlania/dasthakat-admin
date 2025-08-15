@@ -34,7 +34,7 @@ const CoaLevelThree = () => {
   );
 
   const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.sale_invoice;
+  const permissions = user.permission.coa_level3;
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
@@ -275,14 +275,14 @@ const CoaLevelThree = () => {
           />
           <div className='flex items-center justify-between gap-2'>
             <div className="flex items-center gap-2">
-              {/* {permissions.delete ? ( */}
-              <Button
-                type="primary"
-                onClick={() => navigate('/general-ledger/coa/level3/create')}
-              >
-                Create
-              </Button>
-              {/* ) : null} */}
+              {permissions.add ? (
+                <Button
+                  type="primary"
+                  onClick={() => navigate('/general-ledger/coa/level3/create')}
+                >
+                  Create
+                </Button>
+              ) : null}
             </div>
             <div className="flex items-center gap-2">
               {permissions.delete ? (
