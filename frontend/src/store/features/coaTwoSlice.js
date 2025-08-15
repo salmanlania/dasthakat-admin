@@ -18,6 +18,25 @@ export const getCoaLevelTwo = createAsyncThunk(
   }
 );
 
+export const getCoaLevelTwoCode = createAsyncThunk(
+  'coaLevel2Code/get',
+  async ({ gl_type_id, level, coa_level2_id, coa_level1_id }, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/lookups/next-coa-level-code`, {
+        params: {
+          gl_type_id,
+          level,
+          coa_level2_id,
+          coa_level1_id
+        }
+      });
+      return res.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const getCoaLevelTwoEdit = createAsyncThunk(
   'coaLevel1/get',
   async (id, { rejectWithValue }) => {
@@ -82,6 +101,7 @@ const initialState = {
   isFormSubmitting: false,
   isBulkDeleting: false,
   initialFormValues: null,
+  initialFormCodeValues: null,
   coaLevelTwoList: null,
   isItemLoading: false,
   list: [],
@@ -117,6 +137,7 @@ export const coaTwoSlice = createSlice({
 
     resetCoaLevelTwo: (state) => {
       state.initialFormValues = null;
+      state.initialFormCodeValues = null;
       state.coaLevelTwoList = null;
       state.isItemLoading = false;
     }
@@ -184,8 +205,21 @@ export const coaTwoSlice = createSlice({
       state.isItemLoading = false;
       state.initialFormValues = null;
     });
+
+    addCase(getCoaLevelTwoCode.pending, (state) => {
+      state.isItemLoading = true;
+    });
+    addCase(getCoaLevelTwoCode.fulfilled, (state, action) => {
+      state.isItemLoading = false;
+      const data = action.payload;
+      state.initialFormCodeValues = data || null;
+    });
+    addCase(getCoaLevelTwoCode.rejected, (state) => {
+      state.isItemLoading = false;
+      state.initialFormValues = null;
+    });
   }
 });
 
-export const { setCoaLevelTwoListParams, setCoaLevelTwoDeleteIDs , resetCoaLevelTwo} = coaTwoSlice.actions;
+export const { setCoaLevelTwoListParams, setCoaLevelTwoDeleteIDs, resetCoaLevelTwo } = coaTwoSlice.actions;
 export default coaTwoSlice.reducer;

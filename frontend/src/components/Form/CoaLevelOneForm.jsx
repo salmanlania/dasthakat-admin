@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { getCoaLevelOne, getCoaLevelsCode } from '../../store/features/coaOneSlice';
+import { getCoaLevelOne, getCoaLevelOneCode } from '../../store/features/coaOneSlice';
 import AsyncSelectLedger from '../AsyncSelectLedger';
 import DebounceInput from '../Input/DebounceInput';
 
@@ -132,7 +132,7 @@ const CoaLevelOneForm = ({ mode, onSubmit, onSave }) => {
                   if (selected?.value) {
                     dispatch(getCoaLevelOne({ gl_type_id: selected.value }));
                     if (mode !== 'edit') {
-                      dispatch(getCoaLevelsCode(
+                      dispatch(getCoaLevelOneCode(
                         {
                           gl_type_id: selected.value,
                           level: 1,

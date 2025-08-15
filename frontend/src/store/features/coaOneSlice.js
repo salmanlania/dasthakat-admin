@@ -18,7 +18,7 @@ export const getCoaLevelOne = createAsyncThunk(
   }
 );
 
-export const getCoaLevelsCode = createAsyncThunk(
+export const getCoaLevelOneCode = createAsyncThunk(
   'coaLevel1Code/get',
   async ({ gl_type_id, level, coa_level2_id, coa_level1_id }, { rejectWithValue }) => {
     try {
@@ -137,6 +137,7 @@ export const coaOneSlice = createSlice({
 
     resetCoaLevelOne: (state) => {
       state.initialFormValues = null;
+      state.initialFormCodeValues = null;
       state.coaLevelOneList = null;
       state.isItemLoading = false;
     }
@@ -204,15 +205,15 @@ export const coaOneSlice = createSlice({
       state.initialFormValues = null;
     });
     
-    addCase(getCoaLevelsCode.pending, (state) => {
+    addCase(getCoaLevelOneCode.pending, (state) => {
       state.isItemLoading = true;
     });
-    addCase(getCoaLevelsCode.fulfilled, (state, action) => {
+    addCase(getCoaLevelOneCode.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
       state.initialFormCodeValues = data || null;
     });
-    addCase(getCoaLevelsCode.rejected, (state) => {
+    addCase(getCoaLevelOneCode.rejected, (state) => {
       state.isItemLoading = false;
       state.initialFormValues = null;
     });

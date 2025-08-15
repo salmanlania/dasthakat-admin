@@ -109,10 +109,10 @@ const CoaLevelThree = () => {
         <div>
           <p>Level 2</p>
           <AsyncSelectLedger
-            endpoint="/coa-leve21?id=coa_level2_name"
+            endpoint="/coa-level2?id=coa_level2_name"
             size="small"
             className="w-full font-normal"
-            valueKey="coa_level1_id"
+            valueKey="coa_level2_id"
             labelKey="name"
             allowClear
             value={params.coa_level2_id}

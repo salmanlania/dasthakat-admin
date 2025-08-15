@@ -18,6 +18,25 @@ export const getCoaLevelThree = createAsyncThunk(
   }
 );
 
+export const getCoaLevelThreeCode = createAsyncThunk(
+  'coaLevel3Code/get',
+  async ({ gl_type_id, level, coa_level2_id, coa_level1_id }, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/lookups/next-coa-level-code`, {
+        params: {
+          gl_type_id,
+          level,
+          coa_level2_id,
+          coa_level1_id
+        }
+      });
+      return res.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const getCoaLevelThreeEdit = createAsyncThunk(
   'coaLevel1/get',
   async (id, { rejectWithValue }) => {
@@ -82,6 +101,7 @@ const initialState = {
   isFormSubmitting: false,
   isBulkDeleting: false,
   initialFormValues: null,
+  initialFormCodeValues: null,
   coaLevelThreeList: null,
   isItemLoading: false,
   list: [],
@@ -117,6 +137,7 @@ export const coaThreeSlice = createSlice({
 
     resetCoaLevelThree: (state) => {
       state.initialFormValues = null;
+      state.initialFormCodeValues = null;
       state.coaLevelThreeList = null;
       state.isItemLoading = false;
     }
@@ -184,8 +205,21 @@ export const coaThreeSlice = createSlice({
       state.isItemLoading = false;
       state.initialFormValues = null;
     });
+
+    addCase(getCoaLevelThreeCode.pending, (state) => {
+      state.isItemLoading = true;
+    });
+    addCase(getCoaLevelThreeCode.fulfilled, (state, action) => {
+      state.isItemLoading = false;
+      const data = action.payload;
+      state.initialFormCodeValues = data || null;
+    });
+    addCase(getCoaLevelThreeCode.rejected, (state) => {
+      state.isItemLoading = false;
+      state.initialFormCodeValues = null;
+    });
   }
 });
 
-export const { setCoaLevelThreeListParams, setCoaLevelThreeDeleteIDs , resetCoaLevelThree} = coaThreeSlice.actions;
+export const { setCoaLevelThreeListParams, setCoaLevelThreeDeleteIDs, resetCoaLevelThree } = coaThreeSlice.actions;
 export default coaThreeSlice.reducer;

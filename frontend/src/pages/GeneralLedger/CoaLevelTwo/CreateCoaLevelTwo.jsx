@@ -43,6 +43,14 @@ const CreateCoaLevelTwo = () => {
     } catch (error) {
       handleError();
     }
+
+    return () => {
+      try {
+        dispatch(resetCoaLevelTwo());
+      } catch (error) {
+        handleError(error);
+      }
+    };
   }, []);
 
   return (

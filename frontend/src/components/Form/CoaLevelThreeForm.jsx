@@ -4,20 +4,14 @@ import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { getCoaLevelsCode } from '../../store/features/coaOneSlice';
-import { getCoaLevelThree } from '../../store/features/coaThreeSlice';
+import { getCoaLevelThree, getCoaLevelThreeCode } from '../../store/features/coaThreeSlice';
 import AsyncSelectLedger from '../AsyncSelectLedger';
-import DebounceInput from '../Input/DebounceInput';
 
 const CoaLevelThreeForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const { isFormSubmitting, initialFormValues, coaLevelThreeList } = useSelector(
+  const { isFormSubmitting, initialFormValues, coaLevelThreeList, initialFormCodeValues } = useSelector(
     (state) => state.coaThree
-  );
-
-  const { initialFormCodeValues } = useSelector(
-    (state) => state.coaOne
   );
 
   const [submitAction, setSubmitAction] = useState(null);
@@ -180,7 +174,7 @@ const CoaLevelThreeForm = ({ mode, onSubmit, onSave }) => {
                       }
 
                       if (mode !== 'edit') {
-                        dispatch(getCoaLevelsCode({
+                        dispatch(getCoaLevelThreeCode({
                           gl_type_id: null,
                           level: 3,
                           coa_level2_id: selected.value,
