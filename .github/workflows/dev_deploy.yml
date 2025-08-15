@@ -65,28 +65,28 @@ jobs:
           echo "config.json uploaded."
         fi
 
-        - name: Ensure .htaccess present in dev root
-        run: |
-          printf '%s\n' \
-          '<IfModule mod_rewrite.c>' \
-          '  RewriteEngine On' \
-          '  RewriteBase /gms/dev/' \
-          '' \
-          '  # Redirect Trailing Slashes...' \
-          '  RewriteCond %{REQUEST_FILENAME} !-d' \
-          '  RewriteRule ^(.*)/$ /$1 [L,R=301]' \
-          '' \
-          '  # Handle Front Controller...' \
-          '  RewriteCond %{REQUEST_FILENAME} !-f' \
-          '  RewriteCond %{REQUEST_FILENAME} !-d' \
-          '  RewriteRule ^ index.html [L]' \
-          '</IfModule>' \
-          > /tmp/htaccess_testing
-          curl --ftp-create-dirs \
-               --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" \
-               -T /tmp/htaccess_testing \
-               "ftp://${{ secrets.FTP_HOST }}/public_html/gms/dev/.htaccess"
-          echo ".htaccess uploaded to dev root."
+    - name: Ensure .htaccess present in dev root
+      run: |
+        printf '%s\n' \
+        '<IfModule mod_rewrite.c>' \
+        '  RewriteEngine On' \
+        '  RewriteBase /gms/dev/' \
+        '' \
+        '  # Redirect Trailing Slashes...' \
+        '  RewriteCond %{REQUEST_FILENAME} !-d' \
+        '  RewriteRule ^(.*)/$ /$1 [L,R=301]' \
+        '' \
+        '  # Handle Front Controller...' \
+        '  RewriteCond %{REQUEST_FILENAME} !-f' \
+        '  RewriteCond %{REQUEST_FILENAME} !-d' \
+        '  RewriteRule ^ index.html [L]' \
+        '</IfModule>' \
+        > /tmp/htaccess_testing
+        curl --ftp-create-dirs \
+             --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" \
+             -T /tmp/htaccess_testing \
+             "ftp://${{ secrets.FTP_HOST }}/public_html/gms/dev/.htaccess"
+        echo ".htaccess uploaded to dev root."
   
   backend-deploy:
     name: Deploy Backend
