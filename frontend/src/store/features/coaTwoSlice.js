@@ -193,7 +193,6 @@ export const coaTwoSlice = createSlice({
     addCase(getCoaLevelTwoEdit.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
-      console.log('data' , data)
       state.initialFormValues = {
         coa_level1_id: data.coa_level1_id || '',
         gl_types: data.level1?.name || '',

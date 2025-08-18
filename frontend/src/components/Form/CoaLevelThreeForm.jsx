@@ -10,7 +10,7 @@ import AsyncSelectLedger from '../AsyncSelectLedger';
 const CoaLevelThreeForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const { isFormSubmitting, initialFormValues, coaLevelThreeList, initialFormCodeValues, isListLoading } = useSelector(
+  const { isFormSubmitting, initialFormValues, coaLevelThreeList, initialFormCodeValues, isListLoading  } = useSelector(
     (state) => state.coaThree
   );
 
@@ -42,7 +42,7 @@ const CoaLevelThreeForm = ({ mode, onSubmit, onSave }) => {
       });
 
       if (initialFormValues?.coa_level2_id || initialFormValues?.coa_level1_id) {
-        dispatch(getCoaLevelThree({ level2_code: initialFormValues?.coa_level2_id, coa_level1_id: initialFormValues?.coa_level1_id }));
+        dispatch(getCoaLevelThree({ coa_level2_id: initialFormValues?.coa_level2_id }));
       }
     } else if (mode !== 'edit') {
       form.setFieldsValue({
