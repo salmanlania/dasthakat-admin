@@ -665,6 +665,7 @@ class ChargeOrderController extends Controller
 		$data = ChargeOrder::with([
 			"quotation",
 			"quotation.payment",
+			"service_order",
 			"salesman",
 			"event",
 			"vessel",
