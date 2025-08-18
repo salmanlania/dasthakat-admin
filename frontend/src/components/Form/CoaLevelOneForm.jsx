@@ -160,7 +160,7 @@ const CoaLevelOneForm = ({ mode, onSubmit, onSave }) => {
                 }}
                 onPaste={(e) => {
                   e.preventDefault();
-                  const pasteData = e.clipboardData.getData("text");
+                  let pasteData = e.clipboardData.getData("text");
                   pasteData = pasteData.slice(0, 3);
                   const numbersOnly = pasteData.replace(/\D/g, "");
                   if (numbersOnly) {
