@@ -254,7 +254,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
         width: 70,
         ellipsis: true,
         onCell: (_) => ({
-          className: `${_.vendors[vendorIndex].rfq_responded ? '!bg-blue-500/50' : ''}`,
+          className: `${_.vendors[vendorIndex].rfq_responded ? '!bg-green-300/50' : ''}`,
         }),
         render: (_, record, productIndex) => (
           <Radio
@@ -269,11 +269,10 @@ const VendorSelectionModal = ({ open, onClose }) => {
         width: 280,
         ellipsis: false,
         onCell: (_) => ({
-          className: `${_.vendors[vendorIndex].rfq_responded ? '!bg-blue-500/50' : ''}`,
+          className: `${_.vendors[vendorIndex].rfq_responded ? '!bg-green-300/50' : ''}`,
         }),
         render: (_, record, productIndex) => {
           const vendor = record.vendors[vendorIndex];
-          // console.log(vendor);
           return (
             <div className='flex ' style={{ whiteSpace: 'normal', wordWrap: 'break-word', maxWidth: 330 }}>
               <AsyncSelect
@@ -312,7 +311,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
         maxWidth: 100,
         ellipsis: true,
         onCell: (_) => ({
-          className: `${_.vendors[vendorIndex].rfq_responded ? '!bg-blue-500/50' : ''}`,
+          className: `${_.vendors[vendorIndex].rfq_responded ? '!bg-green-300/50' : ''}`,
         }),
         render: (_, record, productIndex) => (
           
@@ -332,7 +331,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
         width: 80,
         ellipsis: true,
         onCell: (_) => ({
-          className: `${_.vendors[vendorIndex].rfq_responded ? '!bg-blue-500/50' : ''}`,
+          className: `${_.vendors[vendorIndex].rfq_responded ? '!bg-green-300/50' : ''}`,
         }),
         render: (_, record, productIndex) => {
           const vendor = record.vendors[vendorIndex];
@@ -406,7 +405,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
       <div className="mt-4 flex justify-end gap-2">
         <Button onClick={onClose}>Exit</Button>
         <Button className="w-28" type="primary" onClick={() => onFinish()} loading={isSaving}>
-          Save
+          Save & Send
         </Button>
         <Button className="w-28 bg-green-600 hover:!bg-green-500" type="primary" onClick={() => onFinish('saveExit')} loading={isExitSaving}>
           Save & Exit

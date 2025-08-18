@@ -118,6 +118,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
       agent_id: values.agent_id ? values.agent_id.value : null,
       technician_notes: values.technician_notes,
       agent_notes: values.agent_notes,
+      total_amount: totalAmount,
       document_date: dayjs(values.document_date).format('YYYY-MM-DD')
         ? dayjs(values.document_date).format('YYYY-MM-DD')
         : null,
@@ -1283,7 +1284,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
               />
               <DetailSummaryInfo
                 title="Total Amount:"
-                value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
+                value={formatThreeDigitCommas(roundUpto(initialFormValues?.total_amount ? initialFormValues?.total_amount : totalAmount)) || 0}
               />
               <DetailSummaryInfo
                 title="Discount Amount:"

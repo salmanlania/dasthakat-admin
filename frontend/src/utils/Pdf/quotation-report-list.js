@@ -107,11 +107,11 @@ const pdfContent = (doc, data, pageWidth) => {
       },
       {
         content: item?.total_quantity || '   ',
-        styles: { textColor: [32, 50, 114] }
+        styles: { textColor: [32, 50, 114], halign: 'right' }
       },
       {
         content: item?.total_amount || '   ',
-        styles: { textColor: [32, 50, 114] }
+        styles: { textColor: [32, 50, 114], halign: 'right' }
       },
       {
         content: item?.port_name || '   ',
@@ -130,8 +130,8 @@ const pdfContent = (doc, data, pageWidth) => {
 
   table2Rows.push([
     { content: 'Total', colSpan: 5, styles: { fontStyle: 'bold', halign: 'right' } },
-    { content: totalQuantity.toFixed(2), styles: { fontStyle: 'bold', textColor: [0, 128, 0] } },
-    { content: totalAmount.toFixed(2), styles: { fontStyle: 'bold', textColor: [0, 128, 0] } },
+    { content: totalQuantity.toFixed(2), styles: { fontStyle: 'bold', textColor: [0, 128, 0], halign: 'right' } },
+    { content: totalAmount.toFixed(2), styles: { fontStyle: 'bold', textColor: [0, 128, 0], halign: 'right' } },
     { content: '', styles: {} },
     { content: '', styles: {} }
   ]);
