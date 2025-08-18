@@ -10,7 +10,7 @@ import AsyncSelectLedger from '../AsyncSelectLedger';
 const CoaLevelThreeForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const { isFormSubmitting, initialFormValues, coaLevelThreeList, initialFormCodeValues, isItemLoading } = useSelector(
+  const { isFormSubmitting, initialFormValues, coaLevelThreeList, initialFormCodeValues, isListLoading } = useSelector(
     (state) => state.coaThree
   );
 
@@ -41,8 +41,8 @@ const CoaLevelThreeForm = ({ mode, onSubmit, onSave }) => {
         coa_name: coa_name,
       });
 
-      if (level2_code || level1_code) {
-        dispatch(getCoaLevelThree({ level2_code: level2_code }));
+      if (initialFormValues?.coa_level2_id || initialFormValues?.coa_level1_id) {
+        dispatch(getCoaLevelThree({ level2_code: initialFormValues?.coa_level2_id, coa_level1_id: initialFormValues?.coa_level1_id }));
       }
     } else if (mode !== 'edit') {
       form.setFieldsValue({
@@ -232,7 +232,7 @@ const CoaLevelThreeForm = ({ mode, onSubmit, onSave }) => {
           </Col>
         </Row>
         {
-          isItemLoading ? (
+          isListLoading ? (
             <div className="flex min-h-32 items-center justify-center">
               <Spin />
             </div>

@@ -40,7 +40,10 @@ const CoaLevelTwoForm = ({ mode, onSubmit, onSave }) => {
       });
 
       if (initialFormValues?.coa_level1_id) {
-        dispatch(getCoaLevelTwo({ gl_type_id: initialFormValues?.coa_level1_id }));
+        dispatch(getCoaLevelTwo({
+          gl_type_id: initialFormValues?.gl_type_id,
+          coa_level1_id: initialFormValues?.coa_level1_id,
+        }));
       }
     } else if (mode !== 'edit' && initialFormCodeValues) {
       form.setFieldsValue({
