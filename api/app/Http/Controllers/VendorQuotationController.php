@@ -565,6 +565,10 @@ class VendorQuotationController extends Controller
         if (empty($data)) {
             return $this->jsonResponse([], 400, 'Quotation Item(s) Not Found!');
         }
+
+        foreach ($data as $item) {
+            $item->rfq_responded = VpQuotationRfqDetail::where('vendor_quotation_detail_id', $item->vendor_quotation_detail_id)->whereNotNull('vendor_rate')->value('vendor_rate') > 0 ? true : false;
+        }
         return $this->jsonResponse($data, 200, 'Quotation Vendor Data Fetched Successfully!');
     }
 

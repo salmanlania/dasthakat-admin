@@ -730,7 +730,9 @@ export const quotationSlice = createSlice({
         vendor_quotation_detail_id: item.vendor_quotation_detail_id ? item.vendor_quotation_detail_id : null,
         is_primary_vendor: item.is_primary_vendor,
         rfq: item.rfq,
+        rfq_responded: item.rfq_responded,
         vendor_part_no: item.vendor_part_no,
+        vendor_notes: item.vendor_notes,
       }));
     });
 

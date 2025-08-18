@@ -1,4 +1,4 @@
-import { Modal, Table, Input, Spin, Radio, Button, Switch, DatePicker, Form } from 'antd';
+import { Modal, Table, Input, Spin, Radio, Button, Switch, DatePicker, Form,Tooltip } from 'antd';
 import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { getVendor } from '../../store/features/quotationSlice';
@@ -72,7 +72,6 @@ const VendorSelectionModal = ({ open, onClose }) => {
         const existingVendors = vendorDetails?.filter(
           (vendor) => vendor.quotation_detail_id === item.quotation_detail_id
         ) || [];
-
         const vendors = Array.from({ length: vendorCount }, (_, vendorIndex) => {
           const existingVendor = existingVendors[vendorIndex] || null;
 
@@ -85,10 +84,13 @@ const VendorSelectionModal = ({ open, onClose }) => {
                 value: item.supplier_id.value,
                 label: item.supplier_id.label
               } : null,
+              rfq_responded: false,
+              vendor_notes: item.vendor_notes || '',
               rfqSent: false,
               vendor_part_no: item.vendor_part_no || '',
             };
           }
+
           return existingVendor
             ? {
               name: `Vendor`,
@@ -97,6 +99,8 @@ const VendorSelectionModal = ({ open, onClose }) => {
               supplier_id: existingVendor.vendor
                 ? { value: existingVendor.vendor.supplier_id, label: existingVendor.vendor.name }
                 : null,
+              rfq_responded: existingVendor.rfq_responded,
+              vendor_notes: existingVendor.vendor_notes,
               rfqSent: existingVendor.rfq === 1,
               vendor_part_no: existingVendor.vendor_part_no || '',
               vendor_quotation_detail_id: existingVendor.vendor_quotation_detail_id || null,
@@ -105,13 +109,14 @@ const VendorSelectionModal = ({ open, onClose }) => {
               name: `Vendor`,
               rate: 0,
               isPrimary: vendorIndex === 0,
+              rfq_responded: false,
+              vendor_notes: '',
               supplier_id: null,
               rfqSent: false,
             };
         });
 
         vendors.sort((a, b) => (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0));
-
         return {
           key: item.quotation_detail_id || String(index + 1),
           quotation_detail_id: item.quotation_detail_id,
@@ -126,7 +131,6 @@ const VendorSelectionModal = ({ open, onClose }) => {
           vendors,
         };
       });
-
     setData(mappedData);
   }, [vendorQuotationDetails, vendorDetails, vendorCount]);
 
@@ -241,6 +245,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
       dataIndex: 'quantity',
       key: 'quantity',
       width: 70,
+      
     },
     ...Array.from({ length: vendorCount }).flatMap((_, vendorIndex) => [
       {
@@ -248,6 +253,9 @@ const VendorSelectionModal = ({ open, onClose }) => {
         key: `vendor_primary_${vendorIndex}`,
         width: 70,
         ellipsis: true,
+        onCell: (_) => ({
+          className: `${_.vendors[vendorIndex].rfq_responded ? '!bg-blue-500/50' : ''}`,
+        }),
         render: (_, record, productIndex) => (
           <Radio
             checked={record.vendors[vendorIndex].isPrimary}
@@ -260,8 +268,12 @@ const VendorSelectionModal = ({ open, onClose }) => {
         key: `supplier_id-${vendorIndex}`,
         width: 280,
         ellipsis: false,
+        onCell: (_) => ({
+          className: `${_.vendors[vendorIndex].rfq_responded ? '!bg-blue-500/50' : ''}`,
+        }),
         render: (_, record, productIndex) => {
           const vendor = record.vendors[vendorIndex];
+          // console.log(vendor);
           return (
             <div className='flex ' style={{ whiteSpace: 'normal', wordWrap: 'break-word', maxWidth: 330 }}>
               <AsyncSelect
@@ -299,13 +311,19 @@ const VendorSelectionModal = ({ open, onClose }) => {
         width: 120,
         maxWidth: 100,
         ellipsis: true,
+        onCell: (_) => ({
+          className: `${_.vendors[vendorIndex].rfq_responded ? '!bg-blue-500/50' : ''}`,
+        }),
         render: (_, record, productIndex) => (
+          
+          <Tooltip title={record.vendors[vendorIndex].vendor_notes ?? ''}>  
           <Input
             value={record.vendors[vendorIndex].rate}
             onChange={(e) => handleRateChange(productIndex, vendorIndex, e.target.value)}
             placeholder="Rate"
             style={{ width: '100%' }}
-          />
+            />
+            </Tooltip>
         ),
       },
       {
@@ -313,6 +331,9 @@ const VendorSelectionModal = ({ open, onClose }) => {
         key: `vendor_rfq_${vendorIndex}`,
         width: 80,
         ellipsis: true,
+        onCell: (_) => ({
+          className: `${_.vendors[vendorIndex].rfq_responded ? '!bg-blue-500/50' : ''}`,
+        }),
         render: (_, record, productIndex) => {
           const vendor = record.vendors[vendorIndex];
           return (
@@ -355,6 +376,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
     >
       <Spin spinning={isItemVendorLoading}>
         <Table
+          rowClassName={(record) => (record.rfq_responded ? '!bg-green-400' : '')}
           columns={columns}
           dataSource={data}
           pagination={false}
