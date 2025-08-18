@@ -7,7 +7,7 @@ import CoaLevelOneForm from '../../../components/Form/CoaLevelOneForm';
 import PageHeading from '../../../components/Heading/PageHeading';
 import useDocumentTitle from '../../../hooks/useDocumentTitle';
 import useError from '../../../hooks/useError';
-import { getCoaLevelOneEdit, updateCoaLevelOneForm } from '../../../store/features/coaOneSlice';
+import { getCoaLevelOneEdit, resetCoaLevelOne, updateCoaLevelOneForm } from '../../../store/features/coaOneSlice';
 
 const EditCoaLevelOne = () => {
   useDocumentTitle('Edit Chart Of Account Level One');
@@ -39,10 +39,19 @@ const EditCoaLevelOne = () => {
 
   useEffect(() => {
     try {
+      dispatch(resetCoaLevelOne());
       dispatch(getCoaLevelOneEdit(id)).unwrap();
     } catch (error) {
       handleError();
     }
+
+    return () => {
+      try {
+        dispatch(resetCoaLevelOne());
+      } catch (error) {
+        handleError(error);
+      }
+    };
   }, []);
 
   return (

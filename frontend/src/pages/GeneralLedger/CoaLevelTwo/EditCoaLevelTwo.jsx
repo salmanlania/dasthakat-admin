@@ -7,7 +7,7 @@ import CoaLevelTwoForm from '../../../components/Form/CoaLevelTwoForm';
 import PageHeading from '../../../components/Heading/PageHeading';
 import useDocumentTitle from '../../../hooks/useDocumentTitle';
 import useError from '../../../hooks/useError';
-import { getCoaLevelTwoEdit, updateCoaLevelTwoForm } from '../../../store/features/coaTwoSlice';
+import { getCoaLevelTwoEdit, resetCoaLevelTwo, updateCoaLevelTwoForm } from '../../../store/features/coaTwoSlice';
 
 const EditCoaLevelTwo = () => {
   useDocumentTitle('Edit Chart Of Account Level Two');
@@ -39,10 +39,19 @@ const EditCoaLevelTwo = () => {
 
   useEffect(() => {
     try {
+      dispatch(resetCoaLevelTwo());
       dispatch(getCoaLevelTwoEdit(id)).unwrap();
     } catch (error) {
       handleError();
     }
+
+    return () => {
+      try {
+        dispatch(resetCoaLevelTwo());
+      } catch (error) {
+        handleError(error);
+      }
+    };
   }, []);
 
   return (

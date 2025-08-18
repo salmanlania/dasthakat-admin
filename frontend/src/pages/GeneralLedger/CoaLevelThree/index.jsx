@@ -158,7 +158,7 @@ const CoaLevelThree = () => {
       ),
       render: (_, record, { product_id }, index) => {
         return (
-          <Input value={record.level3_code} disabled />
+          <Input value={(record.level3_code).toString().replace(/\D/g, '')} disabled />
         );
       },
       sorter: true,

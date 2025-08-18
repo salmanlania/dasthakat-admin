@@ -127,7 +127,7 @@ const CoaLevelTwo = () => {
       ),
       render: (_, record, index) => {
         return (
-          <Input value={record.level2_code} disabled />
+          <Input value={(record.level2_code).toString().replace(/\D/g, '')} disabled />
         );
       },
       sorter: true,

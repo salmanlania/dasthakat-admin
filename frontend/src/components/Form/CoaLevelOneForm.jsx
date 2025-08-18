@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Button, Col, Form, Input, Row, Table } from 'antd';
+import { Button, Col, Form, Input, Row, Table, Spin } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,7 +11,7 @@ import DebounceInput from '../Input/DebounceInput';
 const CoaLevelOneForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const { isFormSubmitting, initialFormValues, coaLevelOneList, initialFormCodeValues } = useSelector(
+  const { isFormSubmitting, initialFormValues, coaLevelOneList, initialFormCodeValues, isListLoading } = useSelector(
     (state) => state.coaOne
   );
 
@@ -32,10 +32,9 @@ const CoaLevelOneForm = ({ mode, onSubmit, onSave }) => {
     if (mode === 'edit' && initialFormValues) {
       const gl_types = initialFormValues?.gl_types || '';
       const gl_type_id = initialFormValues?.gl_type_id || '';
-      const code = initialFormValues?.code || '';
+      const code = (initialFormValues?.code || '').toString().replace(/\D/g, '');
       const coa_name = initialFormValues?.coa_name || '';
       form.setFieldsValue({
-        // gl_types: gl_types,
         gl_types: gl_type_id
           ? { value: gl_type_id, label: gl_types }
           : undefined,
@@ -48,7 +47,7 @@ const CoaLevelOneForm = ({ mode, onSubmit, onSave }) => {
       }
     } else if (mode !== 'edit' && initialFormCodeValues) {
       form.setFieldsValue({
-        code: initialFormCodeValues?.code
+        code: (initialFormCodeValues?.code || '').toString().replace(/\D/g, '')
       });
     }
   }, [initialFormValues, initialFormCodeValues, form, mode]);
@@ -82,8 +81,9 @@ const CoaLevelOneForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'level1_code',
       key: 'level1_code',
       render: (_, record, { product_id }, index) => {
+        const cleanValue = String(record.level1_code || '').replace(/\D/g, '');
         return (
-          <Input value={record.level1_code} disabled />
+          <Input value={cleanValue} disabled />
         );
       },
       width: 100
@@ -148,7 +148,38 @@ const CoaLevelOneForm = ({ mode, onSubmit, onSave }) => {
           </Col>
           <Col span={24} sm={12} md={4} lg={4}>
             <Form.Item name="code" label="Code">
-              <Input required disabled={mode === 'edit' ? true : false} type="number"inputMode="numeric" />
+              <Input
+                required
+                disabled={mode === 'edit' ? true : false}
+                inputMode="numeric"
+                maxLength={3}
+                onKeyDown={(e) => {
+                  if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Tab") {
+                    e.preventDefault();
+                  }
+                }}
+                onPaste={(e) => {
+                  e.preventDefault();
+                  const pasteData = e.clipboardData.getData("text");
+                  pasteData = pasteData.slice(0, 3);
+                  const numbersOnly = pasteData.replace(/\D/g, "");
+                  if (numbersOnly) {
+                    const input = e.target;
+                    const start = input.selectionStart;
+                    const end = input.selectionEnd;
+
+                    const newValue =
+                      input.value.substring(0, start) +
+                      numbersOnly +
+                      input.value.substring(end);
+
+                    input.value = newValue.slice(0, 3);
+
+                    const event = new Event("input", { bubbles: true });
+                    input.dispatchEvent(event);
+                  }
+                }}
+              />
             </Form.Item>
           </Col>
           <Col span={24} sm={12} md={12} lg={12}>
@@ -157,17 +188,23 @@ const CoaLevelOneForm = ({ mode, onSubmit, onSave }) => {
             </Form.Item>
           </Col>
         </Row>
-        <Table
-          columns={columns}
-          dataSource={Array.isArray(coaLevelOneList) ? coaLevelOneList : []}
-          rowKey={'coa_level1_id'}
-          size="small"
-          scroll={{ x: 'calc(100% - 200px)' }}
-          pagination={false}
-          sticky={{
-            offsetHeader: 56
-          }}
-        />
+        {isListLoading ? (
+          <div className="flex min-h-32 items-center justify-center">
+            <Spin />
+          </div>
+        ) : (
+          <Table
+            columns={columns}
+            dataSource={Array.isArray(coaLevelOneList) ? coaLevelOneList : []}
+            rowKey={'coa_level1_id'}
+            size="small"
+            scroll={{ x: 'calc(100% - 200px)' }}
+            pagination={false}
+            sticky={{
+              offsetHeader: 56
+            }}
+          />
+        )}
 
         <div className="mt-4 flex items-center justify-end gap-2">
           <Link to="/general-ledger/coa/level1">

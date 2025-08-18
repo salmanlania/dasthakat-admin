@@ -7,7 +7,7 @@ import CoaLevelThreeForm from '../../../components/Form/CoaLevelThreeForm';
 import PageHeading from '../../../components/Heading/PageHeading';
 import useDocumentTitle from '../../../hooks/useDocumentTitle';
 import useError from '../../../hooks/useError';
-import { getCoaLevelThreeEdit, updateCoaLevelThreeForm } from '../../../store/features/coaThreeSlice';
+import { getCoaLevelThreeEdit, resetCoaLevelThree, updateCoaLevelThreeForm } from '../../../store/features/coaThreeSlice';
 
 const EditCoaLevelThree = () => {
   useDocumentTitle('Edit Chart Of Account Level Three');
@@ -39,10 +39,19 @@ const EditCoaLevelThree = () => {
 
   useEffect(() => {
     try {
+      dispatch(resetCoaLevelThree());
       dispatch(getCoaLevelThreeEdit(id)).unwrap();
     } catch (error) {
       handleError();
     }
+
+    return () => {
+      try {
+        dispatch(resetCoaLevelThree());
+      } catch (error) {
+        handleError(error);
+      }
+    };
   }, []);
 
   return (

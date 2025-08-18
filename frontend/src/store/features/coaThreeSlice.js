@@ -146,6 +146,7 @@ export const coaThreeSlice = createSlice({
     addCase(getCoaLevelThree.pending, (state) => {
       state.isListLoading = true;
       state.initialFormValues = null;
+      state.coaLevelThreeList = null;
     });
     addCase(getCoaLevelThree.fulfilled, (state, action) => {
       state.isListLoading = false;

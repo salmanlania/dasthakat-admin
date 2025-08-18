@@ -146,6 +146,7 @@ export const coaTwoSlice = createSlice({
     addCase(getCoaLevelTwo.pending, (state) => {
       state.isListLoading = true;
       state.initialFormValues = null;
+      state.coaLevelTwoList = null;
     });
     addCase(getCoaLevelTwo.fulfilled, (state, action) => {
       state.isListLoading = false;
