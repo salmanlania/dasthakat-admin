@@ -109,7 +109,7 @@ jobs:
     - name: Install Composer Dependencies
       working-directory: api
       run: |
-        composer install --no-dev --optimize-autoloader
+        composer update
         zip -r vendor.zip vendor
 
     - name: Upload API (without vendor)
