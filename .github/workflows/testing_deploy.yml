@@ -99,10 +99,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Setup PHP 8.1
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, bcmath, pdo, pdo_mysql
+        coverage: none
+
     - name: Install Composer Dependencies
       working-directory: api
       run: |
-        composer update
+        composer install --no-dev --optimize-autoloader
         zip -r vendor.zip vendor
 
     - name: Upload API (without vendor)
