@@ -64,6 +64,7 @@ const Sidebar = () => {
   };
 
   const permissions = user?.permission;
+  console.log('permissions' , permissions)
 
   const activeKey = pathname === '/' ? '/' : pathname.split('/')[1];
   let isSmallScreen = window.innerWidth <= 1000;
@@ -120,6 +121,11 @@ const Sidebar = () => {
     !permissions?.purchase_order?.list &&
     !permissions?.job_order?.list;
   !permissions?.service_order?.list;
+
+  const coaPermission =
+    !permissions?.coa_level1?.list &&
+    !permissions?.coa_level2?.list &&
+    !permissions?.coa_level3?.list
 
   const warehousingPermission =
     !permissions?.good_received_note?.list &&
@@ -482,33 +488,33 @@ const Sidebar = () => {
       key: 'general ledger',
       label: 'General Ledger',
       icon: <LuClipboardList size={18} />,
-      disabled: saleManagementPermission,
+      disabled: coaPermission,
       children: [
         {
           key: 'gl setup',
           label: 'GL Setup',
           icon: <MdOutlineAccountTree size={18} />,
-          disabled: !permissions?.quotation?.list,
+          disabled: coaPermission,
           children: [
             {
               key: 'gl module setting',
               label: 'GL Module Setting',
-              // disabled: !permissions?.quotation?.list,
+              disabled: coaPermission,
             },
             {
               key: 'Chart of accounting level 1',
               label: <Link to="/general-ledger/coa/level1">Chart Of Accounting Level 1</Link>,
-              disabled: !permissions?.quotation?.list,
+              disabled: !permissions?.coa_level1?.list,
             },
             {
               key: 'Chart of accounting level 2',
               label: <Link to="/general-ledger/coa/level2">Chart Of Accounting Level 2</Link>,
-              disabled: !permissions?.quotation?.list,
+              disabled: !permissions?.coa_level2?.list,
             },
             {
               key: 'Chart of accounting level 3',
               label: <Link to="/general-ledger/coa/level3">Chart Of Accounting Level 3</Link>,
-              disabled: !permissions?.quotation?.list,
+              disabled: !permissions?.coa_level3?.list,
             },
           ]
         },
