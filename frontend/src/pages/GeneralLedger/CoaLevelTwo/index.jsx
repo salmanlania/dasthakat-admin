@@ -291,8 +291,6 @@ const CoaLevelTwo = () => {
                 type: 'checkbox',
                 selectedRowKeys: deleteIDs,
                 onChange: (selectedRowKeys) => {
-                  console.log('selectedRowKeys changed: ', selectedRowKeys);
-                  // return
                   dispatch(setCoaLevelTwoDeleteIDs(selectedRowKeys));
                 },
               }
