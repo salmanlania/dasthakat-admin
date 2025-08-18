@@ -663,6 +663,8 @@ class ChargeOrderController extends Controller
 	{
 		// Main query with eager loading
 		$data = ChargeOrder::with([
+			"quotation",
+			"quotation.payment",
 			"salesman",
 			"event",
 			"vessel",
