@@ -15,7 +15,7 @@ const EditCoaLevelThree = () => {
   const navigate = useNavigate();
   const handleError = useError();
   const { id } = useParams();
-  const { isItemLoading } = useSelector((state) => state.coaThree);
+  const { isItemLoading, initialFormValues } = useSelector((state) => state.coaThree);
 
   const onCoaLevelThreeUpdate = async (data) => {
     try {
@@ -61,7 +61,7 @@ const EditCoaLevelThree = () => {
         <Breadcrumb items={[{ title: 'General Ledger' }, { title: 'COA Level Three' }, { title: 'Edit' }]} separator=">" />
       </div>
 
-      {isItemLoading && (
+      {isItemLoading && !initialFormValues && (
         <div className="mt-4 flex min-h-96 items-center justify-center rounded-md bg-white">
           <Spin size="large" />
         </div>

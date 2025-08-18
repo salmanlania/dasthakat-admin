@@ -10,17 +10,18 @@ import AsyncSelectLedger from '../AsyncSelectLedger';
 const CoaLevelThreeForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const { isFormSubmitting, initialFormValues, coaLevelThreeList, initialFormCodeValues, isListLoading  } = useSelector(
+  const { isFormSubmitting, initialFormValues, coaLevelThreeList, initialFormCodeValues, isListLoading } = useSelector(
     (state) => state.coaThree
   );
 
   const [submitAction, setSubmitAction] = useState(null);
+  const [initialData, setInitialData] = useState(null);
 
   const onFinish = (values) => {
 
     const data = {
-      coa_level1_id: values?.gl_types?.value ? values?.gl_types?.value : null,
-      coa_level2_id: values?.level2_code?.value ? values?.level2_code?.value : null,
+      coa_level1_id: values?.gl_types?.value ? values?.gl_types?.value : initialData?.coa_level1_id ? initialData?.coa_level1_id : null,
+      coa_level2_id: values?.level2_code?.value ? values?.level2_code?.value : initialData?.coa_level2_id ? initialData?.coa_level2_id : null,
       level3_code: values?.level3_code ? values?.level3_code : null,
       name: values?.coa_name ? values?.coa_name : null,
     };
@@ -40,6 +41,8 @@ const CoaLevelThreeForm = ({ mode, onSubmit, onSave }) => {
         level3_code: code,
         coa_name: coa_name,
       });
+
+      setInitialData(initialFormValues)
 
       if (initialFormValues?.coa_level2_id || initialFormValues?.coa_level1_id) {
         dispatch(getCoaLevelThree({ coa_level2_id: initialFormValues?.coa_level2_id }));

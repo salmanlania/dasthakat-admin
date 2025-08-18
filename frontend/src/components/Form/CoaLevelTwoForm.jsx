@@ -14,11 +14,12 @@ const CoaLevelTwoForm = ({ mode, onSubmit, onSave }) => {
     (state) => state.coaTwo
   );
   const [submitAction, setSubmitAction] = useState(null);
+  const [initialData, setInitialData] = useState(initialFormValues);
 
   const onFinish = (values) => {
     const data = {
-      coa_level1_id: values?.gl_types?.value ? values?.gl_types?.value : null,
-      level2_code: values?.code ? values?.code : null,
+      coa_level1_id: values?.gl_types?.value ? values?.gl_types?.value : initialData?.coa_level1_id ? initialData?.coa_level1_id : null,
+      level2_code: values?.code ? values?.code : initialData?.level2_code ? initialData?.level2_code : null,
       name: values?.coa_name ? values?.coa_name : null,
     };
 
@@ -38,6 +39,8 @@ const CoaLevelTwoForm = ({ mode, onSubmit, onSave }) => {
         code: code,
         coa_name: coa_name,
       });
+
+      setInitialData(initialFormValues)
 
       if (initialFormValues?.coa_level1_id) {
         dispatch(getCoaLevelTwo({
@@ -196,7 +199,7 @@ const CoaLevelTwoForm = ({ mode, onSubmit, onSave }) => {
           <Table
             columns={columns}
             dataSource={Array.isArray(coaLevelTwoList) ? coaLevelTwoList : []}
-            rowKey={'coa_level1_id'}
+            rowKey={'coa_level2_id'}
             size="small"
             scroll={{ x: 'calc(100% - 200px)' }}
             pagination={false}
