@@ -405,10 +405,10 @@ const VendorSelectionModal = ({ open, onClose }) => {
       <div className="mt-4 flex justify-end gap-2">
         <Button onClick={onClose}>Exit</Button>
         <Button className="w-28" type="primary" onClick={() => onFinish()} loading={isSaving}>
-          Save & Send
+          Save
         </Button>
         <Button className="w-28 bg-green-600 hover:!bg-green-500" type="primary" onClick={() => onFinish('saveExit')} loading={isExitSaving}>
-          Save & Exit
+          Save & Send
         </Button>
       </div>
     </Modal>

@@ -119,6 +119,8 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
       technician_notes: values.technician_notes,
       agent_notes: values.agent_notes,
       total_amount: totalAmount,
+      gross_amount: totalNet,
+      discount_amount: discountAmount,
       document_date: dayjs(values.document_date).format('YYYY-MM-DD')
         ? dayjs(values.document_date).format('YYYY-MM-DD')
         : null,

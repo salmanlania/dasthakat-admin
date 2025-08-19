@@ -5,7 +5,7 @@ import { PDFDocument } from 'pdf-lib';
 
 import GMSLogo from '../../assets/logo-with-title.png';
 
-import { formatThreeDigitCommas } from '../number';
+import { formatThreeDigitCommas, roundUpto } from '../number';
 
 const mergePDFs = async (quotationPDFBlob, titleText) => {
   const quotationPDFBytes = await quotationPDFBlob.arrayBuffer();
@@ -214,10 +214,13 @@ export const createPerformaInvoicePrint = async (data) => {
   const table2Column = [
     'S. No',
     'Description',
-    'Quantity',
     'UOM',
-    'Unit Price',
-    'Amount'
+    'QTY',
+    'Price per Unit',
+    'Gross Amount',
+    'Discount %',
+    'Discount Amount',
+    'Net Amount'
   ];
 
   const table2Rows = [];
@@ -225,10 +228,17 @@ export const createPerformaInvoicePrint = async (data) => {
     data.charge_order_detail.forEach((detail) => {
       const sr = detail.sort_order + 1;
       const description = `${detail?.product?.impa_code || ''}${detail?.product_description || ''}${detail?.description ? `\n \n${detail.description}` : ''}`;
-      const quantity = detail.quantity ? formatThreeDigitCommas(parseFloat(detail.quantity)) : 0;
+      const quantity = detail.quantity ? formatThreeDigitCommas(parseFloat(detail.quantity)) : '0';
       const uom = detail.unit ? detail.unit.name : '';
-      const pricePerUnit = detail.rate ? `$${formatThreeDigitCommas(detail.rate)}` : 0;
-      const netAmount = detail.amount
+      const pricePerUnit = detail.rate ? `$${formatThreeDigitCommas(detail.rate)}` : '0';
+      // const grossAmount = detail?.gross_amount ? `$${formatThreeDigitCommas(detail?.gross_amount)}` : '0';
+      const grossAmount = detail?.gross_amount ? `$${formatThreeDigitCommas(detail?.amount)}` : (!detail?.gross_amount || detail?.gross_amount === 0) ? `$${formatThreeDigitCommas(detail?.amount)}` : '0';
+      const discountPercent = detail.discount_percent ? `${roundUpto(+detail.discount_percent)}%` : '0%';
+      const discountAmount = detail.discount_amount ? `$${formatThreeDigitCommas(detail.discount_amount)}` : '0';
+      // const netAmount = detail.amount
+      //   ? `$${formatThreeDigitCommas(detail.amount)}`
+      //   : '0';
+      const netAmount = detail?.gross_amount ? `$${formatThreeDigitCommas(detail?.gross_amount)}` : !detail?.gross_amount ? `$${formatThreeDigitCommas(detail?.amount)}` : '0'
         ? `$${formatThreeDigitCommas(detail.amount)}`
         : 0;
 
@@ -241,6 +251,9 @@ export const createPerformaInvoicePrint = async (data) => {
         quantity,
         uom,
         { content: pricePerUnit, styles: { halign: 'right' } },
+        { content: grossAmount, styles: { halign: 'right' } },
+        { content: discountPercent, styles: { halign: 'right' } },
+        { content: discountAmount, styles: { halign: 'right' } },
         { content: netAmount, styles: { halign: 'right' } }
       ];
 
@@ -282,26 +295,34 @@ export const createPerformaInvoicePrint = async (data) => {
     rowPageBreak: 'avoid',
 
     columnStyles: {
-      0: { cellWidth: 12 },
-      1: { cellWidth: 110 },
-      2: { cellWidth: 20 },
-      3: { cellWidth: 20 },
-      4: { cellWidth: 20 },
-      5: { cellWidth: 20 },
-      6: { cellWidth: 20 }
+      0: { cellWidth: 10 },
+      1: { cellWidth: 80 },
+      2: { cellWidth: 11 },
+      3: { cellWidth: 10 },
+      4: { cellWidth: 17 },
+      5: { cellWidth: 19 },
+      6: { cellWidth: 14 },
+      7: { cellWidth: 14 },
+      8: { cellWidth: 27 }
     },
     didParseCell: function (data) {
       data.cell.styles.minCellHeight = 13;
     }
   });
 
-  const totalAmountFromDetails = data.charge_order_detail
-    ? data.charge_order_detail.reduce((sum, detail) => sum + (parseFloat(detail.amount) || 0), 0)
+  const totalAmountFromDetails = data?.charge_order_detail
+    ? data?.charge_order_detail.reduce((sum, detail) => sum + (parseFloat(detail?.amount) || 0), 0)
     : 0;
 
-  const totalGrossAmount = data.total_amount
-    ? `$${formatThreeDigitCommas(data.total_amount)}`
-    : `$${formatThreeDigitCommas(totalAmountFromDetails)}`;
+  const totalDiscount = data?.charge_order_detail
+    ? data?.charge_order_detail.reduce((sum, detail) => sum + (parseFloat(detail?.discount_amount) || 0), 0)
+    : 0;
+
+  const baseTotal = data.total_amount || totalAmountFromDetails;
+
+  const finalTotal = baseTotal - totalDiscount;
+
+  const totalGrossAmount = `$${formatThreeDigitCommas(finalTotal)}`;
 
   let notes = [
     [

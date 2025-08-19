@@ -87,23 +87,23 @@ const pdfContent = (doc, data, pageWidth) => {
     table2Rows.push([
       {
         content: item?.document_date || '   ',
-        styles: { textColor: [32, 50, 114] }
+        styles: { textColor: [32, 50, 114], halign: 'left' }
       },
       {
         content: item?.document_identity || '   ',
-        styles: { textColor: [32, 50, 114] }
+        styles: { textColor: [32, 50, 114], halign: 'left' }
       },
       {
         content: item?.event_code || '   ',
-        styles: { textColor: [32, 50, 114] }
+        styles: { textColor: [32, 50, 114], halign: 'left' }
       },
       {
         content: item?.vessel_name || '   ',
-        styles: { textColor: [32, 50, 114] }
+        styles: { textColor: [32, 50, 114], halign: 'left' }
       },
       {
         content: item?.customer_name || '   ',
-        styles: { textColor: [32, 50, 114] }
+        styles: { textColor: [32, 50, 114], halign: 'left' }
       },
       {
         content: item?.total_quantity || '   ',
@@ -115,11 +115,11 @@ const pdfContent = (doc, data, pageWidth) => {
       },
       {
         content: item?.port_name || '   ',
-        styles: { textColor: [32, 50, 114] }
+        styles: { textColor: [32, 50, 114] , halign: 'left' }
       },
       {
         content: item?.status || '   ',
-        styles: { textColor: [32, 50, 114] }
+        styles: { textColor: [32, 50, 114], halign: 'left' }
       },
       {
         content: item?.created_at ? dayjs(item.created_at).format('MM-DD-YYYY hh:mm A') : '   ',
