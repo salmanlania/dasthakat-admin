@@ -188,7 +188,6 @@ const QuotationReport = () => {
 
       dispatch(getQuotationReport(originalParams));
     } catch (error) {
-      console.log('error' , error)
       handleError(error);
     } finally {
       toast.dismiss(loadingToast);

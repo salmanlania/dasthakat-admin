@@ -328,8 +328,6 @@ export const createSaleInvoicePrint = async (data) => {
   // Total Amounts
   const totalGrossAmount = !data?.total_discount || !data?.net_amount ? `$${formatThreeDigitCommas(data?.total_amount)}` : data?.total_discount || data?.net_amount > 0 ? `$${formatThreeDigitCommas(data?.net_amount)}` : ''
 
-  // console.log('totalGrossAmount', totalGrossAmount)
-
   let notes = [
     [
       {
