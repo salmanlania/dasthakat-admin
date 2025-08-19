@@ -608,7 +608,8 @@ export const chargeOrderSlice = createSlice({
             value: data.flag.flag_id,
             label: data.flag.name
           }
-          : null
+          : null,
+          total_amount: data?.total_amount
       };
 
       if (!data.charge_order_detail) return;

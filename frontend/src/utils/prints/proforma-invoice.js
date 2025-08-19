@@ -81,8 +81,8 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
 
   // Bill To content
   const customerInfo = [
-    data?.charge_order?.customer?.name,
-    data?.vessel_billing_address ? data?.vessel_billing_address : data?.charge_order?.vessel?.billing_address ? data?.charge_order?.vessel?.billing_address : null
+    data?.customer?.name,
+    data?.vessel?.billing_address ? data?.vessel?.billing_address : null
   ].filter(Boolean);
 
   const billTo = doc.splitTextToSize(customerInfo.join('\n'), boxWidth);
@@ -90,7 +90,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
 
   // Ship To content
   const vesselInfo = [
-    `${data?.charge_order?.event?.event_code ? data?.charge_order?.event?.event_code : ''} - ${data?.charge_order?.vessel?.name ? data?.charge_order?.vessel?.name : ''}`,
+    `${data?.event?.event_code ? data?.event?.event_code : ''} - ${data?.vessel?.name ? data?.vessel?.name : ''}`,
   ].filter(Boolean).join('\n');
 
   const shipTo = doc.splitTextToSize(vesselInfo, boxWidth);
@@ -112,13 +112,13 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   // ESTIMATE
   doc.setFontSize(26);
   doc.setFont('times', 'bold');
-  doc.text('INVOICE', pageWidth / 2, invoiceY, {
+  doc.text('PERFOMA', pageWidth / 2, invoiceY, {
     align: 'center'
   });
   doc.setDrawColor(32, 50, 114);
   doc.setLineWidth(0.6);
   // doc.line(pageWidth / 2 + 16, 64, 89, 64);
-  doc.line(pageWidth / 2 - doc.getTextWidth('INVOICE') / 2, invoiceY + 2, pageWidth / 2 + doc.getTextWidth('INVOICE') / 2, invoiceY + 2);
+  doc.line(pageWidth / 2 - doc.getTextWidth('PERFOMA') / 2, invoiceY + 2, pageWidth / 2 + doc.getTextWidth('PERFOMA') / 2, invoiceY + 2);
 
   doc.setFont('times', 'normal');
   doc.setFontSize(10);
@@ -126,41 +126,31 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   // Table 1
   const table1Column = [
     'Date',
-    'Invoice #',
+    'Charge #',
     'Event No.',
     "Customer's Reference",
     'Delivery Location',
-    'Charge No.',
+    'S.O No.',
     'Payment Terms',
-    // 'Sales Rep',
     'Ship Date'
   ];
   const table1Rows = [
     [
-      data?.document_date ? dayjs(data.document_date).format('MM-DD-YYYY') : '',
+      data.document_date ? dayjs(data.document_date).format('MM-DD-YYYY') : '',
       data?.document_identity ? data?.document_identity : '',
-      data?.charge_order ? data.charge_order?.event?.event_code : '',
-      data?.charge_order?.customer_po_no,
-      data?.charge_order ? data?.charge_order?.port?.name : '',
-      data?.charge_order ? data.charge_order?.document_identity : '',
-      // data?.charge_order?.service_order ? data?.charge_order?.service_order?.document_identity : '',
-      data?.charge_order?.quotation?.payment.name ? data?.charge_order?.quotation?.payment.name : '',
-      // data?.charge_order ? data.charge_order?.salesman?.name : '',
-      data?.ship_date
-        ? (data?.ship_date === "1989-11-30"
-          ? dayjs(data?.ship_date).format('MM-DD-YYYY')
-          : data?.ship_date === "0000-00-00"
+      data?.event ? data?.event?.event_code : '',
+      data?.customer_po_no ? data?.customer_po_no : '',
+      data?.port ? data?.port?.name : '',
+      data?.service_order ? data?.service_order?.document_identity : '',
+      data?.quotation?.payment.name ? data?.quotation?.payment.name : '',
+      data?.shipment
+        ?
+        (data?.shipment?.document_date === "1989-11-30"
+          ? dayjs(data?.shipment?.document_date).format('MM-DD-YYYY')
+          : data?.shipment?.document_date === "0000-00-00"
             ? 'TBA'
-            : dayjs(data?.ship_date).format("MM-DD-YYYY"))
-        :
-        data?.shipment
-          ?
-          (data?.shipment?.document_date === "1989-11-30"
-            ? dayjs(data?.shipment?.document_date).format('MM-DD-YYYY')
-            : data?.shipment?.document_date === "0000-00-00"
-              ? 'TBA'
-              : dayjs(data?.shipment?.document_date).format("MM-DD-YYYY"))
-          : '',
+            : dayjs(data?.shipment?.document_date).format("MM-DD-YYYY"))
+        : '',
     ]
   ];
 
@@ -211,7 +201,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
 };
 
 
-export const createSaleInvoicePrint = async (data) => {
+export const createPerformaInvoicePrint = async (data) => {
   const doc = new jsPDF();
   doc.setTextColor(32, 50, 114);
 
@@ -234,16 +224,20 @@ export const createSaleInvoicePrint = async (data) => {
   ];
 
   const table2Rows = [];
-  if (data.sale_invoice_detail) {
-    data.sale_invoice_detail.forEach((detail) => {
+  if (data.charge_order_detail) {
+    data.charge_order_detail.forEach((detail) => {
       const sr = detail.sort_order + 1;
       const description = `${detail?.product?.impa_code || ''}${detail?.product_description || ''}${detail?.description ? `\n \n${detail.description}` : ''}`;
-      const uom = detail.unit ? detail.unit.name : '';
       const quantity = detail.quantity ? formatThreeDigitCommas(parseFloat(detail.quantity)) : '0';
+      const uom = detail.unit ? detail.unit.name : '';
       const pricePerUnit = detail.rate ? `$${formatThreeDigitCommas(detail.rate)}` : '0';
+      // const grossAmount = detail?.gross_amount ? `$${formatThreeDigitCommas(detail?.gross_amount)}` : '0';
       const grossAmount = detail?.gross_amount ? `$${formatThreeDigitCommas(detail?.amount)}` : (!detail?.gross_amount || detail?.gross_amount === 0) ? `$${formatThreeDigitCommas(detail?.amount)}` : '0';
       const discountPercent = detail.discount_percent ? `${roundUpto(+detail.discount_percent)}%` : '0%';
-      const discountAmount = detail.discount_amount ? `${formatThreeDigitCommas('$' + detail.discount_amount)}` : '0';
+      const discountAmount = detail.discount_amount ? `$${formatThreeDigitCommas(detail.discount_amount)}` : '0';
+      // const netAmount = detail.amount
+      //   ? `$${formatThreeDigitCommas(detail.amount)}`
+      //   : '0';
       const netAmount = detail?.gross_amount ? `$${formatThreeDigitCommas(detail?.gross_amount)}` : !detail?.gross_amount ? `$${formatThreeDigitCommas(detail?.amount)}` : '0'
         ? `$${formatThreeDigitCommas(detail.amount)}`
         : 0;
@@ -254,13 +248,13 @@ export const createSaleInvoicePrint = async (data) => {
           content: description,
           styles: { halign: 'left', valign: detail?.description?.trim() ? 'top' : 'middle' }
         },
-        uom,
         quantity,
+        uom,
         { content: pricePerUnit, styles: { halign: 'right' } },
         { content: grossAmount, styles: { halign: 'right' } },
         { content: discountPercent, styles: { halign: 'right' } },
         { content: discountAmount, styles: { halign: 'right' } },
-        { content: netAmount, styles: { halign: 'right' } },
+        { content: netAmount, styles: { halign: 'right' } }
       ];
 
       table2Rows.push(row);
@@ -300,15 +294,6 @@ export const createSaleInvoicePrint = async (data) => {
     },
     rowPageBreak: 'avoid',
 
-    // columnStyles: {
-    //   0: { cellWidth: 12 },
-    //   1: { cellWidth: 110 },
-    //   2: { cellWidth: 20 },
-    //   3: { cellWidth: 20 },
-    //   4: { cellWidth: 20 },
-    //   5: { cellWidth: 20 },
-    //   6: { cellWidth: 20 }
-    // },
     columnStyles: {
       0: { cellWidth: 10 },
       1: { cellWidth: 80 },
@@ -325,10 +310,19 @@ export const createSaleInvoicePrint = async (data) => {
     }
   });
 
-  // Total Amounts
-  const totalGrossAmount = !data?.total_discount || !data?.net_amount ? `$${formatThreeDigitCommas(data?.total_amount)}` : data?.total_discount || data?.net_amount > 0 ? `$${formatThreeDigitCommas(data?.net_amount)}` : ''
+  const totalAmountFromDetails = data?.charge_order_detail
+    ? data?.charge_order_detail.reduce((sum, detail) => sum + (parseFloat(detail?.amount) || 0), 0)
+    : 0;
 
-  // console.log('totalGrossAmount', totalGrossAmount)
+  const totalDiscount = data?.charge_order_detail
+    ? data?.charge_order_detail.reduce((sum, detail) => sum + (parseFloat(detail?.discount_amount) || 0), 0)
+    : 0;
+
+  const baseTotal = data.total_amount || totalAmountFromDetails;
+
+  const finalTotal = baseTotal - totalDiscount;
+
+  const totalGrossAmount = `$${formatThreeDigitCommas(finalTotal)}`;
 
   let notes = [
     [
@@ -424,11 +418,11 @@ export const createSaleInvoicePrint = async (data) => {
     // addFooter(doc, pageWidth, pageHeight - 25);
   }
 
-  const titleData = `Sale Invoice - ${data.document_identity} - ${data?.charge_order?.vessel?.name}`
+  const titleData = `Performa- ${data?.document_identity ? data?.document_identity : ''} - ${data?.vessel?.name ? data?.vessel?.name : ''}`
 
   doc.setProperties({
     title: titleData
   });
   const pdfBlob = doc.output('blob');
-  await mergePDFs(pdfBlob, `Sale Invoice - ${data.document_identity} - ${data?.charge_order?.vessel?.name}`);
+  await mergePDFs(pdfBlob, `Performa- ${titleData}`);
 };

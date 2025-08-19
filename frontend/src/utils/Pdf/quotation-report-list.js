@@ -87,39 +87,39 @@ const pdfContent = (doc, data, pageWidth) => {
     table2Rows.push([
       {
         content: item?.document_date || '   ',
-        styles: { textColor: [32, 50, 114] }
+        styles: { textColor: [32, 50, 114], halign: 'left' }
       },
       {
         content: item?.document_identity || '   ',
-        styles: { textColor: [32, 50, 114] }
+        styles: { textColor: [32, 50, 114], halign: 'left' }
       },
       {
         content: item?.event_code || '   ',
-        styles: { textColor: [32, 50, 114] }
+        styles: { textColor: [32, 50, 114], halign: 'left' }
       },
       {
         content: item?.vessel_name || '   ',
-        styles: { textColor: [32, 50, 114] }
+        styles: { textColor: [32, 50, 114], halign: 'left' }
       },
       {
         content: item?.customer_name || '   ',
-        styles: { textColor: [32, 50, 114] }
+        styles: { textColor: [32, 50, 114], halign: 'left' }
       },
       {
         content: item?.total_quantity || '   ',
-        styles: { textColor: [32, 50, 114] }
+        styles: { textColor: [32, 50, 114], halign: 'right' }
       },
       {
         content: item?.total_amount || '   ',
-        styles: { textColor: [32, 50, 114] }
+        styles: { textColor: [32, 50, 114], halign: 'right' }
       },
       {
         content: item?.port_name || '   ',
-        styles: { textColor: [32, 50, 114] }
+        styles: { textColor: [32, 50, 114] , halign: 'left' }
       },
       {
         content: item?.status || '   ',
-        styles: { textColor: [32, 50, 114] }
+        styles: { textColor: [32, 50, 114], halign: 'left' }
       },
       {
         content: item?.created_at ? dayjs(item.created_at).format('MM-DD-YYYY hh:mm A') : '   ',
@@ -130,8 +130,8 @@ const pdfContent = (doc, data, pageWidth) => {
 
   table2Rows.push([
     { content: 'Total', colSpan: 5, styles: { fontStyle: 'bold', halign: 'right' } },
-    { content: totalQuantity.toFixed(2), styles: { fontStyle: 'bold', textColor: [0, 128, 0] } },
-    { content: totalAmount.toFixed(2), styles: { fontStyle: 'bold', textColor: [0, 128, 0] } },
+    { content: totalQuantity.toFixed(2), styles: { fontStyle: 'bold', textColor: [0, 128, 0], halign: 'right' } },
+    { content: totalAmount.toFixed(2), styles: { fontStyle: 'bold', textColor: [0, 128, 0], halign: 'right' } },
     { content: '', styles: {} },
     { content: '', styles: {} }
   ]);

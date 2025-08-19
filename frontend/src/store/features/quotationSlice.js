@@ -63,6 +63,23 @@ export const getQuotationListPrint = createAsyncThunk(
   },
 );
 
+export const getQuotationReport = createAsyncThunk(
+  'quotation/report',
+  async (params, { rejectWithValue }) => {
+    try {
+      const res = await api.get('/report/quote-report', {
+        params: {
+          ...params,
+          all: 1,
+        },
+      });
+      return res.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  },
+);
+
 export const deleteQuotation = createAsyncThunk(
   'quotation/delete',
   async (id, { rejectWithValue }) => {
@@ -730,7 +747,9 @@ export const quotationSlice = createSlice({
         vendor_quotation_detail_id: item.vendor_quotation_detail_id ? item.vendor_quotation_detail_id : null,
         is_primary_vendor: item.is_primary_vendor,
         rfq: item.rfq,
+        rfq_responded: item.rfq_responded,
         vendor_part_no: item.vendor_part_no,
+        vendor_notes: item.vendor_notes,
       }));
     });
 

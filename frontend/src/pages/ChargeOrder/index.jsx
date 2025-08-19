@@ -2,7 +2,7 @@ import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Table, Tooltip } fro
 import dayjs from 'dayjs';
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { FaEye, FaFileInvoice } from 'react-icons/fa';
+import { FaEye, FaFileInvoice, FaRegFilePdf } from 'react-icons/fa';
 import { GoTrash } from 'react-icons/go';
 import { IoCheckmarkDoneCircleSharp } from 'react-icons/io5';
 import { LuClipboardList } from 'react-icons/lu';
@@ -25,13 +25,15 @@ import {
   setAnalysisChargeOrderID,
   setChargeOrderDeleteIDs,
   setChargeOrderListParams,
-  cancelledChargeOrder
+  cancelledChargeOrder,
+  getChargeOrder
 } from '../../store/features/chargeOrderSlice';
 import { getEventJobOrders, getEventServiceOrder } from '../../store/features/dispatchSlice.js';
 import { setChargePoID } from '../../store/features/purchaseOrderSlice';
 import { createSaleInvoice } from '../../store/features/saleInvoiceSlice';
 import { createIJOPrint } from '../../utils/prints/ijo-print.js';
 import { createServiceOrderPrint } from '../../utils/prints/service-order-print.js';
+import { createPerformaInvoicePrint } from '../../utils/prints/proforma-invoice.js';
 
 const ChargeOrder = () => {
   useDocumentTitle('Charge Order List');
@@ -120,50 +122,11 @@ const ChargeOrder = () => {
     }
   };
 
-  const onCreateChargePO = async (id) => {
-    const loadingToast = toast.loading('PO is being processed...');
+  const printPerforma = async (id) => {
+    const loadingToast = toast.loading('Loading Performa print...');
     try {
-      dispatch(setChargePoID(id));
-      toast.custom(
-        (t) => (
-          <div
-            className={`${t.visible ? 'animate-enter' : 'animate-leave'
-              } pointer-events-auto flex w-full max-w-md rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5`}>
-            <div className="w-0 flex-1 p-4">
-              <div className="flex items-start">
-                <div className="flex-shrink-0 pt-0.5">
-                  <IoCheckmarkDoneCircleSharp size={40} className="text-green-500" />
-                </div>
-                <div className="ml-3 flex-1">
-                  <p className="text-sm font-medium text-gray-900">
-                    Purchase Order has been created.
-                  </p>
-                  {permissions.edit ? (
-                    <p
-                      className="mt-1 cursor-pointer text-sm text-blue-500 hover:underline"
-                      onClick={() => {
-                        toast.dismiss(t.id);
-                        navigate('/purchase-order');
-                      }}>
-                      View Details
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-            <div className="flex border-l border-gray-200">
-              <button
-                onClick={() => toast.dismiss(t.id)}
-                className="flex w-full items-center justify-center rounded-none rounded-r-lg border border-transparent p-4 text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                Close
-              </button>
-            </div>
-          </div>
-        ),
-        {
-          duration: 8000,
-        },
-      );
+      const data = await dispatch(getChargeOrder(id)).unwrap()
+      createPerformaInvoicePrint(data, true);
     } catch (error) {
       handleError(error);
     } finally {
@@ -173,7 +136,6 @@ const ChargeOrder = () => {
 
   const printIJO = async (id) => {
     const loadingToast = toast.loading('Loading IJO print...');
-
     try {
       const data = await dispatch(getEventJobOrders(id)).unwrap();
       createIJOPrint(data, true);
@@ -363,6 +325,17 @@ const ChargeOrder = () => {
           record?.is_deleted === 1 ? (
             <div className="flex flex-wrap items-center gap-2">
               {permissions.edit ? (
+                <Tooltip title="Print">
+                  <Button
+                    size="small"
+                    type="primary"
+                    className="bg-rose-600 hover:!bg-rose-500"
+                    icon={<FaRegFilePdf size={14} />}
+                    onClick={() => printPerforma(charge_order_id)}
+                  />
+                </Tooltip>
+              ) : null}
+              {permissions.edit ? (
                 <Tooltip title="Edit">
                   <Link to={`/charge-order/edit/${charge_order_id}`}>
                     <Button
@@ -393,6 +366,17 @@ const ChargeOrder = () => {
             </div>
           ) : (
             <div className="flex flex-wrap items-center gap-2">
+              {permissions.edit ? (
+                <Tooltip title="Print">
+                  <Button
+                    size="small"
+                    type="primary"
+                    className="bg-rose-600 hover:!bg-rose-500"
+                    icon={<FaRegFilePdf size={14} />}
+                    onClick={() => printPerforma(charge_order_id)}
+                  />
+                </Tooltip>
+              ) : null}
               <Tooltip title="Create PO">
                 <Button
                   size="small"
