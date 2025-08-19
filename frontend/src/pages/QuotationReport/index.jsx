@@ -15,6 +15,7 @@ import {
   getQuotationForPrint,
   getQuotationListPrint,
   getQuotationListReport,
+  getQuotationReport,
   setQuotationListParams,
 } from '../../store/features/quotationSlice';
 import generateQuotationReportExcel from '../../utils/excel/quotation-report-excel.js';
@@ -141,7 +142,7 @@ const QuotationReport = () => {
         delete exportParams.end_date;
       }
 
-      const data = await dispatch(getQuotationListPrint(exportParams)).unwrap();
+      const data = await dispatch(getQuotationReport(exportParams)).unwrap();
 
       const filterDetails = {
         customer: params.customer_id?.label,

@@ -130,7 +130,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
     'Event No.',
     "Customer's Reference",
     'Delivery Location',
-    'S.O No.',
+    'Charge No.',
     'Payment Terms',
     // 'Sales Rep',
     'Ship Date'
@@ -143,7 +143,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       data?.charge_order?.customer_po_no,
       data?.charge_order ? data?.charge_order?.port?.name : '',
       data?.charge_order ? data.charge_order?.document_identity : '',
-      data?.charge_order?.service_order ? data?.charge_order?.service_order?.document_identity : '',
+      // data?.charge_order?.service_order ? data?.charge_order?.service_order?.document_identity : '',
       data?.charge_order?.quotation?.payment.name ? data?.charge_order?.quotation?.payment.name : '',
       // data?.charge_order ? data.charge_order?.salesman?.name : '',
       data?.ship_date

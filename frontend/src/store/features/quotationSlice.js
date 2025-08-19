@@ -63,6 +63,23 @@ export const getQuotationListPrint = createAsyncThunk(
   },
 );
 
+export const getQuotationReport = createAsyncThunk(
+  'quotation/report',
+  async (params, { rejectWithValue }) => {
+    try {
+      const res = await api.get('/report/quote-report', {
+        params: {
+          ...params,
+          all: 1,
+        },
+      });
+      return res.data;
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  },
+);
+
 export const deleteQuotation = createAsyncThunk(
   'quotation/delete',
   async (id, { rejectWithValue }) => {
