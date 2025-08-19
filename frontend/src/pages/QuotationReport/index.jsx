@@ -157,7 +157,7 @@ const QuotationReport = () => {
 
       createQuotationReportPrint(Array.isArray(data) ? data : [data], true);
 
-      dispatch(setQuotationListParams(originalParams));
+      dispatch(getQuotationReport(originalParams));
     } catch (error) {
       handleError(error);
     } finally {
@@ -182,12 +182,13 @@ const QuotationReport = () => {
         sort_direction: 'ascend',
       };
 
-      const data = await dispatch(getQuotationListPrint(exportParams)).unwrap();
+      const data = await dispatch(getQuotationReport(exportParams)).unwrap();
 
       generateQuotationReportExcel(data, true);
 
-      dispatch(setQuotationListParams(originalParams));
+      dispatch(getQuotationReport(originalParams));
     } catch (error) {
+      console.log('error' , error)
       handleError(error);
     } finally {
       toast.dismiss(loadingToast);
