@@ -51,7 +51,6 @@ const Scheduling = () => {
   const permissions = user.permission.dispatch;
   const [tableKey, setTableKey] = useState(0);
   const [isOldChecked, setIsOldChecked] = useState(false);
-  const [formatDate, setFormatDate] = useState([]);
 
   const [notesModalIsOpen, setNotesModalIsOpen] = useState({
     open: false,
