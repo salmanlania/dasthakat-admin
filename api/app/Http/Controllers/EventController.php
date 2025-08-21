@@ -274,6 +274,7 @@ class EventController extends Controller
 		$class1_id = $request->input('class1_id', '');
 		$class2_id = $request->input('class2_id', '');
 		// $status = $request->input('status', '');
+		$sales_team_ids = $request->input('sales_team_ids', []);
 		$all = $request->input('all', '');
 
 		// Additional filters for computed status
@@ -320,7 +321,8 @@ class EventController extends Controller
 			$data = Event::leftJoin('customer as c', 'event.customer_id', '=', 'c.customer_id')
 				->leftJoin('vessel as v', 'event.vessel_id', '=', 'v.vessel_id')
 				->leftJoin('class as c1', 'c1.class_id', '=', 'event.class1_id')
-				->leftJoin('class as c2', 'c2.class_id', '=', 'event.class2_id');
+				->leftJoin('class as c2', 'c2.class_id', '=', 'event.class2_id')
+				->leftJoin('sales_team as st', 'st.sales_team_id', '=', 'event.sales_team_id');
 
 			// Apply company filters
 			$data = $data->where('event.company_id', '=', $request->company_id);
@@ -341,6 +343,9 @@ class EventController extends Controller
 			if (!empty($customer_id)) {
 				$data = $data->where('event.customer_id', '=', $customer_id);
 			}
+			if (!empty($sales_team_ids)) {
+				$data = $data->whereIn('event.sales_team_id', $sales_team_ids);
+			}
 			if (!empty($vessel_id)) {
 				$data = $data->where('event.vessel_id', '=', $vessel_id);
 			}
@@ -359,6 +364,7 @@ class EventController extends Controller
 						->orWhere('c.name', 'like', '%' . $search . '%')
 						->orWhere('c1.name', 'like', '%' . $search . '%')
 						->orWhere('c2.name', 'like', '%' . $search . '%')
+						->orWhere('st.name', 'like', '%' . $search . '%')
 						->orWhere('event.status', '=', $search)
 						->orWhere('event.event_code', 'like', '%' . $search . '%');
 				});
@@ -377,8 +383,9 @@ class EventController extends Controller
 				"c.name as customer_name",
 				"v.name as vessel_name",
 				"c1.name as class1_name",
-				"c2.name as class2_name"
-			);
+				"c2.name as class2_name",
+				"st.name as sales_team_name"
+				);
 
 			// Handle sorting/filtering for computed status
 			if ($sortByComputedStatus || !empty($computed_status_filter) || $computed_status_filter == '0') {
@@ -805,6 +812,7 @@ class EventController extends Controller
 			->LeftJoin('class as c2', 'c2.class_id', 'event.class2_id')
 			->LeftJoin('payment as p', 'p.payment_id', 'c.payment_id')
 			->LeftJoin('salesman as s', 's.salesman_id', 'c.salesman_id')
+			->LeftJoin('sales_team as st', 'st.sales_team_id', 'event.sales_team_id')
 			->select(
 				"event.*",
 				DB::raw("CONCAT(event.event_code, ' (', v.name, ')') as event_name"),
@@ -821,6 +829,8 @@ class EventController extends Controller
 				"s.salesman_id as salesman_id",
 				"s.name as salesman_name",
 				"s.commission_percentage",
+				"st.sales_team_id",
+				"st.name as sales_team_name",
 
 			)
 			->where('event_id', $id)->first();
