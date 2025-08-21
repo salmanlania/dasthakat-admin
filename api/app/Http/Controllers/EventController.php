@@ -882,6 +882,7 @@ class EventController extends Controller
 			'vessel_id' => $request->vessel_id ?? "",
 			'class1_id' => $request->class1_id ?? "",
 			'class2_id' => $request->class2_id ?? "",
+			'sales_team_id' => $request->sales_team_id ?? "",
 			'status' => $request->status ?? "",
 			'created_at' => date('Y-m-d H:i:s'),
 			'created_by' => $request->login_user_id,
@@ -932,6 +933,7 @@ class EventController extends Controller
 		$data->vessel_id  = $request->vessel_id ?? "";
 		$data->class1_id  = $request->class1_id ?? "";
 		$data->class2_id  = $request->class2_id ?? "";
+		$data->sales_team_id  = $request->sales_team_id ?? "";
 		$data->status  = $request->status ?? "";
 		$data->updated_at = date('Y-m-d H:i:s');
 		$data->updated_by = $request->login_user_id;
