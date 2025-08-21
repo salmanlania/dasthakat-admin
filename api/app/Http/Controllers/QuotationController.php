@@ -31,7 +31,7 @@ class QuotationController extends Controller
 			'total_amount','port_id', 'customer_ref', 'customer_id', 'document_identity', 
 			'document_date', 'vessel_id', 'event_id', 'search', 'status',
 			'status_updated_by', 'page', 'limit', 'sort_column', 'sort_direction',
-			'start_date', 'end_date'
+			'start_date', 'end_date', 'sales_team_ids'
 		]);
 		
 		// Set defaults
@@ -71,7 +71,9 @@ class QuotationController extends Controller
 				DB::raw("(SELECT CONCAT(event_code, ' (', IF(status = 1, 'Active', 'Inactive'), ')') FROM event WHERE event_id = quotation.event_id) as event_code"),
 				DB::raw("(SELECT name FROM customer WHERE customer_id = quotation.customer_id) as customer_name"),
 				DB::raw("(SELECT name FROM vessel WHERE vessel_id = quotation.vessel_id) as vessel_name"),
-				DB::raw("(SELECT name FROM port WHERE port_id = quotation.port_id) as port_name")
+				DB::raw("(SELECT name FROM port WHERE port_id = quotation.port_id) as port_name"),
+				DB::raw("(SELECT name FROM event e Left JOIN sales_team st ON st.sales_team_id = e.sales_team_id WHERE e.event_id = quotation.event_id) as sales_team_name"),
+				DB::raw("(SELECT sales_team_id FROM event e WHERE e.event_id = quotation.event_id) as sales_team_id")
 			])
 			->where('quotation.company_id', $request->company_id)
 			->where('quotation.company_branch_id', $request->company_branch_id);
@@ -128,6 +130,17 @@ class QuotationController extends Controller
 		} elseif (!empty($params['end_date'])) {
 			$query->where('quotation.document_date', '<=', $params['end_date']);
 		}
+
+		// Filter by related event.sales_team_id using WHERE EXISTS
+		if (!empty($params['sales_team_ids'])) {
+			$ids = is_array($params['sales_team_ids']) ? $params['sales_team_ids'] : [$params['sales_team_ids']];
+			$query->whereExists(function ($subQuery) use ($ids) {
+				$subQuery->select(DB::raw(1))
+					->from('event as e')
+					->whereColumn('e.event_id', 'quotation.event_id')
+					->whereIn('e.sales_team_id', $ids);
+			});
+		}
 	
 		// Status updated by (if needed)
 		if (!empty($params['status_updated_by'])) {
@@ -175,6 +188,13 @@ class QuotationController extends Controller
 								->from('event')
 								->whereColumn('event.event_id', 'quotation.event_id')
 								->where('event.event_code', 'like', '%' . $search . '%');
+					})
+					->orWhereExists(function ($subQuery) use ($search) {
+						$subQuery->select(DB::raw(1))
+								->from('event as e')
+								->leftJoin('sales_team as st', 'st.sales_team_id', '=', 'e.sales_team_id')
+								->whereColumn('e.event_id', 'quotation.event_id')
+								->where('st.name', 'like', '%' . $search . '%');
 					});
 				}
 			});
