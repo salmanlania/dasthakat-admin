@@ -12,8 +12,7 @@ import Logo5 from '../../assets/quotation/logo5.png';
 import Logo6 from '../../assets/quotation/logo6.png';
 import Logo7 from '../../assets/quotation/logo7.png';
 
-import { formatThreeDigitCommas, roundUpto } from '../number';
-import { AiOutlineConsoleSql } from 'react-icons/ai';
+import { formatThreeDigitCommas } from '../number';
 
 const mergePDFs = async (quotationPDFBlob, titleText) => {
   const quotationPDFBytes = await quotationPDFBlob.arrayBuffer();

@@ -191,7 +191,6 @@ export const eventSlice = createSlice({
 
       state.commissionAgent = [...customerAgents, ...vesselAgents];
 
-      console.log('data', data);
       state.initialFormValues = {
         event_code: data.event_code,
         status: data.status,

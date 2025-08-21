@@ -37,7 +37,6 @@ const SalesTeam = () => {
 
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedName = useDebounce(params.name, 500);
-  const debouncedCM = useDebounce(params.commission_percentage, 500);
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
@@ -47,9 +46,8 @@ const SalesTeam = () => {
   };
 
   const onCreate = async (record) => {
-    const { name, commission_percentage } = record;
-    console.log('create' , record);
-    // if (!name.trim()) return toast.error('Name field is required');
+    const { name } = record;
+    if (!name.trim()) return toast.error('Name field is required');
 
     try {
       await dispatch(createSalesTeam({ name })).unwrap();
@@ -60,11 +58,8 @@ const SalesTeam = () => {
   };
 
   const onUpdate = async (record) => {
-    const { sales_team_id, name, commission_percentage } = record;
-
-    console.log('update' , record);
-
-    // if (!name.trim()) return toast.error('Name field is required');
+    const { sales_team_id, name } = record;
+    if (!name.trim()) return toast.error('Name field is required');
 
     try {
       await dispatch(
@@ -136,36 +131,6 @@ const SalesTeam = () => {
           <span>{name}</span>
         ),
     },
-    // {
-    //   title: (
-    //     <div>
-    //       <p>Commission Percentage</p>
-    //       <Input
-    //         className="font-normal"
-    //         size="small"
-    //         onClick={(e) => e.stopPropagation()}
-    //         value={params.commission_percentage}
-    //         onChange={(e) =>
-    //           dispatch(setSalesTeamListParams({ commission_percentage: e.target.value }))
-    //         }
-    //       />
-    //     </div>
-    //   ),
-    //   dataIndex: 'commission_percentage',
-    //   key: 'commission_percentage',
-    //   sorter: true,
-    //   width: 120,
-    //   ellipsis: true,
-    //   render: (_, { commission_percentage, editable, sales_team_id }) =>
-    //     editable ? (
-    //       <Input
-    //         defaultValue={commission_percentage}
-    //         onBlur={(e) => onChange(sales_team_id, 'commission_percentage', e.target.value)}
-    //       />
-    //     ) : (
-    //       <span>{commission_percentage}</span>
-    //     ),
-    // },
     {
       title: 'Created At',
       dataIndex: 'created_at',
@@ -245,9 +210,9 @@ const SalesTeam = () => {
     },
   ];
 
-  // if (!permissions.edit && !permissions.delete && !permissions.add) {
-  //   columns.pop();
-  // }
+  if (!permissions.edit && !permissions.delete && !permissions.add) {
+    columns.pop();
+  }
 
   useEffect(() => {
     dispatch(getSalesTeamList(params)).unwrap().catch(handleError);
@@ -259,7 +224,6 @@ const SalesTeam = () => {
     params.sort_direction,
     debouncedSearch,
     debouncedName,
-    debouncedCM,
   ]);
 
   return (

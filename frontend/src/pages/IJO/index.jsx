@@ -126,6 +126,28 @@ const IJO = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
+          <p>Sales Team</p>
+          <AsyncSelect
+            endpoint="/sales-team"
+            size="small"
+            className="w-full font-normal"
+            valueKey="sales_team_id"
+            labelKey="name"
+            mode="multiple"
+            value={params.sales_team_ids}
+            onChange={(value) => dispatch(setIJOListParams({ sales_team_ids: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'sales_team_name',
+      key: 'sales_team_name',
+      sorter: true,
+      width: 140,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Sales Person</p>
           <AsyncSelect
             endpoint="/salesman"
@@ -337,6 +359,8 @@ const IJO = () => {
     params.sort_column,
     params.sort_direction,
     params.event_id,
+    params.sales_team_id,
+    params.sales_team_ids,
     params.salesman_id,
     params.vessel_id,
     params.flag_id,
@@ -388,10 +412,10 @@ const IJO = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: 'checkbox',
-                  selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setIJODeleteIDs(selectedRowKeys)),
-                }
+                type: 'checkbox',
+                selectedRowKeys: deleteIDs,
+                onChange: (selectedRowKeys) => dispatch(setIJODeleteIDs(selectedRowKeys)),
+              }
               : null
           }
           loading={isListLoading}
