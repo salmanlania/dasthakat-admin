@@ -36,6 +36,7 @@ const CreateCompanyBranch = lazy(() => import('./pages/CompanyBranch/CreateCompa
 const EditCompanyBranch = lazy(() => import('./pages/CompanyBranch/EditCompanyBranch'));
 
 const Salesman = lazy(() => import('./pages/Salesman'));
+const SalesTeam = lazy(() => import('./pages/SalesTeam'));
 
 const Customer = lazy(() => import('./pages/Customer'));
 const CreateCustomer = lazy(() => import('./pages/Customer/CreateCustomer'));
@@ -306,6 +307,14 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Salesman />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/SalesTeam',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <SalesTeam />
               </Suspense>
             ),
           },

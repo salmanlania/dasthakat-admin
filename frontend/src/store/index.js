@@ -29,6 +29,7 @@ import coaThreeReducer from './features/coaThreeSlice';
 import purchaseOrderReducer from './features/purchaseOrderSlice';
 import quotationReducer from './features/quotationSlice';
 import salesmanReducer from './features/salesmanSlice';
+import salesTeamReducer from './features/salesTeamSlice';
 import serviceListReducer from './features/serviceListSlice';
 import shipmentReducer from './features/shipmentSlice';
 import serviceOrderReducer from './features/ServiceOrder';
@@ -73,6 +74,7 @@ const rootReducer = combineReducers({
   validity: validityReducer,
   payment: paymentReducer,
   salesman: salesmanReducer,
+  salesTeam: salesTeamReducer,
   subCategory: subCategoryReducer,
   category: categoryReducer,
   brand: brandReducer,

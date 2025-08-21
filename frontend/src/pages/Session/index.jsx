@@ -64,13 +64,20 @@ const Session = () => {
   const onSubmit = async (values) => {
     try {
       await sessionSubmit(values, dispatch, sessionData, handleError, navigate);
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const initialFormValues = {
-    company_id: companies[0]?.value,
+    company_id: companies[0]?.value ? companies[0].value : null,
     company_branch_id: companies[0]?.branches[0]?.value,
   };
+
+  // const initialFormValues = {
+  //   company_id: companies?.length ? companies[0].value : null,
+  //   company_branch_id: companies?.length && companies[0].branches?.length
+  //     ? companies[0].branches[0].value
+  //     : null,
+  // };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-neutral-50">

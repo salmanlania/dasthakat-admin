@@ -13,78 +13,82 @@ import useDebounce from '../../hooks/useDebounce';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
-  addNewTechnician,
-  bulkDeleteTechnician,
-  createTechnician,
-  deleteTechnician,
-  getTechnicianList,
-  removeNewTechnician,
-  setTechnicianDeleteIDs,
-  setTechnicianEditable,
-  setTechnicianListParams,
-  updateTechnician,
-  updateTechnicianListValue,
-} from '../../store/features/technicianSlice';
+  addNewSalesTeam,
+  bulkDeleteSalesTeam,
+  createSalesTeam,
+  deleteSalesTeam,
+  getSalesTeamList,
+  removeNewSalesTeam,
+  setSalesTeamDeleteIDs,
+  setSalesTeamEditable,
+  setSalesTeamListParams,
+  updateSalesTeam,
+  updateSalesTeamListValue,
+} from '../../store/features/salesTeamSlice';
 
-const Technician = () => {
-  useDocumentTitle('Technician List');
+const SalesTeam = () => {
+  useDocumentTitle('SalesTeam List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, isSubmitting, deleteIDs } =
-    useSelector((state) => state.technician);
+    useSelector((state) => state.salesTeam);
   const { user } = useSelector((state) => state.auth);
-  // const permissions = user.permission.technician;
-  const permissions = user?.permission?.sales_team;
+  const permissions = user.permission.sales_team;
 
   const debouncedSearch = useDebounce(params.search, 500);
+  const debouncedName = useDebounce(params.name, 500);
+  const debouncedCM = useDebounce(params.commission_percentage, 500);
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const onChange = (id, field, value) => {
-    dispatch(updateTechnicianListValue({ id, field, value }));
+    dispatch(updateSalesTeamListValue({ id, field, value }));
   };
 
   const onCreate = async (record) => {
-    const { name } = record;
-    if (!name.trim()) return toast.error('Name field is required');
+    const { name, commission_percentage } = record;
+    console.log('create' , record);
+    // if (!name.trim()) return toast.error('Name field is required');
 
     try {
-      await dispatch(createTechnician({ name })).unwrap();
-      await dispatch(getTechnicianList(params)).unwrap();
+      await dispatch(createSalesTeam({ name })).unwrap();
+      await dispatch(getSalesTeamList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
   };
 
   const onUpdate = async (record) => {
-    const { technician_id, name } = record;
+    const { sales_team_id, name, commission_percentage } = record;
 
-    if (!name.trim()) return toast.error('Name field is required');
+    console.log('update' , record);
+
+    // if (!name.trim()) return toast.error('Name field is required');
 
     try {
       await dispatch(
-        updateTechnician({
-          id: technician_id,
+        updateSalesTeam({
+          sales_team_id: sales_team_id,
           data: { name },
         }),
       ).unwrap();
-      await dispatch(getTechnicianList(params)).unwrap();
+      await dispatch(getSalesTeamList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
   };
 
   const onCancel = async (id) => {
-    if (id === 'new') return dispatch(removeNewTechnician());
-    dispatch(setTechnicianEditable({ id, editable: false }));
+    if (id === 'new') return dispatch(removeNewSalesTeam());
+    dispatch(setSalesTeamEditable({ id, editable: false }));
   };
 
-  const onTechnicianDelete = async (id) => {
+  const onSalesTeamDelete = async (id) => {
     try {
-      await dispatch(deleteTechnician(id)).unwrap();
-      toast.success('Technician deleted successfully');
-      dispatch(getTechnicianList(params)).unwrap();
+      await dispatch(deleteSalesTeam(id)).unwrap();
+      toast.success('SalesTeam deleted successfully');
+      dispatch(getSalesTeamList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -92,10 +96,10 @@ const Technician = () => {
 
   const onBulkDelete = async () => {
     try {
-      await dispatch(bulkDeleteTechnician(deleteIDs)).unwrap();
-      toast.success('Technicians deleted successfully');
+      await dispatch(bulkDeleteSalesTeam(deleteIDs)).unwrap();
+      toast.success('SalesTeam deleted successfully');
       closeDeleteModal();
-      await dispatch(getTechnicianList(params)).unwrap();
+      await dispatch(getSalesTeamList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -103,23 +107,65 @@ const Technician = () => {
 
   const columns = [
     {
-      title: 'Name',
+      title: (
+        <div>
+          <p>Name</p>
+          <Input
+            className="font-normal"
+            size="small"
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.name}
+            onChange={(e) => dispatch(setSalesTeamListParams({ name: e.target.value }))}
+          />
+        </div>
+      ),
       dataIndex: 'name',
       key: 'name',
       sorter: true,
       width: 120,
       ellipsis: true,
-      render: (_, { name, editable, technician_id }) =>
+      render: (_, { name, editable, sales_team_id }) =>
         editable ? (
           <Input
             autoFocus
             defaultValue={name}
-            onBlur={(e) => onChange(technician_id, 'name', e.target.value)}
+            onBlur={(e) => onChange(sales_team_id, 'name', e.target.value)}
           />
         ) : (
           <span>{name}</span>
         ),
     },
+    // {
+    //   title: (
+    //     <div>
+    //       <p>Commission Percentage</p>
+    //       <Input
+    //         className="font-normal"
+    //         size="small"
+    //         onClick={(e) => e.stopPropagation()}
+    //         value={params.commission_percentage}
+    //         onChange={(e) =>
+    //           dispatch(setSalesTeamListParams({ commission_percentage: e.target.value }))
+    //         }
+    //       />
+    //     </div>
+    //   ),
+    //   dataIndex: 'commission_percentage',
+    //   key: 'commission_percentage',
+    //   sorter: true,
+    //   width: 120,
+    //   ellipsis: true,
+    //   render: (_, { commission_percentage, editable, sales_team_id }) =>
+    //     editable ? (
+    //       <Input
+    //         defaultValue={commission_percentage}
+    //         onBlur={(e) => onChange(sales_team_id, 'commission_percentage', e.target.value)}
+    //       />
+    //     ) : (
+    //       <span>{commission_percentage}</span>
+    //     ),
+    // },
     {
       title: 'Created At',
       dataIndex: 'created_at',
@@ -137,12 +183,12 @@ const Technician = () => {
       title: 'Action',
       key: 'action',
       render: (_, record) => {
-        const { technician_id, editable } = record;
+        const { sales_team_id, editable } = record;
 
         if (editable) {
           return (
             <div className="flex items-center gap-2">
-              <Tooltip title="Cancel" onClick={() => onCancel(technician_id)}>
+              <Tooltip title="Cancel" onClick={() => onCancel(sales_team_id)}>
                 <Button danger icon={<FcCancel size={20} />} size="small" />
               </Tooltip>
               <Tooltip title="Save">
@@ -150,8 +196,8 @@ const Technician = () => {
                   type="primary"
                   size="small"
                   icon={<FaRegSave size={16} />}
-                  loading={isSubmitting === technician_id}
-                  onClick={() => (technician_id === 'new' ? onCreate(record) : onUpdate(record))}
+                  loading={isSubmitting === sales_team_id}
+                  onClick={() => (sales_team_id === 'new' ? onCreate(record) : onUpdate(record))}
                 />
               </Tooltip>
             </div>
@@ -169,8 +215,8 @@ const Technician = () => {
                   icon={<MdOutlineEdit size={14} />}
                   onClick={() =>
                     dispatch(
-                      setTechnicianEditable({
-                        id: technician_id,
+                      setSalesTeamEditable({
+                        id: sales_team_id,
                         editable: true,
                       }),
                     )
@@ -186,7 +232,7 @@ const Technician = () => {
                   okButtonProps={{ danger: true }}
                   okText="Yes"
                   cancelText="No"
-                  onConfirm={() => onTechnicianDelete(technician_id)}>
+                  onConfirm={() => onSalesTeamDelete(sales_team_id)}>
                   <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                 </Popconfirm>
               </Tooltip>
@@ -199,20 +245,28 @@ const Technician = () => {
     },
   ];
 
-  if (!permissions.edit && !permissions.delete && !permissions.add) {
-    columns.pop();
-  }
+  // if (!permissions.edit && !permissions.delete && !permissions.add) {
+  //   columns.pop();
+  // }
 
   useEffect(() => {
-    dispatch(getTechnicianList(params)).unwrap().catch(handleError);
+    dispatch(getSalesTeamList(params)).unwrap().catch(handleError);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.page, params.limit, params.sort_column, params.sort_direction, debouncedSearch]);
+  }, [
+    params.page,
+    params.limit,
+    params.sort_column,
+    params.sort_direction,
+    debouncedSearch,
+    debouncedName,
+    debouncedCM,
+  ]);
 
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>TECHNICIAN</PageHeading>
-        <Breadcrumb items={[{ title: 'Technician' }, { title: 'List' }]} separator=">" />
+        <PageHeading>SALES TEAM</PageHeading>
+        <Breadcrumb items={[{ title: 'Sales Team' }, { title: 'List' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
@@ -222,7 +276,7 @@ const Technician = () => {
             allowClear
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) => dispatch(setTechnicianListParams({ search: e.target.value }))}
+            onChange={(e) => dispatch(setSalesTeamListParams({ search: e.target.value }))}
           />
 
           <div className="flex items-center gap-2">
@@ -234,7 +288,7 @@ const Technician = () => {
               Delete
             </Button>
             {permissions.add ? (
-              <Button type="primary" onClick={() => dispatch(addNewTechnician())}>
+              <Button type="primary" onClick={() => dispatch(addNewSalesTeam())}>
                 Add New
               </Button>
             ) : null}
@@ -248,16 +302,16 @@ const Technician = () => {
               ? {
                   type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setTechnicianDeleteIDs(selectedRowKeys)),
+                  onChange: (selectedRowKeys) => dispatch(setSalesTeamDeleteIDs(selectedRowKeys)),
                   getCheckboxProps: (record) => ({
-                    disabled: record.technician_id === 'new',
+                    disabled: record.sales_team_id === 'new',
                   }),
                 }
               : null
           }
           onChange={(page, _, sorting) => {
             dispatch(
-              setTechnicianListParams({
+              setSalesTeamListParams({
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
@@ -266,14 +320,14 @@ const Technician = () => {
             );
           }}
           loading={isListLoading}
-          rowKey="technician_id"
+          rowKey="sales_team_id"
           className="mt-2"
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} technicians`,
+            showTotal: (total) => `Total ${total} sales team`,
           }}
           dataSource={list}
           showSorterTooltip={false}
@@ -289,11 +343,11 @@ const Technician = () => {
         onCancel={closeDeleteModal}
         onDelete={onBulkDelete}
         isDeleting={isBulkDeleting}
-        title="Are you sure you want to delete these technicians?"
+        title="Are you sure you want to delete these sales team?"
         description="After deleting, you will not be able to recover."
       />
     </>
   );
 };
 
-export default Technician;
+export default SalesTeam;

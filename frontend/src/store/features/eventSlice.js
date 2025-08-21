@@ -6,7 +6,7 @@ export const getEventList = createAsyncThunk('event/list', async (params, { reje
     const res = await api.get('/event', {
       params: {
         ...params,
-        all: 1
+        all: 1,
       }
     });
     return res.data;
@@ -83,7 +83,8 @@ const initialState = {
     sort_direction: null,
     name: null,
     description: null,
-    catering_type: null
+    catering_type: null,
+    sales_team_ids: [],
   },
   paginationInfo: {
     total_records: 0,
@@ -190,7 +191,7 @@ export const eventSlice = createSlice({
 
       state.commissionAgent = [...customerAgents, ...vesselAgents];
 
-
+      console.log('data', data);
       state.initialFormValues = {
         event_code: data.event_code,
         status: data.status,
@@ -217,7 +218,12 @@ export const eventSlice = createSlice({
             value: data.class2_id,
             label: data.class2_name
           }
-          : null
+          : null,
+        sales_team_id: data.sales_team_id
+          ? {
+            value: data.sales_team_id,
+            label: data.sales_team_name
+          } : null,
       };
     });
     addCase(getEvent.rejected, (state) => {

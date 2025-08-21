@@ -243,6 +243,12 @@ const GoodsReceivedNote = () => {
       width: 140,
     },
     {
+      title: 'Sales Team',
+      dataIndex: 'event_code',
+      key: 'event_code',
+      width: 140,
+    },
+    {
       title: 'Created At',
       dataIndex: 'created_at',
       key: 'created_at',
