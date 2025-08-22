@@ -168,7 +168,7 @@ const EventForm = ({ mode, onSubmit }) => {
               valueKey="sales_team_id"
               labelKey="name"
               labelInValue
-              addNewLink={permissions.sales_team.add ? '/SalesTeam/' : null}
+              addNewLink={permissions.sales_team.add ? '/sales-team/' : null}
               // onChange={() => {
               //   form.setFieldsValue({
               //     vessel_id: null,
