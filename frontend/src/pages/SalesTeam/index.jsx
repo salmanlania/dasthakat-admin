@@ -27,7 +27,7 @@ import {
 } from '../../store/features/salesTeamSlice';
 
 const SalesTeam = () => {
-  useDocumentTitle('SalesTeam List');
+  useDocumentTitle('Sales Team List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, isSubmitting, deleteIDs } =
