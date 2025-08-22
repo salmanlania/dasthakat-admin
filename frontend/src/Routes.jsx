@@ -311,7 +311,7 @@ function Routes() {
             ),
           },
           {
-            path: '/SalesTeam',
+            path: '/sales-team',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <SalesTeam />

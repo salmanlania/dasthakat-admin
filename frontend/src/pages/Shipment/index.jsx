@@ -300,22 +300,23 @@ const Shipment = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
-          <p>Sales Person</p>
+          <p>Sales Team</p>
           <AsyncSelect
-            endpoint="/salesman"
-            valueKey="salesman_id"
-            labelKey="name"
+            endpoint="/sales-team"
             size="small"
             className="w-full font-normal"
-            value={params.salesman_id}
-            onChange={(value) => dispatch(setShipmentListParams({ salesman_id: value }))}
+            valueKey="sales_team_id"
+            labelKey="name"
+            mode="multiple"
+            value={params.sales_team_ids}
+            onChange={(value) => dispatch(setShipmentListParams({ sales_team_ids: value }))}
           />
         </div>
       ),
-      dataIndex: 'salesman_name',
-      key: 'salesman_name',
+      dataIndex: 'sales_team_name',
+      key: 'sales_team_name',
       sorter: true,
-      width: 200,
+      width: 140,
       ellipsis: true,
     },
     {
@@ -487,6 +488,8 @@ const Shipment = () => {
     params.sort_column,
     params.sort_direction,
     params.event_id,
+    params.sales_team_ids,
+    params.sales_team_id,
     params.salesman_id,
     params.vessel_id,
     params.flag_id,

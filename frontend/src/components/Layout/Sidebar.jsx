@@ -189,7 +189,7 @@ const Sidebar = () => {
               disabled: !permissions?.salesman?.list,
             },
             {
-              key: 'SalesTeam',
+              key: 'sales-team',
               label: <Link to="/sales-team">Sales Team</Link>,
               disabled: !permissions?.salesman?.list,
             },

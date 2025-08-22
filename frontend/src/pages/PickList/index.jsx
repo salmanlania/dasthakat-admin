@@ -159,6 +159,28 @@ const PickList = () => {
     },
     {
       title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Sales Team</p>
+          <AsyncSelect
+            endpoint="/sales-team"
+            size="small"
+            className="w-full font-normal"
+            valueKey="sales_team_id"
+            labelKey="name"
+            mode="multiple"
+            value={params.sales_team_ids}
+            onChange={(value) => dispatch(setPickListListParams({ sales_team_ids: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'sales_team_name',
+      key: 'sales_team_name',
+      sorter: true,
+      width: 140,
+      ellipsis: true,
+    },
+    {
+      title: (
         <div>
           <p>Vessel</p>
           <AsyncSelect
@@ -316,6 +338,8 @@ const PickList = () => {
     params.sort_direction,
     params.charge_order_id,
     params.event_id,
+    params.sales_team_ids,
+    params.sales_team_id,
     params.vessel_id,
     params.picklist_status,
     debouncedSearch,
@@ -330,6 +354,7 @@ const PickList = () => {
     event_code: item.event_code,
     vessel_name: item?.vessel_name,
     picklist_status: item.picklist_status,
+    sales_team_name: item.sales_team_name,
     created_at: item.created_at,
     id: item.picklist_id,
     key: item.picklist_id,

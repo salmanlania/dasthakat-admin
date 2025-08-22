@@ -172,6 +172,28 @@ const VendorPlatform = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
+          <p>Sales Team</p>
+          <AsyncSelect
+            endpoint="/sales-team"
+            size="small"
+            className="w-full font-normal"
+            valueKey="sales_team_id"
+            labelKey="name"
+            mode="multiple"
+            value={params.sales_team_ids}
+            onChange={(value) => dispatch(setVendorQuotationListParams({ sales_team_ids: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'sales_team_name',
+      key: 'sales_team_name',
+      sorter: true,
+      width: 140,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Vessel</p>
           <AsyncSelect
             endpoint="/vessel"
@@ -470,6 +492,8 @@ const VendorPlatform = () => {
     params.customer_id,
     params.vessel_id,
     params.event_id,
+    params.sales_team_ids,
+    params.sales_team_id,
     params.port_id,
     params.quotation_no,
     params.items_quoted,

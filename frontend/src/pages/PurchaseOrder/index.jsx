@@ -333,28 +333,28 @@ const PurchaseOrder = () => {
       width: 140,
       ellipsis: true,
     },
-        {
-          title: (
-            <div onClick={(e) => e.stopPropagation()}>
-              <p>Sales Team</p>
-              <AsyncSelect
-                endpoint="/sales-team"
-                size="small"
-                className="w-full font-normal"
-                valueKey="sales_team_id"
-                labelKey="name"
-                mode="multiple"
-                value={params.sales_team_ids}
-                onChange={(value) => dispatch(setPurchaseOrderListParams({ sales_team_ids: value }))}
-              />
-            </div>
-          ),
-          dataIndex: 'sales_team_name',
-          key: 'sales_team_name',
-          sorter: true,
-          width: 140,
-          ellipsis: true,
-        },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Sales Team</p>
+          <AsyncSelect
+            endpoint="/sales-team"
+            size="small"
+            className="w-full font-normal"
+            valueKey="sales_team_id"
+            labelKey="name"
+            mode="multiple"
+            value={params.sales_team_ids}
+            onChange={(value) => dispatch(setPurchaseOrderListParams({ sales_team_ids: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'sales_team_name',
+      key: 'sales_team_name',
+      sorter: true,
+      width: 140,
+      ellipsis: true,
+    },
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
@@ -436,7 +436,7 @@ const PurchaseOrder = () => {
               </Tag>
             </div>
           );
-        }else{
+        } else {
           return (
             <div className="flex items-center justify-center">
               <Tag color="volcano" className="w-28 text-center">

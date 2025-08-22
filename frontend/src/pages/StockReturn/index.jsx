@@ -205,6 +205,28 @@ const StockReturn = () => {
     },
     {
       title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Sales Team</p>
+          <AsyncSelect
+            endpoint="/sales-team"
+            size="small"
+            className="w-full font-normal"
+            valueKey="sales_team_id"
+            labelKey="name"
+            mode="multiple"
+            value={params.sales_team_ids}
+            onChange={(value) => dispatch(setStockReturnListParams({ sales_team_ids: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'sales_team_name',
+      key: 'sales_team_name',
+      sorter: true,
+      width: 140,
+      ellipsis: true,
+    },
+    {
+      title: (
         <div>
           <p>Status</p>
           <Input
@@ -300,6 +322,8 @@ const StockReturn = () => {
     params.sort_direction,
     params.document_date,
     params.event_id,
+    params.sales_team_ids,
+    params.sales_team_id,
     params.vessel_id,
     debouncedSearch,
     debouncedSaleInvoiceNo,
@@ -342,10 +366,10 @@ const StockReturn = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: 'checkbox',
-                  selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setStockReturnDeleteIDs(selectedRowKeys)),
-                }
+                type: 'checkbox',
+                selectedRowKeys: deleteIDs,
+                onChange: (selectedRowKeys) => dispatch(setStockReturnDeleteIDs(selectedRowKeys)),
+              }
               : null
           }
           loading={isListLoading}

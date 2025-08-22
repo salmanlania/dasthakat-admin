@@ -134,7 +134,7 @@ const SaleReturn = () => {
     {
       title: (
         <div>
-          <p>Quoation No</p>
+          <p>Quotation No</p>
           <Input
             className="font-normal"
             size="small"

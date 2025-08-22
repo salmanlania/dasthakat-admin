@@ -230,6 +230,28 @@ const PurchaseReturn = () => {
       },
     },
     {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Sales Team</p>
+          <AsyncSelect
+            endpoint="/sales-team"
+            size="small"
+            className="w-full font-normal"
+            valueKey="sales_team_id"
+            labelKey="name"
+            mode="multiple"
+            value={params.sales_team_ids}
+            onChange={(value) => dispatch(setPurchaseReturnListParams({ sales_team_ids: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'sales_team_name',
+      key: 'sales_team_name',
+      sorter: true,
+      width: 140,
+      ellipsis: true,
+    },
+    {
       title: 'Created At',
       dataIndex: 'created_at',
       key: 'created_at',
@@ -300,6 +322,8 @@ const PurchaseReturn = () => {
     params.sort_direction,
     params.document_date,
     params.event_id,
+    params.sales_team_ids,
+    params.sales_team_id,
     params.vessel_id,
     debouncedSearch,
     debouncedSaleInvoiceNo,
@@ -342,11 +366,11 @@ const PurchaseReturn = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: 'checkbox',
-                  selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) =>
-                    dispatch(setPurchaseReturnDeleteIDs(selectedRowKeys)),
-                }
+                type: 'checkbox',
+                selectedRowKeys: deleteIDs,
+                onChange: (selectedRowKeys) =>
+                  dispatch(setPurchaseReturnDeleteIDs(selectedRowKeys)),
+              }
               : null
           }
           loading={isListLoading}

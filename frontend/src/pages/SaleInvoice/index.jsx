@@ -89,7 +89,7 @@ const SaleInvoice = () => {
               size="small"
               value={params.document_date}
               className="font-normal"
-              onChange={(date) => dispatch(setSaleInvoiceListParams({ document_date: date || null}))}
+              onChange={(date) => dispatch(setSaleInvoiceListParams({ document_date: date || null }))}
               format="MM-DD-YYYY"
             />
           </div>
@@ -207,20 +207,21 @@ const SaleInvoice = () => {
         <div onClick={(e) => e.stopPropagation()}>
           <p>Sales Team</p>
           <AsyncSelect
-            endpoint="/event"
+            endpoint="/sales-team"
             size="small"
             className="w-full font-normal"
-            valueKey="event_id"
-            labelKey="event_code"
-            value={params.event_id}
-            onChange={(value) => dispatch(setSaleInvoiceListParams({ event_id: value || null }))}
+            valueKey="sales_team_id"
+            labelKey="name"
+            mode="multiple"
+            value={params.sales_team_ids}
+            onChange={(value) => dispatch(setSaleInvoiceListParams({ sales_team_ids: value }))}
           />
         </div>
       ),
-      dataIndex: 'event_code',
-      key: 'event_code',
+      dataIndex: 'sales_team_name',
+      key: 'sales_team_name',
       sorter: true,
-      width: 180,
+      width: 140,
       ellipsis: true,
     },
     {
@@ -318,6 +319,8 @@ const SaleInvoice = () => {
     params.document_date,
     params.customer_id,
     params.event_id,
+    params.sales_team_ids,
+    params.sales_team_id,
     params.vessel_id,
     debouncedSearch,
     debouncedSaleInvoiceNo,
