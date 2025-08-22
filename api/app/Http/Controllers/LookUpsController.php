@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CoaLevel1;
+use App\Models\CoaLevel2;
+use App\Models\CoaLevel3;
 use App\Models\Company;
 use App\Models\CompanyBranch;
 use App\Models\ControlAccess;
@@ -9,6 +12,7 @@ use App\Models\Product;
 use App\Models\ProductType;
 use App\Models\User;
 use App\Models\UserBranchAccess;
+use App\Models\ConstGlType;
 use Illuminate\Http\Request;
 
 class LookUpsController extends Controller
@@ -60,6 +64,73 @@ class LookUpsController extends Controller
         return response()->json($rows);
     }
 
+
+
+    public function getGlTypes(Request $request)
+    {
+        $search = $request->input('search', '');
+
+        $query = ConstGlType::query();
+        if (!empty($search)) {
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+        $rows = $query->orderBy('name', 'asc')->get();
+
+        return response()->json($rows);
+    }
+    public function nextCoaLevelCode(Request $request)
+    {
+        $level         = (int) $request->input('level', 0);
+        $glTypeId      = $request->input('gl_type_id');
+        $companyId     = $request->input('company_id');
+        $coaLevel1Id   = $request->input('coa_level1_id');
+        $coaLevel2Id   = $request->input('coa_level2_id');
+
+        // Basic validation per level
+        switch ($level) {
+            case 1:
+                if (!$glTypeId || !$companyId) {
+                    return $this->jsonResponse('gl_type_id and company_id are required for level 1', 400, 'Invalid Input');
+                }
+                $max = CoaLevel1::query()
+                    ->where('gl_type_id', $glTypeId)
+                    ->where('company_id', $companyId)
+                    ->max('level1_code');
+                break;
+
+            case 2:
+                if (!$coaLevel1Id || !$companyId) {
+                    return $this->jsonResponse('coa_level1_id and company_id are required for level 2', 400, 'Invalid Input');
+                }
+                $max = CoaLevel2::query()
+                    ->where('coa_level1_id', $coaLevel1Id)
+                    ->where('company_id', $companyId)
+                    ->max('level2_code');
+                break;
+
+            case 3:
+                if (!$coaLevel2Id || !$companyId) {
+                    return $this->jsonResponse('coa_level2_id and company_id are required for level 3', 400, 'Invalid Input');
+                }
+                $max = CoaLevel3::query()
+                    ->where('coa_level2_id', $coaLevel2Id)
+                    ->where('company_id', $companyId)
+                    ->max('level3_code');
+                break;
+
+            default:
+                return $this->jsonResponse('Invalid level', 400, 'Invalid Input');
+        }
+
+        $next = (int) ($max ?? 0);
+        $next++;
+        $code = str_pad((string) $next, 3, '0', STR_PAD_LEFT);
+
+        return response()->json([
+            'level' => $level,
+            'code' => $code,
+        ]);
+    }
 
 
     public function getCompany(Request $request)

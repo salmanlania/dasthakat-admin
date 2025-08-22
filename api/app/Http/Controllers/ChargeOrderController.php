@@ -663,6 +663,9 @@ class ChargeOrderController extends Controller
 	{
 		// Main query with eager loading
 		$data = ChargeOrder::with([
+			"quotation",
+			"quotation.payment",
+			"service_order",
 			"salesman",
 			"event",
 			"vessel",
@@ -702,6 +705,10 @@ class ChargeOrderController extends Controller
 				$detail->product->stock = StockLedger::Check($detail->product, $request->all());
 			}
 		});
+		$data->shipment = Shipment::where('charge_order_id', $data->charge_order_id)
+        ->orderBy('created_at', 'desc')
+        ->first();
+
 
 		return $this->jsonResponse($data, 200, "Charge Order Data");
 	}

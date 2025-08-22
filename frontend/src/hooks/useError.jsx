@@ -24,6 +24,8 @@ const useError = () => {
         });
     } else if (error?.response?.data?.status_code === 500) {
       showMessage && toast.error(error?.response?.data?.message || `We're unable to proceed at the moment. Please get in touch with your administrator for support.`);
+    } else if (errorMessage?.error) {
+      showMessage && toast.error(errorMessage?.error || `We're unable to proceed at the moment. Please get in touch with your administrator for support.`);
     } else if (errorMessage?.message) {
       showMessage && toast.error(errorMessage?.message || `We're unable to proceed at the moment. Please get in touch with your administrator for support.`);
     } else {

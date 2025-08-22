@@ -92,6 +92,21 @@
   ('User Management', 'User', 'user', 'add', 'Add', 1.102),
   ('User Management', 'User', 'user', 'edit', 'Edit', 1.103),
   ('User Management', 'User', 'user', 'delete', 'Delete', 1.104),
+
+  ('General Ledger', 'Coa Level 1', 'coa_level1', 'list', 'List', 1.101),
+  ('General Ledger', 'Coa Level 1', 'coa_level1', 'add', 'Add', 1.102),
+  ('General Ledger', 'Coa Level 1', 'coa_level1', 'edit', 'Edit', 1.103),
+  ('General Ledger', 'Coa Level 1', 'coa_level1', 'delete', 'Delete', 1.104),
+  
+  ('General Ledger', 'Coa Level 2', 'coa_level2', 'list', 'List', 1.101),
+  ('General Ledger', 'Coa Level 2', 'coa_level2', 'add', 'Add', 1.102),
+  ('General Ledger', 'Coa Level 2', 'coa_level2', 'edit', 'Edit', 1.103),
+  ('General Ledger', 'Coa Level 2', 'coa_level2', 'delete', 'Delete', 1.104),
+  
+  ('General Ledger', 'Coa Level 3', 'coa_level3', 'list', 'List', 1.101),
+  ('General Ledger', 'Coa Level 3', 'coa_level3', 'add', 'Add', 1.102),
+  ('General Ledger', 'Coa Level 3', 'coa_level3', 'edit', 'Edit', 1.103),
+  ('General Ledger', 'Coa Level 3', 'coa_level3', 'delete', 'Delete', 1.104),
   
   ('Inventory Setup', 'Category', 'category', 'list', 'List', 1.101),
   ('Inventory Setup', 'Category', 'category', 'add', 'Add', 1.102),

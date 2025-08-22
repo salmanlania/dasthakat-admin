@@ -20,7 +20,7 @@ const generateQuotationReportExcel = async (datas) => {
 
     const imageBuffer = await getImageBuffer(GMSLogo);
     const imageId = workbook.addImage({
-      buffer: getImageBuffer(GMSLogo),
+      buffer: imageBuffer,
       extension: 'png'
     });
     worksheet.addImage(imageId, ' A2:B4');
@@ -79,31 +79,31 @@ const generateQuotationReportExcel = async (datas) => {
     currentRow = worksheet.lastRow._number + 1;
 
     worksheet.getCell(`B${currentRow}`).value = 'Quotation Date';
-    worksheet.getCell(`B${currentRow}`).alignment = { horizontal: 'center', wrapText: true };
+    worksheet.getCell(`B${currentRow}`).alignment = { horizontal: 'left', wrapText: true };
 
     worksheet.getCell(`C${currentRow}`).value = 'Quotation No';
-    worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'center', wrapText: true };
+    worksheet.getCell(`C${currentRow}`).alignment = { horizontal: 'left', wrapText: true };
 
     worksheet.getCell(`D${currentRow}`).value = 'Event Number';
-    worksheet.getCell(`D${currentRow}`).alignment = { horizontal: 'center', wrapText: true };
+    worksheet.getCell(`D${currentRow}`).alignment = { horizontal: 'left', wrapText: true };
 
     worksheet.getCell(`E${currentRow}`).value = 'Vessel';
-    worksheet.getCell(`E${currentRow}`).alignment = { horizontal: 'center', wrapText: true };
+    worksheet.getCell(`E${currentRow}`).alignment = { horizontal: 'left', wrapText: true };
 
     worksheet.getCell(`F${currentRow}`).value = 'Customer';
-    worksheet.getCell(`F${currentRow}`).alignment = { horizontal: 'center', wrapText: true };
+    worksheet.getCell(`F${currentRow}`).alignment = { horizontal: 'left', wrapText: true };
 
     worksheet.getCell(`G${currentRow}`).value = 'Total Quantity'
-    worksheet.getCell(`G${currentRow}`).alignment = { horizontal: 'center', wrapText: true };
+    worksheet.getCell(`G${currentRow}`).alignment = { horizontal: 'right', wrapText: true };
 
     worksheet.getCell(`H${currentRow}`).value = 'Total Amount';
-    worksheet.getCell(`H${currentRow}`).alignment = { horizontal: 'center', wrapText: true };
+    worksheet.getCell(`H${currentRow}`).alignment = { horizontal: 'right', wrapText: true };
 
     worksheet.getCell(`I${currentRow}`).value = 'Port';
-    worksheet.getCell(`I${currentRow}`).alignment = { horizontal: 'center', wrapText: true };
+    worksheet.getCell(`I${currentRow}`).alignment = { horizontal: 'left', wrapText: true };
 
     worksheet.getCell(`J${currentRow}`).value = 'Status';
-    worksheet.getCell(`J${currentRow}`).alignment = { horizontal: 'center', wrapText: true };
+    worksheet.getCell(`J${currentRow}`).alignment = { horizontal: 'left', wrapText: true };
 
     worksheet.getCell(`K${currentRow}`).value = 'Created At';
     worksheet.getCell(`K${currentRow}`).alignment = { horizontal: 'center', wrapText: true };
@@ -122,7 +122,13 @@ const generateQuotationReportExcel = async (datas) => {
           bold: true,
         };
 
-        cell.alignment = { horizontal: 'center' };
+        // cell.alignment = { horizontal: 'center' };
+
+        cell.alignment = {
+          ...cell.alignment,
+          vertical: 'middle',
+          wrapText: true
+        };
 
         cell.border = {
           top: { style: 'thin' },
@@ -215,6 +221,19 @@ const generateQuotationReportExcel = async (datas) => {
                 left: { style: 'thin' },
                 bottom: { style: 'thin' },
                 right: { style: 'thin' }
+              };
+            }
+            if (index === 6 || index === 5) {
+              cell.alignment = {
+                horizontal: 'right',
+                vertical: 'top',
+                wrapText: true
+              };
+            } else if (index === 1 || index === 2 || index === 3 || index === 4 || index === 8 || index === 9 || index === 7) {
+              cell.alignment = {
+                horizontal: 'left',
+                vertical: 'top',
+                wrapText: true
               };
             }
           });
@@ -310,11 +329,24 @@ const generateQuotationReportExcel = async (datas) => {
       });
     });
 
+    worksheet.eachRow((row) => {
+      row.eachCell((cell, colNumber) => {
+        // Columns G (7) and H (8) should be right aligned
+        if (colNumber === 7 || colNumber === 8) {
+          cell.alignment = { ...cell.alignment, horizontal: 'right', vertical: 'middle', wrapText: true };
+        } else if (colNumber === 11 || cell.value === "Created At") {
+          cell.alignment = { ...cell.alignment, horizontal: 'center', vertical: 'middle', wrapText: true };
+        } else {
+          cell.alignment = { ...cell.alignment, horizontal: 'left', vertical: 'middle', wrapText: true };
+        }
+      });
+    });
+
     const buffer = await workbook.xlsx.writeBuffer();
     saveAs(new Blob([buffer]), `Quotation Report-${datas?.data[0]?.document_identity ? datas?.data[0]?.document_identity : datas?.data[0]?.event_code ? datas?.data[0]?.event_code : datas?.data[0]?.qs_date}-${datas?.data[0]?.vessel_name ? datas?.data[0]?.vessel_name : ''}.xlsx`);
 
   } catch (error) {
-    toast.error(error)
+    toast.error(error.message || "Something went wrong while exporting Excel");
   }
 
 };

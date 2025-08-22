@@ -115,7 +115,6 @@ const EditOpeningStock = lazy(() => import('./pages/OpeningStock/EditOpeningStoc
 
 const Quotation = lazy(() => import('./pages/Quotation'));
 const CreateQuotation = lazy(() => import('./pages/Quotation/CreateQuotation'));
-// const EditQuotation = lazy(() => import('./pages/Quotation/EditQuotation'));
 import EditQuotation from './pages/Quotation/EditQuotation';
 
 const ChargeOrder = lazy(() => import('./pages/ChargeOrder'));
@@ -143,6 +142,20 @@ const Scheduling = lazy(() => import('./pages/Scheduling'));
 // Reports
 const QuotationReport = lazy(() => import('./pages/QuotationReport'));
 const BidResponseReport = lazy(() => import('./pages/BidResponseReport'));
+
+//ledger
+
+const CoaLevelOne = lazy(() => import('./pages/GeneralLedger/CoaLevelOne'));
+const CreateCoaLevelOne = lazy(() => import('./pages/GeneralLedger/CoaLevelOne/CreateCoaLevelOne'));
+const EditCoaLevelOne = lazy(() => import('./pages/GeneralLedger/CoaLevelOne/EditCoaLevelOne'));
+
+const CoaLevelTwo = lazy(() => import('./pages/GeneralLedger/CoaLevelTwo'));
+const CreateCoaLevelTwo = lazy(() => import('./pages/GeneralLedger/CoaLevelTwo/CreateCoaLevelTwo'));
+const EditCoaLevelTwo = lazy(() => import('./pages/GeneralLedger/CoaLevelTwo/EditCoaLevelTwo'));
+
+const CoaLevelThree = lazy(() => import('./pages/GeneralLedger/CoaLevelThree'));
+const CreateCoaLevelThree = lazy(() => import('./pages/GeneralLedger/CoaLevelThree/CreateCoaLevelThree'));
+const EditCoaLevelThree = lazy(() => import('./pages/GeneralLedger/CoaLevelThree/EditCoaLevelThree'));
 
 function Routes() {
   const router = createBrowserRouter(
@@ -913,6 +926,93 @@ function Routes() {
                 <Audit />
               </Suspense>
             ),
+          },
+          {
+            path: '/stock-return',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <StockReturn />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/general-ledger',
+            children: [
+              {
+                path: 'coa/level1',
+                element: (
+                  <Suspense fallback={<PageLoader />}>
+                    <CoaLevelOne />
+                  </Suspense>
+                ),
+              },
+              {
+                path: 'coa/level1/create',
+                element: (
+                  <Suspense fallback={<PageLoader />}>
+                    <CreateCoaLevelOne />
+                  </Suspense>
+                ),
+              },
+              {
+                path: 'coa/level1/edit/:id',
+                element: (
+                  <Suspense fallback={<PageLoader />}>
+                    <EditCoaLevelOne />
+                  </Suspense>
+                ),
+              },
+              // level 2
+              {
+                path: 'coa/level2',
+                element: (
+                  <Suspense fallback={<PageLoader />}>
+                    <CoaLevelTwo />
+                  </Suspense>
+                ),
+              },
+              {
+                path: 'coa/level2/create',
+                element: (
+                  <Suspense fallback={<PageLoader />}>
+                    <CreateCoaLevelTwo />
+                  </Suspense>
+                ),
+              },
+              {
+                path: 'coa/level2/edit/:id',
+                element: (
+                  <Suspense fallback={<PageLoader />}>
+                    <EditCoaLevelTwo />
+                  </Suspense>
+                ),
+              },
+              // level 3
+              {
+                path: 'coa/level3',
+                element: (
+                  <Suspense fallback={<PageLoader />}>
+                    <CoaLevelThree />
+                  </Suspense>
+                ),
+              },
+              {
+                path: 'coa/level3/create',
+                element: (
+                  <Suspense fallback={<PageLoader />}>
+                    <CreateCoaLevelThree />
+                  </Suspense>
+                ),
+              },
+              {
+                path: 'coa/level3/edit/:id',
+                element: (
+                  <Suspense fallback={<PageLoader />}>
+                    <EditCoaLevelThree />
+                  </Suspense>
+                ),
+              },
+            ]
           },
         ],
       },

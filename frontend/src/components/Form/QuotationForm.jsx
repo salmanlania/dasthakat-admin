@@ -208,8 +208,6 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
     (isNaN(rebate) ? 0 : rebate);
 
   const minusValue =
-    // parseInt(salesmanAmount?.toString().replace(/,/g, '') || 0) +
-    // parseInt(rebateAmount?.toString().replace(/,/g, '') || 0) +
     parseInt(totalCost || 0) +
     parseInt(otherComission || 0);
 
@@ -1774,7 +1772,6 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
                   >
                     <Table
                       columns={commissionAgentColumns}
-                      // dataSource={commissionAgent.length > 0 ? commissionAgent : commissionAgentData}
                       dataSource={extendedCommissionData}
                       rowKey={(record) => record.commission_agent_id}
                       size="small"
@@ -1842,13 +1839,6 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
         </div>
       </Form>
       <NotesModal
-        // title={
-        //   notesModalIsOpen.column === 'description'
-        //     ? 'Customer Notes'
-        //     : notesModalIsOpen.column === 'vendor_notes'
-        //       ? 'Vendor Notes'
-        //       : 'Internal Notes'
-        // }
         title={notesTitleMap[notesModalIsOpen.column] || 'Notes'}
         initialValue={notesModalIsOpen.notes}
         isSubmitting={false}
