@@ -29,16 +29,18 @@ class ServicelistController extends Controller
 		$charge_order_id = $request->input('charge_order_id', '');
 		$vessel_id = $request->input('vessel_id', '');
 		$event_id = $request->input('event_id', '');
+		$sales_team_ids = $request->input('sales_team_ids', []);
 		$total_quantity = $request->input('total_quantity', '');
 
 
 		$query = Servicelist::LeftJoin('charge_order as c', 'c.charge_order_id', '=', 'servicelist.charge_order_id')
 			->LeftJoin('event as e', 'e.event_id', '=', 'c.event_id')
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'c.vessel_id')
+			->LeftJoin('sales_team as st', 'st.sales_team_id', '=', 'e.sales_team_id')
 			->where('servicelist.company_id', $request->company_id)
 			->where('servicelist.company_branch_id', $request->company_branch_id)
 			->selectRaw("
-        servicelist.*,e.event_id,e.event_code,v.vessel_id,v.name as vessel_name,c.document_identity as charge_order_no,
+        servicelist.*,e.event_id,e.event_code,v.vessel_id,v.name as vessel_name,c.document_identity as charge_order_no,e.sales_team_id,st.name as sales_team_name,
         CASE 
 			WHEN servicelist.is_deleted = 1 THEN 4  -- Cancelled
             -- If no received records exist, status = 3 (Nothing received)
@@ -74,6 +76,9 @@ class ServicelistController extends Controller
 		if (!empty($vessel_id)) $query = $query->where('v.vessel_id', '=', $vessel_id);
 		if (!empty($event_id)) $query = $query->where('e.event_id', '=', $event_id);
 		if (!empty($total_quantity)) $query = $query->where('servicelist.total_quantity', 'like', '%' . $total_quantity . '%');
+		if (!empty($sales_team_ids) && is_array($sales_team_ids)) {
+			$query = $query->whereIn('e.sales_team_id', $sales_team_ids);
+		}
 
 
 		if ($servicelist_status = $request->input('servicelist_status')) {
@@ -89,6 +94,7 @@ class ServicelistController extends Controller
 					->orWhere('servicelist.document_identity', 'like', "%$search%")
 					->orWhere('v.name', 'like', "%$search%")
 					->orWhere('e.event_code', 'like', "%$search%")
+					->orWhere('st.name', 'like', "%$search%")
 			);
 		}
 

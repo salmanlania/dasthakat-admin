@@ -31,6 +31,7 @@ class GRNController extends Controller
 		$charge_order_id = $request->input('charge_order_id', '');
 		$event_id = $request->input('event_id', '');
 		$vessel_id = $request->input('vessel_id', '');
+		$sales_team_ids = $request->input('sales_team_ids', []);
 
 		$search = $request->input('search', '');
 		$page =  $request->input('page', 1);
@@ -42,7 +43,8 @@ class GRNController extends Controller
 			->LeftJoin('purchase_order as p', 'p.purchase_order_id', '=', 'good_received_note.purchase_order_id')
 			->LeftJoin('charge_order as c', 'c.charge_order_id', '=', 'p.charge_order_id')
 			->LeftJoin('event as e', 'e.event_id', '=', 'c.event_id')
-			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'c.vessel_id');
+			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'c.vessel_id')
+			->LeftJoin('sales_team as st', 'st.sales_team_id', '=', 'e.sales_team_id');
 		$data = $data->where('good_received_note.company_id', '=', $request->company_id);
 		$data = $data->where('good_received_note.company_branch_id', '=', $request->company_branch_id);
 
@@ -53,6 +55,9 @@ class GRNController extends Controller
 		if (!empty($charge_order_id)) $data = $data->where('p.charge_order_id', '=',  $charge_order_id);
 		if (!empty($event_id)) $data = $data->where('e.event_id', '=',  $event_id);
 		if (!empty($vessel_id)) $data = $data->where('v.vessel_id', '=',  $vessel_id);
+		if (!empty($sales_team_ids) && is_array($sales_team_ids)) {
+			$data = $data->whereIn('e.sales_team_id', $sales_team_ids);
+		}
 
 		if (!empty($search)) {
 			$search = strtolower($search);
@@ -61,12 +66,22 @@ class GRNController extends Controller
 					->where('s.name', 'like', '%' . $search . '%')
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
 					->OrWhere('v.name', 'like', '%' . $search . '%')
+					->OrWhere('st.name', 'like', '%' . $search . '%')
 					->OrWhere('p.document_identity', 'like', '%' . $search . '%')
 					->OrWhere('good_received_note.document_identity', 'like', '%' . $search . '%');
 			});
 		}
 
-		$data = $data->select("good_received_note.*", "s.name as supplier_name", "p.document_identity as purchase_order_no", "e.event_code", "v.name as vessel_name", "c.document_identity as charge_order_no");
+		$data = $data->select(
+			"good_received_note.*", 
+			"s.name as supplier_name", 
+			"p.document_identity as purchase_order_no", 
+			"e.event_code", 
+			"v.name as vessel_name", 
+			"c.document_identity as charge_order_no",
+			"e.sales_team_id",
+			"st.name as sales_team_name"
+		);
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);

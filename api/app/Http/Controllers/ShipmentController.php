@@ -42,6 +42,7 @@ class ShipmentController extends Controller
 		$class1_id = $request->input('class1_id', '');
 		$class2_id = $request->input('class2_id', '');
 		$imo = $request->input('imo', '');
+		$sales_team_ids = $request->input('sales_team_ids', []);
 		$search = $request->input('search', '');
 		$page =  $request->input('page', 1);
 		$perPage =  $request->input('limit', 10);
@@ -54,7 +55,8 @@ class ShipmentController extends Controller
 			->LeftJoin('customer as c', 'c.customer_id', '=', 'v.customer_id')
 			->LeftJoin('class as c1', 'c1.class_id', '=', 'v.class1_id')
 			->LeftJoin('class as c2', 'c2.class_id', '=', 'v.class2_id')
-			->LeftJoin('salesman as s', 's.salesman_id', '=', 'c.salesman_id');
+			->LeftJoin('salesman as s', 's.salesman_id', '=', 'c.salesman_id')
+			->LeftJoin('sales_team as st', 'st.sales_team_id', '=', 'e.sales_team_id');
 		$data = $data->where('shipment.company_id', '=', $request->company_id);
 		$data = $data->where('shipment.company_branch_id', '=', $request->company_branch_id);
 		if (!empty($document_identity)) $data = $data->where('shipment.document_identity', 'like', '%' . $document_identity . '%');
@@ -67,6 +69,9 @@ class ShipmentController extends Controller
 		if (!empty($class1_id)) $data = $data->where('v.class1_id', '=',  $class1_id);
 		if (!empty($class2_id)) $data = $data->where('v.class2_id', '=',  $class2_id);
 		if (!empty($document_date)) $data = $data->where('shipment.document_date', '=',  $document_date);
+		if (!empty($sales_team_ids) && is_array($sales_team_ids)) {
+			$data = $data->whereIn('e.sales_team_id', $sales_team_ids);
+		}
 
 		if (!empty($search)) {
 			$search = strtolower($search);
@@ -80,11 +85,24 @@ class ShipmentController extends Controller
 					->OrWhere('c.name', 'like', '%' . $search . '%')
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
 					->OrWhere('s.name', 'like', '%' . $search . '%')
+					->OrWhere('st.name', 'like', '%' . $search . '%')
 					->OrWhere('v.name', 'like', '%' . $search . '%');
 			});
 		}
 
-		$data = $data->select("shipment.*", "c.name as customer_name", "e.event_code", "v.name as vessel_name", "v.imo", "s.name as salesman_name", "f.name as flag_name", "c1.name as class1_name", "c2.name as class2_name");
+		$data = $data->select(
+			"shipment.*", 
+			"c.name as customer_name", 
+			"e.event_code", 
+			"v.name as vessel_name", 
+			"v.imo", 
+			"s.name as salesman_name", 
+			"f.name as flag_name", 
+			"c1.name as class1_name", 
+			"c2.name as class2_name",
+			"e.sales_team_id",
+			"st.name as sales_team_name"
+		);
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 

@@ -34,6 +34,7 @@ class JobOrderController extends Controller
 		$class2_id = $request->input('class2_id', '');
 		$details = $request->input('details', '');
 		$imo = $request->input('imo', '');
+		$sales_team_ids = $request->input('sales_team_ids', []);
 		$search = $request->input('search', '');
 		$page =  $request->input('page', 1);
 		$perPage =  $request->input('limit', 10);
@@ -47,7 +48,8 @@ class JobOrderController extends Controller
 			->LeftJoin('class as c2', 'c2.class_id', '=', 'job_order.class2_id')
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'job_order.vessel_id')
 			->LeftJoin('agent as a', 'a.agent_id', '=', 'job_order.agent_id')
-			->LeftJoin('salesman as s', 's.salesman_id', '=', 'job_order.salesman_id');
+			->LeftJoin('salesman as s', 's.salesman_id', '=', 'job_order.salesman_id')
+			->LeftJoin('sales_team as st', 'st.sales_team_id', '=', 'e.sales_team_id');
 		$data = $data->where('job_order.company_id', '=', $request->company_id);
 		$data = $data->where('job_order.company_branch_id', '=', $request->company_branch_id);
 		if (!empty($document_identity)) $data = $data->where('job_order.document_identity', 'like', '%' . $document_identity . '%');
@@ -62,6 +64,9 @@ class JobOrderController extends Controller
 		if (!empty($class2_id)) $data = $data->where('job_order.class2_id', '=',  $class2_id);
 		if (!empty($document_identity)) $data = $data->where('job_order.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($document_date)) $data = $data->where('job_order.document_date', '=',  $document_date);
+		if (!empty($sales_team_ids) && is_array($sales_team_ids)) {
+			$data = $data->whereIn('e.sales_team_id', $sales_team_ids);
+		}
 
 		if (!empty($search)) {
 			$search = strtolower($search);
@@ -76,12 +81,26 @@ class JobOrderController extends Controller
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
 					->OrWhere('a.name', 'like', '%' . $search . '%')
 					->OrWhere('s.name', 'like', '%' . $search . '%')
+					->OrWhere('st.name', 'like', '%' . $search . '%')
 					->OrWhere('v.name', 'like', '%' . $search . '%')
 					->OrWhere('job_order.document_identity', 'like', '%' . $search . '%');
 			});
 		}
 
-		$data = $data->select("job_order.*", "c.name as customer_name", "e.event_code", "v.name as vessel_name", "v.imo", "a.name as agent_name", "s.name as salesman_name", "f.name as flag_name", "c1.name as class1_name", "c2.name as class2_name");
+		$data = $data->select(
+			"job_order.*", 
+			"c.name as customer_name", 
+			"e.event_code", 
+			"v.name as vessel_name", 
+			"v.imo", 
+			"a.name as agent_name", 
+			"s.name as salesman_name", 
+			"f.name as flag_name", 
+			"c1.name as class1_name", 
+			"c2.name as class2_name",
+			"e.sales_team_id",
+			"st.name as sales_team_name"
+		);
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 

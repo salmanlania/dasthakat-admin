@@ -36,6 +36,7 @@ class SaleReturnController extends Controller
 		$quotation_no = $request->input('quotation_no', '');
 		$event_id = $request->input('event_id', '');
 		$vessel_id = $request->input('vessel_id', '');
+		$sales_team_ids = $request->input('sales_team_ids', []);
 		
 		$search = $request->input('search', '');
 		$page = $request->input('page', 1);
@@ -48,7 +49,8 @@ class SaleReturnController extends Controller
 		->LeftJoin('quotation as q', 'q.document_identity', '=', 'co.ref_document_identity')
 		->LeftJoin('event as e', 'e.event_id', '=', 'co.event_id')
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'co.vessel_id')
-			->LeftJoin('sale_invoice as si', 'si.sale_invoice_id', '=', 'sale_return.sale_invoice_id');
+			->LeftJoin('sale_invoice as si', 'si.sale_invoice_id', '=', 'sale_return.sale_invoice_id')
+			->LeftJoin('sales_team as st', 'st.sales_team_id', '=', 'e.sales_team_id');
 
 		$data = $data->where('sale_return.company_id', '=', $request->company_id);
 		$data = $data->where('sale_return.company_branch_id', '=', $request->company_branch_id);
@@ -68,6 +70,9 @@ class SaleReturnController extends Controller
 			$data = $data->where('sale_return.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($document_date))
 			$data = $data->where('sale_return.document_date', '=', $document_date);
+		if (!empty($sales_team_ids) && is_array($sales_team_ids)) {
+			$data = $data->whereIn('e.sales_team_id', $sales_team_ids);
+		}
 
 		if (!empty($search)) {
 			$search = strtolower($search);
@@ -78,11 +83,21 @@ class SaleReturnController extends Controller
 					->OrWhere('q.document_identity', 'like', '%' . $search . '%')
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
 					->OrWhere('v.name', 'like', '%' . $search . '%')
+					->OrWhere('st.name', 'like', '%' . $search . '%')
 					->OrWhere('sale_return.document_identity', 'like', '%' . $search . '%');
 			});
 		}
 
-		$data = $data->select('sale_return.*', 'q.document_identity as quotation_no', 'co.document_identity as charge_no', 'e.event_code', 'v.name as vessel_name', 'si.document_identity as sale_invoice_no');
+		$data = $data->select(
+			'sale_return.*', 
+			'q.document_identity as quotation_no', 
+			'co.document_identity as charge_no', 
+			'e.event_code', 
+			'v.name as vessel_name', 
+			'si.document_identity as sale_invoice_no',
+			'e.sales_team_id',
+			'st.name as sales_team_name'
+		);
 		$data = $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
