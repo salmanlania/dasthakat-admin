@@ -217,7 +217,7 @@ const ServiceOrder = () => {
       dataIndex: 'sales_team_name',
       key: 'sales_team_name',
       sorter: true,
-      width: 140,
+      width: 160,
       ellipsis: true,
     },
     {

@@ -66,6 +66,7 @@ const MainLayout = () => {
 
   // if (href === '/technician' && !permissions.technician.list) return <NotFound />;
   if (href === '/technician' && !permissions.sales_team.list) return <NotFound />;
+  if (href === '/sales-team' && !permissions.sales_team.list) return <NotFound />;
   if (href === '/notes' && !permissions.terms.list) return <NotFound />;
   if (href === '/flag' && !permissions.flag.list) return <NotFound />;
   if (href === '/class' && !permissions.class.list) return <NotFound />;
