@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import api from '../../axiosInstance';
+import dayjs from 'dayjs';
 
 export const getSaleInvoiceList = createAsyncThunk(
   'saleInvoice/list',
@@ -168,7 +169,8 @@ export const saleInvoiceSlice = createSlice({
       const data = action.payload;
       state.initialFormValues = {
         document_identity: data.document_identity || '',
-        document_date: data.document_date || '',
+        // document_date: data.document_date || '',
+        document_date: data.document_date ? dayjs(data.document_date) : null,
         totalQuantity: data.total_quantity || 0,
         totalAmount: data.total_amount || 0,
         totalDiscount: data.total_discount || 0,
@@ -182,7 +184,12 @@ export const saleInvoiceSlice = createSlice({
         customer_id: data?.charge_order?.customer?.name,
         charger_order_id: data?.charge_order?.document_identity,
         port_id: data?.charge_order?.port?.name,
-        ship_date: data?.ship_date ? data?.ship_date : data?.shipment ? data?.shipment?.document_date : '',
+        // ship_date: data?.ship_date ? data?.ship_date : data?.shipment ? data?.shipment?.document_date : '',
+        ship_date: data?.ship_date
+          ? dayjs(data.ship_date)
+          : data?.shipment?.document_date
+            ? dayjs(data.shipment.document_date)
+            : null,
         ref_document_identity: data?.charge_order?.ref_document_identity
       };
       state.saleInvoiceDetail = data.sale_invoice_detail.map((detail) => ({

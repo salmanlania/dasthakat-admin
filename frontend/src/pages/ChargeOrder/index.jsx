@@ -33,7 +33,7 @@ import { setChargePoID } from '../../store/features/purchaseOrderSlice';
 import { createSaleInvoice } from '../../store/features/saleInvoiceSlice';
 import { createIJOPrint } from '../../utils/prints/ijo-print.js';
 import { createServiceOrderPrint } from '../../utils/prints/service-order-print.js';
-import { createPerformaInvoicePrint } from '../../utils/prints/proforma-invoice.js';
+import { createProformaInvoicePrint } from '../../utils/prints/proforma-invoice.js';
 
 const ChargeOrder = () => {
   useDocumentTitle('Charge Order List');
@@ -122,11 +122,11 @@ const ChargeOrder = () => {
     }
   };
 
-  const printPerforma = async (id) => {
-    const loadingToast = toast.loading('Loading Performa print...');
+  const printProforma = async (id) => {
+    const loadingToast = toast.loading('Loading Proforma print...');
     try {
       const data = await dispatch(getChargeOrder(id)).unwrap()
-      createPerformaInvoicePrint(data, true);
+      createProformaInvoicePrint(data, true);
     } catch (error) {
       handleError(error);
     } finally {
@@ -331,7 +331,7 @@ const ChargeOrder = () => {
                     type="primary"
                     className="bg-rose-600 hover:!bg-rose-500"
                     icon={<FaRegFilePdf size={14} />}
-                    onClick={() => printPerforma(charge_order_id)}
+                    onClick={() => printProforma(charge_order_id)}
                   />
                 </Tooltip>
               ) : null}
@@ -373,7 +373,7 @@ const ChargeOrder = () => {
                     type="primary"
                     className="bg-rose-600 hover:!bg-rose-500"
                     icon={<FaRegFilePdf size={14} />}
-                    onClick={() => printPerforma(charge_order_id)}
+                    onClick={() => printProforma(charge_order_id)}
                   />
                 </Tooltip>
               ) : null}
