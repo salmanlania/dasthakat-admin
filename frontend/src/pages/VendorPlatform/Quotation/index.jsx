@@ -1,4 +1,4 @@
-import { Button, Divider, Modal, Table } from 'antd';
+import { Button, DatePicker, Divider, Modal, Table } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
@@ -21,6 +21,7 @@ const VendorPlatformQuotation = () => {
   const [loading, setLoading] = useState(true);
   const [vendorReferenceNo, setVendorReferenceNo] = useState('');
   const [vendorRemarks, setVendorRemarks] = useState('');
+  const [validityDate, setValidityDate] = useState(dayjs().add(1, 'month'));
   const handleError = useError();
   const { id } = useParams();
 
@@ -149,6 +150,7 @@ const VendorPlatformQuotation = () => {
 
         setVendorReferenceNo(fetchedData?.vendor_ref_no || '');
         setVendorRemarks(fetchedData?.vendor_remarks || '');
+        setValidityDate(dayjs(fetchedData?.validity_date || dayjs().add(1, 'month')));
         const initialTotals = calculateTotals(fetchedData?.details || []);
         setTotals(initialTotals);
 
@@ -228,6 +230,7 @@ const VendorPlatformQuotation = () => {
         vendor_id: vendorId,
         vendor_ref_no: vendorReferenceNo,
         vendor_remarks: vendorRemarks,
+        validity_date: validityDate.format('YYYY-MM-DD'),
         quotation_detail: quotationDetail,
       });
 
@@ -356,40 +359,34 @@ const VendorPlatformQuotation = () => {
             boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
           }}
         >
-          <div
+          <div className='w-full flex-col md:flex-row !items-start md:items-center !gap-5 md:!gap-[50px]'
             style={{
               display: 'flex',
               flexWrap: 'wrap',
               alignItems: 'center',
-              gap: '32px',
+              gap: '50px',
             }}
           >
-            <div style={{ minWidth: '200px' }}>
+            <div >
+              <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Document ID:</span>
+              <span style={{ fontWeight: 600 }}>{data?.document_identity || '-'}</span>
+            </div>
+            <div>
               <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Quotation No:</span>
               <span style={{ fontWeight: 600 }}>{data?.quotation?.document_identity || '-'}</span>
             </div>
-            <div style={{ minWidth: '200px' }}>
+            <div>
               <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Event:</span>
               <span style={{ fontWeight: 600 }}>{data?.quotation?.event?.event_code || '-'}</span>
             </div>
-            <div style={{ minWidth: '200px' }}>
+            <div>
               <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Vessel:</span>
               <span style={{ fontWeight: 600 }}>{data?.quotation?.vessel?.name || '-'}</span>
             </div>
           </div>
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              gap: '32px',
-            }}
-          >
-            <div style={{ minWidth: '200px' }}>
-              <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Document ID:</span>
-              <span style={{ fontWeight: 600 }}>{data?.document_identity || '-'}</span>
-            </div>
-            <div style={{ minWidth: '250px' }}>
+          <div className='grid grid-cols-1 w-full md:grid-cols-2 lg:grid-cols-4 gap-4'>
+
+            <div >
               <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Vendor Reference No:</span>
               <DebounceInput
                 value={vendorReferenceNo}
@@ -404,12 +401,26 @@ const VendorPlatformQuotation = () => {
                 }}
               />
             </div>
-            <div style={{ minWidth: '250px' }}>
+            <div >
               <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Vendor Remarks:</span>
               <DebounceInput
                 value={vendorRemarks}
                 onChange={(value) => setVendorRemarks(value)}
                 placeholder="Enter Vendor Remarks"
+                style={{
+                  padding: '6px 10px',
+                  border: '1px solid #ccc',
+                  borderRadius: '6px',
+                  width: '100%',
+                  fontSize: '14px',
+                }}
+              />
+            </div>
+            <div >
+              <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Validity Date:</span>
+              <DatePicker
+                value={validityDate}
+                onChange={(value) => setValidityDate(value)}
                 style={{
                   padding: '6px 10px',
                   border: '1px solid #ccc',

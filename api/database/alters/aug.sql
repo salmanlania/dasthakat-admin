@@ -1,4 +1,4 @@
-ALTER TABLE
+fALTER TABLE
   `charge_order`
 ADD
   COLUMN `is_deleted` TINYINT(1) NOT NULL DEFAULT 0
@@ -161,3 +161,35 @@ CREATE TABLE `sales_team` (
   KEY `sales_team_name_index` (`name`)
 );
 ALTER TABLE `event` ADD COLUMN `sales_team_id` CHAR(36) DEFAULT NULL AFTER `class2_id`;
+  
+
+  CREATE TABLE IF NOT EXISTS `quotation_vendor_rate_history` (
+  `id` varchar(36) NOT NULL,
+  `vp_quotation_rfq_id` varchar(36) DEFAULT NULL,
+  `vp_quotation_rfq_detail_id` varchar(36) DEFAULT NULL,
+  `quotation_id` varchar(36) DEFAULT NULL,
+  `quotation_detail_id` varchar(36) DEFAULT NULL,
+  `product_id` varchar(50) DEFAULT NULL,
+  `product_name` varchar(255) DEFAULT NULL,
+  `product_description` text DEFAULT NULL,
+  `vendor_id` varchar(36) DEFAULT NULL,
+  `vendor_rate` decimal(18,6) DEFAULT NULL,
+  `validity_date` date DEFAULT NULL,
+  `created_by` varchar(36) DEFAULT NULL,
+  `updated_by` varchar(36) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+);
+
+CREATE INDEX `idx_qvrh_vendor_id` ON `quotation_vendor_rate_history` (`vendor_id`);
+CREATE INDEX `idx_qvrh_product_id` ON `quotation_vendor_rate_history` (`product_id`);
+CREATE INDEX `idx_qvrh_product_name` ON `quotation_vendor_rate_history` (`product_name`);
+CREATE INDEX `idx_qvrh_validity_date` ON `quotation_vendor_rate_history` (`validity_date`);
+CREATE INDEX `idx_qvrh_quotation_id` ON `quotation_vendor_rate_history` (`quotation_id`);
+CREATE INDEX `idx_qvrh_quotation_detail_id` ON `quotation_vendor_rate_history` (`quotation_detail_id`);
+CREATE INDEX `idx_qvrh_vp_rfq_id` ON `quotation_vendor_rate_history` (`vp_quotation_rfq_id`);
+CREATE INDEX `idx_qvrh_vp_rfq_detail_id` ON `quotation_vendor_rate_history` (`vp_quotation_rfq_detail_id`);
+
+ALTER TABLE `vp_quotation_rfq`
+  ADD COLUMN `validity_date` date NULL AFTER `date_returned`;

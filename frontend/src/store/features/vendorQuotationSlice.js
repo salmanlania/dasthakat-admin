@@ -803,7 +803,8 @@ export const vendorQuotationSlice = createSlice({
             ? detail.cost_price
             : +detail.cost_price || +detail.rate,
         markup: detail.markup,
-        rate: detail.rate,
+        rate: detail?.rate ? detail?.rate : 0,
+        last_rate_validity_date: detail?.last_rate_validity_date ? detail?.last_rate_validity_date : null,
         amount: detail.amount,
         discount_percent: detail.discount_percent,
         discount_amount: detail.discount_amount,

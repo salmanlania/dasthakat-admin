@@ -706,6 +706,8 @@ export const quotationSlice = createSlice({
               : +detail.cost_price || +detail.rate,
           markup: detail.markup,
           rate: detail?.rate ? detail?.rate : 0,
+          last_valid_rate: detail?.last_valid_rate ? detail?.last_valid_rate : 0,
+          last_rate_validity_date: detail?.last_rate_validity_date ? detail?.last_rate_validity_date : null,
           amount: detail.amount,
           discount_percent: detail.discount_percent,
           discount_amount: detail.discount_amount,
@@ -892,7 +894,7 @@ export const quotationSlice = createSlice({
             ? detail.cost_price
             : +detail.cost_price || +detail.rate,
         markup: detail.markup,
-        rate: detail?.rate ? detail?.rate : 0,
+        rate: detail?.rate < 0 ? detail?.last_valid_rate : detail?.rate > 0 ? detail?.rate : 0,
         full_rate: detail.full_rate,
         old_rate: detail.old_rate,
         amount: detail.amount,

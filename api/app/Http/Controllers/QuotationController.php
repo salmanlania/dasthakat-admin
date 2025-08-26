@@ -9,6 +9,7 @@ use App\Models\Quotation;
 use App\Models\QuotationCommissionAgent;
 use App\Models\QuotationDetail;
 use App\Models\QuotationStatus;
+use App\Models\QuotationVendorRateHistory;
 use App\Models\StockLedger;
 use App\Models\Terms;
 use App\Models\VendorQuotationDetail;
@@ -264,6 +265,16 @@ class QuotationController extends Controller
 			if ($detail->product) {
 				$detail->product->stock = StockLedger::Check($detail->product, $request->all());
 			}
+			$currentRate = (float)($detail->vendor_rate ?? 0);
+            if ($currentRate <= 0) {
+                $productId = $detail->product_id ?? null;
+                $productName = $detail->product_name ?? null;
+                $lastRate = QuotationVendorRateHistory::getLastValidRate($detail->supplier_id, $productId, $productName);
+                if (!is_null($lastRate)) {
+                    $detail->last_valid_rate = $lastRate;
+                    $detail->last_rate_validity_date = QuotationVendorRateHistory::getLastValidRateValidityDate($detail->supplier_id, $productId, $productName);
+                }
+            }
 		});
 
 		// Process terms

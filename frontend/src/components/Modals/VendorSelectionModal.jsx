@@ -1,4 +1,4 @@
-import { Modal, Table, Input, Spin, Radio, Button, Switch, DatePicker, Form,Tooltip } from 'antd';
+import { Modal, Table, Input, Spin, Radio, Button, Switch, DatePicker, Form, Tooltip } from 'antd';
 import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { getVendor } from '../../store/features/quotationSlice';
@@ -29,7 +29,6 @@ const VendorSelectionModal = ({ open, onClose }) => {
   const [form] = Form.useForm();
   const hasFetchedVendors = useRef(false);
   const lastFetchedId = useRef(null);
-
   useEffect(() => {
     if (!id || !open) {
       hasFetchedVendors.current = false;
@@ -78,7 +77,8 @@ const VendorSelectionModal = ({ open, onClose }) => {
           if (vendorIndex === 0 && !existingVendor && existingVendors.length === 0) {
             return {
               name: `Vendor`,
-              rate: item.rate || 0,
+              rate: item?.rate <= 0 ? item?.last_valid_rate : item?.rate > 0 ? item?.rate : 0,
+              form_rate: item?.rate || 0,
               isPrimary: true,
               supplier_id: item.supplier_id ? {
                 value: item.supplier_id.value,
@@ -87,7 +87,8 @@ const VendorSelectionModal = ({ open, onClose }) => {
               rfq_responded: false,
               vendor_notes: item.vendor_notes || '',
               rfqSent: false,
-              vendor_part_no: item.vendor_part_no || '',
+              vendor_part_no: item.vendor_part_no || '',              last_valid_rate: item?.last_valid_rate || 0,
+              last_rate_validity_date: item?.last_rate_validity_date || null,
             };
           }
 
@@ -127,6 +128,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
               : item.product_id?.label || item.product_name || 'Unnamed Product',
           product_type_id: item.product_type_id,
           quantity: item.quantity,
+
           index,
           vendors,
         };
@@ -245,7 +247,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
       dataIndex: 'quantity',
       key: 'quantity',
       width: 70,
-      
+
     },
     ...Array.from({ length: vendorCount }).flatMap((_, vendorIndex) => [
       {
@@ -307,22 +309,36 @@ const VendorSelectionModal = ({ open, onClose }) => {
       {
         title: `Cost`,
         key: `rate-${vendorIndex}`,
-        width: 120,
-        maxWidth: 100,
+        className: 'flex items-center justify-center gap-2',
+        width: 140,
+        // maxWidth: 100,
         ellipsis: true,
         onCell: (_) => ({
           className: `${_.vendors[vendorIndex].rfq_responded ? '!bg-green-300/50' : ''}`,
         }),
         render: (_, record, productIndex) => (
-          
-          <Tooltip title={record.vendors[vendorIndex].vendor_notes ?? ''}>  
-          <Input
-            value={record.vendors[vendorIndex].rate}
-            onChange={(e) => handleRateChange(productIndex, vendorIndex, e.target.value)}
-            placeholder="Rate"
-            style={{ width: '100%' }}
-            />
+          <>
+            <Tooltip title={record.vendors[vendorIndex].vendor_notes ?? ''}>
+              <Input
+                value={record.vendors[vendorIndex].rate}
+                onChange={(e) => handleRateChange(productIndex, vendorIndex, e.target.value)}
+                placeholder="Rate"
+                style={{ width: '100%' }}
+              />
             </Tooltip>
+
+            {(record.vendors[vendorIndex].last_rate_validity_date && record.vendors[vendorIndex].form_rate <= 0) ?(
+            <div>
+              <Tooltip  title={`This rate should be valid upto ${dayjs(record.vendors[vendorIndex].last_rate_validity_date).format('DD-MMM-YYYY')}`}>
+                <span className="right-4 top-2.5 absolute bg-primary cursor-pointer text-white w-[18px] text-xs h-[18px] flex items-center justify-center rounded-full " >
+                  <span className="">
+                    i
+                  </span>
+                </span>
+              </Tooltip>
+            </div>
+            ):null} 
+          </>
         ),
       },
       {
@@ -345,7 +361,6 @@ const VendorSelectionModal = ({ open, onClose }) => {
       },
     ]),
   ];
-
   return (
     <Modal
       open={open}
