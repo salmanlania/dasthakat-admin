@@ -69,7 +69,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   const boxWidth = 94;
   const headerHeight = 7;
   const boxX1 = sideMargin;
-  const boxX2 = sideMargin + boxWidth + 10; // Add spacing between the boxes if needed
+  const boxX2 = sideMargin + boxWidth + 10;
 
   // Header labels
   // doc.rect(boxX1 - 2, 35, boxWidth + 4, headerHeight);
@@ -112,13 +112,13 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   // ESTIMATE
   doc.setFontSize(26);
   doc.setFont('times', 'bold');
-  doc.text('PROFORMA', pageWidth / 2, invoiceY, {
+  doc.text('ESTIMATED', pageWidth / 2, invoiceY, {
     align: 'center'
   });
   doc.setDrawColor(32, 50, 114);
   doc.setLineWidth(0.6);
   // doc.line(pageWidth / 2 + 16, 64, 89, 64);
-  doc.line(pageWidth / 2 - doc.getTextWidth('PROFORMA') / 2, invoiceY + 2, pageWidth / 2 + doc.getTextWidth('PROFORMA') / 2, invoiceY + 2);
+  doc.line(pageWidth / 2 - doc.getTextWidth('ESTIMATED') / 2, invoiceY + 2, pageWidth / 2 + doc.getTextWidth('ESTIMATED') / 2, invoiceY + 2);
 
   doc.setFont('times', 'normal');
   doc.setFontSize(10);
@@ -201,7 +201,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
 };
 
 
-export const createProformaInvoicePrint = async (data) => {
+export const createEstimatedInvoicePrint = async (data) => {
   const doc = new jsPDF();
   doc.setTextColor(32, 50, 114);
 
@@ -418,11 +418,11 @@ export const createProformaInvoicePrint = async (data) => {
     // addFooter(doc, pageWidth, pageHeight - 25);
   }
 
-  const titleData = `Proforma- ${data?.document_identity ? data?.document_identity : ''} - ${data?.vessel?.name ? data?.vessel?.name : ''}`
+  const titleData = `Estimated- ${data?.document_identity ? data?.document_identity : ''} - ${data?.vessel?.name ? data?.vessel?.name : ''}`
 
   doc.setProperties({
     title: titleData
   });
   const pdfBlob = doc.output('blob');
-  await mergePDFs(pdfBlob, `Proforma- ${titleData}`);
+  await mergePDFs(pdfBlob, `Estimated- ${titleData}`);
 };
