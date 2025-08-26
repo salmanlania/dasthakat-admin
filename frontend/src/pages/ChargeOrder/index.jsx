@@ -34,7 +34,7 @@ import { createSaleInvoice } from '../../store/features/saleInvoiceSlice';
 import { createIJOPrint } from '../../utils/prints/ijo-print.js';
 import { createServiceOrderPrint } from '../../utils/prints/service-order-print.js';
 import { createProformaInvoicePrint } from '../../utils/prints/proforma-invoice.js';
-import { createEstimatedInvoicePrint } from '../../utils/prints/estimated-invoice.js';
+import { createEstimateInvoicePrint } from '../../utils/prints/estimate-invoice.js';
 
 const ChargeOrder = () => {
   useDocumentTitle('Charge Order List');
@@ -135,11 +135,11 @@ const ChargeOrder = () => {
     }
   };
 
-  const printEstimatedInvoice = async (id) => {
-    const loadingToast = toast.loading('Loading Estimated print...');
+  const printEstimateInvoice = async (id) => {
+    const loadingToast = toast.loading('Loading Estimate print...');
     try {
       const data = await dispatch(getChargeOrder(id)).unwrap()
-      createEstimatedInvoicePrint(data, true);
+      createEstimateInvoicePrint(data, true);
     } catch (error) {
       handleError(error);
     } finally {
@@ -349,13 +349,13 @@ const ChargeOrder = () => {
                 </Tooltip>
               ) : null}
               {permissions.edit ? (
-                <Tooltip title="Estimated">
+                <Tooltip title="Estimate">
                   <Button
                     size="small"
                     type="primary"
-                    className="bg-rose-600 hover:!bg-rose-500"
+                    className="bg-amber-500 hover:!bg-amber-400"
                     icon={<FaRegFilePdf size={14} />}
-                    onClick={() => printEstimatedInvoice(charge_order_id)}
+                    onClick={() => printEstimateInvoice(charge_order_id)}
                   />
                 </Tooltip>
               ) : null}
@@ -391,7 +391,7 @@ const ChargeOrder = () => {
           ) : (
             <div className="flex flex-wrap items-center gap-2">
               {permissions.edit ? (
-                <Tooltip title="Print">
+                <Tooltip title="Proforma">
                   <Button
                     size="small"
                     type="primary"
@@ -402,13 +402,13 @@ const ChargeOrder = () => {
                 </Tooltip>
               ) : null}
               {permissions.edit ? (
-                <Tooltip title="Estimated">
+                <Tooltip title="Estimate">
                   <Button
                     size="small"
                     type="primary"
                     className="bg-amber-500 hover:!bg-amber-400"
                     icon={<FaRegFilePdf size={14} />}
-                    onClick={() => printEstimatedInvoice(charge_order_id)}
+                    onClick={() => printEstimateInvoice(charge_order_id)}
                   />
                 </Tooltip>
               ) : null}
