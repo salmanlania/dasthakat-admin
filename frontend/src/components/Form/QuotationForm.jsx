@@ -1734,13 +1734,13 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
                     title="Other Commission:"
                     value={formatThreeDigitCommas(roundUpto(otherComission)) || 0}
                     icon={
-                      permissions?.quotation?.commission_agent && (
+                      permissions?.quotation?.commission_agent ? (
                         <FaEye
                           size={14}
                           style={{ cursor: 'pointer' }}
                           onClick={() => setIsCommissionTableVisible(!isCommissionTableVisible)}
                         />
-                      )
+                      ) : null
                     }
                   />
                   <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
