@@ -87,7 +87,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
               rfq_responded: false,
               vendor_notes: item.vendor_notes || '',
               rfqSent: false,
-              vendor_part_no: item.vendor_part_no || '',              last_valid_rate: item?.last_valid_rate || 0,
+              vendor_part_no: item.vendor_part_no || '', last_valid_rate: item?.last_valid_rate || 0,
               last_rate_validity_date: item?.last_rate_validity_date || null,
             };
           }
@@ -306,39 +306,73 @@ const VendorSelectionModal = ({ open, onClose }) => {
           );
         },
       },
+      // {
+      //   title: `Cost`,
+      //   key: `rate-${vendorIndex}`,
+      //   className: 'flex items-center justify-center gap-2',
+      //   width: 140,
+      //   // maxWidth: 100,
+      //   ellipsis: true,
+      //   onCell: (_) => ({
+      //     className: `${_.vendors[vendorIndex].rfq_responded ? '!bg-green-300/50' : ''}`,
+      //     // style: { padding: 0 }
+      //     style: { padding: 0, width: '100%' 
+      //   }),
+      //   render: (_, record, productIndex) => (
+      //     <div style={{ width: '100%' }}>
+      //       <Tooltip title={record.vendors[vendorIndex].vendor_notes ?? ''}>
+      //         <Input
+      //           value={record.vendors[vendorIndex].rate}
+      //           onChange={(e) => handleRateChange(productIndex, vendorIndex, e.target.value)}
+      //           placeholder="Rate"
+      //           style={{ width: '100%' }}
+      //         />
+      //       </Tooltip>
+
+      //       {(record.vendors[vendorIndex].last_rate_validity_date && record.vendors[vendorIndex].form_rate <= 0) ?(
+      //       <div>
+      //         <Tooltip  title={`This rate should be valid upto ${dayjs(record.vendors[vendorIndex].last_rate_validity_date).format('DD-MMM-YYYY')}`}>
+      //           <span className="right-4 top-2.5 absolute bg-primary cursor-pointer text-white w-[18px] text-xs h-[18px] flex items-center justify-center rounded-full " >
+      //           {/* <span className="bg-primary cursor-pointer text-white w-[18px] h-[18px] text-xs flex items-center justify-center rounded-full" > */}
+      //             <span className="">
+      //               i
+      //             </span>
+      //           </span>
+      //         </Tooltip>
+      //       </div>
+      //       ):null} 
+      //     </div>
+      //   ),
+      // },
       {
         title: `Cost`,
         key: `rate-${vendorIndex}`,
-        className: 'flex items-center justify-center gap-2',
         width: 140,
-        // maxWidth: 100,
         ellipsis: true,
         onCell: (_) => ({
           className: `${_.vendors[vendorIndex].rfq_responded ? '!bg-green-300/50' : ''}`,
+          style: { padding: 0, width: '100%' } // <-- Remove padding, set width
         }),
         render: (_, record, productIndex) => (
-          <>
+          <div style={{ width: '100%' }}>
             <Tooltip title={record.vendors[vendorIndex].vendor_notes ?? ''}>
               <Input
                 value={record.vendors[vendorIndex].rate}
                 onChange={(e) => handleRateChange(productIndex, vendorIndex, e.target.value)}
                 placeholder="Rate"
-                style={{ width: '100%' }}
+                style={{ width: '100%', }} // <-- Make input fill cell
               />
             </Tooltip>
-
-            {(record.vendors[vendorIndex].last_rate_validity_date && record.vendors[vendorIndex].form_rate <= 0) ?(
-            <div>
-              <Tooltip  title={`This rate should be valid upto ${dayjs(record.vendors[vendorIndex].last_rate_validity_date).format('DD-MMM-YYYY')}`}>
-                <span className="right-4 top-2.5 absolute bg-primary cursor-pointer text-white w-[18px] text-xs h-[18px] flex items-center justify-center rounded-full " >
-                  <span className="">
-                    i
+            {(record.vendors[vendorIndex].last_rate_validity_date && record.vendors[vendorIndex].form_rate <= 0) ? (
+              <div>
+                <Tooltip title={`This rate should be valid upto ${dayjs(record.vendors[vendorIndex].last_rate_validity_date).format('DD-MMM-YYYY')}`}>
+                  <span className="right-4 top-2.5 absolute bg-primary cursor-pointer text-white w-[18px] text-xs h-[18px] flex items-center justify-center rounded-full">
+                    <span className="">i</span>
                   </span>
-                </span>
-              </Tooltip>
-            </div>
-            ):null} 
-          </>
+                </Tooltip>
+              </div>
+            ) : null}
+          </div>
         ),
       },
       {
