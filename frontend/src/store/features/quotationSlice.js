@@ -531,63 +531,63 @@ export const quotationSlice = createSlice({
         vendor_notes: data.vendor_notes,
         salesman_id: data.salesman
           ? {
-              value: data.salesman.salesman_id,
-              label: data.salesman.name,
-            }
+            value: data.salesman.salesman_id,
+            label: data.salesman.name,
+          }
           : null,
         event_id: data.event
           ? {
-              value: data.event.event_id,
-              label: data.event.event_name,
-            }
+            value: data.event.event_id,
+            label: data.event.event_name,
+          }
           : null,
         vessel_id: data.vessel
           ? {
-              value: data.vessel.vessel_id,
-              label: data.vessel.name,
-            }
+            value: data.vessel.vessel_id,
+            label: data.vessel.name,
+          }
           : null,
         customer_id: data.customer
           ? {
-              value: data.customer.customer_id,
-              label: data.customer.name,
-            }
+            value: data.customer.customer_id,
+            label: data.customer.name,
+          }
           : null,
         class1_id: data.class1
           ? {
-              value: data.class1.class_id,
-              label: data.class1.name,
-            }
+            value: data.class1.class_id,
+            label: data.class1.name,
+          }
           : null,
         class2_id: data.class2
           ? {
-              value: data.class2.class_id,
-              label: data.class2.name,
-            }
+            value: data.class2.class_id,
+            label: data.class2.name,
+          }
           : null,
         flag_id: data.flag
           ? {
-              value: data.flag.flag_id,
-              label: data.flag.name,
-            }
+            value: data.flag.flag_id,
+            label: data.flag.name,
+          }
           : null,
         person_incharge_id: data.person_incharge
           ? {
-              value: data.person_incharge.user_id,
-              label: data.person_incharge.user_name,
-            }
+            value: data.person_incharge.user_id,
+            label: data.person_incharge.user_name,
+          }
           : null,
         validity_id: data.validity
           ? {
-              value: data.validity.validity_id,
-              label: data.validity.name,
-            }
+            value: data.validity.validity_id,
+            label: data.validity.name,
+          }
           : null,
         payment_id: data.payment
           ? {
-              value: data.payment.payment_id,
-              label: data.payment.name,
-            }
+            value: data.payment.payment_id,
+            label: data.payment.name,
+          }
           : null,
         customer_ref: data.customer_ref,
         due_date: data.due_date,
@@ -597,15 +597,15 @@ export const quotationSlice = createSlice({
         remarks: data.remarks,
         port_id: data.port
           ? {
-              value: data.port.port_id,
-              label: data.port.name,
-            }
+            value: data.port.port_id,
+            label: data.port.name,
+          }
           : null,
         port: data.port
           ? {
-              value: data.port.port_id,
-              label: data.port.name,
-            }
+            value: data.port.port_id,
+            label: data.port.name,
+          }
           : null,
         term_id: data.term_id || null,
         term_desc: data.term_desc,
@@ -614,15 +614,15 @@ export const quotationSlice = createSlice({
 
       // state.commissionAgentData = [data.commission_agent]
       state.commissionAgentData = Array.isArray(data.commission_agent)
-  ? data.commission_agent.map((detail) => ({
-      name: detail?.name,
-      commission_percentage: detail?.percentage,
-      amount: detail?.amount,
-      row_status: 'U',
-      isDeleted: false,
-      commission_agent_id: detail?.commission_agent_id,
-    }))
-  : [];
+        ? data.commission_agent.map((detail) => ({
+          name: detail?.name,
+          commission_percentage: detail?.percentage,
+          amount: detail?.amount,
+          row_status: 'U',
+          isDeleted: false,
+          commission_agent_id: detail?.commission_agent_id,
+        }))
+        : [];
       if (!data.quotation_detail) return;
       state.quotationDetails = data.quotation_detail.map((detail) => ({
         id: detail.quotation_detail_id,
@@ -632,9 +632,9 @@ export const quotationSlice = createSlice({
           : null,
         product_type_id: detail.product_type
           ? {
-              value: detail.product_type.product_type_id,
-              label: detail.product_type.name,
-            }
+            value: detail.product_type.product_type_id,
+            label: detail.product_type.name,
+          }
           : null,
         product_name: detail.product_name
           ? detail.product_name
@@ -653,13 +653,21 @@ export const quotationSlice = createSlice({
         vendor_part_no: detail.vendor_part_no,
         internal_notes: detail.internal_notes,
         vendor_notes: detail.vendor_notes,
+        // cost_price:
+        //   detail?.product_type?.product_type_id === 4
+        //     ? detail.cost_price
+        //     : +detail.cost_price || +detail.rate,
         cost_price:
           detail?.product_type?.product_type_id === 4
-            ? detail.cost_price
-            : +detail.cost_price || +detail.rate,
+            ? (detail?.cost_price === 0 && detail?.last_valid_rate
+              ? detail?.last_valid_rate
+              : !detail?.last_valid_rate && detail?.cost_price
+                ? detail?.cost_price
+                : detail?.cost_price || 0)
+            : +detail?.cost_price || +detail?.rate,
         markup: detail.markup,
-        // rate: detail?.rate ? detail?.rate : 0,
-        rate: detail?.rate === 0 && detail?.last_valid_rate ? detail?.last_valid_rate : !detail?.last_valid_rate && detail?.rate ? detail?.rate : detail?.rate || 0,
+        rate: detail?.rate ? detail?.rate : 0,
+        // rate: detail?.cost_price === 0 && detail?.last_valid_rate ? detail?.last_valid_rate : !detail?.last_valid_rate && detail?.cost_price ? detail?.cost_price : detail?.cost_price || 0,
         full_rate: detail?.rate ? detail?.rate : detail?.rate || 0,
         old_rate: detail?.rate ? detail?.rate : detail?.rate || 0,
         amount: detail.amount,
@@ -670,7 +678,7 @@ export const quotationSlice = createSlice({
         row_status: 'U',
         isDeleted: false,
       }));
-      
+
       state.vendorQuotationDetails = data.quotation_detail
         .map((detail) => ({
           id: detail.quotation_detail_id,
@@ -680,9 +688,9 @@ export const quotationSlice = createSlice({
             : null,
           product_type_id: detail.product_type
             ? {
-                value: detail.product_type.product_type_id,
-                label: detail.product_type.name,
-              }
+              value: detail.product_type.product_type_id,
+              label: detail.product_type.name,
+            }
             : null,
           product_name: detail.product_name
             ? detail.product_name
@@ -777,63 +785,63 @@ export const quotationSlice = createSlice({
         vendor_notes: data.vendor_notes,
         salesman_id: data.salesman
           ? {
-              value: data.salesman.salesman_id,
-              label: data.salesman.name,
-            }
+            value: data.salesman.salesman_id,
+            label: data.salesman.name,
+          }
           : null,
         event_id: data.event
           ? {
-              value: data.event.event_id,
-              label: data.event.event_name,
-            }
+            value: data.event.event_id,
+            label: data.event.event_name,
+          }
           : null,
         vessel_id: data.vessel
           ? {
-              value: data.vessel.vessel_id,
-              label: data.vessel.name,
-            }
+            value: data.vessel.vessel_id,
+            label: data.vessel.name,
+          }
           : null,
         customer_id: data.customer
           ? {
-              value: data.customer.customer_id,
-              label: data.customer.name,
-            }
+            value: data.customer.customer_id,
+            label: data.customer.name,
+          }
           : null,
         class1_id: data.class1
           ? {
-              value: data.class1.class_id,
-              label: data.class1.name,
-            }
+            value: data.class1.class_id,
+            label: data.class1.name,
+          }
           : null,
         class2_id: data.class2
           ? {
-              value: data.class2.class_id,
-              label: data.class2.name,
-            }
+            value: data.class2.class_id,
+            label: data.class2.name,
+          }
           : null,
         flag_id: data.flag
           ? {
-              value: data.flag.flag_id,
-              label: data.flag.name,
-            }
+            value: data.flag.flag_id,
+            label: data.flag.name,
+          }
           : null,
         person_incharge_id: data.person_incharge
           ? {
-              value: data.person_incharge.user_id,
-              label: data.person_incharge.user_name,
-            }
+            value: data.person_incharge.user_id,
+            label: data.person_incharge.user_name,
+          }
           : null,
         validity_id: data.validity
           ? {
-              value: data.validity.validity_id,
-              label: data.validity.name,
-            }
+            value: data.validity.validity_id,
+            label: data.validity.name,
+          }
           : null,
         payment_id: data.payment
           ? {
-              value: data.payment.payment_id,
-              label: data.payment.name,
-            }
+            value: data.payment.payment_id,
+            label: data.payment.name,
+          }
           : null,
         customer_ref: data.customer_ref,
         due_date: data.due_date,
@@ -843,15 +851,15 @@ export const quotationSlice = createSlice({
         remarks: data.remarks,
         port_id: data.port
           ? {
-              value: data.port.port_id,
-              label: data.port.name,
-            }
+            value: data.port.port_id,
+            label: data.port.name,
+          }
           : null,
         port: data.port
           ? {
-              value: data.port.port_id,
-              label: data.port.name,
-            }
+            value: data.port.port_id,
+            label: data.port.name,
+          }
           : null,
         term_id: data.term_id || null,
         term_desc: data.term_desc,
@@ -869,9 +877,9 @@ export const quotationSlice = createSlice({
           : null,
         product_type_id: detail.product_type
           ? {
-              value: detail.product_type.product_type_id,
-              label: detail.product_type.name,
-            }
+            value: detail.product_type.product_type_id,
+            label: detail.product_type.name,
+          }
           : null,
         product_name: detail.product_name
           ? detail.product_name
