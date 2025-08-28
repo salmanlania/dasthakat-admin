@@ -32,6 +32,7 @@ class PurchaseReturnController extends Controller
         $supplier_id = $request->input('supplier_id', '');
         $event_id = $request->input('event_id', '');
         $vessel_id = $request->input('vessel_id', '');
+        $sales_team_ids = $request->input('sales_team_ids', []);
 
         $search = $request->input('search', '');
         $page =  $request->input('page', 1);
@@ -43,7 +44,8 @@ class PurchaseReturnController extends Controller
             ->LeftJoin('purchase_order as po', 'po.purchase_order_id', '=', 'purchase_return.purchase_order_id')
             ->LeftJoin('event as e', 'e.event_id', '=', 'co.event_id')
             ->LeftJoin('vessel as v', 'v.vessel_id', '=', 'co.vessel_id')
-            ->LeftJoin('supplier as s', 's.supplier_id', '=', 'po.supplier_id');
+            ->LeftJoin('supplier as s', 's.supplier_id', '=', 'po.supplier_id')
+            ->LeftJoin('sales_team as st', 'st.sales_team_id', '=', 'e.sales_team_id');
 
         $data = $data->where('purchase_return.company_id', '=', $request->company_id);
         $data = $data->where('purchase_return.company_branch_id', '=', $request->company_branch_id);
@@ -56,6 +58,9 @@ class PurchaseReturnController extends Controller
         if (!empty($supplier_id)) $data = $data->where('po.supplier_id', '=',  $supplier_id);
         if (!empty($document_identity)) $data = $data->where('purchase_return.document_identity', 'like', '%' . $document_identity . '%');
         if (!empty($document_date)) $data = $data->where('purchase_return.document_date', '=',  $document_date);
+        if (!empty($sales_team_ids) && is_array($sales_team_ids)) {
+            $data = $data->whereIn('e.sales_team_id', $sales_team_ids);
+        }
 
         if (!empty($search)) {
             $search = strtolower($search);
@@ -67,11 +72,21 @@ class PurchaseReturnController extends Controller
                     ->OrWhere('v.name', 'like', '%' . $search . '%')
                     ->OrWhere('s.name', 'like', '%' . $search . '%')
                     ->OrWhere('e.event_code', 'like', '%' . $search . '%')
+                    ->OrWhere('st.name', 'like', '%' . $search . '%')
                     ->OrWhere('purchase_return.document_identity', 'like', '%' . $search . '%');
             });
         }
 
-        $data = $data->select("purchase_return.*", "co.document_identity as charge_no", "e.event_code", "v.name as vessel_name", "s.name as supplier_name", "po.document_identity as purhcase_order_no");
+        $data = $data->select(
+            "purchase_return.*", 
+            "co.document_identity as charge_no", 
+            "e.event_code", 
+            "v.name as vessel_name", 
+            "s.name as supplier_name", 
+            "po.document_identity as purhcase_order_no",
+            "e.sales_team_id",
+            "st.name as sales_team_name"
+        );
         $data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json($data);

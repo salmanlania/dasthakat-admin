@@ -93,7 +93,8 @@ const Sidebar = () => {
     !permissions?.supplier?.list &&
     !permissions?.agent?.list &&
     !permissions?.commission_agent?.list &&
-    !permissions?.technician?.list &&
+    // !permissions?.technician?.list &&
+    !permissions?.sales_team?.list &&
     !permissions?.flag?.list &&
     !permissions?.class?.list &&
     !permissions?.port?.list &&
@@ -188,6 +189,11 @@ const Sidebar = () => {
               disabled: !permissions?.salesman?.list,
             },
             {
+              key: 'sales-team',
+              label: <Link to="/sales-team">Sales Team</Link>,
+              disabled: !permissions?.salesman?.list,
+            },
+            {
               key: 'customer',
               label: <Link to="/customer">Customer</Link>,
               disabled: !permissions?.customer?.list,
@@ -210,7 +216,8 @@ const Sidebar = () => {
             {
               key: 'technician',
               label: <Link to="/technician">Technician</Link>,
-              disabled: !permissions?.technician?.list,
+              // disabled: !permissions?.technician?.list,
+              disabled: !permissions?.sales_team?.list,
             },
             {
               key: 'notes',

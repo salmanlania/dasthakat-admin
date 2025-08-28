@@ -32,6 +32,7 @@ class VpQuotationRfqController extends Controller
         $vendor_id = $request->input('vendor_id', '');
         $notification_count = $request->input('notification_count', '');
         $person_incharge_id = $request->input('person_incharge_id', '');
+        $sales_team_ids = $request->input('sales_team_ids', []);
 
         $search = $request->input('search', '');
         $date_from = $request->input('date_from', '');
@@ -49,7 +50,8 @@ class VpQuotationRfqController extends Controller
             ->leftJoin('vessel as v', 'v.vessel_id', '=', 'q.vessel_id')
             ->leftJoin('event as e', 'e.event_id', '=', 'q.event_id')
             ->leftJoin('supplier as s', 's.supplier_id', '=', 'vp_quotation_rfq.vendor_id')
-            ->leftJoin('user as u', 'u.user_id', '=', 'q.person_incharge_id');
+            ->leftJoin('user as u', 'u.user_id', '=', 'q.person_incharge_id')
+            ->leftJoin('sales_team as st', 'st.sales_team_id', '=', 'e.sales_team_id');
 
         // Mandatory filters
         $data = $data->where('vp_quotation_rfq.company_id', '=', $request->company_id);
@@ -88,6 +90,9 @@ class VpQuotationRfqController extends Controller
         }
         if (!empty($person_incharge_id)) {
             $data = $data->where('q.person_incharge_id', $person_incharge_id);
+        }
+        if (!empty($sales_team_ids) && is_array($sales_team_ids)) {
+            $data = $data->whereIn('e.sales_team_id', $sales_team_ids);
         }
 
         // Status filtering using subqueries
@@ -155,7 +160,8 @@ class VpQuotationRfqController extends Controller
                     ->orWhere('e.event_code', 'like', '%' . $search . '%')
                     ->orWhere('s.name', 'like', '%' . $search . '%')
                     ->orWhere('s.supplier_code', 'like', '%' . $search . '%')
-                    ->orWhere('u.user_name', 'like', '%' . $search . '%');
+                    ->orWhere('u.user_name', 'like', '%' . $search . '%')
+                    ->orWhere('st.name', 'like', '%' . $search . '%');
             });
         }
 
@@ -214,6 +220,8 @@ class VpQuotationRfqController extends Controller
             's.name as vendor_name',
             's.supplier_code as supplier_code',
             'u.user_name as person_incharge_name',
+            'e.sales_team_id',
+            'st.name as sales_team_name',
             DB::raw("(SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id) as total_items"),
             DB::raw("(SELECT COUNT(*) FROM vp_quotation_rfq_detail vqd WHERE vqd.id = vp_quotation_rfq.id AND vqd.vendor_rate IS NOT NULL AND vqd.vendor_rate != '') as items_quoted"),
             DB::raw("CASE 

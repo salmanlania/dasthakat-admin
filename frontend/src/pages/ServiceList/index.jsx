@@ -178,6 +178,28 @@ const ServiceList = () => {
     },
     {
       title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Sales Team</p>
+          <AsyncSelect
+            endpoint="/sales-team"
+            size="small"
+            className="w-full font-normal"
+            valueKey="sales_team_id"
+            labelKey="name"
+            mode="multiple"
+            value={params.sales_team_ids}
+            onChange={(value) => dispatch(setServiceListListParams({ sales_team_ids: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'sales_team_name',
+      key: 'sales_team_name',
+      sorter: true,
+      width: 160,
+      ellipsis: true,
+    },
+    {
+      title: (
         <div>
           <p>Vessel</p>
           <AsyncSelect
@@ -324,6 +346,8 @@ const ServiceList = () => {
     params.sort_direction,
     params.charge_order_id,
     params.event_id,
+    params.sales_team_ids,
+    params.sales_team_id,
     params.vessel_id,
     params.servicelist_status,
     debouncedSearch,
@@ -336,6 +360,7 @@ const ServiceList = () => {
     total_quantity: parseFloat(item?.total_quantity || 0),
     charge_order_no: item.charge_order_no,
     event_code: item.event_code,
+    sales_team_name: item.sales_team_name,
     vessel_name: item?.vessel_name,
     servicelist_status: item.servicelist_status,
     id: item.servicelist_id,

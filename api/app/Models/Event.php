@@ -10,7 +10,7 @@ class Event extends Model
     protected $keyType = 'string';
     public $incrementing = false; 
     protected $fillable = [
-        'company_id','company_branch_id','event_id','event_no','event_code','customer_id','vessel_id','class1_id','class2_id','status','created_by','updated_by'
+        'company_id','company_branch_id','event_id','event_no','event_code','customer_id','vessel_id','class1_id','class2_id','sales_team_id','status','created_by','updated_by'
     ];
 
     public function company()
@@ -46,5 +46,9 @@ class Event extends Model
     public function class2()
     {
         return $this->hasOne(SetupClass::class, 'class_id', 'class2_id')->select('*');
+    }
+    public function sales_team()
+    {
+        return $this->hasOne(SalesTeam::class, 'sales_team_id', 'sales_team_id')->select('*');
     }
 }

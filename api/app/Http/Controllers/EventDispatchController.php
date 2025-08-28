@@ -23,6 +23,7 @@ class EventDispatchController extends Controller
 			->leftJoin('vessel as v', 'e.vessel_id', '=', 'v.vessel_id')
 			->leftJoin('job_order as jo', 'jo.event_id', '=', 'e.event_id')
 			->leftJoin('agent as a', 'a.agent_id', '=', 'event_dispatch.agent_id')
+			->leftJoin('sales_team as st', 'st.sales_team_id', '=', 'e.sales_team_id')
 			->where('e.company_id', $request->company_id)
 			->where('e.company_branch_id', $request->company_branch_id)
 			->whereExists(function ($query) {
@@ -72,6 +73,11 @@ class EventDispatchController extends Controller
 		if ($agent_notes = $request->input('agent_notes')) {
 			$query->where('event_dispatch.agent_notes', 'like', '%' . $agent_notes . '%');
 		}
+		if ($sales_team_ids = $request->input('sales_team_ids', [])) {
+			if (is_array($sales_team_ids) && !empty($sales_team_ids)) {
+				$query->whereIn('e.sales_team_id', $sales_team_ids);
+			}
+		}
 		if ($technician_ids = $request->input('technician_id')) {
 			if (is_array($technician_ids)) {
 				$query->where(function ($q) use ($technician_ids) {
@@ -118,10 +124,9 @@ class EventDispatchController extends Controller
 			$query->where(function ($q) use ($search) {
 				$q->where('v.name', 'like', "%$search%")
 					->orWhere('e.event_code', 'like', "%$search%")
-
 					->orWhere('event_dispatch.status', 'like', "%$search%")
-					// ->orWhere('p.name', 'like', "%$search%")
 					->orWhere('a.name', 'like', "%$search%")
+					->orWhere('st.name', 'like', "%$search%")
 				;
 			});
 		}
@@ -132,7 +137,25 @@ class EventDispatchController extends Controller
 
 
 		$query
-			->select('event_dispatch.*', 'v.name as vessel_name', 'v.vessel_id', 'e.event_code', 'a.name as agent_name', 'a.agent_code', 'a.address as agent_address', 'a.city as agent_city', 'a.state as agent_state', 'a.zip_code as agent_zip_code', 'a.phone as agent_phone', 'a.office_no as agent_office_no', 'a.fax as agent_fax', 'a.email as agent_email', 'jo.job_order_id');
+			->select(
+				'event_dispatch.*', 
+				'v.name as vessel_name', 
+				'v.vessel_id', 
+				'e.event_code', 
+				'a.name as agent_name', 
+				'a.agent_code', 
+				'a.address as agent_address', 
+				'a.city as agent_city', 
+				'a.state as agent_state', 
+				'a.zip_code as agent_zip_code', 
+				'a.phone as agent_phone', 
+				'a.office_no as agent_office_no', 
+				'a.fax as agent_fax', 
+				'a.email as agent_email', 
+				'jo.job_order_id',
+				'e.sales_team_id',
+				'st.name as sales_team_name'
+			);
 
 		if ($sortColumn === 'event_time') {
 			$query->orderByRaw("STR_TO_DATE(CONCAT(event_dispatch.event_date, ' ', event_dispatch.event_time), '%Y-%m-%d %H:%i:%s') $sortDirection");

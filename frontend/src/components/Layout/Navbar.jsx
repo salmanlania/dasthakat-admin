@@ -21,7 +21,7 @@ const Navbar = () => {
             />
           }
           type="primary"
-          className="!border-gray-200"
+          className="!border-gray-200 pt-[4.1px]"
           size="small"
           onClick={() => dispatch(toggleSidebar())}
         />

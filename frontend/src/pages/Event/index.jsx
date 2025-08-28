@@ -163,6 +163,28 @@ const Event = () => {
     },
     {
       title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Sales Team</p>
+          <AsyncSelect
+            endpoint="/sales-team"
+            size="small"
+            className="w-full font-normal"
+            valueKey="sales_team_id"
+            labelKey="name"
+            mode="multiple"
+            value={params.sales_team_ids}
+            onChange={(value) => dispatch(setEventListParams({ sales_team_ids: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'sales_team_name',
+      key: 'sales_team_name',
+      sorter: true,
+      width: 200,
+      ellipsis: true,
+    },
+    {
+      title: (
         <div>
           <p>Status</p>
           <Select
@@ -277,6 +299,7 @@ const Event = () => {
     params.vessel_id,
     params.class1_id,
     params.class2_id,
+    params.sales_team_ids,
     params.status,
     debouncedSearch,
     debouncedCode,

@@ -155,6 +155,7 @@ class ChargeOrderController extends Controller
 		$document_date = $request->input('document_date', '');
 		$vessel_id = $request->input('vessel_id', '');
 		$event_id = $request->input('event_id', '');
+		$sales_team_ids = $request->input('sales_team_ids', []);
 		$search = $request->input('search', '');
 		$page = $request->input('page', 1);
 		$perPage = $request->input('limit', 10);
@@ -189,7 +190,8 @@ class ChargeOrderController extends Controller
 			$data = ChargeOrder::leftJoin('customer as c', 'c.customer_id', '=', 'charge_order.customer_id')
 				->leftJoin('port as p', 'p.port_id', '=', 'charge_order.port_id')
 				->leftJoin('event as e', 'e.event_id', '=', 'charge_order.event_id')
-				->leftJoin('vessel as v', 'v.vessel_id', '=', 'charge_order.vessel_id');
+				->leftJoin('vessel as v', 'v.vessel_id', '=', 'charge_order.vessel_id')
+				->leftJoin('sales_team as st', 'st.sales_team_id', '=', 'e.sales_team_id');
 
 			// Apply company filters
 			$data = $data->where('charge_order.company_id', '=', $request->company_id);
@@ -207,6 +209,11 @@ class ChargeOrderController extends Controller
 			}
 			if (!empty($event_id)) {
 				$data = $data->where('charge_order.event_id', '=', $event_id);
+			}
+			// Filter by related event.sales_team_id when provided
+			if (!empty($sales_team_ids)) {
+				$ids = is_array($sales_team_ids) ? $sales_team_ids : [$sales_team_ids];
+				$data = $data->whereIn('e.sales_team_id', $ids);
 			}
 			if (!empty($document_identity)) {
 				$data = $data->where('charge_order.document_identity', 'like', '%' . $document_identity . '%');
@@ -230,6 +237,7 @@ class ChargeOrderController extends Controller
 					$query->where('p.name', 'like', '%' . $search . '%')
 						->orWhere('c.name', 'like', '%' . $search . '%')
 						->orWhere('v.name', 'like', '%' . $search . '%')
+						->orWhere('st.name', 'like', '%' . $search . '%')
 						->orWhere('charge_order.ref_document_identity', 'like', '%' . $search . '%')
 						->orWhere('e.event_code', 'like', '%' . $search . '%')
 						->orWhere('charge_order.document_identity', 'like', '%' . $search . '%');
@@ -243,7 +251,9 @@ class ChargeOrderController extends Controller
 				"e.status as event_status",
 				"c.name as customer_name",
 				"v.name as vessel_name",
-				"p.name as port_name"
+				"p.name as port_name",
+				"e.sales_team_id",
+				"st.name as sales_team_name"
 			);
 
 			// Execute query with pagination

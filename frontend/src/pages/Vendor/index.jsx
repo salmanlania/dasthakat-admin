@@ -72,6 +72,7 @@ const Vendor = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.supplier_code}
+            allowClear
             onChange={(e) => dispatch(setVendorListParams({ supplier_code: e.target.value }))}
           />
         </div>
@@ -91,6 +92,7 @@ const Vendor = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.name}
+            allowClear
             onChange={(e) => dispatch(setVendorListParams({ name: e.target.value }))}
           />
         </div>
@@ -145,6 +147,7 @@ const Vendor = () => {
         <div>
           <p>Location</p>
           <Input
+          allowClear
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
@@ -164,6 +167,7 @@ const Vendor = () => {
         <div>
           <p>Contact 1</p>
           <Input
+          allowClear
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
@@ -183,6 +187,7 @@ const Vendor = () => {
         <div>
           <p>Contact 2</p>
           <Input
+            allowClear
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
@@ -202,6 +207,7 @@ const Vendor = () => {
         <div>
           <p>Email</p>
           <Input
+          allowClear
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
@@ -221,6 +227,7 @@ const Vendor = () => {
         <div>
           <p>Address</p>
           <Input
+            allowClear
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}

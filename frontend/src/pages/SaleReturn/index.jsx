@@ -11,6 +11,7 @@ import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
+import AsyncSelect from '../../components/AsyncSelect';
 
 import {
   bulkDeleteSaleReturn,
@@ -134,7 +135,7 @@ const SaleReturn = () => {
     {
       title: (
         <div>
-          <p>Quoation No</p>
+          <p>Quotation No</p>
           <Input
             className="font-normal"
             size="small"
@@ -180,6 +181,49 @@ const SaleReturn = () => {
       key: 'charge_no',
       sorter: true,
       width: 180,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Event No</p>
+          <AsyncSelect
+            endpoint="/event"
+            size="small"
+            className="w-full font-normal"
+            valueKey="event_id"
+            labelKey="event_code"
+            value={params.event_id}
+            onChange={(value) => dispatch(setSaleReturnListParams({ event_id: value || null }))}
+          />
+        </div>
+      ),
+      dataIndex: 'event_code',
+      key: 'event_code',
+      sorter: true,
+      width: 180,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Sales Team</p>
+          <AsyncSelect
+            endpoint="/sales-team"
+            size="small"
+            className="w-full font-normal"
+            valueKey="sales_team_id"
+            labelKey="name"
+            mode="multiple"
+            value={params.sales_team_ids}
+            onChange={(value) => dispatch(setSaleReturnListParams({ sales_team_ids: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'sales_team_name',
+      key: 'sales_team_name',
+      sorter: true,
+      width: 160,
       ellipsis: true,
     },
     {
@@ -253,6 +297,8 @@ const SaleReturn = () => {
     params.sort_direction,
     params.document_date,
     params.event_id,
+    params.sales_team_ids,
+    params.sales_team_id,
     params.vessel_id,
     debouncedSearch,
     debouncedSaleInvoiceNo,
@@ -295,10 +341,10 @@ const SaleReturn = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: 'checkbox',
-                  selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setSaleReturnDeleteIDs(selectedRowKeys)),
-                }
+                type: 'checkbox',
+                selectedRowKeys: deleteIDs,
+                onChange: (selectedRowKeys) => dispatch(setSaleReturnDeleteIDs(selectedRowKeys)),
+              }
               : null
           }
           loading={isListLoading}

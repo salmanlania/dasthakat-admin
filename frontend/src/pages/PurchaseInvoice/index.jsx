@@ -11,6 +11,7 @@ import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
+import AsyncSelect from '../../components/AsyncSelect';
 import {
   bulkDeletePurchaseInvoice,
   deletePurchaseInvoice,
@@ -83,9 +84,9 @@ const PurchaseInvoice = () => {
       title: (
         <div>
           <p>Purchase Invoice Date</p>
-          <div onClick={(e) => e.stopPropagation()}
-allowClear>
+          <div onClick={(e) => e.stopPropagation()}>
             <DatePicker
+              allowClearf
               size="small"
               value={params.document_date}
               className="font-normal"
@@ -159,13 +160,56 @@ allowClear>
     },
     {
       title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Event No</p>
+          <AsyncSelect
+            endpoint="/event"
+            size="small"
+            className="w-full font-normal"
+            valueKey="event_id"
+            labelKey="event_code"
+            value={params.event_id}
+            onChange={(value) => dispatch(setPurchaseInvoiceListParams({ event_id: value || null }))}
+          />
+        </div>
+      ),
+      dataIndex: 'event_code',
+      key: 'event_code',
+      sorter: true,
+      width: 180,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Sales Team</p>
+          <AsyncSelect
+            endpoint="/sales-team"
+            size="small"
+            className="w-full font-normal"
+            valueKey="sales_team_id"
+            labelKey="name"
+            mode="multiple"
+            value={params.sales_team_ids}
+            onChange={(value) => dispatch(setPurchaseInvoiceListParams({ sales_team_ids: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'sales_team_name',
+      key: 'sales_team_name',
+      sorter: true,
+      width: 160,
+      ellipsis: true,
+    },
+    {
+      title: (
         <div>
           <p>Vendor</p>
           <Input
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-allowClear
+            allowClear
             value={params.supplier_name}
             onChange={(e) =>
               dispatch(
@@ -192,7 +236,7 @@ allowClear
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-allowClear
+            allowClear
             value={params.vendor_invoice_no}
             onChange={(e) =>
               dispatch(
@@ -219,7 +263,7 @@ allowClear
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-allowClear
+            allowClear
             value={params.charge_no}
             onChange={(e) =>
               dispatch(
@@ -246,7 +290,7 @@ allowClear
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-allowClear
+            allowClear
             value={params.ship_via}
             onChange={(e) =>
               dispatch(
@@ -326,6 +370,9 @@ allowClear
     params.sort_direction,
     params.document_date,
     params.customer_id,
+    params.event_id,
+    params.sales_team_ids,
+    params.sales_team_id,
     debouncedSearch,
     debouncedPurchaseInvoiceNo,
     debouncedChargeNo,
@@ -367,11 +414,11 @@ allowClear
           rowSelection={
             permissions.delete
               ? {
-                  type: 'checkbox',
-                  selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) =>
-                    dispatch(setPurchaseInvoiceDeleteIDs(selectedRowKeys)),
-                }
+                type: 'checkbox',
+                selectedRowKeys: deleteIDs,
+                onChange: (selectedRowKeys) =>
+                  dispatch(setPurchaseInvoiceDeleteIDs(selectedRowKeys)),
+              }
               : null
           }
           loading={isListLoading}

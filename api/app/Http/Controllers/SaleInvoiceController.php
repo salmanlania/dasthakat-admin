@@ -34,6 +34,7 @@ class SaleInvoiceController extends Controller
 		$event_id = $request->input('event_id', '');
 		$vessel_id = $request->input('vessel_id', '');
 		$charge_no = $request->input('charge_no', '');
+		$sales_team_ids = $request->input('sales_team_ids', []);
 
 		$search = $request->input('search', '');
 		$page =  $request->input('page', 1);
@@ -44,7 +45,8 @@ class SaleInvoiceController extends Controller
 		$data = SaleInvoice::LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'sale_invoice.charge_order_id')
 			->LeftJoin('event as e', 'e.event_id', '=', 'co.event_id')
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'co.vessel_id')
-			->LeftJoin('quotation as q', 'q.document_identity', '=', 'co.ref_document_identity');
+			->LeftJoin('quotation as q', 'q.document_identity', '=', 'co.ref_document_identity')
+			->LeftJoin('sales_team as st', 'st.sales_team_id', '=', 'e.sales_team_id');
 
 		$data = $data->where('sale_invoice.company_id', '=', $request->company_id);
 		$data = $data->where('sale_invoice.company_branch_id', '=', $request->company_branch_id);
@@ -55,6 +57,9 @@ class SaleInvoiceController extends Controller
 		if (!empty($charge_no)) $data = $data->where('co.document_identity', 'like', "%". $charge_no."%");
 		if (!empty($document_identity)) $data = $data->where('sale_invoice.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($document_date)) $data = $data->where('sale_invoice.document_date', '=',  $document_date);
+		if (!empty($sales_team_ids) && is_array($sales_team_ids)) {
+			$data = $data->whereIn('e.sales_team_id', $sales_team_ids);
+		}
 
 		if (!empty($search)) {
 			$search = strtolower($search);
@@ -65,11 +70,20 @@ class SaleInvoiceController extends Controller
 					->Where('q.document_identity', 'like', '%' . $search . '%')
 					->OrWhere('v.name', 'like', '%' . $search . '%')
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
+					->OrWhere('st.name', 'like', '%' . $search . '%')
 					->OrWhere('sale_invoice.document_identity', 'like', '%' . $search . '%');
 			});
 		}
 
-		$data = $data->select("sale_invoice.*", "q.document_identity as quotation_no", "co.document_identity as charge_no","e.event_code","v.name as vessel_name");
+		$data = $data->select(
+			"sale_invoice.*", 
+			"q.document_identity as quotation_no", 
+			"co.document_identity as charge_no",
+			"e.event_code",
+			"v.name as vessel_name",
+			"e.sales_team_id",
+			"st.name as sales_team_name"
+		);
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);

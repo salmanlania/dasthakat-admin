@@ -33,6 +33,7 @@ class PurchaseInvoiceController extends Controller
 		$purchase_order_no = $request->input('purchase_order_no', '');
 		$charge_no = $request->input('charge_no', '');
 		$purchase_order_id = $request->input('purchase_order_id', '');
+		$sales_team_ids = $request->input('sales_team_ids', []);
 
 		$search = $request->input('search', '');
 		$page =  $request->input('page', 1);
@@ -43,7 +44,9 @@ class PurchaseInvoiceController extends Controller
 		$data = PurchaseInvoice::LeftJoin('supplier as s', 's.supplier_id', '=', 'purchase_invoice.supplier_id')
 			->LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'purchase_invoice.charge_order_id')
 			->LeftJoin('quotation as q', 'q.document_identity', '=', 'co.ref_document_identity')
-			->LeftJoin('purchase_order as po', 'po.purchase_order_id', '=', 'purchase_invoice.purchase_order_id');
+			->LeftJoin('purchase_order as po', 'po.purchase_order_id', '=', 'purchase_invoice.purchase_order_id')
+			->LeftJoin('event as e', 'e.event_id', '=', 'co.event_id')
+			->LeftJoin('sales_team as st', 'st.sales_team_id', '=', 'e.sales_team_id');
 		$data = $data->where('purchase_invoice.company_id', '=', $request->company_id);
 		$data = $data->where('purchase_invoice.company_branch_id', '=', $request->company_branch_id);
 
@@ -56,6 +59,9 @@ class PurchaseInvoiceController extends Controller
 		if (!empty($ship_via)) $data = $data->where('po.ship_via', 'like', '%' . $ship_via . '%');
 		if (!empty($document_date)) $data = $data->where('purchase_invoice.document_date', '=',  $document_date);
 		if (!empty($required_date)) $data = $data->where('purchase_invoice.required_date', '=',  $required_date);
+		if (!empty($sales_team_ids) && is_array($sales_team_ids)) {
+			$data = $data->whereIn('e.sales_team_id', $sales_team_ids);
+		}
 
 		if (!empty($search)) {
 			$search = strtolower($search);
@@ -66,11 +72,22 @@ class PurchaseInvoiceController extends Controller
 					->OrWhere('co.document_identity', 'like', '%' . $search . '%')
 					->OrWhere('q.document_identity', 'like', '%' . $search . '%')
 					->OrWhere('po.document_identity', 'like', '%' . $search . '%')
+					->OrWhere('e.event_code', 'like', '%' . $search . '%')
+					->OrWhere('st.name', 'like', '%' . $search . '%')
 					->OrWhere('purchase_invoice.document_identity', 'like', '%' . $search . '%');
 			});
 		}
 
-		$data = $data->select("purchase_invoice.*", "s.name as supplier_name", "q.document_identity as quotation_no", "co.document_identity as charge_no", "po.document_identity as purchase_order_no");
+		$data = $data->select(
+			"purchase_invoice.*", 
+			"s.name as supplier_name", 
+			"q.document_identity as quotation_no", 
+			"co.document_identity as charge_no", 
+			"po.document_identity as purchase_order_no",
+			"e.event_code",
+			"e.sales_team_id",
+			"st.name as sales_team_name"
+		);
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 		foreach ($data as &$item) {
 			if (!empty($item->supplier_id)) {

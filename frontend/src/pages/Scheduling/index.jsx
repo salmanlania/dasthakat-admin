@@ -51,7 +51,6 @@ const Scheduling = () => {
   const permissions = user.permission.dispatch;
   const [tableKey, setTableKey] = useState(0);
   const [isOldChecked, setIsOldChecked] = useState(false);
-  const [formatDate, setFormatDate] = useState([]);
 
   const [notesModalIsOpen, setNotesModalIsOpen] = useState({
     open: false,
@@ -391,6 +390,28 @@ const Scheduling = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
+          <p>Sales Team</p>
+          <AsyncSelect
+            endpoint="/sales-team"
+            size="small"
+            className="w-full font-normal"
+            valueKey="sales_team_id"
+            labelKey="name"
+            mode="multiple"
+            value={params.sales_team_ids}
+            onChange={(value) => dispatch(setDispatchListParams({ sales_team_ids: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'sales_team_name',
+      key: 'sales_team_name',
+      sorter: true,
+      width: 160,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Vessel Name</p>
           <AsyncSelect
             endpoint="/vessel"
@@ -442,9 +463,9 @@ const Scheduling = () => {
               defaultValue={
                 ports[0]
                   ? {
-                      value: ports[0].port_id,
-                      label: ports[0].name,
-                    }
+                    value: ports[0].port_id,
+                    label: ports[0].name,
+                  }
                   : null
               }
               onChange={(selected) =>
@@ -530,9 +551,9 @@ const Scheduling = () => {
       render: (_, { event_id, users, technicians }) => {
         const selectedValues = technicians
           ? technicians.map((tech) => ({
-              value: tech.user_id,
-              label: tech.user_name,
-            }))
+            value: tech.user_id,
+            label: tech.user_name,
+          }))
           : [];
         return (
           <AsyncSelect
@@ -644,9 +665,9 @@ const Scheduling = () => {
                 defaultValue={
                   agent_id
                     ? {
-                        value: agent_id,
-                        label: agent_name,
-                      }
+                      value: agent_id,
+                      label: agent_name,
+                    }
                     : null
                 }
                 onChange={(selected) =>
@@ -828,6 +849,8 @@ const Scheduling = () => {
     params.vessel_id,
     params.port_id,
     params.event_id,
+    params.sales_team_ids,
+    params.sales_team_id,
     params.event_date,
     params.start_date,
     params.end_date,

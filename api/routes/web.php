@@ -115,6 +115,15 @@ $router->group(['prefix' => 'agent'], function ($router) {
    $router->post('/bulk-delete', 'AgentController@bulkDelete');
 });
 
+$router->group(['prefix' => 'sales-team'], function ($router) {
+   $router->get('/', 'SalesTeamController@index');
+   $router->get('/{id}', 'SalesTeamController@show');
+   $router->post('/', 'SalesTeamController@store');
+   $router->put('/{id}', 'SalesTeamController@update');
+   $router->delete('/{id}', 'SalesTeamController@delete');
+   $router->post('/bulk-delete', 'SalesTeamController@bulkDelete');
+});
+
 $router->group(['prefix' => 'commission-agent'], function ($router) {
    $router->get('/', 'CommissionAgentController@index');
    $router->get('/{id}', 'CommissionAgentController@show');

@@ -8,6 +8,7 @@ use App\Models\ProductType;
 use App\Models\Quotation;
 use App\Models\QuotationCommissionAgent;
 use App\Models\QuotationDetail;
+use App\Models\QuotationVendorRateHistory;
 use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\VendorPlatform\VpQuotationRfq;
@@ -23,6 +24,11 @@ class VendorQuotationController extends Controller
 {
 
     protected $document_type_id = 56; // Assuming this is the document type ID for Vendor Quotation RFQ
+
+    /**
+     * Get last valid vendor rate for a vendor by product key
+     * Uses product_id for IMPA items, otherwise product_name for other items
+     */
 
     public function validateRequest($request)
     {
@@ -269,6 +275,7 @@ class VendorQuotationController extends Controller
             } else {
                 $detail->is_deleted = false;
             }
+
         }
         if (!$rfq) {
             return $this->jsonResponse([], 404, 'RFQ Not Found!');
@@ -568,6 +575,17 @@ class VendorQuotationController extends Controller
 
         foreach ($data as $item) {
             $item->rfq_responded = VpQuotationRfqDetail::where('vendor_quotation_detail_id', $item->vendor_quotation_detail_id)->whereNotNull('vendor_rate')->value('vendor_rate') > 0 ? true : false;
+
+            // Fallback: if vendor_rate is null/empty/zero, use last valid rate from history
+            $currentRate = (float)($item->vendor_rate ?? 0);
+            if ($currentRate <= 0) {
+                $productId = $item->quotation_detail->product_id ?? null;
+                $productName = $item->quotation_detail->product_name ?? null;
+                $lastRate = QuotationVendorRateHistory::getLastValidRate($item->vendor_id, $productId, $productName);
+                if (!is_null($lastRate)) {
+                    $item->vendor_rate = $lastRate;
+                }
+            }
         }
         return $this->jsonResponse($data, 200, 'Quotation Vendor Data Fetched Successfully!');
     }
@@ -611,6 +629,33 @@ class VendorQuotationController extends Controller
                             $vpQDetail->vendor_notes = $row['vendor_notes'] ?? null;
                             $vpQDetail->save();
                         }
+                    }
+
+                    // Log vendor rate history (per detail)
+                    try {
+                        $historyId = $this->get_uuid();
+                        // Prefer product info from RFQ detail if available, else from quotation detail
+                        $qd = isset($vpQDetail) && $vpQDetail ? QuotationDetail::where('quotation_detail_id', $vpQDetail->quotation_detail_id)->first() : QuotationDetail::where('quotation_detail_id', $row['quotation_detail_id'])->first();
+                        QuotationVendorRateHistory::insert([
+                            'id' => $historyId,
+                            'vp_quotation_rfq_id' => $id,
+                            'vp_quotation_rfq_detail_id' => $row['detail_id'] ?? null,
+                            'quotation_id' => $quotation_id,
+                            'quotation_detail_id' => $row['quotation_detail_id'] ?? ($qd->quotation_detail_id ?? null),
+                            'product_id' => $qd->product_id ?? null,
+                            'product_name' => $qd->product_name ?? null,
+                            'product_description' => $qd->product_description ?? null,
+                            'vendor_id' => $request->vendor_id,
+                            'vendor_rate' => $row['vendor_rate'] ?? null,
+                            'validity_date' => $request->validity_date ?? null,
+                            'created_by' => $request->vendor_id,
+                            'updated_by' => $request->vendor_id,
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now(),
+                        ]);
+                    } catch (\Exception $e) {
+                        // Non-blocking history error
+                        Log::warning('Rate history insert failed: ' . $e->getMessage());
                     }
                     // Update quotation detail if this is primary vendor
                     if (!empty($row['vendor_rate'])) {
@@ -674,7 +719,12 @@ class VendorQuotationController extends Controller
                 ->whereNotNull('vendor_rate')
                 ->count();
             VpQuotationRfq::where('id', $id)
-                ->update([ 'date_returned' => Carbon::now(), 'vendor_ref_no' => $request->vendor_ref_no ?? null, 'vendor_remarks' => $request->vendor_remarks ?? null]);
+                ->update([
+                    'date_returned' => Carbon::now(),
+                    'vendor_ref_no' => $request->vendor_ref_no ?? null,
+                    'vendor_remarks' => $request->vendor_remarks ?? null,
+                    'validity_date' => $request->validity_date ?? null,
+                ]);
 
             DB::commit();
 

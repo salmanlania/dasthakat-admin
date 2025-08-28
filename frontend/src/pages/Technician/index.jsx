@@ -33,7 +33,8 @@ const Technician = () => {
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, isSubmitting, deleteIDs } =
     useSelector((state) => state.technician);
   const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.technician;
+  // const permissions = user.permission.technician;
+  const permissions = user?.permission?.sales_team;
 
   const debouncedSearch = useDebounce(params.search, 500);
 

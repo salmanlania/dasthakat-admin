@@ -27,9 +27,9 @@ const EventForm = ({ mode, onSubmit }) => {
       customer_id: values.customer_id ? values.customer_id.value : null,
       vessel_id: values.vessel_id ? values.vessel_id.value : null,
       class1_id: values.class1_id ? values.class1_id.value : null,
-      class2_id: values.class2_id ? values.class2_id.value : null
+      class2_id: values.class2_id ? values.class2_id.value : null,
+      sales_team_id: values.sales_team_id ? values.sales_team_id.value : null,
     };
-
     onSubmit(data);
   };
 
@@ -158,6 +158,25 @@ const EventForm = ({ mode, onSubmit }) => {
                   label: 'Inactive'
                 }
               ]}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={24} sm={12} md={8} lg={8}>
+          <Form.Item name="sales_team_id" label="Sales Team">
+            <AsyncSelect
+              endpoint="/sales-team"
+              valueKey="sales_team_id"
+              labelKey="name"
+              labelInValue
+              addNewLink={permissions.sales_team.add ? '/sales-team/' : null}
+              // onChange={() => {
+              //   form.setFieldsValue({
+              //     vessel_id: null,
+              //     class1_id: null,
+              //     class2_id: null
+              //   });
+              //   setVessels([]);
+              // }}
             />
           </Form.Item>
         </Col>

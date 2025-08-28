@@ -34,6 +34,7 @@ class PurchaseOrderController extends Controller
 		$charge_no = $request->input('charge_no', '');
 		$event_id = $request->input('event_id', '');
 		$vessel_id = $request->input('vessel_id', '');
+		$sales_team_ids = $request->input('sales_team_ids', []);
 		$type = $request->input('type', '');
 		$status = $request->input('grn_status', '');
 		$is_deleted = $request->input('is_deleted', false);
@@ -49,7 +50,8 @@ class PurchaseOrderController extends Controller
 			->LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'purchase_order.charge_order_id')
 			->LeftJoin('event as e', 'e.event_id', '=', 'co.event_id')
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'co.vessel_id')
-			->LeftJoin('customer as c', 'c.customer_id', '=', 'e.customer_id');
+			->LeftJoin('customer as c', 'c.customer_id', '=', 'e.customer_id')
+			->LeftJoin('sales_team as st', 'st.sales_team_id', '=', 'e.sales_team_id');
 
 		$data = $data->where('purchase_order.company_id', '=', $request->company_id);
 		$data = $data->where('purchase_order.company_branch_id', '=', $request->company_branch_id);
@@ -65,6 +67,11 @@ class PurchaseOrderController extends Controller
 		if (!empty($customer_id)) $data->where('c.customer_id', $customer_id);
 		if (!empty($vessel_id)) $data->where('co.vessel_id', $vessel_id);
 		if (!empty($event_id)) $data->where('co.event_id', $event_id);
+		// Filter by related event.sales_team_id when provided
+		if (!empty($sales_team_ids)) {
+			$ids = is_array($sales_team_ids) ? $sales_team_ids : [$sales_team_ids];
+			$data->whereIn('e.sales_team_id', $ids);
+		}
 		if (!empty($type)) $data->where('purchase_order.type', $type);
 		if ($is_deleted == true) $data = $data->where('purchase_order.is_deleted', $is_deleted);
 
@@ -77,6 +84,7 @@ class PurchaseOrderController extends Controller
 					->orWhere('q.document_identity', 'like', "%$search%")
 					->orWhere('c.name', 'like', "%$search%")
 					->orWhere('v.name', 'like', "%$search%")
+					->orWhere('st.name', 'like', "%$search%")
 					->orWhere('e.event_code', 'like', "%$search%")
 					->orWhere('co.document_identity', 'like', "%$search%")
 					->orWhere('purchase_order.document_identity', 'like', "%$search%");
@@ -117,6 +125,8 @@ class PurchaseOrderController extends Controller
 			"s.name as supplier_name",
 			"q.document_identity as quotation_no",
 			"co.document_identity as charge_no",
+			'e.sales_team_id',
+			'st.name as sales_team_name',
 			DB::raw(
 				"
 				CASE

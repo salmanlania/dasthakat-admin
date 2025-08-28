@@ -243,6 +243,28 @@ const GoodsReceivedNote = () => {
       width: 140,
     },
     {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Sales Team</p>
+          <AsyncSelect
+            endpoint="/sales-team"
+            size="small"
+            className="w-full font-normal"
+            valueKey="sales_team_id"
+            labelKey="name"
+            mode="multiple"
+            value={params.sales_team_ids}
+            onChange={(value) => dispatch(setGoodsReceivedNoteListParams({ sales_team_ids: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'sales_team_name',
+      key: 'sales_team_name',
+      sorter: true,
+      width: 160,
+      ellipsis: true,
+    },
+    {
       title: 'Created At',
       dataIndex: 'created_at',
       key: 'created_at',
@@ -263,7 +285,7 @@ const GoodsReceivedNote = () => {
                   type="primary"
                   className="bg-rose-600 hover:!bg-rose-500"
                   icon={<FaRegFilePdf size={14} />}
-                  // onClick={() => printGoodsReceivedNote(purchase_order_id)}
+                // onClick={() => printGoodsReceivedNote(purchase_order_id)}
                 />
               </Tooltip>
               <Tooltip title="Edit">
@@ -314,6 +336,8 @@ const GoodsReceivedNote = () => {
     params.customer_id,
     params.supplier_id,
     params.purchase_order_id,
+    params.sales_team_ids,
+    params.sales_team_id,
     debouncedSearch,
     debouncedGoodsReceivedNoteNo,
   ]);
@@ -359,11 +383,11 @@ const GoodsReceivedNote = () => {
           rowSelection={
             permissions.delete
               ? {
-                  type: 'checkbox',
-                  selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) =>
-                    dispatch(setGoodsReceivedNoteDeleteIDs(selectedRowKeys)),
-                }
+                type: 'checkbox',
+                selectedRowKeys: deleteIDs,
+                onChange: (selectedRowKeys) =>
+                  dispatch(setGoodsReceivedNoteDeleteIDs(selectedRowKeys)),
+              }
               : null
           }
           loading={isListLoading}

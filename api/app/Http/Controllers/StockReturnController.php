@@ -34,6 +34,7 @@ class StockReturnController extends Controller
 		$vessel_id = $request->input('vessel_id', '');
 		$ship_to = $request->input('ship_to', '');
 		$ship_via = $request->input('ship_via', '');
+		$sales_team_ids = $request->input('sales_team_ids', []);
 
 		$search = $request->input('search', '');
 		$page = $request->input('page', 1);
@@ -45,7 +46,8 @@ class StockReturnController extends Controller
 			->LeftJoin('event as e', 'e.event_id', '=', 'co.event_id')
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'co.vessel_id')
 			->LeftJoin('customer as c', 'c.customer_id', '=', 'co.customer_id')
-			->LeftJoin('picklist as p', 'p.picklist_id', '=', 'stock_return.picklist_id');
+			->LeftJoin('picklist as p', 'p.picklist_id', '=', 'stock_return.picklist_id')
+			->LeftJoin('sales_team as st', 'st.sales_team_id', '=', 'e.sales_team_id');
 
 		$data = $data->where('stock_return.company_id', '=', $request->company_id);
 		$data = $data->where('stock_return.company_branch_id', '=', $request->company_branch_id);
@@ -70,6 +72,9 @@ class StockReturnController extends Controller
 			$data = $data->where('stock_return.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($document_date))
 			$data = $data->where('stock_return.document_date', '=', $document_date);
+		if (!empty($sales_team_ids) && is_array($sales_team_ids)) {
+			$data = $data->whereIn('e.sales_team_id', $sales_team_ids);
+		}
 
 		if (!empty($search)) {
 			$search = strtolower($search);
@@ -83,11 +88,21 @@ class StockReturnController extends Controller
 					->OrWhere('stock_return.ship_to', 'like', '%' . $search . '%')
 					->OrWhere('stock_return.ship_via', 'like', '%' . $search . '%')
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
+					->OrWhere('st.name', 'like', '%' . $search . '%')
 					->OrWhere('stock_return.document_identity', 'like', '%' . $search . '%');
 			});
 		}
 
-		$data = $data->select('stock_return.*', 'co.document_identity as charge_no', 'e.event_code', 'v.name as vessel_name', 'c.name as customer_name', 'p.document_identity as picklist_no');
+		$data = $data->select(
+			'stock_return.*', 
+			'co.document_identity as charge_no', 
+			'e.event_code', 
+			'v.name as vessel_name', 
+			'c.name as customer_name', 
+			'p.document_identity as picklist_no',
+			'e.sales_team_id',
+			'st.name as sales_team_name'
+		);
 		$data = $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);

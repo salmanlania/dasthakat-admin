@@ -201,6 +201,28 @@ const ServiceOrder = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
+          <p>Sales Team</p>
+          <AsyncSelect
+            endpoint="/sales-team"
+            size="small"
+            className="w-full font-normal"
+            valueKey="sales_team_id"
+            labelKey="name"
+            mode="multiple"
+            value={params.sales_team_ids}
+            onChange={(value) => dispatch(setServiceOrderListParams({ sales_team_ids: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'sales_team_name',
+      key: 'sales_team_name',
+      sorter: true,
+      width: 160,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Customer Name</p>
           <AsyncSelect
             endpoint="/customer"
@@ -366,6 +388,8 @@ const ServiceOrder = () => {
     params.sort_column,
     params.sort_direction,
     params.event_id,
+    params.sales_team_ids,
+    params.sales_team_id,
     params.salesman_id,
     params.customer_id,
     params.vessel_id,
