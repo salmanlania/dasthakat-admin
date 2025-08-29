@@ -321,8 +321,10 @@ export const createProformaInvoicePrint = async (data) => {
   const baseTotal = data?.total_amount || totalAmountFromDetails;
 
   const finalTotal = baseTotal - totalDiscount;
+  
+  const netFinalAmount = data?.net_amount ? data?.net_amount : finalTotal;
 
-  const totalGrossAmount = `$${formatThreeDigitCommas(finalTotal)}`;
+  const totalGrossAmount = `$${formatThreeDigitCommas(netFinalAmount)}`;
 
   let notes = [
     [

@@ -322,7 +322,9 @@ export const createEstimateInvoicePrint = async (data) => {
 
   const finalTotal = baseTotal - totalDiscount;
 
-  const totalGrossAmount = `$${formatThreeDigitCommas(finalTotal)}`;
+  const netFinalAmount = data?.net_amount ? data?.net_amount : finalTotal;
+
+  const totalGrossAmount = `$${formatThreeDigitCommas(netFinalAmount)}`;
 
   let notes = [
     [
