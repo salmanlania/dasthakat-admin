@@ -79,8 +79,8 @@ const EventForm = ({ mode, onSubmit }) => {
         mode === 'edit'
           ? initialFormValues
           : {
-              status: 1
-            }
+            status: 1
+          }
       }>
       <Row gutter={[12, 12]} className="w-full">
         <Col span={24} sm={12} md={8} lg={8}>
@@ -161,25 +161,21 @@ const EventForm = ({ mode, onSubmit }) => {
             />
           </Form.Item>
         </Col>
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="sales_team_id" label="Sales Team">
-            <AsyncSelect
-              endpoint="/sales-team"
-              valueKey="sales_team_id"
-              labelKey="name"
-              labelInValue
-              addNewLink={permissions.sales_team.add ? '/sales-team/' : null}
-              // onChange={() => {
-              //   form.setFieldsValue({
-              //     vessel_id: null,
-              //     class1_id: null,
-              //     class2_id: null
-              //   });
-              //   setVessels([]);
-              // }}
-            />
-          </Form.Item>
-        </Col>
+        {
+          permissions?.sales_team?.list && permissions?.sales_team?.add && permissions?.sales_team?.edit ? (
+            <Col span={24} sm={12} md={8} lg={8}>
+              <Form.Item name="sales_team_id" label="Sales Team">
+                <AsyncSelect
+                  endpoint="/sales-team"
+                  valueKey="sales_team_id"
+                  labelKey="name"
+                  labelInValue
+                  addNewLink={permissions.sales_team.add ? '/sales-team/' : null}
+                />
+              </Form.Item>
+            </Col>
+          ) : null
+        }
       </Row>
 
       <div className="mt-4 flex items-center justify-end gap-2">

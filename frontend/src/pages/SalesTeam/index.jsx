@@ -82,7 +82,7 @@ const SalesTeam = () => {
   const onSalesTeamDelete = async (id) => {
     try {
       await dispatch(deleteSalesTeam(id)).unwrap();
-      toast.success('SalesTeam deleted successfully');
+      toast.success('Sales Team deleted successfully');
       dispatch(getSalesTeamList(params)).unwrap();
     } catch (error) {
       handleError(error);
@@ -92,7 +92,7 @@ const SalesTeam = () => {
   const onBulkDelete = async () => {
     try {
       await dispatch(bulkDeleteSalesTeam(deleteIDs)).unwrap();
-      toast.success('SalesTeam deleted successfully');
+      toast.success('Sales Teams deleted successfully');
       closeDeleteModal();
       await dispatch(getSalesTeamList(params)).unwrap();
     } catch (error) {

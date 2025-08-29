@@ -142,7 +142,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       data?.customer_po_no ? data?.customer_po_no : '',
       data?.port ? data?.port?.name : '',
       data?.service_order ? data?.service_order?.document_identity : '',
-      data?.quotation?.payment.name ? data?.quotation?.payment.name : '',
+      data?.quotation?.payment ? data?.quotation?.payment.name : '',
       data?.shipment
         ?
         (data?.shipment?.document_date === "1989-11-30"
@@ -318,7 +318,7 @@ export const createProformaInvoicePrint = async (data) => {
     ? data?.charge_order_detail.reduce((sum, detail) => sum + (parseFloat(detail?.discount_amount) || 0), 0)
     : 0;
 
-  const baseTotal = data.total_amount || totalAmountFromDetails;
+  const baseTotal = data?.total_amount || totalAmountFromDetails;
 
   const finalTotal = baseTotal - totalDiscount;
 
