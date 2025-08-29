@@ -384,7 +384,9 @@ class EventController extends Controller
 				"v.name as vessel_name",
 				"c1.name as class1_name",
 				"c2.name as class2_name",
-				"st.name as sales_team_name"
+				"st.name as sales_team_name",
+				"event.created_at",
+				"event.updated_at"
 				);
 
 			// Handle sorting/filtering for computed status
