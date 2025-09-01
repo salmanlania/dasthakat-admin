@@ -288,7 +288,7 @@ export const createPurchaseReturnPrint = (data) => {
   doc.setFont('times', 'bold');
   if (data?.purchase_return_detail.length > 0) {
     doc.text(
-      `Total Value = ${formatThreeDigitCommas(data.total_amount) || ''}`,
+      `Total Value = ${formatThreeDigitCommas(data?.total_amount) || ''}`,
       142,
       doc.previousAutoTable.finalY + 5
     );

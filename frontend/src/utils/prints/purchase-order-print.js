@@ -295,7 +295,7 @@ export const createPurchaseOrderPrint = (data) => {
   doc.setFontSize(12);
   doc.setFont('times', 'bold');
   doc.text(
-    `Total Value = ${formatThreeDigitCommas(data.total_amount) || ''}`,
+    `Total Value = ${formatThreeDigitCommas(data?.total_amount) || ''}`,
     142,
     doc.previousAutoTable.finalY + 5
   );

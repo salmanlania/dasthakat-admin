@@ -245,7 +245,7 @@ export const createSaleInvoicePrint = async (data) => {
       const discountPercent = detail.discount_percent ? `${roundUpto(+detail.discount_percent)}%` : '0%';
       const discountAmount = detail.discount_amount ? `${formatThreeDigitCommas('$' + detail.discount_amount)}` : '0';
       const netAmount = detail?.gross_amount ? `$${formatThreeDigitCommas(detail?.gross_amount)}` : !detail?.gross_amount ? `$${formatThreeDigitCommas(detail?.amount)}` : '0'
-        ? `$${formatThreeDigitCommas(detail.amount)}`
+        ? `$${formatThreeDigitCommas(detail?.amount)}`
         : 0;
 
       const row = [
