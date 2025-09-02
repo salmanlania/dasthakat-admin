@@ -4,6 +4,13 @@ import 'jspdf-autotable';
 import { PDFDocument } from 'pdf-lib';
 
 import GMSLogo from '../../assets/logo-with-title.png';
+import Logo1 from '../../assets/quotation/logo1.png';
+import Logo2 from '../../assets/quotation/logo2.png';
+import Logo3 from '../../assets/quotation/logo3.png';
+import Logo4 from '../../assets/quotation/logo4.png';
+import Logo5 from '../../assets/quotation/logo5.png';
+import Logo6 from '../../assets/quotation/logo6.png';
+import Logo7 from '../../assets/quotation/logo7.png';
 
 import { formatThreeDigitCommas, roundUpto } from '../number';
 
@@ -82,7 +89,9 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   // Bill To content
   const customerInfo = [
     data?.customer?.name,
-    data?.vessel?.billing_address ? data?.vessel?.billing_address : null
+    data?.vessel?.billing_address ? data?.vessel?.billing_address : null,
+    data?.customer ? data?.customer?.address : null,
+    data?.customer ? data?.customer?.billing_address : null
   ].filter(Boolean);
 
   const billTo = doc.splitTextToSize(customerInfo.join('\n'), boxWidth);
@@ -90,7 +99,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
 
   // Ship To content
   const vesselInfo = [
-    `${data?.event?.event_code ? data?.event?.event_code : ''} - ${data?.vessel?.name ? data?.vessel?.name : ''}`,
+    `${data?.vessel ? data?.vessel?.name : ''} ${data?.vessel?.name && data?.vessel?.billing_address ? '-' : ''} ${data?.vessel?.billing_address ? data?.vessel?.billing_address : ''}`,
   ].filter(Boolean).join('\n');
 
   const shipTo = doc.splitTextToSize(vesselInfo, boxWidth);
@@ -200,6 +209,35 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   });
 };
 
+const addFooter = (doc, pageWidth, pageHeight) => {
+  doc.addImage(Logo1, 'PNG', 8, pageHeight, 26, 22);
+  doc.addImage(Logo2, 'PNG', 38, pageHeight + 6, 26, 10);
+  doc.addImage(Logo3, 'PNG', 70, pageHeight + 2, 26, 16);
+  doc.addImage(Logo4, 'PNG', 102, pageHeight + 4, 26, 16);
+  doc.addImage(Logo5, 'PNG', 130, pageHeight, 32, 16);
+  doc.addImage(Logo6, 'PNG', 164, pageHeight + 2, 14, 16);
+  doc.addImage(Logo7, 'PNG', 182, pageHeight + 2, 14, 16);
+
+  const currentPage = doc.internal.getCurrentPageInfo().pageNumber;
+  const totalPages = doc.internal.getNumberOfPages();
+
+  doc.setFont('times', 'bolditalic');
+  doc.text(
+    currentPage === totalPages ? `Last page` : `Continue to page ${currentPage + 1}`,
+    pageWidth / 2,
+    pageHeight - 9.2,
+    {
+      align: 'center'
+    }
+  );
+
+  // doc.setFont('times', 'normal');
+  // const deliveryText =
+  //   'Remit Payment to: Global Marine Safety Service Inc Frost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44';
+  // doc.text(deliveryText, pageWidth / 2, pageHeight, {
+  //   align: 'center'
+  // });
+};
 
 export const createEstimateInvoicePrint = async (data) => {
   const doc = new jsPDF();
@@ -261,7 +299,7 @@ export const createEstimateInvoicePrint = async (data) => {
     });
   }
 
-  const filledRows = fillEmptyRows(table2Rows, 10, descriptions.length + 1);
+  const filledRows = fillEmptyRows(table2Rows, 9, descriptions.length + 1);
 
   // Adding Table
   doc.autoTable({
@@ -417,7 +455,7 @@ export const createEstimateInvoicePrint = async (data) => {
     addHeader(doc, data, pageWidth, sideMargin);
 
     // Footer
-    // addFooter(doc, pageWidth, pageHeight - 25);
+    addFooter(doc, pageWidth, pageHeight - 25);
   }
 
   const titleData = `Estimate- ${data?.document_identity ? data?.document_identity : ''} - ${data?.vessel?.name ? data?.vessel?.name : ''}`
