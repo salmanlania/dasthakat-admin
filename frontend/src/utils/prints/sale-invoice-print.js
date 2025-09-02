@@ -241,12 +241,12 @@ const addFooter = (doc, pageWidth, pageHeight) => {
     }
   );
 
-  doc.setFont('times', 'normal');
-  const deliveryText =
-    'Remit Payment to: Global Marine Safety Service Inc Frost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44';
-  doc.text(deliveryText, pageWidth / 2, pageHeight, {
-    align: 'center'
-  });
+  // doc.setFont('times', 'normal');
+  // const deliveryText =
+  //   'Remit Payment to: Global Marine Safety Service Inc Frost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44';
+  // doc.text(deliveryText, pageWidth / 2, pageHeight, {
+  //   align: 'center'
+  // });
 };
 
 export const createSaleInvoicePrint = async (data) => {
