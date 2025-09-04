@@ -32,6 +32,7 @@ class ShipmentController extends Controller
 	public function index(Request $request)
 	{
 		$document_identity = $request->input('document_identity', '');
+		$charge_no = $request->input('charge_no', '');
 		$event_id = $request->input('event_id', '');
 		$vessel_id = $request->input('vessel_id', '');
 		$customer_id = $request->input('customer_id', '');
@@ -48,6 +49,7 @@ class ShipmentController extends Controller
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
 		$data = Shipment::LeftJoin('event as e', 'e.event_id', '=', 'shipment.event_id')
+			->LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'shipment.charge_order_id')
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'e.vessel_id')
 			->LeftJoin('flag as f', 'f.flag_id', '=', 'v.flag_id')
 			->LeftJoin('customer as c', 'c.customer_id', '=', 'v.customer_id')
@@ -70,6 +72,7 @@ class ShipmentController extends Controller
 		if (!empty($sales_team_ids) && is_array($sales_team_ids)) {
 			$data = $data->whereIn('e.sales_team_id', $sales_team_ids);
 		}
+		if (!empty($charge_no)) $data = $data->where('co.document_identity', 'like',  "%" . $charge_no . "%");
 
 		if (!empty($search)) {
 			$search = strtolower($search);
@@ -84,7 +87,8 @@ class ShipmentController extends Controller
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
 					->OrWhere('s.name', 'like', '%' . $search . '%')
 					->OrWhere('st.name', 'like', '%' . $search . '%')
-					->OrWhere('v.name', 'like', '%' . $search . '%');
+					->OrWhere('v.name', 'like', '%' . $search . '%')
+					->OrWhere('co.document_identity', 'like', '%' . $search . '%');
 			});
 		}
 
@@ -99,7 +103,8 @@ class ShipmentController extends Controller
 			"c1.name as class1_name",
 			"c2.name as class2_name",
 			"e.sales_team_id",
-			"st.name as sales_team_name"
+			"st.name as sales_team_name",
+			"co.document_identity as charge_no"
 		);
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
