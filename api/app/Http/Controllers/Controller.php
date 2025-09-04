@@ -493,7 +493,7 @@ class Controller extends BaseController
 
     static public function getStatus($row)
     {
-        $pickedQuantity = self::getPickedQuantity($row);
+        $pickedQuantity = self::getPickedQuantity($row,["addReturnQty" => true]);
         $shipmentQuantity = self::getShipmentQuantity($row);
         $invoicedQuantity = self::getInvoicedQuantity($row);
 
