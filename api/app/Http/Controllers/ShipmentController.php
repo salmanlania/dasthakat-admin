@@ -89,14 +89,14 @@ class ShipmentController extends Controller
 		}
 
 		$data = $data->select(
-			"shipment.*", 
-			"c.name as customer_name", 
-			"e.event_code", 
-			"v.name as vessel_name", 
-			"v.imo", 
-			"s.name as salesman_name", 
-			"f.name as flag_name", 
-			"c1.name as class1_name", 
+			"shipment.*",
+			"c.name as customer_name",
+			"e.event_code",
+			"v.name as vessel_name",
+			"v.imo",
+			"s.name as salesman_name",
+			"f.name as flag_name",
+			"c1.name as class1_name",
 			"c2.name as class2_name",
 			"e.sales_team_id",
 			"st.name as sales_team_name"
@@ -200,7 +200,7 @@ class ShipmentController extends Controller
 					'unit',
 					'supplier',
 				]);
-			$query = $query->whereHas('charge_order', fn($q) => $q->where('event_id', $request->event_id)->where('is_deleted',0));
+			$query = $query->whereHas('charge_order', fn($q) => $q->where('event_id', $request->event_id)->where('is_deleted', 0));
 			if ($request->charge_order_id) {
 
 				$query = $query->where('charge_order_id', $request->charge_order_id);
@@ -279,103 +279,220 @@ class ShipmentController extends Controller
 		if (!empty($isError)) {
 			return $this->jsonResponse($isError, 400, "Request Failed!");
 		}
+
 		DB::beginTransaction();
-		try{
-		$uuid = $this->get_uuid();
-		$document = DocumentType::getNextDocument(
-			$this->SO_document_type_id,
-			$request
-		);
+		try {
+			$createdShipments = [];
 
-		// Shipment Insert Array
-		$shipmentInsert = [
-			'company_id'        => $request->company_id ?? "",
-			'company_branch_id' => $request->company_branch_id ?? "",
-			'shipment_id'       => $uuid,
-			'document_type_id'  => $document['document_type_id'] ?? "",
-			'document_no'       => $document['document_no'] ?? "",
-			'document_identity' => $document['document_identity'] ?? "",
-			'document_prefix'   => $document['document_prefix'] ?? "",
-			'document_date'     => Carbon::now(),
-			'event_id'          => $request->event_id ?? "",
-			'charge_order_id'   => $request->charge_order_id ?? "",
-			'created_at'        => Carbon::now(),
-			'created_by'        => $request->login_user_id,
-		];
+			foreach ($request->shipment as $shipmentBlock) {
+				$uuid = $this->get_uuid();
 
-		// Extract charge order details from the request
-		$chargeOrderIds = collect($request->shipment)->pluck('charge_order_id')->unique()->toArray();
-		$chargeOrderDetailIds = collect($request->shipment)->pluck('details')->flatten(1)->pluck('charge_order_detail_id')->unique()->values()->toArray();
+				$document = DocumentType::getNextDocument(
+					$this->SO_document_type_id,
+					$request
+				);
 
-		// Fetch valid charge order details from DB
-		$chargeOrderDetails = ChargeOrderDetail::whereHas('charge_order', function ($query) use ($request, $chargeOrderIds) {
-			$query->where('event_id', $request->event_id)
-				->whereIn('charge_order_id', $chargeOrderIds);
-		})
-			->whereIn('charge_order_detail_id', $chargeOrderDetailIds)
-			// ->when($request->type == "DO", fn($query) => $query->where('product_type_id', '!=', 1), fn($query) => $query->where('product_type_id', 1))
-			->whereRaw('
-        (
-            SELECT COALESCE(SUM(quantity), 0)
-            FROM shipment_detail
-            WHERE shipment_detail.charge_order_detail_id = charge_order_detail.charge_order_detail_id
-        ) < charge_order_detail.quantity
-    ')
-
-			->orderBy('sort_order')
-			->get();
-		if ($chargeOrderDetails->isEmpty()) {
-			return $this->jsonResponse('No Items Found For Shipment', 404, "No Data Found!");
-		}
-		// Process Shipment Details
-		$shipmentDetails = [];
-		foreach ($chargeOrderDetails as $index => $detail) {
-			$shippedQty = ShipmentDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->sum('quantity');
-
-			if (($this->getPickedQuantity($detail, ['addReturnQty' => true]) - $shippedQty) > 0) {
-				$shipmentDetails[] = [
-					'shipment_id'           => $uuid,
-					'shipment_detail_id'    => $this->get_uuid(),
-					'sort_order'            => $index + 1,
-					'charge_order_id'       => $detail->charge_order_id,
-					'charge_order_detail_id' => $detail->charge_order_detail_id,
-					'product_id'            => $detail->product_id,
-					'product_type_id'       => $detail->product_type_id,
-					'product_name'          => $detail->product_name,
-					'product_description'   => $detail->product_description,
-					'description'           => $detail->description,
-					'internal_notes'        => $detail->internal_notes,
-					'quantity'              => $this->getPickedQuantity($detail, ['addReturnQty' => true]) - $shippedQty,
-					'unit_id'               => $detail->unit_id,
-					'supplier_id'           => $detail->supplier_id,
-					'created_at'            => Carbon::now(),
-					'created_by'            => $request->login_user_id,
+				// Insert Shipment Header
+				$shipmentInsert = [
+					'company_id'        => $request->company_id ?? "",
+					'company_branch_id' => $request->company_branch_id ?? "",
+					'shipment_id'       => $uuid,
+					'document_type_id'  => $document['document_type_id'] ?? "",
+					'document_no'       => $document['document_no'] ?? "",
+					'document_identity' => $shipmentBlock['document_identity'] ?? $document['document_identity'] ?? "",
+					'document_prefix'   => $document['document_prefix'] ?? "",
+					'document_date'     => Carbon::now(),
+					'event_id'          => $request->event_id ?? "",
+					'charge_order_id'   => $shipmentBlock['charge_order_id'] ?? "",
+					'created_at'        => Carbon::now(),
+					'created_by'        => $request->login_user_id,
 				];
+				Shipment::create($shipmentInsert);
+
+				$chargeOrderDetailIds = collect($shipmentBlock['details'])->pluck('charge_order_detail_id')->toArray();
+
+				$chargeOrderDetails = ChargeOrderDetail::whereHas('charge_order', function ($query) use ($request, $shipmentBlock) {
+					$query->where('event_id', $request->event_id)
+						->where('charge_order_id', $shipmentBlock['charge_order_id']);
+				})
+					->whereIn('charge_order_detail_id', $chargeOrderDetailIds)
+					->whereRaw('
+                (
+                    SELECT COALESCE(SUM(quantity), 0)
+                    FROM shipment_detail
+                    WHERE shipment_detail.charge_order_detail_id = charge_order_detail.charge_order_detail_id
+                ) < charge_order_detail.quantity
+            ')
+					->orderBy('sort_order')
+					->get();
+
+				if ($chargeOrderDetails->isEmpty()) {
+					continue; 
+				}
+
+				$shipmentDetails = [];
+				foreach ($chargeOrderDetails as $index => $detail) {
+					$shippedQty = ShipmentDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->sum('quantity');
+
+					if (($this->getPickedQuantity($detail, ['addReturnQty' => true]) - $shippedQty) > 0) {
+						$shipmentDetails[] = [
+							'shipment_id'           => $uuid,
+							'shipment_detail_id'    => $this->get_uuid(),
+							'sort_order'            => $index + 1,
+							'charge_order_id'       => $detail->charge_order_id,
+							'charge_order_detail_id' => $detail->charge_order_detail_id,
+							'product_id'            => $detail->product_id,
+							'product_type_id'       => $detail->product_type_id,
+							'product_name'          => $detail->product_name,
+							'product_description'   => $detail->product_description,
+							'description'           => $detail->description,
+							'internal_notes'        => $detail->internal_notes,
+							'quantity'              => $this->getPickedQuantity($detail, ['addReturnQty' => true]) - $shippedQty,
+							'unit_id'               => $detail->unit_id,
+							'supplier_id'           => $detail->supplier_id,
+							'created_at'            => Carbon::now(),
+							'created_by'            => $request->login_user_id,
+						];
+					}
+				}
+
+				if (!empty($shipmentDetails)) {
+					ShipmentDetail::insert($shipmentDetails);
+
+					// Optional: update charge order details with shipment reference
+					ChargeOrderDetail::whereIn('charge_order_detail_id', $chargeOrderDetailIds)
+						->update([
+							'shipment_id' => $uuid,
+							'shipment_detail_id' => $this->get_uuid()
+						]);
+
+					$createdShipments[] = $uuid;
+				}
 			}
-		}
 
-		if (empty($shipmentDetails)) {
-			return $this->jsonResponse('No Valid Shipment Details Found', 404, "No Data Found!");
-		}
+			if (empty($createdShipments)) {
+				DB::rollBack();
+				return $this->jsonResponse('No Valid Shipment Orders Created', 404, "No Data Found!");
+			}
 
-		// Insert Shipment & Details (Batch Insert for Performance)
-		Shipment::create($shipmentInsert);
-		ShipmentDetail::insert($shipmentDetails);
-
-		// Update `ChargeOrderDetail` with Shipment Info
-		ChargeOrderDetail::whereIn('charge_order_detail_id', $chargeOrderDetailIds)
-			->update([
-				'shipment_id' => $uuid,
-				'shipment_detail_id' => $this->get_uuid()
-			]);
 			DB::commit();
-		return $this->jsonResponse(['shipment_id' => $uuid], 200, "Create Shipment Order Successfully!");
-	} catch (\Exception $e) {
-		DB::rollBack(); // Rollback on error
-		Log::error('Shipment Store Error: ' . $e->getMessage());
-		return $this->jsonResponse("Something went wrong while saving Shipment.", 500, "Transaction Failed");
+			return $this->jsonResponse(['shipment_ids' => $createdShipments], 200, "Shipment Orders Created Successfully!");
+		} catch (\Exception $e) {
+			DB::rollBack();
+			Log::error('Shipment Store Error: ' . $e->getMessage());
+			return $this->jsonResponse("Something went wrong while saving Shipment.", 500, "Transaction Failed");
+		}
 	}
-	}
+
+
+	// public function store(Request $request)
+	// {
+	// 	if (!isPermission('add', 'shipment', $request->permission_list)) {
+	// 		return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+	// 	}
+
+	// 	// Validate Request
+	// 	$isError = $this->Validator($request->all());
+	// 	if (!empty($isError)) {
+	// 		return $this->jsonResponse($isError, 400, "Request Failed!");
+	// 	}
+	// 	DB::beginTransaction();
+	// 	try {
+	// 		$uuid = $this->get_uuid();
+	// 		$document = DocumentType::getNextDocument(
+	// 			$this->SO_document_type_id,
+	// 			$request
+	// 		);
+
+	// 		// Shipment Insert Array
+	// 		$shipmentInsert = [
+	// 			'company_id'        => $request->company_id ?? "",
+	// 			'company_branch_id' => $request->company_branch_id ?? "",
+	// 			'shipment_id'       => $uuid,
+	// 			'document_type_id'  => $document['document_type_id'] ?? "",
+	// 			'document_no'       => $document['document_no'] ?? "",
+	// 			'document_identity' => $document['document_identity'] ?? "",
+	// 			'document_prefix'   => $document['document_prefix'] ?? "",
+	// 			'document_date'     => Carbon::now(),
+	// 			'event_id'          => $request->event_id ?? "",
+	// 			'charge_order_id'   => $request->charge_order_id ?? "",
+	// 			'created_at'        => Carbon::now(),
+	// 			'created_by'        => $request->login_user_id,
+	// 		];
+
+	// 		// Extract charge order details from the request
+	// 		$chargeOrderIds = collect($request->shipment)->pluck('charge_order_id')->unique()->toArray();
+	// 		$chargeOrderDetailIds = collect($request->shipment)->pluck('details')->flatten(1)->pluck('charge_order_detail_id')->unique()->values()->toArray();
+
+	// 		// Fetch valid charge order details from DB
+	// 		$chargeOrderDetails = ChargeOrderDetail::whereHas('charge_order', function ($query) use ($request, $chargeOrderIds) {
+	// 			$query->where('event_id', $request->event_id)
+	// 				->whereIn('charge_order_id', $chargeOrderIds);
+	// 		})
+	// 			->whereIn('charge_order_detail_id', $chargeOrderDetailIds)
+	// 			// ->when($request->type == "DO", fn($query) => $query->where('product_type_id', '!=', 1), fn($query) => $query->where('product_type_id', 1))
+	// 			->whereRaw('
+	//     (
+	//         SELECT COALESCE(SUM(quantity), 0)
+	//         FROM shipment_detail
+	//         WHERE shipment_detail.charge_order_detail_id = charge_order_detail.charge_order_detail_id
+	//     ) < charge_order_detail.quantity
+	// 	')
+
+	// 			->orderBy('sort_order')
+	// 			->get();
+	// 		if ($chargeOrderDetails->isEmpty()) {
+	// 			return $this->jsonResponse('No Items Found For Shipment', 404, "No Data Found!");
+	// 		}
+	// 		// Process Shipment Details
+	// 		$shipmentDetails = [];
+	// 		foreach ($chargeOrderDetails as $index => $detail) {
+	// 			$shippedQty = ShipmentDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->sum('quantity');
+
+	// 			if (($this->getPickedQuantity($detail, ['addReturnQty' => true]) - $shippedQty) > 0) {
+	// 				$shipmentDetails[] = [
+	// 					'shipment_id'           => $uuid,
+	// 					'shipment_detail_id'    => $this->get_uuid(),
+	// 					'sort_order'            => $index + 1,
+	// 					'charge_order_id'       => $detail->charge_order_id,
+	// 					'charge_order_detail_id' => $detail->charge_order_detail_id,
+	// 					'product_id'            => $detail->product_id,
+	// 					'product_type_id'       => $detail->product_type_id,
+	// 					'product_name'          => $detail->product_name,
+	// 					'product_description'   => $detail->product_description,
+	// 					'description'           => $detail->description,
+	// 					'internal_notes'        => $detail->internal_notes,
+	// 					'quantity'              => $this->getPickedQuantity($detail, ['addReturnQty' => true]) - $shippedQty,
+	// 					'unit_id'               => $detail->unit_id,
+	// 					'supplier_id'           => $detail->supplier_id,
+	// 					'created_at'            => Carbon::now(),
+	// 					'created_by'            => $request->login_user_id,
+	// 				];
+	// 			}
+	// 		}
+
+	// 		if (empty($shipmentDetails)) {
+	// 			return $this->jsonResponse('No Valid Shipment Details Found', 404, "No Data Found!");
+	// 		}
+
+	// 		// Insert Shipment & Details (Batch Insert for Performance)
+	// 		Shipment::create($shipmentInsert);
+	// 		ShipmentDetail::insert($shipmentDetails);
+
+	// 		// Update `ChargeOrderDetail` with Shipment Info
+	// 		ChargeOrderDetail::whereIn('charge_order_detail_id', $chargeOrderDetailIds)
+	// 			->update([
+	// 				'shipment_id' => $uuid,
+	// 				'shipment_detail_id' => $this->get_uuid()
+	// 			]);
+	// 		DB::commit();
+	// 		return $this->jsonResponse(['shipment_id' => $uuid], 200, "Create Shipment Order Successfully!");
+	// 	} catch (\Exception $e) {
+	// 		DB::rollBack(); // Rollback on error
+	// 		Log::error('Shipment Store Error: ' . $e->getMessage());
+	// 		return $this->jsonResponse("Something went wrong while saving Shipment.", 500, "Transaction Failed");
+	// 	}
+	// }
 
 
 
