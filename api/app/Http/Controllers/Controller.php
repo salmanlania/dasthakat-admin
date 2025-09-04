@@ -491,6 +491,22 @@ class Controller extends BaseController
         return $quantity ?? 0;
     }
 
+    static public function getStatus($row)
+    {
+        $pickedQuantity = self::getPickedQuantity($row);
+        $shipmentQuantity = self::getShipmentQuantity($row);
+        $invoicedQuantity = self::getInvoicedQuantity($row);
+
+        if ($invoicedQuantity > 0) {
+            return "Invoiced";
+        } else if ($shipmentQuantity > 0) {
+            return "Shipped";
+        } else if ($pickedQuantity > 0) {
+            return "Picked";
+        } else {
+            return "Pending";
+        }
+    }
 
 
     /**

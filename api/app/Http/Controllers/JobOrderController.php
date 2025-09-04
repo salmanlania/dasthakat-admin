@@ -88,15 +88,15 @@ class JobOrderController extends Controller
 		}
 
 		$data = $data->select(
-			"job_order.*", 
-			"c.name as customer_name", 
-			"e.event_code", 
-			"v.name as vessel_name", 
-			"v.imo", 
-			"a.name as agent_name", 
-			"s.name as salesman_name", 
-			"f.name as flag_name", 
-			"c1.name as class1_name", 
+			"job_order.*",
+			"c.name as customer_name",
+			"e.event_code",
+			"v.name as vessel_name",
+			"v.imo",
+			"a.name as agent_name",
+			"s.name as salesman_name",
+			"f.name as flag_name",
+			"c1.name as class1_name",
 			"c2.name as class2_name",
 			"e.sales_team_id",
 			"st.name as sales_team_name"
@@ -159,6 +159,7 @@ class JobOrderController extends Controller
 					->where('charge_order_id', $detail->charge_order_id)
 					->first();
 
+				$detail->status = $this->getStatus($detail);
 				$detail->shipment = $shippedRow?->shipment ?: null;
 			}
 		}
