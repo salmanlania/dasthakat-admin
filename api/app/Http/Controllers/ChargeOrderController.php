@@ -710,6 +710,7 @@ class ChargeOrderController extends Controller
 
 		// Process charge order details
 		$data->charge_order_detail->each(function ($detail) use ($request) {
+			$detail->purchase_order_exists = PurchaseOrderDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->exists();
 			$detail->picked_quantity = $this->getPickedQuantity($detail);
 			if ($detail->product) {
 				$detail->product->stock = StockLedger::Check($detail->product, $request->all());
