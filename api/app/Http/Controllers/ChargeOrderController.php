@@ -1437,6 +1437,7 @@ class ChargeOrderController extends Controller
 						'unit_id' => $value['unit_id'] ?? "",
 						'supplier_id' => $value['supplier_id'] ?? "",
 						'vendor_part_no' => $value['vendor_part_no'] ?? "",
+						'vendor_notes' => $value['vendor_notes'] ?? "",
 						'cost_price' => $value['cost_price'] ?? "",
 						'markup' => $value['markup'] ?? "",
 						'quantity' => $value['quantity'] ?? "",
@@ -1581,6 +1582,7 @@ class ChargeOrderController extends Controller
 							'supplier_id' => $value['supplier_id'] ?? "",
 							'quantity' => $value['quantity'] ?? "",
 							'vendor_part_no' => $value['vendor_part_no'] ?? "",
+							'vendor_notes' => $value['vendor_notes'] ?? "",
 							'cost_price' => $value['cost_price'] ?? "",
 							'markup' => $value['markup'] ?? "",
 							'rate' => $value['rate'] ?? "",
@@ -1621,6 +1623,7 @@ class ChargeOrderController extends Controller
 							'supplier_id' => $value['supplier_id'] ?? "",
 							'quantity' => $value['quantity'] ?? "",
 							'vendor_part_no' => $value['vendor_part_no'] ?? "",
+							'vendor_notes' => $value['vendor_notes'] ?? "",
 							'cost_price' => $value['cost_price'] ?? "",
 							'markup' => $value['markup'] ?? "",
 							'rate' => $value['rate'] ?? "",
@@ -1642,6 +1645,7 @@ class ChargeOrderController extends Controller
 								$amount = ($podRow->rate ?? 0) * ($value['amount'] ?? 0);
 
 								$pod->update([
+									'vendor_notes' => $value['vendor_notes'] ?? "",
 									'quantity' => $value['quantity'],
 									'amount' => $amount,
 									'updated_by' => $request->login_user_id,

@@ -58,6 +58,7 @@ class ChargeOrderDetail extends Model
         "markup",
         "rate",
         "amount",
+        "vendor_notes",
         "discount_amount",
         "discount_percent",
         "gross_amount",
