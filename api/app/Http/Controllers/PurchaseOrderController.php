@@ -412,6 +412,9 @@ class PurchaseOrderController extends Controller
 							'created_by' => $request->login_user_id,
 						];
 						PurchaseOrderDetail::create($insert);
+						ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id'])->update([
+							'vendor_notes' => $value['vendor_notes'] ?? "",
+						]);
 					}
 					if ($value['row_status'] == 'U') {
 						$update = [
@@ -438,14 +441,19 @@ class PurchaseOrderController extends Controller
 							$chargeOrderDetail = ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id']);
 							$data = $chargeOrderDetail->first();
 							$quantity = $value['quantity'] ?? 0;
-							$rate = $data->rate ?? 0;
+							$cost_price = $value['cost_price'] ?? 0;
+							$markup = $data->markup ?? 0;
+							$rate = ($cost_price * $markup) / 100;
 							$amount = $quantity * $rate;
 							$discount_percent = $data->discount_percent ?? 0;
 							$discount_amount = ($amount * $discount_percent) / 100;
 							$gross_amount = $amount - $discount_amount;
 
 							$chargeOrderDetail->update([
+								'vendor_notes' => $value['vendor_notes'] ?? "",
 								'quantity' => $quantity,
+								'cost_price' => $cost_price,
+								'markup' => $markup,
 								'rate' => $rate,
 								'amount' => $amount,
 								'discount_percent' => $discount_percent,
