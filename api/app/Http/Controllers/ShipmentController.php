@@ -19,15 +19,13 @@ use App\Models\Shipment;
 use App\Models\ShipmentDetail;
 use App\Models\StockLedger;
 use App\Models\Supplier;
-use App\Models\Technician;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use PDO;
+
 
 class ShipmentController extends Controller
 {
-	protected $DO_document_type_id = 48;
 	protected $SO_document_type_id = 49;
 	protected $db;
 
@@ -176,7 +174,6 @@ class ShipmentController extends Controller
 	{
 		$rules = [
 			'event_id' => ['required'],
-			'type' => ['required'],
 		];
 
 		$msg = validateRequest($request, $rules);
@@ -208,7 +205,8 @@ class ShipmentController extends Controller
 
 				$query = $query->where('charge_order_id', $request->charge_order_id);
 			}
-			$query = $query->where('product_type_id', $request->type === "DO" ? '!=' : '=', 1)->whereRaw('
+			// $query = $query->where('product_type_id', $request->type === "DO" ? '!=' : '=', 1)
+			$query = $query->whereRaw('
         (
             SELECT COALESCE(SUM(quantity), 0)
             FROM shipment_detail
@@ -285,7 +283,7 @@ class ShipmentController extends Controller
 		try{
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument(
-			$request->type == "DO" ? $this->DO_document_type_id : $this->SO_document_type_id,
+			$this->SO_document_type_id,
 			$request
 		);
 
@@ -315,7 +313,7 @@ class ShipmentController extends Controller
 				->whereIn('charge_order_id', $chargeOrderIds);
 		})
 			->whereIn('charge_order_detail_id', $chargeOrderDetailIds)
-			->when($request->type == "DO", fn($query) => $query->where('product_type_id', '!=', 1), fn($query) => $query->where('product_type_id', 1))
+			// ->when($request->type == "DO", fn($query) => $query->where('product_type_id', '!=', 1), fn($query) => $query->where('product_type_id', 1))
 			->whereRaw('
         (
             SELECT COALESCE(SUM(quantity), 0)
