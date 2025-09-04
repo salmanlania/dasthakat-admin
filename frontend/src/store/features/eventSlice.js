@@ -190,7 +190,6 @@ export const eventSlice = createSlice({
 
 
       state.commissionAgent = [...customerAgents, ...vesselAgents];
-
       state.initialFormValues = {
         event_code: data.event_code,
         status: data.status,
@@ -223,6 +222,7 @@ export const eventSlice = createSlice({
             value: data.sales_team_id,
             label: data.sales_team_name
           } : null,
+          event_no: data?.event_no ? data?.event_no : null,
       };
     });
     addCase(getEvent.rejected, (state) => {
