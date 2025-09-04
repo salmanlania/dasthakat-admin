@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DocumentType;
 use Illuminate\Http\Request;
 use App\Models\ChargeOrder;
+use App\Models\ChargeOrderCommissionAgent;
 use App\Models\ChargeOrderDetail;
 use App\Models\EventDispatch;
 use App\Models\GRN;
@@ -702,6 +703,24 @@ class ChargeOrderController extends Controller
 			"product_type"
 		])->where('charge_order_id', $id)->orderBy('sort_order')->get();
 
+
+		$data->commission_agent = ChargeOrderCommissionAgent::join('commission_agent', 'commission_agent.commission_agent_id', '=', 'charge_order_commission_agent.commission_agent_id')
+		->where('charge_order_commission_agent.charge_order_id', $id)
+		->select(
+			'commission_agent.commission_agent_id',
+			'commission_agent.name',
+			'commission_agent.phone',
+			'commission_agent.address',
+			'charge_order_commission_agent.vessel_id',
+			'charge_order_commission_agent.customer_id',
+			'charge_order_commission_agent.percentage',
+			'charge_order_commission_agent.amount',
+			'charge_order_commission_agent.sort_order',
+			'charge_order_commission_agent.created_at',
+			'charge_order_commission_agent.created_by'
+		)->get();
+
+
 		// Load technicians (assuming technician_id stores JSON array)
 		$technicianIds = is_array($data->technician_id) ? $data->technician_id : [];
 		$data->technicians = !empty($technicianIds)
@@ -717,8 +736,8 @@ class ChargeOrderController extends Controller
 			}
 		});
 		$data->shipment = Shipment::where('charge_order_id', $data->charge_order_id)
-        ->orderBy('created_at', 'desc')
-        ->first();
+			->orderBy('created_at', 'desc')
+			->first();
 
 
 		return $this->jsonResponse($data, 200, "Charge Order Data");
@@ -1153,7 +1172,7 @@ class ChargeOrderController extends Controller
 		$index = ServiceOrderDetail::where('service_order_id', $SO->service_order_id)->max('sort_order') ?? 0;
 
 		foreach ($COD as $item) {
-			
+
 			if (isset($existingDetails[$item->charge_order_detail_id])) {
 				// Update existing detail
 				$existingDetails[$item->charge_order_detail_id]->update([
@@ -1406,10 +1425,16 @@ class ChargeOrderController extends Controller
 				'agent_notes' => $request->agent_notes ?? "",
 				'technician_notes' => $request->technician_notes ?? "",
 				'remarks' => $request->remarks ?? "",
+				'total_cost' => $request->total_cost ?? "",
 				'total_quantity' => $request->total_quantity ?? "",
 				'total_amount' => $request->total_amount ?? 0,
 				'discount_amount' => $request->discount_amount ?? 0,
 				'net_amount' => $request->net_amount ?? 0,
+				'rebate_percent' => $request->rebate_percent ?? 0,
+				'rebate_amount' => $request->rebate_amount ?? 0,
+				'salesman_percent' => $request->salesman_percent ?? 0,
+				'salesman_amount' => $request->salesman_amount ?? 0,
+				'final_amount' => $request->final_amount ?? 0,
 				'created_at' => Carbon::now(),
 				'created_by' => $request->login_user_id,
 			];
@@ -1457,6 +1482,26 @@ class ChargeOrderController extends Controller
 				'event_date' => Carbon::now(),
 				'event_time' => '00:01'
 			]);
+
+			if ($request->commission_agent) {
+				foreach ($request->commission_agent as $key => $value) {
+					$detail_uuid = $this->get_uuid();
+					$insert = [
+						'charge_order_id' => $insertArr['charge_order_id'],
+						'id' => $detail_uuid,
+						'sort_order' => $value['sort_order'] ?? '',
+						'vessel_id' => $value['vessel_id'] ?? '',
+						'customer_id' => $value['customer_id'] ?? '',
+						'commission_agent_id' => $value['commission_agent_id'] ?? '',
+						'percentage' => $value['percentage'] ?? '',
+						'amount' => $value['amount'] ?? '',
+						'created_at' => Carbon::now(),
+						'created_by' => $request->login_user_id,
+					];
+					ChargeOrderCommissionAgent::create($insert);
+				}
+			}
+
 			$this->updatePicklist($request, $chargeOrder);
 			$this->updateServicelist($request, $chargeOrder);
 			$this->updateJobOrder($request, $chargeOrder);
@@ -1538,10 +1583,16 @@ class ChargeOrderController extends Controller
 				'agent_notes' => $request->agent_notes,
 				'technician_notes' => $request->technician_notes,
 				'remarks' => $request->remarks,
+				'total_cost' => $request->total_cost,
 				'total_quantity' => $request->total_quantity,
 				'total_amount' => $request->total_amount,
 				'discount_amount' => $request->discount_amount,
 				'net_amount' => $request->net_amount,
+				'rebate_percent' => $request->rebate_percent,
+				'rebate_amount' => $request->rebate_amount,
+				'salesman_percent' => $request->salesman_percent,
+				'salesman_amount' => $request->salesman_amount,
+				'final_amount' => $request->final_amount,
 				'updated_by' => $request->login_user_id,
 			])->save();
 
@@ -1678,6 +1729,25 @@ class ChargeOrderController extends Controller
 				})->delete();
 				ServiceOrder::where('charge_order_id', $id)->update(['event_id' => $request->event_id]);
 			}
+			
+			ChargeOrderCommissionAgent::where('charge_order_id', $id)->delete();
+			foreach ($request->commission_agent as $key => $value) {
+				$detail_uuid = $this->get_uuid();
+				$insert = [
+					'charge_order_id' => $id,
+					'id' => $detail_uuid,
+					'sort_order' => $value['sort_order'] ?? '',
+					'vessel_id' => $value['vessel_id'] ?? '',
+					'customer_id' => $value['customer_id'] ?? '',
+					'commission_agent_id' => $value['commission_agent_id'] ?? '',
+					'percentage' => $value['percentage'] ?? '',
+					'amount' => $value['amount'] ?? '',
+					'created_at' => Carbon::now(),
+					'created_by' => $request->login_user_id,
+				];
+				ChargeOrderCommissionAgent::create($insert);
+			}
+
 
 
 			$this->updatePicklist($request, $chargeOrder);
@@ -1753,6 +1823,7 @@ class ChargeOrderController extends Controller
 
 		$data->delete();
 		ChargeOrderDetail::where('charge_order_id', $id)->delete();
+		ChargeOrderCommissionAgent::where('charge_order_id', $id)->delete();
 
 
 		return $this->jsonResponse(['charge_order_id' => $id], 200, "Delete Charge Order Successfully!");
@@ -1815,6 +1886,7 @@ class ChargeOrderController extends Controller
 
 					$data->delete();
 					ChargeOrderDetail::where('charge_order_id', $id)->delete();
+					ChargeOrderCommissionAgent::where('charge_order_id', $id)->delete();
 				}
 			}
 
