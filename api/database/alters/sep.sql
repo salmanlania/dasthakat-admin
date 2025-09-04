@@ -14,9 +14,9 @@ ALTER TABLE charge_order
   ADD COLUMN final_amount DECIMAL (10, 2) AFTER salesman_amount ;
 
 
-CREATE TABLE quotation_commission_agent (
+CREATE TABLE charge_order_commission_agent (
   `id` char(36) NOT NULL,
-  `quotation_id` char(36) NOT NULL,
+  `charge_order_id` char(36) NOT NULL,
   `commission_agent_id` char(36) NOT NULL,
   `sort_order` INT(11) DEFAULT 0 NOT NULL,
   `customer_id` char(36) NOT NULL,
