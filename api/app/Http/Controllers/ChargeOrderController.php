@@ -1693,11 +1693,12 @@ class ChargeOrderController extends Controller
 							$podRow = $pod->first();
 							if (!empty($podRow)) {
 
-								$amount = ((float)$podRow->rate ?? 0) * ((float)$value['amount'] ?? 0);
+								$amount = ($value['cost_price']?? 0) * ($value['quantity'] ?? 0);
 
 								$pod->update([
 									'vendor_notes' => $value['vendor_notes'] ?? "",
 									'quantity' => $value['quantity'],
+									'rate' => $value['cost_price'],
 									'amount' => $amount,
 									'updated_by' => $request->login_user_id,
 									'updated_at' => Carbon::now(),
