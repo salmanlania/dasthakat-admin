@@ -134,8 +134,10 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
     : 0;
 
   const total = parseInt(totalCommissionAmount || 0);
+  // const salesman = parseInt(salesmanAmount || 0);
+  // const rebate = parseInt(rebateAmount || 0);
   const salesman = parseInt(salesmanAmount || 0);
-  const rebate = parseInt(rebateAmount || 0);
+  const rebate = parseInt(rebateAmount || 0)
 
   const otherComission =
     (isNaN(total) ? 0 : total) +

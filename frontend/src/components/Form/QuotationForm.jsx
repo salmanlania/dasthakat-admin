@@ -199,8 +199,10 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
     : 0;
 
   const total = parseInt(totalCommissionAmount || 0);
-  const salesman = parseInt(salesmanAmount || 0);
-  const rebate = parseInt(rebateAmount || 0);
+  // const salesman = parseInt(salesmanAmount || 0);
+  // const rebate = parseInt(rebateAmount || 0);
+  const salesman = Number(String(salesmanAmount).replace(/,/g, '') || 0);
+  const rebate = Number(String(rebateAmount).replace(/,/g, '') || 0);
 
   const otherComission =
     (isNaN(total) ? 0 : total) +
