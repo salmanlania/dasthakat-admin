@@ -7,6 +7,7 @@ import ReturnModal from '../Modals/PurchaseReturnModal'
 import { BiPlus } from 'react-icons/bi';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
+import { TbEdit } from 'react-icons/tb';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import { GMS_ADDRESS } from '../../constants';
@@ -30,6 +31,7 @@ import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
 import { DetailSummaryInfo } from './QuotationForm';
+import NotesModal from '../Modals/NotesModal';
 
 const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
@@ -46,6 +48,34 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [returnModalVisible, setReturnModalVisible] = useState(false);
+  const [notesModalIsOpen, setNotesModalIsOpen] = useState({
+    open: false,
+    id: null,
+    column: null,
+    notes: null,
+  });
+
+  const notesTitleMap = {
+    vendor_notes: 'Vendor Notes',
+  };
+
+  const closeNotesModal = () => {
+    setNotesModalIsOpen({ open: false, id: null, column: null, notes: null });
+  };
+
+  const onNotesSave = ({ notes }) => {
+    const index = notesModalIsOpen.id;
+    const column = notesModalIsOpen.column;
+    dispatch(
+      changePurchaseOrderDetailValue({
+        index,
+        key: column,
+        value: notes,
+      })
+    )
+
+    closeNotesModal();
+  };
 
   purchaseOrderDetails.forEach((item, index) => {
     form.setFieldsValue({
@@ -302,7 +332,7 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
           size="small"
           type="primary"
           className="!w-8"
-          disabled={isDisable}
+          disabled={isDisable || isBuyout}
           icon={<BiPlus size={14} />}
           onClick={() => dispatch(addPurchaseOrderDetail())}
         />
@@ -318,6 +348,7 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
               icon={<IoMdArrowDropup size={16} />}
               disabled={index === 0}
               onClick={() => {
+                alert(index)
                 dispatch(changePurchaseOrderDetailOrder({ from: index, to: index - 1 }));
               }}
             />
@@ -509,29 +540,29 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
       },
       width: 300
     },
-    {
-      title: 'Customer Notes',
-      dataIndex: 'description',
-      key: 'description',
-      render: (_, { description, editable }, index) => {
-        return (
-          <DebounceInput
-            value={description}
-            disabled={editable === false || isDisable}
-            onChange={(value) =>
-              dispatch(
-                changePurchaseOrderDetailValue({
-                  index,
-                  key: 'description',
-                  value: value
-                })
-              )
-            }
-          />
-        );
-      },
-      width: 240
-    },
+    // {
+    //   title: 'Customer Notes',
+    //   dataIndex: 'description',
+    //   key: 'description',
+    //   render: (_, { description, editable }, index) => {
+    //     return (
+    //       <DebounceInput
+    //         value={description}
+    //         disabled={editable === false || isDisable}
+    //         onChange={(value) =>
+    //           dispatch(
+    //             changePurchaseOrderDetailValue({
+    //               index,
+    //               key: 'description',
+    //               value: value
+    //             })
+    //           )
+    //         }
+    //       />
+    //     );
+    //   },
+    //   width: 240
+    // },
     {
       title: 'V.Part#',
       dataIndex: 'vpart',
@@ -681,27 +712,40 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
       width: 120
     },
     {
-      title: 'Vend Notes',
-      dataIndex: 'vendor_notes',
-      key: 'vendor_notes',
+      title: "Vendor Notes",
+      dataIndex: "vendor_notes",
+      key: "vendor_notes",
       render: (_, { vendor_notes, editable }, index) => {
+        const disabled = editable === false || isDisable;
+
         return (
-          <DebounceInput
-            value={vendor_notes}
-            disabled={editable === false || isDisable}
-            onChange={(value) =>
-              dispatch(
-                changePurchaseOrderDetailValue({
-                  index,
-                  key: 'vendor_notes',
-                  value: value
-                })
-              )
-            }
-          />
+          <div className="relative">
+            <p className={disabled ? "text-gray-400 cursor-not-allowed" : ""}>{vendor_notes}</p>
+            <div
+              className={`absolute -right-2 ${vendor_notes?.trim() ? "-top-[2px]" : "-top-[12px]"
+                } flex h-6 w-6 items-center justify-center rounded-full bg-white`}
+            >
+              <TbEdit
+                size={22}
+                className={`${disabled
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-primary hover:text-blue-600 cursor-pointer"
+                  }`}
+                onClick={() => {
+                  if (disabled) return;
+                  setNotesModalIsOpen({
+                    open: true,
+                    id: index,
+                    column: "vendor_notes",
+                    notes: vendor_notes,
+                  });
+                }}
+              />
+            </div>
+          </div>
         );
       },
-      width: 240
+      width: 100,
     },
     {
       title: (
@@ -709,7 +753,7 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
           size="small"
           type="primary"
           className="!w-8"
-          disabled={isDisable}
+          disabled={isDisable || isBuyout}
           icon={<BiPlus size={14} />}
           onClick={() => dispatch(addPurchaseOrderDetail())}
         />
@@ -723,12 +767,12 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
             arrow
             menu={{
               items: [
-                {
+                !isBuyout && {
                   key: '1',
                   label: 'Add',
                   onClick: () => dispatch(addPurchaseOrderDetail(index))
                 },
-                {
+                !isBuyout && {
                   key: '2',
                   label: 'Copy',
                   onClick: () => {
@@ -743,7 +787,7 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
                     dispatch(removePurchaseOrderDetail(id));
                   }
                 }
-              ]
+              ].filter(Boolean)
             }}>
             <Button size="small">
               <BsThreeDotsVertical />
@@ -954,6 +998,16 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
           <DetailSummaryInfo title="Total Quantity:" value={totalQuantity} />
           <DetailSummaryInfo title="Total Amount:" value={totalAmount} />
         </div>
+
+        <NotesModal
+          title={notesTitleMap[notesModalIsOpen.column] || 'Notes'}
+          initialValue={notesModalIsOpen.notes}
+          isSubmitting={false}
+          open={notesModalIsOpen.open}
+          onCancel={closeNotesModal}
+          onSubmit={onNotesSave}
+          disabled={!permissions?.purchase_order?.edit || !permissions?.purchase_order?.add}
+        />
 
         <div className="mt-4 flex items-center justify-end gap-2">
           <Link to="/purchase-order">

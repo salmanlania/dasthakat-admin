@@ -12,12 +12,15 @@ import {
   Tooltip
 } from 'antd';
 import dayjs from 'dayjs';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { BiPlus } from 'react-icons/bi';
+import { getSalesman } from '../../store/features/salesmanSlice';
+import { FaEye } from 'react-icons/fa';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoIosWarning, IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { TbEdit } from 'react-icons/tb';
+import { TiDelete } from 'react-icons/ti';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import NotesModal from '../../components/Modals/NotesModal.jsx';
@@ -29,7 +32,10 @@ import {
   copyChargeOrderDetail,
   removeChargeOrderDetail,
   resetChargeOrderDetail,
-  splitChargeOrderQuantity
+  splitChargeOrderQuantity,
+  setTotalCommissionAmount,
+  setRebatePercentage,
+  setSalesmanPercentage
 } from '../../store/features/chargeOrderSlice';
 import { getEvent } from '../../store/features/eventSlice';
 import { getProduct } from '../../store/features/productSlice';
@@ -41,17 +47,38 @@ import DebounceInput from '../Input/DebounceInput';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebouncedCommaSeparatedInputRate from '../Input/DebouncedCommaSeparatedInputRate';
 import DebouncedNumberInputMarkup from '../Input/DebouncedNumberInputMarkup.jsx';
-import { DetailSummaryInfo } from './QuotationForm';
+import { DetailSummary, DetailSummaryGp, DetailSummaryInfo, DetailSummaryInformation } from './QuotationForm';
 
 // eslint-disable-next-line react/prop-types
 const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
+  const [globalMarkup, setGlobalMarkup] = useState('');
+  const [isEventChanged, setIsEventChanged] = useState(false);
+  const [globalDiscount, setGlobalDiscount] = useState('');
+  const [submitAction, setSubmitAction] = useState(null);
+  const [hiddenAgentKeys, setHiddenAgentKeys] = useState([]);
+  const [isCommissionTableVisible, setIsCommissionTableVisible] = useState(false);
+  const [notesModalIsOpen, setNotesModalIsOpen] = useState({
+    open: false,
+    id: null,
+    column: null,
+    notes: null
+  });
+  // title={notesModalIsOpen.column === 'description' ? 'Customer Notes' : 'Internal Notes'}
+  const notesTitleMap = {
+    description: 'Customer Notes',
+    internal_notes: 'Internal Notes',
+    technician_notes: 'Technician Notes',
+    agent_notes: 'Agent Notes',
+    vendor_notes: 'Vendor Notes',
+  };
   const [form] = Form.useForm();
   const handleError = useError();
   const { id } = useParams();
   const dispatch = useDispatch();
-  const { isFormSubmitting, initialFormValues, chargeOrderDetails } = useSelector(
+  const { isFormSubmitting, totalCommissionAmount, initialFormValues, chargeOrderDetails, commissionAgentData, rebatePercentage, salesmanPercentage } = useSelector(
     (state) => state.chargeOrder
   );
+  const { commissionAgent } = useSelector((state) => state.event);
 
   const isDisable = mode === 'edit' && initialFormValues?.is_deleted === 1
 
@@ -71,21 +98,79 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
   const [searchParams] = useSearchParams();
 
   const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission;
+  const permissions = user?.permission;
 
   const chargeOrder_id = searchParams.get('chargeOrder_id') || null;
 
   let totalQuantity = 0;
+  let totalCost = 0;
   let totalAmount = 0;
   let discountAmount = 0;
   let totalNet = 0;
+  let totalProfit = 0;
+  let typeId = 0;
+  let gp = 0;
 
   chargeOrderDetails.forEach((detail) => {
+    typeId = detail?.product_type_id?.value;
     totalQuantity += +detail.quantity || 0;
+    if (typeId !== 1) {
+      totalCost += (+detail.quantity || 0) * (+detail.cost_price || 0);
+    }
     totalAmount += +detail.amount || 0;
     discountAmount += +detail.discount_amount || 0;
     totalNet += +detail.gross_amount || 0;
   });
+
+  const parsedRebate = parseFloat(rebatePercentage) || 0;
+  const parsedSalesman = parseFloat(salesmanPercentage) || 0;
+
+  const rebateAmount = totalNet
+    ? formatThreeDigitCommas(roundUpto(totalNet * (parsedRebate / 100)))
+    : 0;
+
+  const salesmanAmount = totalNet
+    ? formatThreeDigitCommas(roundUpto(totalNet * (parsedSalesman / 100)))
+    : 0;
+
+  const total = parseInt(totalCommissionAmount || 0);
+  const salesman = parseInt(salesmanAmount || 0);
+  const rebate = parseInt(rebateAmount || 0);
+
+  const otherComission =
+    (isNaN(total) ? 0 : total) +
+    (isNaN(salesman) ? 0 : salesman) +
+    (isNaN(rebate) ? 0 : rebate);
+
+  const minusValue =
+    parseInt(totalCost || 0) +
+    parseInt(otherComission || 0);
+
+  const finalAmount = parseInt(totalNet || 0) - minusValue || 0;
+
+  totalProfit = roundUpto(finalAmount - totalCost);
+
+  chargeOrderDetails.forEach((detail) => {
+    gp = finalAmount * 100 / totalNet
+  });
+
+  useEffect(() => {
+    const activeAgents =
+      commissionAgent?.length > 0 ? commissionAgent : commissionAgentData;
+
+    if (activeAgents?.length > 0 && totalNet) {
+      const totalAmount = activeAgents
+        .filter((agent) => !hiddenAgentKeys.includes(agent.commission_agent_id))
+        .reduce((sum, agent) => {
+          const percentage = parseFloat(agent.commission_percentage || 0);
+          const amount = roundUpto((percentage * totalNet) / 100);
+          return sum + (isNaN(amount) ? 0 : amount);
+        }, 0);
+      dispatch(setTotalCommissionAmount(totalAmount));
+    } else {
+      dispatch(setTotalCommissionAmount(0));
+    }
+  }, [commissionAgent, commissionAgentData, totalNet, hiddenAgentKeys, dispatch]);
 
   const onFinish = async (submitType = null, additionalRequest = null) => {
     setSubmitAction(submitType);
@@ -95,6 +180,27 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
 
     const edit = mode;
     const deletedDetails = chargeOrderDetails.filter((detail) => detail.isDeleted !== true);
+
+    const checkCommission = commissionAgentData?.length > 0 ? commissionAgentData : commissionAgent;
+    const selectedCommissionAgents = checkCommission
+      .filter((agent) => !hiddenAgentKeys.includes(agent.commission_agent_id))
+      .map((agent) => {
+        const percentage = parseFloat(agent?.commission_percentage || 0);
+        const amount = roundUpto((percentage * totalNet) / 100);
+        return {
+          vessel_id: agent.vessel_id || null,
+          customer_id: agent.customer_id || null,
+          commission_agent_id: agent.commission_agent_id,
+          percentage,
+          amount,
+          isDeleted: false,
+          sort_order: 1,
+        };
+      });
+
+    if (rebatePercentage > 100) return toast.error('Rebate Percentage cannot be greater than 100');
+    if (salesmanPercentage > 100)
+      return toast.error('Salesman Percentage cannot be greater than 100');
 
     const filteredDetails = chargeOrderDetails.filter(
       (detail) => !(detail.isDeleted && detail.row_status === 'I')
@@ -125,6 +231,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
         ? dayjs(values.document_date).format('YYYY-MM-DD')
         : null,
       technician_id: values.technician_id ? values.technician_id.map((v) => v.value) : null,
+      commission_agent: selectedCommissionAgents,
       charge_order_detail: mappingSource.map(
         ({ id, isDeleted, row_status, product_type, ...detail }, index) => {
           return {
@@ -137,6 +244,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
             product_name: detail.product_type_id?.value == 4 ? detail?.product_name : null,
             supplier_id: detail.supplier_id ? detail.supplier_id.value : null,
             product_type_id: detail.product_type_id ? detail.product_type_id.value : null,
+            quantity: detail?.quantity ? detail?.quantity : 0,
             unit_id: detail.unit_id ? detail.unit_id.value : null,
             markup: detail.product_type_id?.value === 1 ? 0 : detail.markup,
             cost_price: detail.product_type_id?.value === 1 ? 0 : detail.cost_price,
@@ -301,17 +409,6 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
       handleError(error);
     }
   };
-
-  const [globalMarkup, setGlobalMarkup] = useState('');
-  const [isEventChanged, setIsEventChanged] = useState(false);
-  const [globalDiscount, setGlobalDiscount] = useState('');
-  const [submitAction, setSubmitAction] = useState(null);
-  const [notesModalIsOpen, setNotesModalIsOpen] = useState({
-    open: false,
-    id: null,
-    column: null,
-    notes: null
-  });
 
   const applyGlobalDiscount = (inputValue) => {
     const trimmed = inputValue.trim();
@@ -642,6 +739,37 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
       width: 100
     },
     {
+      title: 'Vendor Notes',
+      dataIndex: 'vendor_notes',
+      key: 'vendor_notes',
+      render: (_, { vendor_notes }, index) => {
+        return (
+          <div className="relative">
+            <p>{vendor_notes}</p>
+            <div
+              className={`absolute -right-2 ${vendor_notes?.trim() ? '-top-[2px]' : '-top-[12px]'} flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-white`}>
+              <TbEdit
+                size={22}
+                className={`text-primary hover:text-blue-600 ${isDisable ? 'pointer-events-none opacity-50' : ''}`}
+                onClick={() => {
+                  if (!isDisable) {
+                    setNotesModalIsOpen({
+                      open: true,
+                      id: index,
+                      column: 'vendor_notes',
+                      notes: vendor_notes
+                    })
+                  }
+                }
+                }
+              />
+            </div>
+          </div>
+        );
+      },
+      width: 100
+    },
+    {
       title: 'Stock Quantity',
       dataIndex: 'stock_quantity',
       key: 'stock_quantity',
@@ -763,7 +891,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
       title: 'Vendor',
       dataIndex: 'supplier_id',
       key: 'supplier_id',
-      render: (_, { supplier_id, product_type_id, editable }, index) => {
+      render: (_, { supplier_id, product_type_id, editable, purchase_order_exists }, index) => {
         return (
           <AsyncSelect
             endpoint="/supplier"
@@ -772,7 +900,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
             labelInValue
             className="w-full"
             disabled={
-              product_type_id?.value == 1 || product_type_id?.value == 2 || editable === false || isDisable
+              product_type_id?.value == 1 || product_type_id?.value == 2 || editable === false || isDisable || purchase_order_exists
             }
             value={supplier_id}
             onChange={(selected) =>
@@ -784,7 +912,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
                 })
               )
             }
-            addNewLink={permissions.supplier.add ? '/vendor/create' : null}
+            addNewLink={permissions?.supplier.add ? '/vendor/create' : null}
           />
         );
       },
@@ -1076,6 +1204,91 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
     }
   ];
 
+  const commissionAgentColumns = [
+    {
+      title: 'Agent Name',
+      dataIndex: 'name',
+      key: 'name',
+      render: (text, record, index) => {
+        if (record.isStatic) {
+          return <span>{record.name}</span>;
+        }
+
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            Agent {index + 1}
+            {permissions?.quotation?.commission_agent && (
+              <Tooltip title={text}>
+                <FaEye size={14} style={{ cursor: 'pointer' }} />
+              </Tooltip>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      title: 'Percentage',
+      key: 'commission_percentage',
+      dataIndex: 'commission_percentage',
+      render: (value) => `${value ?? 0}%`,
+    },
+    {
+      title: 'Total Amount',
+      key: 'amount',
+      dataIndex: 'commission_percentage',
+      render: (percentage, record, index) => {
+        const safePercentage = parseFloat(percentage || 0);
+        const safeTotalNet = totalNet || 0;
+        const amount = roundUpto((safePercentage * safeTotalNet) / 100);
+        return isNaN(amount) ? 0 : amount;
+      },
+    },
+    ...(commissionAgent.length > 0 || commissionAgentData.length > 0
+      ? [
+        {
+          title: 'Actions',
+          key: 'actions',
+          render: (_, record) =>
+            record.isStatic ? null : (
+              <Button
+                danger
+                size="small"
+                style={{
+                  border: 'none',
+                  outline: 'none',
+                  background: 'none',
+                  boxShadow: 'none',
+                }}
+                onClick={() => {
+                  setHiddenAgentKeys((prev) => [...prev, record.commission_agent_id])
+                }}
+              >
+                <TiDelete size={20} />
+              </Button>
+            ),
+        },
+      ] : []
+    )
+  ];
+
+  const extendedCommissionData = [
+    ...(commissionAgent.length > 0 ? commissionAgent : commissionAgentData),
+    {
+      commission_agent_id: 'rebate_row',
+      name: 'Rebate',
+      commission_percentage: rebatePercentage,
+      amount: rebateAmount,
+      isStatic: true,
+    },
+    {
+      commission_agent_id: 'salesman_row',
+      name: 'Salesman',
+      commission_percentage: salesmanPercentage,
+      amount: salesmanAmount,
+      isStatic: true,
+    },
+  ];
+
   const onEventChange = async (selected) => {
     form.setFieldsValue({
       vessel_id: null,
@@ -1084,7 +1297,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
       class2_id: null,
       flag_id: null
     });
-
+    dispatch(setRebatePercentage(null));
     setIsEventChanged(true);
 
     if (!selected) return;
@@ -1097,6 +1310,20 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
         class2_id: { value: data.class2_id, label: data.class2_name },
         flag_id: { value: data.flag_id, label: data.flag_name }
       });
+      dispatch(setRebatePercentage(data?.rebate_percent ? +data?.rebate_percent : 0));
+      dispatch(setSalesmanPercentage(data?.commission_percentage ? +data?.commission_percentage : 0));
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const onSalesmanChange = async (selected) => {
+    dispatch(setSalesmanPercentage(null));
+    if (!selected) return;
+
+    try {
+      const data = await dispatch(getSalesman(selected.value)).unwrap();
+      dispatch(setSalesmanPercentage(data.commission_percentage ? +data.commission_percentage : 0));
     } catch (error) {
       handleError(error);
     }
@@ -1164,6 +1391,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
                 addNewLink={
                   permissions.salesman.list && permissions.salesman.add ? '/salesman' : null
                 }
+                onChange={onSalesmanChange}
               />
             </Form.Item>
           </Col>
@@ -1277,13 +1505,9 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
           }}
         />
 
-        <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
+        {/* <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
           <Row gutter={[12, 12]}>
             <Col span={24} sm={12} md={6} lg={6}>
-              <DetailSummaryInfo
-                title="Total Quantity:"
-                value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
-              />
               <DetailSummaryInfo
                 title="Total Amount:"
                 value={formatThreeDigitCommas(roundUpto(initialFormValues?.total_amount ? initialFormValues?.total_amount : totalAmount)) || 0}
@@ -1296,8 +1520,93 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
                 title="Net Amount:"
                 value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
               />
+              <DetailSummaryInfo
+                title="Total Quantity:"
+                value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
+              />
             </Col>
           </Row>
+        </div> */}
+
+        <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
+          <div className="flex w-full gap-0 items-start flex-col md:flex-row mt-1">
+            <div className="w-full md:w-[60%] flex-shrink-0 max-h-[300px]">
+              <Row gutter={[12, 12]}>
+                <Col span={24} sm={12} md={12} lg={12}>
+                  <DetailSummaryInfo
+                    title="Total Amount:"
+                    value={formatThreeDigitCommas(roundUpto(totalAmount)) || 0}
+                  />
+                  <DetailSummaryInfo
+                    title="Discount Amount:"
+                    value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
+                  />
+                  <DetailSummaryInfo
+                    title="Net Amount:"
+                    value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
+                  />
+                  <DetailSummaryInfo
+                    title="Total Cost:"
+                    value={formatThreeDigitCommas(roundUpto(totalCost)) || 0}
+                  />
+
+                  <DetailSummaryInformation
+                    title="Other Commission:"
+                    value={formatThreeDigitCommas(roundUpto(otherComission)) || 0}
+                    icon={
+                      permissions?.charge_order?.commission_agent ? (
+                        <FaEye
+                          size={14}
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => setIsCommissionTableVisible(!isCommissionTableVisible)}
+                        />
+                      ) : null
+                    }
+                  />
+                  <DetailSummaryInfo title="Final Amount:" value={finalAmount} />
+                </Col>
+                <Row gutter={[12, 12]}>
+                  <div className="flex flex-col gap-2 text-right justify-between">
+                    <DetailSummary
+                      title="Total Quantity:"
+                      value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
+                    />
+                    <DetailSummaryGp
+                      title="GP %:"
+                      value={`${formatThreeDigitCommas(roundUpto(gp)) || 0}%`}
+                    />
+                  </div>
+                </Row>
+              </Row>
+            </div>
+            <div className="w-full md:w-[35%]">
+              {isCommissionTableVisible ? (
+                <div className="rounded-lg p-4" style={{ backgroundColor: '#F8FAFC' }}>
+                  <div
+                    className="max-w-full"
+                    style={{
+                      maxHeight: extendedCommissionData.length > 4 ? 240 : 'auto',
+                      overflowY: extendedCommissionData.length > 4 ? 'auto' : 'visible',
+                      overflowX: 'none',
+                    }}
+                  >
+                    <Table
+                      columns={commissionAgentColumns}
+                      dataSource={extendedCommissionData}
+                      rowKey={(record) => record.commission_agent_id}
+                      size="small"
+                      pagination={false}
+                      rowSelection={null}
+                      rowClassName={(record) =>
+                        hiddenAgentKeys.includes(record.commission_agent_id) ? 'hidden-row' : ''
+                      }
+                      className="comission-agent-quotation-custom-table"
+                    />
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </div>
         </div>
 
         <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
@@ -1342,7 +1651,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
         </div>
       </Form>
       <NotesModal
-        title={notesModalIsOpen.column === 'description' ? 'Customer Notes' : 'Internal Notes'}
+        title={notesTitleMap[notesModalIsOpen.column] || 'Notes'}
         initialValue={notesModalIsOpen.notes}
         isSubmitting={false}
         open={notesModalIsOpen.open}

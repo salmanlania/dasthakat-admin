@@ -113,6 +113,13 @@ const EventForm = ({ mode, onSubmit }) => {
             <AsyncSelect
               endpoint={`/vessel?customer_id=${form.getFieldValue('customer_id')?.value || ''}`}
               valueKey="vessel_id"
+              rules={[
+                {
+                  required: true,
+                  whitespace: true,
+                  message: 'Vessel is required!',
+                },
+              ]}
               labelKey="name"
               labelInValue
               addNewLink={permissions.vessel.add ? '/vessel/create' : null}

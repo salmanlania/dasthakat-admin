@@ -296,7 +296,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
     [
       {
         content: 'Job Scope',
-        colSpan: 7,
+        colSpan: 8,
         styles: {
           textColor: '#ffffff',
           fontSize: 8,
@@ -343,6 +343,12 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
       },
       {
         content: 'Qty',
+        styles: {
+          fillColor: 'ebf1de'
+        }
+      },
+      {
+        content: 'Status',
         styles: {
           fillColor: 'ebf1de'
         }
@@ -415,7 +421,11 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
             styles: { halign: 'left' }
           },
           {
-            content: detail.quantity ? parseFloat(detail.quantity) : 0,
+            content: detail?.quantity ? parseFloat(detail?.quantity) : 0,
+            styles: { textColor: '#d51902' }
+          },
+          {
+            content: detail?.status ? detail?.status : '',
             styles: { textColor: '#d51902' }
           }
         ]);
@@ -446,13 +456,14 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
     },
     didParseCell: function (data) {
       const cellIndex = data.column.index;
-      if (cellIndex === 0) data.cell.styles.cellWidth = 22;
-      if (cellIndex === 1) data.cell.styles.cellWidth = 20;
+      if (cellIndex === 0) data.cell.styles.cellWidth = 18;
+      if (cellIndex === 1) data.cell.styles.cellWidth = 18;
       if (cellIndex === 2) data.cell.styles.cellWidth = 26;
-      if (cellIndex === 3) data.cell.styles.cellWidth = 62;
-      if (cellIndex === 4) data.cell.styles.cellWidth = 31;
-      if (cellIndex === 5) data.cell.styles.cellWidth = 31;
+      if (cellIndex === 3) data.cell.styles.cellWidth = 55;
+      if (cellIndex === 4) data.cell.styles.cellWidth = 28;
+      if (cellIndex === 5) data.cell.styles.cellWidth = 28;
       if (cellIndex === 6) data.cell.styles.cellWidth = 16;
+      if (cellIndex === 7) data.cell.styles.cellWidth = 17;
     }
   });
 

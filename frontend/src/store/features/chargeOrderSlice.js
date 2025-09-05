@@ -8,8 +8,12 @@ export const getChargeOrderList = createAsyncThunk(
   'chargeOrder/list',
   async (params, { rejectWithValue }) => {
     try {
+      let apiParams = { ...params };
+      if (apiParams.event_id && typeof apiParams.event_id === 'object' && apiParams.event_id !== null) {
+        apiParams.event_id = apiParams.event_id.value;
+      }
       const res = await api.get('/charge-order', {
-        params
+        params: apiParams
       });
       return res.data;
     } catch (err) {
@@ -42,7 +46,7 @@ export const createChargeOrder = createAsyncThunk(
 
 export const cancelledChargeOrder = createAsyncThunk(
   'chargeOrder/cancel',
-  async ( id , { rejectWithValue }) => {
+  async (id, { rejectWithValue }) => {
     try {
       return await api.post('/charge-order/actions', {
         id,
@@ -195,13 +199,17 @@ const initialState = {
   analysisChargeDetails: [],
   list: [],
   deleteIDs: [],
+  rebatePercentage: null,
+  salesmanPercentage: null,
   chargeOrderDetails: [],
+  commissionAgentData: [],
   params: {
     page: 1,
     limit: 50,
     search: '',
     sort_column: null,
-    sort_direction: 'null'
+    event_id: null,
+    sort_direction: null
   },
   paginationInfo: {
     total_records: 0,
@@ -288,6 +296,10 @@ export const chargeOrderSlice = createSlice({
       state.chargeOrderDetails.splice(index + 1, 0, newDetail);
     },
 
+    setTotalCommissionAmount: (state, action) => {
+      state.totalCommissionAmount = action.payload;
+    },
+
     removeChargeOrderDetail: (state, action) => {
       const itemIndex = state.chargeOrderDetails.findIndex(item => item.id === action.payload);
 
@@ -320,6 +332,14 @@ export const chargeOrderSlice = createSlice({
         gross_amount: null,
         row_status: state.chargeOrderDetails[index].row_status === 'U' ? 'U' : state.chargeOrderDetails[index].row_status
       };
+    },
+
+    setRebatePercentage: (state, action) => {
+      state.rebatePercentage = action.payload;
+    },
+
+    setSalesmanPercentage: (state, action) => {
+      state.salesmanPercentage = action.payload;
     },
 
     // Change the order of chargeOrder details, from is the index of the item to be moved, to is the index of the item to be moved to
@@ -383,7 +403,7 @@ export const chargeOrderSlice = createSlice({
     //   }
     // },
 
-        changeChargeOrderDetailValue: (state, action) => {
+    changeChargeOrderDetailValue: (state, action) => {
       const { index, key, value } = action.payload;
 
       const detail = state.chargeOrderDetails[index];
@@ -499,6 +519,8 @@ export const chargeOrderSlice = createSlice({
       state.isListLoading = true;
       state.initialFormValues = null;
       state.chargeOrderDetails = [];
+      state.rebatePercentage = null;
+      state.salesmanPercentage = null;
     });
     addCase(getChargeOrderList.fulfilled, (state, action) => {
       state.isListLoading = false;
@@ -609,11 +631,21 @@ export const chargeOrderSlice = createSlice({
             label: data.flag.name
           }
           : null,
-          total_amount: data?.total_amount
+        total_amount: data?.total_amount
       };
 
-      if (!data.charge_order_detail) return;
-      state.chargeOrderDetails = data.charge_order_detail.map((detail) => ({
+      state.commissionAgentData = Array.isArray(data?.commission_agent)
+        ? data?.commission_agent.map((detail) => ({
+          name: detail?.name ? detail.name : null,
+          commission_percentage: detail?.percentage ? detail.percentage : null,
+          amount: detail?.amount ? detail.amount : null,
+          row_status: 'U',
+          isDeleted: false,
+          commission_agent_id: detail?.commission_agent_id ? detail.commission_agent_id : null,
+        }))
+        : [];
+
+      state.chargeOrderDetails = data?.charge_order_detail.map((detail) => ({
         id: detail.charge_order_detail_id,
         purchase_order_id: detail.purchase_order_id,
         purchase_order_detail_id: detail.purchase_order_detail_id,
@@ -629,8 +661,11 @@ export const chargeOrderSlice = createSlice({
           : null,
         product_name: detail.product_name.trim(),
         product_description: detail?.product_description ? detail?.product_description.trim() : null,
-        description: detail.description,
-        internal_notes: detail.internal_notes,
+        description: detail?.description ? detail?.description : null,
+        internal_notes: detail?.internal_notes ? detail?.internal_notes : null,
+        technician_notes: detail?.technician_notes ? detail?.technician_notes : null,
+        agent_notes: detail?.agent_notes ? detail?.agent_notes : null,
+        vendor_notes: detail?.vendor_notes ? detail?.vendor_notes : null,
         quotation_detail_id: detail.quotation_detail_id || null,
         picklist_id: detail.picklist_id || null,
         picklist_detail_id: detail.picklist_detail_id || null,
@@ -658,9 +693,17 @@ export const chargeOrderSlice = createSlice({
         discount_amount: detail.discount_amount,
         gross_amount: detail.gross_amount,
         editable: detail.editable,
+        purchase_order_exists: detail?.purchase_order_exists,
         row_status: 'U',
         isDeleted: false
       }));
+
+      state.rebatePercentage = data?.rebate_percent ? data?.rebate_percent : 0;
+      state.salesmanPercentage = data?.salesman_percent
+        ? data?.salesman_percent
+        : data?.commission_percentage
+          ? data?.commission_percentage
+          : 0;
     });
     addCase(getChargeOrder.rejected, (state) => {
       state.isItemLoading = false;
@@ -755,6 +798,9 @@ export const chargeOrderSlice = createSlice({
 });
 
 export const {
+  setRebatePercentage,
+  setSalesmanPercentage,
+  setTotalCommissionAmount,
   setChargeOrderListParams,
   setChargeOrderDeleteIDs,
   addChargeOrderDetail,
