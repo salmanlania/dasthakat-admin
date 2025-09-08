@@ -254,7 +254,11 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
         }
       ),
       total_quantity: totalQuantity,
-      is_event_changed: isEventChanged
+      is_event_changed: isEventChanged,
+      rebate_percent: rebatePercentage,
+      salesman_percent: salesmanPercentage,
+      rebate_amount: rebateAmount,
+      salesman_amount: salesmanAmount,
     };
 
     submitType === 'save' ? await onSubmit(data, additionalRequest) : submitType === 'saveAndExit' ? await onSave(data, additionalRequest) : submitType === 'savePo' ? await onSavePo(data, additionalRequest) : null;

@@ -21,7 +21,7 @@ const ChargeOrderModal = () => {
   const navigate = useNavigate();
   const handleError = useError();
   const { chargeQuotationID, isFormSubmitting } = useSelector((state) => state.chargeOrder);
-  const { isItemLoading, quotationDetails, initialFormValues } = useSelector(
+  const { isItemLoading, quotationDetails, initialFormValues, commissionAgentData, rebatePercentage, salesmanPercentage } = useSelector(
     (state) => state.quotation
   );
 
@@ -209,6 +209,9 @@ const ChargeOrderModal = () => {
       agent_id: initialFormValues.agent_id ? initialFormValues.agent_id.value : null,
       customer_po_no: values.customer_po_no ? values.customer_po_no : null,
       remarks: initialFormValues.remarks ? initialFormValues.remarks : null,
+      commission_agent: commissionAgentData ? commissionAgentData : null,
+      rebate_percent: rebatePercentage ? rebatePercentage : null,
+      salesman_percent: salesmanPercentage ? salesmanPercentage : null,
       charge_order_detail: selectedDetails.map((detail, index) => {
         const { quantity, available_quantity, ...restOfDetail } = detail;
         return {
@@ -223,6 +226,9 @@ const ChargeOrderModal = () => {
         };
       })
     };
+
+    // console.log('data' , data) rebatePercentage
+    // return salesmanPercentage
 
     try {
       const res = await dispatch(createChargeOrder({ data })).unwrap();
