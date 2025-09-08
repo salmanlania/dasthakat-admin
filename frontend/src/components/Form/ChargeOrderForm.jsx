@@ -63,7 +63,6 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
     column: null,
     notes: null
   });
-  // title={notesModalIsOpen.column === 'description' ? 'Customer Notes' : 'Internal Notes'}
   const notesTitleMap = {
     description: 'Customer Notes',
     internal_notes: 'Internal Notes',
@@ -134,8 +133,6 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
     : 0;
 
   const total = parseInt(totalCommissionAmount || 0);
-  // const salesman = parseInt(salesmanAmount || 0);
-  // const rebate = parseInt(rebateAmount || 0);
   const salesman = parseInt(salesmanAmount || 0);
   const rebate = parseInt(rebateAmount || 0)
 
@@ -1506,29 +1503,6 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
             offsetHeader: 56
           }}
         />
-
-        {/* <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
-          <Row gutter={[12, 12]}>
-            <Col span={24} sm={12} md={6} lg={6}>
-              <DetailSummaryInfo
-                title="Total Amount:"
-                value={formatThreeDigitCommas(roundUpto(initialFormValues?.total_amount ? initialFormValues?.total_amount : totalAmount)) || 0}
-              />
-              <DetailSummaryInfo
-                title="Discount Amount:"
-                value={formatThreeDigitCommas(roundUpto(discountAmount)) || 0}
-              />
-              <DetailSummaryInfo
-                title="Net Amount:"
-                value={formatThreeDigitCommas(roundUpto(totalNet)) || 0}
-              />
-              <DetailSummaryInfo
-                title="Total Quantity:"
-                value={formatThreeDigitCommas(roundUpto(totalQuantity)) || 0}
-              />
-            </Col>
-          </Row>
-        </div> */}
 
         <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
           <div className="flex w-full gap-0 items-start flex-col md:flex-row mt-1">
