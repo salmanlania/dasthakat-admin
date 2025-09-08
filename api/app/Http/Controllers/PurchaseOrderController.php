@@ -443,7 +443,7 @@ class PurchaseOrderController extends Controller
 							$quantity = $value['quantity'] ?? 0;
 							$cost_price = $value['rate'] ?? 0;
 							$markup = $data->markup ?? 0;
-							$rate = ($cost_price * $markup) / 100;
+							$rate = $cost_price + (($cost_price * $markup) / 100);
 							$amount = $quantity * $rate;
 							$discount_percent = $data->discount_percent ?? 0;
 							$discount_amount = ($amount * $discount_percent) / 100;
