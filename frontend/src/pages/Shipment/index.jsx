@@ -648,7 +648,7 @@ const Shipment = () => {
         open={createModalIsOpen}
         onCancel={closeCreateModal}
         title={popupTitle}
-        width={"60vw"}
+        width={"70vw"}
         styles={{
           body: { maxHeight: "70vh", overflowY: "auto" },
         }}
@@ -673,7 +673,7 @@ const Shipment = () => {
         )}
 
         {!chargeDataGetting && chargeData ? (
-          <div className="mt-6">
+          <div className="mt-6 flex flex-col gap-8">
             {chargeData.map((charge) => (
               <div className="relative rounded border p-2 pt-6" key={charge.charge_order_id}>
                 <div
