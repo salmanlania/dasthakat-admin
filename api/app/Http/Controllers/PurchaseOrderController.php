@@ -441,7 +441,7 @@ class PurchaseOrderController extends Controller
 							$chargeOrderDetail = ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id']);
 							$data = $chargeOrderDetail->first();
 							$quantity = $value['quantity'] ?? 0;
-							$cost_price = $value['cost_price'] ?? 0;
+							$cost_price = $value['rate'] ?? 0;
 							$markup = $data->markup ?? 0;
 							$rate = ($cost_price * $markup) / 100;
 							$amount = $quantity * $rate;
