@@ -274,7 +274,7 @@ export const createSaleInvoicePrint = async (data) => {
   if (data.sale_invoice_detail) {
     data.sale_invoice_detail.forEach((detail) => {
       const sr = detail.sort_order + 1;
-      const description = `${detail?.product?.impa_code || ''}${detail?.product_description || ''}${detail?.description ? `\n \n${detail.description}` : ''}`;
+      const description = `${detail?.product_description || ''}${detail?.description ? `\n \n${detail.description}` : ''}`;
       const uom = detail.unit ? detail.unit.name : '';
       const quantity = detail.quantity ? formatThreeDigitCommas(parseFloat(detail.quantity)) : '0';
       const pricePerUnit = detail.rate ? `$${formatThreeDigitCommas(detail.rate)}` : '0';
