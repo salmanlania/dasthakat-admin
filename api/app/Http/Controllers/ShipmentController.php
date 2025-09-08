@@ -304,7 +304,7 @@ class ShipmentController extends Controller
 					'shipment_id'       => $uuid,
 					'document_type_id'  => $document['document_type_id'] ?? "",
 					'document_no'       => $document['document_no'] ?? "",
-					'document_identity' => $shipmentBlock['document_identity'] ?? $document['document_identity'] ?? "",
+					'document_identity' => $document['document_identity'] ?? "",
 					'document_prefix'   => $document['document_prefix'] ?? "",
 					'document_date'     => Carbon::now(),
 					'event_id'          => $request->event_id ?? "",
