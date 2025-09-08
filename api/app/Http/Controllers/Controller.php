@@ -567,19 +567,11 @@ class Controller extends BaseController
 
     static public function getLatestInvoicedDate($row)
     {
-        if ($row->product_type_id == 2) {
-            $latestRecord = SaleInvoiceDetail::query()
-                ->where('charge_order_detail_id', $row->charge_order_detail_id)
-                ->latest('created_at')
-                ->first();
-        } else if ($row->product_type_id == 3 || $row->product_type_id == 4) {
-            $latestRecord = PurchaseInvoiceDetail::query()
-                ->where('charge_order_detail_id', $row->charge_order_detail_id)
-                ->latest('created_at')
-                ->first();
-        } else {
-            return null;
-        }
+        $latestRecord = SaleInvoiceDetail::query()
+              ->where('charge_order_detail_id', $row->charge_order_detail_id)
+              ->latest('created_at')
+              ->first();
+    
 
         return $latestRecord ? $latestRecord->created_at : null;
     }
