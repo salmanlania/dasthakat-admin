@@ -348,7 +348,6 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
               icon={<IoMdArrowDropup size={16} />}
               disabled={index === 0}
               onClick={() => {
-                alert(index)
                 dispatch(changePurchaseOrderDetailOrder({ from: index, to: index - 1 }));
               }}
             />
