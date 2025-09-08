@@ -136,9 +136,9 @@ const Shipment = () => {
       const values = form.getFieldsValue();
       const res = await dispatch(
         viewBeforeCreate({
-          event_id: values.event_id.value,
+          event_id: values?.event_id?.value || null,
           charge_order_id: values?.charge_order_id?.value || null,
-          type: 'SO',
+          // type: 'SO',
         }),
       ).unwrap();
       setCreateModalIsOpen(true);
@@ -161,11 +161,11 @@ const Shipment = () => {
 
     try {
       const values = form.getFieldsValue();
-      await dispatch(
+      const res = await dispatch(
         createShipment({
           event_id: values.event_id.value,
           charge_order_id: values?.charge_order_id?.value || null,
-          type: shipmentType,
+          // type: shipmentType,
           shipment: filteredChargeData,
         }),
       ).unwrap();
@@ -182,6 +182,8 @@ const Shipment = () => {
     form.setFieldsValue({
       event_id: null,
     });
+
+    if (!selected) return;
 
     try {
       const res = await dispatch(getChargeOrder(selected.value)).unwrap();
@@ -295,6 +297,32 @@ const Shipment = () => {
       key: 'event_code',
       sorter: true,
       width: 150,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div>
+          <p>Charge No</p>
+          <Input
+            className="font-normal"
+            size="small"
+            onClick={(e) => e.stopPropagation()}
+            allowClear
+            value={params.charge_no}
+            onChange={(e) =>
+              dispatch(
+                setShipmentListParams({
+                  charge_no: e.target.value,
+                }),
+              )
+            }
+          />
+        </div>
+      ),
+      dataIndex: 'charge_no',
+      key: 'charge_no',
+      sorter: true,
+      width: 180,
       ellipsis: true,
     },
     {
@@ -488,6 +516,7 @@ const Shipment = () => {
     params.sort_column,
     params.sort_direction,
     params.event_id,
+    params.charge_no,
     params.sales_team_ids,
     params.sales_team_id,
     params.salesman_id,
@@ -520,6 +549,7 @@ const Shipment = () => {
               valueKey="event_id"
               labelKey="event_code"
               labelInValue
+              allowClear
               addNewLink={otherPermissions.event.add ? '/event/create' : null}
             />
           </Form.Item>
@@ -529,26 +559,27 @@ const Shipment = () => {
               valueKey="charge_order_id"
               labelKey="document_identity"
               labelInValue
+              allowClear
               addNewLink={otherPermissions.charge_order.add ? '/charge-order/create' : null}
               onChange={onChargeOrderChange}
             />
           </Form.Item>
           <Button
             type="primary"
-            className="mb-[1px] w-28"
+            className="mb-[1px] w-40"
             disabled={!eventId}
-            loading={isFormSubmitting === 'SO'}
+            loading={isFormSubmitting}
             onClick={onShipmentCreate}>
-            Create SO
+            Create Shipment
           </Button>
-          <Button
+          {/* <Button
             type="primary"
             className="mb-[1px] w-28"
             disabled={!eventId}
-            loading={isFormSubmitting === 'DO'}
+            loading={isFormSubmitting}
             onClick={openCreateModal}>
             Create DO
-          </Button>
+          </Button> */}
         </Form>
 
         <div className="flex items-center justify-between gap-2">
@@ -613,7 +644,28 @@ const Shipment = () => {
         />
       </div>
 
-      <Modal open={createModalIsOpen} onCancel={closeCreateModal} footer={null} title={popupTitle}>
+      <Modal
+        open={createModalIsOpen}
+        onCancel={closeCreateModal}
+        title={popupTitle}
+        width={"70vw"}
+        styles={{
+          body: { maxHeight: "70vh", overflowY: "auto" },
+        }}
+        footer={[
+          <Button key="cancel" onClick={closeCreateModal}>
+            Cancel
+          </Button>,
+          <Button
+            key="create"
+            type="primary"
+            onClick={onDoShipmentCreate}
+            loading={isFormSubmitting}
+          >
+            Create
+          </Button>,
+        ]}
+      >
         {chargeDataGetting && (
           <div className="flex justify-center py-24">
             <Spin />
@@ -621,7 +673,7 @@ const Shipment = () => {
         )}
 
         {!chargeDataGetting && chargeData ? (
-          <div className="mt-6">
+          <div className="mt-6 flex flex-col gap-8">
             {chargeData.map((charge) => (
               <div className="relative rounded border p-2 pt-6" key={charge.charge_order_id}>
                 <div
@@ -650,12 +702,12 @@ const Shipment = () => {
               </div>
             ))}
 
-            <div className="mt-4 flex justify-end gap-2">
+            {/* <div className="mt-4 flex justify-end gap-2">
               <Button onClick={closeCreateModal}>Cancel</Button>
               <Button type="primary" onClick={onDoShipmentCreate} loading={isFormSubmitting}>
                 Create
               </Button>
-            </div>
+            </div> */}
           </div>
         ) : null}
       </Modal>

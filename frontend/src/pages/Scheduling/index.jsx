@@ -24,6 +24,7 @@ import NotesModal from '../../components/Modals/NotesModal.jsx';
 import useDebounce from '../../hooks/useDebounce.js';
 import useDocumentTitle from '../../hooks/useDocumentTitle.js';
 import useError from '../../hooks/useError.jsx';
+import { useNavigate } from 'react-router-dom';
 import {
   getDispatchList,
   getEventJobOrders,
@@ -43,6 +44,7 @@ const Scheduling = () => {
   const { RangePicker } = DatePicker;
   const dispatch = useDispatch();
   const handleError = useError();
+  const navigate = useNavigate();
   const { list, isListLoading, params, paginationInfo, isFormSubmitting } = useSelector(
     (state) => state.dispatch,
   );
@@ -139,6 +141,12 @@ const Scheduling = () => {
     } catch (error) {
       handleError(error);
     }
+  };
+
+  const navigateChargerEvent = async (event_id, event_code) => {
+    const url = `/charge-order?event_id=${encodeURIComponent(event_id)}&event_code=${encodeURIComponent(event_code)}`;
+    window.open(url, "_blank");
+    // navigate(url);
   };
 
   const printIJO = async (id) => {
@@ -794,9 +802,18 @@ const Scheduling = () => {
       title: 'Print',
       key: 'print',
       align: 'center',
-      render: (_, { event_id, event_date }) => (
+      render: (_, { event_id, event_code }) => (
         <div className="flex flex-col justify-center gap-1">
           <div className="flex items-center gap-1">
+            <Tooltip title="View Product">
+              <Button
+                size="small"
+                type="primary"
+                className="w-20 bg-purple-600 hover:!bg-purple-500"
+                onClick={() => navigateChargerEvent(event_id, event_code)}>
+                VP {/* VP , View Product*/}
+              </Button>
+            </Tooltip>
             <Tooltip title="Print IJO">
               <Button
                 size="small"
@@ -806,6 +823,8 @@ const Scheduling = () => {
                 IJO
               </Button>
             </Tooltip>
+          </div>
+          <div className="flex items-center gap-1">
             <Tooltip title="Print Pick Lists">
               <Button
                 size="small"
@@ -827,7 +846,7 @@ const Scheduling = () => {
           </div>
         </div>
       ),
-      width: 130,
+      width: 100,
       fixed: 'right',
     },
   ];

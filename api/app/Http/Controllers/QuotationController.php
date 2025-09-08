@@ -673,6 +673,7 @@ class QuotationController extends Controller
 		$data->delete();
 		QuotationDetail::where('quotation_id', $id)->delete();
 		QuotationStatus::where('quotation_id', $id)->delete();
+		QuotationCommissionAgent::where('quotation_id', $id)->delete();
 		return $this->jsonResponse(['quotation_id' => $id], 200, 'Delete Quotation Successfully!');
 	}
 
@@ -705,6 +706,7 @@ class QuotationController extends Controller
 					$data->delete();
 					QuotationDetail::where('quotation_id', $id)->delete();
 					QuotationStatus::where('quotation_id', $id)->delete();
+					QuotationCommissionAgent::where('quotation_id', $id)->delete();
 				}
 			}
 

@@ -50,15 +50,15 @@ const pdfContent = (doc, data, sideMargin, pageWidth) => {
   doc.setFont('times', 'bold');
   doc.setTextColor(32, 50, 114);
 
-  let text = '';
+  let text = 'Service Order - Original';
 
-  if (data?.document_identity?.includes("SO")) {
-    text = 'Service Order - Original';
-  } else if (data?.document_identity?.includes("DO")) {
-    text = 'Delivery Order - Original';
-  } else {
-    text = 'Document - Original';
-  }
+  // if (data?.document_identity?.includes("SO")) {
+  //   text = 'Service Order - Original';
+  // } else if (data?.document_identity?.includes("DO")) {
+  //   text = 'Delivery Order - Original';
+  // } else {
+  //   text = 'Document - Original';
+  // }
   const x = pageWidth / 2;
   const y = 42;
 

@@ -460,19 +460,10 @@ class Controller extends BaseController
     }
     static public function getInvoicedQuantity($row)
     {
-        if ($row->product_type_id == 2) {
             $quantity = SaleInvoiceDetail::query()
                 ->where('charge_order_detail_id', $row->charge_order_detail_id)
                 ->sum('quantity');
-        } else
-		if ($row->product_type_id == 3 || $row->product_type_id == 4) {
-            $quantity = PurchaseInvoiceDetail::query()
-                ->where('charge_order_detail_id', $row->charge_order_detail_id)
-                ->sum('quantity');
-        } else {
-            $quantity = 0;
-        }
-        return $quantity;
+            return $quantity;
     }
     static public function getReturnedQuantity($row)
     {
@@ -491,6 +482,104 @@ class Controller extends BaseController
         return $quantity ?? 0;
     }
 
+    static public function getStatus($row)
+    {
+        $pickedQuantity = self::getPickedQuantity($row,["addReturnQty" => true]);
+        $shipmentQuantity = self::getShipmentQuantity($row);
+        $invoicedQuantity = self::getInvoicedQuantity($row);
+
+        if ($invoicedQuantity > 0) {
+            return "INV";
+        } else if ($shipmentQuantity > 0) {
+            return "SHP";
+        } else if ($pickedQuantity > 0) {
+            return "RCVD";
+        } else {
+            return "Pending";
+        }
+    }
+
+    static public function getStatusWithDate($row)
+    {
+        $pickedQuantity = self::getPickedQuantity($row,["addReturnQty" => true]);
+        $shipmentQuantity = self::getShipmentQuantity($row);
+        $invoicedQuantity = self::getInvoicedQuantity($row);
+
+        $latestDate = null;
+        $status = "Pending";
+
+        if ($invoicedQuantity > 0) {
+            $status = "INV";
+            $latestDate = self::getLatestInvoicedDate($row);
+        } else if ($shipmentQuantity > 0) {
+            $status = "SHP";
+            $latestDate = self::getLatestShipmentDate($row);
+        } else if ($pickedQuantity > 0) {
+            $status = "RCVD";
+            $latestDate = self::getLatestPickedDate($row);
+        }
+
+        return [
+            'status' => $status,
+            'date' => $latestDate
+        ];
+    }
+
+    static public function getLatestPickedDate($row)
+    {
+        if ($row->product_type_id == 1) {
+            $latestRecord = ServicelistReceivedDetail::query()
+            ->join('servicelist_received', 'servicelist_received_detail.servicelist_received_id', '=', 'servicelist_received.servicelist_received_id')
+                ->whereHas('servicelist_received', function ($query) {
+                    $query->where('is_deleted', 0);
+                })
+                ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                ->latest('servicelist_received.document_date')
+                ->first();
+        } else if ($row->product_type_id == 2) {
+            $latestRecord = PicklistReceivedDetail::query()
+            ->join('picklist_received', 'picklist_received_detail.picklist_received_id', '=', 'picklist_received.picklist_received_id')
+                ->whereHas('picklist_received', function ($query) {
+                    $query->where('is_deleted', 0);
+                })
+                ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                ->latest('picklist_received.document_date')
+                ->first();
+        } else if ($row->product_type_id == 3 || $row->product_type_id == 4) {
+            $latestRecord = GRNDetail::query()
+            ->join('good_received_note', 'good_received_note_detail.good_received_note_id', '=', 'good_received_note.good_received_note_id')
+                ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                ->latest('good_received_note.document_date')
+                ->first();
+        } else {
+            return null;
+        }
+
+        return $latestRecord ? $latestRecord->document_date : null;
+    }
+
+    static public function getLatestShipmentDate($row)
+    {
+        $latestRecord = ShipmentDetail::query()
+            ->join('shipment', 'shipment_detail.shipment_id', '=', 'shipment.shipment_id')
+            ->where('charge_order_detail_id', $row->charge_order_detail_id)
+            ->latest('shipment.document_date')
+            ->first();
+
+        return $latestRecord ? $latestRecord->document_date : null;
+    }
+
+    static public function getLatestInvoicedDate($row)
+    {
+        $latestRecord = SaleInvoiceDetail::query()
+        ->join('sale_invoice', 'sale_invoice_detail.sale_invoice_id', '=', 'sale_invoice.sale_invoice_id')
+              ->where('charge_order_detail_id', $row->charge_order_detail_id)
+              ->latest('sale_invoice.document_date')
+              ->first();
+    
+
+        return $latestRecord ? $latestRecord->document_date : null;
+    }
 
 
     /**

@@ -66,6 +66,7 @@ const PurchaseOrderModal = () => {
       if (initialFormValues) {
         dispatch(getChargeOrder(poChargeID)).unwrap();
       }
+      toast.success('Purchase order created successfully');
     } catch (error) {
       handleError(error);
     } finally {

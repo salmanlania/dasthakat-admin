@@ -914,6 +914,18 @@ export const quotationSlice = createSlice({
         isDeleted: false,
       }));
 
+      state.commissionAgentData = Array.isArray(data.commission_agent)
+        ? data.commission_agent.map((detail) => ({
+          name: detail?.name,
+          commission_percentage: detail?.percentage,
+          percentage: detail?.percentage,
+          amount: detail?.amount,
+          row_status: 'U',
+          isDeleted: false,
+          commission_agent_id: detail?.commission_agent_id,
+        }))
+        : [];
+
       state.rebatePercentage = data?.rebate_percent ? data?.rebate_percent : 0;
       state.salesmanPercentage = data?.salesman_percent
         ? data?.salesman_percent

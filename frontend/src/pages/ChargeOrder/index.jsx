@@ -8,8 +8,9 @@ import { IoCheckmarkDoneCircleSharp } from 'react-icons/io5';
 import { LuClipboardList } from 'react-icons/lu';
 import { MdOutlineEdit, MdCancel } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect';
+import AsyncSelectEvent from '../../components/AsyncSelectEvent';
 import PageHeading from '../../components/Heading/PageHeading';
 import AnalysisModalChargeOrder from '../../components/Modals/AnalysisModalChargeOrder';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
@@ -38,7 +39,9 @@ import { createEstimateInvoicePrint } from '../../utils/prints/estimate-invoice.
 
 const ChargeOrder = () => {
   useDocumentTitle('Charge Order List');
-  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [hasInitializedEventId, setHasInitializedEventId] = useState(false);
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
@@ -53,10 +56,15 @@ const ChargeOrder = () => {
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedDocNo = useDebounce(params.document_identity, 500);
 
-  const formattedParams = {
-    ...params,
-    document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null,
-  };
+  const formattedParams = useMemo(() => {
+    return {
+      ...params,
+      document_date: params.document_date
+        ? dayjs(params.document_date).format('YYYY-MM-DD')
+        : null,
+      event_id: params.event_id ?? null,
+    };
+  }, [params]);
 
   const groupedData = useMemo(() => {
     if (!list || !list.length) return { data: [], totalEvents: 0 };
@@ -300,7 +308,7 @@ const ChargeOrder = () => {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Event</p>
-          <AsyncSelect
+          <AsyncSelectEvent
             endpoint="/event"
             size="small"
             allowClear
@@ -308,7 +316,7 @@ const ChargeOrder = () => {
             valueKey="event_id"
             labelKey="event_code"
             value={params.event_id}
-            onChange={(value) => dispatch(setChargeOrderListParams({ event_id: value }))}
+            onChange={(selected) => dispatch(setChargeOrderListParams({ event_id: selected }))}
           />
         </div>
       ),
@@ -539,7 +547,19 @@ const ChargeOrder = () => {
   }
 
   useEffect(() => {
+    const eventId = searchParams.get('event_id');
+    const eventCode = searchParams.get('event_code');
+    if (eventId && eventCode && !hasInitializedEventId) {
+      dispatch(setChargeOrderListParams({ event_id: { value: eventId, label: eventCode } }));
+      setHasInitializedEventId(true);
+    } else if (!eventId && !hasInitializedEventId) {
+      setHasInitializedEventId(true);
+    }
+  }, [searchParams, isInitialLoad, hasInitializedEventId, dispatch]);
+
+  useEffect(() => {
     window.scrollTo(0, 0);
+    if (!hasInitializedEventId) return;
     dispatch(getChargeOrderList(formattedParams)).unwrap().catch(handleError);
   }, [
     params.page,
@@ -556,6 +576,11 @@ const ChargeOrder = () => {
     params.ref_document_identity,
     debouncedSearch,
     debouncedDocNo,
+    isInitialLoad,
+    searchParams,
+    formattedParams,
+    isInitialLoad,
+    hasInitializedEventId
   ]);
 
   return (

@@ -1,4 +1,4 @@
-fALTER TABLE
+ALTER TABLE
   `charge_order`
 ADD
   COLUMN `is_deleted` TINYINT(1) NOT NULL DEFAULT 0

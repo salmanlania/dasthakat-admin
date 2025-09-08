@@ -14,11 +14,18 @@ class ChargeOrder extends Model
     protected $keyType = 'string';
     protected $casts = [
         'technician_id' => 'array',
+        'total_cost' => 'float',
         'total_quantity' => 'float',
         'total_amount' => 'float',
         'total_discount' => 'float',
         'net_amount' => 'float',
+        'rebate_percent' => 'float',
+        'rebate_amount' => 'float',
+        'salesman_percent' => 'float',
+        'salesman_amount' => 'float',
+        'final_amount' => 'float',
     ];
+
 
     protected $fillable = [
         "company_id",
@@ -45,15 +52,21 @@ class ChargeOrder extends Model
         "technician_id", // user_id used in technician_id
         "technician_notes",
         "remarks",
+        "total_cost",
         "total_quantity",
         "total_amount",
         "total_discount",
         "net_amount",
+        "rebate_percent",
+        "rebate_amount",
+        "salesman_percent",
+        "salesman_amount",
+        "final_amount",
         "is_deleted",
         "created_by",
         "updated_by"
     ];
-
+ 
     public function charge_order_detail()
     {
         return $this->hasMany(ChargeOrderDetail::class, 'charge_order_id', 'charge_order_id')->orderBy('sort_order');

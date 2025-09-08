@@ -159,6 +159,7 @@
   ('Sale Management', 'Charge Order', 'charge_order', 'edit', 'Edit', 1.103),
   ('Sale Management', 'Charge Order', 'charge_order', 'delete', 'Delete', 1.104),
   ('Sale Management', 'Charge Order', 'charge_order', 'cancel', 'Cancel', 1.105),
+  ('Sale Management', 'Charge Order', 'charge_order', 'commission_agent', 'Commission Agent', 1.105),
 
   ('Sale Management', 'Purchase Order', 'purchase_order', 'list', 'List', 1.101),
   ('Sale Management', 'Purchase Order', 'purchase_order', 'add', 'Add', 1.102),
