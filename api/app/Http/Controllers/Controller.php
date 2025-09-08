@@ -460,19 +460,10 @@ class Controller extends BaseController
     }
     static public function getInvoicedQuantity($row)
     {
-        if ($row->product_type_id == 2) {
             $quantity = SaleInvoiceDetail::query()
                 ->where('charge_order_detail_id', $row->charge_order_detail_id)
                 ->sum('quantity');
-        } else
-		if ($row->product_type_id == 3 || $row->product_type_id == 4) {
-            $quantity = PurchaseInvoiceDetail::query()
-                ->where('charge_order_detail_id', $row->charge_order_detail_id)
-                ->sum('quantity');
-        } else {
-            $quantity = 0;
-        }
-        return $quantity;
+            return $quantity;
     }
     static public function getReturnedQuantity($row)
     {
