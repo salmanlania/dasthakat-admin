@@ -533,7 +533,7 @@ class Controller extends BaseController
                     $query->where('is_deleted', 0);
                 })
                 ->where('charge_order_detail_id', $row->charge_order_detail_id)
-                ->latest('created_at')
+                ->latest('document_date')
                 ->first();
         } else if ($row->product_type_id == 2) {
             $latestRecord = PicklistReceivedDetail::query()
@@ -541,39 +541,39 @@ class Controller extends BaseController
                     $query->where('is_deleted', 0);
                 })
                 ->where('charge_order_detail_id', $row->charge_order_detail_id)
-                ->latest('created_at')
+                ->latest('document_date')
                 ->first();
         } else if ($row->product_type_id == 3 || $row->product_type_id == 4) {
             $latestRecord = GRNDetail::query()
                 ->where('charge_order_detail_id', $row->charge_order_detail_id)
-                ->latest('created_at')
+                ->latest('document_date')
                 ->first();
         } else {
             return null;
         }
 
-        return $latestRecord ? $latestRecord->created_at : null;
+        return $latestRecord ? $latestRecord->document_date : null;
     }
 
     static public function getLatestShipmentDate($row)
     {
         $latestRecord = ShipmentDetail::query()
             ->where('charge_order_detail_id', $row->charge_order_detail_id)
-            ->latest('created_at')
+            ->latest('document_date')
             ->first();
 
-        return $latestRecord ? $latestRecord->created_at : null;
+        return $latestRecord ? $latestRecord->document_date : null;
     }
 
     static public function getLatestInvoicedDate($row)
     {
         $latestRecord = SaleInvoiceDetail::query()
               ->where('charge_order_detail_id', $row->charge_order_detail_id)
-              ->latest('created_at')
+              ->latest('document_date')
               ->first();
     
 
-        return $latestRecord ? $latestRecord->created_at : null;
+        return $latestRecord ? $latestRecord->document_date : null;
     }
 
 
