@@ -16,7 +16,7 @@ const fillEmptyRows = (rows, rowsPerPage) => {
   return rows;
 };
 
-const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
+const pdfContent = (doc, data, sideMargin, pageWidth, schedulingDate) => {
   doc.setTextColor(32, 50, 114);
   doc.setFontSize(20);
   doc.setFont('times', 'bold');
@@ -99,9 +99,9 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
     },
     didParseCell: function (data) {
       const cellIndex = data.column.index;
-      if (cellIndex === 0) data.cell.styles.cellWidth = 24; 
-      if (cellIndex === 1) data.cell.styles.cellWidth = 30; 
-      if (cellIndex === 2) data.cell.styles.cellWidth = 30; 
+      if (cellIndex === 0) data.cell.styles.cellWidth = 24;
+      if (cellIndex === 1) data.cell.styles.cellWidth = 30;
+      if (cellIndex === 2) data.cell.styles.cellWidth = 30;
       if (cellIndex === 3) data.cell.styles.cellWidth = 124;
     }
   });
@@ -122,7 +122,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
         content: 'Agent Details',
         colSpan: 2,
         styles: {
-          textColor: '#ffffff', 
+          textColor: '#ffffff',
           fontSize: 8,
           fillColor: '#244062'
         }
@@ -145,7 +145,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
       {
         content: 'Company Name',
         styles: {
-          fillColor: 'ebf1de' 
+          fillColor: 'ebf1de'
         }
       },
       {
@@ -425,7 +425,9 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
             styles: { textColor: '#d51902' }
           },
           {
-            content: detail?.status ? detail?.status : '',
+            content: detail?.status
+              ? detail?.status + (detail?.status_date ? `\n${dayjs(detail?.status_date).format('MM-DD-YYYY')}` : '')
+              : '',
             styles: { textColor: '#d51902' }
           }
         ]);
@@ -472,23 +474,23 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
       {
         content: 'Certificate Number',
         styles: {
-          fillColor: '#244062', 
-          textColor: '#ffffff' 
+          fillColor: '#244062',
+          textColor: '#ffffff'
         }
       },
       {
         content: 'Type',
         styles: {
-          fillColor: '#244062', 
-          textColor: '#ffffff' 
+          fillColor: '#244062',
+          textColor: '#ffffff'
         }
       },
       {
         content: 'For office Use Only',
         colSpan: 2,
         styles: {
-          fillColor: '#244062', 
-          textColor: '#ffffff' 
+          fillColor: '#244062',
+          textColor: '#ffffff'
         }
       }
     ]
@@ -505,7 +507,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
         {
           content: certificate?.certificate_number || '',
           styles: {
-            textColor: '#d51902' 
+            textColor: '#d51902'
           }
         },
         {
@@ -551,7 +553,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth , schedulingDate) => {
       }
     ]);
   }
- 
+
   doc.autoTable({
     startY: doc.previousAutoTable.finalY,
     body: table4Row,
@@ -591,10 +593,10 @@ export const createIJOPrint = (data, multiple = false) => {
   const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
 
   if (!multiple) {
-    pdfContent(doc, data, sideMargin, pageWidth , schedulingDate);
+    pdfContent(doc, data, sideMargin, pageWidth, schedulingDate);
   } else {
     data.forEach((item, index) => {
-      pdfContent(doc, item, sideMargin, pageWidth , schedulingDate);
+      pdfContent(doc, item, sideMargin, pageWidth, schedulingDate);
 
       if (index < data.length - 1) {
         doc.addPage();
