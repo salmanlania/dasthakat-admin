@@ -498,14 +498,99 @@ class Controller extends BaseController
         $invoicedQuantity = self::getInvoicedQuantity($row);
 
         if ($invoicedQuantity > 0) {
-            return "Invoiced";
+            return "INV";
         } else if ($shipmentQuantity > 0) {
-            return "Shipped";
+            return "SHP";
         } else if ($pickedQuantity > 0) {
-            return "Picked";
+            return "RCVD";
         } else {
             return "Pending";
         }
+    }
+
+    static public function getStatusWithDate($row)
+    {
+        $pickedQuantity = self::getPickedQuantity($row,["addReturnQty" => true]);
+        $shipmentQuantity = self::getShipmentQuantity($row);
+        $invoicedQuantity = self::getInvoicedQuantity($row);
+
+        $latestDate = null;
+        $status = "Pending";
+
+        if ($invoicedQuantity > 0) {
+            $status = "INV";
+            $latestDate = self::getLatestInvoicedDate($row);
+        } else if ($shipmentQuantity > 0) {
+            $status = "SHP";
+            $latestDate = self::getLatestShipmentDate($row);
+        } else if ($pickedQuantity > 0) {
+            $status = "RCVD";
+            $latestDate = self::getLatestPickedDate($row);
+        }
+
+        return [
+            'status' => $status,
+            'date' => $latestDate
+        ];
+    }
+
+    static public function getLatestPickedDate($row)
+    {
+        if ($row->product_type_id == 1) {
+            $latestRecord = ServicelistReceivedDetail::query()
+                ->whereHas('servicelist_received', function ($query) {
+                    $query->where('is_deleted', 0);
+                })
+                ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                ->latest('created_at')
+                ->first();
+        } else if ($row->product_type_id == 2) {
+            $latestRecord = PicklistReceivedDetail::query()
+                ->whereHas('picklist_received', function ($query) {
+                    $query->where('is_deleted', 0);
+                })
+                ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                ->latest('created_at')
+                ->first();
+        } else if ($row->product_type_id == 3 || $row->product_type_id == 4) {
+            $latestRecord = GRNDetail::query()
+                ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                ->latest('created_at')
+                ->first();
+        } else {
+            return null;
+        }
+
+        return $latestRecord ? $latestRecord->created_at : null;
+    }
+
+    static public function getLatestShipmentDate($row)
+    {
+        $latestRecord = ShipmentDetail::query()
+            ->where('charge_order_detail_id', $row->charge_order_detail_id)
+            ->latest('created_at')
+            ->first();
+
+        return $latestRecord ? $latestRecord->created_at : null;
+    }
+
+    static public function getLatestInvoicedDate($row)
+    {
+        if ($row->product_type_id == 2) {
+            $latestRecord = SaleInvoiceDetail::query()
+                ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                ->latest('created_at')
+                ->first();
+        } else if ($row->product_type_id == 3 || $row->product_type_id == 4) {
+            $latestRecord = PurchaseInvoiceDetail::query()
+                ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                ->latest('created_at')
+                ->first();
+        } else {
+            return null;
+        }
+
+        return $latestRecord ? $latestRecord->created_at : null;
     }
 
 

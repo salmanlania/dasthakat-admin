@@ -697,7 +697,10 @@ class EventController extends Controller
 						->where('charge_order_detail_id', $detail->charge_order_detail_id)
 						->where('charge_order_id', $detail->charge_order_id)
 						->first();
-
+						
+					$statusdata = $this->getStatusWithDate($detail);
+					$detail->status = $statusdata['status'];
+					$detail->status_date = $statusdata['date'];
 					$detail->shipment = $shippedRow?->shipment ?: null;
 				}
 			}
