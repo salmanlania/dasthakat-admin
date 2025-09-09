@@ -92,7 +92,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   const boxWidth = 94;
   const headerHeight = 7;
   const boxX1 = sideMargin;
-  const boxX2 = sideMargin + boxWidth + 10; // Add spacing between the boxes if needed
+  const boxX2 = sideMargin + boxWidth + 10;
 
   // Header labels
   // doc.rect(boxX1 - 2, 35, boxWidth + 4, headerHeight);
@@ -329,6 +329,9 @@ export const createSaleInvoicePrint = async (data) => {
     head: [table2Column],
     body: table2Rows,
     margin: { left: sideMargin, right: sideMargin, bottom: 50, top: 110 },
+    pageBreak: 'auto', // Add this
+    showHead: 'everyPage', // Add this to show header on every page
+    tableLineWidth: 0.1,
     headStyles: {
       fontSize: 8,
       fontStyle: 'bold',
@@ -354,15 +357,6 @@ export const createSaleInvoicePrint = async (data) => {
     },
     rowPageBreak: 'avoid',
 
-    // columnStyles: {
-    //   0: { cellWidth: 12 },
-    //   1: { cellWidth: 110 },
-    //   2: { cellWidth: 20 },
-    //   3: { cellWidth: 20 },
-    //   4: { cellWidth: 20 },
-    //   5: { cellWidth: 20 },
-    //   6: { cellWidth: 20 }
-    // },
     columnStyles: {
       0: { cellWidth: 10 },
       1: { cellWidth: 80 },
@@ -379,7 +373,6 @@ export const createSaleInvoicePrint = async (data) => {
     }
   });
 
-  // Total Amounts
   const totalGrossAmount = !data?.total_discount || !data?.net_amount ? `$${formatThreeDigitCommas(data?.total_amount)}` : data?.total_discount || data?.net_amount > 0 ? `$${formatThreeDigitCommas(data?.net_amount)}` : ''
 
   let notes = [
@@ -428,7 +421,8 @@ export const createSaleInvoicePrint = async (data) => {
     startY: doc.previousAutoTable.finalY,
     head: [],
     body: notes,
-    margin: { left: sideMargin, right: sideMargin, bottom: 40, top: 90 },
+    margin: { left: sideMargin, right: sideMargin, bottom: 40, top: 110 },
+    pageBreak: 'avoid',
     styles: {
       lineWidth: 0.1,
       lineColor: [116, 116, 116],

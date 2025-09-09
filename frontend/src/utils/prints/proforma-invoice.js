@@ -430,7 +430,7 @@ export const createProformaInvoicePrint = async (data) => {
     startY: doc.previousAutoTable.finalY,
     head: [],
     body: notes,
-    margin: { left: sideMargin, right: sideMargin, bottom: 40, top: 90 },
+    margin: { left: sideMargin, right: sideMargin, bottom: 40, top: 110 },
     pageBreak: 'avoid',
     styles: {
       lineWidth: 0.1,
