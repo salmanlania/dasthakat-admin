@@ -1241,7 +1241,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             Agent {index + 1}
-            {permissions?.quotation?.commission_agent && (
+            {permissions?.charge_order?.commission_agent && (
               <Tooltip title={text}>
                 <FaEye size={14} style={{ cursor: 'pointer' }} />
               </Tooltip>
