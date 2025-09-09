@@ -40,7 +40,23 @@ const fillEmptyRows = (rows, rowsPerPage, notesLength = 1) => {
       : emptyRowsNeeded - notesLength;
 
   for (let i = 0; i < totalRowsToAdd; i++) {
-    rows.push(['', '', '', '', '', '']);
+    rows.push(['', '', '', '', '', '', '', '', '']);
+  }
+
+  return rows;
+};
+
+const fillEmptyRowsForNotes = (rows, rowsPerPage, notesRowsNeeded = 2) => {
+  const rowsOnCurrentPage = rows.length % rowsPerPage;
+
+  if (rowsOnCurrentPage > 0) {
+    const emptyRowsToAdd = rowsPerPage - rowsOnCurrentPage - notesRowsNeeded;
+
+    if (emptyRowsToAdd > 0) {
+      for (let i = 0; i < emptyRowsToAdd; i++) {
+        rows.push(['', '', '', '', '', '', '', '', '']);
+      }
+    }
   }
 
   return rows;
@@ -76,7 +92,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   const boxWidth = 94;
   const headerHeight = 7;
   const boxX1 = sideMargin;
-  const boxX2 = sideMargin + boxWidth + 10; // Add spacing between the boxes if needed
+  const boxX2 = sideMargin + boxWidth + 10;
 
   // Header labels
   // doc.rect(boxX1 - 2, 35, boxWidth + 4, headerHeight);
@@ -299,14 +315,18 @@ export const createProformaInvoicePrint = async (data) => {
     });
   }
 
-  const filledRows = fillEmptyRows(table2Rows, 9, descriptions.length + 1);
+  // const filledRows = fillEmptyRows(table2Rows, 9, descriptions.length + 1);
+  const filledRows = fillEmptyRowsForNotes(table2Rows, 9, 2);
 
   // Adding Table
   doc.autoTable({
     startY: 110,
     head: [table2Column],
     body: filledRows,
-    margin: { left: sideMargin, right: sideMargin, bottom: 2, top: 106 },
+    margin: { left: sideMargin, right: sideMargin, bottom: 50, top: 106 },
+    pageBreak: 'auto', // Add this
+    showHead: 'everyPage', // Add this to show header on every page
+    tableLineWidth: 0.1,
     headStyles: {
       fontSize: 8,
       fontStyle: 'bold',
@@ -356,7 +376,7 @@ export const createProformaInvoicePrint = async (data) => {
     ? data?.charge_order_detail.reduce((sum, detail) => sum + (parseFloat(detail?.discount_amount) || 0), 0)
     : 0;
 
-  const baseTotal = data?.total_amount || totalAmountFromDetails;
+  const baseTotal = data.total_amount || totalAmountFromDetails;
 
   const finalTotal = baseTotal - totalDiscount;
 
@@ -410,7 +430,8 @@ export const createProformaInvoicePrint = async (data) => {
     startY: doc.previousAutoTable.finalY,
     head: [],
     body: notes,
-    margin: { left: sideMargin, right: sideMargin, bottom: 27, top: 84 },
+    margin: { left: sideMargin, right: sideMargin, bottom: 60, top: 84 },
+    pageBreak: 'avoid',
     styles: {
       lineWidth: 0.1,
       lineColor: [116, 116, 116],

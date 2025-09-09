@@ -805,13 +805,13 @@ const Scheduling = () => {
       render: (_, { event_id, event_code }) => (
         <div className="flex flex-col justify-center gap-1">
           <div className="flex items-center gap-1">
-            <Tooltip title="View Product">
+            <Tooltip title="Charge Order">
               <Button
                 size="small"
                 type="primary"
                 className="w-20 bg-purple-600 hover:!bg-purple-500"
                 onClick={() => navigateChargerEvent(event_id, event_code)}>
-                VP {/* VP , View Product*/}
+                CO
               </Button>
             </Tooltip>
             <Tooltip title="Print IJO">
