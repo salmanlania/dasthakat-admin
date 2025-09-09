@@ -322,7 +322,7 @@ export const createEstimateInvoicePrint = async (data) => {
   doc.autoTable({
     startY: 110,
     head: [table2Column],
-    body: filledRows,
+    body: table2Rows,
     margin: { left: sideMargin, right: sideMargin, bottom: 50, top: 106 },
     pageBreak: 'auto', // Add this
     showHead: 'everyPage', // Add this to show header on every page
@@ -430,7 +430,7 @@ export const createEstimateInvoicePrint = async (data) => {
     startY: doc.previousAutoTable.finalY,
     head: [],
     body: notes,
-    margin: { left: sideMargin, right: sideMargin, bottom: 60, top: 84 },
+    margin: { left: sideMargin, right: sideMargin, bottom: 40, top: 84 },
     pageBreak: 'avoid',
     styles: {
       lineWidth: 0.1,
