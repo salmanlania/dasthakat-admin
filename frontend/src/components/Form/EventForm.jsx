@@ -29,6 +29,7 @@ const EventForm = ({ mode, onSubmit }) => {
       class1_id: values.class1_id ? values.class1_id.value : null,
       class2_id: values.class2_id ? values.class2_id.value : null,
       sales_team_id: values.sales_team_id ? values.sales_team_id.value : null,
+      event_no: mode === 'edit' ? initialFormValues?.event_no : null,
     };
     onSubmit(data);
   };

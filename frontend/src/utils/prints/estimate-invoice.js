@@ -40,7 +40,23 @@ const fillEmptyRows = (rows, rowsPerPage, notesLength = 1) => {
       : emptyRowsNeeded - notesLength;
 
   for (let i = 0; i < totalRowsToAdd; i++) {
-    rows.push(['', '', '', '', '', '']);
+    rows.push(['', '', '', '', '', '', '', '', '']);
+  }
+
+  return rows;
+};
+
+const fillEmptyRowsForNotes = (rows, rowsPerPage, notesRowsNeeded = 2) => {
+  const rowsOnCurrentPage = rows.length % rowsPerPage;
+
+  if (rowsOnCurrentPage > 0) {
+    const emptyRowsToAdd = rowsPerPage - rowsOnCurrentPage - notesRowsNeeded;
+
+    if (emptyRowsToAdd > 0) {
+      for (let i = 0; i < emptyRowsToAdd; i++) {
+        rows.push(['', '', '', '', '', '', '', '', '']);
+      }
+    }
   }
 
   return rows;
@@ -151,7 +167,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       data?.customer_po_no ? data?.customer_po_no : '',
       data?.port ? data?.port?.name : '',
       data?.service_order ? data?.service_order?.document_identity : '',
-      data?.quotation?.payment.name ? data?.quotation?.payment.name : '',
+      data?.quotation?.payment ? data?.quotation?.payment.name : '',
       data?.shipment
         ?
         (data?.shipment?.document_date === "1989-11-30"
@@ -299,14 +315,18 @@ export const createEstimateInvoicePrint = async (data) => {
     });
   }
 
-  const filledRows = fillEmptyRows(table2Rows, 9, descriptions.length + 1);
+  // const filledRows = fillEmptyRows(table2Rows, 9, descriptions.length + 1);
+  const filledRows = fillEmptyRowsForNotes(table2Rows, 9, 2);
 
   // Adding Table
   doc.autoTable({
     startY: 110,
     head: [table2Column],
-    body: filledRows,
-    margin: { left: sideMargin, right: sideMargin, bottom: 2, top: 106 },
+    body: table2Rows,
+    margin: { left: sideMargin, right: sideMargin, bottom: 50, top: 110 },
+    pageBreak: 'auto', // Add this
+    showHead: 'everyPage', // Add this to show header on every page
+    tableLineWidth: 0.1,
     headStyles: {
       fontSize: 8,
       fontStyle: 'bold',
@@ -406,11 +426,14 @@ export const createEstimateInvoicePrint = async (data) => {
     ]
   ];
 
+  const newSize = doc.previousAutoTable.finalY + 6
+  console.log('doc.previousAutoTable.finalY', newSize)
   doc.autoTable({
     startY: doc.previousAutoTable.finalY,
     head: [],
     body: notes,
-    margin: { left: sideMargin, right: sideMargin, bottom: 27, top: 84 },
+    margin: { left: sideMargin, right: sideMargin, bottom: 40, top: 90 },
+    pageBreak: 'avoid',
     styles: {
       lineWidth: 0.1,
       lineColor: [116, 116, 116],

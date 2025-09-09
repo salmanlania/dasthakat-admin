@@ -719,7 +719,13 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
 
         return (
           <div className="relative">
-            <p className={disabled ? "text-gray-400 cursor-not-allowed" : ""}>{vendor_notes}</p>
+            {/* <p className={disabled ? "text-gray-400 cursor-not-allowed" : ""}>{vendor_notes}</p> */}
+            <p
+              className={`truncate max-w-full ${disabled ? "text-gray-400 cursor-not-allowed" : ""}`}
+              title={vendor_notes}
+            >
+              {vendor_notes}
+            </p>
             <div
               className={`absolute -right-2 ${vendor_notes?.trim() ? "-top-[2px]" : "-top-[12px]"
                 } flex h-6 w-6 items-center justify-center rounded-full bg-white`}
@@ -727,8 +733,8 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
               <TbEdit
                 size={22}
                 className={`${disabled
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-primary hover:text-blue-600 cursor-pointer"
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-primary hover:text-blue-600 cursor-pointer"
                   }`}
                 onClick={() => {
                   if (disabled) return;

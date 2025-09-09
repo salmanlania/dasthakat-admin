@@ -145,6 +145,7 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
   } = useSelector((state) => state.quotation);
   const { commissionAgent } = useSelector((state) => state.event);
   const [prevEvent, setPrevEvent] = useState(initialFormValues?.event_id);
+  const isDisable = mode === 'edit' && initialFormValues?.is_deleted === 1
 
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
@@ -773,10 +774,17 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
       title: 'Customer Notes',
       dataIndex: 'description',
       key: 'description',
-      render: (_, { event_id, description }, index) => {
+      render: (_, { event_id, description, editable }, index) => {
+        const disabled = editable === false || isDisable;
         return (
           <div className="relative">
-            <p>{description}</p>
+            {/* <p>{description}</p> */}
+            <p
+              className={`truncate max-w-full ${disabled ? "text-gray-400 cursor-not-allowed" : ""}`}
+              title={description}
+            >
+              {description}
+            </p>
             <div
               className={`absolute -right-2 ${description?.trim() ? '-top-[2px]' : '-top-[12px]'} flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-white`}>
               <TbEdit
@@ -801,10 +809,17 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
       title: 'Internal Notes',
       dataIndex: 'internal_notes',
       key: 'internal_notes',
-      render: (_, { internal_notes }, index) => {
+      render: (_, { internal_notes, editable }, index) => {
+        const disabled = editable === false || isDisable;
         return (
           <div className="relative">
-            <p>{internal_notes}</p>
+            {/* <p>{internal_notes}</p> */}
+            <p
+              className={`truncate max-w-full ${disabled ? "text-gray-400 cursor-not-allowed" : ""}`}
+              title={internal_notes}
+            >
+              {internal_notes}
+            </p>
             <div
               className={`absolute -right-2 ${internal_notes?.trim() ? '-top-[2px]' : '-top-[12px]'} flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-white`}>
               <TbEdit
@@ -829,10 +844,17 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
       title: 'Vendor Notes',
       dataIndex: 'vendor_notes',
       key: 'vendor_notes',
-      render: (_, { vendor_notes }, index) => {
+      render: (_, { vendor_notes, editable }, index) => {
+        const disabled = editable === false || isDisable;
         return (
           <div className="relative">
-            <p>{vendor_notes}</p>
+            {/* <p>{vendor_notes}</p> */}
+            <p
+              className={`truncate max-w-full ${disabled ? "text-gray-400 cursor-not-allowed" : ""}`}
+              title={vendor_notes}
+            >
+              {vendor_notes}
+            </p>
             <div
               className={`absolute -right-2 ${vendor_notes?.trim() ? '-top-[2px]' : '-top-[12px]'} flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-white`}>
               <TbEdit
