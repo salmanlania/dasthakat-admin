@@ -825,6 +825,7 @@ class EventController extends Controller
 				"created_at" => $picklist->created_at,
 				"updated_at" => $picklist->updated_at,
 				"charge_order" => $picklist->charge_order,
+				"picklist_status" => $picklist->picklist_status,
 				"picklist_detail" => $picklistDetails,
 				"items" => $items
 			];
