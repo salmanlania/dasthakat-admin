@@ -323,7 +323,7 @@ export const createProformaInvoicePrint = async (data) => {
     startY: 110,
     head: [table2Column],
     body: table2Rows,
-    margin: { left: sideMargin, right: sideMargin, bottom: 50, top: 106 },
+    margin: { left: sideMargin, right: sideMargin, bottom: 50, top: 110 },
     pageBreak: 'auto', // Add this
     showHead: 'everyPage', // Add this to show header on every page
     tableLineWidth: 0.1,
@@ -430,7 +430,7 @@ export const createProformaInvoicePrint = async (data) => {
     startY: doc.previousAutoTable.finalY,
     head: [],
     body: notes,
-    margin: { left: sideMargin, right: sideMargin, bottom: 40, top: 84 },
+    margin: { left: sideMargin, right: sideMargin, bottom: 40, top: 90 },
     pageBreak: 'avoid',
     styles: {
       lineWidth: 0.1,

@@ -328,7 +328,7 @@ export const createSaleInvoicePrint = async (data) => {
     startY: 110,
     head: [table2Column],
     body: table2Rows,
-    margin: { left: sideMargin, right: sideMargin, bottom: 50, top: 106 },
+    margin: { left: sideMargin, right: sideMargin, bottom: 50, top: 110 },
     headStyles: {
       fontSize: 8,
       fontStyle: 'bold',
@@ -428,7 +428,7 @@ export const createSaleInvoicePrint = async (data) => {
     startY: doc.previousAutoTable.finalY,
     head: [],
     body: notes,
-    margin: { left: sideMargin, right: sideMargin, bottom: 40, top: 84 },
+    margin: { left: sideMargin, right: sideMargin, bottom: 40, top: 90 },
     styles: {
       lineWidth: 0.1,
       lineColor: [116, 116, 116],
