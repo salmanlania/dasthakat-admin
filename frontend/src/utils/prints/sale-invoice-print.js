@@ -229,7 +229,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       9: { cellWidth: 15 },
     },
     didParseCell: function (data) {
-      data.cell.styles.minCellHeight = 9;
+      data.cell.styles.minCellHeight = 7;
     }
   });
 };
@@ -321,7 +321,7 @@ export const createSaleInvoicePrint = async (data) => {
   }
 
   // const filledRows = fillEmptyRows(table2Rows, 9, descriptions.length + 1);
-  const filledRows = fillEmptyRowsForNotes(table2Rows, 9, 2);
+  // const filledRows = fillEmptyRowsForNotes(table2Rows, 9, 2);
 
   // Adding Table
   doc.autoTable({
@@ -329,7 +329,7 @@ export const createSaleInvoicePrint = async (data) => {
     head: [table2Column],
     body: table2Rows,
     margin: { left: sideMargin, right: sideMargin, bottom: 50, top: 110 },
-    pageBreak: 'auto', // Add this
+    // pageBreak: 'auto', // Add this
     showHead: 'everyPage', // Add this to show header on every page
     tableLineWidth: 0.1,
     headStyles: {
@@ -369,9 +369,21 @@ export const createSaleInvoicePrint = async (data) => {
       8: { cellWidth: 27 }
     },
     didParseCell: function (data) {
-      data.cell.styles.minCellHeight = 13;
-    }
+      data.cell.styles.minCellHeight = 5;
+    },
   });
+
+  const estimatedNoteHeight = (descriptions.length + 2) * 10; 
+
+  const currentY = doc.previousAutoTable.finalY || 0;
+  const pageHeight = doc.internal.pageSize.height;
+  const bottomMargin = 30; // match your footer margin
+
+  const spaceLeft = pageHeight - currentY - bottomMargin;
+
+  if (spaceLeft < estimatedNoteHeight) {
+    doc.addPage();
+  }
 
   const totalGrossAmount = !data?.total_discount || !data?.net_amount ? `$${formatThreeDigitCommas(data?.total_amount)}` : data?.total_discount || data?.net_amount > 0 ? `$${formatThreeDigitCommas(data?.net_amount)}` : ''
 
@@ -418,11 +430,13 @@ export const createSaleInvoicePrint = async (data) => {
   ];
 
   doc.autoTable({
-    startY: doc.previousAutoTable.finalY,
+    startY: doc.previousAutoTable.finalY + 5,
     head: [],
     body: notes,
     margin: { left: sideMargin, right: sideMargin, bottom: 40, top: 110 },
     pageBreak: 'avoid',
+    pageBreak: 'auto',
+    rowPageBreak: 'avoid',
     styles: {
       lineWidth: 0.1,
       lineColor: [116, 116, 116],
@@ -452,8 +466,8 @@ export const createSaleInvoicePrint = async (data) => {
       8: { cellWidth: 27 }
     },
     didParseCell: (data) => {
-      data.cell.styles.minCellHeight = 9;
-    }
+      data.cell.styles.minCellHeight = 5;
+    },
   });
 
   const pageCount = doc.internal.getNumberOfPages();
