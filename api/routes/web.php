@@ -466,13 +466,13 @@ $router->group(['prefix' => 'report'], function ($router) {
 
 $router->group(['prefix' => 'vendor-platform/charge-order'], function ($router) {
 
-   $router->get('/', 'VendorPlatform\VpChargeOrderController@index');
+   $router->get('/', 'VendorPlatform\VpChargeOrderRfqController@index');
    $router->post('/', 'VendorChargeOrderController@store');
    $router->get('/{id}', 'VendorChargeOrderController@show');
    $router->put('/vendor/{id}', 'VendorChargeOrderController@vendorUpdate');
    $router->post('/rfq', 'VendorChargeOrderController@sendRFQ');
    $router->get('/rfq/{id}', 'VendorChargeOrderController@fetchRFQ');
-   $router->post('/actions', 'VendorPlatform\VpChargeOrderController@actions');
+   $router->post('/actions', 'VendorPlatform\VpChargeOrderRfqController@actions');
 });
 
 // COA Level1 routes
