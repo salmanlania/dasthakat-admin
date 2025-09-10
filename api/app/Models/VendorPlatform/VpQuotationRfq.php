@@ -2,18 +2,18 @@
 
 namespace App\Models\VendorPlatform;
 
-use App\Models\ChargeOrder; 
+use App\Models\Quotation;
 use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Model;
 
-class VpChargeOrderRfq extends Model
+class VpQuotationRfq extends Model
 {
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'vp_charge_order_rfq';
+    protected $table = 'vp_quotation_rfq';
 
     /**
      * The primary key associated with the table.
@@ -51,7 +51,7 @@ class VpChargeOrderRfq extends Model
         'document_identity',
         'vendor_ref_no',
         'vendor_remarks',
-        'charge_order_id',
+        'quotation_id',
         'vendor_id',
         'status',
         'date_required',
@@ -72,13 +72,13 @@ class VpChargeOrderRfq extends Model
     ];
 
     //relationships
-    public function charge_order()
+    public function quotation()
     {
-        return $this->belongsTo(ChargeOrder::class, 'charge_order_id');
+        return $this->belongsTo(Quotation::class, 'quotation_id');
     }
     public function details()
     {
-        return $this->hasMany(VpChargeOrderRfqDetail::class, 'id')->orderBy('sort_order');
+        return $this->hasMany(VpQuotationRfqDetail::class, 'id')->orderBy('sort_order');
     }
 
     public function vendor()
