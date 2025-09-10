@@ -34,6 +34,7 @@ use App\Models\StockLedger;
 use App\Models\Supplier;
 use App\Models\Technician;
 use App\Models\User;
+use App\Models\VendorChargeOrderDetail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -1716,9 +1717,18 @@ class ChargeOrderController extends Controller
 								]);
 							}
 						}
+							VendorChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id'])->where('is_primary_vendor', 1)
+							->update([
+								'vendor_id' => $value['supplier_id'] ?? '',
+								'vendor_rate' => $value['cost_price'] ?? '',
+								'vendor_part_no' => $value['vendor_part_no'] ?? '',
+								'vendor_notes' => $value['vendor_notes'] ?? '',
+							]);
 					}
 					if ($value['row_status'] == 'D') {
 						ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id'])->delete();
+						VendorChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id'])->delete();
+					
 					}
 				}
 			}
