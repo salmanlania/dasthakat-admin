@@ -569,8 +569,8 @@ const VendorPlatform = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>VENDOR PLATFORM</PageHeading>
-        <Breadcrumb items={[{ title: 'Vendor Platform' }, { title: 'List' }]} separator=">" />
+        <PageHeading>VENDOR PLATFORM QUOTATION</PageHeading>
+        <Breadcrumb items={[{ title: 'Vendor Platform Quotation' }, { title: 'List' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white">

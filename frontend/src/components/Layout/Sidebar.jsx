@@ -484,12 +484,12 @@ const Sidebar = () => {
       disabled: vendorPlatformPermission,
       children: [
         {
-          key: 'vendor-platform',
+          key: 'vendor-platform-quote',
           label: <Link to="/vendor-platform-quote">Vendor Quote</Link>,
           disabled: !permissions?.vp_quotation?.list,
         },
         {
-          key: 'vendor-platform',
+          key: 'vendor-platform-charge',
           label: <Link to="/vendor-platform-charge">Vendor Charge</Link>,
           disabled: !permissions?.vp_charge_order?.list,
         },

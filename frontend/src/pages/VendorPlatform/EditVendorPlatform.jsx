@@ -32,8 +32,8 @@ const EditVendorPlatform = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>VIEW VENDOR QUOTATION</PageHeading>
-        <Breadcrumb items={[{ title: 'Vendor Quotation' }, { title: 'View' }]} separator=">" />
+        <PageHeading>VIEW VENDOR PLATFORM QUOTATION</PageHeading>
+        <Breadcrumb items={[{ title: 'Vendor Platform Quotation' }, { title: 'View' }]} separator=">" />
       </div>
 
       {isItemLoading && (

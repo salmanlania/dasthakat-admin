@@ -198,7 +198,7 @@ const initialState = {
   vendorDetails: [],
   params: {
     page: 1,
-    limit: 5,
+    limit: 50,
     search: '',
     sort_column: null,
     sort_direction: null,
