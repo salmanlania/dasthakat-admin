@@ -148,7 +148,7 @@ class VendorChargeOrderController extends Controller
                     $data['vendor_id'] = $vendor_id;
                     $id = $this->saveRFQ($data);
 
-                    $link = env("VENDOR_URL") . "charge_order/{$id}";
+                    $link = env("VENDOR_URL") . "charge-order/{$id}";
                    
                     $payload = [
                         'template' => 'vendor_charge_order_rate_update',
