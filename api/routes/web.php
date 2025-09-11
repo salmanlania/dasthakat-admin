@@ -464,6 +464,17 @@ $router->group(['prefix' => 'report'], function ($router) {
    $router->get('/bid-success', 'ReportsController@BidSuccess');
 });
 
+$router->group(['prefix' => 'vendor-platform/quotation'], function ($router) {
+
+   $router->get('/', 'VendorPlatform\VpQuotationRfqController@index');
+   $router->post('/', 'VendorQuotationController@store');
+   $router->get('/{id}', 'VendorQuotationController@show');
+   $router->put('/vendor/{id}', 'VendorQuotationController@vendorUpdate');
+   $router->post('/rfq', 'VendorQuotationController@sendRFQ');
+   $router->get('/rfq/{id}', 'VendorQuotationController@fetchRFQ');
+   $router->post('/actions', 'VendorPlatform\VpQuotationRfqController@actions');
+});
+
 $router->group(['prefix' => 'vendor-platform/charge-order'], function ($router) {
 
    $router->get('/', 'VendorPlatform\VpChargeOrderRfqController@index');
