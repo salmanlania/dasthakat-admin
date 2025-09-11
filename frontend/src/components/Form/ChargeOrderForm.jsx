@@ -1674,8 +1674,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo, onVendor }) => {
             }}>
             Save & Exit
           </Button>
-          {/* {mode === 'edit' && permissions?.vp_quotation?.add ? */}
-          {mode === 'edit' ?
+          {mode === 'edit' && permissions?.vp_charge_order?.add ?
             <Button
               loading={isFormSubmitting && submitAction === 'rfq'}
               onClick={() => {
