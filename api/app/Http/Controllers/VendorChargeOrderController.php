@@ -371,7 +371,7 @@ class VendorChargeOrderController extends Controller
             $detail = ChargeOrderDetail::where('charge_order_id', $charge_order_id);
             $charge_order->total_cost = $detail->sum(DB::raw('cost_price * quantity'));
             $charge_order->total_amount = $detail->sum('amount');
-            $charge_order->total_discount = $detail->sum('discount_amount');
+            $charge_order->discount_amount = $detail->sum('discount_amount');
             $charge_order->net_amount = $detail->sum('gross_amount');
             $charge_order->rebate_amount = $charge_order->net_amount * $charge_order->rebate_percent / 100;
             $charge_order->salesman_amount = $charge_order->net_amount * $charge_order->salesman_percent / 100;
@@ -539,7 +539,7 @@ class VendorChargeOrderController extends Controller
 
                 $charge_order->total_cost = $detail->sum(DB::raw('cost_price * quantity'));
                 $charge_order->total_amount = $detail->sum('amount');
-                $charge_order->total_discount = $detail->sum('discount_amount');
+                $charge_order->discount_amount = $detail->sum('discount_amount');
                 $charge_order->net_amount = $detail->sum('gross_amount');
                 $charge_order->rebate_amount = $charge_order->net_amount * $charge_order->rebate_percent / 100;
                 $charge_order->salesman_amount = $charge_order->net_amount * $charge_order->salesman_percent / 100;
