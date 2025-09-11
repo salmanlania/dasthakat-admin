@@ -4,11 +4,11 @@ import api from '../../axiosInstance';
 import { v4 as uuidv4 } from 'uuid';
 import { roundUpto } from '../../utils/number';
 
-export const getVendorQuotationList = createAsyncThunk(
-  'vendor-quotation/list',
+export const getVendorChargeOrderList = createAsyncThunk(
+  'vendor-charge-order/list',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get('/vendor-platform/quotation', {
+      const res = await api.get('/vendor-platform/charge-order', {
         params,
       });
       return res.data;
@@ -19,7 +19,7 @@ export const getVendorQuotationList = createAsyncThunk(
 );
 
 export const getBidResponseList = createAsyncThunk(
-  'quotation/bid-response',
+  'charge-order/bid-response',
   async (params, { rejectWithValue }) => {
     try {
       const res = await api.get('/report/bid-response', {
@@ -33,7 +33,7 @@ export const getBidResponseList = createAsyncThunk(
 );
 
 export const getQuotationListReport = createAsyncThunk(
-  'quotation/list-report',
+  'charge-order/list-report',
   async (params, { rejectWithValue }) => {
     try {
       const res = await api.get('/report/quote-report', {
@@ -47,10 +47,10 @@ export const getQuotationListReport = createAsyncThunk(
 );
 
 export const getQuotationListPrint = createAsyncThunk(
-  'quotation/list-print',
+  'charge-order/list-print',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get('/quotation', {
+      const res = await api.get('/charge-order', {
         params: {
           ...params,
           all: 1,
@@ -63,11 +63,11 @@ export const getQuotationListPrint = createAsyncThunk(
   },
 );
 
-export const deleteQuotation = createAsyncThunk(
-  'quotation/delete',
+export const deleteChargeOrder = createAsyncThunk(
+  'charge-order/delete',
   async (id, { rejectWithValue }) => {
     try {
-      await api.delete(`/quotation/${id}`);
+      await api.delete(`/charge-order/${id}`);
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -75,19 +75,19 @@ export const deleteQuotation = createAsyncThunk(
 );
 
 export const createQuotation = createAsyncThunk(
-  'quotation/create',
+  'charge-order/create',
   async (data, { rejectWithValue }) => {
     try {
-      return await api.post('/quotation', data);
+      return await api.post('/charge-order', data);
     } catch (err) {
       throw rejectWithValue(err);
     }
   },
 );
 
-export const getVendorQuotation = createAsyncThunk('quotation/get', async (id, { rejectWithValue }) => {
+export const getVendorChargeOrder = createAsyncThunk('charge-order/get', async (id, { rejectWithValue }) => {
   try {
-    const res = await api.get(`/vendor-platform/quotation/rfq/${id}`);
+    const res = await api.get(`/vendor-platform/charge-order/rfq/${id}`);
     return res.data.data;
   } catch (err) {
     throw rejectWithValue(err);
@@ -95,10 +95,10 @@ export const getVendorQuotation = createAsyncThunk('quotation/get', async (id, {
 });
 
 export const getQuotationModal = createAsyncThunk(
-  'quotation/getModal',
+  'charge-order/getModal',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/quotation/${id}`, {
+      const res = await api.get(`/charge-order/${id}`, {
         params: {
           hasAvailableQty: true,
         },
@@ -111,10 +111,10 @@ export const getQuotationModal = createAsyncThunk(
 );
 
 export const getQuotationForPrint = createAsyncThunk(
-  'quotationForPrint/get',
+  'charge-orderForPrint/get',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/quotation/${id}`);
+      const res = await api.get(`/charge-order/${id}`);
       return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);
@@ -122,23 +122,23 @@ export const getQuotationForPrint = createAsyncThunk(
   },
 );
 
-export const vendorQuotationActions = createAsyncThunk(
-  'vendorQuotationActions/update',
+export const vendorChargeOrderActions = createAsyncThunk(
+  'vendorChargeOrderActions/update',
   async (data, { rejectWithValue }) => {
     try {
-      await api.post(`/vendor-platform/quotation/actions`, data);
+      await api.post(`/vendor-platform/charge-order/actions`, data);
     } catch (err) {
       return rejectWithValue(err);
     }
   },
 );
 
-export const bulkDeleteQuotation = createAsyncThunk(
-  'quotation/bulkDelete',
+export const bulkDeleteChargeOrder = createAsyncThunk(
+  'charge-order/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post('/quotation/bulk-delete', {
-        quotation_ids: ids,
+      await api.post('/charge-order/bulk-delete', {
+        charge_order_ids: ids,
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -150,7 +150,7 @@ export const bulkDeleteQuotation = createAsyncThunk(
 
 export const getVendor = createAsyncThunk('vendor/get', async (id, { rejectWithValue }) => {
   try {
-    const res = await api.get(`/vendor-platform/quotation/${id}`);
+    const res = await api.get(`/vendor-platform/charge-order/${id}`);
     return res.data.data;
   } catch (err) {
     throw rejectWithValue(err);
@@ -161,7 +161,7 @@ export const postVendorSelection = createAsyncThunk(
   'vendor/postSelection',
   async (payload, { rejectWithValue }) => {
     try {
-      const res = await api.post(`/vendor-platform/quotation/`, payload);
+      const res = await api.post(`/vendor-platform/charge-order/`, payload);
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
@@ -173,7 +173,7 @@ export const postRfq = createAsyncThunk(
   'rfg/postSelection',
   async (payload, { rejectWithValue }) => {
     try {
-      const res = await api.post(`/vendor-platform/quotation/rfq`, payload);
+      const res = await api.post(`/vendor-platform/charge-order/rfq`, payload);
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
@@ -192,13 +192,13 @@ const initialState = {
   deleteIDs: [],
   rebatePercentage: null,
   salesmanPercentage: null,
-  quotationDetails: [],
+  chargeOrderDetails: [],
   vendorQuotationDetails: [],
   totalCommissionAmount: 0,
   vendorDetails: [],
   params: {
     page: 1,
-    limit: 50,
+    limit: 5,
     search: '',
     sort_column: null,
     sort_direction: null,
@@ -215,18 +215,18 @@ export const vendorQuotationSlice = createSlice({
   reducers: {
     resetQuotationState: (state) => {
       state.isItemLoading = false;
-      state.quotationDetails = [];
+      state.chargeOrderDetails = [];
       state.initialFormValues = null;
     },
 
-    setVendorQuotationListParams: (state, action) => {
+    setVendorChargeOrderListParams: (state, action) => {
       state.params = {
         ...state.params,
         ...action.payload,
       };
     },
 
-    setQuotationDeleteIDs: (state, action) => {
+    setChargeOrderDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
     },
 
@@ -247,16 +247,16 @@ export const vendorQuotationSlice = createSlice({
       };
 
       if (index || index === 0) {
-        state.quotationDetails.splice(index + 1, 0, newDetail);
+        state.chargeOrderDetails.splice(index + 1, 0, newDetail);
       } else {
-        state.quotationDetails.push(newDetail);
+        state.chargeOrderDetails.push(newDetail);
       }
     },
 
     copyQuotationDetail: (state, action) => {
       const index = action.payload;
 
-      const detail = state.quotationDetails[index];
+      const detail = state.chargeOrderDetails[index];
       const newDetail = {
         ...detail,
         id: uuidv4(),
@@ -264,7 +264,7 @@ export const vendorQuotationSlice = createSlice({
         isDeleted: false,
       };
 
-      state.quotationDetails.splice(index + 1, 0, newDetail);
+      state.chargeOrderDetails.splice(index + 1, 0, newDetail);
     },
 
     setTotalCommissionAmount: (state, action) => {
@@ -272,32 +272,32 @@ export const vendorQuotationSlice = createSlice({
     },
 
     removeQuotationDetail: (state, action) => {
-      const itemIndex = state.quotationDetails.findIndex((item) => item.id === action.payload);
+      const itemIndex = state.chargeOrderDetails.findIndex((item) => item.id === action.payload);
 
       if (itemIndex !== -1) {
-        if (state.quotationDetails[itemIndex].row_status === 'I') {
-          state.quotationDetails = state.quotationDetails.filter(
+        if (state.chargeOrderDetails[itemIndex].row_status === 'I') {
+          state.chargeOrderDetails = state.chargeOrderDetails.filter(
             (item) => item.id !== action.payload,
           );
         } else {
-          state.quotationDetails[itemIndex].row_status = 'D';
-          state.quotationDetails[itemIndex].isDeleted = true;
+          state.chargeOrderDetails[itemIndex].row_status = 'D';
+          state.chargeOrderDetails[itemIndex].isDeleted = true;
         }
       }
     },
 
-    // Change the order of quotation details, from is the index of the item to be moved, to is the index of the item to be moved to
+    // Change the order of chargeOrder details, from is the index of the item to be moved, to is the index of the item to be moved to
     changeQuotationDetailOrder: (state, action) => {
       const { from, to } = action.payload;
-      const temp = state.quotationDetails[from];
-      state.quotationDetails[from] = state.quotationDetails[to];
-      state.quotationDetails[to] = temp;
+      const temp = state.chargeOrderDetails[from];
+      state.chargeOrderDetails[from] = state.chargeOrderDetails[to];
+      state.chargeOrderDetails[to] = temp;
     },
 
     changeQuotationDetailValue: (state, action) => {
       const { index, key, value } = action.payload;
 
-      const detail = state.quotationDetails[index];
+      const detail = state.chargeOrderDetails[index];
 
       detail[key] = value;
       const productType = detail.product_type_id;
@@ -340,8 +340,8 @@ export const vendorQuotationSlice = createSlice({
     resetQuotationDetail: (state, action) => {
       const index = action.payload;
 
-      state.quotationDetails[index] = {
-        id: state.quotationDetails[index].id,
+      state.chargeOrderDetails[index] = {
+        id: state.chargeOrderDetails[index].id,
         product_code: null,
         product_id: null,
         description: null,
@@ -356,9 +356,9 @@ export const vendorQuotationSlice = createSlice({
         discount_percent: '0',
         gross_amount: null,
         row_status:
-          state.quotationDetails[index].row_status === 'U'
+          state.chargeOrderDetails[index].row_status === 'U'
             ? 'U'
-            : state.quotationDetails[index].row_status,
+            : state.chargeOrderDetails[index].row_status,
       };
     },
 
@@ -371,7 +371,7 @@ export const vendorQuotationSlice = createSlice({
     },
     splitQuotationQuantity: (state, action) => {
       const index = action.payload;
-      const detail = state.quotationDetails[index];
+      const detail = state.chargeOrderDetails[index];
       const splittedQuantity = parseFloat(detail.quantity) - parseFloat(detail.stock_quantity);
 
       const row = {
@@ -420,7 +420,7 @@ export const vendorQuotationSlice = createSlice({
         markup: detail.markup,
       };
 
-      state.quotationDetails.splice(index, 1, row, splittedRow);
+      state.chargeOrderDetails.splice(index, 1, row, splittedRow);
     },
 
     resetVendorDetails: (state) => {
@@ -429,14 +429,14 @@ export const vendorQuotationSlice = createSlice({
 
   },
   extraReducers: ({ addCase }) => {
-    addCase(getVendorQuotationList.pending, (state) => {
+    addCase(getVendorChargeOrderList.pending, (state) => {
       state.isListLoading = true;
       state.initialFormValues = null;
       state.rebatePercentage = null;
       state.salesmanPercentage = null;
-      state.quotationDetails = [];
+      state.chargeOrderDetails = [];
     });
-    addCase(getVendorQuotationList.fulfilled, (state, action) => {
+    addCase(getVendorChargeOrderList.fulfilled, (state, action) => {
       state.isListLoading = false;
       const { data, ...rest } = action.payload;
       state.list = data;
@@ -454,7 +454,7 @@ export const vendorQuotationSlice = createSlice({
       state.initialFormValues = null;
       state.rebatePercentage = null;
       state.salesmanPercentage = null;
-      state.quotationDetails = [];
+      state.chargeOrderDetails = [];
     });
     addCase(getQuotationListReport.fulfilled, (state, action) => {
       state.isListLoading = false;
@@ -465,7 +465,7 @@ export const vendorQuotationSlice = createSlice({
         total_pages: rest.last_page,
       };
     });
-    addCase(getVendorQuotationList.rejected, (state) => {
+    addCase(getVendorChargeOrderList.rejected, (state) => {
       state.isListLoading = false;
     });
 
@@ -479,167 +479,122 @@ export const vendorQuotationSlice = createSlice({
       state.isFormSubmitting = false;
     });
 
-    addCase(getVendorQuotation.pending, (state) => {
+    addCase(getVendorChargeOrder.pending, (state) => {
       state.isItemLoading = true;
     });
-    addCase(getVendorQuotation.fulfilled, (state, action) => {
+    addCase(getVendorChargeOrder.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
       state.initialFormValues = data
 
-      state.quotationDetails = data?.details?.map(item => {
+      state.chargeOrderDetails = data?.details?.map(item => {
         // if (!item?.is_deleted) return {};
-        const detail = item?.vendor_quotation_detail?.quotation_detail;
+        const detail = item?.vendor_charge_order_detail?.charge_order_detail;
         const vendorCost = item?.vendor_rate || null;
-        const vendor_notes = item?.vendor_quotation_detail?.vendor_notes ? item?.vendor_quotation_detail?.vendor_notes : item?.vendor_quotation_detail?.quotation_detail?.vendor_notes ? item?.vendor_quotation_detail?.quotation_detail?.vendor_notes : '';
+        const vendor_notes = item?.vendor_charge_order_detail?.vendor_notes ? item?.vendor_charge_order_detail?.vendor_notes : item?.vendor_charge_order_detail?.charge_order_detail?.vendor_notes ? item?.vendor_charge_order_detail?.charge_order_detail?.vendor_notes : null
 
-        if(item?.is_deleted){
-                  return {
-          id: item?.quotation_detail_id,
-          sort_order: item?.sort_order || null,
-          product_code: item?.product?.product_code || null,
-          product_id: item?.product
-            ? { value: item.product.product_id, label: item.product.product_name }
-            : null,
-          product_type_id: item?.product_type
-            ? {
-              value: item.product_type.product_type_id,
-              label: item.product_type.name,
-            }
-            : null,
-          product_name: item?.product_name || item?.product?.product_name || null,
-          product_description: item?.product_description,
-          description: item?.description,
-          stock_quantity: item?.product?.stock?.quantity
-            ? parseFloat(item.product.stock.quantity)
-            : 0,
-          quantity: item?.quantity || null,
-          available_quantity: item?.available_quantity || null,
-          unit_id: item?.unit ? item.unit.name : null,
-          supplier_id: item?.supplier
-            ? { value: item.supplier.supplier_id, label: detail.supplier.name }
-            : null,
-          vendor_part_no: item?.vendor_part_no ? item?.vendor_part_no : null,
-          internal_notes: item?.internal_notes,
-          cost_price: item?.vendor_rate,
-          markup: item?.markup,
-          rate: item?.rate,
-          vendor_notes: item?.vendor_notes ? item?.vendor_notes : null,
-          amount: item?.amount,
-          discount_percent: 0, // to be confirm either detail?.discount_percent but now it will be 0
-          discount_amount: item?.discount_amount,
-          gross_amount: item?.gross_amount,
-          quotation_detail_id: item?.quotation_detail_id,
-          net_cost: item,
-          ext_cost: {
-            ...item,
-            vendorCost,
-          },
-          row_status: 'U',
-          isDeleted: false,
-          lastUpdatedField: null,
-          is_deleted: item?.is_deleted,
-        };
-      }
-      
-      if(!item?.is_deleted){
-        return {
-          id: detail?.quotation_detail_id,
-          sort_order: detail?.sort_order || null,
-          product_code: detail?.product?.product_code || null,
-          product_id: detail?.product
-            ? { value: detail.product.product_id, label: detail.product.product_name }
-            : null,
-          product_type_id: detail?.product_type
-            ? {
-              value: detail.product_type.product_type_id,
-              label: detail.product_type.name,
-            }
-            : null,
-          product_name: detail?.product_name || detail?.product?.product_name || null,
-          product_description: detail?.product_description,
-          description: detail?.description,
-          stock_quantity: detail?.product?.stock?.quantity
-            ? parseFloat(detail.product.stock.quantity)
-            : 0,
-          quantity: detail?.quantity || null,
-          available_quantity: detail?.available_quantity || null,
-          unit_id: detail?.unit ? detail.unit.name : null,
-          supplier_id: detail?.supplier
-            ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
-            : null,
-          vendor_part_no: item?.vendor_quotation_detail?.vendor_part_no ? item?.vendor_quotation_detail?.vendor_part_no : item?.vendor_quotation_detail?.quotation_detail?.vendor_part_no ? item?.vendor_quotation_detail?.quotation_detail?.vendor_part_no : null,
-          internal_notes: detail?.internal_notes,
-          cost_price: vendorCost,
-          markup: detail?.markup,
-          rate: detail?.rate,
-          vendor_notes: vendor_notes,
-          amount: detail?.amount,
-          discount_percent: 0, // to be confirm either detail?.discount_percent but now it will be 0
-          discount_amount: detail?.discount_amount,
-          gross_amount: detail?.gross_amount,
-          quotation_detail_id: detail?.quotation_detail_id,
-          net_cost: detail,
-          ext_cost: {
-            ...detail,
-            vendorCost,
-          },
-          row_status: 'U',
-          isDeleted: false,
-          lastUpdatedField: null,
-        };
-}
-        // return {
-        //   id: detail?.quotation_detail_id,
-        //   sort_order: detail?.sort_order || null,
-        //   product_code: detail?.product?.product_code || null,
-        //   product_id: detail?.product
-        //     ? { value: detail.product.product_id, label: detail.product.product_name }
-        //     : null,
-        //   product_type_id: detail?.product_type
-        //     ? {
-        //       value: detail.product_type.product_type_id,
-        //       label: detail.product_type.name,
-        //     }
-        //     : null,
-        //   product_name: detail?.product_name || detail?.product?.product_name || null,
-        //   product_description: detail?.product_description,
-        //   description: detail?.description,
-        //   stock_quantity: detail?.product?.stock?.quantity
-        //     ? parseFloat(detail.product.stock.quantity)
-        //     : 0,
-        //   quantity: detail?.quantity || null,
-        //   available_quantity: detail?.available_quantity || null,
-        //   unit_id: detail?.unit ? detail.unit.name : null,
-        //   supplier_id: detail?.supplier
-        //     ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
-        //     : null,
-        //   vendor_part_no: detail?.vendor_part_no,
-        //   internal_notes: detail?.internal_notes,
-        //   cost_price: vendorCost,
-        //   markup: detail?.markup,
-        //   rate: detail?.rate,
-        //   vendor_notes: vendor_notes,
-        //   amount: detail?.amount,
-        //   discount_percent: 0, // to be confirm either detail?.discount_percent but now it will be 0
-        //   discount_amount: detail?.discount_amount,
-        //   gross_amount: detail?.gross_amount,
-        //   quotation_detail_id: detail?.quotation_detail_id,
-        //   net_cost: detail,
-        //   ext_cost: {
-        //     ...detail,
-        //     vendorCost,
-        //   },
-        //   row_status: 'U',
-        //   isDeleted: false,
-        //   lastUpdatedField: null,
-        // };
+        if (item?.is_deleted) {
+          return {
+            id: item?.charge_order_detail_id,
+            sort_order: item?.sort_order || null,
+            product_code: item?.product?.product_code || null,
+            product_id: item?.product
+              ? { value: item.product.product_id, label: item.product.product_name }
+              : null,
+            product_type_id: item?.product_type
+              ? {
+                value: item.product_type.product_type_id,
+                label: item.product_type.name,
+              }
+              : null,
+            product_name: item?.product_name || item?.product?.product_name || null,
+            product_description: item?.product_description,
+            description: item?.description,
+            stock_quantity: item?.product?.stock?.quantity
+              ? parseFloat(item.product.stock.quantity)
+              : 0,
+            quantity: item?.quantity || null,
+            available_quantity: item?.available_quantity || null,
+            unit_id: item?.unit ? item.unit.name : null,
+            supplier_id: item?.supplier
+              ? { value: item.supplier.supplier_id, label: detail.supplier.name }
+              : null,
+            vendor_part_no: item?.vendor_part_no ? item?.vendor_part_no : null,
+            internal_notes: item?.internal_notes,
+            cost_price: item?.vendor_rate,
+            markup: item?.markup,
+            rate: item?.rate,
+            vendor_notes: item?.vendor_notes ? item?.vendor_notes : null,
+            amount: item?.amount,
+            discount_percent: 0, // to be confirm either detail?.discount_percent but now it will be 0
+            discount_amount: item?.discount_amount,
+            gross_amount: item?.gross_amount,
+            charge_order_detail_id: item?.charge_order_detail_id,
+            net_cost: item,
+            ext_cost: {
+              ...item,
+              vendorCost,
+            },
+            row_status: 'U',
+            isDeleted: false,
+            lastUpdatedField: null,
+            is_deleted: item?.is_deleted,
+          };
+        }
+
+        if (!item?.is_deleted) {
+          return {
+            id: detail?.charge_order_detail_id,
+            sort_order: detail?.sort_order || null,
+            product_code: detail?.product?.product_code || null,
+            product_id: detail?.product
+              ? { value: detail.product.product_id, label: detail.product.product_name }
+              : null,
+            product_type_id: detail?.product_type
+              ? {
+                value: detail.product_type.product_type_id,
+                label: detail.product_type.name,
+              }
+              : null,
+            product_name: detail?.product_name || detail?.product?.product_name || null,
+            product_description: detail?.product_description,
+            description: detail?.description,
+            stock_quantity: detail?.product?.stock?.quantity
+              ? parseFloat(detail.product.stock.quantity)
+              : 0,
+            quantity: detail?.quantity || null,
+            available_quantity: detail?.available_quantity || null,
+            unit_id: detail?.unit ? detail.unit.name : null,
+            supplier_id: detail?.supplier
+              ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
+              : null,
+            vendor_part_no: item?.vendor_charge_order_detail?.vendor_part_no ? item?.vendor_charge_order_detail?.vendor_part_no : item?.vendor_charge_order_detail?.charge_order_detail?.vendor_part_no ? item?.vendor_charge_order_detail?.charge_order_detail?.vendor_part_no : null,
+            internal_notes: detail?.internal_notes,
+            cost_price: vendorCost,
+            markup: detail?.markup,
+            rate: detail?.rate,
+            vendor_notes: vendor_notes,
+            amount: detail?.amount,
+            discount_percent: 0,
+            discount_amount: detail?.discount_amount,
+            gross_amount: detail?.gross_amount,
+            charge_order_detail_id: detail?.charge_order_detail_id,
+            net_cost: detail,
+            ext_cost: {
+              ...detail,
+              vendorCost,
+            },
+            row_status: 'U',
+            isDeleted: false,
+            lastUpdatedField: null,
+          };
+        }
       });
 
       state.rebatePercentage = data?.rebate_percent ? data?.rebate_percent : 0;
       state.salesmanPercentage = data?.salesman_percent ? data?.salesman_percent : data?.commission_percentage ? data?.commission_percentage : 0;
     });
-    addCase(getVendorQuotation.rejected, (state) => {
+    addCase(getVendorChargeOrder.rejected, (state) => {
       state.isItemLoading = false;
       state.initialFormValues = null;
       state.rebatePercentage = null;
@@ -655,7 +610,7 @@ export const vendorQuotationSlice = createSlice({
       const data = action.payload;
 
       state.vendorDetails = data.map((item) => ({
-        quotation_detail_id: item.quotation_detail_id,
+        charge_order_detail_id: item.charge_order_detail_id,
         vendor: item.vendor
           ? { supplier_id: item.vendor.supplier_id, name: item.vendor.name }
           : null,
@@ -769,9 +724,9 @@ export const vendorQuotationSlice = createSlice({
         vessel_block_status: data?.vessel?.block_status ? data?.vessel?.block_status : null,
       };
 
-      if (!data.quotation_detail) return;
-      state.quotationDetails = data.quotation_detail.map((detail) => ({
-        id: detail.quotation_detail_id,
+      if (!data.charge_order_detail) return;
+      state.chargeOrderDetails = data.charge_order_detail.map((detail) => ({
+        id: detail.charge_order_detail_id,
         product_code: detail.product ? detail.product.product_code : null,
         product_id: detail.product
           ? { value: detail.product.product_id, label: detail.product.product_name }
@@ -828,7 +783,7 @@ export const vendorQuotationSlice = createSlice({
     // });
     // addCase(updateQuotation.fulfilled, (state) => {
     //   state.isFormSubmitting = false;
-    //   state.quotationDetails = state.quotationDetails
+    //   state.chargeOrderDetails = state.chargeOrderDetails
     //     .filter((item) => item.row_status !== 'D')
     //     .map((item) => ({
     //       ...item,
@@ -843,22 +798,22 @@ export const vendorQuotationSlice = createSlice({
     //   state.isFormSubmitting = false;
     // });
 
-    addCase(bulkDeleteQuotation.pending, (state) => {
+    addCase(bulkDeleteChargeOrder.pending, (state) => {
       state.isBulkDeleting = true;
     });
-    addCase(bulkDeleteQuotation.fulfilled, (state) => {
+    addCase(bulkDeleteChargeOrder.fulfilled, (state) => {
       state.isBulkDeleting = false;
       state.deleteIDs = [];
     });
-    addCase(bulkDeleteQuotation.rejected, (state) => {
+    addCase(bulkDeleteChargeOrder.rejected, (state) => {
       state.isBulkDeleting = false;
     });
   },
 });
 
 export const {
-  setVendorQuotationListParams,
-  setQuotationDeleteIDs,
+  setVendorChargeOrderListParams,
+  setChargeOrderDeleteIDs,
   addQuotationDetail,
   removeQuotationDetail,
   copyQuotationDetail,

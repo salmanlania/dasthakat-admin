@@ -144,7 +144,7 @@ const Sidebar = () => {
   const LogisticsPermission = !permissions?.dispatch?.list;
   const systemPermission = !permissions?.audit?.list;
   const reportsPermission = !permissions?.quote_report?.show && !permissions?.bid_response?.show;
-  const vpQuotationPermission = !permissions?.vp_quotation?.list
+  const vendorPlatformPermission = !permissions?.vp_quotation?.list && !permissions?.vp_charge_order?.list
 
   const items = [
     {
@@ -481,12 +481,17 @@ const Sidebar = () => {
       key: 'vendor platform',
       label: 'Vendor Platform',
       icon: <TbBuildingStore size={18} />,
-      disabled: vpQuotationPermission,
+      disabled: vendorPlatformPermission,
       children: [
         {
           key: 'vendor-platform',
-          label: <Link to="/vendor-platform">Vendor Quote</Link>,
+          label: <Link to="/vendor-platform-quote">Vendor Quote</Link>,
           disabled: !permissions?.vp_quotation?.list,
+        },
+        {
+          key: 'vendor-platform',
+          label: <Link to="/vendor-platform-charge">Vendor Charge</Link>,
+          disabled: !permissions?.vp_charge_order?.list,
         },
       ],
     },

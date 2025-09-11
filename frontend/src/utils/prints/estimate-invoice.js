@@ -427,7 +427,6 @@ export const createEstimateInvoicePrint = async (data) => {
   ];
 
   const newSize = doc.previousAutoTable.finalY + 6
-  console.log('doc.previousAutoTable.finalY', newSize)
   doc.autoTable({
     startY: doc.previousAutoTable.finalY,
     head: [],

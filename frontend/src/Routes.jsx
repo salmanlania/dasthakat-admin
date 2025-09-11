@@ -14,6 +14,10 @@ const VendorPlatformQuotation = lazy(() => import('./pages/VendorPlatform/Quotat
 const VendorPlatform = lazy(() => import('./pages/VendorPlatform'));
 const EditVendorPlatform = lazy(() => import('./pages/VendorPlatform/EditVendorPlatform'));
 
+const VendorPlatformChargeOrder = lazy(() => import('./pages/VendorChargeOrderPlatform/ChargeOrder'));
+const VendorChargeOrderPlatform = lazy(() => import('./pages/VendorChargeOrderPlatform'));
+const EditVendorChargeOrderPlatform = lazy(() => import('./pages/VendorChargeOrderPlatform/EditVendorChargeOrderPlatform'));
+
 const User = lazy(() => import('./pages/User'));
 const CreateUser = lazy(() => import('./pages/User/CreateUser'));
 const EditUser = lazy(() => import('./pages/User/EditUser'));
@@ -784,7 +788,7 @@ function Routes() {
             ),
           },
           {
-            path: '/vendor-platform',
+            path: '/vendor-platform-quote',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <VendorPlatform />
@@ -792,10 +796,26 @@ function Routes() {
             ),
           },
           {
-            path: '/vendor-platform/edit/:id',
+            path: '/vendor-platform-quote/edit/:id',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditVendorPlatform />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/vendor-platform-charge',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <VendorChargeOrderPlatform />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/vendor-platform-charge/edit/:id',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditVendorChargeOrderPlatform />
               </Suspense>
             ),
           },
@@ -1033,6 +1053,14 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <VendorPlatformQuotation />
+              </Suspense>
+            ),
+          },
+          {
+            path: 'charge-order/:id',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <VendorPlatformChargeOrder />
               </Suspense>
             ),
           },

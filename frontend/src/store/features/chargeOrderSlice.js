@@ -142,7 +142,7 @@ export const bulkDeleteChargeOrder = createAsyncThunk(
   async (ids, { rejectWithValue }) => {
     try {
       await api.post('/charge-order/bulk-delete', {
-        charge_order_ids: ids
+      charge_order_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);
@@ -177,6 +177,42 @@ export const chargeOrderAnalysis = createAsyncThunk(
   }
 );
 
+//vendor
+
+
+export const getVendorCharge = createAsyncThunk('vendor-charge/get', async (id, { rejectWithValue }) => {
+  try {
+    const res = await api.get(`/vendor-platform/charge-order/${id}`);
+    return res.data.data;
+  } catch (err) {
+    throw rejectWithValue(err);
+  }
+});
+
+export const postVendorChargeSelection = createAsyncThunk(
+  'vendor-charge/postSelection',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const res = await api.post(`/vendor-platform/charge-order/`, payload);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  },
+);
+
+export const postChargeRfq = createAsyncThunk(
+  'rfg-charge/postSelection',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const res = await api.post(`/vendor-platform/charge-order/rfq`, payload);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  },
+);
+
 const initialState = {
 
   // Meta state
@@ -197,12 +233,16 @@ const initialState = {
   tempChargeDetails: [],
   chargeOrderDetailId: null,
   analysisChargeDetails: [],
+  isItemVendorChargeLoading: false,
   list: [],
   deleteIDs: [],
+  isVendorChargeModalOpen: false,
   rebatePercentage: null,
   salesmanPercentage: null,
   chargeOrderDetails: [],
   commissionAgentData: [],
+  vendorChargeDetails: [],
+  vendorDetails: [],
   params: {
     page: 1,
     limit: 50,
@@ -242,6 +282,10 @@ export const chargeOrderSlice = createSlice({
         ...state.params,
         ...action.payload
       };
+    },
+
+    setVendorChargeModalOpen: (state, action) => {
+      state.isVendorChargeModalOpen = action.payload;
     },
 
     setChargeOrderDeleteIDs: (state, action) => {
@@ -512,7 +556,11 @@ export const chargeOrderSlice = createSlice({
       };
 
       state.chargeOrderDetails.splice(index, 1, row, splittedRow);
-    }
+    },
+
+    resetVendorDetails: (state) => {
+      state.vendorDetails = [];
+    },
   },
   extraReducers: ({ addCase }) => {
     addCase(getChargeOrderList.pending, (state) => {
@@ -565,6 +613,7 @@ export const chargeOrderSlice = createSlice({
       state.isItemLoading = false;
       const data = action.payload;
       state.initialFormValues = {
+        charge_order_id: data?.charge_order_id,
         is_deleted: data?.is_deleted,
         document_identity: data.document_identity,
         document_date: data.document_date ? dayjs(data.document_date) : null,
@@ -698,6 +747,61 @@ export const chargeOrderSlice = createSlice({
         isDeleted: false
       }));
 
+      state.vendorChargeDetails = data?.charge_order_detail.map((detail) => ({
+        id: detail.charge_order_detail_id,
+        vendor_charge_order_detail_id: detail?.vendor_charge_order_detail_id ? detail?.vendor_charge_order_detail_id : null,
+        charge_order_detail_id: detail?.charge_order_detail_id,
+        purchase_order_id: detail.purchase_order_id,
+        purchase_order_detail_id: detail.purchase_order_detail_id,
+        product_code: detail.product ? detail.product.product_code : null,
+        product_id: detail.product
+          ? { value: detail.product.product_id, label: detail.product.product_name }
+          : null,
+        product_type_id: detail.product_type
+          ? {
+            value: detail.product_type.product_type_id,
+            label: detail.product_type.name
+          }
+          : null,
+        product_name: detail.product_name.trim(),
+        product_description: detail?.product_description ? detail?.product_description.trim() : null,
+        description: detail?.description ? detail?.description : null,
+        internal_notes: detail?.internal_notes ? detail?.internal_notes : null,
+        technician_notes: detail?.technician_notes ? detail?.technician_notes : null,
+        agent_notes: detail?.agent_notes ? detail?.agent_notes : null,
+        vendor_notes: detail?.vendor_notes ? detail?.vendor_notes : null,
+        quotation_detail_id: detail.quotation_detail_id || null,
+        picklist_id: detail.picklist_id || null,
+        picklist_detail_id: detail.picklist_detail_id || null,
+        servicelist_id: detail.servicelist_id || null,
+        servicelist_detail_id: detail.servicelist_detail_id || null,
+        job_order_id: detail.job_order_id || null,
+        job_order_detail_id: detail.job_order_detail_id || null,
+        shipment_id: detail.shipment_id || null,
+        shipment_detail_id: detail.shipment_detail_id || null,
+        stock_quantity: detail?.product?.stock?.quantity
+          ? parseFloat(detail.product.stock.quantity)
+          : 0,
+        quantity: detail.quantity ? detail.quantity : null,
+        picked_quantity: detail.picked_quantity ? parseFloat(detail.picked_quantity) : null,
+        unit_id: detail.unit ? { value: detail.unit.unit_id, label: detail.unit.name } : null,
+        supplier_id: detail.supplier
+          ? { value: detail.supplier.supplier_id, label: detail.supplier.name }
+          : null,
+        vendor_part_no: detail.vendor_part_no,
+        markup: detail.markup,
+        cost_price: detail.cost_price,
+        rate: detail.rate !== undefined ? parseFloat(detail.rate) : null,
+        amount: detail.amount,
+        discount_percent: detail.discount_percent,
+        discount_amount: detail.discount_amount,
+        gross_amount: detail.gross_amount,
+        editable: detail.editable,
+        purchase_order_exists: detail?.purchase_order_exists,
+        row_status: 'U',
+        isDeleted: false
+      }));
+
       state.rebatePercentage = data?.rebate_percent ? data?.rebate_percent : 0;
       state.salesmanPercentage = data?.salesman_percent
         ? data?.salesman_percent
@@ -708,6 +812,35 @@ export const chargeOrderSlice = createSlice({
     addCase(getChargeOrder.rejected, (state) => {
       state.isItemLoading = false;
       state.initialFormValues = null;
+    });
+
+    addCase(getVendorCharge.pending, (state) => {
+      state.isItemVendorChargeLoading = true;
+    });
+
+    addCase(getVendorCharge.fulfilled, (state, action) => {
+      state.isItemVendorChargeLoading = false;
+      const data = action.payload;
+
+      state.vendorDetails = data.map((item) => ({
+        charge_order_detail_id: item?.charge_order_detail_id ? item?.charge_order_detail_id : null,
+        vendor: item.vendor
+          ? { supplier_id: item.vendor.supplier_id, name: item.vendor.name }
+          : null,
+        vendor_rate: item.vendor_rate,
+        vendor_charge_order_detail_id: item?.vendor_charge_order_detail_id ? item?.vendor_charge_order_detail_id : null,
+        is_primary_vendor: item.is_primary_vendor,
+        rfq: item.rfq,
+        rfq_responded: item.rfq_responded,
+        vendor_part_no: item.vendor_part_no,
+        vendor_notes: item.vendor_notes,
+      }));
+
+    });
+
+    addCase(getVendorCharge.rejected, (state) => {
+      state.isItemVendorChargeLoading = false;
+      state.vendorDetails = null;
     });
 
     addCase(updateChargeOrder.pending, (state, action) => {
@@ -813,6 +946,8 @@ export const {
   setTempChargeOrderID,
   setAnalysisChargeOrderID,
   setViewChargeOrderID,
-  splitChargeOrderQuantity
+  splitChargeOrderQuantity,
+  setVendorChargeModalOpen,
+  resetVendorDetails
 } = chargeOrderSlice.actions;
 export default chargeOrderSlice.reducer;

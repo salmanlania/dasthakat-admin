@@ -12,8 +12,8 @@ import DebounceInput from '../../../components/Input/DebounceInput';
 import useDocumentTitle from '../../../hooks/useDocumentTitle';
 import useError from '../../../hooks/useError';
 
-const VendorPlatformQuotation = () => {
-  useDocumentTitle('Vendor Platform Quotation');
+const VendorPlatformChargeOrder = () => {
+  useDocumentTitle('Vendor Platform Charge Order');
   const [data, setData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isExpired, setIsExpired] = useState(false);
@@ -39,7 +39,7 @@ const VendorPlatformQuotation = () => {
     details
       ?.filter((item) => !item.is_deleted)
       .forEach((item) => {
-        const itemQty = Number(item?.vendor_quotation_detail ? item?.vendor_quotation_detail?.quotation_detail?.quantity : item?.quantity ? item?.quantity : 0)
+        const itemQty = Number(item?.vendor_charge_order_detail ? item?.vendor_charge_order_detail?.charge_order_detail?.quantity : item?.quantity ? item?.quantity : 0)
         const itemPrice = Number(item.vendor_rate?.toString()?.replace(/,/g, '')) || 0;
         const itemTotal = itemQty * itemPrice;
 
@@ -117,7 +117,7 @@ const VendorPlatformQuotation = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await api.get(`/vendor-platform/quotation/rfq/${id}`);
+        const res = await api.get(`/vendor-platform/charge-order/rfq/${id}`);
         const fetchedData = res?.data?.data;
 
         const todayDate = dayjs()
@@ -132,7 +132,7 @@ const VendorPlatformQuotation = () => {
               `
                 <div style="font-size: 18px; line-height: 1.8;">
                   <p>This RFQ was required by <strong>${requiredDate.format('YYYY-MM-DD')}</strong>.</p>
-                  <p>You can no longer submit a quotation for this request.</p>
+                  <p>You can no longer submit a charge order for this request.</p>
                 </div>
               `,
             width: '700px',
@@ -184,16 +184,16 @@ const VendorPlatformQuotation = () => {
     const updatedDetails = [...data.details];
     const detail = updatedDetails[index];
 
-    if (!detail.vendor_quotation_detail) {
-      detail.vendor_quotation_detail = {};
+    if (!detail.vendor_charge_order_detail) {
+      detail.vendor_charge_order_detail = {};
     }
 
-    detail.vendor_quotation_detail[key] = value;
+    detail.vendor_charge_order_detail[key] = value;
 
     if (key === 'vendor_rate') {
       const qty = Number(detail?.quantity) || 0;
       const price = Number(value?.toString()?.replace(/,/g, '')) || 0;
-      detail.vendor_quotation_detail.total_amount = qty * price;
+      detail.vendor_charge_order_detail.total_amount = qty * price;
       detail.vendor_rate = price;
 
       const updatedTotals = calculateTotals(updatedDetails);
@@ -211,32 +211,32 @@ const VendorPlatformQuotation = () => {
       if (!data) return;
 
       setIsSubmitting(true);
-      const quotationId = data?.quotation?.quotation_id;
+      const chargeOrderId = data?.charge_order?.charge_order_id;
       const vendorId = data?.vendor?.supplier_id;
 
-      const quotationDetail = data?.details
+      const chargeOrderDetail = data?.details
         ?.filter(d => !d.is_deleted)
         ?.map(d => ({
-          ...d.vendor_quotation_detail,
+          ...d.vendor_charge_order_detail,
           detail_id: d.detail_id
         })) || [];
 
-      if (!quotationDetail || quotationDetail.length === 0) {
-        toast.error('No quotation details to submit.');
+      if (!chargeOrderDetail || chargeOrderDetail.length === 0) {
+        toast.error('No charge order details to submit.');
         return;
       }
-      await api.put(`/vendor-platform/quotation/vendor/${id}`, {
-        quotation_id: quotationId,
+      await api.put(`/vendor-platform/charge-order/vendor/${id}`, {
+        charge_order_id: chargeOrderId,
         vendor_id: vendorId,
         vendor_ref_no: vendorReferenceNo,
         vendor_remarks: vendorRemarks,
         validity_date: validityDate.format('YYYY-MM-DD'),
-        quotation_detail: quotationDetail,
+        charge_order_detail: chargeOrderDetail,
       });
 
       toast.success('Details updated successfully');
 
-      const res = await api.get(`/vendor-platform/quotation/rfq/${id}`);
+      const res = await api.get(`/vendor-platform/charge-order/rfq/${id}`);
       const fetchedData = res?.data?.data;
       setData(fetchedData);
 
@@ -259,9 +259,9 @@ const VendorPlatformQuotation = () => {
       render: (_, record) => {
         return (
           record?.is_deleted ? record?.product_name :
-            record?.vendor_quotation_detail?.quotation_detail?.product_type_id == '4'
-              ? record?.vendor_quotation_detail?.quotation_detail?.product_name
-              : record?.vendor_quotation_detail?.quotation_detail?.product?.name
+            record?.vendor_charge_order_detail?.charge_order_detail?.product_type_id == '4'
+              ? record?.vendor_charge_order_detail?.charge_order_detail?.product_name
+              : record?.vendor_charge_order_detail?.charge_order_detail?.product?.name
         );
       }
     },
@@ -271,7 +271,7 @@ const VendorPlatformQuotation = () => {
       key: 'quantity',
       width: 100,
       render: (_, record) =>
-        record?.is_deleted ? record?.quantity : record?.vendor_quotation_detail?.quotation_detail?.quantity ? record?.vendor_quotation_detail?.quotation_detail?.quantity : null,
+        record?.is_deleted ? record?.quantity : record?.vendor_charge_order_detail?.charge_order_detail?.quantity ? record?.vendor_charge_order_detail?.charge_order_detail?.quantity : null,
     },
     {
       title: 'Price',
@@ -293,7 +293,7 @@ const VendorPlatformQuotation = () => {
       key: 'uom',
       width: 120,
       render: (_, record) => {
-        return record?.is_deleted ? record?.unit?.name : record?.vendor_quotation_detail?.quotation_detail?.unit?.name ? record?.vendor_quotation_detail?.quotation_detail?.unit?.name : null;
+        return record?.is_deleted ? record?.unit?.name : record?.vendor_charge_order_detail?.charge_order_detail?.unit?.name ? record?.vendor_charge_order_detail?.charge_order_detail?.unit?.name : null;
       }
     },
     {
@@ -304,7 +304,7 @@ const VendorPlatformQuotation = () => {
       render: (_, record, index) => {
         return (
           <DebounceInput
-            value={record?.is_deleted ? record?.vendor_part_no : record?.vendor_quotation_detail?.vendor_part_no ? record?.vendor_quotation_detail?.vendor_part_no : record?.vendor_quotation_detail?.quotation_detail?.vendor_part_no ? record?.vendor_quotation_detail?.quotation_detail?.vendor_part_no : ''}
+            value={record?.is_deleted ? record?.vendor_part_no : record?.vendor_charge_order_detail?.vendor_part_no ? record?.vendor_charge_order_detail?.vendor_part_no : record?.vendor_charge_order_detail?.charge_order_detail?.vendor_part_no ? record?.vendor_charge_order_detail?.charge_order_detail?.vendor_part_no : ''}
             onChange={(value) => updateDetailValue(index, 'vendor_part_no', value)}
           />
         );
@@ -318,7 +318,7 @@ const VendorPlatformQuotation = () => {
       render: (_, record, index) => {
         return (
           <DebounceInput
-            value={record?.is_deleted ? record?.vendor_notes : record?.vendor_quotation_detail?.vendor_notes ? record?.vendor_quotation_detail?.vendor_notes : record?.vendor_quotation_detail?.quotation_detail?.vendor_notes ? record?.vendor_quotation_detail?.quotation_detail?.vendor_notes : ''}
+            value={record?.is_deleted ? record?.vendor_notes : record?.vendor_charge_order_detail?.vendor_notes ? record?.vendor_charge_order_detail?.vendor_notes : record?.vendor_charge_order_detail?.charge_order_detail?.vendor_notes ? record?.vendor_charge_order_detail?.charge_order_detail?.vendor_notes : ''}
             onChange={(value) => updateDetailValue(index, 'vendor_notes', value)}
           />
         );
@@ -372,16 +372,16 @@ const VendorPlatformQuotation = () => {
               <span style={{ fontWeight: 600 }}>{data?.document_identity || '-'}</span>
             </div>
             <div>
-              <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Quotation No:</span>
-              <span style={{ fontWeight: 600 }}>{data?.quotation?.document_identity || '-'}</span>
+              <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Charge Order No:</span>
+              <span style={{ fontWeight: 600 }}>{data?.charge_order?.document_identity || '-'}</span>
             </div>
             <div>
               <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Event:</span>
-              <span style={{ fontWeight: 600 }}>{data?.quotation?.event?.event_code || '-'}</span>
+              <span style={{ fontWeight: 600 }}>{data?.charge_order?.event?.event_code || '-'}</span>
             </div>
             <div>
               <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Vessel:</span>
-              <span style={{ fontWeight: 600 }}>{data?.quotation?.vessel?.name || '-'}</span>
+              <span style={{ fontWeight: 600 }}>{data?.charge_order?.vessel?.name || '-'}</span>
             </div>
           </div>
           <div className='grid grid-cols-1 w-full md:grid-cols-2 lg:grid-cols-4 gap-4'>
@@ -439,7 +439,7 @@ const VendorPlatformQuotation = () => {
           size="small"
           pagination={false}
           columns={columns}
-          rowKey={'quotation_detail_id'}
+          rowKey={'charge_order_detail_id'}
           dataSource={sourceData || []}
           loading={loading}
           rowClassName={(record) => record.is_deleted ? 'deleted-row' : ''}
@@ -481,4 +481,4 @@ const VendorPlatformQuotation = () => {
   );
 };
 
-export default VendorPlatformQuotation;
+export default VendorPlatformChargeOrder;

@@ -22,25 +22,25 @@ import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
 import {
-  bulkDeleteQuotation,
-  deleteQuotation,
-  getVendorQuotationList,
-  setQuotationDeleteIDs,
-  setVendorQuotationListParams,
-  vendorQuotationActions
-} from '../../store/features/vendorQuotationSlice.js';
+  bulkDeleteChargeOrder,
+  deleteChargeOrder,
+  getVendorChargeOrderList,
+  setChargeOrderDeleteIDs,
+  setVendorChargeOrderListParams,
+  vendorChargeOrderActions
+} from '../../store/features/vendorChargeOrderSlice.js';
 import useDocumentTitle from '../../hooks/useDocumentTitle.js';
 
-const VendorPlatform = () => {
-  useDocumentTitle('Vendor Platform Quotation');
+const VendorChargeOrderPlatform = () => {
+  useDocumentTitle('Vendor Platform Charge Order');
   const { RangePicker } = DatePicker;
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.vendorQuotation,
+    (state) => state.vendorChargeOrder,
   );
   const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.vp_quotation;
+  const permissions = user.permission.vp_charge_order;
 
   const [form] = Form.useForm();
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
@@ -60,9 +60,9 @@ const VendorPlatform = () => {
 
   const onQuotationDelete = async (id) => {
     try {
-      await dispatch(deleteQuotation(id)).unwrap();
+      await dispatch(deleteChargeOrder(id)).unwrap();
       toast.success('Quotation deleted successfully');
-      dispatch(getVendorQuotationList(formattedParams)).unwrap();
+      dispatch(getVendorChargeOrderList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -70,16 +70,16 @@ const VendorPlatform = () => {
 
   const onBulkDelete = async () => {
     try {
-      await dispatch(bulkDeleteQuotation(deleteIDs)).unwrap();
+      await dispatch(bulkDeleteChargeOrder(deleteIDs)).unwrap();
       toast.success('Quotations deleted successfully');
       closeDeleteModal();
-      await dispatch(getVendorQuotationList(formattedParams)).unwrap();
+      await dispatch(getVendorChargeOrderList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
   };
 
-  const quotationStatusOptions = [
+  const chargeOrderStatusOptions = [
     {
       value: 'Cancelled',
       label: 'Cancelled',
@@ -103,6 +103,14 @@ const VendorPlatform = () => {
   ];
 
   const columns = [
+    // {
+    //   title: '',
+    //   dataIndex: 'selection',
+    //   key: 'selection',
+    //   width: 50,
+    //   fixed: 'left',
+    //   render: () => null, // Optional, since selection is handled by rowSelection
+    // },
     {
       title: (
         <div>
@@ -115,7 +123,7 @@ const VendorPlatform = () => {
             value={params.document_identity}
             onChange={(e) => {
               const value = e.target.value || '';
-              dispatch(setVendorQuotationListParams({ document_identity: value }))
+              dispatch(setVendorChargeOrderListParams({ document_identity: value }))
             }}
           />
         </div>
@@ -135,15 +143,15 @@ const VendorPlatform = () => {
             size="small"
             allowClear
             onClick={(e) => e.stopPropagation()}
-            value={params.quotation_no}
+            value={params.charge_order_no}
             onChange={(e) => {
-              dispatch(setVendorQuotationListParams({ quotation_no: e.target.value }));
+              dispatch(setVendorChargeOrderListParams({ charge_order_no: e.target.value }));
             }}
           />
         </div>
       ),
-      dataIndex: 'quotation_no',
-      key: 'quotation_no',
+      dataIndex: 'charge_order_no',
+      key: 'charge_order_no',
       sorter: true,
       width: 200,
       ellipsis: true,
@@ -159,7 +167,7 @@ const VendorPlatform = () => {
             valueKey="event_id"
             labelKey="event_code"
             value={params.event_id}
-            onChange={(value) => dispatch(setVendorQuotationListParams({ event_id: value }))}
+            onChange={(value) => dispatch(setVendorChargeOrderListParams({ event_id: value }))}
           />
         </div>
       ),
@@ -181,7 +189,7 @@ const VendorPlatform = () => {
             labelKey="name"
             mode="multiple"
             value={params.sales_team_ids}
-            onChange={(value) => dispatch(setVendorQuotationListParams({ sales_team_ids: value }))}
+            onChange={(value) => dispatch(setVendorChargeOrderListParams({ sales_team_ids: value }))}
           />
         </div>
       ),
@@ -202,7 +210,7 @@ const VendorPlatform = () => {
             valueKey="vessel_id"
             labelKey="name"
             value={params.vessel_id}
-            onChange={(value) => dispatch(setVendorQuotationListParams({ vessel_id: value }))}
+            onChange={(value) => dispatch(setVendorChargeOrderListParams({ vessel_id: value }))}
           />
         </div>
       ),
@@ -223,12 +231,12 @@ const VendorPlatform = () => {
               className="font-normal"
               onChange={(date) => {
                 if (!date) {
-                  dispatch(setVendorQuotationListParams({ date_required: null }));
+                  dispatch(setVendorChargeOrderListParams({ date_required: null }));
                   return;
                 }
                 const jsDate = date.$d;
                 const formattedDate = `${jsDate.getFullYear()}-${String(jsDate.getMonth() + 1).padStart(2, '0')}-${String(jsDate.getDate()).padStart(2, '0')}`;
-                dispatch(setVendorQuotationListParams({ date_required: formattedDate }))
+                dispatch(setVendorChargeOrderListParams({ date_required: formattedDate }))
               }
               }
               format="MM-DD-YYYY"
@@ -255,12 +263,12 @@ const VendorPlatform = () => {
               className="font-normal"
               onChange={(date) => {
                 if (!date) {
-                  dispatch(setVendorQuotationListParams({ date_returned: null }));
+                  dispatch(setVendorChargeOrderListParams({ date_returned: null }));
                   return;
                 }
                 const jsDate = date.$d;
                 const formattedDate = `${jsDate.getFullYear()}-${String(jsDate.getMonth() + 1).padStart(2, '0')}-${String(jsDate.getDate()).padStart(2, '0')}`;
-                dispatch(setVendorQuotationListParams({ date_returned: formattedDate }))
+                dispatch(setVendorChargeOrderListParams({ date_returned: formattedDate }))
               }
               }
               format="MM-DD-YYYY"
@@ -288,7 +296,7 @@ const VendorPlatform = () => {
             labelKey="user_name"
             allowClear
             value={params.user_id}
-            onChange={(value) => dispatch(setVendorQuotationListParams({ person_incharge_id: value }))}
+            onChange={(value) => dispatch(setVendorChargeOrderListParams({ person_incharge_id: value }))}
           />
         </div>
       ),
@@ -306,9 +314,9 @@ const VendorPlatform = () => {
             size="small"
             className="w-full font-normal"
             allowClear
-            options={quotationStatusOptions}
+            options={chargeOrderStatusOptions}
             value={params.status}
-            onChange={(value) => dispatch(setVendorQuotationListParams({ status: value }))}
+            onChange={(value) => dispatch(setVendorChargeOrderListParams({ status: value }))}
           />
         </div>
       ),
@@ -329,7 +337,7 @@ const VendorPlatform = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.total_items}
             onChange={(e) => {
-              dispatch(setVendorQuotationListParams({ total_items: e.target.value }));
+              dispatch(setVendorChargeOrderListParams({ total_items: e.target.value }));
             }}
           />
         </div>
@@ -351,7 +359,7 @@ const VendorPlatform = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.items_quoted}
             onChange={(e) => {
-              dispatch(setVendorQuotationListParams({ items_quoted: e.target.value }));
+              dispatch(setVendorChargeOrderListParams({ items_quoted: e.target.value }));
             }}
           />
         </div>
@@ -372,12 +380,12 @@ const VendorPlatform = () => {
             className="font-normal"
             onChange={(date) => {
               if (!date) {
-                dispatch(setVendorQuotationListParams({ date_sent: null }));
+                dispatch(setVendorChargeOrderListParams({ date_sent: null }));
                 return;
               }
               const jsDate = date.$d;
               const formattedDate = `${jsDate.getFullYear()}-${String(jsDate.getMonth() + 1).padStart(2, '0')}-${String(jsDate.getDate()).padStart(2, '0')}`;
-              dispatch(setVendorQuotationListParams({ date_sent: formattedDate }))
+              dispatch(setVendorChargeOrderListParams({ date_sent: formattedDate }))
             }
             }
             format="MM-DD-YYYY"
@@ -403,7 +411,7 @@ const VendorPlatform = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.supplier_code}
             onChange={(e) => {
-              dispatch(setVendorQuotationListParams({ supplier_code: e.target.value }));
+              dispatch(setVendorChargeOrderListParams({ supplier_code: e.target.value }));
             }}
           />
         </div>
@@ -425,7 +433,7 @@ const VendorPlatform = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.notification_count}
             onChange={(e) => {
-              dispatch(setVendorQuotationListParams({ notification_count: e.target.value }));
+              dispatch(setVendorChargeOrderListParams({ notification_count: e.target.value }));
             }}
           />
         </div>
@@ -441,7 +449,7 @@ const VendorPlatform = () => {
       key: 'action',
       render: (_, { id }) => (
         <Tooltip title="View" className='flex justify-center'>
-          <Link to={`/vendor-platform-quote/edit/${id}`}>
+          <Link to={`/vendor-platform-charge/edit/${id}`}>
             <Button
               size="small"
               type="primary"
@@ -472,7 +480,7 @@ const VendorPlatform = () => {
       };
 
     dispatch(
-      setVendorQuotationListParams({
+      setVendorChargeOrderListParams({
         ...sortParams,
         page: pagination.current,
         limit: pagination.pageSize,
@@ -482,7 +490,7 @@ const VendorPlatform = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    dispatch(getVendorQuotationList(formattedParams)).unwrap().catch(handleError);
+    dispatch(getVendorChargeOrderList(formattedParams)).unwrap().catch(handleError);
   }, [
     params.page,
     params.limit,
@@ -495,7 +503,7 @@ const VendorPlatform = () => {
     params.sales_team_ids,
     params.sales_team_id,
     params.port_id,
-    params.quotation_no,
+    params.charge_order_no,
     params.items_quoted,
     params.supplier_code,
     params.total_items,
@@ -545,7 +553,7 @@ const VendorPlatform = () => {
 
     try {
       setLoadingAction(actionType);
-      await dispatch(vendorQuotationActions(payload)).unwrap();
+      await dispatch(vendorChargeOrderActions(payload)).unwrap();
 
       const successMessages = {
         send_notifications: 'Notifications sent successfully',
@@ -555,9 +563,9 @@ const VendorPlatform = () => {
       };
 
       toast.success(successMessages[actionType] || 'Task completed successfully');
-      dispatch(setQuotationDeleteIDs([]));
+      dispatch(setChargeOrderDeleteIDs([]));
       setRequiredDate(null)
-      dispatch(getVendorQuotationList(formattedParams)).unwrap();
+      dispatch(getVendorChargeOrderList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     } finally {
@@ -583,7 +591,7 @@ const VendorPlatform = () => {
                 allowClear
                 className="sm:w-25 w-full"
                 value={params.search}
-                onChange={(e) => dispatch(setVendorQuotationListParams({ search: e.target.value }))}
+                onChange={(e) => dispatch(setVendorChargeOrderListParams({ search: e.target.value }))}
               />
             </div>
 
@@ -611,7 +619,7 @@ const VendorPlatform = () => {
 
                     const fetchParams = { ...params, ...newParams, page: 1 };
 
-                    dispatch(getVendorQuotationList(fetchParams));
+                    dispatch(getVendorChargeOrderList(fetchParams));
                   }}
                   format="MM-DD-YYYY"
                 />
@@ -628,7 +636,7 @@ const VendorPlatform = () => {
           rowSelection={{
             type: 'checkbox',
             selectedRowKeys: deleteIDs,
-            onChange: (selectedRowKeys) => dispatch(setQuotationDeleteIDs(selectedRowKeys)),
+            onChange: (selectedRowKeys) => dispatch(setChargeOrderDeleteIDs(selectedRowKeys)),
             getCheckboxProps: (record) => ({
               disabled: record.isEventHeader,
             }),
@@ -707,11 +715,11 @@ const VendorPlatform = () => {
         onCancel={closeDeleteModal}
         isDeleting={isBulkDeleting}
         onDelete={onBulkDelete}
-        title="Are you sure you want to delete these quotations?"
+        title="Are you sure you want to delete these Charge orders?"
         description="After deleting, you will not be able to recover."
       />
     </>
   );
 };
 
-export default VendorPlatform;
+export default VendorChargeOrderPlatform;
