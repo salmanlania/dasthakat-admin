@@ -141,7 +141,7 @@ INSERT INTO
     )
 VALUES
     (
-        56,
+        57,
         'Vendor Charge Order',
         '{BC}/VC-',
         'vp_charge_order_rfq',

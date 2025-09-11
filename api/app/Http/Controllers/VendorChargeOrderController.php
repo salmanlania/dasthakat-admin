@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Validator;
 class VendorChargeOrderController extends Controller
 {
 
-    protected $document_type_id = 58; // Assuming this is the document type ID for Vendor Charge Order RFQ
+    protected $document_type_id = 57; // Assuming this is the document type ID for Vendor Charge Order RFQ
 
     /**
      * Get last valid vendor rate for a vendor by product key
