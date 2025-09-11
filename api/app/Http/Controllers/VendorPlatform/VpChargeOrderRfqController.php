@@ -31,7 +31,7 @@ class VpChargeOrderRfqController extends Controller
         $date_returned = $request->input('date_returned', '');
         $vendor_id = $request->input('vendor_id', '');
         $notification_count = $request->input('notification_count', '');
-        $person_incharge_id = $request->input('person_incharge_id', '');
+        // $person_incharge_id = $request->input('person_incharge_id', '');
         $sales_team_ids = $request->input('sales_team_ids', []);
 
         $search = $request->input('search', '');
@@ -50,7 +50,7 @@ class VpChargeOrderRfqController extends Controller
             ->leftJoin('vessel as v', 'v.vessel_id', '=', 'q.vessel_id')
             ->leftJoin('event as e', 'e.event_id', '=', 'q.event_id')
             ->leftJoin('supplier as s', 's.supplier_id', '=', 'vp_charge_order_rfq.vendor_id')
-            ->leftJoin('user as u', 'u.user_id', '=', 'q.person_incharge_id')
+            // ->leftJoin('user as u', 'u.user_id', '=', 'q.person_incharge_id')
             ->leftJoin('sales_team as st', 'st.sales_team_id', '=', 'e.sales_team_id');
 
         // Mandatory filters
@@ -146,7 +146,7 @@ class VpChargeOrderRfqController extends Controller
                     ->orWhere('e.event_code', 'like', '%' . $search . '%')
                     ->orWhere('s.name', 'like', '%' . $search . '%')
                     ->orWhere('s.supplier_code', 'like', '%' . $search . '%')
-                    ->orWhere('u.user_name', 'like', '%' . $search . '%')
+                    // ->orWhere('u.user_name', 'like', '%' . $search . '%')
                     ->orWhere('st.name', 'like', '%' . $search . '%');
             });
         }
@@ -205,7 +205,7 @@ class VpChargeOrderRfqController extends Controller
             'e.event_code as event_code',
             's.name as vendor_name',
             's.supplier_code as supplier_code',
-            'u.user_name as person_incharge_name',
+            // 'u.user_name as person_incharge_name',
             'e.sales_team_id',
             'st.name as sales_team_name',
             DB::raw("(SELECT COUNT(*) FROM vp_charge_order_rfq_detail vqd WHERE vqd.id = vp_charge_order_rfq.id) as total_items"),
