@@ -34,6 +34,8 @@ class Authenticate
             'auth/verify-email',
             'vendor-platform/quotation/vendor/*',
             'vendor-platform/quotation/rfq/*',
+            'vendor-platform/charge-order/vendor/*',
+            'vendor-platform/charge-order/rfq/*',
         ];
 
 
