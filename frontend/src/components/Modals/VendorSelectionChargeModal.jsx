@@ -78,8 +78,8 @@ const VendorSelectionChargeModal = ({ open, onClose }) => {
           if (vendorIndex === 0 && !existingVendor && existingVendors.length === 0) {
             return {
               name: `Vendor`,
-              rate: item?.rate <= 0 ? item?.last_valid_rate : item?.rate > 0 ? item?.rate : 0,
-              form_rate: item?.rate || 0,
+              rate: item?.cost_price <= 0 ? item?.last_valid_rate : item?.cost_price > 0 ? item?.cost_price : 0,
+              form_rate: item?.cost_price || 0,
               isPrimary: true,
               supplier_id: item.supplier_id ? {
                 value: item.supplier_id.value,
@@ -391,6 +391,7 @@ const VendorSelectionChargeModal = ({ open, onClose }) => {
       },
     ]),
   ];
+
   return (
     <Modal
       open={open}
@@ -405,7 +406,7 @@ const VendorSelectionChargeModal = ({ open, onClose }) => {
               name="required_date"
               rules={[{ required: true, message: 'Please select a date' }]}
               style={{ marginBottom: 0 }}
-              label="Quote Required Date"
+              label="Charge Required Date"
             >
               <DatePicker
                 format="MM-DD-YYYY"

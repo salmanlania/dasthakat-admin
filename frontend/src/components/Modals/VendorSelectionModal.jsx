@@ -77,8 +77,8 @@ const VendorSelectionModal = ({ open, onClose }) => {
           if (vendorIndex === 0 && !existingVendor && existingVendors.length === 0) {
             return {
               name: `Vendor`,
-              rate: item?.rate <= 0 ? item?.last_valid_rate : item?.rate > 0 ? item?.rate : 0,
-              form_rate: item?.rate || 0,
+              rate: item?.cost_price <= 0 ? item?.last_valid_rate : item?.cost_price > 0 ? item?.cost_price : 0,
+              form_rate: item?.cost_price || 0,
               isPrimary: true,
               supplier_id: item.supplier_id ? {
                 value: item.supplier_id.value,
