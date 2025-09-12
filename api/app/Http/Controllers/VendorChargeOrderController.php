@@ -425,7 +425,7 @@ class VendorChargeOrderController extends Controller
 
         foreach ($data as $item) {
             $rfq_responded = VpChargeOrderRfqDetail::where('vendor_charge_order_detail_id', $item->vendor_charge_order_detail_id)->first();
-            if ((float)$rfq_responded->vendor_rate > 0) {
+            if (!empty($rfq_responded) && (float)$rfq_responded->vendor_rate > 0) {
                 $item->rfq_responded = true;
             } else {
                 $item->rfq_responded = false;
