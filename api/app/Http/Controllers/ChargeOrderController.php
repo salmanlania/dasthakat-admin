@@ -1479,23 +1479,25 @@ class ChargeOrderController extends Controller
 
 					if (isset($request->ref_document_identity) && !empty($request->ref_document_identity) && $value['quotation_detail_id']) {
 						$quote = Quotation::where('document_identity', $request->ref_document_identity)->first();
-						$vendorQuote = VendorQuotationDetail::where('quotation_id', $quote->quotation_id)->where('quotation_detail_id', $value['quotation_detail_id'])->first();
+						$vendorQuote = VendorQuotationDetail::where('quotation_id', $quote->quotation_id)->where('quotation_detail_id', $value['quotation_detail_id'])->get();
 						if ($vendorQuote) {
-							VendorChargeOrderDetail::insert([
-								'company_id' => $request->company_id ?? "",
-								'company_branch_id' => $request->company_branch_id ?? "",
-								'vendor_charge_order_detail_id' => $this->get_uuid(),
-								'charge_order_id' => $insertArr['charge_order_id'],
-								'sort_order' => $vendorQuote->sort_order ?? 0,
-								'charge_order_detail_id' => $detail_uuid,
-								'vendor_id' => $vendorQuote->vendor_id ?? '',
-								'vendor_rate' => $vendorQuote->vendor_rate ?? 0,
-								'is_primary_vendor' => $vendorQuote->is_primary_vendor ?? 0,
-								'vendor_part_no' => $vendorQuote->vendor_part_no ?? '',
-								'vendor_notes' => $vendorQuote->vendor_notes ?? '',
-								'created_at' => Carbon::now(),
-								'created_by' => $request->login_user_id,
-							]);
+							foreach ($vendorQuote as $vendorQuote){
+								VendorChargeOrderDetail::insert([
+									'company_id' => $request->company_id ?? "",
+									'company_branch_id' => $request->company_branch_id ?? "",
+									'vendor_charge_order_detail_id' => $this->get_uuid(),
+									'charge_order_id' => $insertArr['charge_order_id'],
+									'sort_order' => $vendorQuote->sort_order ?? 0,
+									'charge_order_detail_id' => $detail_uuid,
+									'vendor_id' => $vendorQuote->vendor_id ?? '',
+									'vendor_rate' => $vendorQuote->vendor_rate ?? 0,
+									'is_primary_vendor' => $vendorQuote->is_primary_vendor ?? 0,
+									'vendor_part_no' => $vendorQuote->vendor_part_no ?? '',
+									'vendor_notes' => $vendorQuote->vendor_notes ?? '',
+									'created_at' => Carbon::now(),
+									'created_by' => $request->login_user_id,
+								]);
+							}
 						}
 					}
 
