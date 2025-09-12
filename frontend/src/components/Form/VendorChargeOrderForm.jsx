@@ -13,7 +13,7 @@ import { useSelector } from 'react-redux';
 import { formatThreeDigitCommas, roundUpto } from '../../utils/number';
 import { useNavigate } from 'react-router-dom';
 
-const VendorQuotationForm = () => {
+const VendorChargeOrderForm = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [totalExtCost, setTotalExtCost] = useState(0);
@@ -21,17 +21,17 @@ const VendorQuotationForm = () => {
   const [totalDiscount, setTotalDiscount] = useState(0);
   const {
     initialFormValues,
-    quotationDetails,
-  } = useSelector((state) => state.vendorQuotation);
+    chargeOrderDetails,
+  } = useSelector((state) => state.vendorChargeOrder);
 
   useEffect(() => {
-    if (!quotationDetails || quotationDetails.length === 0) return;
+    if (!chargeOrderDetails || chargeOrderDetails.length === 0) return;
 
     let extCostSum = 0;
     let finalCostSum = 0;
     let discountSum = 0;
 
-    quotationDetails.forEach((item) => {
+    chargeOrderDetails.forEach((item) => {
       const quantity = parseFloat(item.quantity) || 0;
       const costPrice = parseFloat(item.cost_price) || 0;
       const discountPercent = parseFloat(item.discount_percent) || 0;
@@ -79,7 +79,7 @@ const VendorQuotationForm = () => {
   `;
     document.head.appendChild(style);
 
-  }, [initialFormValues, form, quotationDetails]);
+  }, [initialFormValues, form, chargeOrderDetails]);
 
   const columns = [
     {
@@ -196,7 +196,7 @@ const VendorQuotationForm = () => {
               </Col>
               <Col span={12}>
                 <Form.Item label="Quoted By" style={{ marginBottom: 8 }}>
-                  <Input disabled value={initialFormValues?.quotation?.document_identity ? initialFormValues?.quotation?.document_identity : ''} />
+                  <Input disabled value={initialFormValues?.charge_order?.document_identity ? initialFormValues?.charge_order?.document_identity : ''} />
                 </Form.Item>
               </Col>
             </Row>
@@ -281,13 +281,14 @@ const VendorQuotationForm = () => {
         </Row>
 
         {
-          quotationDetails.length > 0 && (
+          chargeOrderDetails?.length > 0 && (
             <>
               <Table
                 columns={columns}
-                dataSource={quotationDetails}
+                dataSource={chargeOrderDetails}
                 pagination={false}
                 scroll={{ x: 'max-content' }}
+                // scroll={{ x: 1300 }} 
                 rowKey={'id'}
                 size="small"
                 style={{ marginTop: '10px', backgroundColor: '#fff', border: '1px solid #d9d9d9', borderRadius: '10px !important' }}
@@ -298,7 +299,7 @@ const VendorQuotationForm = () => {
                 }}
               />
               <div style={{ marginTop: '10px', textAlign: 'right' }}>
-                <Button type="primary" onClick={() => navigate('/vendor-platform-quote/')}>
+                <Button type="primary" onClick={() => navigate('/vendor-platform-charge/')}>
                   Close
                 </Button>
               </div>
@@ -310,4 +311,4 @@ const VendorQuotationForm = () => {
   );
 };
 
-export default VendorQuotationForm;
+export default VendorChargeOrderForm;

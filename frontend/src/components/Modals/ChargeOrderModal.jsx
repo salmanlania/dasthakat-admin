@@ -226,8 +226,6 @@ const ChargeOrderModal = () => {
         };
       })
     };
-
-    // console.log('data' , data) rebatePercentage
     // return salesmanPercentage
 
     try {

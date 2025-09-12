@@ -53,6 +53,34 @@ const EditChargeOrder = () => {
     }
   };
 
+  const onChargeOrderVendorUpdate = async (data, additionalRequest = null) => {
+    try {
+      await dispatch(updateChargeOrder({ id, data, additionalRequest })).unwrap();
+
+      if (additionalRequest === 'CREATE_PICK_LIST') {
+        await dispatch(
+          createChargeOrderPickList({
+            charge_order_id: id,
+          }),
+        ).unwrap();
+      }
+
+      if (additionalRequest === 'CREATE_SERVICE_LIST') {
+        await dispatch(
+          createChargeOrderServiceList({
+            charge_order_id: id,
+          }),
+        ).unwrap();
+      }
+
+      if (additionalRequest !== 'CREATE_PO') {
+        await dispatch(getChargeOrder(id)).unwrap().catch(handleError);
+      }
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
   const onChargeOrderUpdates = async (data, additionalRequest = null) => {
     try {
       await dispatch(updateChargeOrder({ id, data, additionalRequest })).unwrap();
@@ -134,6 +162,7 @@ const EditChargeOrder = () => {
           <ChargeOrderForm
             mode="edit"
             onSubmit={onChargeOrderUpdate}
+            onVendor={onChargeOrderVendorUpdate}
             onSave={onChargeOrderUpdates}
             onSavePo={onChargeOrderUpdatePo}
           />

@@ -34,6 +34,8 @@ use App\Models\StockLedger;
 use App\Models\Supplier;
 use App\Models\Technician;
 use App\Models\User;
+use App\Models\VendorChargeOrderDetail;
+use App\Models\VendorQuotationDetail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -705,20 +707,20 @@ class ChargeOrderController extends Controller
 
 
 		$data->commission_agent = ChargeOrderCommissionAgent::join('commission_agent', 'commission_agent.commission_agent_id', '=', 'charge_order_commission_agent.commission_agent_id')
-		->where('charge_order_commission_agent.charge_order_id', $id)
-		->select(
-			'commission_agent.commission_agent_id',
-			'commission_agent.name',
-			'commission_agent.phone',
-			'commission_agent.address',
-			'charge_order_commission_agent.vessel_id',
-			'charge_order_commission_agent.customer_id',
-			'charge_order_commission_agent.percentage',
-			'charge_order_commission_agent.amount',
-			'charge_order_commission_agent.sort_order',
-			'charge_order_commission_agent.created_at',
-			'charge_order_commission_agent.created_by'
-		)->get();
+			->where('charge_order_commission_agent.charge_order_id', $id)
+			->select(
+				'commission_agent.commission_agent_id',
+				'commission_agent.name',
+				'commission_agent.phone',
+				'commission_agent.address',
+				'charge_order_commission_agent.vessel_id',
+				'charge_order_commission_agent.customer_id',
+				'charge_order_commission_agent.percentage',
+				'charge_order_commission_agent.amount',
+				'charge_order_commission_agent.sort_order',
+				'charge_order_commission_agent.created_at',
+				'charge_order_commission_agent.created_by'
+			)->get();
 
 
 		// Load technicians (assuming technician_id stores JSON array)
@@ -1475,6 +1477,30 @@ class ChargeOrderController extends Controller
 						'created_by' => $request->login_user_id,
 					];
 
+					if (isset($request->ref_document_identity) && !empty($request->ref_document_identity) && $value['quotation_detail_id']) {
+						$quote = Quotation::where('document_identity', $request->ref_document_identity)->first();
+						$vendorQuote = VendorQuotationDetail::where('quotation_id', $quote->quotation_id)->where('quotation_detail_id', $value['quotation_detail_id'])->get();
+						if ($vendorQuote) {
+							foreach ($vendorQuote as $vendorQuote){
+								VendorChargeOrderDetail::insert([
+									'company_id' => $request->company_id ?? "",
+									'company_branch_id' => $request->company_branch_id ?? "",
+									'vendor_charge_order_detail_id' => $this->get_uuid(),
+									'charge_order_id' => $insertArr['charge_order_id'],
+									'sort_order' => $vendorQuote->sort_order ?? 0,
+									'charge_order_detail_id' => $detail_uuid,
+									'vendor_id' => $vendorQuote->vendor_id ?? '',
+									'vendor_rate' => $vendorQuote->vendor_rate ?? 0,
+									'is_primary_vendor' => $vendorQuote->is_primary_vendor ?? 0,
+									'vendor_part_no' => $vendorQuote->vendor_part_no ?? '',
+									'vendor_notes' => $vendorQuote->vendor_notes ?? '',
+									'created_at' => Carbon::now(),
+									'created_by' => $request->login_user_id,
+								]);
+							}
+						}
+					}
+
 					ChargeOrderDetail::create($insert);
 				}
 			}
@@ -1693,7 +1719,7 @@ class ChargeOrderController extends Controller
 							$podRow = $pod->first();
 							if (!empty($podRow)) {
 
-								$amount = ($value['cost_price']?? 0) * ($value['quantity'] ?? 0);
+								$amount = ($value['cost_price'] ?? 0) * ($value['quantity'] ?? 0);
 
 								$pod->update([
 									'vendor_notes' => $value['vendor_notes'] ?? "",
@@ -1716,9 +1742,17 @@ class ChargeOrderController extends Controller
 								]);
 							}
 						}
+						VendorChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id'])->where('is_primary_vendor', 1)
+							->update([
+								'vendor_id' => $value['supplier_id'] ?? '',
+								'vendor_rate' => $value['cost_price'] ?? '',
+								'vendor_part_no' => $value['vendor_part_no'] ?? '',
+								'vendor_notes' => $value['vendor_notes'] ?? '',
+							]);
 					}
 					if ($value['row_status'] == 'D') {
 						ChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id'])->delete();
+						VendorChargeOrderDetail::where('charge_order_detail_id', $value['charge_order_detail_id'])->delete();
 					}
 				}
 			}
@@ -1730,7 +1764,7 @@ class ChargeOrderController extends Controller
 				})->delete();
 				ServiceOrder::where('charge_order_id', $id)->update(['event_id' => $request->event_id]);
 			}
-			
+
 			ChargeOrderCommissionAgent::where('charge_order_id', $id)->delete();
 			foreach ($request->commission_agent as $key => $value) {
 				$detail_uuid = $this->get_uuid();

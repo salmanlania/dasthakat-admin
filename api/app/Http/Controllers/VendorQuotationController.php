@@ -243,7 +243,7 @@ class VendorQuotationController extends Controller
                 'unit_id' => $quotationDetail->unit_id ?? null,
                 'sort_order' => $sort_order++,
                 'quantity' => $quotationDetail->quantity ?? 0,
-                'vendor_rate' => $vQuotationDetail->vendor_rate ?? 0,
+                'vendor_rate' => 0,
                 'vendor_part_no' => $vQuotationDetail->vendor_part_no ?? null,
                 'vendor_notes' => $vQuotationDetail->vendor_notes ?? null,
                 'created_by' => $data['created_by_user'] ?? null,

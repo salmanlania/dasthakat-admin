@@ -232,6 +232,10 @@
   ('Vendor Platform', 'Vendor Quote', 'vp_quotation', 'add', 'Add', 1.102),
   ('Vendor Platform', 'Vendor Quote', 'vp_quotation', 'edit', 'Edit', 1.103),
 
+  ('Vendor Platform', 'Vendor Charge', 'vp_charge_order', 'list', 'List', 1.101),
+  ('Vendor Platform', 'Vendor Charge', 'vp_charge_order', 'add', 'Add', 1.102),
+  ('Vendor Platform', 'Vendor Charge', 'vp_charge_order', 'edit', 'Edit', 1.103),
+
   ('System', 'Audit', 'audit', 'list', 'List', 1.101),
   ('System', 'Audit', 'audit', 'view', 'View', 1.103),
 

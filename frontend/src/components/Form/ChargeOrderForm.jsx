@@ -35,7 +35,9 @@ import {
   splitChargeOrderQuantity,
   setTotalCommissionAmount,
   setRebatePercentage,
-  setSalesmanPercentage
+  setSalesmanPercentage,
+  getChargeOrder,
+  setVendorChargeModalOpen
 } from '../../store/features/chargeOrderSlice';
 import { getEvent } from '../../store/features/eventSlice';
 import { getProduct } from '../../store/features/productSlice';
@@ -48,11 +50,13 @@ import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput'
 import DebouncedCommaSeparatedInputRate from '../Input/DebouncedCommaSeparatedInputRate';
 import DebouncedNumberInputMarkup from '../Input/DebouncedNumberInputMarkup.jsx';
 import { DetailSummary, DetailSummaryGp, DetailSummaryInfo, DetailSummaryInformation } from './QuotationForm';
+import VendorSelectionChargeModal from '../Modals/VendorSelectionChargeModal.jsx';
 
 // eslint-disable-next-line react/prop-types
-const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
+const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo, onVendor }) => {
   const [globalMarkup, setGlobalMarkup] = useState('');
   const [isEventChanged, setIsEventChanged] = useState(false);
+  const [isLoadingVendor, setIsLoadingVendor] = useState(false);
   const [globalDiscount, setGlobalDiscount] = useState('');
   const [submitAction, setSubmitAction] = useState(null);
   const [hiddenAgentKeys, setHiddenAgentKeys] = useState([]);
@@ -74,7 +78,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
   const handleError = useError();
   const { id } = useParams();
   const dispatch = useDispatch();
-  const { isFormSubmitting, totalCommissionAmount, initialFormValues, chargeOrderDetails, commissionAgentData, rebatePercentage, salesmanPercentage } = useSelector(
+  const { isFormSubmitting, totalCommissionAmount, initialFormValues, chargeOrderDetails, commissionAgentData, rebatePercentage, salesmanPercentage, isVendorChargeModalOpen } = useSelector(
     (state) => state.chargeOrder
   );
   const { commissionAgent } = useSelector((state) => state.event);
@@ -261,7 +265,28 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
       salesman_amount: salesmanAmount,
     };
 
-    submitType === 'save' ? await onSubmit(data, additionalRequest) : submitType === 'saveAndExit' ? await onSave(data, additionalRequest) : submitType === 'savePo' ? await onSavePo(data, additionalRequest) : null;
+    submitType === 'save'
+      ? await onSubmit(data, additionalRequest)
+      : submitType === 'saveAndExit' ? await onSave(data, additionalRequest)
+        : submitType === 'savePo' ? await onSavePo(data, additionalRequest)
+          : submitType === 'rfq'
+            ? (setIsLoadingVendor(true),
+              onVendor(data)
+                .then(async () => {
+                  try {
+                    await dispatch(getChargeOrder(id)).unwrap();
+                    dispatch(setVendorChargeModalOpen(true));
+                  } catch (error) {
+                    handleError(error);
+                  } finally {
+                    setIsLoadingVendor(false);
+                  }
+                })
+                .catch((error) => {
+                  handleError(error);
+                  setIsLoadingVendor(false);
+                }))
+            : null;
 
     if (additionalRequest === 'CREATE_PO' || submitType === 'CREATE_PO') {
       dispatch(setChargePoID(id));
@@ -1649,6 +1674,13 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
             }}>
             Save & Exit
           </Button>
+          {mode === 'edit' && permissions?.vp_charge_order?.add ?
+            <Button
+              className="w-28"
+              loading={isFormSubmitting && submitAction === 'rfq'}
+              onClick={() => {
+                onFinish('rfq');
+              }}>RFQ</Button> : ''}
         </div>
       </Form>
       <NotesModal
@@ -1659,6 +1691,19 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
         onCancel={closeNotesModal}
         onSubmit={onNotesSave}
         disabled={!permissions?.charge_order?.edit || !permissions?.charge_order?.add}
+      />
+
+      <VendorSelectionChargeModal
+        open={isVendorChargeModalOpen}
+        onClose={async () => {
+          dispatch(setVendorChargeModalOpen(false))
+          try {
+            await dispatch(getChargeOrder(id)).unwrap();
+          } catch (error) {
+            handleError(error)
+          }
+        }}
+        loading={isLoadingVendor}
       />
     </>
   );

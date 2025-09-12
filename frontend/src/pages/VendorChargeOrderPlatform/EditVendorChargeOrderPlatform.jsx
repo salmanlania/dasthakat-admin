@@ -2,23 +2,23 @@ import { Breadcrumb, Spin } from 'antd';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import VendorQuotationForm from '../../components/Form/VendorQuotationForm';
+import VendorChargeOrderForm from '../../components/Form/VendorChargeOrderForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import useError from '../../hooks/useError';
-import { getVendorQuotation } from '../../store/features/vendorQuotationSlice';
+import { getVendorChargeOrder } from '../../store/features/vendorChargeOrderSlice';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 
-const EditVendorPlatform = () => {
-  useDocumentTitle('Edit Vendor Platform Quotation');
+const EditVendorChargeOrderPlatform = () => {
+  useDocumentTitle('Edit Vendor Platform Charge Order');
   const dispatch = useDispatch();
   const handleError = useError();
   const { id } = useParams();
-  const { initialFormValues, isItemLoading } = useSelector((state) => state.vendorQuotation);
+  const { initialFormValues, isItemLoading, chargeOrderDetails } = useSelector((state) => state.vendorChargeOrder);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await dispatch(getVendorQuotation(id)).unwrap();
+        await dispatch(getVendorChargeOrder(id)).unwrap();
       } catch (error) {
         handleError(error);
       }
@@ -32,8 +32,8 @@ const EditVendorPlatform = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>VIEW VENDOR PLATFORM QUOTATION</PageHeading>
-        <Breadcrumb items={[{ title: 'Vendor Platform Quotation' }, { title: 'View' }]} separator=">" />
+        <PageHeading>VIEW VENDOR PLATFORM CHARGE ORDER</PageHeading>
+        <Breadcrumb items={[{ title: 'Vendor Platform Charge Order' }, { title: 'View' }]} separator=">" />
       </div>
 
       {isItemLoading && (
@@ -44,11 +44,11 @@ const EditVendorPlatform = () => {
 
       {!isItemLoading && initialFormValues ? (
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <VendorQuotationForm mode="edit" />
+          <VendorChargeOrderForm mode="edit" />
         </div>
       ) : null}
     </>
   );
 };
 
-export default EditVendorPlatform;
+export default EditVendorChargeOrderPlatform;

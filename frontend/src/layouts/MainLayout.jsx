@@ -156,8 +156,11 @@ const MainLayout = () => {
   if (href === '/bid-response-report' && !permissions?.bid_response?.show) return <NotFound />;
   if (href === '/quotation-report' && !permissions?.quote_report?.show) return <NotFound />;
 
-  if (href === '/vendor-platform' && !permissions.vp_quotation.list) return <NotFound />;
-  if (href.startsWith('/vendor-platform/edit') && !permissions.vp_quotation.edit) return <NotFound />;
+  if (href === '/vendor-platform-quote' && !permissions.vp_quotation.list) return <NotFound />;
+  if (href.startsWith('/vendor-platform-quote/edit') && !permissions.vp_quotation.edit) return <NotFound />;
+
+  if (href === '/vendor-platform-charge' && !permissions.vp_charge_order.list) return <NotFound />;
+  if (href.startsWith('/vendor-platform-charge/edit') && !permissions.vp_charge_order.edit) return <NotFound />;
 
   if (href === '/general-ledger/coa/level1' && !permissions.coa_level1.list) return <NotFound />;
   if (href === '/general-ledger/coa/level1/create' && !permissions.coa_level1.add) return <NotFound />;

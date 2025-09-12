@@ -475,6 +475,17 @@ $router->group(['prefix' => 'vendor-platform/quotation'], function ($router) {
    $router->post('/actions', 'VendorPlatform\VpQuotationRfqController@actions');
 });
 
+$router->group(['prefix' => 'vendor-platform/charge-order'], function ($router) {
+
+   $router->get('/', 'VendorPlatform\VpChargeOrderRfqController@index');
+   $router->post('/', 'VendorChargeOrderController@store');
+   $router->get('/{id}', 'VendorChargeOrderController@show');
+   $router->put('/vendor/{id}', 'VendorChargeOrderController@vendorUpdate');
+   $router->post('/rfq', 'VendorChargeOrderController@sendRFQ');
+   $router->get('/rfq/{id}', 'VendorChargeOrderController@fetchRFQ');
+   $router->post('/actions', 'VendorPlatform\VpChargeOrderRfqController@actions');
+});
+
 // COA Level1 routes
 $router->group(['prefix' => 'coa-level1'], function ($router) {
     $router->get('/', 'CoaLevel1Controller@index');

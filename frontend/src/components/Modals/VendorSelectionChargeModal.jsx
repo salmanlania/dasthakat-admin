@@ -1,29 +1,28 @@
 import { Modal, Table, Input, Spin, Radio, Button, Switch, DatePicker, Form, Tooltip } from 'antd';
 import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { getVendor } from '../../store/features/quotationSlice';
+import { getVendorCharge } from '../../store/features/chargeOrderSlice';
 import AsyncSelect from '../AsyncSelect';
-import { postVendorSelection } from '../../store/features/quotationSlice';
+import { postVendorChargeSelection } from '../../store/features/chargeOrderSlice';
 import toast from 'react-hot-toast';
 import dayjs from 'dayjs';
 import useError from '../../hooks/useError';
 
-const VendorSelectionModal = ({ open, onClose }) => {
+const VendorSelectionChargeModal = ({ open, onClose }) => {
   const dispatch = useDispatch();
   const handleError = useError();
 
   const {
     initialFormValues,
-    vendorQuotationDetails,
+    vendorChargeDetails,
     vendorDetails,
-    isItemVendorLoading
-  } = useSelector((state) => state.quotation);
+    isItemVendorChargeLoading
+  } = useSelector((state) => state.chargeOrder);
 
   const { user } = useSelector((state) => state.auth);
   const permissions = user?.permission;
 
-
-  const id = initialFormValues?.quotation_id;
+  const id = initialFormValues?.charge_order_id;
 
   const [data, setData] = useState([]);
   const [vendorCount] = useState(4);
@@ -47,7 +46,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
       try {
         hasFetchedVendors.current = true;
         lastFetchedId.current = id;
-        await dispatch(getVendor(id)).unwrap();
+        await dispatch(getVendorCharge(id)).unwrap();
       } catch (err) {
         handleError(err);
       }
@@ -63,16 +62,15 @@ const VendorSelectionModal = ({ open, onClose }) => {
   }, [id, open, dispatch, handleError, form]);
 
   useEffect(() => {
-    if (!vendorQuotationDetails?.length) {
+    if (!vendorChargeDetails?.length) {
       setData([]);
       return;
     }
-
-    const mappedData = vendorQuotationDetails
+    const mappedData = vendorChargeDetails
       .filter((item) => [3, 4].includes(item?.product_type_id?.value))
       .map((item, index) => {
         const existingVendors = vendorDetails?.filter(
-          (vendor) => vendor.quotation_detail_id === item.quotation_detail_id
+          (vendor) => vendor.charge_order_detail_id === item.charge_order_detail_id
         ) || [];
         const vendors = Array.from({ length: vendorCount }, (_, vendorIndex) => {
           const existingVendor = existingVendors[vendorIndex] || null;
@@ -107,7 +105,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
               vendor_notes: existingVendor.vendor_notes,
               rfqSent: existingVendor.rfq === 1,
               vendor_part_no: existingVendor.vendor_part_no || '',
-              vendor_quotation_detail_id: existingVendor.vendor_quotation_detail_id || null,
+              vendor_charge_order_detail_id: existingVendor?.vendor_charge_order_detail_id || null,
             }
             : {
               name: `Vendor`,
@@ -119,12 +117,11 @@ const VendorSelectionModal = ({ open, onClose }) => {
               rfqSent: false,
             };
         });
-
         vendors.sort((a, b) => (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0));
         return {
-          key: item.quotation_detail_id || String(index + 1),
-          quotation_detail_id: item.quotation_detail_id,
-          vendor_quotation_detail_id: item.vendor_quotation_detail_id,
+          key: item.charge_order_detail_id || String(index + 1),
+          charge_order_detail_id: item.charge_order_detail_id,
+          vendor_charge_order_detail_id: item.vendor_charge_order_detail_id,
           product_name:
             item.product_type_id?.value === 4
               ? item.product_name
@@ -136,9 +133,8 @@ const VendorSelectionModal = ({ open, onClose }) => {
           vendors,
         };
       });
-
     setData(mappedData);
-  }, [vendorQuotationDetails, vendorDetails, vendorCount]);
+  }, [vendorChargeDetails, vendorDetails, vendorCount]);
 
   const toggleRfq = (productIndex, vendorIndex, checked) => {
     const newData = JSON.parse(JSON.stringify(data));
@@ -176,38 +172,36 @@ const VendorSelectionModal = ({ open, onClose }) => {
     }
 
     const payload = {
-      quotation_id: initialFormValues?.quotation_id,
-      quotation_detail: [],
+      charge_order_id: initialFormValues?.charge_order_id,
+      charge_order_detail: [],
       date_required: formattedDate
     };
 
     data.forEach((product) => {
-      const quotation_detail_id = product.quotation_detail_id;
+      const charge_order_detail_id = product.charge_order_detail_id;
 
       product.vendors.forEach((vendor) => {
         const supplier = vendor?.supplier_id?.value || null;
-
-        payload.quotation_detail.push({
+        payload.charge_order_detail.push({
           vendor_id: supplier,
-          quotation_detail_id,
+          charge_order_detail_id,
           vendor_rate: vendor.rate ? parseFloat(vendor.rate) : null,
           is_primary_vendor: vendor.isPrimary ? 1 : 0,
           rfq: vendor.rfqSent ? 1 : 0,
           vendor_part_no: vendor.vendor_part_no || '',
-          vendor_quotation_detail_id: vendor.vendor_quotation_detail_id || '',
+          vendor_charge_order_detail_id: vendor.vendor_charge_order_detail_id || '',
         });
       });
     });
-
     try {
-      await dispatch(postVendorSelection(payload)).unwrap();
-      toast.success('Quotation Vendors Saved Successfully!');
+      await dispatch(postVendorChargeSelection(payload)).unwrap();
+      toast.success('Charge Order Vendors Saved Successfully!');
       if (value === 'saveExit') {
         onClose();
       } else {
         if (id) {
           try {
-            await dispatch(getVendor(id)).unwrap();
+            await dispatch(getVendorCharge(id)).unwrap();
           } catch (err) {
             handleError(err);
           }
@@ -238,8 +232,6 @@ const VendorSelectionModal = ({ open, onClose }) => {
     newData[productIndex].vendors.sort((a, b) => (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0));
     setData(newData);
   };
-
-  console.log('data', data)
 
   const columns = [
     {
@@ -392,7 +384,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
       }
       width="95%"
     >
-      <Spin spinning={isItemVendorLoading}>
+      <Spin spinning={isItemVendorChargeLoading}>
         <Table
           rowClassName={(record) => (record.rfq_responded ? '!bg-green-400' : '')}
           columns={columns}
@@ -434,4 +426,4 @@ const VendorSelectionModal = ({ open, onClose }) => {
   );
 };
 
-export default VendorSelectionModal;
+export default VendorSelectionChargeModal;
