@@ -318,12 +318,7 @@ const VendorSelectionChargeModal = ({ open, onClose }) => {
           <div style={{ width: '100%' }}>
             <Tooltip title={record.vendors[vendorIndex].vendor_notes ?? ''}>
               <Input
-                // value={record.vendors[vendorIndex].rate}
-                value={
-                  record.vendors[vendorIndex].rate !== undefined && record.vendors[vendorIndex].rate !== null
-                    ? Number(record.vendors[vendorIndex].rate).toFixed(2)
-                    : ''
-                }
+                value={record.vendors[vendorIndex].rate}
                 onChange={(e) => handleRateChange(productIndex, vendorIndex, e.target.value)}
                 placeholder="Rate"
                 style={{ width: '100%' }}
