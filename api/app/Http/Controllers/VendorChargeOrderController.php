@@ -425,7 +425,7 @@ class VendorChargeOrderController extends Controller
         }
 
         foreach ($data as $item) {
-            $item->rfq_responded = VpChargeOrderRfqDetail::where('vendor_charge_order_detail_id', $item->vendor_charge_order_detail_id)->whereNotNull('vendor_rate')->value('vendor_rate') > 0 ? true : false;
+            $item->rfq_responded = VpChargeOrderRfqDetail::where('vendor_charge_order_detail_id', $item->vendor_charge_order_detail_id)->exists();
 
             // Fallback: if vendor_rate is null/empty/zero, use last valid rate from history
             $currentRate = (float)($item->vendor_rate ?? 0);
