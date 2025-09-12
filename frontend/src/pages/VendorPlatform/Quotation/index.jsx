@@ -176,7 +176,9 @@ const VendorPlatformQuotation = () => {
       uom: item?.unit?.name,
       product: item.product,
       detail_id: item.detail_id,
-      is_deleted: item.is_deleted
+      is_deleted: item.is_deleted,
+      vendor_notes: item?.is_deleted ? item?.vendor_notes : item?.vendor_quotation_detail?.vendor_notes ? item?.vendor_quotation_detail?.vendor_notes : item?.vendor_quotation_detail?.quotation_detail?.vendor_notes ? item?.vendor_quotation_detail?.quotation_detail?.vendor_notes : '',
+      vendor_part_no: item?.is_deleted ? item?.vendor_part_no : item?.vendor_quotation_detail?.vendor_part_no ? item?.vendor_quotation_detail?.vendor_part_no : item?.vendor_quotation_detail?.quotation_detail?.vendor_part_no ? item?.vendor_quotation_detail?.quotation_detail?.vendor_part_no : '',
     };
   });
 
@@ -185,7 +187,11 @@ const VendorPlatformQuotation = () => {
     const detail = updatedDetails[index];
 
     if (!detail.vendor_quotation_detail) {
-      detail.vendor_quotation_detail = {};
+      detail.vendor_quotation_detail = {
+        vendor_notes: '',
+        vendor_part_no: '',
+        total_amount: 0,
+      };
     }
 
     detail.vendor_quotation_detail[key] = value;
@@ -218,7 +224,8 @@ const VendorPlatformQuotation = () => {
         ?.filter(d => !d.is_deleted)
         ?.map(d => ({
           ...d.vendor_quotation_detail,
-          detail_id: d.detail_id
+          detail_id: d.detail_id,
+          vendor_notes: d?.is_deleted ? d?.vendor_notes : d?.vendor_quotation_detail?.vendor_notes ? d?.vendor_quotation_detail?.vendor_notes : d?.vendor_quotation_detail?.quotation_detail?.vendor_notes ? d?.vendor_quotation_detail?.quotation_detail?.vendor_notes : ''
         })) || [];
 
       if (!quotationDetail || quotationDetail.length === 0) {
@@ -318,7 +325,7 @@ const VendorPlatformQuotation = () => {
       render: (_, record, index) => {
         return (
           <DebounceInput
-            value={record?.is_deleted ? record?.vendor_notes : record?.vendor_quotation_detail?.vendor_notes ? record?.vendor_quotation_detail?.vendor_notes : record?.vendor_quotation_detail?.quotation_detail?.vendor_notes ? record?.vendor_quotation_detail?.quotation_detail?.vendor_notes : ''}
+            value={record?.vendor_notes}
             onChange={(value) => updateDetailValue(index, 'vendor_notes', value)}
           />
         );
