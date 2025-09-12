@@ -1,4 +1,4 @@
-import { Button, DatePicker, Divider, Modal, Table } from 'antd';
+import { Button, DatePicker, Divider, Table } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
@@ -447,7 +447,7 @@ const VendorPlatformChargeOrder = () => {
           size="small"
           pagination={false}
           columns={columns}
-          rowKey={'vendor_charge_order_detail_id'}
+          rowKey={'charge_order_detail_id'}
           dataSource={sourceData || []}
           loading={loading}
           rowClassName={(record) => record.is_deleted ? 'deleted-row' : ''}
