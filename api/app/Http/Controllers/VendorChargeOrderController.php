@@ -159,7 +159,7 @@ class VendorChargeOrderController extends Controller
                         ],
                         'email' => $vendor->email,
                         'name' => $vendor->name,
-                        'subject' => 'New Request Charge Order ' . $data['charge_order']->document_identity,
+                        'subject' => 'New Request Quotation ' . $data['charge_order']->document_identity,
                         'message' => '',
                     ];
                     $this->sendEmail($payload);

@@ -120,7 +120,7 @@
                 <td class="header">
                     <img src="{{ url('public/images/logo-with-title.png') }}" alt="Global Marine Safety - America"
                         height="100" />
-                    <h2>Request for Charge Order</h2>
+                    <h2>Request for Quotation</h2>
                 </td>
             </tr>
 
@@ -129,11 +129,11 @@
                 <td class="content">
                     <p>Dear <strong>{{ $data['name'] ?? "" }}</strong>,</p>
                     <p>
-                        You have been invited to submit your charge order for the items listed below.
+                        You have been invited to submit your quotation for the items listed below.
                         Please review the details and click the button below to submit your price.
                     </p>
 
-                    <p><strong>Charge Order No:</strong> {{ $data['data']['charge_order_no'] ?? "" }} <br />
+                    <p><strong>Charge No:</strong> {{ $data['data']['charge_order_no'] ?? "" }} <br />
                         <strong>Submission Before:</strong> {{ $data['data']['date_required'] ?? "" }}
                     </p>
 
