@@ -243,7 +243,7 @@ class VendorQuotationController extends Controller
                 'unit_id' => $quotationDetail->unit_id ?? null,
                 'sort_order' => $sort_order++,
                 'quantity' => $quotationDetail->quantity ?? 0,
-                'vendor_rate' => $vQuotationDetail->vendor_rate ?? 0,
+                'vendor_rate' => 0,
                 'vendor_part_no' => $vQuotationDetail->vendor_part_no ?? null,
                 'vendor_notes' => $vQuotationDetail->vendor_notes ?? null,
                 'created_by' => $data['created_by_user'] ?? null,
@@ -574,7 +574,7 @@ class VendorQuotationController extends Controller
         }
 
         foreach ($data as $item) {
-            $item->rfq_responded = VpQuotationRfqDetail::where('vendor_quotation_detail_id', $item->vendor_quotation_detail_id)->exists();
+            $item->rfq_responded = VpQuotationRfqDetail::where('vendor_quotation_detail_id', $item->vendor_quotation_detail_id)->whereNotNull('vendor_rate')->value('vendor_rate') > 0 ? true : false;
 
             // Fallback: if vendor_rate is null/empty/zero, use last valid rate from history
             $currentRate = (float)($item->vendor_rate ?? 0);
