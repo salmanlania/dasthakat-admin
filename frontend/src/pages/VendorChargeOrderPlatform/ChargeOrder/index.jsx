@@ -165,7 +165,7 @@ const VendorPlatformChargeOrder = () => {
     fetchData();
   }, []);
 
-  const sourceData = (data?.details || []).map((item, index) => {
+  const sourceData = (data?.details || []).map((item) => {
     return {
       ...item,
       product_name: item.product_name,
@@ -176,7 +176,9 @@ const VendorPlatformChargeOrder = () => {
       uom: item?.unit?.name,
       product: item.product,
       detail_id: item.detail_id,
-      is_deleted: item.is_deleted
+      is_deleted: item.is_deleted,
+      vendor_notes: item?.is_deleted ? item?.vendor_notes : item?.vendor_charge_order_detail?.vendor_notes ? item?.vendor_charge_order_detail?.vendor_notes : item?.vendor_charge_order_detail?.charge_order_detail?.vendor_notes ? item?.vendor_charge_order_detail?.charge_order_detail?.vendor_notes : '',
+      vendor_part_no: item?.is_deleted ? item?.vendor_part_no : item?.vendor_charge_order_detail?.vendor_part_no ? item?.vendor_charge_order_detail?.vendor_part_no : item?.vendor_charge_order_detail?.charge_order_detail?.vendor_part_no ? item?.vendor_charge_order_detail?.charge_order_detail?.vendor_part_no : '',
     };
   });
 
@@ -185,7 +187,11 @@ const VendorPlatformChargeOrder = () => {
     const detail = updatedDetails[index];
 
     if (!detail.vendor_charge_order_detail) {
-      detail.vendor_charge_order_detail = {};
+      detail.vendor_charge_order_detail = {
+        vendor_notes: '',
+        vendor_part_no: '',
+        total_amount: 0,
+      };
     }
 
     detail.vendor_charge_order_detail[key] = value;
@@ -218,13 +224,15 @@ const VendorPlatformChargeOrder = () => {
         ?.filter(d => !d.is_deleted)
         ?.map(d => ({
           ...d.vendor_charge_order_detail,
-          detail_id: d.detail_id
+          detail_id: d.detail_id,
+          vendor_notes: d?.is_deleted ? d?.vendor_notes : d?.vendor_charge_order_detail?.vendor_notes ? d?.vendor_charge_order_detail?.vendor_notes : d?.vendor_charge_order_detail?.charge_order_detail?.vendor_notes ? d?.vendor_charge_order_detail?.charge_order_detail?.vendor_notes : ''
         })) || [];
 
       if (!chargeOrderDetail || chargeOrderDetail.length === 0) {
         toast.error('No charge order details to submit.');
         return;
       }
+
       await api.put(`/vendor-platform/charge-order/vendor/${id}`, {
         charge_order_id: chargeOrderId,
         vendor_id: vendorId,
@@ -318,7 +326,7 @@ const VendorPlatformChargeOrder = () => {
       render: (_, record, index) => {
         return (
           <DebounceInput
-            value={record?.is_deleted ? record?.vendor_notes : record?.vendor_charge_order_detail?.vendor_notes ? record?.vendor_charge_order_detail?.vendor_notes : record?.vendor_charge_order_detail?.charge_order_detail?.vendor_notes ? record?.vendor_charge_order_detail?.charge_order_detail?.vendor_notes : ''}
+            value={record?.vendor_notes}
             onChange={(value) => updateDetailValue(index, 'vendor_notes', value)}
           />
         );
@@ -439,7 +447,7 @@ const VendorPlatformChargeOrder = () => {
           size="small"
           pagination={false}
           columns={columns}
-          rowKey={'charge_order_detail_id'}
+          rowKey={'vendor_charge_order_detail_id'}
           dataSource={sourceData || []}
           loading={loading}
           rowClassName={(record) => record.is_deleted ? 'deleted-row' : ''}
