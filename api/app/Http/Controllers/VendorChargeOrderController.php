@@ -149,7 +149,7 @@ class VendorChargeOrderController extends Controller
                     $id = $this->saveRFQ($data);
 
                     $link = env("VENDOR_URL") . "charge-order/{$id}";
-
+                   
                     $payload = [
                         'template' => 'vendor_charge_order_rate_update',
                         'data' => [
@@ -264,6 +264,7 @@ class VendorChargeOrderController extends Controller
             } else {
                 $detail->is_deleted = false;
             }
+
         }
         if (!$rfq) {
             return $this->jsonResponse([], 404, 'RFQ Not Found!');
@@ -424,13 +425,8 @@ class VendorChargeOrderController extends Controller
         }
 
         foreach ($data as $item) {
-            $rfq_responded = VpChargeOrderRfqDetail::where('vendor_charge_order_detail_id', $item->vendor_charge_order_detail_id)->first();
-            $item->rfq_responded_detail = $rfq_responded;
-            if (!empty($rfq_responded) && (float)$rfq_responded->vendor_rate > 0) {
-                $item->rfq_responded = true;
-            } else {
-                $item->rfq_responded = false;
-            }
+                $item->rfq_responded = VpChargeOrderRfqDetail::where('vendor_charge_order_detail_id', $item->vendor_charge_order_detail_id)->whereNotNull('vendor_rate')->value('vendor_rate') > 0 ? true : false;
+
             // Fallback: if vendor_rate is null/empty/zero, use last valid rate from history
             $currentRate = (float)($item->vendor_rate ?? 0);
             if ($currentRate <= 0) {
@@ -475,7 +471,7 @@ class VendorChargeOrderController extends Controller
                     $data->save();
                     if (isset($row['detail_id'])) {
                         $vpCDetail = VpChargeOrderRfqDetail::where('detail_id', $row['detail_id'])->first();
-
+                        
                         if (!empty($vpCDetail)) {
 
                             $vpCDetail->vendor_rate = $row['vendor_rate'] ?? null;
