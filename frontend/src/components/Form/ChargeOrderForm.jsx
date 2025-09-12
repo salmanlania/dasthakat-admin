@@ -269,7 +269,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo, onVendor }) => {
       ? await onSubmit(data, additionalRequest)
       : submitType === 'saveAndExit' ? await onSave(data, additionalRequest)
         : submitType === 'savePo' ? await onSavePo(data, additionalRequest)
-          : submitAction === 'rfq'
+          : submitType === 'rfq'
             ? (setIsLoadingVendor(true),
               onVendor(data)
                 .then(async () => {
@@ -1676,6 +1676,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo, onVendor }) => {
           </Button>
           {mode === 'edit' && permissions?.vp_charge_order?.add ?
             <Button
+              className="w-28"
               loading={isFormSubmitting && submitAction === 'rfq'}
               onClick={() => {
                 onFinish('rfq');
