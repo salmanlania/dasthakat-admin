@@ -447,7 +447,7 @@ const VendorPlatformChargeOrder = () => {
           size="small"
           pagination={false}
           columns={columns}
-          rowKey={'vendor_charge_order_detail_id'}
+          rowKey={'charge_order_detail_id'}
           dataSource={sourceData || []}
           loading={loading}
           rowClassName={(record) => record.is_deleted ? 'deleted-row' : ''}

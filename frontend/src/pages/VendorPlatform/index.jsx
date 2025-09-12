@@ -574,7 +574,7 @@ const VendorPlatform = () => {
       </div>
 
       <div className="mt-4 rounded-md bg-white">
-        <Form form={form} name="quotation_report_form" layout="vertical">
+        <Form form={form} name="quotation_vendor_platform_form" layout="vertical">
           <div className="flex flex-wrap items-center justify-between gap-4 px-4">
 
             <div className="min-w-[150px]">
