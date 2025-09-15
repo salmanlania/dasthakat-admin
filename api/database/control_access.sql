@@ -93,6 +93,11 @@
   ('User Management', 'User', 'user', 'edit', 'Edit', 1.103),
   ('User Management', 'User', 'user', 'delete', 'Delete', 1.104),
 
+  ('General Ledger', 'Chart Of Accounts', 'accounts', 'list', 'List', 1.101),
+  ('General Ledger', 'Chart Of Accounts', 'accounts', 'add', 'Add', 1.102),
+  ('General Ledger', 'Chart Of Accounts', 'accounts', 'edit', 'Edit', 1.103),
+  ('General Ledger', 'Chart Of Accounts', 'accounts', 'delete', 'Delete', 1.104),
+
   ('General Ledger', 'Coa Level 1', 'coa_level1', 'list', 'List', 1.101),
   ('General Ledger', 'Coa Level 1', 'coa_level1', 'add', 'Add', 1.102),
   ('General Ledger', 'Coa Level 1', 'coa_level1', 'edit', 'Edit', 1.103),

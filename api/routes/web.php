@@ -475,6 +475,27 @@ $router->group(['prefix' => 'vendor-platform/quotation'], function ($router) {
    $router->post('/actions', 'VendorPlatform\VpQuotationRfqController@actions');
 });
 
+$router->group(['prefix' => 'vendor-platform/charge-order'], function ($router) {
+
+   $router->get('/', 'VendorPlatform\VpChargeOrderRfqController@index');
+   $router->post('/', 'VendorChargeOrderController@store');
+   $router->get('/{id}', 'VendorChargeOrderController@show');
+   $router->put('/vendor/{id}', 'VendorChargeOrderController@vendorUpdate');
+   $router->post('/rfq', 'VendorChargeOrderController@sendRFQ');
+   $router->get('/rfq/{id}', 'VendorChargeOrderController@fetchRFQ');
+   $router->post('/actions', 'VendorPlatform\VpChargeOrderRfqController@actions');
+});
+
+// Accounts routes
+$router->group(['prefix' => 'accounts'], function ($router) {
+    $router->get('/', 'AccountsController@index');
+    $router->get('/{id}', 'AccountsController@show');
+    $router->post('/', 'AccountsController@store');
+    $router->put('/{id}', 'AccountsController@update');
+    $router->delete('/{id}', 'AccountsController@delete');
+    $router->post('/bulk-delete', 'AccountsController@bulkDelete');
+});
+
 // COA Level1 routes
 $router->group(['prefix' => 'coa-level1'], function ($router) {
     $router->get('/', 'CoaLevel1Controller@index');
