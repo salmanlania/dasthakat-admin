@@ -163,5 +163,18 @@ CREATE TABLE `accounts` (
     PRIMARY KEY (`account_id`),
     KEY `idx_company_id` (`company_id`),
     KEY `idx_gl_type_id` (`gl_type_id`),
-    KEY `idx_parent_account_id` (`parent_account_id`),
+    KEY `idx_parent_account_id` (`parent_account_id`)
+);
+ALTER TABLE `accounts` ADD COLUMN `account_head_id` INT(11) NULL AFTER `parent_account_id`;
+
+CREATE TABLE `account_heads` (
+  `head_account_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `company_id` CHAR(36) NOT NULL,
+  `head_account_name` VARCHAR(255) NOT NULL,
+  `head_account_type` int(11) NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` CHAR(36) NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_by` CHAR(36) NULL,
+  PRIMARY KEY (`head_account_id`)
 );

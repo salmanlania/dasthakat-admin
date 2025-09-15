@@ -17,6 +17,7 @@ class Accounts extends Model
         'company_id',
         'gl_type_id',
         'parent_account_id',
+        'account_head_id',
         'account_code',
         'name',
         'status',
@@ -30,6 +31,10 @@ class Accounts extends Model
     public function glType()
     {
         return $this->belongsTo(ConstGlType::class, 'gl_type_id', 'gl_type_id');
+    }
+    public function accountHead()
+    {
+        return $this->belongsTo(AccountHeads::class, 'account_head_id', 'account_head_id');
     }
     public function parentAccount()
     {
