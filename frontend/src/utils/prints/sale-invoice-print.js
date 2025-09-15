@@ -335,17 +335,45 @@ export const createSaleInvoicePrint = async (data) => {
     });
   }
 
-  const filledRows = fillEmptyRows(table2Rows, 10);
-  // const filledRows = fillEmptyRows(table2Rows, 9, descriptions.length + 1);
-  // const filledRows = fillEmptyRowsForNotes(table2Rows, 9, 2);
+  // --- Calculate how many empty rows are needed to keep notes+USD on same page ---
+  // Estimate the height needed for the notes area
+  const notesRowHeight = 14; // estimated per row
+  const notesRows = 2;
+  const notesHeight = notesRows * notesRowHeight + 10; // +10 for padding
 
-  // Adding Table
+  // Estimate table row height
+  const tableRowHeight = 10; // as set in didParseCell
+  const rowsPerPage = 9;
+  const totalRows = table2Rows.length;
+  const fullPages = Math.floor(totalRows / rowsPerPage);
+  const rowsOnLastPage = totalRows % rowsPerPage || rowsPerPage;
+
+  // Calculate available space after last table row
+  // Table starts at 120, page height is usually 297 (A4), bottom margin is 40
+  const pageHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();
+  const tableStartY = 120;
+  const tableEndY = tableStartY + tableRowHeight * rowsOnLastPage;
+  const spaceAfterTable = pageHeight - tableEndY - 40;
+
+  let filledRows = [...table2Rows];
+
+  if (rowsOnLastPage < rowsPerPage) {
+    // If there is enough space for notes, fill empty rows to make 9 rows
+    if (spaceAfterTable >= notesHeight) {
+      const emptyRowsNeeded = rowsPerPage - rowsOnLastPage;
+      for (let i = 0; i < emptyRowsNeeded; i++) {
+        filledRows.push(['', '', '', '', '', '', '', '', '']);
+      }
+    }
+    // else: do not fill, so notes/total will go to next page
+  }
+
   doc.autoTable({
-    startY: 120,
+    startY: tableStartY,
     head: [table2Column],
     body: filledRows,
     margin: { left: sideMargin, right: sideMargin, bottom: 50, top: 120 },
-    // showHead: 'everyPage',
+    showHead: 'everyPage',
     tableLineWidth: 0.1,
     headStyles: {
       fontSize: 8,
@@ -431,22 +459,24 @@ export const createSaleInvoicePrint = async (data) => {
     ]
   ];
 
-  // Estimate the height needed for the notes area
-  const notesRowHeight = 14; // estimated per row
-  const notesHeight = notes.length * notesRowHeight + 10; // +10 for padding
-  const notesStartY = doc.previousAutoTable.finalY + 5;
-  const pageHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();;
-  const bottomMargin = 40; // match your footer margin
-  const spaceLeft = pageHeight - notesStartY
+  // Place notes and USD total right after last table row, unless forced to new page
+  let notesStartY = doc.previousAutoTable.finalY + 2;
+  let currentPage = doc.internal.getCurrentPageInfo().pageNumber;
+  let lastPage = doc.internal.getNumberOfPages();
+  let notesOnNewPage = false;
 
-  let notesStart = notesStartY;
-  if (spaceLeft < notesHeight) {
-    // doc.addPage();
-    // notesStart = 100; // or whatever your top margin is
+  console.log('pageHeight', pageHeight);
+  console.log('notesStartY', notesStartY);
+  console.log('notesHeight', notesHeight);
+  // If not enough space, add a new page for notes
+  if ((pageHeight - notesStartY ) < notesHeight) {
+    doc.addPage();
+    notesStartY = 120;
+    notesOnNewPage = true;
   }
 
   doc.autoTable({
-    startY: notesStart,
+    startY: notesStartY,
     head: [],
     body: notes,
     margin: { left: sideMargin, right: sideMargin, bottom: 40, top: 110 },
