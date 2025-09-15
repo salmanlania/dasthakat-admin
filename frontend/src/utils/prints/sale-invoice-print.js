@@ -30,17 +30,32 @@ const mergePDFs = async (quotationPDFBlob, titleText) => {
   window.open(finalUrl, '_blank');
 };
 
-const fillEmptyRows = (rows, rowsPerPage, notesLength = 1) => {
-  const rowsOnLastPage = rows.length % rowsPerPage;
-  const emptyRowsNeeded = rowsOnLastPage ? rowsPerPage - rowsOnLastPage : 0;
+// const fillEmptyRows = (rows, rowsPerPage, notesLength = 1) => {
+//   const rowsOnLastPage = rows.length % rowsPerPage;
+//   const emptyRowsNeeded = rowsOnLastPage ? rowsPerPage - rowsOnLastPage : 0;
 
-  const totalRowsToAdd =
-    emptyRowsNeeded < notesLength
-      ? emptyRowsNeeded + rowsPerPage - notesLength
-      : emptyRowsNeeded - notesLength;
+//   const totalRowsToAdd =
+//     emptyRowsNeeded < notesLength
+//       ? emptyRowsNeeded + rowsPerPage - notesLength
+//       : emptyRowsNeeded - notesLength;
 
-  for (let i = 0; i < totalRowsToAdd; i++) {
-    rows.push(['', '', '', '', '', '', '', '', '']);
+//   for (let i = 0; i < totalRowsToAdd; i++) {
+//     rows.push(['', '', '', '', '', '', '', '', '']);
+//   }
+
+//   return rows;
+// };
+
+const fillEmptyRows = (rows, rowsPerPage) => {
+  const totalRows = rows.length;
+  const fullPages = Math.floor(totalRows / rowsPerPage);
+  const remainder = totalRows % rowsPerPage;
+
+  if (remainder > 0) {
+    const emptyRowsToAdd = rowsPerPage - remainder;
+    for (let i = 0; i < emptyRowsToAdd; i++) {
+      rows.push(['', '', '', '', '', '', '', '', '']);
+    }
   }
 
   return rows;
@@ -168,7 +183,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       data?.charge_order ? data?.charge_order?.port?.name : '',
       data?.charge_order ? data.charge_order?.document_identity : '',
       // data?.charge_order?.service_order ? data?.charge_order?.service_order?.document_identity : '',
-      data?.charge_order?.quotation?.payment.name ? data?.charge_order?.quotation?.payment.name : '',
+      data?.charge_order?.quotation?.payment ? data?.charge_order?.quotation?.payment.name : '',
       // data?.charge_order ? data.charge_order?.salesman?.name : '',
       data?.ship_date
         ? (data?.ship_date === "1989-11-30"
@@ -229,10 +244,10 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       9: { cellWidth: 15 },
     },
     didParseCell: function (data) {
-      data.cell.styles.minCellHeight = 7;
+      data.cell.styles.minCellHeight = 12;
     }
   });
-};
+}
 
 const addFooter = (doc, pageWidth, pageHeight) => {
   doc.addImage(Logo1, 'PNG', 8, pageHeight, 26, 22);
@@ -250,7 +265,7 @@ const addFooter = (doc, pageWidth, pageHeight) => {
   doc.text(
     currentPage === totalPages ? `Last page` : `Continue to page ${currentPage + 1}`,
     pageWidth / 2,
-    pageHeight - 9.2,
+    pageHeight - 2,
     {
       align: 'center'
     }
@@ -320,17 +335,17 @@ export const createSaleInvoicePrint = async (data) => {
     });
   }
 
+  const filledRows = fillEmptyRows(table2Rows, 10);
   // const filledRows = fillEmptyRows(table2Rows, 9, descriptions.length + 1);
   // const filledRows = fillEmptyRowsForNotes(table2Rows, 9, 2);
 
   // Adding Table
   doc.autoTable({
-    startY: 110,
+    startY: 120,
     head: [table2Column],
-    body: table2Rows,
-    margin: { left: sideMargin, right: sideMargin, bottom: 50, top: 110 },
-    // pageBreak: 'auto', // Add this
-    showHead: 'everyPage', // Add this to show header on every page
+    body: filledRows,
+    margin: { left: sideMargin, right: sideMargin, bottom: 50, top: 120 },
+    // showHead: 'everyPage',
     tableLineWidth: 0.1,
     headStyles: {
       fontSize: 8,
@@ -356,7 +371,6 @@ export const createSaleInvoicePrint = async (data) => {
       fillColor: [255, 255, 255]
     },
     rowPageBreak: 'avoid',
-
     columnStyles: {
       0: { cellWidth: 10 },
       1: { cellWidth: 80 },
@@ -369,23 +383,11 @@ export const createSaleInvoicePrint = async (data) => {
       8: { cellWidth: 27 }
     },
     didParseCell: function (data) {
-      data.cell.styles.minCellHeight = 5;
+      data.cell.styles.minCellHeight = 10;
     },
   });
 
-  const estimatedNoteHeight = (descriptions.length + 2) * 10; 
-
-  const currentY = doc.previousAutoTable.finalY || 0;
-  const pageHeight = doc.internal.pageSize.height;
-  const bottomMargin = 30; // match your footer margin
-
-  const spaceLeft = pageHeight - currentY - bottomMargin;
-
-  if (spaceLeft < estimatedNoteHeight) {
-    doc.addPage();
-  }
-
-  const totalGrossAmount = !data?.total_discount || !data?.net_amount ? `$${formatThreeDigitCommas(data?.total_amount)}` : data?.total_discount || data?.net_amount > 0 ? `$${formatThreeDigitCommas(data?.net_amount)}` : ''
+  const totalGrossAmount = !data?.total_discount || !data?.net_amount ? `$${formatThreeDigitCommas(data?.total_amount)}` : data?.total_discount || data?.net_amount > 0 ? `$${formatThreeDigitCommas(data?.net_amount)}` : '';
 
   let notes = [
     [
@@ -429,13 +431,26 @@ export const createSaleInvoicePrint = async (data) => {
     ]
   ];
 
+  // Estimate the height needed for the notes area
+  const notesRowHeight = 14; // estimated per row
+  const notesHeight = notes.length * notesRowHeight + 10; // +10 for padding
+  const notesStartY = doc.previousAutoTable.finalY + 5;
+  const pageHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();;
+  const bottomMargin = 40; // match your footer margin
+  const spaceLeft = pageHeight - notesStartY
+
+  let notesStart = notesStartY;
+  if (spaceLeft < notesHeight) {
+    // doc.addPage();
+    // notesStart = 100; // or whatever your top margin is
+  }
+
   doc.autoTable({
-    startY: doc.previousAutoTable.finalY + 5,
+    startY: notesStart,
     head: [],
     body: notes,
     margin: { left: sideMargin, right: sideMargin, bottom: 40, top: 110 },
     pageBreak: 'avoid',
-    pageBreak: 'auto',
     rowPageBreak: 'avoid',
     styles: {
       lineWidth: 0.1,
@@ -466,7 +481,7 @@ export const createSaleInvoicePrint = async (data) => {
       8: { cellWidth: 27 }
     },
     didParseCell: (data) => {
-      data.cell.styles.minCellHeight = 5;
+      data.cell.styles.minCellHeight = 10;
     },
   });
 
