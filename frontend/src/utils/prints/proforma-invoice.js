@@ -382,7 +382,7 @@ export const createProformaInvoicePrint = async (data) => {
     ]
   ];
 
-  const filledRows = fillEmptyRows(table2Rows, 8, notes.length + 1);
+  const filledRows = fillEmptyRows(table2Rows, 9, notes.length + 1);
   // const filledRows = fillEmptyRowsForNotes(table2Rows, 9, 2);
   filledRows.push(...notes);
 
