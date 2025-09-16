@@ -30,32 +30,17 @@ const mergePDFs = async (quotationPDFBlob, titleText) => {
   window.open(finalUrl, '_blank');
 };
 
-// const fillEmptyRows = (rows, rowsPerPage, notesLength = 1) => {
-//   const rowsOnLastPage = rows.length % rowsPerPage;
-//   const emptyRowsNeeded = rowsOnLastPage ? rowsPerPage - rowsOnLastPage : 0;
+const fillEmptyRows = (rows, rowsPerPage, notesLength = 1) => {
+  const rowsOnLastPage = rows.length % rowsPerPage;
+  const emptyRowsNeeded = rowsOnLastPage ? rowsPerPage - rowsOnLastPage : 0;
 
-//   const totalRowsToAdd =
-//     emptyRowsNeeded < notesLength
-//       ? emptyRowsNeeded + rowsPerPage - notesLength
-//       : emptyRowsNeeded - notesLength;
+  const totalRowsToAdd =
+    emptyRowsNeeded < notesLength
+      ? emptyRowsNeeded + rowsPerPage - notesLength
+      : emptyRowsNeeded - notesLength;
 
-//   for (let i = 0; i < totalRowsToAdd; i++) {
-//     rows.push(['', '', '', '', '', '', '', '', '']);
-//   }
-
-//   return rows;
-// };
-
-const fillEmptyRows = (rows, rowsPerPage) => {
-  const totalRows = rows.length;
-  const fullPages = Math.floor(totalRows / rowsPerPage);
-  const remainder = totalRows % rowsPerPage;
-
-  if (remainder > 0) {
-    const emptyRowsToAdd = rowsPerPage - remainder;
-    for (let i = 0; i < emptyRowsToAdd; i++) {
-      rows.push(['', '', '', '', '', '', '', '', '']);
-    }
+  for (let i = 0; i < totalRowsToAdd; i++) {
+    rows.push(['', '', '', '', '', '', '', '', '']);
   }
 
   return rows;
@@ -148,16 +133,16 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
 
   const invoiceY = contentY + 40
 
-  // ESTIMATE
+  // SALE INVOICE
   doc.setFontSize(26);
   doc.setFont('times', 'bold');
-  doc.text('INVOICE', pageWidth / 2, invoiceY, {
+  doc.text('SALE INVOICE', pageWidth / 2, invoiceY, {
     align: 'center'
   });
   doc.setDrawColor(32, 50, 114);
   doc.setLineWidth(0.6);
   // doc.line(pageWidth / 2 + 16, 64, 89, 64);
-  doc.line(pageWidth / 2 - doc.getTextWidth('INVOICE') / 2, invoiceY + 2, pageWidth / 2 + doc.getTextWidth('INVOICE') / 2, invoiceY + 2);
+  doc.line(pageWidth / 2 - doc.getTextWidth('SALE INVOICE') / 2, invoiceY + 2, pageWidth / 2 + doc.getTextWidth('SALE INVOICE') / 2, invoiceY + 2);
 
   doc.setFont('times', 'normal');
   doc.setFontSize(10);
@@ -203,6 +188,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
     ]
   ];
 
+
   doc.autoTable({
     startY: invoiceY + 8,
     head: [table1Column],
@@ -239,15 +225,15 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       4: { cellWidth: 35 },
       5: { cellWidth: 19 },
       6: { cellWidth: 19 },
-      // 7: { cellWidth: 15 },
+      7: { cellWidth: 15 },
       8: { cellWidth: 22 },
       9: { cellWidth: 15 },
     },
     didParseCell: function (data) {
-      data.cell.styles.minCellHeight = 12;
-    }
+      data.cell.styles.minCellHeight = 7;
+    },
   });
-}
+};
 
 const addFooter = (doc, pageWidth, pageHeight) => {
   doc.addImage(Logo1, 'PNG', 8, pageHeight, 26, 22);
@@ -265,18 +251,11 @@ const addFooter = (doc, pageWidth, pageHeight) => {
   doc.text(
     currentPage === totalPages ? `Last page` : `Continue to page ${currentPage + 1}`,
     pageWidth / 2,
-    pageHeight - 2,
+    pageHeight - 9.2,
     {
       align: 'center'
     }
   );
-
-  // doc.setFont('times', 'normal');
-  // const deliveryText =
-  //   'Remit Payment to: Global Marine Safety Service Inc Frost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44';
-  // doc.text(deliveryText, pageWidth / 2, pageHeight, {
-  //   align: 'center'
-  // });
 };
 
 export const createSaleInvoicePrint = async (data) => {
@@ -335,51 +314,101 @@ export const createSaleInvoicePrint = async (data) => {
     });
   }
 
-  // --- Calculate how many empty rows are needed to keep notes+USD on same page ---
-  // Estimate the height needed for the notes area
-  const notesRowHeight = 14; // estimated per row
-  const notesRows = 2;
-  const notesHeight = notesRows * notesRowHeight + 10; // +10 for padding
+  const totalAmountFromDetails = data?.charge_order_detail
+    ? data?.charge_order_detail.reduce((sum, detail) => sum + (parseFloat(detail?.amount) || 0), 0)
+    : 0;
 
-  // Estimate table row height
-  const tableRowHeight = 10; // as set in didParseCell
-  const rowsPerPage = 9;
-  const totalRows = table2Rows.length;
-  const fullPages = Math.floor(totalRows / rowsPerPage);
-  const rowsOnLastPage = totalRows % rowsPerPage || rowsPerPage;
+  const totalDiscount = data?.charge_order_detail
+    ? data?.charge_order_detail.reduce((sum, detail) => sum + (parseFloat(detail?.discount_amount) || 0), 0)
+    : 0;
 
-  // Calculate available space after last table row
-  // Table starts at 120, page height is usually 297 (A4), bottom margin is 40
-  const pageHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();
-  const tableStartY = 120;
-  const tableEndY = tableStartY + tableRowHeight * rowsOnLastPage;
-  const spaceAfterTable = pageHeight - tableEndY - 40;
+  const baseTotal = data.total_amount || totalAmountFromDetails;
 
-  let filledRows = [...table2Rows];
+  const finalTotal = baseTotal - totalDiscount;
 
-  if (rowsOnLastPage < rowsPerPage) {
-    // If there is enough space for notes, fill empty rows to make 9 rows
-    if (spaceAfterTable >= notesHeight) {
-      const emptyRowsNeeded = rowsPerPage - rowsOnLastPage;
-      for (let i = 0; i < emptyRowsNeeded; i++) {
-        filledRows.push(['', '', '', '', '', '', '', '', '']);
-      }
-    }
-    // else: do not fill, so notes/total will go to next page
+  const netFinalAmount = data?.net_amount ? data?.net_amount : finalTotal;
+
+  const totalGrossAmount = `$${formatThreeDigitCommas(netFinalAmount)}`;
+
+  const estimatedNoteHeight = (descriptions.length + 2) * 10;
+
+  const currentY = doc.previousAutoTable.finalY || 0;
+  const pageHeight = doc.internal.pageSize.height;
+  const bottomMargin = 30; // match your footer margin
+
+  const spaceLeft = pageHeight - currentY - bottomMargin;
+
+  if (spaceLeft < estimatedNoteHeight) {
+    doc.addPage();
   }
 
+  let notes = [
+    [
+      {
+        content: 'Remit Payment to: Global Marine Safety Service Inc\nFrost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44',
+        colSpan: 6,
+        styles: {
+          fontStyle: 'bold',
+          fontSize: 8,
+          halign: 'left',
+        }
+      },
+      {
+        content: 'USD Total:',
+        colSpan: 2,
+        styles: {
+          fontStyle: 'bold',
+          halign: 'right',
+          fontSize: 8,
+          minCellHeight: 13,
+          cellPadding: 2
+        }
+      },
+      {
+        content: totalGrossAmount,
+        styles: {
+          fontStyle: 'bold',
+          halign: 'right',
+          fontSize: 8,
+          minCellHeight: 13,
+          cellPadding: 2
+        }
+      }
+    ],
+    [
+      {
+        content: 'Note: Any invoice discrepancies must be reported prior to invoice due date. Also please arrange payment in full by due date in order to avoid any late fee or additional charges. Appropriate wire fee must be included in order to avoid short payment resulting in additional charges.',
+        colSpan: 9,
+        styles: {
+          fontStyle: 'italic',
+          fontSize: 8,
+          halign: 'center',
+          minCellHeight: 13,
+          cellPadding: 2
+        }
+      }
+    ]
+  ];
+
+  const filledRows = fillEmptyRows(table2Rows, 9, notes.length + 1);
+  // const filledRows = fillEmptyRowsForNotes(table2Rows, 9, 2);
+  filledRows.push(...notes);
+
+  // Adding Table
   doc.autoTable({
-    startY: tableStartY,
+    startY: 110,
     head: [table2Column],
     body: filledRows,
-    margin: { left: sideMargin, right: sideMargin, bottom: 50, top: 120 },
-    showHead: 'everyPage',
+    margin: { left: sideMargin, right: sideMargin, bottom: 50, top: 110 },
+    // pageBreak: 'auto', // Add this
+    showHead: 'everyPage', // Add this to show header on every page
     tableLineWidth: 0.1,
     headStyles: {
       fontSize: 8,
       fontStyle: 'bold',
       halign: 'center',
       valign: 'middle',
+      cellPadding: 2,
       textColor: [32, 50, 114],
       fillColor: [221, 217, 196]
     },
@@ -389,16 +418,21 @@ export const createSaleInvoicePrint = async (data) => {
       font: 'times',
       fontSize: 8,
       lineWidth: 0.1,
+      cellPadding: 2,
       lineColor: [116, 116, 116]
     },
     bodyStyles: {
       textColor: [32, 50, 114],
-      fillColor: [255, 255, 255]
+      fillColor: [255, 255, 255],
+      fontSize: 8,
+      cellPadding: 2,
     },
     alternateRowStyles: {
-      fillColor: [255, 255, 255]
+      fillColor: [255, 255, 255],
+      cellPadding: 2,
     },
     rowPageBreak: 'avoid',
+
     columnStyles: {
       0: { cellWidth: 10 },
       1: { cellWidth: 80 },
@@ -411,108 +445,8 @@ export const createSaleInvoicePrint = async (data) => {
       8: { cellWidth: 27 }
     },
     didParseCell: function (data) {
-      data.cell.styles.minCellHeight = 10;
-    },
-  });
-
-  const totalGrossAmount = !data?.total_discount || !data?.net_amount ? `$${formatThreeDigitCommas(data?.total_amount)}` : data?.total_discount || data?.net_amount > 0 ? `$${formatThreeDigitCommas(data?.net_amount)}` : '';
-
-  let notes = [
-    [
-      {
-        content: 'Remit Payment to: Global Marine Safety Service Inc\nFrost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44',
-        colSpan: 6,
-        styles: {
-          fontStyle: 'bold',
-          fontSize: 9,
-          halign: 'left',
-        }
-      },
-      {
-        content: 'USD Total:',
-        colSpan: 2,
-        styles: {
-          fontStyle: 'bold',
-          halign: 'right',
-          fontSize: 13
-        }
-      },
-      {
-        content: totalGrossAmount,
-        styles: {
-          fontStyle: 'bold',
-          halign: 'right',
-          fontSize: 9
-        }
-      }
-    ],
-    [
-      {
-        content: 'Note: Any invoice discrepancies must be reported prior to invoice due date. Also please arrange payment in full by due date in order to avoid any late fee or additional charges. Appropriate wire fee must be included in order to avoid short payment resulting in additional charges.',
-        colSpan: 9,
-        styles: {
-          fontStyle: 'italic',
-          fontSize: 8,
-          halign: 'center'
-        }
-      }
-    ]
-  ];
-
-  // Place notes and USD total right after last table row, unless forced to new page
-  let notesStartY = doc.previousAutoTable.finalY + 2;
-  let currentPage = doc.internal.getCurrentPageInfo().pageNumber;
-  let lastPage = doc.internal.getNumberOfPages();
-  let notesOnNewPage = false;
-
-  console.log('pageHeight', pageHeight);
-  console.log('notesStartY', notesStartY);
-  console.log('notesHeight', notesHeight);
-  // If not enough space, add a new page for notes
-  if ((pageHeight - notesStartY ) < notesHeight) {
-    doc.addPage();
-    notesStartY = 120;
-    notesOnNewPage = true;
-  }
-
-  doc.autoTable({
-    startY: notesStartY,
-    head: [],
-    body: notes,
-    margin: { left: sideMargin, right: sideMargin, bottom: 40, top: 110 },
-    pageBreak: 'avoid',
-    rowPageBreak: 'avoid',
-    styles: {
-      lineWidth: 0.1,
-      lineColor: [116, 116, 116],
-      valign: 'middle',
-      halign: 'center',
-      font: 'times'
-    },
-    bodyStyles: {
-      fontSize: 8,
-      textColor: [32, 50, 114],
-      fillColor: [255, 255, 255],
-      valign: 'middle',
-      halign: 'center'
-    },
-    alternateRowStyles: {
-      fillColor: [255, 255, 255]
-    },
-    columnStyles: {
-      0: { cellWidth: 25 },
-      1: { cellWidth: 66 },
-      2: { cellWidth: 10 },
-      3: { cellWidth: 10 },
-      4: { cellWidth: 17 },
-      5: { cellWidth: 19 },
-      6: { cellWidth: 14 },
-      7: { cellWidth: 14 },
-      8: { cellWidth: 27 }
-    },
-    didParseCell: (data) => {
-      data.cell.styles.minCellHeight = 10;
-    },
+      data.cell.styles.minCellHeight = 13;
+    }
   });
 
   const pageCount = doc.internal.getNumberOfPages();
@@ -529,11 +463,11 @@ export const createSaleInvoicePrint = async (data) => {
     addFooter(doc, pageWidth, pageHeight - 25);
   }
 
-  const titleData = `Sale Invoice - ${data.document_identity} - ${data?.charge_order?.vessel?.name}`
+  const titleData = `Sale Invoice- ${data?.document_identity ? data?.document_identity : ''} - ${data?.vessel?.name ? data?.vessel?.name : ''}`
 
   doc.setProperties({
     title: titleData
   });
   const pdfBlob = doc.output('blob');
-  await mergePDFs(pdfBlob, `Sale Invoice - ${data.document_identity} - ${data?.charge_order?.vessel?.name}`);
+  await mergePDFs(pdfBlob, `Sale Invoice- ${titleData}`);
 };

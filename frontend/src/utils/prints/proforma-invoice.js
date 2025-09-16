@@ -215,13 +215,13 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       4: { cellWidth: 35 },
       5: { cellWidth: 19 },
       6: { cellWidth: 19 },
-      // 7: { cellWidth: 15 },
+      7: { cellWidth: 15 },
       8: { cellWidth: 22 },
       9: { cellWidth: 15 },
     },
     didParseCell: function (data) {
       data.cell.styles.minCellHeight = 7;
-    }
+    },
   });
 };
 
@@ -246,13 +246,6 @@ const addFooter = (doc, pageWidth, pageHeight) => {
       align: 'center'
     }
   );
-
-  // doc.setFont('times', 'normal');
-  // const deliveryText =
-  //   'Remit Payment to: Global Marine Safety Service Inc Frost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44';
-  // doc.text(deliveryText, pageWidth / 2, pageHeight, {
-  //   align: 'center'
-  // });
 };
 
 export const createProformaInvoicePrint = async (data) => {
@@ -350,7 +343,7 @@ export const createProformaInvoicePrint = async (data) => {
         colSpan: 6,
         styles: {
           fontStyle: 'bold',
-          fontSize: 9,
+          fontSize: 8,
           halign: 'left',
         }
       },
@@ -360,7 +353,9 @@ export const createProformaInvoicePrint = async (data) => {
         styles: {
           fontStyle: 'bold',
           halign: 'right',
-          fontSize: 13
+          fontSize: 8,
+          minCellHeight: 13,
+          cellPadding: 2
         }
       },
       {
@@ -368,7 +363,9 @@ export const createProformaInvoicePrint = async (data) => {
         styles: {
           fontStyle: 'bold',
           halign: 'right',
-          fontSize: 9
+          fontSize: 8,
+          minCellHeight: 13,
+          cellPadding: 2
         }
       }
     ],
@@ -379,12 +376,14 @@ export const createProformaInvoicePrint = async (data) => {
         styles: {
           fontStyle: 'italic',
           fontSize: 8,
-          halign: 'center'
+          halign: 'center',
+          minCellHeight: 13,
+          cellPadding: 2
         }
       }
     ]
   ];
-  
+
   const filledRows = fillEmptyRows(table2Rows, 9, notes.length + 1);
   // const filledRows = fillEmptyRowsForNotes(table2Rows, 9, 2);
   filledRows.push(...notes);
@@ -403,6 +402,7 @@ export const createProformaInvoicePrint = async (data) => {
       fontStyle: 'bold',
       halign: 'center',
       valign: 'middle',
+      cellPadding: 2,
       textColor: [32, 50, 114],
       fillColor: [221, 217, 196]
     },
@@ -412,14 +412,18 @@ export const createProformaInvoicePrint = async (data) => {
       font: 'times',
       fontSize: 8,
       lineWidth: 0.1,
+      cellPadding: 2,
       lineColor: [116, 116, 116]
     },
     bodyStyles: {
       textColor: [32, 50, 114],
-      fillColor: [255, 255, 255]
+      fillColor: [255, 255, 255],
+      fontSize: 8,
+      cellPadding: 2,
     },
     alternateRowStyles: {
-      fillColor: [255, 255, 255]
+      fillColor: [255, 255, 255],
+      cellPadding: 2,
     },
     rowPageBreak: 'avoid',
 
@@ -438,117 +442,6 @@ export const createProformaInvoicePrint = async (data) => {
       data.cell.styles.minCellHeight = 13;
     }
   });
-
-  // const totalAmountFromDetails = data?.charge_order_detail
-  //   ? data?.charge_order_detail.reduce((sum, detail) => sum + (parseFloat(detail?.amount) || 0), 0)
-  //   : 0;
-
-  // const totalDiscount = data?.charge_order_detail
-  //   ? data?.charge_order_detail.reduce((sum, detail) => sum + (parseFloat(detail?.discount_amount) || 0), 0)
-  //   : 0;
-
-  // const baseTotal = data.total_amount || totalAmountFromDetails;
-
-  // const finalTotal = baseTotal - totalDiscount;
-
-  // const netFinalAmount = data?.net_amount ? data?.net_amount : finalTotal;
-
-  // const totalGrossAmount = `$${formatThreeDigitCommas(netFinalAmount)}`;
-
-  // const estimatedNoteHeight = (descriptions.length + 2) * 10;
-
-  // const currentY = doc.previousAutoTable.finalY || 0;
-  // const pageHeight = doc.internal.pageSize.height;
-  // const bottomMargin = 30; // match your footer margin
-
-  // const spaceLeft = pageHeight - currentY - bottomMargin;
-
-  // if (spaceLeft < estimatedNoteHeight) {
-  //   doc.addPage();
-  // }
-
-  // let notes = [
-  //   [
-  //     {
-  //       content: 'Remit Payment to: Global Marine Safety Service Inc\nFrost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44',
-  //       colSpan: 6,
-  //       styles: {
-  //         fontStyle: 'bold',
-  //         fontSize: 9,
-  //         halign: 'left',
-  //       }
-  //     },
-  //     {
-  //       content: 'USD Total:',
-  //       colSpan: 2,
-  //       styles: {
-  //         fontStyle: 'bold',
-  //         halign: 'right',
-  //         fontSize: 13
-  //       }
-  //     },
-  //     {
-  //       content: totalGrossAmount,
-  //       styles: {
-  //         fontStyle: 'bold',
-  //         halign: 'right',
-  //         fontSize: 9
-  //       }
-  //     }
-  //   ],
-  //   [
-  //     {
-  //       content: 'Note: Any invoice discrepancies must be reported prior to invoice due date. Also please arrange payment in full by due date in order to avoid any late fee or additional charges. Appropriate wire fee must be included in order to avoid short payment resulting in additional charges.',
-  //       colSpan: 9,
-  //       styles: {
-  //         fontStyle: 'italic',
-  //         fontSize: 8,
-  //         halign: 'center'
-  //       }
-  //     }
-  //   ]
-  // ];
-
-  // doc.autoTable({
-  //   startY: doc.previousAutoTable.finalY + 5,
-  //   head: [],
-  //   body: notes,
-  //   margin: { left: sideMargin, right: sideMargin, bottom: 40, top: 110 },
-  //   pageBreak: 'avoid',
-  //   pageBreak: 'auto',
-  //   rowPageBreak: 'avoid',
-  //   styles: {
-  //     lineWidth: 0.1,
-  //     lineColor: [116, 116, 116],
-  //     valign: 'middle',
-  //     halign: 'center',
-  //     font: 'times'
-  //   },
-  //   bodyStyles: {
-  //     fontSize: 8,
-  //     textColor: [32, 50, 114],
-  //     fillColor: [255, 255, 255],
-  //     valign: 'middle',
-  //     halign: 'center'
-  //   },
-  //   alternateRowStyles: {
-  //     fillColor: [255, 255, 255]
-  //   },
-  //   columnStyles: {
-  //     0: { cellWidth: 25 },
-  //     1: { cellWidth: 66 },
-  //     2: { cellWidth: 10 },
-  //     3: { cellWidth: 10 },
-  //     4: { cellWidth: 17 },
-  //     5: { cellWidth: 19 },
-  //     6: { cellWidth: 14 },
-  //     7: { cellWidth: 14 },
-  //     8: { cellWidth: 27 }
-  //   },
-  //   didParseCell: (data) => {
-  //     data.cell.styles.minCellHeight = 5;
-  //   }
-  // });
 
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {

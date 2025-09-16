@@ -30,32 +30,17 @@ const mergePDFs = async (quotationPDFBlob, titleText) => {
   window.open(finalUrl, '_blank');
 };
 
-// const fillEmptyRows = (rows, rowsPerPage, notesLength = 1) => {
-//   const rowsOnLastPage = rows.length % rowsPerPage;
-//   const emptyRowsNeeded = rowsOnLastPage ? rowsPerPage - rowsOnLastPage : 0;
+const fillEmptyRows = (rows, rowsPerPage, notesLength = 1) => {
+  const rowsOnLastPage = rows.length % rowsPerPage;
+  const emptyRowsNeeded = rowsOnLastPage ? rowsPerPage - rowsOnLastPage : 0;
 
-//   const totalRowsToAdd =
-//     emptyRowsNeeded < notesLength
-//       ? emptyRowsNeeded + rowsPerPage - notesLength
-//       : emptyRowsNeeded - notesLength;
+  const totalRowsToAdd =
+    emptyRowsNeeded < notesLength
+      ? emptyRowsNeeded + rowsPerPage - notesLength
+      : emptyRowsNeeded - notesLength;
 
-//   for (let i = 0; i < totalRowsToAdd; i++) {
-//     rows.push(['', '', '', '', '', '', '', '', '']);
-//   }
-
-//   return rows;
-// };
-
-const fillEmptyRows = (rows, rowsPerPage) => {
-  const totalRows = rows.length;
-  const fullPages = Math.floor(totalRows / rowsPerPage);
-  const remainder = totalRows % rowsPerPage;
-
-  if (remainder > 0) {
-    const emptyRowsToAdd = rowsPerPage - remainder;
-    for (let i = 0; i < emptyRowsToAdd; i++) {
-      rows.push(['', '', '', '', '', '', '', '', '']);
-    }
+  for (let i = 0; i < totalRowsToAdd; i++) {
+    rows.push(['', '', '', '', '', '', '', '', '']);
   }
 
   return rows;
@@ -230,15 +215,15 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       4: { cellWidth: 35 },
       5: { cellWidth: 19 },
       6: { cellWidth: 19 },
-      // 7: { cellWidth: 15 },
+      7: { cellWidth: 15 },
       8: { cellWidth: 22 },
       9: { cellWidth: 15 },
     },
     didParseCell: function (data) {
-      data.cell.styles.minCellHeight = 12;
-    }
+      data.cell.styles.minCellHeight = 7;
+    },
   });
-}
+};
 
 const addFooter = (doc, pageWidth, pageHeight) => {
   doc.addImage(Logo1, 'PNG', 8, pageHeight, 26, 22);
@@ -256,18 +241,11 @@ const addFooter = (doc, pageWidth, pageHeight) => {
   doc.text(
     currentPage === totalPages ? `Last page` : `Continue to page ${currentPage + 1}`,
     pageWidth / 2,
-    pageHeight - 2,
+    pageHeight - 9.2,
     {
       align: 'center'
     }
   );
-
-  // doc.setFont('times', 'normal');
-  // const deliveryText =
-  //   'Remit Payment to: Global Marine Safety Service Inc Frost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44';
-  // doc.text(deliveryText, pageWidth / 2, pageHeight, {
-  //   align: 'center'
-  // });
 };
 
 export const createEstimateInvoicePrint = async (data) => {
@@ -330,86 +308,6 @@ export const createEstimateInvoicePrint = async (data) => {
     });
   }
 
-  // --- Calculate how many empty rows are needed to keep notes+USD on same page ---
-  // Estimate the height needed for the notes area
-  const notesRowHeight = 14; // estimated per row
-  const notesRows = 2;
-  const notesHeight = notesRows * notesRowHeight + 10; // +10 for padding
-
-  // Estimate table row height
-  const tableRowHeight = 10; // as set in didParseCell
-  const rowsPerPage = 9;
-  const totalRows = table2Rows.length;
-  const fullPages = Math.floor(totalRows / rowsPerPage);
-  const rowsOnLastPage = totalRows % rowsPerPage || rowsPerPage;
-
-  // Calculate available space after last table row
-  // Table starts at 120, page height is usually 297 (A4), bottom margin is 40
-  const pageHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();
-  const tableStartY = 120;
-  const tableEndY = tableStartY + tableRowHeight * rowsOnLastPage;
-  const spaceAfterTable = pageHeight - tableEndY - 40;
-
-  let filledRows = [...table2Rows];
-
-  if (rowsOnLastPage < rowsPerPage) {
-    // If there is enough space for notes, fill empty rows to make 9 rows
-    if (spaceAfterTable >= notesHeight) {
-      const emptyRowsNeeded = rowsPerPage - rowsOnLastPage;
-      for (let i = 0; i < emptyRowsNeeded; i++) {
-        filledRows.push(['', '', '', '', '', '', '', '', '']);
-      }
-    }
-    // else: do not fill, so notes/total will go to next page
-  }
-
-  doc.autoTable({
-    startY: tableStartY,
-    head: [table2Column],
-    body: filledRows,
-    margin: { left: sideMargin, right: sideMargin, bottom: 50, top: 120 },
-    showHead: 'everyPage',
-    tableLineWidth: 0.1,
-    headStyles: {
-      fontSize: 8,
-      fontStyle: 'bold',
-      halign: 'center',
-      valign: 'middle',
-      textColor: [32, 50, 114],
-      fillColor: [221, 217, 196]
-    },
-    styles: {
-      halign: 'center',
-      valign: 'middle',
-      font: 'times',
-      fontSize: 8,
-      lineWidth: 0.1,
-      lineColor: [116, 116, 116]
-    },
-    bodyStyles: {
-      textColor: [32, 50, 114],
-      fillColor: [255, 255, 255]
-    },
-    alternateRowStyles: {
-      fillColor: [255, 255, 255]
-    },
-    rowPageBreak: 'avoid',
-    columnStyles: {
-      0: { cellWidth: 10 },
-      1: { cellWidth: 80 },
-      2: { cellWidth: 11 },
-      3: { cellWidth: 10 },
-      4: { cellWidth: 17 },
-      5: { cellWidth: 19 },
-      6: { cellWidth: 14 },
-      7: { cellWidth: 14 },
-      8: { cellWidth: 27 }
-    },
-    didParseCell: function (data) {
-      data.cell.styles.minCellHeight = 10;
-    },
-  });
-
   const totalAmountFromDetails = data?.charge_order_detail
     ? data?.charge_order_detail.reduce((sum, detail) => sum + (parseFloat(detail?.amount) || 0), 0)
     : 0;
@@ -425,7 +323,18 @@ export const createEstimateInvoicePrint = async (data) => {
   const netFinalAmount = data?.net_amount ? data?.net_amount : finalTotal;
 
   const totalGrossAmount = `$${formatThreeDigitCommas(netFinalAmount)}`;
-  console.log('totalGrossAmount', data?.net_amount);
+
+  const estimatedNoteHeight = (descriptions.length + 2) * 10;
+
+  const currentY = doc.previousAutoTable.finalY || 0;
+  const pageHeight = doc.internal.pageSize.height;
+  const bottomMargin = 30; // match your footer margin
+
+  const spaceLeft = pageHeight - currentY - bottomMargin;
+
+  if (spaceLeft < estimatedNoteHeight) {
+    doc.addPage();
+  }
 
   let notes = [
     [
@@ -434,7 +343,7 @@ export const createEstimateInvoicePrint = async (data) => {
         colSpan: 6,
         styles: {
           fontStyle: 'bold',
-          fontSize: 9,
+          fontSize: 8,
           halign: 'left',
         }
       },
@@ -444,7 +353,9 @@ export const createEstimateInvoicePrint = async (data) => {
         styles: {
           fontStyle: 'bold',
           halign: 'right',
-          fontSize: 13
+          fontSize: 8,
+          minCellHeight: 13,
+          cellPadding: 2
         }
       },
       {
@@ -452,7 +363,9 @@ export const createEstimateInvoicePrint = async (data) => {
         styles: {
           fontStyle: 'bold',
           halign: 'right',
-          fontSize: 9
+          fontSize: 8,
+          minCellHeight: 13,
+          cellPadding: 2
         }
       }
     ],
@@ -463,56 +376,61 @@ export const createEstimateInvoicePrint = async (data) => {
         styles: {
           fontStyle: 'italic',
           fontSize: 8,
-          halign: 'center'
+          halign: 'center',
+          minCellHeight: 13,
+          cellPadding: 2
         }
       }
     ]
   ];
 
-  // Place notes and USD total right after last table row, unless forced to new page
-  let notesStartY = doc.previousAutoTable.finalY + 2;
-  let currentPage = doc.internal.getCurrentPageInfo().pageNumber;
-  let lastPage = doc.internal.getNumberOfPages();
-  let notesOnNewPage = false;
+  const filledRows = fillEmptyRows(table2Rows, 9, notes.length + 1);
+  // const filledRows = fillEmptyRowsForNotes(table2Rows, 9, 2);
+  filledRows.push(...notes);
 
-  console.log('pageHeight', pageHeight);
-  console.log('notesStartY', notesStartY);
-  console.log('notesHeight', notesHeight);
-  // If not enough space, add a new page for notes
-  if ((pageHeight - notesStartY) < notesHeight) {
-    doc.addPage();
-    notesStartY = 120;
-    notesOnNewPage = true;
-  }
-
+  // Adding Table
   doc.autoTable({
-    startY: notesStartY,
-    head: [],
-    body: notes,
-    margin: { left: sideMargin, right: sideMargin, bottom: 40, top: 110 },
-    pageBreak: 'avoid',
-    rowPageBreak: 'avoid',
-    styles: {
-      lineWidth: 0.1,
-      lineColor: [116, 116, 116],
-      valign: 'middle',
+    startY: 110,
+    head: [table2Column],
+    body: filledRows,
+    margin: { left: sideMargin, right: sideMargin, bottom: 50, top: 110 },
+    // pageBreak: 'auto', // Add this
+    showHead: 'everyPage', // Add this to show header on every page
+    tableLineWidth: 0.1,
+    headStyles: {
+      fontSize: 8,
+      fontStyle: 'bold',
       halign: 'center',
-      font: 'times'
+      valign: 'middle',
+      cellPadding: 2,
+      textColor: [32, 50, 114],
+      fillColor: [221, 217, 196]
+    },
+    styles: {
+      halign: 'center',
+      valign: 'middle',
+      font: 'times',
+      fontSize: 8,
+      lineWidth: 0.1,
+      cellPadding: 2,
+      lineColor: [116, 116, 116]
     },
     bodyStyles: {
-      fontSize: 8,
       textColor: [32, 50, 114],
       fillColor: [255, 255, 255],
-      valign: 'middle',
-      halign: 'center'
+      fontSize: 8,
+      cellPadding: 2,
     },
     alternateRowStyles: {
-      fillColor: [255, 255, 255]
+      fillColor: [255, 255, 255],
+      cellPadding: 2,
     },
+    rowPageBreak: 'avoid',
+
     columnStyles: {
-      0: { cellWidth: 25 },
-      1: { cellWidth: 66 },
-      2: { cellWidth: 10 },
+      0: { cellWidth: 10 },
+      1: { cellWidth: 80 },
+      2: { cellWidth: 11 },
       3: { cellWidth: 10 },
       4: { cellWidth: 17 },
       5: { cellWidth: 19 },
@@ -520,9 +438,9 @@ export const createEstimateInvoicePrint = async (data) => {
       7: { cellWidth: 14 },
       8: { cellWidth: 27 }
     },
-    didParseCell: (data) => {
-      data.cell.styles.minCellHeight = 10;
-    },
+    didParseCell: function (data) {
+      data.cell.styles.minCellHeight = 13;
+    }
   });
 
   const pageCount = doc.internal.getNumberOfPages();
