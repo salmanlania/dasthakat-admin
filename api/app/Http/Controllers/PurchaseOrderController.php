@@ -28,6 +28,7 @@ class PurchaseOrderController extends Controller
 		$document_date = $request->input('document_date', '');
 		$required_date = $request->input('required_date', '');
 		$quotation_no = $request->input('quotation_no', '');
+		$ship_via = $request->input('ship_via', '');
 		$quotation_id = $request->input('quotation_id', '');
 		$customer_id = $request->input('customer_id', '');
 		$charge_order_id = $request->input('charge_order_id', '');
@@ -59,6 +60,7 @@ class PurchaseOrderController extends Controller
 		if (!empty($supplier_id)) $data->where('purchase_order.supplier_id', $supplier_id);
 		if (!empty($quotation_no)) $data->where('q.document_identity', 'like', "%" . $quotation_no . "%");
 		if (!empty($quotation_id)) $data->where('purchase_order.quotation_id', $quotation_id);
+		if (!empty($ship_via)) $data->where('purchase_order.ship_via', $ship_via);
 		if (!empty($charge_order_id)) $data->where('purchase_order.charge_order_id', $charge_order_id);
 		if (!empty($charge_no)) $data->where('co.document_identity', 'like', "%" . $charge_no . "%");
 		if (!empty($document_identity)) $data->where('purchase_order.document_identity', 'like', "%$document_identity%");
@@ -84,7 +86,7 @@ class PurchaseOrderController extends Controller
 					->orWhere('q.document_identity', 'like', "%$search%")
 					->orWhere('c.name', 'like', "%$search%")
 					->orWhere('v.name', 'like', "%$search%")
-					->orWhere('st.name', 'like', "%$search%")
+					->orWhere('ship_via', 'like', "%$search%")
 					->orWhere('e.event_code', 'like', "%$search%")
 					->orWhere('co.document_identity', 'like', "%$search%")
 					->orWhere('purchase_order.document_identity', 'like', "%$search%");
