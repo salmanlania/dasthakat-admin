@@ -90,6 +90,16 @@ export const deleteQuotation = createAsyncThunk(
     }
   },
 );
+export const duplicateQuotation = createAsyncThunk(
+  'quotation/duplicate',
+  async (id, { rejectWithValue }) => {
+    try {
+      await api.post(`/quotation`, { quotation_id: id });
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  },
+);
 
 export const createQuotation = createAsyncThunk(
   'quotation/create',

@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Table, Tooltip } from 'antd';
+import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Select, Table, Tag, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -246,6 +246,33 @@ const SaleInvoice = () => {
       ellipsis: true,
     },
     {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Status</p>
+          <Select allowClear className='w-full font-normal' size='small'
+            value={params.status}
+            onChange={(value) => dispatch(setSaleInvoiceListParams({ status: value || null }))}
+          >
+            <Select.Option value="Created">Created</Select.Option>
+            <Select.Option value="Hold">Hold</Select.Option>
+            <Select.Option value="Billed">Billed</Select.Option>
+          </Select>
+        </div>
+      ),
+      dataIndex: 'status',
+      key: 'status',
+      sorter: true,
+      width: 180,
+      ellipsis: true,
+      render: (_, { status }) => {
+        let color = 'default';
+        if (status === 'Created') color = 'blue';
+        if (status === 'Hold') color = 'orange';
+        if (status === 'Billed') color = 'green';
+        return <Tag color={color}>{status}</Tag>;
+      },
+    },
+    {
       title: 'Created At',
       dataIndex: 'created_at',
       key: 'created_at',
@@ -322,6 +349,7 @@ const SaleInvoice = () => {
     params.sales_team_ids,
     params.sales_team_id,
     params.vessel_id,
+    params.status,
     debouncedSearch,
     debouncedSaleInvoiceNo,
     debouncedChargeNo,

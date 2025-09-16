@@ -28,6 +28,17 @@ export const deletePurchaseOrder = createAsyncThunk(
   }
 );
 
+export const duplicatePurchaseOrder = createAsyncThunk(
+  'purchase-order/duplicate',
+  async (id, { rejectWithValue }) => {
+    try {
+      await api.post(`/purchase-order`, { purchase_order_id: id });
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const createPurchaseOrder = createAsyncThunk(
   'purchase-order/create',
   async (data, { rejectWithValue }) => {

@@ -27,6 +27,7 @@ import useError from '../../hooks/useError';
 import {
   bulkDeletePurchaseOrder,
   deletePurchaseOrder,
+  duplicatePurchaseOrder,
   getPurchaseOrderForPrint,
   getPurchaseOrderList,
   setPurchaseOrderDeleteIDs,
@@ -37,6 +38,7 @@ import { createPurchaseInvoice } from '../../store/features/purchaseInvoiceSlice
 import { createPurchaseOrderPrint } from '../../utils/prints/purchase-order-print';
 import { createPurchaseOrderWithoutRatePrint } from '../../utils/prints/purchase-order-print-without-rate';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
+import { IoDuplicateOutline } from 'react-icons/io5';
 
 export const purchaseOrderTypes = [
   {
@@ -82,6 +84,15 @@ const PurchaseOrder = () => {
     try {
       await dispatch(deletePurchaseOrder(id)).unwrap();
       toast.success('Purchase order deleted successfully');
+      dispatch(getPurchaseOrderList(formattedParams)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
+  };
+  const onPurchaseOrderDuplicate = async (id) => {
+    try {
+      await dispatch(duplicatePurchaseOrder(id)).unwrap();
+      toast.success('Purchase order duplicated successfully');
       dispatch(getPurchaseOrderList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
@@ -462,6 +473,7 @@ const PurchaseOrder = () => {
       render: (record, { purchase_order_id }) => {
         return (
           <div className="flex flex-wrap items-center gap-2">
+             
             {permissions.edit ? (
               <>
                 <Tooltip title="Print without rate">
@@ -482,6 +494,31 @@ const PurchaseOrder = () => {
                     onClick={() => printPurchaseOrder(purchase_order_id)}
                   />
                 </Tooltip>
+                  </>
+                ) : null}
+                {
+                  record.type === "Inventory" &&
+                <Tooltip title="Duplicate Purchase Order">
+                              <Popconfirm
+                              title="Are you sure you want to duplicate?"
+                              description=""
+                              okButtonProps={{ danger: true }}
+                              okText="Yes"
+                              cancelText="No"
+                              onConfirm={() => onPurchaseOrderDuplicate(purchase_order_id)}
+                              >
+                              <Button
+                            size="small"
+                            type="primary"
+                            className='bg-yellow-500 hover:!bg-yellow-400'
+                            icon={<IoDuplicateOutline size={14} />}
+                          />
+                            </Popconfirm>
+                        </Tooltip>
+                }
+
+                {permissions.edit ? (
+                  <>
                 <Tooltip title="Edit">
                   <Link to={`/purchase-order/edit/${purchase_order_id}`}>
                     <Button

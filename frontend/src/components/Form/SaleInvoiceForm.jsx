@@ -94,6 +94,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
       // const netAmount = initialFormValues?.netAmount || '';
       const customerPoNo = initialFormValues?.customer_po_no || '';
       const eventName = initialFormValues?.event_id || '';
+      const status = initialFormValues?.status || '';
       const vesselName = initialFormValues?.vessel_id || '';
       const customerName = initialFormValues?.customer_id || '';
       const portName = initialFormValues?.port_id || '';
@@ -116,6 +117,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
         port_id: portName,
         vessel_billing_address: billingAddress,
         ref_document_identity: refDocumentIdentity,
+        status: status,
         document_date: initialFormValues.document_date
           ? dayjs(initialFormValues.document_date)
           : null,
@@ -365,7 +367,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
               <Input disabled />
             </Form.Item>
           </Col>
-          <Col span={24} sm={12} md={5} lg={5}>
+          <Col span={24} sm={12} md={6} lg={6}>
             <Form.Item
               name="salesman_id"
               label="Salesman"
@@ -428,7 +430,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
               <Input />
             </Form.Item>
           </Col>
-          <Col span={24} sm={12} md={8} lg={8}>
+          <Col span={24} sm={12} md={4} lg={4}>
             <Form.Item
               name="ship_date"
               label="Shipment Date"
@@ -436,6 +438,15 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
             // rules={[{ required: true, message: 'charge order date is required' }]}
             >
               <DatePicker format="MM-DD-YYYY" className="w-full" />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={6} lg={6}>
+            <Form.Item name="status" label="Status">
+              <Select >
+                <Select.Option value="Created">Created</Select.Option>
+                <Select.Option value="Hold">Hold</Select.Option>
+                <Select.Option value="Billed">Billed</Select.Option>
+              </Select>
             </Form.Item>
           </Col>
         </Row>

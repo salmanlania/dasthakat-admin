@@ -182,6 +182,7 @@ export const saleInvoiceSlice = createSlice({
         event_id: data?.charge_order?.event?.event_name,
         vessel_id: data?.charge_order?.vessel?.name,
         customer_id: data?.charge_order?.customer?.name,
+        status: data?.status || '',
         charger_order_id: data?.charge_order?.document_identity,
         port_id: data?.charge_order?.port?.name,
         // ship_date: data?.ship_date ? data?.ship_date : data?.shipment ? data?.shipment?.document_date : '',

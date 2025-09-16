@@ -29,30 +29,45 @@ class QuotationController extends Controller
 	{
 		// Extract all input parameters at once
 		$params = $request->only([
-			'total_amount','port_id', 'customer_ref', 'customer_id', 'document_identity', 
-			'document_date', 'vessel_id', 'event_id', 'search', 'status',
-			'status_updated_by', 'page', 'limit', 'sort_column', 'sort_direction',
-			'start_date', 'end_date', 'sales_team_ids'
+			'total_amount',
+			'port_id',
+			'customer_ref',
+			'customer_id',
+			'document_identity',
+			'document_date',
+			'vessel_id',
+			'event_id',
+			'search',
+			'status',
+			'status_updated_by',
+			'page',
+			'limit',
+			'sort_column',
+			'sort_direction',
+			'start_date',
+			'end_date',
+			'sales_team_ids'
 		]);
-		
+
 		// Set defaults
 		$params['page'] = $params['page'] ?? 1;
 		$params['limit'] = $params['limit'] ?? 10;
 		$params['sort_column'] = $params['sort_column'] ?? 'quotation.created_at';
 		$params['sort_direction'] = ($params['sort_direction'] ?? 'descend') == 'ascend' ? 'asc' : 'desc';
-	
+
 		// Generate cache key based on all parameters and user context
-		$cacheKey = sprintf('quotations:%s:%s:%s', 
-			$request->company_id, 
+		$cacheKey = sprintf(
+			'quotations:%s:%s:%s',
+			$request->company_id,
 			$request->company_branch_id,
 			md5(json_encode($params))
 		);
-	
+
 		// Return cached response if available
 		if (Cache::has($cacheKey)) {
 			return response()->json(Cache::get($cacheKey));
 		}
-	
+
 		// Start building the query with only essential joins
 		$query = Quotation::query()
 			->select([
@@ -78,20 +93,20 @@ class QuotationController extends Controller
 			])
 			->where('quotation.company_id', $request->company_id)
 			->where('quotation.company_branch_id', $request->company_branch_id);
-	
+
 		// Apply filters using optimized conditions
 		$this->applyFilters($query, $params);
-	
+
 		// Execute the query with optimized pagination
 		$result = $query->orderBy($params['sort_column'], $params['sort_direction'])
-					   ->paginate($params['limit'], ['quotation.quotation_id'], 'page', $params['page']);
-	
+			->paginate($params['limit'], ['quotation.quotation_id'], 'page', $params['page']);
+
 		// Cache the result for 2 minutes (adjust based on your needs)
 		Cache::put($cacheKey, $result, Carbon::now()->addSeconds(1));
-	
+
 		return response()->json($result);
 	}
-	
+
 	protected function applyFilters($query, $params)
 	{
 		// Exact match filters (uses indexes better)
@@ -103,26 +118,26 @@ class QuotationController extends Controller
 			'event_id' => 'quotation.event_id',
 			'document_date' => 'quotation.document_date'
 		];
-	
+
 		foreach ($exactFilters as $param => $column) {
 			if (!empty($params[$param])) {
 				$query->where($column, '=', $params[$param]);
 			}
 		}
-	
+
 		// Prefix match filters (better for LIKE queries)
 		$prefixFilters = [
 			'customer_ref' => 'quotation.customer_ref',
 			'document_identity' => 'quotation.document_identity',
 			'total_amount' => 'quotation.total_amount'
 		];
-	
+
 		foreach ($prefixFilters as $param => $column) {
 			if (!empty($params[$param])) {
 				$query->where($column, 'like', '%' . $params[$param] . '%');
 			}
 		}
-	
+
 		// Date range filter
 		if (!empty($params['start_date']) && !empty($params['end_date'])) {
 			$query->whereBetween('quotation.document_date', [$params['start_date'], $params['end_date']]);
@@ -142,71 +157,70 @@ class QuotationController extends Controller
 					->whereIn('e.sales_team_id', $ids);
 			});
 		}
-	
+
 		// Status updated by (if needed)
 		if (!empty($params['status_updated_by'])) {
 			$query->whereExists(function ($subQuery) use ($params) {
 				$subQuery->select(DB::raw(1))
-						->from('quotation_status')
-						->whereColumn('quotation_status.quotation_id', 'quotation.quotation_id')
-						->where('quotation_status.created_by', $params['status_updated_by'])
-						->orderBy('quotation_status.created_at', 'desc')
-						->limit(1);
+					->from('quotation_status')
+					->whereColumn('quotation_status.quotation_id', 'quotation.quotation_id')
+					->where('quotation_status.created_by', $params['status_updated_by'])
+					->orderBy('quotation_status.created_at', 'desc')
+					->limit(1);
 			});
 		}
-	
+
 		// Search filter (optimized)
 		if (!empty($params['search'])) {
 			$search = strtolower($params['search']);
 			$query->where(function ($q) use ($search) {
 				// First check indexed columns with prefix matching
 				$q->where('quotation.customer_ref', 'like', $search . '%')
-				  ->orWhere('quotation.document_identity', 'like', $search . '%')
-				  ->orWhere('quotation.status', 'like', $search . '%');
-				
+					->orWhere('quotation.document_identity', 'like', $search . '%')
+					->orWhere('quotation.status', 'like', $search . '%');
+
 				// Only check related tables if search term is long enough
 				if (strlen($search) > 3) {
 					$q->orWhereExists(function ($subQuery) use ($search) {
 						$subQuery->select(DB::raw(1))
-								->from('customer')
-								->whereColumn('customer.customer_id', 'quotation.customer_id')
-								->where('customer.name', 'like', '%' . $search . '%');
+							->from('customer')
+							->whereColumn('customer.customer_id', 'quotation.customer_id')
+							->where('customer.name', 'like', '%' . $search . '%');
 					})
-					->orWhereExists(function ($subQuery) use ($search) {
-						$subQuery->select(DB::raw(1))
+						->orWhereExists(function ($subQuery) use ($search) {
+							$subQuery->select(DB::raw(1))
 								->from('vessel')
 								->whereColumn('vessel.vessel_id', 'quotation.vessel_id')
 								->where('vessel.name', 'like', '%' . $search . '%');
-					})
-					->orWhereExists(function ($subQuery) use ($search) {
-						$subQuery->select(DB::raw(1))
+						})
+						->orWhereExists(function ($subQuery) use ($search) {
+							$subQuery->select(DB::raw(1))
 								->from('port')
 								->whereColumn('port.port_id', 'quotation.port_id')
 								->where('port.name', 'like', '%' . $search . '%');
-					})
-					->orWhereExists(function ($subQuery) use ($search) {
-						$subQuery->select(DB::raw(1))
+						})
+						->orWhereExists(function ($subQuery) use ($search) {
+							$subQuery->select(DB::raw(1))
 								->from('event')
 								->whereColumn('event.event_id', 'quotation.event_id')
 								->where('event.event_code', 'like', '%' . $search . '%');
-					})
-					->orWhereExists(function ($subQuery) use ($search) {
-						$subQuery->select(DB::raw(1))
+						})
+						->orWhereExists(function ($subQuery) use ($search) {
+							$subQuery->select(DB::raw(1))
 								->from('event as e')
 								->leftJoin('sales_team as st', 'st.sales_team_id', '=', 'e.sales_team_id')
 								->whereColumn('e.event_id', 'quotation.event_id')
 								->where('st.name', 'like', '%' . $search . '%');
-					});
+						});
 				}
 			});
 		}
-
 	}
 
 	public function show($id, Request $request)
 	{
 		$data = Quotation::with(
-		
+
 			"salesman",
 			"event",
 			"vessel",
@@ -222,20 +236,20 @@ class QuotationController extends Controller
 			// "quotation_detail.unit",
 			// "quotation_detail.product_type",
 			// "quotation_detail.product"
-)
+		)
 			->where('quotation_id', $id)
 			->first();
 
 		if (!$data) {
 			return $this->jsonResponse(null, 404, 'Quotation not found');
 		}
-	$data->quotation_detail = QuotationDetail::with([
+		$data->quotation_detail = QuotationDetail::with([
 			"product",
 			"supplier",
 			"unit",
 			"product_type"
 		])->where('quotation_id', $id)->orderBy('sort_order')->get();
-	
+
 
 
 		$data->commission_agent = QuotationCommissionAgent::join('commission_agent', 'commission_agent.commission_agent_id', '=', 'quotation_commission_agent.commission_agent_id')
@@ -266,15 +280,15 @@ class QuotationController extends Controller
 				$detail->product->stock = StockLedger::Check($detail->product, $request->all());
 			}
 			$currentRate = (float)($detail->vendor_rate ?? 0);
-            if ($currentRate <= 0) {
-                $productId = $detail->product_id ?? null;
-                $productName = $detail->product_name ?? null;
-                $lastRate = QuotationVendorRateHistory::getLastValidRate($detail->supplier_id, $productId, $productName);
-                if (!is_null($lastRate)) {
-                    $detail->last_valid_rate = $lastRate;
-                    $detail->last_rate_validity_date = QuotationVendorRateHistory::getLastValidRateValidityDate($detail->supplier_id, $productId, $productName);
-                }
-            }
+			if ($currentRate <= 0) {
+				$productId = $detail->product_id ?? null;
+				$productName = $detail->product_name ?? null;
+				$lastRate = QuotationVendorRateHistory::getLastValidRate($detail->supplier_id, $productId, $productName);
+				if (!is_null($lastRate)) {
+					$detail->last_valid_rate = $lastRate;
+					$detail->last_rate_validity_date = QuotationVendorRateHistory::getLastValidRateValidityDate($detail->supplier_id, $productId, $productName);
+				}
+			}
 		});
 
 		// Process terms
@@ -320,128 +334,277 @@ class QuotationController extends Controller
 	{
 		if (!isPermission('add', 'quotation', $request->permission_list))
 			return $this->jsonResponse('Permission Denied!', 403, 'No Permission');
+		if (isset($request->quotation_id) && !empty($request->quotation_id)) {
 
-		$isError = $this->validateRequest($request->all());
-		if (!empty($isError))
-			return $this->jsonResponse($isError, 400, 'Request Failed!');
-
-		DB::beginTransaction();  // Start transaction
-
-		try {
-			$uuid = $this->get_uuid();
-			$document = DocumentType::getNextDocument($this->document_type_id, $request);
-
-			$insertArr = [
-				'company_id' => $request->company_id ?? '',
-				'company_branch_id' => $request->company_branch_id ?? '',
-				'quotation_id' => $uuid,
-				'document_type_id' => $document['document_type_id'] ?? '',
-				'document_no' => $document['document_no'] ?? '',
-				'document_prefix' => $document['document_prefix'] ?? '',
-				'document_identity' => $document['document_identity'] ?? '',
-				'document_date' => $request->document_date ?? '',
-				'service_date' => $request->service_date ?? '',
-				'salesman_id' => $request->salesman_id ?? '',
-				'customer_id' => $request->customer_id ?? '',
-				'person_incharge_id' => $request->person_incharge_id ?? '',
-				'event_id' => $request->event_id ?? '',
-				'vessel_id' => $request->vessel_id ?? '',
-				'flag_id' => $request->flag_id ?? '',
-				'class1_id' => $request->class1_id ?? '',
-				'class2_id' => $request->class2_id ?? '',
-				'customer_ref' => $request->customer_ref ?? '',
-				'due_date' => ($request->due_date) ?? '',
-				'attn' => $request->attn ?? '',
-				'delivery' => $request->delivery ?? '',
-				'validity_id' => $request->validity_id ?? '',
-				'payment_id' => $request->payment_id ?? '',
-				'internal_notes' => $request->internal_notes ?? '',
-				'port_id' => $request->port_id ?? '',
-				'term_id' => json_encode($request->term_id) ?? '',
-				'term_desc' => $request->term_desc ?? '',
-				'total_cost' => $request->total_cost ?? '',
-				'total_quantity' => $request->total_quantity ?? '',
-				'total_amount' => $request->total_amount ?? '',
-				'total_discount' => $request->total_discount ?? '',
-				'net_amount' => $request->net_amount ?? '',
-				'rebate_percent' => $request->rebate_percent ?? '',
-				'rebate_amount' => $request->rebate_amount ?? '',
-				'salesman_percent' => $request->salesman_percent ?? '',
-				'salesman_amount' => $request->salesman_amount ?? '',
-				'final_amount' => $request->final_amount ?? '',
-				'remarks' => $request->remarks ?? '',
-				'status' => $request->status ?? '',
-				'created_at' => date('Y-m-d H:i:s'),
-				'created_by' => $request->login_user_id,
-			];
-
-			Quotation::create($insertArr);
-
-			QuotationStatus::create([
-				'id' => $this->get_uuid(),
-				'quotation_id' => $uuid,
-				'status' => $request->status,
-				'created_by' => $request->login_user_id,
-				'created_at' => Carbon::now(),
-			]);
-
-			if ($request->quotation_detail) {
-				foreach ($request->quotation_detail as $key => $value) {
-					$detail_uuid = $this->get_uuid();
-					$insert = [
-						'quotation_id' => $insertArr['quotation_id'],
-						'quotation_detail_id' => $detail_uuid,
-						'sort_order' => $value['sort_order'] ?? '',
-						'product_id' => $value['product_id'] ?? '',
-						'product_type_id' => $value['product_type_id'] ?? '',
-						'product_name' => $value['product_name'] ?? '',
-						'product_description' => $value['product_description'] ?? '',
-						'description' => $value['description'] ?? '',
-						'unit_id' => $value['unit_id'] ?? '',
-						'supplier_id' => $value['supplier_id'] ?? '',
-						'vendor_part_no' => $value['vendor_part_no'] ?? '',
-						'vendor_notes' => $value['vendor_notes'] ?? '',
-						'quantity' => $value['quantity'] ?? '',
-						'cost_price' => $value['cost_price'] ?? '',
-						'markup' => $value['markup'] ?? '',
-						'rate' => $value['rate'] ?? '',
-						'amount' => $value['amount'] ?? '',
-						'internal_notes' => $value['internal_notes'] ?? '',
-						'discount_amount' => $value['discount_amount'] ?? '',
-						'discount_percent' => $value['discount_percent'] ?? '',
-						'gross_amount' => $value['gross_amount'] ?? '',
-						'created_at' => date('Y-m-d H:i:s'),
-						'created_by' => $request->login_user_id,
-					];
-					QuotationDetail::create($insert);
-				}
+			// Duplicate Quotation
+			$existing = Quotation::with('quotation_detail', 'commission_agent')->where('quotation_id', $request->quotation_id)->first();
+			if (!$existing) {
+				return $this->jsonResponse('Original Quotation Not Found!', 404, 'No Data');
 			}
-			if ($request->commission_agent) {
-				foreach ($request->commission_agent as $key => $value) {
-					$detail_uuid = $this->get_uuid();
-					$insert = [
-						'quotation_id' => $insertArr['quotation_id'],
-						'id' => $detail_uuid,
-						'sort_order' => $value['sort_order'] ?? '',
-						'vessel_id' => $value['vessel_id'] ?? '',
-						'customer_id' => $value['customer_id'] ?? '',
-						'commission_agent_id' => $value['commission_agent_id'] ?? '',
-						'percentage' => $value['percentage'] ?? '',
-						'amount' => $value['amount'] ?? '',
-						'created_at' => Carbon::now(),
-						'created_by' => $request->login_user_id,
-					];
-					QuotationCommissionAgent::create($insert);
+			DB::beginTransaction();  // Start transaction
+
+			try {
+				$uuid = $this->get_uuid();
+				$document = DocumentType::getNextDocument($this->document_type_id, $request);
+
+				$insertArr = [
+					'company_id' => $request->company_id ?? '',
+					'company_branch_id' => $request->company_branch_id ?? '',
+					'quotation_id' => $uuid,
+					'document_type_id' => $document['document_type_id'] ?? '',
+					'document_no' => $document['document_no'] ?? '',
+					'document_prefix' => $document['document_prefix'] ?? '',
+					'document_identity' => $document['document_identity'] ?? '',
+					'document_date' => $existing->document_date ?? '',
+					'service_date' => $existing->service_date ?? '',
+					'salesman_id' => $existing->salesman_id ?? '',
+					'customer_id' => $existing->customer_id ?? '',
+					'person_incharge_id' => $existing->person_incharge_id ?? '',
+					'event_id' => $existing->event_id ?? '',
+					'vessel_id' => $existing->vessel_id ?? '',
+					'flag_id' => $existing->flag_id ?? '',
+					'class1_id' => $existing->class1_id ?? '',
+					'class2_id' => $existing->class2_id ?? '',
+					'customer_ref' => $existing->customer_ref ?? '',
+					'due_date' => ($existing->due_date) ?? '',
+					'attn' => $existing->attn ?? '',
+					'delivery' => $existing->delivery ?? '',
+					'validity_id' => $existing->validity_id ?? '',
+					'payment_id' => $existing->payment_id ?? '',
+					'internal_notes' => $existing->internal_notes ?? '',
+					'port_id' => $existing->port_id ?? '',
+					'term_id' => $existing->term_id ?? '',
+					'term_desc' => $existing->term_desc ?? '',
+					'total_cost' => $existing->total_cost ?? '',
+					'total_quantity' => $existing->total_quantity ?? '',
+					'total_amount' => $existing->total_amount ?? '',
+					'total_discount' => $existing->total_discount ?? '',
+					'net_amount' => $existing->net_amount ?? '',
+					'rebate_percent' => $existing->rebate_percent ?? '',
+					'rebate_amount' => $existing->rebate_amount ?? '',
+					'salesman_percent' => $existing->salesman_percent ?? '',
+					'salesman_amount' => $existing->salesman_amount ?? '',
+					'final_amount' => $existing->final_amount ?? '',
+					'remarks' => $existing->remarks ?? '',
+					'status' => $existing->status ?? '',
+					'created_at' => date('Y-m-d H:i:s'),
+					'created_by' => $request->login_user_id,
+				];
+
+				Quotation::create($insertArr);
+
+				QuotationStatus::create([
+					'id' => $this->get_uuid(),
+					'quotation_id' => $uuid,
+					'status' => $existing->status,
+					'created_by' => $request->login_user_id,
+					'created_at' => Carbon::now(),
+				]);
+
+				if ($existing->quotation_detail) {
+					foreach ($existing->quotation_detail as $key => $value) {
+						$detail_uuid = $this->get_uuid();
+						$insert = [
+							'quotation_id' => $insertArr['quotation_id'],
+							'quotation_detail_id' => $detail_uuid,
+							'sort_order' => $value['sort_order'] ?? '',
+							'product_id' => $value['product_id'] ?? '',
+							'product_type_id' => $value['product_type_id'] ?? '',
+							'product_name' => $value['product_name'] ?? '',
+							'product_description' => $value['product_description'] ?? '',
+							'description' => $value['description'] ?? '',
+							'unit_id' => $value['unit_id'] ?? '',
+							'supplier_id' => $value['supplier_id'] ?? '',
+							'vendor_part_no' => $value['vendor_part_no'] ?? '',
+							'vendor_notes' => $value['vendor_notes'] ?? '',
+							'quantity' => $value['quantity'] ?? '',
+							'cost_price' => $value['cost_price'] ?? '',
+							'markup' => $value['markup'] ?? '',
+							'rate' => $value['rate'] ?? '',
+							'amount' => $value['amount'] ?? '',
+							'internal_notes' => $value['internal_notes'] ?? '',
+							'discount_amount' => $value['discount_amount'] ?? '',
+							'discount_percent' => $value['discount_percent'] ?? '',
+							'gross_amount' => $value['gross_amount'] ?? '',
+							'created_at' => date('Y-m-d H:i:s'),
+							'created_by' => $request->login_user_id,
+						];
+						QuotationDetail::create($insert);
+
+						$vendorQuote = VendorQuotationDetail::where('quotation_id', $existing->quotation_id)->where('quotation_detail_id', $value['quotation_detail_id'])->get();
+						if ($vendorQuote) {
+							foreach ($vendorQuote as $vendorQuote){
+								VendorQuotationDetail::insert([
+									'company_id' => $request->company_id ?? "",
+									'company_branch_id' => $request->company_branch_id ?? "",
+									'vendor_quotation_detail_id' => $this->get_uuid(),
+									'quotation_id' => $insertArr['quotation_id'],
+									'sort_order' => $vendorQuote->sort_order ?? 0,
+									'quotation_detail_id' => $detail_uuid,
+									'vendor_id' => $vendorQuote->vendor_id ?? '',
+									'vendor_rate' => $vendorQuote->vendor_rate ?? 0,
+									'is_primary_vendor' => $vendorQuote->is_primary_vendor ?? 0,
+									'vendor_part_no' => $vendorQuote->vendor_part_no ?? '',
+									'vendor_notes' => $vendorQuote->vendor_notes ?? '',
+									'created_at' => Carbon::now(),
+									'created_by' => $request->login_user_id,
+								]);
+							}
+						}
+
+					}
 				}
+		
+				if ($existing->commission_agent) {
+					foreach ($existing->commission_agent as $key => $value) {
+						$detail_uuid = $this->get_uuid();
+						$insert = [
+							'quotation_id' => $insertArr['quotation_id'],
+							'id' => $detail_uuid,
+							'sort_order' => $value['sort_order'] ?? '',
+							'vessel_id' => $value['vessel_id'] ?? '',
+							'customer_id' => $value['customer_id'] ?? '',
+							'commission_agent_id' => $value['commission_agent_id'] ?? '',
+							'percentage' => $value['percentage'] ?? '',
+							'amount' => $value['amount'] ?? '',
+							'created_at' => Carbon::now(),
+							'created_by' => $request->login_user_id,
+						];
+						QuotationCommissionAgent::create($insert);
+					}
+				}
+			
+				DB::commit();  // Commit the transaction if everything went fine
+
+
+				return $this->jsonResponse('Quotation duplicated successfully!', 200, 'Created');
+			} catch (\Exception $e) {
+				DB::rollBack();  // Rollback transaction
+				return $this->jsonResponse($e->getMessage(), 500, 'Internal Server Error');
 			}
+		} else {
+			$isError = $this->validateRequest($request->all());
+			if (!empty($isError))
+				return $this->jsonResponse($isError, 400, 'Request Failed!');
 
-			DB::commit();  // Commit the transaction if everything went fine
+			DB::beginTransaction();  // Start transaction
 
-			return $this->jsonResponse(['quotation_id' => $uuid], 200, 'Add Quotation Successfully!');
-		} catch (\Exception $e) {
-			DB::rollBack();  // Rollback on error
-			Log::error('Quotation Store Error: ' . $e->getMessage());
-			return $this->jsonResponse('Something went wrong while saving Quotation.', 500, 'Transaction Failed');
+			try {
+				$uuid = $this->get_uuid();
+				$document = DocumentType::getNextDocument($this->document_type_id, $request);
+
+				$insertArr = [
+					'company_id' => $request->company_id ?? '',
+					'company_branch_id' => $request->company_branch_id ?? '',
+					'quotation_id' => $uuid,
+					'document_type_id' => $document['document_type_id'] ?? '',
+					'document_no' => $document['document_no'] ?? '',
+					'document_prefix' => $document['document_prefix'] ?? '',
+					'document_identity' => $document['document_identity'] ?? '',
+					'document_date' => $request->document_date ?? '',
+					'service_date' => $request->service_date ?? '',
+					'salesman_id' => $request->salesman_id ?? '',
+					'customer_id' => $request->customer_id ?? '',
+					'person_incharge_id' => $request->person_incharge_id ?? '',
+					'event_id' => $request->event_id ?? '',
+					'vessel_id' => $request->vessel_id ?? '',
+					'flag_id' => $request->flag_id ?? '',
+					'class1_id' => $request->class1_id ?? '',
+					'class2_id' => $request->class2_id ?? '',
+					'customer_ref' => $request->customer_ref ?? '',
+					'due_date' => ($request->due_date) ?? '',
+					'attn' => $request->attn ?? '',
+					'delivery' => $request->delivery ?? '',
+					'validity_id' => $request->validity_id ?? '',
+					'payment_id' => $request->payment_id ?? '',
+					'internal_notes' => $request->internal_notes ?? '',
+					'port_id' => $request->port_id ?? '',
+					'term_id' => json_encode($request->term_id) ?? '',
+					'term_desc' => $request->term_desc ?? '',
+					'total_cost' => $request->total_cost ?? '',
+					'total_quantity' => $request->total_quantity ?? '',
+					'total_amount' => $request->total_amount ?? '',
+					'total_discount' => $request->total_discount ?? '',
+					'net_amount' => $request->net_amount ?? '',
+					'rebate_percent' => $request->rebate_percent ?? '',
+					'rebate_amount' => $request->rebate_amount ?? '',
+					'salesman_percent' => $request->salesman_percent ?? '',
+					'salesman_amount' => $request->salesman_amount ?? '',
+					'final_amount' => $request->final_amount ?? '',
+					'remarks' => $request->remarks ?? '',
+					'status' => $request->status ?? '',
+					'created_at' => date('Y-m-d H:i:s'),
+					'created_by' => $request->login_user_id,
+				];
+
+				Quotation::create($insertArr);
+
+				QuotationStatus::create([
+					'id' => $this->get_uuid(),
+					'quotation_id' => $uuid,
+					'status' => $request->status,
+					'created_by' => $request->login_user_id,
+					'created_at' => Carbon::now(),
+				]);
+
+				if ($request->quotation_detail) {
+					foreach ($request->quotation_detail as $key => $value) {
+						$detail_uuid = $this->get_uuid();
+						$insert = [
+							'quotation_id' => $insertArr['quotation_id'],
+							'quotation_detail_id' => $detail_uuid,
+							'sort_order' => $value['sort_order'] ?? '',
+							'product_id' => $value['product_id'] ?? '',
+							'product_type_id' => $value['product_type_id'] ?? '',
+							'product_name' => $value['product_name'] ?? '',
+							'product_description' => $value['product_description'] ?? '',
+							'description' => $value['description'] ?? '',
+							'unit_id' => $value['unit_id'] ?? '',
+							'supplier_id' => $value['supplier_id'] ?? '',
+							'vendor_part_no' => $value['vendor_part_no'] ?? '',
+							'vendor_notes' => $value['vendor_notes'] ?? '',
+							'quantity' => $value['quantity'] ?? '',
+							'cost_price' => $value['cost_price'] ?? '',
+							'markup' => $value['markup'] ?? '',
+							'rate' => $value['rate'] ?? '',
+							'amount' => $value['amount'] ?? '',
+							'internal_notes' => $value['internal_notes'] ?? '',
+							'discount_amount' => $value['discount_amount'] ?? '',
+							'discount_percent' => $value['discount_percent'] ?? '',
+							'gross_amount' => $value['gross_amount'] ?? '',
+							'created_at' => date('Y-m-d H:i:s'),
+							'created_by' => $request->login_user_id,
+						];
+						QuotationDetail::create($insert);
+					}
+				}
+				if ($request->commission_agent) {
+					foreach ($request->commission_agent as $key => $value) {
+						$detail_uuid = $this->get_uuid();
+						$insert = [
+							'quotation_id' => $insertArr['quotation_id'],
+							'id' => $detail_uuid,
+							'sort_order' => $value['sort_order'] ?? '',
+							'vessel_id' => $value['vessel_id'] ?? '',
+							'customer_id' => $value['customer_id'] ?? '',
+							'commission_agent_id' => $value['commission_agent_id'] ?? '',
+							'percentage' => $value['percentage'] ?? '',
+							'amount' => $value['amount'] ?? '',
+							'created_at' => Carbon::now(),
+							'created_by' => $request->login_user_id,
+						];
+						QuotationCommissionAgent::create($insert);
+					}
+				}
+
+				DB::commit();  // Commit the transaction if everything went fine
+
+				return $this->jsonResponse(['quotation_id' => $uuid], 200, 'Add Quotation Successfully!');
+			} catch (\Exception $e) {
+				DB::rollBack();  // Rollback on error
+				Log::error('Quotation Store Error: ' . $e->getMessage());
+				return $this->jsonResponse('Something went wrong while saving Quotation.', 500, 'Transaction Failed');
+			}
 		}
 	}
 
@@ -617,23 +780,23 @@ class QuotationController extends Controller
 			}
 
 			// if ($request->commission_agent) {
-				QuotationCommissionAgent::where('quotation_id', $id)->delete();
-				foreach ($request->commission_agent as $key => $value) {
-					$detail_uuid = $this->get_uuid();
-					$insert = [
-						'quotation_id' => $id,
-						'id' => $detail_uuid,
-						'sort_order' => $value['sort_order'] ?? '',
-						'vessel_id' => $value['vessel_id'] ?? '',
-						'customer_id' => $value['customer_id'] ?? '',
-						'commission_agent_id' => $value['commission_agent_id'] ?? '',
-						'percentage' => $value['percentage'] ?? '',
-						'amount' => $value['amount'] ?? '',
-						'created_at' => Carbon::now(),
-						'created_by' => $request->login_user_id,
-					];
-					QuotationCommissionAgent::create($insert);
-				}
+			QuotationCommissionAgent::where('quotation_id', $id)->delete();
+			foreach ($request->commission_agent as $key => $value) {
+				$detail_uuid = $this->get_uuid();
+				$insert = [
+					'quotation_id' => $id,
+					'id' => $detail_uuid,
+					'sort_order' => $value['sort_order'] ?? '',
+					'vessel_id' => $value['vessel_id'] ?? '',
+					'customer_id' => $value['customer_id'] ?? '',
+					'commission_agent_id' => $value['commission_agent_id'] ?? '',
+					'percentage' => $value['percentage'] ?? '',
+					'amount' => $value['amount'] ?? '',
+					'created_at' => Carbon::now(),
+					'created_by' => $request->login_user_id,
+				];
+				QuotationCommissionAgent::create($insert);
+			}
 			// }
 
 			DB::commit();  // Success

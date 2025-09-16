@@ -34,6 +34,7 @@ class SaleInvoiceController extends Controller
 		$event_id = $request->input('event_id', '');
 		$vessel_id = $request->input('vessel_id', '');
 		$charge_no = $request->input('charge_no', '');
+		$status = $request->input('status', '');
 		$sales_team_ids = $request->input('sales_team_ids', []);
 
 		$search = $request->input('search', '');
@@ -55,6 +56,7 @@ class SaleInvoiceController extends Controller
 		if (!empty($vessel_id)) $data = $data->where('co.vessel_id', '=',  $vessel_id);
 		if (!empty($event_id)) $data = $data->where('co.event_id', '=',  $event_id);
 		if (!empty($charge_no)) $data = $data->where('co.document_identity', 'like', "%". $charge_no."%");
+		if (!empty($status)) $data = $data->where('sale_invoice.status', '=',  $status);
 		if (!empty($document_identity)) $data = $data->where('sale_invoice.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($document_date)) $data = $data->where('sale_invoice.document_date', '=',  $document_date);
 		if (!empty($sales_team_ids) && is_array($sales_team_ids)) {
@@ -70,6 +72,7 @@ class SaleInvoiceController extends Controller
 					->Where('q.document_identity', 'like', '%' . $search . '%')
 					->OrWhere('v.name', 'like', '%' . $search . '%')
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
+					->OrWhere('sale_invoice.status', 'like', '%' . $search . '%')
 					->OrWhere('st.name', 'like', '%' . $search . '%')
 					->OrWhere('sale_invoice.document_identity', 'like', '%' . $search . '%');
 			});
@@ -205,6 +208,7 @@ class SaleInvoiceController extends Controller
 			'document_date'     => $request->document_date ?? "",
 			'vessel_billing_address' => $chargeOrder?->vessel?->billing_address ?? "",
 			'charge_order_id'   => $request->charge_order_id,
+			'status'			=> $request->status ?? "Created",
 			'created_at'        => Carbon::now(),
 			'created_by'        => $request->login_user_id,
 		];
@@ -295,6 +299,7 @@ class SaleInvoiceController extends Controller
 		$data->document_date = $request->document_date;
 		$data->ship_date = $request->ship_date;
 		$data->vessel_billing_address = $request->vessel_billing_address;
+		$data->status = $request->status ?? $data->status;
 		$data->updated_at = Carbon::now();
 		$data->updated_by = $request->login_user_id;
 		$data->update();

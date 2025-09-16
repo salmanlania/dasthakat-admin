@@ -28,6 +28,7 @@ class SaleInvoice extends Model
         "total_quantity",
         "total_amount",
         "total_discount",
+        "status",
         "net_amount",
         "created_by",
         "updated_by"

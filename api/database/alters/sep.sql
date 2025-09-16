@@ -147,3 +147,6 @@ VALUES
         'vp_charge_order_rfq',
         'id'
     );
+
+ALTER TABLE `sale_invoice`
+  ADD COLUMN `status` VARCHAR(50) DEFAULT NULL AFTER `document_date`;

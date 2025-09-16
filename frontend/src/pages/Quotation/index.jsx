@@ -21,6 +21,7 @@ import { setChargeQuotationID } from '../../store/features/chargeOrderSlice';
 import {
   bulkDeleteQuotation,
   deleteQuotation,
+  duplicateQuotation,
   getQuotationForPrint,
   getQuotationList,
   setQuotationDeleteIDs,
@@ -28,6 +29,7 @@ import {
 } from '../../store/features/quotationSlice';
 import generateQuotationExcel from '../../utils/excel/quotation-excel.js';
 import { createQuotationPrint } from '../../utils/prints/quotation-print';
+import { IoDuplicateOutline } from 'react-icons/io5';
 
 const Quotation = () => {
   useDocumentTitle('Quotation List');
@@ -56,6 +58,15 @@ const Quotation = () => {
     try {
       await dispatch(deleteQuotation(id)).unwrap();
       toast.success('Quotation deleted successfully');
+      dispatch(getQuotationList(formattedParams)).unwrap();
+    } catch (error) {
+      handleError(error);
+    }
+  };
+  const onQuotationDuplicate = async (id) => {
+    try {
+      await dispatch(duplicateQuotation(id)).unwrap();
+      toast.success('Quotation duplicated successfully');
       dispatch(getQuotationList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
@@ -369,6 +380,22 @@ const Quotation = () => {
           </div>
 
           <div className="flex items-center gap-1">
+            <Tooltip title="Duplicate Quotation">
+                  <Popconfirm
+                  title="Are you sure you want to duplicate?"
+                  description=""
+                  okButtonProps={{ danger: true }}
+                  okText="Yes"
+                  cancelText="No"
+                  onConfirm={() => onQuotationDuplicate(quotation_id)}>
+                  <Button
+                size="small"
+                type="primary"
+                className='bg-yellow-500 hover:!bg-yellow-400'
+                icon={<IoDuplicateOutline size={14} />}
+              />
+                </Popconfirm>
+            </Tooltip>
             {permissions.edit ? (
               <Tooltip title="Edit">
                 <Link to={`/quotation/edit/${quotation_id}`}>
@@ -507,14 +534,14 @@ const Quotation = () => {
               rowSelection={
                 permissions.delete
                   ? {
-                      type: 'checkbox',
-                      selectedRowKeys: deleteIDs,
-                      onChange: (selectedRowKeys) =>
-                        dispatch(setQuotationDeleteIDs(selectedRowKeys)),
-                      getCheckboxProps: (record) => ({
-                        disabled: record.isEventHeader,
-                      }),
-                    }
+                    type: 'checkbox',
+                    selectedRowKeys: deleteIDs,
+                    onChange: (selectedRowKeys) =>
+                      dispatch(setQuotationDeleteIDs(selectedRowKeys)),
+                    getCheckboxProps: (record) => ({
+                      disabled: record.isEventHeader,
+                    }),
+                  }
                   : null
               }
               loading={isListLoading}

@@ -282,6 +282,40 @@ class PurchaseOrderController extends Controller
 		if (!isPermission('add', 'purchase_order', $request->permission_list))
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
+		if($request->purchase_order_id){
+
+			try {
+			DB::beginTransaction();
+				
+			$originalOrder = PurchaseOrder::find($request->purchase_order_id);
+			if (!$originalOrder) {
+				return $this->jsonResponse("Original Purchase Order not found", 404, "Not Found");
+			}
+			$document = DocumentType::getNextDocument($this->document_type_id, $request);
+			
+			$newOrder = $originalOrder->replicate();
+			$newOrder->purchase_order_id = $this->get_uuid(); // Assign a new ID
+			$newOrder->document_type_id = $document['document_type_id'] ?? "";
+			$newOrder->document_no = $document['document_no'] ?? "";
+			$newOrder->document_prefix = $document['document_prefix'] ?? "";
+			$newOrder->document_identity = $document['document_identity'] ?? "";
+			$newOrder->save();
+
+			// Duplicate the Purchase Order Details
+			foreach ($originalOrder->purchase_order_detail as $detail) {
+				$newDetail = $detail->replicate();
+				$newDetail->purchase_order_detail_id = $this->get_uuid(); // Assign a new ID
+				$newDetail->purchase_order_id = $newOrder->purchase_order_id;
+				$newDetail->save();
+			}
+			DB::commit();
+			return $this->jsonResponse(['purchase_order_id' => $newOrder->purchase_order_id], 200, "Duplicate Purchase Order Successfully!");
+		} catch (\Exception $e) {
+			DB::rollBack(); // Rollback on error
+			Log::error('Purchase Order Duplicate Error: ' . $e->getMessage());
+			return $this->jsonResponse("Something went wrong while duplicating Purchase Order.", 500, "Transaction Failed");
+		}
+		}else{
 		// Validation Rules
 		$isError = $this->validateRequest($request->all());
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
@@ -353,6 +387,8 @@ class PurchaseOrderController extends Controller
 			Log::error('Purchase Order Store Error: ' . $e->getMessage());
 			return $this->jsonResponse("Something went wrong while saving Purchase Order.", 500, "Transaction Failed");
 		}
+		}
+
 	}
 
 	public function update(Request $request, $id)

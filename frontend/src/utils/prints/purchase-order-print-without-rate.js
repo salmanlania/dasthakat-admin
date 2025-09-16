@@ -18,7 +18,7 @@ const fillEmptyRows = (rows, rowsPerPage) => {
   return rows;
 };
 
-const addHeader = (doc, data, sideMargin) => {
+const addHeader = (doc, data, sideMargin) => {  
 
   // doc.addImage(GMSLogo, 'PNG', 88, 5, 32, 26); // Centered logo
   doc.addImage(GMSLogo, 'PNG', 20, 1, 35, 26);
@@ -45,6 +45,23 @@ const addHeader = (doc, data, sideMargin) => {
   doc.setFontSize(15); // Set font size
   doc.setFont('times', 'bolditalic'); // Set font style (italic and bold)
   doc.text('Purchase Order', 26, 39); // Centered text
+
+  
+  if (data.remarks) {
+    const notesBoxHeight = 35; // Adjust height based on content
+    // doc.setDrawColor(0, 0, 0);
+    // doc.setLineWidth(0.3);
+    // doc.rect(4, 45, 99, notesBoxHeight); // x, y, width, height 
+    // doc.setLineWidth(0.3);
+
+    doc.setFontSize(10); 
+    doc.setFont('times', 'bold');
+    doc.text('Remarks:', 6, 45 + 5); // x, y
+    doc.setFont('times', 'normal');
+    doc.setFontSize(8); 
+    const splitNotes = doc.splitTextToSize(data.remarks, 90);
+    doc.text(splitNotes, 6, 45 + 10);
+  }
 
   // *** Right side boxes ***
   let startX = 126;

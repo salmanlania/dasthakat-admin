@@ -130,4 +130,8 @@ class Quotation extends Model
     {
         return $this->hasOne(User::class, 'user_id', 'person_incharge_id')->select('user_id', 'user_name');
     }
+    public function commission_agent()
+    {
+        return $this->hasMany(QuotationCommissionAgent::class, 'quotation_id', 'quotation_id');
+    }
 }
