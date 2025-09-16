@@ -86,6 +86,7 @@ class PurchaseOrderController extends Controller
 					->orWhere('q.document_identity', 'like', "%$search%")
 					->orWhere('c.name', 'like', "%$search%")
 					->orWhere('v.name', 'like', "%$search%")
+					->orWhere('st.name', 'like', "%$search%")
 					->orWhere('ship_via', 'like', "%$search%")
 					->orWhere('e.event_code', 'like', "%$search%")
 					->orWhere('co.document_identity', 'like', "%$search%")
