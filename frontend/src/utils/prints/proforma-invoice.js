@@ -30,22 +30,6 @@ const mergePDFs = async (quotationPDFBlob, titleText) => {
   window.open(finalUrl, '_blank');
 };
 
-// const fillEmptyRows = (rows, rowsPerPage, notesLength = 1) => {
-//   const rowsOnLastPage = rows.length % rowsPerPage;
-//   const emptyRowsNeeded = rowsOnLastPage ? rowsPerPage - rowsOnLastPage : 0;
-
-//   const totalRowsToAdd =
-//     emptyRowsNeeded < notesLength
-//       ? emptyRowsNeeded + rowsPerPage - notesLength
-//       : emptyRowsNeeded - notesLength;
-
-//   for (let i = 0; i < totalRowsToAdd; i++) {
-//     rows.push(['', '', '', '', '', '', '', '', '']);
-//   }
-
-//   return rows;
-// };
-
 const fillEmptyRows = (rows, rowsPerPage) => {
   const totalRows = rows.length;
   const fullPages = Math.floor(totalRows / rowsPerPage);
@@ -331,42 +315,211 @@ export const createProformaInvoicePrint = async (data) => {
   }
 
   // --- Calculate how many empty rows are needed to keep notes+USD on same page ---
-  // Estimate the height needed for the notes area
   const notesRowHeight = 14; // estimated per row
   const notesRows = 2;
   const notesHeight = notesRows * notesRowHeight + 10; // +10 for padding
 
-  // Estimate table row height
   const tableRowHeight = 10; // as set in didParseCell
-  const rowsPerPage = 9;
+  // const rowsPerPage = 9;
+  const minRowsBeforeNotes = 9;
+  const maxRowsBeforeNotes = 11;
   const totalRows = table2Rows.length;
-  const fullPages = Math.floor(totalRows / rowsPerPage);
-  const rowsOnLastPage = totalRows % rowsPerPage || rowsPerPage;
+  let rowsOnLastPage = totalRows % maxRowsBeforeNotes || maxRowsBeforeNotes;
+  const emptyRowsNeeded = minRowsBeforeNotes - rowsOnLastPage;
 
-  // Calculate available space after last table row
-  // Table starts at 120, page height is usually 297 (A4), bottom margin is 40
+  // Calculate available space after last table row if we add empty rows
   const pageHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();
   const tableStartY = 120;
-  const tableEndY = tableStartY + tableRowHeight * rowsOnLastPage;
-  const spaceAfterTable = pageHeight - tableEndY - 40;
+  const tableEndYWithEmpty = tableStartY + tableRowHeight * (rowsOnLastPage + emptyRowsNeeded);
+  const spaceAfterTableWithEmpty = pageHeight - tableEndYWithEmpty;
 
   let filledRows = [...table2Rows];
 
-  if (rowsOnLastPage < rowsPerPage) {
-    // If there is enough space for notes, fill empty rows to make 9 rows
-    if (spaceAfterTable >= notesHeight) {
-      const emptyRowsNeeded = rowsPerPage - rowsOnLastPage;
+  // if (rowsOnLastPage < rowsPerPage) {
+  //   for (let i = 0; i < emptyRowsNeeded; i++) {
+  //     filledRows.push(['', '', '', '', '', '', '', '', '']);
+  //   }
+  // }
+
+  // figure out last page check safely
+  const totalPages = doc.internal.getNumberOfPages();
+  const currentPages = totalPages; // we’re on the active page
+  const isLastPage = currentPages === totalPages;
+
+  if (rowsOnLastPage < minRowsBeforeNotes) {
+    const pad = minRowsBeforeNotes - rowsOnLastPage;
+    for (let i = 0; i < pad; i++) {
+      table2Rows.push(['', '', '', '', '', '', '', '', '']);
+    }
+    rowsOnLastPage = minRowsBeforeNotes;
+  }
+
+  // Case 1: Not last page → always pad
+  if (!isLastPage && emptyRowsNeeded > 0) {
+    for (let i = 0; i < emptyRowsNeeded; i++) {
+      filledRows.push(['', '', '', '', '', '', '', '', '']);
+    }
+  }
+
+  // Case 2: Last page → only pad if notes don't fit
+  if (isLastPage && emptyRowsNeeded > 0) {
+    const spaceLeft = spaceAfterTableWithEmpty; // pageHeight - finalY - bottomMargin
+    if (spaceLeft < notesHeight) {
       for (let i = 0; i < emptyRowsNeeded; i++) {
         filledRows.push(['', '', '', '', '', '', '', '', '']);
       }
     }
-    // else: do not fill, so notes/total will go to next page
   }
+
+  // else: do not fill, so notes/total will go to next page or right after last record
+
+  // doc.autoTable({
+  //   startY: tableStartY,
+  //   head: [table2Column],
+  //   body: filledRows,
+  //   margin: { left: sideMargin, right: sideMargin, bottom: 50, top: 120 },
+  //   showHead: 'everyPage',
+  //   tableLineWidth: 0.1,
+  //   headStyles: {
+  //     fontSize: 8,
+  //     fontStyle: 'bold',
+  //     halign: 'center',
+  //     valign: 'middle',
+  //     textColor: [32, 50, 114],
+  //     fillColor: [221, 217, 196]
+  //   },
+  //   styles: {
+  //     halign: 'center',
+  //     valign: 'middle',
+  //     font: 'times',
+  //     fontSize: 8,
+  //     lineWidth: 0.1,
+  //     lineColor: [116, 116, 116]
+  //   },
+  //   bodyStyles: {
+  //     textColor: [32, 50, 114],
+  //     fillColor: [255, 255, 255]
+  //   },
+  //   alternateRowStyles: {
+  //     fillColor: [255, 255, 255]
+  //   },
+  //   rowPageBreak: 'avoid',
+  //   columnStyles: {
+  //     0: { cellWidth: 10 },
+  //     1: { cellWidth: 80 },
+  //     2: { cellWidth: 11 },
+  //     3: { cellWidth: 10 },
+  //     4: { cellWidth: 17 },
+  //     5: { cellWidth: 19 },
+  //     6: { cellWidth: 14 },
+  //     7: { cellWidth: 14 },
+  //     8: { cellWidth: 27 }
+  //   },
+  //   didParseCell: function (data) {
+  //     data.cell.styles.minCellHeight = 10;
+  //   },
+  // });
+
+  const totalAmountFromDetails = data?.charge_order_detail
+    ? data?.charge_order_detail.reduce((sum, detail) => sum + (parseFloat(detail?.amount) || 0), 0)
+    : 0;
+
+  const totalDiscount = data?.charge_order_detail
+    ? data?.charge_order_detail.reduce((sum, detail) => sum + (parseFloat(detail?.discount_amount) || 0), 0)
+    : 0;
+
+  const baseTotal = data.total_amount || totalAmountFromDetails;
+
+  const finalTotal = baseTotal - totalDiscount;
+
+  const netFinalAmount = data?.net_amount ? data?.net_amount : finalTotal;
+
+  const totalGrossAmount = `$${formatThreeDigitCommas(netFinalAmount)}`;
+
+  let finalRows = [...table2Rows];
+
+  if (rowsOnLastPage < minRowsBeforeNotes) {
+    const pad = minRowsBeforeNotes - rowsOnLastPage;
+    for (let i = 0; i < pad; i++) {
+      table2Rows.push(['', '', '', '', '', '', '', '', '']);
+    }
+    rowsOnLastPage = minRowsBeforeNotes;
+  }
+
+  // table2Rows.push([
+  //   {
+  //     content: 'Remit Payment to: Global Marine Safety Service Inc\nFrost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44',
+  //     colSpan: 6,
+  //     styles: { fontStyle: 'bold', fontSize: 9, halign: 'left' }
+  //   },
+  //   {
+  //     content: 'USD Total:',
+  //     colSpan: 2,
+  //     styles: { fontStyle: 'bold', halign: 'right', fontSize: 13 }
+  //   },
+  //   {
+  //     content: totalGrossAmount,
+  //     styles: { fontStyle: 'bold', halign: 'right', fontSize: 9 }
+  //   }
+  // ]);
+
+  // table2Rows.push([
+  //   {
+  //     content: 'Note: Any invoice discrepancies must be reported prior to invoice due date. Also please arrange payment in full by due date in order to avoid any late fee or additional charges. Appropriate wire fee must be included in order to avoid short payment resulting in additional charges.',
+  //     colSpan: 9,
+  //     styles: { fontStyle: 'italic', fontSize: 8, halign: 'center' }
+  //   }
+  // ]);
+
+  // ✅ Single AutoTable for Table 2 + USD + Notes
+
+  const usdRow = [
+    {
+      content: 'Remit Payment to: Global Marine Safety Service Inc\nFrost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44',
+      colSpan: 6,
+      styles: { fontStyle: 'bold', fontSize: 9, halign: 'left' }
+    },
+    {
+      content: 'USD Total:',
+      colSpan: 2,
+      styles: { fontStyle: 'bold', halign: 'right', fontSize: 12 }
+    },
+    {
+      content: totalGrossAmount,
+      styles: { fontStyle: 'bold', halign: 'right', fontSize: 9 }
+    }
+  ];
+
+  const notesRow = [
+    {
+      content: 'Note: Any invoice discrepancies must be reported prior to invoice due date. Also please arrange payment in full by due date in order to avoid any late fee or additional charges. Appropriate wire fee must be included in order to avoid short payment resulting in additional charges.',
+      colSpan: 9,
+      styles: { fontStyle: 'italic', fontSize: 8, halign: 'center' }
+    }
+  ];
+
+  const neededBlockHeight = 12;
+  const remainingSpace = (doc.internal.pageSize.height) - (doc.lastAutoTable?.finalY || 120);
+
+  if (remainingSpace < neededBlockHeight) {
+    table2Rows.push(['', '', '', '', '', '', '', '', '']);
+  }
+
+  notesRow.rowPageBreak = 'avoid';
+  table2Rows.push(usdRow);
+  table2Rows.push(notesRow);
+
+  let rowCounter = 0;
+  let currentPage = 1;
+
+  const maxRowsPerPage = 9;
+  const reservedLines = 3;
+  const effectiveLimit = maxRowsPerPage - reservedLines;
 
   doc.autoTable({
     startY: tableStartY,
     head: [table2Column],
-    body: filledRows,
+    body: table2Rows,
     margin: { left: sideMargin, right: sideMargin, bottom: 50, top: 120 },
     showHead: 'everyPage',
     tableLineWidth: 0.1,
@@ -390,138 +543,69 @@ export const createProformaInvoicePrint = async (data) => {
       textColor: [32, 50, 114],
       fillColor: [255, 255, 255]
     },
-    alternateRowStyles: {
-      fillColor: [255, 255, 255]
-    },
+    alternateRowStyles: { fillColor: [255, 255, 255] },
     rowPageBreak: 'avoid',
-    columnStyles: {
-      0: { cellWidth: 10 },
-      1: { cellWidth: 80 },
-      2: { cellWidth: 11 },
-      3: { cellWidth: 10 },
-      4: { cellWidth: 17 },
-      5: { cellWidth: 19 },
-      6: { cellWidth: 14 },
-      7: { cellWidth: 14 },
-      8: { cellWidth: 27 }
-    },
-    didParseCell: function (data) {
-      data.cell.styles.minCellHeight = 10;
-    },
-  });
-
-  const totalAmountFromDetails = data?.charge_order_detail
-    ? data?.charge_order_detail.reduce((sum, detail) => sum + (parseFloat(detail?.amount) || 0), 0)
-    : 0;
-
-  const totalDiscount = data?.charge_order_detail
-    ? data?.charge_order_detail.reduce((sum, detail) => sum + (parseFloat(detail?.discount_amount) || 0), 0)
-    : 0;
-
-  const baseTotal = data.total_amount || totalAmountFromDetails;
-
-  const finalTotal = baseTotal - totalDiscount;
-
-  const netFinalAmount = data?.net_amount ? data?.net_amount : finalTotal;
-
-  const totalGrossAmount = `$${formatThreeDigitCommas(netFinalAmount)}`;
-
-  let notes = [
-    [
-      {
-        content: 'Remit Payment to: Global Marine Safety Service Inc\nFrost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44',
-        colSpan: 6,
-        styles: {
-          fontStyle: 'bold',
-          fontSize: 9,
-          halign: 'left',
-        }
-      },
-      {
-        content: 'USD Total:',
-        colSpan: 2,
-        styles: {
-          fontStyle: 'bold',
-          halign: 'right',
-          fontSize: 13
-        }
-      },
-      {
-        content: totalGrossAmount,
-        styles: {
-          fontStyle: 'bold',
-          halign: 'right',
-          fontSize: 9
-        }
-      }
-    ],
-    [
-      {
-        content: 'Note: Any invoice discrepancies must be reported prior to invoice due date. Also please arrange payment in full by due date in order to avoid any late fee or additional charges. Appropriate wire fee must be included in order to avoid short payment resulting in additional charges.',
-        colSpan: 9,
-        styles: {
-          fontStyle: 'italic',
-          fontSize: 8,
-          halign: 'center'
-        }
-      }
-    ]
-  ];
-
-  // Place notes and USD total right after last table row, unless forced to new page
-  let notesStartY = doc.previousAutoTable.finalY + 2;
-  let currentPage = doc.internal.getCurrentPageInfo().pageNumber;
-  let lastPage = doc.internal.getNumberOfPages();
-  let notesOnNewPage = false;
-
-  console.log('pageHeight', pageHeight);
-  console.log('notesStartY', notesStartY);
-  console.log('notesHeight', notesHeight);
-  // If not enough space, add a new page for notes
-  if ((pageHeight - notesStartY) < notesHeight) {
-    doc.addPage();
-    notesStartY = 120;
-    notesOnNewPage = true;
-  }
-
-  doc.autoTable({
-    startY: notesStartY,
-    head: [],
-    body: notes,
-    margin: { left: sideMargin, right: sideMargin, bottom: 40, top: 110 },
-    pageBreak: 'avoid',
-    rowPageBreak: 'avoid',
-    styles: {
-      lineWidth: 0.1,
-      lineColor: [116, 116, 116],
-      valign: 'middle',
-      halign: 'center',
-      font: 'times'
-    },
-    bodyStyles: {
-      fontSize: 8,
-      textColor: [32, 50, 114],
-      fillColor: [255, 255, 255],
-      valign: 'middle',
-      halign: 'center'
-    },
-    alternateRowStyles: {
-      fillColor: [255, 255, 255]
-    },
-    columnStyles: {
-      0: { cellWidth: 25 },
-      1: { cellWidth: 66 },
-      2: { cellWidth: 10 },
-      3: { cellWidth: 10 },
-      4: { cellWidth: 17 },
-      5: { cellWidth: 19 },
-      6: { cellWidth: 14 },
-      7: { cellWidth: 14 },
-      8: { cellWidth: 27 }
-    },
     didParseCell: (data) => {
       data.cell.styles.minCellHeight = 10;
     },
+    // didDrawCell: (data) => {
+    //   if (data.section === "body" && data.column.index === 0) {
+    //     const pageNum = doc.internal.getCurrentPageInfo().pageNumber;
+
+    //     // reset counter when page changes
+    //     if (pageNum !== currentPage) {
+    //       currentPage = pageNum;
+    //       rowCounter = 0;
+    //     }
+
+    //     // figure out how many "visual rows" this row takes
+    //     const minHeight = 10; // same as your minCellHeight
+    //     const visualRows = Math.ceil(data.row.height / minHeight);
+
+    //     // but count only once per row index (on first column)
+    //     if (data.column.index === 0 && data.row.section === "body") {
+    //       rowCounter += visualRows;
+    //     }
+    //   }
+    // },
+    // willDrawCell: (data) => {
+    //   const isUsdRow = data.row.raw === usdRow;
+    //   const isNotesRow = data.row.raw === notesRow;
+
+    //   if ((isUsdRow || isNotesRow) && data.cursor && data.cursor.y > (doc.internal.pageSize.height - 60)) {
+    //     // Not enough space left → force new page BEFORE these rows
+    //     doc.addPage();
+    //     data.cursor.y = 120; // restart table Y
+    //   }
+    // }
+    willDrawCell: (data) => {
+      if (data.section === "body" && data.column.index === 0) {
+        const pageNum = doc.internal.getCurrentPageInfo().pageNumber;
+
+        // reset on new page
+        if (pageNum !== currentPage) {
+          currentPage = pageNum;
+          rowCounter = 0;
+        }
+
+        const minHeight = 10;
+        const visualRows = Math.ceil(data.row.height / minHeight);
+
+        // break if row would exceed limit
+        if (rowCounter + visualRows > maxRowsPerPage) {
+          data.row.pageBreak = "before";
+          rowCounter = 0; // reset for next page
+        }
+      }
+    },
+
+    didDrawCell: (data) => {
+      if (data.section === "body" && data.column.index === 0) {
+        const minHeight = 10;
+        const visualRows = Math.ceil(data.row.height / minHeight);
+        rowCounter += visualRows;
+      }
+    }
   });
 
   const pageCount = doc.internal.getNumberOfPages();
