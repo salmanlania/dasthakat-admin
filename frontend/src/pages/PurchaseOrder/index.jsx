@@ -51,6 +51,21 @@ export const purchaseOrderTypes = [
   },
 ];
 
+export const shipViaOptions = [
+  {
+    value: 'courier',
+    label: 'Courier'
+  },
+  {
+    value: 'pickup',
+    label: 'Pickup'
+  },
+  {
+    value: 'delivery',
+    label: 'Delivery'
+  },
+];
+
 const PurchaseOrder = () => {
   useDocumentTitle('Purchase Order List');
   const dispatch = useDispatch();
@@ -301,6 +316,32 @@ const PurchaseOrder = () => {
     {
       title: (
         <div>
+          <p>Ship Via</p>
+          <Select
+            className="w-full font-normal"
+            size="small"
+            allowClear
+            value={params.ship_via}
+            options={shipViaOptions}
+            onChange={(e) =>
+              dispatch(
+                setPurchaseOrderListParams({
+                  ship_via: e,
+                }),
+              )
+            }
+          />
+        </div>
+      ),
+      dataIndex: 'ship_via',
+      key: 'ship_via',
+      sorter: true,
+      width: 140,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div>
           <p>Quotation No</p>
           <Input
             className="font-normal"
@@ -473,7 +514,7 @@ const PurchaseOrder = () => {
       render: (record, { purchase_order_id }) => {
         return (
           <div className="flex flex-wrap items-center gap-2">
-             
+
             {permissions.edit ? (
               <>
                 <Tooltip title="Print without rate">
@@ -494,31 +535,31 @@ const PurchaseOrder = () => {
                     onClick={() => printPurchaseOrder(purchase_order_id)}
                   />
                 </Tooltip>
-                  </>
-                ) : null}
-                {
-                  record.type === "Inventory" &&
-                <Tooltip title="Duplicate Purchase Order">
-                              <Popconfirm
-                              title="Are you sure you want to duplicate?"
-                              description=""
-                              okButtonProps={{ danger: true }}
-                              okText="Yes"
-                              cancelText="No"
-                              onConfirm={() => onPurchaseOrderDuplicate(purchase_order_id)}
-                              >
-                              <Button
-                            size="small"
-                            type="primary"
-                            className='bg-yellow-500 hover:!bg-yellow-400'
-                            icon={<IoDuplicateOutline size={14} />}
-                          />
-                            </Popconfirm>
-                        </Tooltip>
-                }
+              </>
+            ) : null}
+            {
+              record.type === "Inventory" &&
+              <Tooltip title="Duplicate Purchase Order">
+                <Popconfirm
+                  title="Are you sure you want to duplicate?"
+                  description=""
+                  okButtonProps={{ danger: true }}
+                  okText="Yes"
+                  cancelText="No"
+                  onConfirm={() => onPurchaseOrderDuplicate(purchase_order_id)}
+                >
+                  <Button
+                    size="small"
+                    type="primary"
+                    className='bg-yellow-500 hover:!bg-yellow-400'
+                    icon={<IoDuplicateOutline size={14} />}
+                  />
+                </Popconfirm>
+              </Tooltip>
+            }
 
-                {permissions.edit ? (
-                  <>
+            {permissions.edit ? (
+              <>
                 <Tooltip title="Edit">
                   <Link to={`/purchase-order/edit/${purchase_order_id}`}>
                     <Button
@@ -607,6 +648,9 @@ const PurchaseOrder = () => {
     params.event_id,
     params.sales_team_id,
     params.sales_team_ids,
+    params.ship_via,
+    params.charge_no,
+    params.quotation_no,
     params.vessel_id,
     debouncedSearch,
     debouncedPurchaseOrderNo,

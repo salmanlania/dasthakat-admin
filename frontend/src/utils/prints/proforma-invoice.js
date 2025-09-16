@@ -211,13 +211,11 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
       0: { cellWidth: 19 },
       1: { cellWidth: 24 },
       2: { cellWidth: 22 },
-      3: { cellWidth: 45 },
-      4: { cellWidth: 35 },
+      3: { cellWidth: 46 },
+      4: { cellWidth: 36 },
       5: { cellWidth: 19 },
       6: { cellWidth: 19 },
-      7: { cellWidth: 15 },
-      8: { cellWidth: 22 },
-      9: { cellWidth: 15 },
+      7: { cellWidth: 17 },
     },
     didParseCell: function (data) {
       data.cell.styles.minCellHeight = 7;
@@ -384,7 +382,7 @@ export const createProformaInvoicePrint = async (data) => {
     ]
   ];
 
-  const filledRows = fillEmptyRows(table2Rows, 9, notes.length + 1);
+  const filledRows = fillEmptyRows(table2Rows, 8, notes.length + 1);
   // const filledRows = fillEmptyRowsForNotes(table2Rows, 9, 2);
   filledRows.push(...notes);
 
@@ -428,15 +426,15 @@ export const createProformaInvoicePrint = async (data) => {
     rowPageBreak: 'avoid',
 
     columnStyles: {
-      0: { cellWidth: 10 },
-      1: { cellWidth: 80 },
+      0: { cellWidth: 13 },
+      1: { cellWidth: 74 },
       2: { cellWidth: 11 },
       3: { cellWidth: 10 },
       4: { cellWidth: 17 },
       5: { cellWidth: 19 },
-      6: { cellWidth: 14 },
-      7: { cellWidth: 14 },
-      8: { cellWidth: 27 }
+      6: { cellWidth: 18 },
+      7: { cellWidth: 20 },
+      8: { cellWidth: 20 },
     },
     didParseCell: function (data) {
       data.cell.styles.minCellHeight = 13;
