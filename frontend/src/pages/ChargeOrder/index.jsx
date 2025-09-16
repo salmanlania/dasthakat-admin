@@ -132,7 +132,7 @@ const ChargeOrder = () => {
   };
 
   const printProforma = async (id) => {
-    const loadingToast = toast.loading('Loading Proforma print...');
+    const loadingToast = toast.loading('Loading Proforma Print...');
     try {
       const data = await dispatch(getChargeOrder(id)).unwrap()
       createProformaInvoicePrint(data, true);

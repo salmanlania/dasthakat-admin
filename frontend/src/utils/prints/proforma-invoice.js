@@ -461,5 +461,5 @@ export const createProformaInvoicePrint = async (data) => {
     title: titleData
   });
   const pdfBlob = doc.output('blob');
-  await mergePDFs(pdfBlob, `Proforma- ${titleData}`);
+  await mergePDFs(pdfBlob, titleData);
 };

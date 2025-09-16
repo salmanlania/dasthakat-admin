@@ -461,5 +461,5 @@ export const createEstimateInvoicePrint = async (data) => {
     title: titleData
   });
   const pdfBlob = doc.output('blob');
-  await mergePDFs(pdfBlob, `Estimate- ${titleData}`);
+  await mergePDFs(pdfBlob, titleData);
 };

@@ -461,11 +461,11 @@ export const createSaleInvoicePrint = async (data) => {
     addFooter(doc, pageWidth, pageHeight - 25);
   }
 
-  const titleData = `Sale Invoice- ${data?.document_identity ? data?.document_identity : ''} - ${data?.vessel?.name ? data?.vessel?.name : ''}`
+  const titleData = `Sale Invoice - ${data.document_identity} - ${data?.charge_order?.vessel?.name}`
 
   doc.setProperties({
     title: titleData
   });
   const pdfBlob = doc.output('blob');
-  await mergePDFs(pdfBlob, `Sale Invoice- ${titleData}`);
+  await mergePDFs(pdfBlob, titleData);
 };
