@@ -5,6 +5,7 @@ import { MdOutlineAddCircle } from 'react-icons/md';
 import api from '../../axiosInstance';
 import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
+import { useNavigate } from 'react-router-dom';
 
 const { Option } = Select;
 
@@ -31,7 +32,7 @@ const AsyncSelect = ({
   const [searchValue, setSearchValue] = useState('');
   const dropdownRef = useRef();
   const handleError = useError();
-
+  const navigate = useNavigate();
   const debouncedSearch = useDebounce(searchValue, 500);
 
   const isAddNewVisible = addNewLink && !props?.disabled;
@@ -106,6 +107,7 @@ const AsyncSelect = ({
       onSearch={handleInputChange}
       onClear={() => {
         setSearchValue('');
+        navigate('/charge-order')
       }}
       loading={loading}
       filterOption={false}
