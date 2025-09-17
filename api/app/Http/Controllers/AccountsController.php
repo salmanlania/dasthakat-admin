@@ -184,7 +184,7 @@ class AccountsController extends Controller
         $data->company_id  = $request->company_id;
         $data->gl_type_id  = $request->gl_type_id ?? $data->gl_type_id;
         $data->account_code = $request->account_code ?? $data->account_code;
-        $data->parent_account_id = $request->parent_account_id ?? $data->parent_account_id;
+        $data->parent_account_id = $request->parent_account_id ?? "";
         $data->name        = $request->name ?? $data->name;
         $data->status      = $request->status ?? $data->status;
         $data->updated_at  = Carbon::now();
