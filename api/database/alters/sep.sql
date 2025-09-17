@@ -150,3 +150,46 @@ VALUES
 
 ALTER TABLE `sale_invoice`
   ADD COLUMN `status` VARCHAR(50) DEFAULT NULL AFTER `document_date`;
+CREATE TABLE `accounts` (
+    `account_id` CHAR(36) NOT NULL,
+    `company_id` CHAR(36) NOT NULL,
+    `gl_type_id` INT(11) NOT NULL,
+    `parent_account_id` CHAR(36) NULL,
+    `account_code` VARCHAR(100) NOT NULL,
+    `name` VARCHAR(255) NOT NULL,
+    `status` TINYINT(1) NOT NULL DEFAULT 1,
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_by` CHAR(36) NULL,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by` CHAR(36) NULL,
+    PRIMARY KEY (`account_id`),
+    KEY `idx_company_id` (`company_id`),
+    KEY `idx_gl_type_id` (`gl_type_id`),
+    KEY `idx_parent_account_id` (`parent_account_id`)
+);
+ALTER TABLE `accounts` ADD COLUMN `head_account_id` INT(11) NULL AFTER `parent_account_id`;
+
+CREATE TABLE `account_heads` (
+  `head_account_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `company_id` CHAR(36) NOT NULL,
+  `head_account_name` VARCHAR(255) NOT NULL,
+  `head_account_type` int(11) NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` CHAR(36) NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_by` CHAR(36) NULL,
+  PRIMARY KEY (`head_account_id`)
+);
+
+ALTER TABLE `accounts` DROP COLUMN `head_account_id`;
+DROP TABLE `account_heads`;
+
+CREATE TABLE `const_gl_type` (
+	`gl_type_id` INT(11) ,
+	`name` VARCHAR(255) DEFAULT NULL
+); 
+INSERT INTO `const_gl_type` (`gl_type_id`, `name`) VALUES('1','Assets');
+INSERT INTO `const_gl_type` (`gl_type_id`, `name`) VALUES('2','Liabilities');
+INSERT INTO `const_gl_type` (`gl_type_id`, `name`) VALUES('3','Equity');
+INSERT INTO `const_gl_type` (`gl_type_id`, `name`) VALUES('4','Revenue');
+INSERT INTO `const_gl_type` (`gl_type_id`, `name`) VALUES('5','Expense');

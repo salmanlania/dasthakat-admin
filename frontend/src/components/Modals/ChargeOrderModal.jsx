@@ -226,7 +226,6 @@ const ChargeOrderModal = () => {
         };
       })
     };
-    // return salesmanPercentage
 
     try {
       const res = await dispatch(createChargeOrder({ data })).unwrap();

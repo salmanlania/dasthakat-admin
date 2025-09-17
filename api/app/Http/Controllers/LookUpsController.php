@@ -74,7 +74,7 @@ class LookUpsController extends Controller
         if (!empty($search)) {
             $query->where('name', 'like', '%' . $search . '%');
         }
-        $rows = $query->orderBy('name', 'asc')->get();
+        $rows = $query->orderBy('gl_type_id', 'asc')->get();
 
         return response()->json($rows);
     }
