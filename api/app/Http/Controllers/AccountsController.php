@@ -17,6 +17,7 @@ class AccountsController extends Controller
     {
         $account_code    = $request->input('account_code', '');
         $parent_account_id = $request->input('parent_account_id', '');
+        $exempt_account_id = $request->input('exempt_account_id', '');
        
         $name           = $request->input('name', '');
         $gl_type_id     = $request->input('gl_type_id', '');
@@ -37,6 +38,9 @@ class AccountsController extends Controller
 
         if (!empty($request->company_id)) {
             $data->where('c1.company_id', '=', $request->company_id);
+        }
+        if (!empty($exempt_account_id)) {
+            $data->where('c1.account_id', '!=', $exempt_account_id);
         }
         if (!empty($parent_account_id)) {
             $data->where('c1.parent_account_id', '=', $parent_account_id);
