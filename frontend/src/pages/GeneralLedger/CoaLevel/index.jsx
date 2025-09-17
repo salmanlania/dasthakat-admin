@@ -29,7 +29,7 @@ const CoaLevel = () => {
   const handleError = useError();
   const navigate = useNavigate();
 
-  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs, listID, coaLevelOneList } = useSelector(
+  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs, listID, headAccountList } = useSelector(
     (state) => state.coaAccounts
   );
 
@@ -376,7 +376,7 @@ const CoaLevel = () => {
               }),
             );
           }}
-          dataSource={coaLevelOneList}
+          dataSource={headAccountList}
           showSorterTooltip={false}
           columns={columns}
           sticky={{
