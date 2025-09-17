@@ -87,7 +87,6 @@ const AsyncSelectLedger = ({
   // const handleInputChange = (value) => setSearchValue(value);
   const handleInputChange = (value) => {
     setSearchValue(value);
-    setOpen(true); // Keep dropdown open on search
   };
 
   const handleScroll = () => {

@@ -146,6 +146,10 @@ const BidResponseReport = lazy(() => import('./pages/BidResponseReport'));
 
 //ledger
 
+const CoaLevel = lazy(() => import('./pages/GeneralLedger/CoaLevel'));
+const CreateCoaLevel = lazy(() => import('./pages/GeneralLedger/CoaLevel/CreateCoaLevel'));
+const EditCoaLevel = lazy(() => import('./pages/GeneralLedger/CoaLevel/EditCoaLevel'));
+
 const CoaLevelOne = lazy(() => import('./pages/GeneralLedger/CoaLevelOne'));
 const CreateCoaLevelOne = lazy(() => import('./pages/GeneralLedger/CoaLevelOne/CreateCoaLevelOne'));
 const EditCoaLevelOne = lazy(() => import('./pages/GeneralLedger/CoaLevelOne/EditCoaLevelOne'));
@@ -947,6 +951,31 @@ function Routes() {
           {
             path: '/general-ledger',
             children: [
+                            {
+                path: 'coa/level',
+                element: (
+                  <Suspense fallback={<PageLoader />}>
+                    <CoaLevel />
+                  </Suspense>
+                ),
+              },
+              {
+                path: 'coa/level/create',
+                element: (
+                  <Suspense fallback={<PageLoader />}>
+                    <CreateCoaLevel />
+                  </Suspense>
+                ),
+              },
+              {
+                path: 'coa/level/edit/:id',
+                element: (
+                  <Suspense fallback={<PageLoader />}>
+                    <EditCoaLevel />
+                  </Suspense>
+                ),
+              },
+              // level 1
               {
                 path: 'coa/level1',
                 element: (

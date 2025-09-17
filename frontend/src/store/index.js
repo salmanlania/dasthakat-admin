@@ -24,6 +24,7 @@ import productReducer from './features/productSlice';
 import purchaseInvoiceReducer from './features/purchaseInvoiceSlice';
 import saleInvoiceReducer from './features/saleInvoiceSlice';
 import coaOneReducer from './features/coaOneSlice';
+import coaAccountsReducer from './features/coaAccountsSlice';
 import coaTwoReducer from './features/coaTwoSlice';
 import coaThreeReducer from './features/coaThreeSlice';
 import purchaseOrderReducer from './features/purchaseOrderSlice';
@@ -88,6 +89,7 @@ const rootReducer = combineReducers({
   purchaseInvoice: purchaseInvoiceReducer,
   saleInvoice: saleInvoiceReducer,
   coaOne: coaOneReducer,
+  coaAccounts: coaAccountsReducer,
   coaTwo: coaTwoReducer,
   coaThree: coaThreeReducer,
   saleReturn: SaleReturnReducer,

@@ -125,7 +125,8 @@ const Sidebar = () => {
   const coaPermission =
     !permissions?.coa_level1?.list &&
     !permissions?.coa_level2?.list &&
-    !permissions?.coa_level3?.list
+    !permissions?.coa_level3?.list &&
+    !permissions?.accounts?.list
 
   const warehousingPermission =
     !permissions?.good_received_note?.list &&
@@ -506,6 +507,11 @@ const Sidebar = () => {
               key: 'gl module setting',
               label: 'GL Module Setting',
               disabled: coaPermission,
+            },
+            {
+              key: 'Chart of accounting level',
+              label: <Link to="/general-ledger/coa/level">Chart Of Accounting Level</Link>,
+              disabled: !permissions?.accounts?.list,
             },
             {
               key: 'Chart of accounting level 1',
