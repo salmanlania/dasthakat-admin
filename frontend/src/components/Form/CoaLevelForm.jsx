@@ -176,6 +176,21 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
 
             <Row gutter={12}>
               <Col span={24} sm={12} md={8} lg={12}>
+                <Form.Item name="parent_account" label="Parent Account">
+                  <AsyncSelectLedger
+                    endpoint="/accounts"
+                    valueKey="account_id"
+                    disabled={mode === 'edit' ? true : false}
+                    labelKey="name"
+                    labelInValue
+                    className="w-full"
+                    onChange={(selected) => {
+                      setSelectedParentAccountId(selected?.value || null);
+                    }}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={24} sm={12} md={8} lg={12}>
                 <Form.Item name="gl_types" label="Account Type">
                   <AsyncSelectLedger
                     endpoint="/lookups/gl-types"
@@ -199,6 +214,7 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
                   />
                 </Form.Item>
               </Col>
+
               <Col span={24} sm={12} md={8} lg={12}>
                 <Form.Item name="account_code" label="Account Number">
                   <Input
@@ -241,21 +257,7 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
                 </Form.Item>
               </Col>
            
-              <Col span={24} sm={12} md={8} lg={12}>
-                <Form.Item name="parent_account" label="Parent Account">
-                  <AsyncSelectLedger
-                    endpoint="/accounts"
-                    valueKey="account_id"
-                    disabled={mode === 'edit' ? true : false}
-                    labelKey="name"
-                    labelInValue
-                    className="w-full"
-                    onChange={(selected) => {
-                      setSelectedParentAccountId(selected?.value || null);
-                    }}
-                  />
-                </Form.Item>
-              </Col>
+              
               <Col span={24} sm={12} md={8} lg={12}>
                 <Form.Item name="head_account" label="Head Account"> {/* pl statement */}
                   <AsyncSelectLedger
