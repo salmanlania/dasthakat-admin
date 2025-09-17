@@ -18,7 +18,7 @@ class AccountsController extends Controller
         $account_code    = $request->input('account_code', '');
         $parent_account_id = $request->input('parent_account_id', '');
         $exempt_account_id = $request->input('exempt_account_id', '');
-       
+
         $name           = $request->input('name', '');
         $gl_type_id     = $request->input('gl_type_id', '');
         $status         = $request->input('status', '');
@@ -83,11 +83,11 @@ class AccountsController extends Controller
         $parent_account_id = $request->input('parent_account_id', '');
         $data = Accounts::query();
 
-        if(!empty($gl_type_id)){
-            $data->where('gl_type_id',$gl_type_id);
+        if (!empty($gl_type_id)) {
+            $data->where('gl_type_id', $gl_type_id);
         }
-        if(!empty($parent_account_id)){
-            $data->where('parent_account_id',$parent_account_id);
+        if (!empty($parent_account_id)) {
+            $data->where('parent_account_id', $parent_account_id);
         }
 
         $data = $data->get();
@@ -135,8 +135,17 @@ class AccountsController extends Controller
         $rules = [
             'company_id'   => ['required'],
             'gl_type_id'   => ['required', 'integer'],
-            'account_code'  => ['required', Rule::unique('accounts')->ignore($id, 'account_id')->where('company_id', $request['company_id'])],
-            'name'         => ['required', Rule::unique('accounts')->ignore($id, 'account_id')->where('company_id', $request['company_id'])],
+            'account_code'  => [
+                'required',
+                Rule::unique('accounts')
+                    ->ignore($id, 'account_id')
+                    ->where(function ($query) use ($request) {
+                        return $query->where('company_id', $request['company_id'])
+                            ->where('gl_type_id', $request['gl_type_id'])
+                            ->where('parent_account_id', $request['parent_account_id']);
+                    }),
+            ],
+            'name'         => ['required'],
             'status'       => ['nullable', 'integer']
         ];
 
