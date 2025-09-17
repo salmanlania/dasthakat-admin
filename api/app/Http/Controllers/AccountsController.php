@@ -83,9 +83,9 @@ class AccountsController extends Controller
 
         if (!empty($gl_type_id)) {
             if (in_array($gl_type_id, [1, 2, 3])) {
-                $data->where('head_account_id', 2);
+                $data->where('head_account_type', 2);
             } else {
-                $data->where('head_account_id', 1);
+                $data->where('head_account_type', 1);
             }
         }
 
