@@ -8,10 +8,12 @@ import { getAccountsList, getAccountCode, getHeadAccountList } from '../../store
 import AsyncSelectLedger from '../AsyncSelectLedger';
 import DebounceInput from '../Input/DebounceInput';
 import AsyncSelectLedgerParent from '../AsyncSelectLedgerParent';
+import useError from '../../hooks/useError';
 
 const CoaLevelForm = ({ mode, onSubmit, onSave, onNew }) => {
   const [form] = Form.useForm();
   const { id } = useParams();
+  const handleError = useError();
   const dispatch = useDispatch();
   const { isFormSubmitting, initialFormValues, initialFormCodeValues, isListLoading, headAccountList } = useSelector(
     (state) => state.coaAccounts
@@ -22,30 +24,13 @@ const CoaLevelForm = ({ mode, onSubmit, onSave, onNew }) => {
   const [shouldSyncData, setShouldSyncData] = useState(true);
   const [accountType, setAccountType] = useState(null);
   const [initialData, setInitialData] = useState(null);
-
-  const onFinish = async (values) => {
-    const data = {
-      gl_type_id: values?.gl_types?.value ? values?.gl_types?.value : null,
-      parent_account_id: values?.parent_account?.value ? values?.parent_account?.value : null,
-      name: values?.coa_name ? values?.coa_name : null,
-      // head_account_id: values?.head_account?.value ? values?.head_account?.value : null,
-      account_code: values?.account_code ? values?.account_code : null,
-    };
-    submitAction === 'save' ? await onSubmit(data) : submitAction === 'saveAndExit' ? await onSave(data) : submitAction === 'saveAndNew' ? await onNew(data) : null;
-
-    if (submitAction === 'save') {
-      form.resetFields();
-      setAccountType(null);
-      setInitialData(null);
-    }
-
-  };
+  const [parentId, setParentId] = useState(null);
 
   useEffect(() => {
     setInitialData(initialFormValues)
-    if (shouldSyncData) {
-      setData(Array.isArray(headAccountList) ? headAccountList : []);
-    }
+    // if (shouldSyncData) {
+    //   setData(Array.isArray(headAccountList) ? headAccountList : []);
+    // }
     if (mode === 'edit' && initialData) {
       const gl_types = initialData?.gl_types || '';
       const gl_type_id = initialData?.gl_type_id || '';
@@ -65,12 +50,19 @@ const CoaLevelForm = ({ mode, onSubmit, onSave, onNew }) => {
         // head_account: initialData?.head_account_id
         //   ? { value: initialData?.head_account_id, label: initialData?.head_account_name }
         //   : undefined,
-        parent_account: initialData?.parent_account_name || undefined,
-        // head_account: initialData?.head_account_id || undefined,
-        // head_account: initialData?.head_account_id
-        //   ? { value: initialData.head_account_id, label: initialData.head_account_name }
-        //   : undefined,
+        // parent_account: initialData?.parent_account_name || undefined,
+        parent_account: initialData?.parent_account_id
+          ? {
+            value: initialData?.parent_account_id,
+            label: initialData?.parent_account_name,
+            data: initialData?.parent_account_data // optional, if you want
+          }
+          : undefined,
       });
+      // head_account: initialData?.head_account_id || undefined,
+      // head_account: initialData?.head_account_id
+      //   ? { value: initialData.head_account_id, label: initialData.head_account_name }
+      //   : undefined,
 
       if (gl_type_id) {
         dispatch(getAccountsList({ gl_type_id: gl_type_id }));
@@ -81,6 +73,37 @@ const CoaLevelForm = ({ mode, onSubmit, onSave, onNew }) => {
       });
     }
   }, [initialFormValues, initialData, mode, form]);
+
+  const onFinish = async (values) => {
+    const data = {
+      gl_type_id: values?.gl_types?.value ? values?.gl_types?.value : null,
+      parent_account_id: values?.parent_account?.value ? values?.parent_account?.value : initialFormValues?.parent_account_id ? initialFormValues?.parent_account_id : null,
+      name: values?.coa_name ? values?.coa_name : null,
+      // head_account_id: values?.head_account?.value ? values?.head_account?.value : null,
+      account_code: values?.account_code ? values?.account_code : null,
+    };
+    // submitAction === 'save' ? await onSubmit(data) : submitAction === 'saveAndExit' ? await onSave(data) : submitAction === 'saveAndNew' ? await onNew(data) : null;
+
+    // if (submitAction === 'saveAndNew') {
+    //   form.resetFields();
+    //   setAccountType(null);
+    //   setInitialData(null);
+    // }
+
+    try {
+      if (submitAction === 'save') {
+        await onSubmit(data);
+      } else if (submitAction === 'saveAndExit') {
+        await onSave(data);
+      } else if (submitAction === 'saveAndNew') {
+        await onNew(data);
+        // form.resetFields();
+      }
+    } catch (error) {
+      handleError(error);
+    }
+
+  };
 
   const columns = [
     {
@@ -183,6 +206,7 @@ const CoaLevelForm = ({ mode, onSubmit, onSave, onNew }) => {
                   if (!selected?.value) return;
 
                   if (selected?.value) {
+                    setParentId(selected?.value);
                     const parentAcc = selected?.data;
                     setAccountType(parentAcc?.gl_type_id)
                     form.setFieldsValue({
