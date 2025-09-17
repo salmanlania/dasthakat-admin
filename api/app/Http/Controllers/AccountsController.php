@@ -64,7 +64,9 @@ class AccountsController extends Controller
             $s = strtolower($search);
             $data->where(function ($q) use ($s) {
                 $q->where('c1.name', 'like', '%' . $s . '%')
-                    ->orWhere('c1.account_code', 'like', '%' . $s . '%');
+                    ->orWhere('c1.account_code', 'like', '%' . $s . '%')
+                    ->orWhere('gl_type.name', 'like', '%' . $s . '%')
+                    ->orWhere('parent.name', 'like', '%' . $s . '%');
             });
         }
 
