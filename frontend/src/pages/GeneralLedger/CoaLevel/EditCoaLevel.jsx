@@ -37,6 +37,16 @@ const EditCoaLevel = () => {
     }
   };
 
+  const onCoaLevelOneNew = async (data) => {
+    try {
+      await dispatch(updateAccountsForm({ id, data })).unwrap();
+      toast.success('Accounts updated successfully');
+      navigate('/general-ledger/accounts/create');
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
   useEffect(() => {
     try {
       dispatch(resetAccounts());
@@ -69,7 +79,7 @@ const EditCoaLevel = () => {
 
       {!isItemLoading ? (
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <CoaLevelForm mode="edit" onSubmit={onCoaLevelOneUpdate} onSave={onCoaLevelOneUpdates} />
+          <CoaLevelForm mode="edit" onSubmit={onCoaLevelOneUpdate} onSave={onCoaLevelOneUpdates} onNew={onCoaLevelOneNew} />
         </div>
       ) : null}
     </>

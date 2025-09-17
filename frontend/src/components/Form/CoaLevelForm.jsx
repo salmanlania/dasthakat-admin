@@ -9,7 +9,7 @@ import AsyncSelectLedger from '../AsyncSelectLedger';
 import DebounceInput from '../Input/DebounceInput';
 import AsyncSelectLedgerParent from '../AsyncSelectLedgerParent';
 
-const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
+const CoaLevelForm = ({ mode, onSubmit, onSave, onNew }) => {
   const [form] = Form.useForm();
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -23,7 +23,7 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
   const [accountType, setAccountType] = useState(null);
   const [initialData, setInitialData] = useState(null);
 
-  const onFinish = (values) => {
+  const onFinish = async (values) => {
     const data = {
       gl_type_id: values?.gl_types?.value ? values?.gl_types?.value : null,
       parent_account_id: values?.parent_account?.value ? values?.parent_account?.value : null,
@@ -31,7 +31,11 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
       // head_account_id: values?.head_account?.value ? values?.head_account?.value : null,
       account_code: values?.account_code ? values?.account_code : null,
     };
-    submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
+    submitAction === 'save' ? await onSubmit(data) : submitAction === 'saveAndExit' ? await onSave(data) : submitAction === 'saveAndNew' ? await onNew(data) : null;
+
+    form.resetFields();
+    setAccountType(null);
+    setInitialData(null);
   };
 
   useEffect(() => {
@@ -341,6 +345,17 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
             form.submit()
           }}>
           Save & Exit
+        </Button>
+
+        <Button
+          type="primary"
+          className="w-28 bg-orange-500 hover:!bg-orange-400"
+          loading={isFormSubmitting && submitAction === 'saveAndNew'}
+          onClick={() => {
+            setSubmitAction('saveAndNew');
+            form.submit()
+          }}>
+          Save & New
         </Button>
 
       </div>

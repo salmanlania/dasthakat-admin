@@ -37,6 +37,17 @@ const CreateCoaLevel = () => {
     }
   };
 
+    const onCoaLevelOneCreatesNew = async (data) => {
+    try {
+      await dispatch(createAccounts(data)).unwrap();
+      toast.success('Accounts created successfully');
+      dispatch(resetAccounts());
+      navigate('/general-ledger/accounts/create');
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
   useEffect(() => {
     try {
       dispatch(resetAccounts());
@@ -61,7 +72,7 @@ const CreateCoaLevel = () => {
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-        <CoaLevelForm onSave={onCoaLevelOneCreates} onSubmit={onCoaLevelOneCreate} />
+        <CoaLevelForm onSave={onCoaLevelOneCreates} onSubmit={onCoaLevelOneCreate} onNew={onCoaLevelOneCreatesNew} />
       </div>
     </>
   );
