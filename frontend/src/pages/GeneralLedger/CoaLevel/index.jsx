@@ -152,8 +152,8 @@ const CoaLevel = () => {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Parent Account</p>
-          {/* <AsyncSelectLedger
-            endpoint="/lookups/gl-types"
+          <AsyncSelectLedger
+            endpoint="/accounts"
             size="small"
             className="w-full font-normal"
             valueKey="gl_type_id"
@@ -163,7 +163,7 @@ const CoaLevel = () => {
             onChange={(value) => {
               dispatch(setAccountsListParams({ gl_type_id: value || null }))
             }}
-          /> */}
+          />
         </div>
       ),
       dataIndex: 'parent_account_name',
