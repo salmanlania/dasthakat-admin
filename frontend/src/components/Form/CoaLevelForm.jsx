@@ -44,18 +44,28 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
     if (mode === 'edit' && initialFormValues) {
       const gl_types = initialFormValues?.gl_types || '';
       const gl_type_id = initialFormValues?.gl_type_id || '';
+      const parent_account_id = initialFormValues?.parent_account_id || '';
+      const parent_account_name = initialFormValues?.parent_account_name || '';
       const code = (initialFormValues?.code || '').toString().replace(/\D/g, '');
       const coa_name = initialFormValues?.coa_name || '';
       form.setFieldsValue({
         gl_types: gl_type_id
           ? { value: gl_type_id, label: gl_types }
           : undefined,
+        parent_account: parent_account_id
+          ? { value: parent_account_id, label: parent_account_name }
+          : undefined,
         code: code,
         coa_name: coa_name,
       });
 
+      // Set selected states for tree loading
       if (gl_type_id) {
+        setSelectedGlTypeId(gl_type_id);
         dispatch(getAccountsList({ gl_type_id: gl_type_id }));
+      }
+      if (parent_account_id) {
+        setSelectedParentAccountId(parent_account_id);
       }
     } else if (mode !== 'edit' && initialFormCodeValues) {
       form.setFieldsValue({
