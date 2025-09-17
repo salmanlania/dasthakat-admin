@@ -156,12 +156,12 @@ const CoaLevel = () => {
             endpoint="/accounts"
             size="small"
             className="w-full font-normal"
-            valueKey="gl_type_id"
+            valueKey="account_id"
             labelKey="name"
             allowClear
-            value={params.gl_type_id}
+            value={params.account_id}
             onChange={(value) => {
-              dispatch(setAccountsListParams({ gl_type_id: value || null }))
+              dispatch(setAccountsListParams({ account_id: value || null }))
             }}
           />
         </div>
@@ -269,6 +269,7 @@ const CoaLevel = () => {
     params.parent_account_name,
     params.head_account_name,
     params.name,
+    params.account_id,
     debouncedSearch,
     debouncedSaleInvoiceNo,
     debouncedChargeNo,
