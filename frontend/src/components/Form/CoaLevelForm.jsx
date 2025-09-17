@@ -27,7 +27,7 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
       gl_type_id: values?.gl_types?.value ? values?.gl_types?.value : null,
       parent_account_id: values?.parent_account?.value ? values?.parent_account?.value : null,
       name: values?.coa_name ? values?.coa_name : null,
-      head_account_id: values?.head_account?.value ? values?.head_account?.value : null,
+      // head_account_id: values?.head_account?.value ? values?.head_account?.value : null,
       account_code: values?.account_code ? values?.account_code : null,
     };
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
@@ -59,9 +59,9 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
         //   : undefined,
         parent_account: initialData?.parent_account_name || undefined,
         // head_account: initialData?.head_account_id || undefined,
-        head_account: initialData?.head_account_id
-          ? { value: initialData.head_account_id, label: initialData.head_account_name }
-          : undefined,
+        // head_account: initialData?.head_account_id
+        //   ? { value: initialData.head_account_id, label: initialData.head_account_name }
+        //   : undefined,
       });
 
       if (gl_type_id) {
@@ -132,17 +132,17 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
       },
       width: 150
     },
-    {
-      title: 'Head Account',
-      dataIndex: 'head_account_name',
-      key: 'head_account_name',
-      render: (_, record, index) => {
-        return (
-          <Input value={record?.head_account_name} disabled />
-        );
-      },
-      width: 150
-    },
+    // {
+    //   title: 'Head Account',
+    //   dataIndex: 'head_account_name',
+    //   key: 'head_account_name',
+    //   render: (_, record, index) => {
+    //     return (
+    //       <Input value={record?.head_account_name} disabled />
+    //     );
+    //   },
+    //   width: 150
+    // },
   ];
 
   return (
@@ -173,11 +173,11 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
                 onChange={(selected) => {
                   if (selected?.value) {
                     setAccountType(selected?.value);
-                    form.setFieldsValue({ head_account: undefined });
+                    // form.setFieldsValue({ head_account: undefined });
                   } else {
                     setShouldSyncData(false);
                     setData([])
-                    form.setFieldsValue({ head_account: undefined });
+                    // form.setFieldsValue({ head_account: undefined });
                   }
                 }}
               />
@@ -236,10 +236,10 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
                         value: parentAcc.gl_type_id,
                         label: parentAcc.gl_type,
                       },
-                      head_account: {
-                        value: parentAcc.head_account_id,
-                        label: parentAcc.head_account_name,
-                      },
+                      // head_account: {
+                      //   value: parentAcc.head_account_id,
+                      //   label: parentAcc.head_account_name,
+                      // },
                     });
                   }
                 }}
