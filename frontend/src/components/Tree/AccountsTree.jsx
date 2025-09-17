@@ -72,7 +72,7 @@ export default function AccountsTreeZoomable({ treeData, loading, onSelect }) {
 
     if (loading) {
         return (
-            <div className="flex min-h-32 items-center justify-center">
+            <div className="h-[410px]  flex items-center justify-center">
                 <Spin size="large" />
             </div>
         );
@@ -80,7 +80,7 @@ export default function AccountsTreeZoomable({ treeData, loading, onSelect }) {
 
     if (!treeDataFormatted?.length) {
         return (
-            <div className="flex min-h-32 items-center justify-center text-gray-500">
+            <div className="h-[410px] flex min-h-32 items-center justify-center text-gray-500">
                 No accounts found
             </div>
         );
@@ -96,7 +96,7 @@ export default function AccountsTreeZoomable({ treeData, loading, onSelect }) {
             <div
                 ref={wrapperRef}
                 style={{
-                    height: 400,
+                    height: 380,
                     border: '1px solid rgba(0,0,0,0.08)',
                     borderRadius: 8,
                     overflow: 'hidden',
