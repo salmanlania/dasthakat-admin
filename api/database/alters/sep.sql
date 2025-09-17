@@ -165,7 +165,7 @@ CREATE TABLE `accounts` (
     KEY `idx_gl_type_id` (`gl_type_id`),
     KEY `idx_parent_account_id` (`parent_account_id`)
 );
-ALTER TABLE `accounts` ADD COLUMN `account_head_id` INT(11) NULL AFTER `parent_account_id`;
+ALTER TABLE `accounts` ADD COLUMN `head_account_id` INT(11) NULL AFTER `parent_account_id`;
 
 CREATE TABLE `account_heads` (
   `head_account_id` INT(11) NOT NULL AUTO_INCREMENT,

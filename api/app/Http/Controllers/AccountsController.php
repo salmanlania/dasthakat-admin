@@ -34,7 +34,7 @@ class AccountsController extends Controller
 
         $data = Accounts::from($accountsTable . ' as c1')
             ->join($glTypeTable . ' as gl_type', 'c1.gl_type_id', '=', 'gl_type.gl_type_id')
-            ->join($headAccountTable . ' as ah', 'c1.account_head_id', '=', 'ah.head_account_id')
+            ->join($headAccountTable . ' as ah', 'c1.head_account_id', '=', 'ah.head_account_id')
             ->leftJoin($accountsTable . ' as parent', 'c1.parent_account_id', '=', 'parent.account_id');
 
         if (!empty($request->company_id)) {
@@ -43,6 +43,11 @@ class AccountsController extends Controller
         if (!empty($parent_account_id)) {
             $data->where('c1.parent_account_id', '=', $parent_account_id);
         }
+        
+        if (!empty($head_account_id)) {
+            $data->where('c1.head_account_id', '=', $head_account_id);
+        }
+        
         if (!empty($account_code)) {
             $data->where('c1.account_code', 'like', '%' . $account_code . '%');
         }
@@ -64,7 +69,7 @@ class AccountsController extends Controller
             });
         }
 
-        $data = $data->select('c1.*', 'ah.account_head_name', 'gl_type.name as gl_type', 'parent.account_code as parent_account_code', 'parent.name as parent_account_name')
+        $data = $data->select('c1.*', 'ah.head_account_name', 'ah.head_account_type', 'gl_type.name as gl_type', 'parent.account_code as parent_account_code', 'parent.name as parent_account_name')
             ->orderBy($sort_column, $sort_direction)
             ->paginate($perPage, ['*'], 'page', $page);
 
@@ -86,11 +91,11 @@ class AccountsController extends Controller
 
         $data = Accounts::from($accountsTable . ' as c1')
             ->join($glTypeTable . ' as gl_type', 'c1.gl_type_id', '=', 'gl_type.gl_type_id')
-            ->join($headAccountTable . ' as ah', 'c1.account_head_id', '=', 'ah.head_account_id')
+            ->join($headAccountTable . ' as ah', 'c1.head_account_id', '=', 'ah.head_account_id')
             ->leftJoin($accountsTable . ' as parent', 'c1.parent_account_id', '=', 'parent.account_id')
 
             ->where('c1.account_id', $id)
-            ->select('c1.*', 'gl_type.name as gl_type', 'ah.account_head_name as account_head_name', 'parent.account_code as parent_account_code', 'parent.name as parent_account_name')
+            ->select('c1.*', 'gl_type.name as gl_type', 'ah.head_account_name', 'ah.head_account_type', 'parent.account_code as parent_account_code', 'parent.name as parent_account_name')
             ->first();
 
         return $this->jsonResponse($data, 200, 'Accounts Data');
@@ -128,7 +133,7 @@ class AccountsController extends Controller
             'gl_type_id'    => $request->gl_type_id ?? null,
             'account_code'   => $request->account_code ?? '',
             'parent_account_id'   => $request->parent_account_id ?? null,
-            'account_head_id'   => $request->account_head_id ?? null,
+            'head_account_id'   => $request->head_account_id ?? null,
             'name'          => $request->name ?? '',
             'status'        => $request->status ?? 1,
             'created_at'    => Carbon::now(),
@@ -154,7 +159,7 @@ class AccountsController extends Controller
         $data->gl_type_id  = $request->gl_type_id ?? $data->gl_type_id;
         $data->account_code = $request->account_code ?? $data->account_code;
         $data->parent_account_id = $request->parent_account_id ?? $data->parent_account_id;
-        $data->account_head_id = $request->account_head_id ?? $data->account_head_id;
+        $data->head_account_id = $request->head_account_id ?? $data->head_account_id;
         $data->name        = $request->name ?? $data->name;
         $data->status      = $request->status ?? $data->status;
         $data->updated_at  = Carbon::now();
