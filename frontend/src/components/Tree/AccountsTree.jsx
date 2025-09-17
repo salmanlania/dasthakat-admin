@@ -16,11 +16,13 @@ export default function AccountsTreeZoomable({ treeData, loading, onSelect }) {
     const convertToTreeData = (data) => {
         if (!Array.isArray(data)) return [];
         const convertNode = (node) => ({
+
             title: `${node.account_code ?? ''} - ${node.name ?? ''}`,
             key: node.account_id,
             children: node.children ? node.children.map(convertNode) : [],
             data: node,
         });
+        console.log(data)
         return data.map(convertNode);
     };
 

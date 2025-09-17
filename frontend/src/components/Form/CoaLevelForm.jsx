@@ -256,8 +256,8 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
                   <Input required />
                 </Form.Item>
               </Col>
-           
-              
+
+
               <Col span={24} sm={12} md={8} lg={12}>
                 <Form.Item name="head_account" label="Head Account"> {/* pl statement */}
                   <AsyncSelectLedger
@@ -279,13 +279,28 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
 
             {/* Accounts Tree View */}
             {(selectedGlTypeId || selectedParentAccountId) && (
-                <AccountsTree
-                  treeData={accountsTree}
-                  loading={isTreeLoading}
-                  onSelect={(node) => {
-                  
-                  }}
-                />
+              <AccountsTree
+                treeData={accountsTree}
+                loading={isTreeLoading}
+                onSelect={(node) => {
+                  if (mode !== 'edit' && node) {
+                    // Set form values directly
+                    form.setFieldsValue({
+                      gl_types: { value: node.gl_type_id, label: node.gl_type_name },   // assuming backend returns name
+                      parent_account: { value: node.account_id, label: node.name },
+                      head_account: { value: node.head_account_id, label: node.head_account_name },
+                    });
+
+                    // Also sync state so dependent queries work
+                    if (node.gl_type_id) {
+                      setSelectedGlTypeId(node.gl_type_id);
+                    }
+                    if (node.parent_account_id) {
+                      setSelectedParentAccountId(node.parent_account_id);
+                    }
+                  }
+                }}
+              />
             )}
           </div>
         </div>
