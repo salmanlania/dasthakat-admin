@@ -43,11 +43,11 @@ class AccountsController extends Controller
         if (!empty($parent_account_id)) {
             $data->where('c1.parent_account_id', '=', $parent_account_id);
         }
-        
+
         if (!empty($head_account_id)) {
             $data->where('c1.head_account_id', '=', $head_account_id);
         }
-        
+
         if (!empty($account_code)) {
             $data->where('c1.account_code', 'like', '%' . $account_code . '%');
         }
@@ -76,13 +76,59 @@ class AccountsController extends Controller
         return response()->json($data);
     }
 
-    public function getAccountHeads() {
-        $data = AccountHeads::all();
-        return $this->jsonResponse($data, 200, 'Account Heads Data');
+    public function getAccountHeads(Request $request)
+    {
+        $gl_type_id = $request->input('gl_type_id', '');
+        $data = AccountHeads::query();
+
+        if (!empty($gl_type_id)) {
+            if (in_array($gl_type_id, [1, 2, 3])) {
+                $data->where('head_account_id', 2);
+            } else {
+                $data->where('head_account_id', 1);
+            }
+        }
+
+        $result = $data->get();
+        return $this->jsonResponse($result, 200, 'Account Heads Data');
     }
- 
-    
-   
+    public function getAccountsTree(Request $request)
+    {
+
+        $gl_type_id = $request->input('gl_type_id', '');
+        $head_account_id = $request->input('head_account_id', '');
+        $data = Accounts::query();
+        if(!empty($gl_type_id)){
+            $data->where('gl_type_id',$gl_type_id);
+        }
+        if(!empty($head_account_id)){
+            $data->where('head_account_id',$head_account_id);
+        }
+        $data->get();
+
+        $map = [];
+        foreach ($data as $account) {
+            $account['children'] = [];
+            $map[$account['id']] = $account;
+        }
+
+        // Build the tree
+        $tree = [];
+        foreach ($map as $id => &$node) {
+            if ($node['parent_id'] == 0 || $node['parent_id'] == '' || $node['parent_id'] == null) {
+                $tree[] = &$node;
+            } else {
+                if (isset($map[$node['parent_id']])) {
+                    $map[$node['parent_id']]['children'][] = &$node;
+                }
+            }
+        }
+        return $this->jsonResponse($tree, 200, 'Accounts Data Tree');
+
+    }
+
+
+
     public function show($id, Request $request)
     {
         $accountsTable = (new Accounts())->getTable();
