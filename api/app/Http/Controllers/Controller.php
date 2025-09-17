@@ -453,7 +453,7 @@ class Controller extends BaseController
         } else {
             $quantity = 0;
         }
-        return $quantity;
+        return (float)$quantity;
     }
     static public function getShipmentQuantity($row)
     {
