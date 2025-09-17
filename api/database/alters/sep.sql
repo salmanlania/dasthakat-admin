@@ -178,3 +178,16 @@ CREATE TABLE `account_heads` (
   `updated_by` CHAR(36) NULL,
   PRIMARY KEY (`head_account_id`)
 );
+
+ALTER TABLE `accounts` DROP COLUMN `head_account_id`;
+DROP TABLE `account_heads`;
+
+CREATE TABLE `const_gl_type` (
+	`gl_type_id` INT(11) ,
+	`name` VARCHAR(255) DEFAULT NULL
+); 
+INSERT INTO `const_gl_type` (`gl_type_id`, `name`) VALUES('1','Assets');
+INSERT INTO `const_gl_type` (`gl_type_id`, `name`) VALUES('2','Liabilities');
+INSERT INTO `const_gl_type` (`gl_type_id`, `name`) VALUES('3','Equity');
+INSERT INTO `const_gl_type` (`gl_type_id`, `name`) VALUES('4','Revenue');
+INSERT INTO `const_gl_type` (`gl_type_id`, `name`) VALUES('5','Expense');

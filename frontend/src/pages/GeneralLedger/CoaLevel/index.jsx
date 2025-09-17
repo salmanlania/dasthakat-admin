@@ -24,7 +24,7 @@ import {
 import AsyncSelectLedger from '../../../components/AsyncSelectLedger';
 
 const CoaLevel = () => {
-  useDocumentTitle('Chart Of Account Level One List');
+  useDocumentTitle('Accounts List');
   const dispatch = useDispatch();
   const handleError = useError();
   const navigate = useNavigate();
@@ -94,14 +94,7 @@ const CoaLevel = () => {
       sorter: true,
       width: 180,
       ellipsis: true,
-      render: (_, record, index) => {
-        return (
-          <DebounceInput
-            disabled
-            value={record?.gl_type}
-          />
-        );
-      },
+      render: (_, record, index) => record?.gl_type,
     },
     {
       title: (
@@ -123,11 +116,7 @@ const CoaLevel = () => {
           />
         </div>
       ),
-      render: (_, record, index) => {
-        return (
-          <Input value={record?.account_code ? (record?.account_code).toString().replace(/\D/g, '') : ''} disabled />
-        );
-      },
+      render: (_, record, index) => record?.account_code ? (record?.account_code).toString().replace(/\D/g, '') : '',
       sorter: true,
       width: 180,
       ellipsis: true,
@@ -157,30 +146,24 @@ const CoaLevel = () => {
       sorter: true,
       width: 180,
       ellipsis: true,
-      render: (_, record, index) => {
-        return (
-          <Tooltip title={record?.name}>
-            <Input value={record.name} disabled />
-          </Tooltip>
-        );
-      },
+      render: (_, record, index) => record?.name,
     },
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
           <p>Parent Account</p>
-          {/* <AsyncSelectLedger
-            endpoint="/lookups/gl-types"
+          <AsyncSelectLedger
+            endpoint="/accounts"
             size="small"
             className="w-full font-normal"
-            valueKey="gl_type_id"
+            valueKey="account_id"
             labelKey="name"
             allowClear
-            value={params.gl_type_id}
+            value={params.account_id}
             onChange={(value) => {
-              dispatch(setAccountsListParams({ gl_type_id: value || null }))
+              dispatch(setAccountsListParams({ account_id: value || null }))
             }}
-          /> */}
+          />
         </div>
       ),
       dataIndex: 'parent_account_name',
@@ -188,45 +171,33 @@ const CoaLevel = () => {
       sorter: true,
       width: 180,
       ellipsis: true,
-      render: (_, record, index) => {
-        return (
-          <Tooltip title={record?.parent_account_name}>
-            <Input value={record?.parent_account_name} disabled />
-          </Tooltip>
-        );
-      },
+      render: (_, record, index) => record?.parent_account_name,
     },
-    {
-      title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Head Account</p>
-          <AsyncSelectLedger
-            endpoint="/accounts/account/heads"
-            size="small"
-            className="w-full font-normal"
-            valueKey="head_account_id"
-            labelKey="head_account_name"
-            allowClear
-            value={params.head_account_id}
-            onChange={(value) => {
-              dispatch(setAccountsListParams({ head_account_id: value || null }))
-            }}
-          />
-        </div>
-      ),
-      dataIndex: 'head_account_name',
-      key: 'head_account_name',
-      sorter: true,
-      width: 180,
-      ellipsis: true,
-      render: (_, record, index) => {
-        return (
-          <Tooltip title={record?.head_account_name}>
-            <Input value={record?.head_account_name} disabled />
-          </Tooltip>
-        );
-      },
-    },
+    // {
+    //   title: (
+    //     <div onClick={(e) => e.stopPropagation()}>
+    //       <p>Head Account</p>
+    //       <AsyncSelectLedger
+    //         endpoint="/accounts/account/heads"
+    //         size="small"
+    //         className="w-full font-normal"
+    //         valueKey="head_account_id"
+    //         labelKey="head_account_name"
+    //         allowClear
+    //         value={params.head_account_id}
+    //         onChange={(value) => {
+    //           dispatch(setAccountsListParams({ head_account_id: value || null }))
+    //         }}
+    //       />
+    //     </div>
+    //   ),
+    //   dataIndex: 'head_account_name',
+    //   key: 'head_account_name',
+    //   sorter: true,
+    //   width: 180,
+    //   ellipsis: true,
+    //   render: (_, record, index) => record?.head_account_name,
+    // },
     {
       title: 'Created At',
       dataIndex: 'created_at',
@@ -244,7 +215,7 @@ const CoaLevel = () => {
             <>
               <div className="flex items-center gap-1">
                 <Tooltip title="Edit">
-                  <Link to={`/general-ledger/coa/level/edit/${account_id}`}>
+                  <Link to={`/general-ledger/accounts/edit/${account_id}`}>
                     <Button
                       size="small"
                       type="primary"
@@ -298,6 +269,7 @@ const CoaLevel = () => {
     params.parent_account_name,
     params.head_account_name,
     params.name,
+    params.account_id,
     debouncedSearch,
     debouncedSaleInvoiceNo,
     debouncedChargeNo,
@@ -307,8 +279,8 @@ const CoaLevel = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>COA LEVEL</PageHeading>
-        <Breadcrumb items={[{ title: 'General Ledger' }, { title: 'COA Level' }, { title: 'List' }]} separator=">" />
+        <PageHeading>ACCOUNTS</PageHeading>
+        <Breadcrumb items={[{ title: 'General Ledger' }, { title: 'Accounts' }, { title: 'List' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
@@ -325,7 +297,7 @@ const CoaLevel = () => {
               {permissions.add ? (
                 <Button
                   type="primary"
-                  onClick={() => navigate('/general-ledger/coa/level/create')}
+                  onClick={() => navigate('/general-ledger/accounts/create')}
                 >
                   Create
                 </Button>

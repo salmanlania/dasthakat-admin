@@ -10,7 +10,7 @@ import useError from '../../../hooks/useError';
 import { getAccountsEdit, resetAccounts, updateAccountsForm } from '../../../store/features/coaAccountsSlice';
 
 const EditCoaLevel = () => {
-  useDocumentTitle('Edit Chart Of Account Level One');
+  useDocumentTitle('Edit Accounts');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();
@@ -31,7 +31,7 @@ const EditCoaLevel = () => {
     try {
       await dispatch(updateAccountsForm({ id, data })).unwrap();
       toast.success('Accounts updated successfully');
-      navigate('/general-ledger/coa/level');
+      navigate('/general-ledger/accounts');
     } catch (error) {
       handleError(error);
     }
@@ -57,8 +57,8 @@ const EditCoaLevel = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>EDIT COA LEVEL</PageHeading>
-        <Breadcrumb items={[{ title: 'General Ledger' }, { title: 'COA Level' }, { title: 'Edit' }]} separator=">" />
+        <PageHeading>EDIT ACCOUNTS</PageHeading>
+        <Breadcrumb items={[{ title: 'General Ledger' }, { title: 'Accounts' }, { title: 'Edit' }]} separator=">" />
       </div>
 
       {isItemLoading && (

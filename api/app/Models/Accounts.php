@@ -32,10 +32,7 @@ class Accounts extends Model
     {
         return $this->belongsTo(ConstGlType::class, 'gl_type_id', 'gl_type_id');
     }
-    public function accountHead()
-    {
-        return $this->belongsTo(AccountHeads::class, 'head_account_id', 'head_account_id');
-    }
+ 
     public function parentAccount()
     {
         return $this->belongsTo(Accounts::class, 'parent_account_id', 'account_id');

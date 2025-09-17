@@ -123,9 +123,9 @@ const Sidebar = () => {
   !permissions?.service_order?.list;
 
   const coaPermission =
-    !permissions?.coa_level1?.list &&
-    !permissions?.coa_level2?.list &&
-    !permissions?.coa_level3?.list &&
+    // !permissions?.coa_level1?.list &&
+    // !permissions?.coa_level2?.list &&
+    // !permissions?.coa_level3?.list &&
     !permissions?.accounts?.list
 
   const warehousingPermission =
@@ -509,24 +509,9 @@ const Sidebar = () => {
               disabled: coaPermission,
             },
             {
-              key: 'Chart of accounting level',
-              label: <Link to="/general-ledger/coa/level">Chart Of Accounting Level</Link>,
+              key: 'Accounts',
+              label: <Link to="/general-ledger/accounts">Accounts</Link>,
               disabled: !permissions?.accounts?.list,
-            },
-            {
-              key: 'Chart of accounting level 1',
-              label: <Link to="/general-ledger/coa/level1">Chart Of Accounting Level 1</Link>,
-              disabled: !permissions?.coa_level1?.list,
-            },
-            {
-              key: 'Chart of accounting level 2',
-              label: <Link to="/general-ledger/coa/level2">Chart Of Accounting Level 2</Link>,
-              disabled: !permissions?.coa_level2?.list,
-            },
-            {
-              key: 'Chart of accounting level 3',
-              label: <Link to="/general-ledger/coa/level3">Chart Of Accounting Level 3</Link>,
-              disabled: !permissions?.coa_level3?.list,
             },
           ]
         },

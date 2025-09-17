@@ -190,7 +190,6 @@ export const coaAccountsSlice = createSlice({
         total_records: rest.total,
         total_pages: rest.last_page
       };
-      console.log('headAccountList', data);
     });
     addCase(getAccountsList.rejected, (state) => {
       state.isListLoading = false;
@@ -227,14 +226,23 @@ export const coaAccountsSlice = createSlice({
     addCase(getAccountsEdit.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
-      console.log('data', data);
       state.initialFormValues = {
-        coa_level1_id: data.coa_level1_id || '',
-        gl_types: data.gl_type || '',
-        gl_type_id: data.gl_type_id || '',
-        account_code: data.account_code || '',
-        coa_name: data?.name || '',
-        head_account_name: data?.head_account_name || '',
+        ...data,
+        coa_level1_id: data?.coa_level1_id ? data?.coa_level1_id : null,
+        coa_level2_id: data?.coa_level2_id ? data?.coa_level2_id : null,
+        gl_types: data?.gl_type ? data?.gl_type : null,
+        gl_type_id: data?.gl_type_id ? data?.gl_type_id : null,
+        account_code: data?.account_code ? data?.account_code : null,
+        coa_name: data?.name ? data?.name : null,
+        head_account_name: data?.head_account_name ? data?.head_account_name : null,
+        // head_account: data?.head_account_name || '',
+        // parent_account: data?.parent_account_name || '',
+        head_account: data?.head_account_id
+          ? { value: data.head_account_id, label: data.head_account_name }
+          : null,
+        parent_account: data?.parent_account_id
+          ? { value: data.parent_account_id, label: data.parent_account_name }
+          : null,
       };
     });
     addCase(getAccountsEdit.rejected, (state) => {

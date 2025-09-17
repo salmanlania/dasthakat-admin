@@ -164,9 +164,9 @@ const MainLayout = () => {
   if (href.startsWith('/general-ledger/coa/level1/edit') && !permissions.coa_level1.edit)
     return <NotFound />;
 
-  if (href === '/general-ledger/coa/level' && !permissions.accounts.list) return <NotFound />;
-  if (href === '/general-ledger/coa/level/create' && !permissions.accounts.add) return <NotFound />;
-  if (href.startsWith('/general-ledger/coa/level/edit') && !permissions.accounts.edit)
+  if (href === '/general-ledger/accounts' && !permissions.accounts.list) return <NotFound />;
+  if (href === '/general-ledger/accounts/create' && !permissions.accounts.add) return <NotFound />;
+  if (href.startsWith('/general-ledger/accounts/edit') && !permissions.accounts.edit)
     return <NotFound />;
 
   if (href === '/general-ledger/coa/level2' && !permissions.coa_level2.list) return <NotFound />;

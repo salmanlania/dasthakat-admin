@@ -951,8 +951,8 @@ function Routes() {
           {
             path: '/general-ledger',
             children: [
-                            {
-                path: 'coa/level',
+              {
+                path: 'accounts',
                 element: (
                   <Suspense fallback={<PageLoader />}>
                     <CoaLevel />
@@ -960,7 +960,7 @@ function Routes() {
                 ),
               },
               {
-                path: 'coa/level/create',
+                path: 'accounts/create',
                 element: (
                   <Suspense fallback={<PageLoader />}>
                     <CreateCoaLevel />
@@ -968,7 +968,7 @@ function Routes() {
                 ),
               },
               {
-                path: 'coa/level/edit/:id',
+                path: 'accounts/edit/:id',
                 element: (
                   <Suspense fallback={<PageLoader />}>
                     <EditCoaLevel />

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AccountHeads;
+
 use App\Models\Accounts;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -17,7 +17,7 @@ class AccountsController extends Controller
     {
         $account_code    = $request->input('account_code', '');
         $parent_account_id = $request->input('parent_account_id', '');
-        $head_account_id  = $request->input('head_account_id', '');
+       
         $name           = $request->input('name', '');
         $gl_type_id     = $request->input('gl_type_id', '');
         $status         = $request->input('status', '');
@@ -30,11 +30,9 @@ class AccountsController extends Controller
         // Dynamic table names
         $accountsTable = (new Accounts())->getTable();
         $glTypeTable    = (new ConstGlType())->getTable();
-        $headAccountTable = (new AccountHeads())->getTable();
 
         $data = Accounts::from($accountsTable . ' as c1')
             ->join($glTypeTable . ' as gl_type', 'c1.gl_type_id', '=', 'gl_type.gl_type_id')
-            ->join($headAccountTable . ' as ah', 'c1.head_account_id', '=', 'ah.head_account_id')
             ->leftJoin($accountsTable . ' as parent', 'c1.parent_account_id', '=', 'parent.account_id');
 
         if (!empty($request->company_id)) {
@@ -44,9 +42,6 @@ class AccountsController extends Controller
             $data->where('c1.parent_account_id', '=', $parent_account_id);
         }
 
-        if (!empty($head_account_id)) {
-            $data->where('c1.head_account_id', '=', $head_account_id);
-        }
 
         if (!empty($account_code)) {
             $data->where('c1.account_code', 'like', '%' . $account_code . '%');
@@ -69,29 +64,13 @@ class AccountsController extends Controller
             });
         }
 
-        $data = $data->select('c1.*', 'ah.head_account_name', 'ah.head_account_type', 'gl_type.name as gl_type', 'parent.account_code as parent_account_code', 'parent.name as parent_account_name')
+        $data = $data->select('c1.*', 'gl_type.name as gl_type', 'parent.account_code as parent_account_code', 'parent.name as parent_account_name')
             ->orderBy($sort_column, $sort_direction)
             ->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json($data);
     }
 
-    public function getAccountHeads(Request $request)
-    {
-        $gl_type_id = $request->input('gl_type_id', '');
-        $data = AccountHeads::query();
-
-        if (!empty($gl_type_id)) {
-            if (in_array($gl_type_id, [1, 2, 3])) {
-                $data->where('head_account_type', 2);
-            } else {
-                $data->where('head_account_type', 1);
-            }
-        }
-
-        $result = $data->get();
-        return $this->jsonResponse($result, 200, 'Account Heads Data');
-    }
     public function getAccountsTree(Request $request)
     {
         $gl_type_id = $request->input('gl_type_id', '');
@@ -138,15 +117,13 @@ class AccountsController extends Controller
     {
         $accountsTable = (new Accounts())->getTable();
         $glTypeTable = (new ConstGlType())->getTable();
-        $headAccountTable = (new AccountHeads())->getTable();
 
         $data = Accounts::from($accountsTable . ' as c1')
             ->join($glTypeTable . ' as gl_type', 'c1.gl_type_id', '=', 'gl_type.gl_type_id')
-            ->join($headAccountTable . ' as ah', 'c1.head_account_id', '=', 'ah.head_account_id')
             ->leftJoin($accountsTable . ' as parent', 'c1.parent_account_id', '=', 'parent.account_id')
 
             ->where('c1.account_id', $id)
-            ->select('c1.*', 'gl_type.name as gl_type', 'ah.head_account_name', 'ah.head_account_type', 'parent.account_code as parent_account_code', 'parent.name as parent_account_name')
+            ->select('c1.*', 'gl_type.name as gl_type', 'parent.account_code as parent_account_code', 'parent.name as parent_account_name')
             ->first();
 
         return $this->jsonResponse($data, 200, 'Accounts Data');
@@ -184,7 +161,6 @@ class AccountsController extends Controller
             'gl_type_id'    => $request->gl_type_id ?? null,
             'account_code'   => $request->account_code ?? '',
             'parent_account_id'   => $request->parent_account_id ?? null,
-            'head_account_id'   => $request->head_account_id ?? null,
             'name'          => $request->name ?? '',
             'status'        => $request->status ?? 1,
             'created_at'    => Carbon::now(),
@@ -210,7 +186,6 @@ class AccountsController extends Controller
         $data->gl_type_id  = $request->gl_type_id ?? $data->gl_type_id;
         $data->account_code = $request->account_code ?? $data->account_code;
         $data->parent_account_id = $request->parent_account_id ?? $data->parent_account_id;
-        $data->head_account_id = $request->head_account_id ?? $data->head_account_id;
         $data->name        = $request->name ?? $data->name;
         $data->status      = $request->status ?? $data->status;
         $data->updated_at  = Carbon::now();

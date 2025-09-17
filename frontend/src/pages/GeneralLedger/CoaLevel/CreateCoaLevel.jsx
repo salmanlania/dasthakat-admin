@@ -10,7 +10,7 @@ import useError from '../../../hooks/useError';
 import { createAccounts, resetAccounts } from '../../../store/features/coaAccountsSlice';
 
 const CreateCoaLevel = () => {
-  useDocumentTitle('Create Chart Of Account Level One');
+  useDocumentTitle('Create Accounts');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();
@@ -19,9 +19,9 @@ const CreateCoaLevel = () => {
   const onCoaLevelOneCreate = async (data) => {
     try {
       const res = await dispatch(createAccounts(data)).unwrap();
-      const id = res?.data?.coa_level1_id
+      const id = res?.data?.account_id
       toast.success('Accounts created successfully');
-      navigate(`/general-ledger/coa/level/edit/${id}`);
+      navigate(`/general-ledger/accounts/edit/${id}`);
     } catch (error) {
       handleError(error);
     }
@@ -31,7 +31,7 @@ const CreateCoaLevel = () => {
     try {
       await dispatch(createAccounts(data)).unwrap();
       toast.success('Accounts created successfully');
-      navigate('/general-ledger/coa/level');
+      navigate('/general-ledger/accounts');
     } catch (error) {
       handleError(error);
     }
@@ -56,8 +56,8 @@ const CreateCoaLevel = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>CREATE COA LEVEL</PageHeading>
-        <Breadcrumb items={[{ title: 'General Ledger' }, { title: 'COA Level' }, { title: 'Create' }]} separator=">" />
+        <PageHeading>CREATE ACCOUNTS</PageHeading>
+        <Breadcrumb items={[{ title: 'General Ledger' }, { title: 'Accounts' }, { title: 'Create' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
