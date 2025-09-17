@@ -38,6 +38,7 @@ class AccountsController extends Controller
         if (!empty($request->company_id)) {
             $data->where('c1.company_id', '=', $request->company_id);
         }
+    
         if (!empty($parent_account_id)) {
             $data->where('c1.parent_account_id', '=', $parent_account_id);
         }
@@ -76,7 +77,7 @@ class AccountsController extends Controller
         $gl_type_id = $request->input('gl_type_id', '');
         $parent_account_id = $request->input('parent_account_id', '');
 
-        $query = Accounts::leftJoin("account_heads","account_heads.head_account_id","=","accounts.head_account_id");
+        $query = Accounts::query();
 
         // If filtering by GL type
         if (!empty($gl_type_id)) {
@@ -84,7 +85,7 @@ class AccountsController extends Controller
         }
 
         // Always fetch ALL accounts matching GL type (so recursion works)
-        $accounts = $query->select("accounts.*,account_heads.head_account_name")->get()->toArray();
+        $accounts = $query->select("accounts.*")->get()->toArray();
 
         // Build map of accounts
         $map = [];
