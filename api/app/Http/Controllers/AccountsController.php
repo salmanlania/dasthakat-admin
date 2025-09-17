@@ -83,9 +83,9 @@ class AccountsController extends Controller
 
         if (!empty($gl_type_id)) {
             if (in_array($gl_type_id, [1, 2, 3])) {
-                $data->where('head_account_type', 2);
+                $data->where('head_account_id', 2);
             } else {
-                $data->where('head_account_type', 1);
+                $data->where('head_account_id', 1);
             }
         }
 
@@ -94,37 +94,37 @@ class AccountsController extends Controller
     }
     public function getAccountsTree(Request $request)
     {
-
         $gl_type_id = $request->input('gl_type_id', '');
-        $head_account_id = $request->input('head_account_id', '');
+        $parent_account_id = $request->input('parent_account_id', '');
         $data = Accounts::query();
+
         if(!empty($gl_type_id)){
             $data->where('gl_type_id',$gl_type_id);
         }
-        if(!empty($head_account_id)){
-            $data->where('head_account_id',$head_account_id);
+        if(!empty($parent_account_id)){
+            $data->where('parent_account_id',$parent_account_id);
         }
-        $data->get();
+
+        $data = $data->get();
 
         $map = [];
         foreach ($data as $account) {
-            $account['children'] = [];
-            $map[$account['id']] = $account;
+            $accountArray = $account->toArray();
+            $accountArray['children'] = [];
+            $map[$accountArray['account_id']] = $accountArray;
         }
 
-        // Build the tree
         $tree = [];
         foreach ($map as $id => &$node) {
-            if ($node['parent_id'] == 0 || $node['parent_id'] == '' || $node['parent_id'] == null) {
+            if ($node['parent_account_id'] == 0 || $node['parent_account_id'] == '' || $node['parent_account_id'] == null) {
                 $tree[] = &$node;
             } else {
-                if (isset($map[$node['parent_id']])) {
-                    $map[$node['parent_id']]['children'][] = &$node;
+                if (isset($map[$node['parent_account_id']])) {
+                    $map[$node['parent_account_id']]['children'][] = &$node;
                 }
             }
         }
         return $this->jsonResponse($tree, 200, 'Accounts Data Tree');
-
     }
 
 
