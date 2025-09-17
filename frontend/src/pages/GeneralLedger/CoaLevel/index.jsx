@@ -24,7 +24,7 @@ import {
 import AsyncSelectLedger from '../../../components/AsyncSelectLedger';
 
 const CoaLevel = () => {
-  useDocumentTitle('Chart Of Account Level One List');
+  useDocumentTitle('Accounts List');
   const dispatch = useDispatch();
   const handleError = useError();
   const navigate = useNavigate();
@@ -94,14 +94,7 @@ const CoaLevel = () => {
       sorter: true,
       width: 180,
       ellipsis: true,
-      render: (_, record, index) => {
-        return (
-          <DebounceInput
-            disabled
-            value={record?.gl_type}
-          />
-        );
-      },
+      render: (_, record, index) => record?.gl_type,
     },
     {
       title: (
@@ -123,11 +116,7 @@ const CoaLevel = () => {
           />
         </div>
       ),
-      render: (_, record, index) => {
-        return (
-          <Input value={record?.account_code ? (record?.account_code).toString().replace(/\D/g, '') : ''} disabled />
-        );
-      },
+      render: (_, record, index) => record?.account_code ? (record?.account_code).toString().replace(/\D/g, '') : '',
       sorter: true,
       width: 180,
       ellipsis: true,
@@ -157,13 +146,7 @@ const CoaLevel = () => {
       sorter: true,
       width: 180,
       ellipsis: true,
-      render: (_, record, index) => {
-        return (
-          <Tooltip title={record?.name}>
-            <Input value={record.name} disabled />
-          </Tooltip>
-        );
-      },
+      render: (_, record, index) => record?.name,
     },
     {
       title: (
@@ -188,13 +171,7 @@ const CoaLevel = () => {
       sorter: true,
       width: 180,
       ellipsis: true,
-      render: (_, record, index) => {
-        return (
-          <Tooltip title={record?.parent_account_name}>
-            <Input value={record?.parent_account_name} disabled />
-          </Tooltip>
-        );
-      },
+      render: (_, record, index) => record?.parent_account_name,
     },
     {
       title: (
@@ -219,13 +196,7 @@ const CoaLevel = () => {
       sorter: true,
       width: 180,
       ellipsis: true,
-      render: (_, record, index) => {
-        return (
-          <Tooltip title={record?.head_account_name}>
-            <Input value={record?.head_account_name} disabled />
-          </Tooltip>
-        );
-      },
+      render: (_, record, index) => record?.head_account_name,
     },
     {
       title: 'Created At',
@@ -307,8 +278,8 @@ const CoaLevel = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>COA LEVEL</PageHeading>
-        <Breadcrumb items={[{ title: 'General Ledger' }, { title: 'COA Level' }, { title: 'List' }]} separator=">" />
+        <PageHeading>ACCOUNTS</PageHeading>
+        <Breadcrumb items={[{ title: 'General Ledger' }, { title: 'Accounts' }, { title: 'List' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">

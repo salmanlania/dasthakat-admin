@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { getAccountsList, getAccountCode, getHeadAccountList } from '../../store/features/coaAccountsSlice';
 import AsyncSelectLedger from '../AsyncSelectLedger';
 import DebounceInput from '../Input/DebounceInput';
+import AsyncSelectLedgerParent from '../AsyncSelectLedgerParent';
 
 const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
@@ -19,6 +20,7 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
   const [data, setData] = useState([]);
   const [shouldSyncData, setShouldSyncData] = useState(true);
   const [accountType, setAccountType] = useState(null);
+  const [initialData, setInitialData] = useState(null);
 
   const onFinish = (values) => {
     const data = {
@@ -28,27 +30,39 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
       head_account_id: values?.head_account?.value ? values?.head_account?.value : null,
       account_code: values?.account_code ? values?.account_code : null,
     };
-
-    console.log('data', data);
-
+    return
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 
   useEffect(() => {
+    setInitialData(initialFormValues)
     if (shouldSyncData) {
       setData(Array.isArray(headAccountList) ? headAccountList : []);
     }
-    if (mode === 'edit' && initialFormValues) {
-      const gl_types = initialFormValues?.gl_types || '';
-      const gl_type_id = initialFormValues?.gl_type_id || '';
-      const code = (initialFormValues?.code || '').toString().replace(/\D/g, '');
-      const coa_name = initialFormValues?.coa_name || '';
+    if (mode === 'edit' && initialData) {
+      const gl_types = initialData?.gl_types || '';
+      const gl_type_id = initialData?.gl_type_id || '';
+      const code = (initialData?.code || '').toString().replace(/\D/g, '');
+      const coa_name = initialData?.coa_name || '';
+      setAccountType(gl_type_id);
       form.setFieldsValue({
         gl_types: gl_type_id
           ? { value: gl_type_id, label: gl_types }
           : undefined,
         code: code,
         coa_name: coa_name,
+        account_code: initialData?.account_code || '',
+        // parent_account: initialData?.parent_account_id
+        //   ? { value: initialData?.parent_account_id, label: initialData?.parent_account }
+        //   : undefined,
+        // head_account: initialData?.head_account_id
+        //   ? { value: initialData?.head_account_id, label: initialData?.head_account_name }
+        //   : undefined,
+        parent_account: initialData?.parent_account_name || undefined,
+        // head_account: initialData?.head_account_id || undefined,
+        head_account: initialData?.head_account_id
+          ? { value: initialData.head_account_id, label: initialData.head_account_name }
+          : undefined,
       });
 
       if (gl_type_id) {
@@ -59,7 +73,7 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
         code: (initialFormCodeValues?.code || '').toString().replace(/\D/g, '')
       });
     }
-  }, [initialFormValues, initialFormCodeValues, form, mode, headAccountList, shouldSyncData]);
+  }, [initialFormValues, initialData, mode, form]);
 
   const columns = [
     {
@@ -114,7 +128,7 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
       key: 'parent_account_name',
       render: (_, record, index) => {
         return (
-          <Input value={record?.parent_account_name} disabled />
+          <Input value={record?.parent_account_name} />
         );
       },
       width: 150
@@ -143,41 +157,36 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
         initialValues={
           mode === 'edit'
             ? {
-              ...initialFormValues
+              ...initialData
             }
-            : { document_date: dayjs() }
+            : ''
         }
         scrollToFirstError>
-
-        <Row gutter={12}>
-          <Col span={24} sm={12} md={6} lg={6}>
+        <Row gutter={16} style={{ display: 'flex', flexDirection: 'row' }}>
+          <Col span={8}>
             <Form.Item name="gl_types" label="Account Type">
               <AsyncSelectLedger
                 endpoint="/lookups/gl-types"
                 valueKey="gl_type_id"
-                disabled={mode === 'edit' ? true : false}
                 labelKey="name"
                 labelInValue
                 className="w-full"
                 onChange={(selected) => {
                   if (selected?.value) {
-                    dispatch(getAccountsList({ gl_type_id: selected.value }));
-                    setAccountType(selected);
-                    dispatch(getHeadAccountList({ gl_type_id: selected.value }));
+                    setAccountType(selected?.value);
+                    form.setFieldsValue({ head_account: undefined });
                   } else {
                     setShouldSyncData(false);
                     setData([])
+                    form.setFieldsValue({ head_account: undefined });
                   }
                 }}
               />
             </Form.Item>
-          </Col>
-          <Col span={24} sm={12} md={8} lg={8}>
-            <Form.Item name="account_code" label="Account Number">
+            <Form.Item name="account_code" label="Account Number" preserve={false}>
               <Input
                 required
                 allowClear
-                disabled={mode === 'edit' ? true : false}
                 inputMode="numeric"
                 onKeyDown={(e) => {
                   if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Tab") {
@@ -207,46 +216,88 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
                 }}
               />
             </Form.Item>
-          </Col>
-          <Col span={24} sm={12} md={10} lg={10}>
-            <Form.Item name="coa_name" label="Account Name">
+            <Form.Item name="coa_name" label="Account Name" preserve={false}>
               <Input required />
             </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={12}>
-          <Col span={24} sm={12} md={6} lg={6}>
             <Form.Item name="parent_account" label="Parent Account">
-              <AsyncSelectLedger
+              <AsyncSelectLedgerParent
                 endpoint="/accounts"
-                valueKey="gl_type_id"
-                disabled={mode === 'edit' ? true : false}
+                valueKey="account_id"
                 labelKey="name"
                 labelInValue
                 className="w-full"
                 onChange={(selected) => {
-                  console.log(selected);
+                  if (!selected?.value) return;
+
+                  if (selected?.value) {
+                    const parentAcc = selected?.data;
+                    setAccountType(parentAcc?.gl_type_id)
+                    form.setFieldsValue({
+                      gl_types: {
+                        value: parentAcc.gl_type_id,
+                        label: parentAcc.gl_type,
+                      },
+                      head_account: {
+                        value: parentAcc.head_account_id,
+                        label: parentAcc.head_account_name,
+                      },
+                    });
+                  }
                 }}
               />
             </Form.Item>
-          </Col>
-          <Col span={24} sm={12} md={6} lg={6}>
-            <Form.Item name="head_account" label="Head Account"> {/* pl statement */}
-              <AsyncSelectLedger
-                endpoint={`/accounts/account/heads?gl_type_id=${accountType?.value || ''}`}
+            <Form.Item name="head_account" label="Head Account">
+              <AsyncSelectLedgerParent
+                key={accountType}
+                endpoint={`/accounts/account/heads?gl_type_id=${accountType || ''}`}
                 valueKey="head_account_id"
-                disabled={mode === 'edit' ? true : false}
                 labelKey="head_account_name"
                 labelInValue
                 className="w-full"
                 onChange={(selected) => {
-                  form.setFieldsValue({ head_account: selected });
+                  form.setFieldsValue({ head_account: selected?.value ? selected : null });
                 }}
               />
             </Form.Item>
           </Col>
+          {/* </Row> */}
+          {/* <Row>
+          <Col span={24}>
+            <h1>Your Table Title</h1>
+          </Col>
+        </Row> */}
+          {/* <Row> */}
+          {/* <Col span={16}>
+            <h1>Your Table Title</h1>
+            <div>
+              {isListLoading ? (
+                <div className="flex min-h-32 items-center justify-center">
+                  <Spin />
+                </div>
+              ) : (
+                <Table
+                  columns={columns}
+                  dataSource={data}
+                  rowKey={'head_account_id'}
+                  size="small"
+                  // scroll={{ x: 'calc(100% - 200px)' }}
+                  scroll={{
+                    x: 'max-content', // let table use full column widths
+                    y: 350            // vertical scroll inside container
+                  }}
+                  pagination={false}
+                // scroll={{
+                //   y: 350,
+                //   x: 'max-content'
+                // }}
+                />
+              )}
+            </div>
+          </Col> */}
         </Row>
-        {/* {isListLoading ? (
+      </Form >
+
+      {/* {isListLoading ? (
           <div className="flex min-h-32 items-center justify-center">
             <Spin />
           </div>
@@ -264,35 +315,34 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
           />
         )} */}
 
-        <div className="mt-4 flex items-center justify-end gap-2">
-          <Link to="/general-ledger/coa/level">
-            <Button className="w-28">Exit</Button>
-          </Link>
+      <div className="mt-4 flex items-center justify-end gap-2">
+        <Link to="/general-ledger/coa/level">
+          <Button className="w-28">Exit</Button>
+        </Link>
 
-          <Button
-            type="primary"
-            className="w-28"
-            loading={isFormSubmitting && submitAction === 'save'}
-            onClick={() => {
-              setSubmitAction('save');
-              form.submit()
-            }}>
-            Save
-          </Button>
+        <Button
+          type="primary"
+          className="w-28"
+          loading={isFormSubmitting && submitAction === 'save'}
+          onClick={() => {
+            setSubmitAction('save');
+            form.submit()
+          }}>
+          Save
+        </Button>
 
-          <Button
-            type="primary"
-            className="w-28 bg-green-600 hover:!bg-green-500"
-            loading={isFormSubmitting && submitAction === 'saveAndExit'}
-            onClick={() => {
-              setSubmitAction('saveAndExit');
-              form.submit()
-            }}>
-            Save & Exit
-          </Button>
+        <Button
+          type="primary"
+          className="w-28 bg-green-600 hover:!bg-green-500"
+          loading={isFormSubmitting && submitAction === 'saveAndExit'}
+          onClick={() => {
+            setSubmitAction('saveAndExit');
+            form.submit()
+          }}>
+          Save & Exit
+        </Button>
 
-        </div>
-      </Form>
+      </div>
     </>
   );
 };

@@ -227,9 +227,6 @@ const ChargeOrderModal = () => {
       })
     };
 
-    // console.log('data' , data) rebatePercentage
-    // return salesmanPercentage
-
     try {
       const res = await dispatch(createChargeOrder({ data })).unwrap();
       const chargeOrderID = res.data.data.charge_order_id;
