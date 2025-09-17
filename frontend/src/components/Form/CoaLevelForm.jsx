@@ -33,9 +33,12 @@ const CoaLevelForm = ({ mode, onSubmit, onSave, onNew }) => {
     };
     submitAction === 'save' ? await onSubmit(data) : submitAction === 'saveAndExit' ? await onSave(data) : submitAction === 'saveAndNew' ? await onNew(data) : null;
 
-    form.resetFields();
-    setAccountType(null);
-    setInitialData(null);
+    if (submitAction === 'save') {
+      form.resetFields();
+      setAccountType(null);
+      setInitialData(null);
+    }
+
   };
 
   useEffect(() => {
