@@ -212,12 +212,13 @@ export const coaAccountsSlice = createSlice({
       const data = action.payload;
       state.initialFormValues = {
         ...data,
-        coa_level1_id: data.coa_level1_id || '',
-        gl_types: data.gl_type || '',
-        gl_type_id: data.gl_type_id || '',
-        account_code: data.account_code || '',
-        coa_name: data?.name || '',
-        head_account_name: data?.head_account_name || '',
+        coa_level1_id: data?.coa_level1_id ? data?.coa_level1_id : null,
+        coa_level2_id: data?.coa_level2_id ? data?.coa_level2_id : null,
+        gl_types: data?.gl_type ? data?.gl_type : null,
+        gl_type_id: data?.gl_type_id ? data?.gl_type_id : null,
+        account_code: data?.account_code ? data?.account_code : null,
+        coa_name: data?.name ? data?.name : null,
+        head_account_name: data?.head_account_name ? data?.head_account_name : null,
         // head_account: data?.head_account_name || '',
         // parent_account: data?.parent_account_name || '',
         head_account: data?.head_account_id

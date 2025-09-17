@@ -21,7 +21,7 @@ const CreateCoaLevel = () => {
       const res = await dispatch(createAccounts(data)).unwrap();
       const id = res?.data?.account_id
       toast.success('Accounts created successfully');
-      navigate(`/general-ledger/coa/level/edit/${id}`);
+      navigate(`/general-ledger/accounts/edit/${id}`);
     } catch (error) {
       handleError(error);
     }
@@ -31,7 +31,7 @@ const CreateCoaLevel = () => {
     try {
       await dispatch(createAccounts(data)).unwrap();
       toast.success('Accounts created successfully');
-      navigate('/general-ledger/coa/level');
+      navigate('/general-ledger/accounts');
     } catch (error) {
       handleError(error);
     }

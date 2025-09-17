@@ -31,7 +31,7 @@ const EditCoaLevel = () => {
     try {
       await dispatch(updateAccountsForm({ id, data })).unwrap();
       toast.success('Accounts updated successfully');
-      navigate('/general-ledger/coa/level');
+      navigate('/general-ledger/accounts');
     } catch (error) {
       handleError(error);
     }

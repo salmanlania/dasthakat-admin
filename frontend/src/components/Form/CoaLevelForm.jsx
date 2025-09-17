@@ -30,7 +30,6 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
       head_account_id: values?.head_account?.value ? values?.head_account?.value : null,
       account_code: values?.account_code ? values?.account_code : null,
     };
-    return
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 
@@ -246,7 +245,7 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
                 }}
               />
             </Form.Item>
-            <Form.Item name="head_account" label="Head Account">
+            {/* <Form.Item name="head_account" label="Head Account">
               <AsyncSelectLedgerParent
                 key={accountType}
                 endpoint={`/accounts/account/heads?gl_type_id=${accountType || ''}`}
@@ -258,7 +257,7 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
                   form.setFieldsValue({ head_account: selected?.value ? selected : null });
                 }}
               />
-            </Form.Item>
+            </Form.Item> */}
           </Col>
           {/* </Row> */}
           {/* <Row>
@@ -316,7 +315,7 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
         )} */}
 
       <div className="mt-4 flex items-center justify-end gap-2">
-        <Link to="/general-ledger/coa/level">
+        <Link to="/general-ledger/accounts">
           <Button className="w-28">Exit</Button>
         </Link>
 

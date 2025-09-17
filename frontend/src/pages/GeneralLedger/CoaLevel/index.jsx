@@ -173,31 +173,31 @@ const CoaLevel = () => {
       ellipsis: true,
       render: (_, record, index) => record?.parent_account_name,
     },
-    {
-      title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Head Account</p>
-          <AsyncSelectLedger
-            endpoint="/accounts/account/heads"
-            size="small"
-            className="w-full font-normal"
-            valueKey="head_account_id"
-            labelKey="head_account_name"
-            allowClear
-            value={params.head_account_id}
-            onChange={(value) => {
-              dispatch(setAccountsListParams({ head_account_id: value || null }))
-            }}
-          />
-        </div>
-      ),
-      dataIndex: 'head_account_name',
-      key: 'head_account_name',
-      sorter: true,
-      width: 180,
-      ellipsis: true,
-      render: (_, record, index) => record?.head_account_name,
-    },
+    // {
+    //   title: (
+    //     <div onClick={(e) => e.stopPropagation()}>
+    //       <p>Head Account</p>
+    //       <AsyncSelectLedger
+    //         endpoint="/accounts/account/heads"
+    //         size="small"
+    //         className="w-full font-normal"
+    //         valueKey="head_account_id"
+    //         labelKey="head_account_name"
+    //         allowClear
+    //         value={params.head_account_id}
+    //         onChange={(value) => {
+    //           dispatch(setAccountsListParams({ head_account_id: value || null }))
+    //         }}
+    //       />
+    //     </div>
+    //   ),
+    //   dataIndex: 'head_account_name',
+    //   key: 'head_account_name',
+    //   sorter: true,
+    //   width: 180,
+    //   ellipsis: true,
+    //   render: (_, record, index) => record?.head_account_name,
+    // },
     {
       title: 'Created At',
       dataIndex: 'created_at',
@@ -215,7 +215,7 @@ const CoaLevel = () => {
             <>
               <div className="flex items-center gap-1">
                 <Tooltip title="Edit">
-                  <Link to={`/general-ledger/coa/level/edit/${account_id}`}>
+                  <Link to={`/general-ledger/accounts/edit/${account_id}`}>
                     <Button
                       size="small"
                       type="primary"
@@ -297,7 +297,7 @@ const CoaLevel = () => {
               {permissions.add ? (
                 <Button
                   type="primary"
-                  onClick={() => navigate('/general-ledger/coa/level/create')}
+                  onClick={() => navigate('/general-ledger/accounts/create')}
                 >
                   Create
                 </Button>
