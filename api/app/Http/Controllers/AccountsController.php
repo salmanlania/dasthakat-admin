@@ -96,34 +96,39 @@ class AccountsController extends Controller
     {
         $gl_type_id = $request->input('gl_type_id', '');
         $parent_account_id = $request->input('parent_account_id', '');
-        $data = Accounts::query();
 
-        if(!empty($gl_type_id)){
-            $data->where('gl_type_id',$gl_type_id);
+        $query = Accounts::query();
+
+        // If filtering by GL type
+        if (!empty($gl_type_id)) {
+            $query->where('gl_type_id', $gl_type_id);
         }
-        if(!empty($parent_account_id)){
-            $data->where('parent_account_id',$parent_account_id);
-        }
 
-        $data = $data->get();
+        // Always fetch ALL accounts matching GL type (so recursion works)
+        $accounts = $query->get()->toArray();
 
+        // Build map of accounts
         $map = [];
-        foreach ($data as $account) {
-            $accountArray = $account->toArray();
-            $accountArray['children'] = [];
-            $map[$accountArray['account_id']] = $accountArray;
+        foreach ($accounts as $acc) {
+            $acc['children'] = [];
+            $map[$acc['account_id']] = $acc;
         }
 
+        // Build hierarchy
         $tree = [];
         foreach ($map as $id => &$node) {
-            if ($node['parent_account_id'] == 0 || $node['parent_account_id'] == '' || $node['parent_account_id'] == null) {
-                $tree[] = &$node;
+            if (!empty($node['parent_account_id']) && isset($map[$node['parent_account_id']])) {
+                $map[$node['parent_account_id']]['children'][] = &$node;
             } else {
-                if (isset($map[$node['parent_account_id']])) {
-                    $map[$node['parent_account_id']]['children'][] = &$node;
-                }
+                $tree[] = &$node;
             }
         }
+
+        // If filtering by a parent account → extract its subtree
+        if (!empty($parent_account_id) && isset($map[$parent_account_id])) {
+            $tree = [$map[$parent_account_id]]; // return only this subtree
+        }
+
         return $this->jsonResponse($tree, 200, 'Accounts Data Tree');
     }
 
