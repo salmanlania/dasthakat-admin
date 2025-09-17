@@ -180,10 +180,14 @@ CREATE TABLE `account_heads` (
 );
 
 ALTER TABLE `accounts` DROP COLUMN `head_account_id`;
-DROP TABLE `accounts`;
+DROP TABLE `account_heads`;
 
-insert into `const_gl_type` (`gl_type_id`, `name`) values('1','Assets');
-insert into `const_gl_type` (`gl_type_id`, `name`) values('2','Liabilities');
-insert into `const_gl_type` (`gl_type_id`, `name`) values('3','Equity');
-insert into `const_gl_type` (`gl_type_id`, `name`) values('4','Revenue');
-insert into `const_gl_type` (`gl_type_id`, `name`) values('5','Expense');
+CREATE TABLE `const_gl_type` (
+	`gl_type_id` INT(11) ,
+	`name` VARCHAR(255) DEFAULT NULL
+); 
+INSERT INTO `const_gl_type` (`gl_type_id`, `name`) VALUES('1','Assets');
+INSERT INTO `const_gl_type` (`gl_type_id`, `name`) VALUES('2','Liabilities');
+INSERT INTO `const_gl_type` (`gl_type_id`, `name`) VALUES('3','Equity');
+INSERT INTO `const_gl_type` (`gl_type_id`, `name`) VALUES('4','Revenue');
+INSERT INTO `const_gl_type` (`gl_type_id`, `name`) VALUES('5','Expense');
