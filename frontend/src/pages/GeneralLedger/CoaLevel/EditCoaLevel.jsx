@@ -49,19 +49,10 @@ const EditCoaLevel = () => {
 
   useEffect(() => {
     try {
-      dispatch(resetAccounts());
       dispatch(getAccountsEdit(id)).unwrap();
     } catch (error) {
       handleError();
     }
-
-    return () => {
-      try {
-        dispatch(resetAccounts());
-      } catch (error) {
-        handleError(error);
-      }
-    };
   }, []);
 
   return (

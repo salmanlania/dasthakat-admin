@@ -41,28 +41,11 @@ const CreateCoaLevel = () => {
     try {
       await dispatch(createAccounts(data)).unwrap();
       toast.success('Accounts created successfully');
-      dispatch(resetAccounts());
       navigate('/general-ledger/accounts/create');
     } catch (error) {
       handleError(error);
     }
   };
-
-  useEffect(() => {
-    try {
-      dispatch(resetAccounts());
-    } catch (error) {
-      handleError();
-    }
-
-    return () => {
-      try {
-        dispatch(resetAccounts());
-      } catch (error) {
-        handleError(error);
-      }
-    };
-  }, []);
 
   return (
     <>
