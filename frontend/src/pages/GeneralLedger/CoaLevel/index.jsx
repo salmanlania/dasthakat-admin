@@ -99,6 +99,31 @@ const CoaLevel = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
+          <p>Parent Account</p>
+          <AsyncSelectLedger
+            endpoint="/accounts"
+            size="small"
+            className="w-full font-normal"
+            valueKey="account_id"
+            labelKey="name"
+            allowClear
+            value={params.parent_account_id}
+            onChange={(value) => {
+              dispatch(setAccountsListParams({ parent_account_id: value || null }))
+            }}
+          />
+        </div>
+      ),
+      dataIndex: 'parent_account_name',
+      key: 'parent_account_name',
+      sorter: true,
+      width: 180,
+      ellipsis: true,
+      render: (_, record, index) => record?.parent_account_name,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Account Number</p>
           <Input
             className="font-normal"
@@ -147,31 +172,6 @@ const CoaLevel = () => {
       width: 180,
       ellipsis: true,
       render: (_, record, index) => record?.name,
-    },
-    {
-      title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Parent Account</p>
-          <AsyncSelectLedger
-            endpoint="/accounts"
-            size="small"
-            className="w-full font-normal"
-            valueKey="account_id"
-            labelKey="name"
-            allowClear
-            value={params.account_id}
-            onChange={(value) => {
-              dispatch(setAccountsListParams({ account_id: value || null }))
-            }}
-          />
-        </div>
-      ),
-      dataIndex: 'parent_account_name',
-      key: 'parent_account_name',
-      sorter: true,
-      width: 180,
-      ellipsis: true,
-      render: (_, record, index) => record?.parent_account_name,
     },
     // {
     //   title: (
@@ -270,6 +270,7 @@ const CoaLevel = () => {
     params.head_account_name,
     params.name,
     params.account_id,
+    params.parent_account_id,
     debouncedSearch,
     debouncedSaleInvoiceNo,
     debouncedChargeNo,

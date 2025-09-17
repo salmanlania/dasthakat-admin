@@ -164,6 +164,34 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
         scrollToFirstError>
         <Row gutter={16} style={{ display: 'flex', flexDirection: 'row' }}>
           <Col span={8}>
+            <Form.Item name="parent_account" label="Parent Account">
+              <AsyncSelectLedgerParent
+                // endpoint={`/accounts?exempt_account_id=${id}`}
+                endpoint={mode === 'edit' ? `/accounts?exempt_account_id=${id}` : '/accounts'}
+                valueKey="account_id"
+                labelKey="name"
+                labelInValue
+                className="w-full"
+                onChange={(selected) => {
+                  if (!selected?.value) return;
+
+                  if (selected?.value) {
+                    const parentAcc = selected?.data;
+                    setAccountType(parentAcc?.gl_type_id)
+                    form.setFieldsValue({
+                      gl_types: {
+                        value: parentAcc.gl_type_id,
+                        label: parentAcc.gl_type,
+                      },
+                      // head_account: {
+                      //   value: parentAcc.head_account_id,
+                      //   label: parentAcc.head_account_name,
+                      // },
+                    });
+                  }
+                }}
+              />
+            </Form.Item>
             <Form.Item name="gl_types" label="Account Type">
               <AsyncSelectLedger
                 endpoint="/lookups/gl-types"
@@ -218,34 +246,6 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
             </Form.Item>
             <Form.Item name="coa_name" label="Account Name" preserve={false}>
               <Input required />
-            </Form.Item>
-            <Form.Item name="parent_account" label="Parent Account">
-              <AsyncSelectLedgerParent
-                // endpoint={`/accounts?exempt_account_id=${id}`}
-                endpoint={mode === 'edit' ? `/accounts?exempt_account_id=${id}` : '/accounts'}
-                valueKey="account_id"
-                labelKey="name"
-                labelInValue
-                className="w-full"
-                onChange={(selected) => {
-                  if (!selected?.value) return;
-
-                  if (selected?.value) {
-                    const parentAcc = selected?.data;
-                    setAccountType(parentAcc?.gl_type_id)
-                    form.setFieldsValue({
-                      gl_types: {
-                        value: parentAcc.gl_type_id,
-                        label: parentAcc.gl_type,
-                      },
-                      // head_account: {
-                      //   value: parentAcc.head_account_id,
-                      //   label: parentAcc.head_account_name,
-                      // },
-                    });
-                  }
-                }}
-              />
             </Form.Item>
             {/* <Form.Item name="head_account" label="Head Account">
               <AsyncSelectLedgerParent
