@@ -242,7 +242,7 @@ const CoaLevel = () => {
           ) : null}
         </div>
       ),
-      width: 80,
+      width: 50,
       fixed: 'right',
     },
   ];
