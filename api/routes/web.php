@@ -489,7 +489,7 @@ $router->group(['prefix' => 'vendor-platform/charge-order'], function ($router) 
 // Accounts routes
 $router->group(['prefix' => 'accounts'], function ($router) {
     $router->get('/', 'AccountsController@index');
-    $router->get('/account/heads', 'AccountsController@getAccountHeads');
+
     $router->get('/account/tree', 'AccountsController@getAccountsTree');
 
     $router->post('/', 'AccountsController@store');
