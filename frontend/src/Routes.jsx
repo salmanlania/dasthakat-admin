@@ -976,80 +976,80 @@ function Routes() {
                 ),
               },
               // level 1
-              {
-                path: 'coa/level1',
-                element: (
-                  <Suspense fallback={<PageLoader />}>
-                    <CoaLevelOne />
-                  </Suspense>
-                ),
-              },
-              {
-                path: 'coa/level1/create',
-                element: (
-                  <Suspense fallback={<PageLoader />}>
-                    <CreateCoaLevelOne />
-                  </Suspense>
-                ),
-              },
-              {
-                path: 'coa/level1/edit/:id',
-                element: (
-                  <Suspense fallback={<PageLoader />}>
-                    <EditCoaLevelOne />
-                  </Suspense>
-                ),
-              },
-              // level 2
-              {
-                path: 'coa/level2',
-                element: (
-                  <Suspense fallback={<PageLoader />}>
-                    <CoaLevelTwo />
-                  </Suspense>
-                ),
-              },
-              {
-                path: 'coa/level2/create',
-                element: (
-                  <Suspense fallback={<PageLoader />}>
-                    <CreateCoaLevelTwo />
-                  </Suspense>
-                ),
-              },
-              {
-                path: 'coa/level2/edit/:id',
-                element: (
-                  <Suspense fallback={<PageLoader />}>
-                    <EditCoaLevelTwo />
-                  </Suspense>
-                ),
-              },
-              // level 3
-              {
-                path: 'coa/level3',
-                element: (
-                  <Suspense fallback={<PageLoader />}>
-                    <CoaLevelThree />
-                  </Suspense>
-                ),
-              },
-              {
-                path: 'coa/level3/create',
-                element: (
-                  <Suspense fallback={<PageLoader />}>
-                    <CreateCoaLevelThree />
-                  </Suspense>
-                ),
-              },
-              {
-                path: 'coa/level3/edit/:id',
-                element: (
-                  <Suspense fallback={<PageLoader />}>
-                    <EditCoaLevelThree />
-                  </Suspense>
-                ),
-              },
+              // {
+              //   path: 'coa/level1',
+              //   element: (
+              //     <Suspense fallback={<PageLoader />}>
+              //       <CoaLevelOne />
+              //     </Suspense>
+              //   ),
+              // },
+              // {
+              //   path: 'coa/level1/create',
+              //   element: (
+              //     <Suspense fallback={<PageLoader />}>
+              //       <CreateCoaLevelOne />
+              //     </Suspense>
+              //   ),
+              // },
+              // {
+              //   path: 'coa/level1/edit/:id',
+              //   element: (
+              //     <Suspense fallback={<PageLoader />}>
+              //       <EditCoaLevelOne />
+              //     </Suspense>
+              //   ),
+              // },
+              // // level 2
+              // {
+              //   path: 'coa/level2',
+              //   element: (
+              //     <Suspense fallback={<PageLoader />}>
+              //       <CoaLevelTwo />
+              //     </Suspense>
+              //   ),
+              // },
+              // {
+              //   path: 'coa/level2/create',
+              //   element: (
+              //     <Suspense fallback={<PageLoader />}>
+              //       <CreateCoaLevelTwo />
+              //     </Suspense>
+              //   ),
+              // },
+              // {
+              //   path: 'coa/level2/edit/:id',
+              //   element: (
+              //     <Suspense fallback={<PageLoader />}>
+              //       <EditCoaLevelTwo />
+              //     </Suspense>
+              //   ),
+              // },
+              // // level 3
+              // {
+              //   path: 'coa/level3',
+              //   element: (
+              //     <Suspense fallback={<PageLoader />}>
+              //       <CoaLevelThree />
+              //     </Suspense>
+              //   ),
+              // },
+              // {
+              //   path: 'coa/level3/create',
+              //   element: (
+              //     <Suspense fallback={<PageLoader />}>
+              //       <CreateCoaLevelThree />
+              //     </Suspense>
+              //   ),
+              // },
+              // {
+              //   path: 'coa/level3/edit/:id',
+              //   element: (
+              //     <Suspense fallback={<PageLoader />}>
+              //       <EditCoaLevelThree />
+              //     </Suspense>
+              //   ),
+              // },
             ]
           },
         ],

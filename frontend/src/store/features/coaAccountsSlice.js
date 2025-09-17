@@ -234,12 +234,12 @@ export const coaAccountsSlice = createSlice({
         gl_type_id: data?.gl_type_id ? data?.gl_type_id : null,
         account_code: data?.account_code ? data?.account_code : null,
         coa_name: data?.name ? data?.name : null,
-        head_account_name: data?.head_account_name ? data?.head_account_name : null,
+        // head_account_name: data?.head_account_name ? data?.head_account_name : null,
         // head_account: data?.head_account_name || '',
         // parent_account: data?.parent_account_name || '',
-        head_account: data?.head_account_id
-          ? { value: data.head_account_id, label: data.head_account_name }
-          : null,
+        // head_account: data?.head_account_id
+        //   ? { value: data.head_account_id, label: data.head_account_name }
+        //   : null,
         parent_account: data?.parent_account_id
           ? { value: data.parent_account_id, label: data.parent_account_name }
           : null,

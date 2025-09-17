@@ -17,6 +17,7 @@ class AccountsController extends Controller
     {
         $account_code    = $request->input('account_code', '');
         $parent_account_id = $request->input('parent_account_id', '');
+        $exempt_account_id = $request->input('exempt_account_id', '');
        
         $name           = $request->input('name', '');
         $gl_type_id     = $request->input('gl_type_id', '');
@@ -38,7 +39,9 @@ class AccountsController extends Controller
         if (!empty($request->company_id)) {
             $data->where('c1.company_id', '=', $request->company_id);
         }
-    
+        if (!empty($exempt_account_id)) {
+            $data->where('c1.account_id', '!=', $exempt_account_id);
+        }
         if (!empty($parent_account_id)) {
             $data->where('c1.parent_account_id', '=', $parent_account_id);
         }
@@ -61,7 +64,9 @@ class AccountsController extends Controller
             $s = strtolower($search);
             $data->where(function ($q) use ($s) {
                 $q->where('c1.name', 'like', '%' . $s . '%')
-                    ->orWhere('c1.account_code', 'like', '%' . $s . '%');
+                    ->orWhere('c1.account_code', 'like', '%' . $s . '%')
+                    ->orWhere('gl_type.name', 'like', '%' . $s . '%')
+                    ->orWhere('parent.name', 'like', '%' . $s . '%');
             });
         }
 
@@ -186,7 +191,7 @@ class AccountsController extends Controller
         $data->company_id  = $request->company_id;
         $data->gl_type_id  = $request->gl_type_id ?? $data->gl_type_id;
         $data->account_code = $request->account_code ?? $data->account_code;
-        $data->parent_account_id = $request->parent_account_id ?? $data->parent_account_id;
+        $data->parent_account_id = $request->parent_account_id ?? "";
         $data->name        = $request->name ?? $data->name;
         $data->status      = $request->status ?? $data->status;
         $data->updated_at  = Carbon::now();

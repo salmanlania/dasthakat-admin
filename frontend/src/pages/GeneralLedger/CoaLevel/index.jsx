@@ -34,7 +34,7 @@ const CoaLevel = () => {
   );
 
   const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.coa_level1;
+  const permissions = user?.permission?.accounts;
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
@@ -62,7 +62,7 @@ const CoaLevel = () => {
     closeDeleteModal();
     try {
       await dispatch(bulkDeleteAccounts(deleteIDs)).unwrap();
-      toast.success('Chart Of Account Level Ones deleted successfully');
+      toast.success('Accounts deleted successfully');
       closeDeleteModal();
       await dispatch(getAccountsList(formattedParams)).unwrap();
     } catch (error) {
@@ -242,7 +242,7 @@ const CoaLevel = () => {
           ) : null}
         </div>
       ),
-      width: 80,
+      width: 50,
       fixed: 'right',
     },
   ];
@@ -362,7 +362,7 @@ const CoaLevel = () => {
         onCancel={closeDeleteModal}
         isDeleting={isBulkDeleting}
         onDelete={onBulkDelete}
-        title="Are you sure you want to delete these COA level one?"
+        title="Are you sure you want to delete these Accounts?"
         description="After deleting, you will not be able to recover."
       />
     </>
