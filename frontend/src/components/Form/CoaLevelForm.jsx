@@ -3,7 +3,7 @@ import { Button, Col, Form, Input, Row, Table, Spin } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { getAccountsList, getAccountCode, getHeadAccountList } from '../../store/features/coaAccountsSlice';
 import AsyncSelectLedger from '../AsyncSelectLedger';
 import DebounceInput from '../Input/DebounceInput';
@@ -11,6 +11,7 @@ import AsyncSelectLedgerParent from '../AsyncSelectLedgerParent';
 
 const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
+  const { id } = useParams();
   const dispatch = useDispatch();
   const { isFormSubmitting, initialFormValues, initialFormCodeValues, isListLoading, headAccountList } = useSelector(
     (state) => state.coaAccounts
@@ -220,7 +221,8 @@ const CoaLevelForm = ({ mode, onSubmit, onSave }) => {
             </Form.Item>
             <Form.Item name="parent_account" label="Parent Account">
               <AsyncSelectLedgerParent
-                endpoint="/accounts"
+                // endpoint={`/accounts?exempt_account_id=${id}`}
+                endpoint={mode === 'edit' ? `/accounts?exempt_account_id=${id}` : '/accounts'}
                 valueKey="account_id"
                 labelKey="name"
                 labelInValue
