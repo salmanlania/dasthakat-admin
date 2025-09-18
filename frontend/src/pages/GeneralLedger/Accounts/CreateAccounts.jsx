@@ -37,10 +37,11 @@ const CreateAccounts = () => {
 
   const onCoaLevelOneCreatesNew = async (data) => {
     try {
-      await dispatch(createAccounts(data)).unwrap();
+      const res = await dispatch(createAccounts(data)).unwrap();
       toast.success('Accounts created successfully');
-      dispatch(resetAccounts());
+      // dispatch(resetAccounts());
       navigate('/general-ledger/accounts/create');
+      return { success: true, data: res };
     } catch (error) {
       handleError(error);
     }

@@ -39,10 +39,11 @@ const EditAccounts = () => {
 
   const onCoaLevelOneNew = async (data) => {
     try {
-      await dispatch(updateAccountsForm({ id, data })).unwrap();
+      const res = await dispatch(updateAccountsForm({ id, data })).unwrap();
       toast.success('Accounts updated successfully');
-      dispatch(resetAccounts());
+      // dispatch(resetAccounts());
       navigate('/general-ledger/accounts/create');
+      return { success: true, data: res };
     } catch (error) {
       handleError(error);
     }

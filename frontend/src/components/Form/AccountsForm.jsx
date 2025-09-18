@@ -434,7 +434,7 @@ import { Button, Col, Form, Input, Row } from 'antd';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
-import { getAccountsList, getAccountsTree } from '../../store/features/accountsSlice';
+import { getAccountsList, getAccountsTree, resetAccounts } from '../../store/features/accountsSlice';
 import AsyncSelectLedger from '../AsyncSelectLedger';
 import AsyncSelectLedgerParent from '../AsyncSelectLedgerParent';
 import AccountsTree from '../Tree/AccountsTree';
@@ -451,13 +451,6 @@ const AccountsForm = ({ mode, onSubmit, onSave, onNew }) => {
   const [accountType, setAccountType] = useState(null);
   const [initialData, setInitialData] = useState(null);
   const [parentId, setParentId] = useState(null);
-
-  const resetForm = () => {
-    form.resetFields();
-    setInitialData(null);
-    setAccountType(null);
-    setParentId(null);
-  };
 
   useEffect(() => {
     setInitialData(initialFormValues)
@@ -531,8 +524,16 @@ const AccountsForm = ({ mode, onSubmit, onSave, onNew }) => {
     } else if (submitAction === 'saveAndExit') {
       await onSave(data);
     } else if (submitAction === 'saveAndNew') {
-      await onNew(data);
-      resetForm();
+      try {
+        const result = await onNew(data);
+        if (result && result.success) {
+          form.resetFields();
+          setInitialData(null);
+          setAccountType(null);
+          setParentId(null);
+        }
+      } catch (error) {
+      }
     }
   };
 

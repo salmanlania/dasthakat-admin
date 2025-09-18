@@ -171,31 +171,31 @@ const Accounts = () => {
       ellipsis: true,
       render: (_, record, index) => record?.name,
     },
-    // {
-    //   title: (
-    //     <div onClick={(e) => e.stopPropagation()}>
-    //       <p>Head Account</p>
-    //       <AsyncSelectLedger
-    //         endpoint="/accounts/account/heads"
-    //         size="small"
-    //         className="w-full font-normal"
-    //         valueKey="head_account_id"
-    //         labelKey="head_account_name"
-    //         allowClear
-    //         value={params.head_account_id}
-    //         onChange={(value) => {
-    //           dispatch(setAccountsListParams({ head_account_id: value || null }))
-    //         }}
-    //       />
-    //     </div>
-    //   ),
-    //   dataIndex: 'head_account_name',
-    //   key: 'head_account_name',
-    //   sorter: true,
-    //   width: 180,
-    //   ellipsis: true,
-    //   render: (_, record, index) => record?.head_account_name,
-    // },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Head Account</p>
+          <AsyncSelectLedger
+            endpoint="/accounts/account/heads"
+            size="small"
+            className="w-full font-normal"
+            valueKey="head_account_id"
+            labelKey="head_account_name"
+            allowClear
+            value={params.head_account_id}
+            onChange={(value) => {
+              dispatch(setAccountsListParams({ head_account_id: value || null }))
+            }}
+          />
+        </div>
+      ),
+      dataIndex: 'head_account_name',
+      key: 'head_account_name',
+      sorter: true,
+      width: 180,
+      ellipsis: true,
+      render: (_, record, index) => record?.head_account_name,
+    },
     {
       title: 'Created At',
       dataIndex: 'created_at',
