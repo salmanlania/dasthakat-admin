@@ -43,7 +43,7 @@ import vendorReducer from './features/vendorSlice';
 import vesselReducer from './features/vesselSlice';
 import warehouseReducer from './features/warehouseSlice';
 import auditReducer from './features/auditSlice';
-import CompanySettingReducer from './features/companySetting';
+import CompanySettingReducer from './features/companySettingSlice';
 import SaleReturnReducer from './features/saleReturnSlice';
 import StockReturnReducer from './features/stockReturnSlice';
 import PurchaseReturnReducer from './features/purchaseReturnSlice';
@@ -96,7 +96,7 @@ const rootReducer = combineReducers({
   ijo: ijoReducer,
   shipment: shipmentReducer,
   serviceOrder: serviceOrderReducer,
-  CompanySetting: CompanySettingReducer,
+  companySetting: CompanySettingReducer,
   vendorQuotation: vendorQuotationReducer,
 });
 

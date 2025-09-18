@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toggleSidebar } from '../../store/features/sidebarSlice';
 import BackupModal from '../Modals/BackupModal';
-import { dbBackup } from '../../store/features/companySetting';
+import { dbBackup } from '../../store/features/companySettingSlice';
 import toast from 'react-hot-toast';
 import useError from '../../hooks/useError';
 

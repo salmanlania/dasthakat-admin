@@ -22,7 +22,7 @@ import {
   getCompanySetting,
   sendTestEmail,
   updateCompanySetting,
-} from '../../store/features/companySetting';
+} from '../../store/features/companySettingSlice.js';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -37,7 +37,7 @@ const CompanySetting = () => {
   const navigate = useNavigate();
 
   const { initialFormValues, isItemLoading, isTestEmailSending } = useSelector(
-    (state) => state.CompanySetting,
+    (state) => state.companySetting,
   );
 
   const debugChecked = Form.useWatch('debug', form);

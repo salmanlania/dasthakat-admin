@@ -53,8 +53,8 @@ const initialState = {
   testEmailResponse: null
 };
 
-export const settingSlice = createSlice({
-  name: 'setting',
+export const companySettingSlice = createSlice({
+  name: 'companySetting',
   initialState,
   reducers: {},
   extraReducers: ({ addCase }) => {
@@ -94,4 +94,4 @@ export const settingSlice = createSlice({
   }
 });
 
-export default settingSlice.reducer;
+export default companySettingSlice.reducer;
