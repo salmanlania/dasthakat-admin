@@ -3,19 +3,19 @@ import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import CoaLevelForm from '../../../components/Form/CoaLevelForm';
 import PageHeading from '../../../components/Heading/PageHeading';
 import useDocumentTitle from '../../../hooks/useDocumentTitle';
 import useError from '../../../hooks/useError';
-import { getAccountsEdit, resetAccounts, updateAccountsForm } from '../../../store/features/coaAccountsSlice';
+import AccountsForm from '../../../components/Form/AccountsForm';
+import { getAccountsEdit, resetAccounts, updateAccountsForm } from '../../../store/features/accountsSlice';
 
-const EditCoaLevel = () => {
+const EditAccounts = () => {
   useDocumentTitle('Edit Accounts');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();
   const { id } = useParams();
-  const { isItemLoading } = useSelector((state) => state.coaAccounts);
+  const { isItemLoading } = useSelector((state) => state.accounts);
 
   const onCoaLevelOneUpdate = async (data) => {
     try {
@@ -71,11 +71,11 @@ const EditCoaLevel = () => {
 
       {!isItemLoading ? (
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <CoaLevelForm mode="edit" onSubmit={onCoaLevelOneUpdate} onSave={onCoaLevelOneUpdates} onNew={onCoaLevelOneNew} />
+          <AccountsForm mode="edit" onSubmit={onCoaLevelOneUpdate} onSave={onCoaLevelOneUpdates} onNew={onCoaLevelOneNew} />
         </div>
       ) : null}
     </>
   );
 };
 
-export default EditCoaLevel;
+export default EditAccounts;

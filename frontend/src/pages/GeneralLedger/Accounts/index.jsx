@@ -6,31 +6,29 @@ import { GoTrash } from 'react-icons/go';
 import { MdOutlineEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import AsyncSelect from '../../../components/AsyncSelect';
 import PageHeading from '../../../components/Heading/PageHeading';
-import DebounceInput from '../../../components/Input/DebounceInput';
 import DeleteConfirmModal from '../../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../../hooks/useDebounce';
 import useDocumentTitle from '../../../hooks/useDocumentTitle';
 import useError from '../../../hooks/useError';
 
+import AsyncSelectLedger from '../../../components/AsyncSelectLedger';
 import {
   bulkDeleteAccounts,
   deleteAccounts,
   getAccountsList,
-  setCoaLevelOneDeleteIDs,
+  setAccountsDeleteIDs,
   setAccountsListParams,
-} from '../../../store/features/coaAccountsSlice';
-import AsyncSelectLedger from '../../../components/AsyncSelectLedger';
+} from '../../../store/features/accountsSlice';
 
-const CoaLevel = () => {
+const Accounts = () => {
   useDocumentTitle('Accounts List');
   const dispatch = useDispatch();
   const handleError = useError();
   const navigate = useNavigate();
 
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs, listID, headAccountList } = useSelector(
-    (state) => state.coaAccounts
+    (state) => state.accounts
   );
 
   const { user } = useSelector((state) => state.auth);
@@ -325,7 +323,7 @@ const CoaLevel = () => {
               ? {
                 type: 'checkbox',
                 selectedRowKeys: deleteIDs,
-                onChange: (selectedRowKeys) => dispatch(setCoaLevelOneDeleteIDs(selectedRowKeys)),
+                onChange: (selectedRowKeys) => dispatch(setAccountsDeleteIDs(selectedRowKeys)),
               }
               : null
           }
@@ -370,4 +368,4 @@ const CoaLevel = () => {
   );
 };
 
-export default CoaLevel;
+export default Accounts;

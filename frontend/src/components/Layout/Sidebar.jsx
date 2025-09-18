@@ -122,10 +122,7 @@ const Sidebar = () => {
     !permissions?.job_order?.list;
   !permissions?.service_order?.list;
 
-  const coaPermission =
-    // !permissions?.coa_level1?.list &&
-    // !permissions?.coa_level2?.list &&
-    // !permissions?.coa_level3?.list &&
+  const accountsPermission =
     !permissions?.accounts?.list
 
   const warehousingPermission =
@@ -495,18 +492,18 @@ const Sidebar = () => {
       key: 'general ledger',
       label: 'General Ledger',
       icon: <LuClipboardList size={18} />,
-      disabled: coaPermission,
+      disabled: accountsPermission,
       children: [
         {
           key: 'gl setup',
           label: 'GL Setup',
           icon: <MdOutlineAccountTree size={18} />,
-          disabled: coaPermission,
+          disabled: accountsPermission,
           children: [
             {
               key: 'gl module setting',
               label: 'GL Module Setting',
-              disabled: coaPermission,
+              disabled: accountsPermission,
             },
             {
               key: 'Accounts',

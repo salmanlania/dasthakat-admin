@@ -81,7 +81,7 @@ export default function AccountsTreeZoomable({ treeData, loading, onSelect }) {
     if (!treeDataFormatted?.length) {
         return (
             <div className="h-[410px] flex min-h-32 items-center justify-center text-gray-500">
-                No accounts found
+                No Accounts Found
             </div>
         );
     }

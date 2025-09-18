@@ -4,7 +4,7 @@
 // import { useEffect, useState } from 'react';
 // import { useDispatch, useSelector } from 'react-redux';
 // import { Link, useParams } from 'react-router-dom';
-// import { getAccountsList } from '../../store/features/coaAccountsSlice';
+// import { getAccountsList } from '../../store/features/accountsSlice';
 // =======
 // import { Button, Col, Form, Input, Row, Table, Spin } from 'antd';
 // import { useEffect, useState } from 'react';
@@ -434,16 +434,16 @@ import { Button, Col, Form, Input, Row } from 'antd';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
-import { getAccountsList, getAccountsTree } from '../../store/features/coaAccountsSlice';
+import { getAccountsList, getAccountsTree } from '../../store/features/accountsSlice';
 import AsyncSelectLedger from '../AsyncSelectLedger';
 import AsyncSelectLedgerParent from '../AsyncSelectLedgerParent';
 import AccountsTree from '../Tree/AccountsTree';
-const CoaLevelForm = ({ mode, onSubmit, onSave, onNew }) => {
+const AccountsForm = ({ mode, onSubmit, onSave, onNew }) => {
   const [form] = Form.useForm();
   const { id } = useParams();
   const dispatch = useDispatch();
   const { isFormSubmitting, initialFormValues, initialFormCodeValues, isListLoading, headAccountList, accountsTree, isTreeLoading } = useSelector(
-    (state) => state.coaAccounts
+    (state) => state.accounts
   );
   const [submitAction, setSubmitAction] = useState(null);
   const [data, setData] = useState([]);
@@ -697,4 +697,4 @@ const CoaLevelForm = ({ mode, onSubmit, onSave, onNew }) => {
   );
 };
 
-export default CoaLevelForm;
+export default AccountsForm;

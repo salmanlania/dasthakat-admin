@@ -146,21 +146,9 @@ const BidResponseReport = lazy(() => import('./pages/BidResponseReport'));
 
 //ledger
 
-const CoaLevel = lazy(() => import('./pages/GeneralLedger/CoaLevel'));
-const CreateCoaLevel = lazy(() => import('./pages/GeneralLedger/CoaLevel/CreateCoaLevel'));
-const EditCoaLevel = lazy(() => import('./pages/GeneralLedger/CoaLevel/EditCoaLevel'));
-
-const CoaLevelOne = lazy(() => import('./pages/GeneralLedger/CoaLevelOne'));
-const CreateCoaLevelOne = lazy(() => import('./pages/GeneralLedger/CoaLevelOne/CreateCoaLevelOne'));
-const EditCoaLevelOne = lazy(() => import('./pages/GeneralLedger/CoaLevelOne/EditCoaLevelOne'));
-
-const CoaLevelTwo = lazy(() => import('./pages/GeneralLedger/CoaLevelTwo'));
-const CreateCoaLevelTwo = lazy(() => import('./pages/GeneralLedger/CoaLevelTwo/CreateCoaLevelTwo'));
-const EditCoaLevelTwo = lazy(() => import('./pages/GeneralLedger/CoaLevelTwo/EditCoaLevelTwo'));
-
-const CoaLevelThree = lazy(() => import('./pages/GeneralLedger/CoaLevelThree'));
-const CreateCoaLevelThree = lazy(() => import('./pages/GeneralLedger/CoaLevelThree/CreateCoaLevelThree'));
-const EditCoaLevelThree = lazy(() => import('./pages/GeneralLedger/CoaLevelThree/EditCoaLevelThree'));
+const Accounts = lazy(() => import('./pages/GeneralLedger/Accounts'));
+const CreateAccounts = lazy(() => import('./pages/GeneralLedger/Accounts/CreateAccounts'));
+const EditAccounts = lazy(() => import('./pages/GeneralLedger/Accounts/EditAccounts'));
 
 function Routes() {
   const router = createBrowserRouter(
@@ -955,7 +943,7 @@ function Routes() {
                 path: 'accounts',
                 element: (
                   <Suspense fallback={<PageLoader />}>
-                    <CoaLevel />
+                    <Accounts />
                   </Suspense>
                 ),
               },
@@ -963,7 +951,7 @@ function Routes() {
                 path: 'accounts/create',
                 element: (
                   <Suspense fallback={<PageLoader />}>
-                    <CreateCoaLevel />
+                    <CreateAccounts />
                   </Suspense>
                 ),
               },
@@ -971,85 +959,10 @@ function Routes() {
                 path: 'accounts/edit/:id',
                 element: (
                   <Suspense fallback={<PageLoader />}>
-                    <EditCoaLevel />
+                    <EditAccounts />
                   </Suspense>
                 ),
               },
-              // level 1
-              // {
-              //   path: 'coa/level1',
-              //   element: (
-              //     <Suspense fallback={<PageLoader />}>
-              //       <CoaLevelOne />
-              //     </Suspense>
-              //   ),
-              // },
-              // {
-              //   path: 'coa/level1/create',
-              //   element: (
-              //     <Suspense fallback={<PageLoader />}>
-              //       <CreateCoaLevelOne />
-              //     </Suspense>
-              //   ),
-              // },
-              // {
-              //   path: 'coa/level1/edit/:id',
-              //   element: (
-              //     <Suspense fallback={<PageLoader />}>
-              //       <EditCoaLevelOne />
-              //     </Suspense>
-              //   ),
-              // },
-              // // level 2
-              // {
-              //   path: 'coa/level2',
-              //   element: (
-              //     <Suspense fallback={<PageLoader />}>
-              //       <CoaLevelTwo />
-              //     </Suspense>
-              //   ),
-              // },
-              // {
-              //   path: 'coa/level2/create',
-              //   element: (
-              //     <Suspense fallback={<PageLoader />}>
-              //       <CreateCoaLevelTwo />
-              //     </Suspense>
-              //   ),
-              // },
-              // {
-              //   path: 'coa/level2/edit/:id',
-              //   element: (
-              //     <Suspense fallback={<PageLoader />}>
-              //       <EditCoaLevelTwo />
-              //     </Suspense>
-              //   ),
-              // },
-              // // level 3
-              // {
-              //   path: 'coa/level3',
-              //   element: (
-              //     <Suspense fallback={<PageLoader />}>
-              //       <CoaLevelThree />
-              //     </Suspense>
-              //   ),
-              // },
-              // {
-              //   path: 'coa/level3/create',
-              //   element: (
-              //     <Suspense fallback={<PageLoader />}>
-              //       <CreateCoaLevelThree />
-              //     </Suspense>
-              //   ),
-              // },
-              // {
-              //   path: 'coa/level3/edit/:id',
-              //   element: (
-              //     <Suspense fallback={<PageLoader />}>
-              //       <EditCoaLevelThree />
-              //     </Suspense>
-              //   ),
-              // },
             ]
           },
         ],

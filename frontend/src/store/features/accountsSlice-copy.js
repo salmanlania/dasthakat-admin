@@ -110,34 +110,17 @@ export const getHeadAccountList = createAsyncThunk(
   }
 );
 
-export const getAccountsTree = createAsyncThunk(
-  'accounts/tree',
-  async ({ gl_type_id, parent_account_id }, { rejectWithValue }) => {
-    try {
-      const res = await api.get('/accounts/account/tree', {
-        params: { gl_type_id, parent_account_id },
-      });
-      return res.data;
-    } catch (err) {
-      return rejectWithValue(err);
-    }
-  }
-);
-
 const initialState = {
   isListLoading: false,
   isFormSubmitting: false,
   isBulkDeleting: false,
   initialFormValues: null,
   initialFormCodeValues: null,
-  coaLevelOneList: null,
   isItemLoading: false,
   headAccountList: [],
   list: [],
   listID: [],
   deleteIDs: [],
-  accountsTree: [],
-  isTreeLoading: false,
   params: {
     page: 1,
     limit: 50,
@@ -151,8 +134,8 @@ const initialState = {
   }
 };
 
-export const coaAccountsSlice = createSlice({
-  name: 'coaAccounts',
+export const accountsSlice = createSlice({
+  name: 'accounts',
   initialState,
   reducers: {
     setAccountsListParams: (state, action) => {
@@ -162,7 +145,7 @@ export const coaAccountsSlice = createSlice({
       };
     },
 
-    setCoaLevelOneDeleteIDs: (state, action) => {
+    setAccountsDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
     },
 
@@ -177,7 +160,6 @@ export const coaAccountsSlice = createSlice({
     addCase(getAccountsList.pending, (state) => {
       state.isListLoading = true;
       state.initialFormValues = null;
-      state.coaLevelOneList = null;
       state.headAccountList = [];
       state.isItemLoading = false;
     });
@@ -234,12 +216,6 @@ export const coaAccountsSlice = createSlice({
         gl_type_id: data?.gl_type_id ? data?.gl_type_id : null,
         account_code: data?.account_code ? data?.account_code : null,
         coa_name: data?.name ? data?.name : null,
-        // head_account_name: data?.head_account_name ? data?.head_account_name : null,
-        // head_account: data?.head_account_name || '',
-        // parent_account: data?.parent_account_name || '',
-        // head_account: data?.head_account_id
-        //   ? { value: data.head_account_id, label: data.head_account_name }
-        //   : null,
         parent_account: data?.parent_account_id
           ? { value: data.parent_account_id, label: data.parent_account_name }
           : null,
@@ -275,20 +251,8 @@ export const coaAccountsSlice = createSlice({
       state.isItemLoading = false;
       state.initialFormValues = null;
     });
-
-    addCase(getAccountsTree.pending, (state) => {
-      state.isTreeLoading = true;
-    });
-    addCase(getAccountsTree.fulfilled, (state, action) => {
-      state.isTreeLoading = false;
-      state.accountsTree = action.payload?.data || [];
-    });
-    addCase(getAccountsTree.rejected, (state) => {
-      state.isTreeLoading = false;
-      state.accountsTree = [];
-    });
   }
 });
 
-export const { setAccountsListParams, setCoaLevelOneDeleteIDs, resetAccounts } = coaAccountsSlice.actions;
-export default coaAccountsSlice.reducer;
+export const { setAccountsListParams, setAccountsDeleteIDs, resetAccounts } = accountsSlice.actions;
+export default accountsSlice.reducer;

@@ -164,21 +164,6 @@ const MainLayout = () => {
   if (href.startsWith('/general-ledger/accounts/edit') && !permissions.accounts.edit)
     return <NotFound />;
 
-  // if (href === '/general-ledger/coa/level1' && !permissions.coa_level1.list) return <NotFound />;
-  // if (href === '/general-ledger/coa/level1/create' && !permissions.coa_level1.add) return <NotFound />;
-  // if (href.startsWith('/general-ledger/coa/level1/edit') && !permissions.coa_level1.edit)
-  //   return <NotFound />;
-
-  // if (href === '/general-ledger/coa/level2' && !permissions.coa_level2.list) return <NotFound />;
-  // if (href === '/general-ledger/coa/level2/create' && !permissions.coa_level2.add) return <NotFound />;
-  // if (href.startsWith('/general-ledger/coa/level2/edit') && !permissions.coa_level2.edit)
-  //   return <NotFound />;
-
-  // if (href === '/general-ledger/coa/level3' && !permissions.coa_level3.list) return <NotFound />;
-  // if (href === '/general-ledger/coa/level3/create' && !permissions.coa_level3.add) return <NotFound />;
-  // if (href.startsWith('/general-ledger/coa/level3/edit') && !permissions.coa_level3.edit)
-  //   return <NotFound />;
-
   return (
     <Layout className="min-h-screen">
       <Sidebar />
