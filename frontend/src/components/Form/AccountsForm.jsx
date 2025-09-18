@@ -220,6 +220,7 @@ const AccountsForm = ({ mode, onSubmit, onSave, onNew }) => {
                   parent_account: { value: node.account_id, label: node.name },
                   head_account: { value: node.head_account_id, label: node.head_account_name },
                 });
+                loadAccountsTree()
               }
             }}
           />
