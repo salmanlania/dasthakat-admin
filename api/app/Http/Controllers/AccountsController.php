@@ -33,8 +33,8 @@ class AccountsController extends Controller
         $glTypeTable    = (new ConstGlType())->getTable();
         $headAccountTable = (new AccountHeads())->getTable();
         $data = Accounts::from($accountsTable . ' as c1')
-            ->join($glTypeTable . ' as gl_type', 'c1.gl_type_id', '=', 'gl_type.gl_type_id')
-            ->join($headAccountTable . ' as ah', 'c1.head_account_id', '=', 'ah.head_account_id')
+            ->leftJoin($glTypeTable . ' as gl_type', 'c1.gl_type_id', '=', 'gl_type.gl_type_id')
+            ->leftJoin($headAccountTable . ' as ah', 'c1.head_account_id', '=', 'ah.head_account_id')
             ->leftJoin($accountsTable . ' as parent', 'c1.parent_account_id', '=', 'parent.account_id');
 
         if (!empty($request->company_id)) {
