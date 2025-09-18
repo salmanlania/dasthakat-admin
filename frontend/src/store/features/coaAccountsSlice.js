@@ -110,6 +110,20 @@ export const getHeadAccountList = createAsyncThunk(
   }
 );
 
+export const getAccountsTree = createAsyncThunk(
+  'accounts/tree',
+  async ({ gl_type_id, parent_account_id }, { rejectWithValue }) => {
+    try {
+      const res = await api.get('/accounts/account/tree', {
+        params: { gl_type_id, parent_account_id },
+      });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
 const initialState = {
   isListLoading: false,
   isFormSubmitting: false,
@@ -122,6 +136,8 @@ const initialState = {
   list: [],
   listID: [],
   deleteIDs: [],
+  accountsTree: [],
+  isTreeLoading: false,
   params: {
     page: 1,
     limit: 50,
@@ -258,6 +274,18 @@ export const coaAccountsSlice = createSlice({
     addCase(getHeadAccountList.rejected, (state) => {
       state.isItemLoading = false;
       state.initialFormValues = null;
+    });
+
+    addCase(getAccountsTree.pending, (state) => {
+      state.isTreeLoading = true;
+    });
+    addCase(getAccountsTree.fulfilled, (state, action) => {
+      state.isTreeLoading = false;
+      state.accountsTree = action.payload?.data || [];
+    });
+    addCase(getAccountsTree.rejected, (state) => {
+      state.isTreeLoading = false;
+      state.accountsTree = [];
     });
   }
 });
