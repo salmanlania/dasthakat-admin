@@ -64,7 +64,6 @@ const MainLayout = () => {
   if (href.startsWith('/commission-agent/edit') && !permissions.commission_agent.edit)
     return <NotFound />;
 
-  // if (href === '/technician' && !permissions.technician.list) return <NotFound />;
   if (href === '/technician' && !permissions.sales_team.list) return <NotFound />;
   if (href === '/sales-team' && !permissions.sales_team.list) return <NotFound />;
   if (href === '/notes' && !permissions.terms.list) return <NotFound />;

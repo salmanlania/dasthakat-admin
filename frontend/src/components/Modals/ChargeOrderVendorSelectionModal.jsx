@@ -143,7 +143,6 @@ const ChargeOrderVendorSelectionModal = ({ open, onClose }) => {
         });
       });
     });
-// return
     try {
       await dispatch(postVendorSelection(payload)).unwrap();
       toast.success('Quotation Vendors Saved Successfully!');

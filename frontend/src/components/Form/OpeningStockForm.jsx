@@ -659,7 +659,6 @@ const OpeningStockForm = ({ mode, onSubmit, onSave }) => {
         </span>
       </p>
 
-      {/* Hidden Fields */}
       <Form.Item name="type" hidden />
 
       <Row gutter={12}>

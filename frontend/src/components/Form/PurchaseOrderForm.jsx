@@ -539,29 +539,6 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
       },
       width: 300
     },
-    // {
-    //   title: 'Customer Notes',
-    //   dataIndex: 'description',
-    //   key: 'description',
-    //   render: (_, { description, editable }, index) => {
-    //     return (
-    //       <DebounceInput
-    //         value={description}
-    //         disabled={editable === false || isDisable}
-    //         onChange={(value) =>
-    //           dispatch(
-    //             changePurchaseOrderDetailValue({
-    //               index,
-    //               key: 'description',
-    //               value: value
-    //             })
-    //           )
-    //         }
-    //       />
-    //     );
-    //   },
-    //   width: 240
-    // },
     {
       title: 'V.Part#',
       dataIndex: 'vpart',
@@ -719,7 +696,6 @@ const PurchaseOrderForm = ({ mode, onSubmit, onSave }) => {
 
         return (
           <div className="relative">
-            {/* <p className={disabled ? "text-gray-400 cursor-not-allowed" : ""}>{vendor_notes}</p> */}
             <p
               className={`truncate max-w-full ${disabled ? "text-gray-400 cursor-not-allowed" : ""}`}
               title={vendor_notes}

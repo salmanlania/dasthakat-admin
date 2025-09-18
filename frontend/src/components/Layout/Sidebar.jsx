@@ -93,7 +93,6 @@ const Sidebar = () => {
     !permissions?.supplier?.list &&
     !permissions?.agent?.list &&
     !permissions?.commission_agent?.list &&
-    // !permissions?.technician?.list &&
     !permissions?.sales_team?.list &&
     !permissions?.flag?.list &&
     !permissions?.class?.list &&
@@ -214,7 +213,6 @@ const Sidebar = () => {
             {
               key: 'technician',
               label: <Link to="/technician">Technician</Link>,
-              // disabled: !permissions?.technician?.list,
               disabled: !permissions?.sales_team?.list,
             },
             {

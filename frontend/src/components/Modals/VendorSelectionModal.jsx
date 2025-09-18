@@ -306,41 +306,6 @@ const VendorSelectionModal = ({ open, onClose }) => {
           );
         },
       },
-      // {
-      //   title: `Cost`,
-      //   key: `rate-${vendorIndex}`,
-      //   className: 'flex items-center justify-center gap-2',
-      //   width: 140,
-      //   // maxWidth: 100,
-      //   ellipsis: true,
-      //   onCell: (_) => ({
-      //     className: `${_.vendors[vendorIndex].rfq_responded ? '!bg-green-300/50' : ''}`,
-      //   }),
-      //   render: (_, record, productIndex) => (
-      //     <>
-      //       <Tooltip title={record.vendors[vendorIndex].vendor_notes ?? ''}>
-      //         <Input
-      //           value={record.vendors[vendorIndex].rate}
-      //           onChange={(e) => handleRateChange(productIndex, vendorIndex, e.target.value)}
-      //           placeholder="Rate"
-      //           style={{ width: '100%' }}
-      //         />
-      //       </Tooltip>
-
-      //       {(record.vendors[vendorIndex].last_rate_validity_date && record.vendors[vendorIndex].form_rate <= 0) ?(
-      //       <div>
-      //         <Tooltip  title={`This rate should be valid upto ${dayjs(record.vendors[vendorIndex].last_rate_validity_date).format('DD-MMM-YYYY')}`}>
-      //           <span className="right-4 top-2.5 absolute bg-primary cursor-pointer text-white w-[18px] text-xs h-[18px] flex items-center justify-center rounded-full " >
-      //             <span className="">
-      //               iz
-      //             </span>
-      //           </span>
-      //         </Tooltip>
-      //       </div>
-      //       ):null} 
-      //     </>
-      //   ),
-      // },
       {
         title: `Cost`,
         key: `rate-${vendorIndex}`,
@@ -348,7 +313,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
         ellipsis: true,
         onCell: (_) => ({
           className: `${_.vendors[vendorIndex].rfq_responded ? '!bg-green-300/50' : ''}`,
-          style: { padding: 0, width: '100%' } // <-- Remove padding, set width
+          style: { padding: 0, width: '100%' }
         }),
         render: (_, record, productIndex) => (
           <div style={{ width: '100%' }}>

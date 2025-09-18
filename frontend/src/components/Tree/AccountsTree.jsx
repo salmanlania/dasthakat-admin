@@ -53,7 +53,6 @@ export default function AccountsTreeZoomable({ treeData, loading, onSelect }) {
         setOrigin('0 0');
     };
 
-    // Dragging
     const handleMouseDown = (e) => {
         setDragging(true);
         setLastPos({ x: e.clientX, y: e.clientY });

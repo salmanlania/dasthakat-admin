@@ -90,8 +90,6 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
       const salesmanId = initialFormValues?.salesman_id || '';
       const quantity = initialFormValues?.totalQuantity || '';
       const amount = initialFormValues?.totalAmount || '';
-      // const totalDiscount = initialFormValues?.totalDiscount || '';
-      // const netAmount = initialFormValues?.netAmount || '';
       const customerPoNo = initialFormValues?.customer_po_no || '';
       const eventName = initialFormValues?.event_id || '';
       const vesselName = initialFormValues?.vessel_id || '';
@@ -122,9 +120,6 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
         required_date: initialFormValues.required_date
           ? dayjs(initialFormValues.required_date)
           : null,
-        // ship_date: initialFormValues?.ship_date
-        //   ? dayjs(initialFormValues.ship_date)
-        //   : null,
         ship_date: initialFormValues?.ship_date
           ? dayjs(dayjs(initialFormValues.ship_date).format('YYYY-MM-DD'))
           : null,
@@ -433,7 +428,6 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
               name="ship_date"
               label="Shipment Date"
               disabled
-            // rules={[{ required: true, message: 'charge order date is required' }]}
             >
               <DatePicker format="MM-DD-YYYY" className="w-full" />
             </Form.Item>

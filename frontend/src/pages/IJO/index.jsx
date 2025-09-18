@@ -332,7 +332,6 @@ const IJO = () => {
               <Button
                 size="small"
                 type="primary"
-                // onClick={() => generateCertificate(job_order_id)}
                 onClick={() => openCertificateModal(job_order_id)}
                 className="bg-emerald-600 hover:!bg-emerald-500"
                 icon={<MdWorkspacePremium size={14} />}

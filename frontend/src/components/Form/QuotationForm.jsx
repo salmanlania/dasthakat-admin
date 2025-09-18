@@ -200,8 +200,6 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
     : 0;
 
   const total = parseInt(totalCommissionAmount || 0);
-  // const salesman = parseInt(salesmanAmount || 0);
-  // const rebate = parseInt(rebateAmount || 0);
   const salesman = Number(String(salesmanAmount).replace(/,/g, '') || 0);
   const rebate = Number(String(rebateAmount).replace(/,/g, '') || 0);
 
@@ -778,7 +776,6 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
         const disabled = editable === false || isDisable;
         return (
           <div className="relative">
-            {/* <p>{description}</p> */}
             <p
               className={`truncate max-w-full ${disabled ? "text-gray-400 cursor-not-allowed" : ""}`}
               title={description}
@@ -813,7 +810,6 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
         const disabled = editable === false || isDisable;
         return (
           <div className="relative">
-            {/* <p>{internal_notes}</p> */}
             <p
               className={`truncate max-w-full ${disabled ? "text-gray-400 cursor-not-allowed" : ""}`}
               title={internal_notes}
@@ -848,7 +844,6 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
         const disabled = editable === false || isDisable;
         return (
           <div className="relative">
-            {/* <p>{vendor_notes}</p> */}
             <p
               className={`truncate max-w-full ${disabled ? "text-gray-400 cursor-not-allowed" : ""}`}
               title={vendor_notes}

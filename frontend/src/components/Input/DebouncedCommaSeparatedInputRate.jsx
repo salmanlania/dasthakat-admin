@@ -27,8 +27,6 @@ const DebouncedCommaSeparatedInputRate = ({
   ...restProps
 }) => {
   const [inputValue, setInputValue] = useState(value)
-  // const [inputValue, setInputValue] = useState(value || value === 0 ? value.toString() : '');
-  // const debouncedValue = useDebounce(inputValue, delay);
 
   useEffect(() => {
     if (value !== inputValue) {
@@ -50,38 +48,15 @@ const DebouncedCommaSeparatedInputRate = ({
       rawValue = `${integerPart}.${decimalPart.slice(0, decimalPlaces)}`;
     }
 
-    // const formattedValue = formatThreeDigitCommas(rawValue);
-
-    // if (onChange) {
-    //   setInputValue(removeCommas(formattedValue));
-    // }
-
     setInputValue(rawValue)
   };
-
-  // useEffect(() => {
-  //   if (isFirstRender.current) {
-  //     isFirstRender.current = false;
-  //     return;
-  //   }
-  //   onChange(debouncedValue);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [debouncedValue]);
-
-  // useEffect(() => {
-  //   setInputValue(value || '');
-  // }, [value]);
-
 
   return (
     <Input
       {...restProps}
 
-      // value={formatThreeDigitCommas(inputValue)}
       value={inputValue}
       onChange={handleInputChange}
-      // onBlur={() => { 
-      //   onChange(inputValue) }}
       onBlur={() => {
         const cleaned = removeCommas(inputValue);
         const formatted = formatThreeDigitCommas(cleaned);
