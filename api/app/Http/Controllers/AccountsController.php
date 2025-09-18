@@ -101,13 +101,16 @@ class AccountsController extends Controller
         $gl_type_id = $request->input('gl_type_id', '');
         $parent_account_id = $request->input('parent_account_id', '');
 
-        $query = Accounts::query();
+        $query = Accounts::leftJoin('accounts as parent', 'parent.account_id', '=', 'accounts.parent_account_id')
+            ->leftJoin('const_gl_type as gl_type', 'gl_type.gl_type_id', '=', 'accounts.gl_type_id')
+            ->leftJoin('account_heads as head', 'head.head_account_id', '=', 'accounts.head_account_id')
+            ->where('accounts.company_id', $request->company_id);
         if (!empty($gl_type_id)) {
-            $query->where('gl_type_id', $gl_type_id);
+            $query->where('accounts.gl_type_id', $gl_type_id);
         }
      
         // Always fetch ALL accounts matching GL type (so recursion works)
-        $accounts = $query->select("accounts.*")->get()->toArray();
+        $accounts = $query->select("accounts.*","gl_type.name as gl_type_name", "parent.account_code as parent_account_code", "parent.name as parent_account_name", "head.head_account_name", "head.head_account_type")->get()->toArray();
 
         // Build map of accounts
         $map = [];
