@@ -503,7 +503,6 @@ const AccountsForm = ({ mode, onSubmit, onSave, onNew }) => {
   }, [initialFormValues, initialData, mode, form]);
 
   const loadAccountsTree = () => {
-    console.log(initialData,initialFormValues,)
     dispatch(
       getAccountsTree({
         gl_type_id: form.getFieldValue('gl_types')?.value,
@@ -514,7 +513,6 @@ const AccountsForm = ({ mode, onSubmit, onSave, onNew }) => {
 
   useEffect(() => {
     loadAccountsTree()
-      
   }, []);
 
 
