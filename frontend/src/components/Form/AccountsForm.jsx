@@ -7,9 +7,11 @@ import { getAccountsList, getAccountsTree, resetAccounts } from '../../store/fea
 import AsyncSelectLedger from '../AsyncSelectLedger';
 import AsyncSelectLedgerParent from '../AsyncSelectLedgerParent';
 import AccountsTree from '../Tree/AccountsTree';
+import useError from '../../hooks/useError';
 const AccountsForm = ({ mode, onSubmit, onSave, onNew }) => {
   const [form] = Form.useForm();
   const { id } = useParams();
+  const handleError = useError();
   const dispatch = useDispatch();
   const { isFormSubmitting, initialFormValues, initialFormCodeValues, isListLoading, headAccountList, accountsTree, isTreeLoading } = useSelector(
     (state) => state.accounts
@@ -64,13 +66,19 @@ const AccountsForm = ({ mode, onSubmit, onSave, onNew }) => {
     }
   }, [initialFormValues, initialData, mode, form]);
 
-  const loadAccountsTree = () => {
-    dispatch(
-      getAccountsTree({
-        gl_type_id: form.getFieldValue('gl_types')?.value,
-        parent_account_id: form.getFieldValue('parent_account')?.value
-      })
-    );
+  const loadAccountsTree = async () =>  {
+    try{
+
+     await dispatch(
+        getAccountsTree({
+          gl_type_id: form.getFieldValue('gl_types')?.value,
+          parent_account_id: form.getFieldValue('parent_account')?.value
+        })
+      ).unwrap();
+    }catch(error){
+      handleError(error);
+      
+    }
   }
 
   useEffect(() => {
