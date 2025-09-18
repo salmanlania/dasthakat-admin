@@ -41,6 +41,7 @@ const EditCoaLevel = () => {
     try {
       await dispatch(updateAccountsForm({ id, data })).unwrap();
       toast.success('Accounts updated successfully');
+      dispatch(resetAccounts());
       navigate('/general-ledger/accounts/create');
     } catch (error) {
       handleError(error);

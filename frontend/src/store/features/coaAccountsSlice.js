@@ -153,7 +153,7 @@ export const coaAccountsSlice = createSlice({
     resetAccounts: (state) => {
       state.initialFormValues = null;
       state.initialFormCodeValues = null;
-      state.coaLevelOneList = null;
+      state.headAccountList = [];
       state.isItemLoading = false;
     }
   },
