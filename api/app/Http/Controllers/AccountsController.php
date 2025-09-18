@@ -105,9 +105,7 @@ class AccountsController extends Controller
         if (!empty($gl_type_id)) {
             $query->where('gl_type_id', $gl_type_id);
         }
-        if (!empty($parent_account_id)) {
-            $query->where('parent_account_id', $parent_account_id);
-        }
+     
         // Always fetch ALL accounts matching GL type (so recursion works)
         $accounts = $query->select("accounts.*")->get()->toArray();
 

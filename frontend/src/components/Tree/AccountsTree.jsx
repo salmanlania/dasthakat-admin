@@ -22,7 +22,6 @@ export default function AccountsTreeZoomable({ treeData, loading, onSelect }) {
             children: node.children ? node.children.map(convertNode) : [],
             data: node,
         });
-        console.log(data)
         return data.map(convertNode);
     };
 

@@ -503,17 +503,18 @@ const AccountsForm = ({ mode, onSubmit, onSave, onNew }) => {
   }, [initialFormValues, initialData, mode, form]);
 
   const loadAccountsTree = () => {
+    console.log(initialData,initialFormValues,)
     dispatch(
       getAccountsTree({
-        gl_type_id: initialData?.gl_type_id,
-        parent_account_id: initialData?.parent_account_id
+        gl_type_id: form.getFieldValue('gl_types')?.value,
+        parent_account_id: form.getFieldValue('parent_account')?.value
       })
     );
   }
 
   useEffect(() => {
     loadAccountsTree()
-      return 
+      
   }, []);
 
 
@@ -565,6 +566,7 @@ const AccountsForm = ({ mode, onSubmit, onSave, onNew }) => {
                   labelInValue
                   className="w-full"
                   onChange={(selected) => {
+                    loadAccountsTree()
                     if (!selected?.value) return;
 
                     if (selected?.value) {
@@ -595,6 +597,7 @@ const AccountsForm = ({ mode, onSubmit, onSave, onNew }) => {
                   labelInValue
                   className="w-full"
                   onChange={(selected) => {
+                    loadAccountsTree()
                     if (selected?.value) {
                       setAccountType(selected?.value);
                       form.setFieldsValue({ head_account: undefined });
