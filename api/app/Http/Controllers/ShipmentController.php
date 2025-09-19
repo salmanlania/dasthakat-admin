@@ -308,7 +308,6 @@ class ShipmentController extends Controller
 					'document_identity' => $document['document_identity'] ?? "",
 					'document_prefix'   => $document['document_prefix'] ?? "",
 					'document_date'     => $request->document_date ?? Carbon::now(),
-					'document_date'     => Carbon::now(),
 					'event_id'          => $request->event_id ?? "",
 					'charge_order_id'   => $shipmentBlock['charge_order_id'] ?? "",
 					'created_at'        => Carbon::now(),
