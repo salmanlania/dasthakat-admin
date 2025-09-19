@@ -386,10 +386,10 @@ const VendorPlatformQuotation = () => {
               <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Event:</span>
               <span style={{ fontWeight: 600 }}>{data?.quotation?.event?.event_code || '-'}</span>
             </div>
-            <div>
+            {/* <div>
               <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Vessel:</span>
               <span style={{ fontWeight: 600 }}>{data?.quotation?.vessel?.name || '-'}</span>
-            </div>
+            </div> */}
           </div>
           <div className='grid grid-cols-1 w-full md:grid-cols-2 lg:grid-cols-4 gap-4'>
 
@@ -458,8 +458,10 @@ const VendorPlatformQuotation = () => {
             return (
               <>
                 <Table.Summary.Row>
-                  <Table.Summary.Cell index={0}><strong>Total</strong></Table.Summary.Cell>
-                  <Table.Summary.Cell index={1}><strong>{totals.totalQuantity}</strong></Table.Summary.Cell>
+                  <Table.Summary.Cell index={0}></Table.Summary.Cell>
+                  <Table.Summary.Cell index={1}></Table.Summary.Cell>
+                  {/* <Table.Summary.Cell index={0}><strong>Total</strong></Table.Summary.Cell>
+                  <Table.Summary.Cell index={1}><strong>{totals.totalQuantity}</strong></Table.Summary.Cell> */}
                   <Table.Summary.Cell index={2} />
                   <Table.Summary.Cell index={3} />
                   <Table.Summary.Cell index={4} />
