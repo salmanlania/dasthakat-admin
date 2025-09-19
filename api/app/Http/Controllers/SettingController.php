@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Accounts;
 use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -14,7 +15,7 @@ class SettingController extends Controller
 	protected $db;
 	public function update(Request $request)
 	{
-		$post = $request->only(['mail', 'sms','whatsapp']);
+		$post = $request->only(['mail', 'sms', 'whatsapp', 'inventory_accounts_setting', 'gl_account_setting']);
 		foreach ($post as $module_name => $data) {
 			Setting::where('module', $module_name)->delete();
 			if (is_array($data) || is_object($data))
@@ -34,84 +35,108 @@ class SettingController extends Controller
 	}
 
 
-	public function show(Request $request)
+	// public function show(Request $request)
+	// {
+	// 	$setting = Setting::get();
+	// 	return $this->jsonResponse($setting, 200, "Setting Data");
+	// }
+	public function show()
 	{
 		$setting = Setting::get();
-		$result = null;
-		if (!empty($setting)) {
-			$result = $setting;
+
+		if ($setting->isNotEmpty()) {
+			foreach ($setting as $key => $value) {
+				$decoded = json_decode($value->value, true);
+
+				if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+					if ($this->isAccountIdArray($decoded)) {
+						$accounts = Accounts::whereIn('account_id', $decoded)
+							->get(['account_id', 'account_code', 'name']);
+						$value->value = $accounts;
+					} else {
+						$value->value = $decoded;
+					}
+				}
+			}
 		}
 
-
-		// $model = new Setting();
-		// $result['email_details'] = $model->getEmailKeys();
-
-		return $this->jsonResponse($result, 200, "Setting Data");
+		return $this->jsonResponse($setting, 200, "Setting Data");
 	}
 
+	/**
+	 * Check if array looks like account_id list
+	 */
+	private function isAccountIdArray(array $arr): bool
+	{
+		// crude check: all elements are strings of similar length (UUID/char(36))
+		return !empty($arr) && collect($arr)->every(fn($v) => is_string($v) && strlen($v) >= 10);
+	}
+
+
+
 	public function DBBackup()
-    {
-        ini_set('max_execution_time', 0);
-        ini_set('memory_limit', -1);
+	{
+		ini_set('max_execution_time', 0);
+		ini_set('memory_limit', -1);
 
-        $fileName = 'backup_database_' . date('Y_m_d_H_i_s') . '.sql';
-        $backupPath = database_path('backups');
+		$fileName = 'backup_database_' . date('Y_m_d_H_i_s') . '.sql';
+		$backupPath = database_path('backups');
 
-        // Ensure directory exists
-        if (!File::exists($backupPath)) {
-            File::makeDirectory($backupPath, 0755, true);
-        }
+		// Ensure directory exists
+		if (!File::exists($backupPath)) {
+			File::makeDirectory($backupPath, 0755, true);
+		}
 
-        $fileFullPath = $backupPath . '/' . $fileName;
+		$fileFullPath = $backupPath . '/' . $fileName;
 
-        $database = env('DB_DATABASE');
-        $excludedTables = [];
+		$database = env('DB_DATABASE');
+		$excludedTables = [];
 
-        $sqlContent = '';
+		$sqlContent = '';
 
-        // Get all tables
-        $tables = DB::select("SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'");
-        $tableKey = 'Tables_in_' . $database;
+		// Get all tables
+		$tables = DB::select("SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'");
+		$tableKey = 'Tables_in_' . $database;
 
-        foreach ($tables as $tableObj) {
-            $table = $tableObj->$tableKey;
+		foreach ($tables as $tableObj) {
+			$table = $tableObj->$tableKey;
 
-            if (str_starts_with($table, 'vw_') || in_array($table, $excludedTables)) {
-                continue;
-            }
+			if (str_starts_with($table, 'vw_') || in_array($table, $excludedTables)) {
+				continue;
+			}
 
-            $sqlContent .= "DROP TABLE IF EXISTS `$table`;\n";
+			$sqlContent .= "DROP TABLE IF EXISTS `$table`;\n";
 
-            $create = DB::select("SHOW CREATE TABLE `$table`");
-            $sqlContent .= $create[0]->{'Create Table'} . ";\n\n";
+			$create = DB::select("SHOW CREATE TABLE `$table`");
+			$sqlContent .= $create[0]->{'Create Table'} . ";\n\n";
 
-            $rows = DB::table($table)->get();
-            foreach ($rows as $row) {
-                $columns = array_map(fn($col) => "`$col`", array_keys((array)$row));
-                $values = array_map(function ($val) {
-                    if (is_null($val)) return 'NULL';
-                    return "'" . str_replace("'", "''", $val) . "'";
-                }, array_values((array)$row));
+			$rows = DB::table($table)->get();
+			foreach ($rows as $row) {
+				$columns = array_map(fn($col) => "`$col`", array_keys((array)$row));
+				$values = array_map(function ($val) {
+					if (is_null($val)) return 'NULL';
+					return "'" . str_replace("'", "''", $val) . "'";
+				}, array_values((array)$row));
 
-                $sqlContent .= "INSERT INTO `$table` (" . implode(", ", $columns) . ") VALUES (" . implode(", ", $values) . ");\n";
-            }
+				$sqlContent .= "INSERT INTO `$table` (" . implode(", ", $columns) . ") VALUES (" . implode(", ", $values) . ");\n";
+			}
 
-            $sqlContent .= "\n\n";
-        }
+			$sqlContent .= "\n\n";
+		}
 
-        // Write content to file
-        File::put($fileFullPath, $sqlContent);
+		// Write content to file
+		File::put($fileFullPath, $sqlContent);
 
-        // Generate download URL
-        $downloadUrl = url('database/backups/' . $fileName);
+		// Generate download URL
+		$downloadUrl = url('database/backups/' . $fileName);
 
-        return $this->jsonResponse([
-            'status' => 'success',
-            'message' => 'Database backup created successfully.',
-            'file_path' => $fileFullPath,
-            'download_url' => $downloadUrl
-        ]);
-    }
+		return $this->jsonResponse([
+			'status' => 'success',
+			'message' => 'Database backup created successfully.',
+			'file_path' => $fileFullPath,
+			'download_url' => $downloadUrl
+		]);
+	}
 
 	public function EmailDubugging(Request $request)
 	{

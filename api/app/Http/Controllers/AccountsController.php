@@ -64,6 +64,14 @@ class AccountsController extends Controller
             $data->where('c1.status', $status);
         }
 
+        if ($request->input('only_leaf', false)) {
+            $data->whereNotExists(function ($q) use ($accountsTable) {
+                $q->selectRaw(1)
+                    ->from($accountsTable . ' as child')
+                    ->whereRaw('child.parent_account_id = c1.account_id');
+            });
+        }
+
         if (!empty($search)) {
             $s = strtolower($search);
             $data->where(function ($q) use ($s) {
@@ -108,9 +116,9 @@ class AccountsController extends Controller
         if (!empty($gl_type_id)) {
             $query->where('accounts.gl_type_id', $gl_type_id);
         }
-     
+
         // Always fetch ALL accounts matching GL type (so recursion works)
-        $accounts = $query->select("accounts.*","gl_type.name as gl_type_name", "parent.account_code as parent_account_code", "parent.name as parent_account_name", "head.head_account_name", "head.head_account_type")->get()->toArray();
+        $accounts = $query->select("accounts.*", "gl_type.name as gl_type_name", "parent.account_code as parent_account_code", "parent.name as parent_account_name", "head.head_account_name", "head.head_account_type")->get()->toArray();
 
         // Build map of accounts
         $map = [];
