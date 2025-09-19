@@ -348,9 +348,28 @@ const VendorPlatformChargeOrder = () => {
   if (isExpired) return null;
   return (
     <div style={{ padding: '24px', backgroundColor: '#f4f7fa', minHeight: '100vh' }}>
-      <div className="flex items-center justify-center">
-        <img src={GMSLogo} alt="GMS Logo" className="h-32 w-32" />
+      <div style={{
+        display: 'flex',
+        justifyContent: '',
+
+        alignItems: 'center',
+        gap: '230px',
+        padding: '4px 4px 4px 120px',
+        backgroundColor: '#ffffff',
+        border: '1px solid #e0e0e0',
+        borderRadius: '12px',
+        boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+      }} className="flex ">
+        <img src={GMSLogo} alt="GMS Logo" className="h-32 " />
+        <div style={{ fontFamily: 'serif' }} className='text-[#1F3183] text-center'>
+          <h1 className='text-3xl font-semibold'>Global Marine Safety - America</h1>
+          <p className='text-xs'>9145 Wallisville Rd, Houston TX 77029, USA
+          </p>
+          <p className='text-xs'>Tel: 1 713-518-1715, Fax: 1 713-518-1760, Email: sales@gms-america.com
+          </p>
+        </div>
       </div>
+
 
       <div
         style={{
