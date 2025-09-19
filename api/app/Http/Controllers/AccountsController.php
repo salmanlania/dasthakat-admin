@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use App\Models\ConstGlType;
+use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -71,7 +72,6 @@ class AccountsController extends Controller
                     ->whereRaw('child.parent_account_id = c1.account_id');
             });
         }
-
         if (!empty($search)) {
             $s = strtolower($search);
             $data->where(function ($q) use ($s) {
@@ -81,6 +81,41 @@ class AccountsController extends Controller
                     ->orWhere('parent.name', 'like', '%' . $s . '%');
             });
         }
+
+        if ($request->input('exempt_referred_accounts', false)) {
+        // Product references
+        $data->whereNotExists(function ($q) {
+            $q->selectRaw(1)
+                ->from('product')
+                ->whereColumn('product.cogs_account_id', 'c1.account_id')
+                ->orWhereColumn('product.inventory_account_id', 'c1.account_id')
+                ->orWhereColumn('product.revenue_account_id', 'c1.account_id')
+                ->orWhereColumn('product.adjustment_account_id', 'c1.account_id');
+        });
+
+        // Customer references
+        $data->whereNotExists(function ($q) {
+            $q->selectRaw(1)
+                ->from('customer')
+                ->whereColumn('customer.outstanding_account_id', 'c1.account_id');
+        });
+
+        // Supplier references
+        $data->whereNotExists(function ($q) {
+            $q->selectRaw(1)
+                ->from('supplier')
+                ->whereColumn('supplier.outstanding_account_id', 'c1.account_id');
+        });
+
+        // Settings table references
+        $data->whereNotExists(function ($q) {
+            $q->selectRaw(1)
+                ->from('setting')
+                ->whereRaw("JSON_VALID(setting.value)")
+                ->whereRaw("JSON_CONTAINS(setting.value, JSON_QUOTE(c1.account_id))");
+        });
+        }
+
 
         $data = $data->select('c1.*', 'gl_type.name as gl_type', 'ah.head_account_name', 'ah.head_account_type', 'parent.account_code as parent_account_code', 'parent.name as parent_account_name')
             ->orderBy($sort_column, $sort_direction)
@@ -249,66 +284,61 @@ class AccountsController extends Controller
 
         return $this->jsonResponse(['account_id' => $id], 200, 'Update Account Successfully!');
     }
-
     public function delete($id, Request $request)
     {
-        if (!isPermission('delete', 'accounts', $request->permission_list))
+        if (!isPermission('delete', 'accounts', $request->permission_list)) {
             return $this->jsonResponse('Permission Denied!', 403, 'No Permission');
+        }
 
-        $data = Accounts::where('account_id', $id)->first();
-        if (!$data) return $this->jsonResponse(['account_id' => $id], 404, 'Account Not Found!');
+        $account = Accounts::where('account_id', $id)->first();
+        if (!$account) {
+            return $this->jsonResponse(['account_id' => $id], 404, 'Account Not Found!');
+        }
 
-        // $validate = [
-        //     'main' => [
-        //         'check' => new Accounts,
-        //         'id'    => $id,
-        //     ],
-        //     'with' => [
-        //         ['model' => new CoaLevel2],
-        //     ]
-        // ];
+        $childExists = Accounts::where('parent_account_id', $id)->exists();
+        if ($childExists) {
+            return $this->jsonResponse('Please delete child accounts first!', 400, 'Please delete child accounts first!');
+        }
 
-        // $response = $this->checkAndDelete($validate);
-        // if ($response['error']) {
-        //     return $this->jsonResponse($response['msg'], $response['error_code'], 'Deletion Failed!');
-        // }
-
-        $data->delete();
-        return $this->jsonResponse(['account_id' => $id], 200, 'Delete Account Successfully!');
+        $account->delete();
+        return $this->jsonResponse(['account_id' => $id], 200, 'Account deleted successfully!');
     }
+
 
     public function bulkDelete(Request $request)
     {
-        if (!isPermission('delete', 'accounts', $request->permission_list))
+        if (!isPermission('delete', 'accounts', $request->permission_list)) {
             return $this->jsonResponse('Permission Denied!', 403, 'No Permission');
-
-        try {
-            if (isset($request->account_ids) && is_array($request->account_ids)) {
-                foreach ($request->account_ids as $account_id) {
-                    $row = Accounts::where('account_id', $account_id)->first();
-                    if (!$row) continue;
-
-                    // $validate = [
-                    //     'main' => [
-                    //         'check' => new Accounts,
-                    //         'id'    => $account_id,
-                    //     ],
-                    //     'with' => [
-                    //         ['model' => new CoaLevel2],
-                    //     ]
-                    // ];
-
-                    // $response = $this->checkAndDelete($validate);
-                    // if ($response['error']) {
-                    //     return $this->jsonResponse($response['msg'], $response['error_code'], 'Deletion Failed!');
-                    // }
-
-                    $row->delete();
-                }
-            }
-            return $this->jsonResponse('Deleted', 200, 'Delete Account successfully!');
-        } catch (\Exception $e) {
-            return $this->jsonResponse('some error occured', 500, $e->getMessage());
         }
+
+        if (!isset($request->account_ids) || !is_array($request->account_ids)) {
+            return $this->jsonResponse('Invalid Request: account_ids must be an array', 400, 'Invalid Request: account_ids must be an array');
+        }
+
+        $notDeleted = [];
+        $deleted = [];
+
+        foreach ($request->account_ids as $account_id) {
+            $account = Accounts::where('account_id', $account_id)->first();
+            if (!$account) {
+                $notDeleted[] = ['account_id' => $account_id, 'reason' => 'Account not found'];
+                continue;
+            }
+
+            $childExists = Accounts::where('parent_account_id', $account_id)->exists();
+            if ($childExists) {
+                $notDeleted[] = ['account_id' => $account_id, 'reason' => 'Has child accounts'];
+                continue;
+            }
+
+            $account->delete();
+            $deleted[] = $account_id;
+        }
+
+        return $this->jsonResponse(
+            ['deleted' => $deleted, 'not_deleted' => $notDeleted],
+            200,
+            'Accounts deleted successfully!' . (count($notDeleted) > 0 ? ' Some accounts could not be deleted because they have child accounts.' : '')
+        );
     }
 }

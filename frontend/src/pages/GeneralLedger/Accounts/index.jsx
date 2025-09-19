@@ -59,8 +59,8 @@ const Accounts = () => {
   const onBulkDelete = async () => {
     closeDeleteModal();
     try {
-      await dispatch(bulkDeleteAccounts(deleteIDs)).unwrap();
-      toast.success('Accounts deleted successfully');
+      const res = await dispatch(bulkDeleteAccounts(deleteIDs)).unwrap();
+      toast.success(res.message ?? 'Accounts deleted successfully');
       closeDeleteModal();
       await dispatch(getAccountsList(formattedParams)).unwrap();
     } catch (error) {
@@ -222,7 +222,7 @@ const Accounts = () => {
                     />
                   </Link>
                 </Tooltip>
-                {permissions.delete ? (
+                {permissions.delete && _.is_post == 0 ? (
                   <Tooltip title="Delete">
                     <Popconfirm
                       title="Are you sure you want to delete?"
@@ -324,6 +324,9 @@ const Accounts = () => {
                 type: 'checkbox',
                 selectedRowKeys: deleteIDs,
                 onChange: (selectedRowKeys) => dispatch(setAccountsDeleteIDs(selectedRowKeys)),
+                getCheckboxProps: (record) => ({
+                  disabled: record.is_post === 1,
+                }),
               }
               : null
           }

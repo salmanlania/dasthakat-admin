@@ -251,3 +251,5 @@ ADD COLUMN `adjustment_account_id` CHAR(36) NULL AFTER `revenue_account_id`;
 
 ALTER TABLE `customer` ADD COLUMN `outstanding_account_id` CHAR(36) NULL AFTER `rebate_percent`;
 ALTER TABLE `supplier` ADD COLUMN `outstanding_account_id` CHAR(36) NULL AFTER `address`;
+ALTER TABLE `accounts` ADD COLUMN `is_post` TINYINT DEFAULT 0 AFTER `status`;
+

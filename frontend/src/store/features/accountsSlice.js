@@ -87,9 +87,10 @@ export const bulkDeleteAccounts = createAsyncThunk(
   'accounts/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post('/accounts/bulk-delete', {
+      const res = await api.post('/accounts/bulk-delete', {
         account_ids: ids
       });
+      return res?.data;
     } catch (err) {
       throw rejectWithValue(err);
     }
