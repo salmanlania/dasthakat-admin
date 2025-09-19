@@ -128,7 +128,7 @@ class Quotation extends Model
     }
     public function person_incharge()
     {
-        return $this->hasOne(User::class, 'user_id', 'person_incharge_id')->select('user_id', 'user_name');
+        return $this->hasOne(User::class, 'user_id', 'person_incharge_id')->select('user_id', 'user_name','email');
     }
     public function commission_agent()
     {
