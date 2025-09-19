@@ -33,6 +33,7 @@ class ShipmentController extends Controller
 	{
 		$document_identity = $request->input('document_identity', '');
 		$charge_no = $request->input('charge_no', '');
+		$document_date = $request->input('document_date', '');
 		$event_id = $request->input('event_id', '');
 		$vessel_id = $request->input('vessel_id', '');
 		$customer_id = $request->input('customer_id', '');
@@ -62,13 +63,13 @@ class ShipmentController extends Controller
 		if (!empty($document_identity)) $data = $data->where('shipment.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($event_id)) $data = $data->where('shipment.event_id', '=',  $event_id);
 		if (!empty($flag_id)) $data = $data->where('v.flag_id', '=',  $flag_id);
+		if (!empty($document_date)) $data = $data->where('shipment.document_date', '=',  $document_date);
 		if (!empty($vessel_id)) $data = $data->where('v.vessel_id', '=',  $vessel_id);
 		if (!empty($salesman_id)) $data = $data->where('s.salesman_id', '=',  $salesman_id);
 		if (!empty($customer_id)) $data = $data->where('c.customer_id', '=',  $customer_id);
 		if (!empty($imo)) $data = $data->where('v.imo', 'like',  "%" . $imo . "%");
 		if (!empty($class1_id)) $data = $data->where('v.class1_id', '=',  $class1_id);
 		if (!empty($class2_id)) $data = $data->where('v.class2_id', '=',  $class2_id);
-		if (!empty($document_date)) $data = $data->where('shipment.document_date', '=',  $document_date);
 		if (!empty($sales_team_ids) && is_array($sales_team_ids)) {
 			$data = $data->whereIn('e.sales_team_id', $sales_team_ids);
 		}
@@ -305,7 +306,7 @@ class ShipmentController extends Controller
 					'document_type_id'  => $document['document_type_id'] ?? "",
 					'document_no'       => $document['document_no'] ?? "",
 					'document_identity' => $document['document_identity'] ?? "",
-					'document_prefix'   => $document['document_prefix'] ?? "",
+					'document_prefix'   => $request->document_date ?? Carbon::now(),
 					'document_date'     => Carbon::now(),
 					'event_id'          => $request->event_id ?? "",
 					'charge_order_id'   => $shipmentBlock['charge_order_id'] ?? "",
