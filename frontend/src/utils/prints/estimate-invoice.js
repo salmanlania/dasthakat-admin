@@ -104,10 +104,10 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
 
   // Bill To content
   const customerInfo = [
-    data?.customer?.name,
+    // data?.customer?.name,
     data?.vessel?.billing_address ? data?.vessel?.billing_address : null,
-    data?.customer ? data?.customer?.address : null,
-    data?.customer ? data?.customer?.billing_address : null
+    // data?.customer ? data?.customer?.address : null,
+    // data?.customer ? data?.customer?.billing_address : null
   ].filter(Boolean);
 
   const billTo = doc.splitTextToSize(customerInfo.join('\n'), boxWidth);
@@ -115,7 +115,7 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
 
   // Ship To content
   const vesselInfo = [
-    `${data?.vessel ? data?.vessel?.name : ''} ${data?.vessel?.name && data?.vessel?.billing_address ? '-' : ''} ${data?.vessel?.billing_address ? data?.vessel?.billing_address : ''}`,
+    `${data?.event ? data?.event?.event_code : ''} ${data?.vessel?.name && data?.event?.event_code ? '-' : ''} ${data?.vessel ? data?.vessel?.name : ''}`,
   ].filter(Boolean).join('\n');
 
   const shipTo = doc.splitTextToSize(vesselInfo, boxWidth);

@@ -9,6 +9,7 @@ import {
   Spin,
   Table,
   Tooltip,
+  DatePicker
 } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
@@ -66,6 +67,8 @@ const Shipment = () => {
 
   const [popupTitle, setPopupTitle] = useState('');
   const [shipmentType, setShipmentType] = useState(null);
+
+  const [shipmentDate, setShipmentDate] = useState(null);
 
   const closeCreateModal = () => {
     setCreateModalIsOpen(null);
@@ -158,13 +161,13 @@ const Shipment = () => {
         details: charge.details.filter((detail) => detail.checked),
       }))
       .filter((charge) => charge.details.length > 0);
-
     try {
       const values = form.getFieldsValue();
       const res = await dispatch(
         createShipment({
           event_id: values.event_id.value,
           charge_order_id: values?.charge_order_id?.value || null,
+          document_date: shipmentDate ? dayjs(shipmentDate).format('YYYY-MM-DD') : null,
           // type: shipmentType,
           shipment: filteredChargeData,
         }),
@@ -276,6 +279,27 @@ const Shipment = () => {
       key: 'document_identity',
       sorter: true,
       width: 120,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div>
+          <p>Shipment Date</p>
+          <div onClick={(e) => e.stopPropagation()}>
+            <DatePicker
+              size="small"
+              value={params.document_date}
+              className="font-normal"
+              onChange={(date) => dispatch(setShipmentListParams({ document_date: date || null }))}
+              format="MM-DD-YYYY"
+            />
+          </div>
+        </div>
+      ),
+      dataIndex: 'document_date',
+      key: 'document_date',
+      sorter: true,
+      width: 150,
       ellipsis: true,
     },
     {
@@ -515,6 +539,8 @@ const Shipment = () => {
     params.limit,
     params.sort_column,
     params.sort_direction,
+    params.document_date,
+    params.document_identity,
     params.event_id,
     params.charge_no,
     params.sales_team_ids,
@@ -647,7 +673,20 @@ const Shipment = () => {
       <Modal
         open={createModalIsOpen}
         onCancel={closeCreateModal}
-        title={popupTitle}
+        // title={popupTitle}
+        title={
+          <div className="flex items-center gap-4">
+            <span>{popupTitle}</span>
+            {shipmentType === "SO" && (
+              <DatePicker
+                className="w-48"
+                value={shipmentDate}
+                onChange={(date) => setShipmentDate(date)}
+                format="YYYY-MM-DD"
+              />
+            )}
+          </div>
+        }
         width={"70vw"}
         styles={{
           body: { maxHeight: "70vh", overflowY: "auto" },
