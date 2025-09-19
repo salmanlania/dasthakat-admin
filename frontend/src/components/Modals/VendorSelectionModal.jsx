@@ -239,8 +239,6 @@ const VendorSelectionModal = ({ open, onClose }) => {
     setData(newData);
   };
 
-  console.log('data', data)
-
   const columns = [
     {
       title: 'Product Name',

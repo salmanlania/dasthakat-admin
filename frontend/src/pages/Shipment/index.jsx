@@ -172,6 +172,7 @@ const Shipment = () => {
           shipment: filteredChargeData,
         }),
       ).unwrap();
+      res?.status === "Success" || res?.status === "success" ? setShipmentDate(null) : setShipmentDate(null)
       toast.success('Shipment created successfully');
       form.resetFields();
       closeCreateModal();

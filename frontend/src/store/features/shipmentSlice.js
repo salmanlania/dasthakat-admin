@@ -33,7 +33,8 @@ export const createShipment = createAsyncThunk(
   'shipment/create',
   async (data, { rejectWithValue }) => {
     try {
-      await api.post('/shipment', data);
+      const res = await api.post('/shipment', data);
+      return res.data;
     } catch (err) {
       throw rejectWithValue(err);
     }
