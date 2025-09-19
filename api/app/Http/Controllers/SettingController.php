@@ -15,7 +15,7 @@ class SettingController extends Controller
 	protected $db;
 	public function update(Request $request)
 	{
-		$post = $request->only(['mail', 'sms', 'whatsapp', 'inventory_accounts_setting', 'gl_account_setting']);
+		$post = $request->only(['mail', 'sms', 'whatsapp', 'inventory_accounts_setting', 'gl_accounts_setting']);
 		foreach ($post as $module_name => $data) {
 			Setting::where('module', $module_name)->delete();
 			if (is_array($data) || is_object($data))
@@ -34,12 +34,6 @@ class SettingController extends Controller
 		return $this->jsonResponse('Updated', 200, "Update Setting Successfully!");
 	}
 
-
-	// public function show(Request $request)
-	// {
-	// 	$setting = Setting::get();
-	// 	return $this->jsonResponse($setting, 200, "Setting Data");
-	// }
 	public function show()
 	{
 		$setting = Setting::get();
