@@ -147,8 +147,12 @@ class VendorQuotationController extends Controller
                         throw new \RuntimeException("No valid quotation items found for vendor {$vendor_id}");
                     }
                     $data['quotation_detail'] = $quotationDetail;
+
+
                     $data['vendor_id'] = $vendor_id;
-                    $id = $this->saveRFQ($data);
+                    $VendorP = $this->saveRFQ($data);
+                    $id = $VendorP['id'];
+                    $document = $VendorP['document'];
 
                     $link = env("VENDOR_URL") . "quotation/{$id}";
                     // $transform = [
@@ -165,7 +169,7 @@ class VendorQuotationController extends Controller
                         'template' => 'vendor_quotation_rate_update',
                         'data' => [
                             'link' => $link,
-                            'quotation_no' => $data['quotation']->document_identity,
+                            'vendor_platform_no' => $document,
                             'date_required' => Carbon::parse($data['date_required'])->format('d M Y'),
                         ],
                         'email' => $vendor->email,
@@ -173,6 +177,8 @@ class VendorQuotationController extends Controller
                         'subject' => 'New Request Quotation ' . $data['quotation']->document_identity,
                         'message' => '',
                     ];
+
+
                     $this->sendEmail($payload);
                     $successCount++;
                 } catch (\Exception $e) {
@@ -254,7 +260,7 @@ class VendorQuotationController extends Controller
         if (!empty($detail)) {
             VpQuotationRfqDetail::insert($detail);
         }
-        return $id;
+        return ['id'=>$id,'document'=>$document['document_identity']];
     }
 
     public function fetchRFQ($id)

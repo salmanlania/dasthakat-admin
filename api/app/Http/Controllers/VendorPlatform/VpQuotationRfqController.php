@@ -293,12 +293,14 @@ class VpQuotationRfqController extends Controller
         try {
 
             $data = VpQuotationRfq::with('quotation', 'vendor')->find($id);
+
+
             $link = env("VENDOR_URL") . "quotation/{$id}";
             $payload = [
                 'template' => 'vendor_quotation_rate_update',
                 'data' => [
                     'link' => $link,
-                    'quotation_no' => $data->quotation->document_identity,
+                    'vendor_platform_no' => $data->document_identity,
                     'date_required' => Carbon::parse($data->date_required)->format('d M Y'),
 
                 ],

@@ -133,7 +133,7 @@
                         Please review the details and click the button below to submit your price.
                     </p>
 
-                    <p><strong>Quotation No:</strong> {{ $data['data']['quotation_no'] ?? "" }} <br />
+                    <p><strong>Vendor Platform No:</strong> {{ $data['data']['vendor_platform_no'] ?? "" }} <br />
                         <strong>Submission Before:</strong> {{ $data['data']['date_required'] ?? "" }}
                     </p>
 
