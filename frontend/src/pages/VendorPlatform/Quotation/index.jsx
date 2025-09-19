@@ -347,13 +347,13 @@ const VendorPlatformQuotation = () => {
   if (isExpired) return null;
   return (
     <div style={{ padding: '24px', backgroundColor: '#f4f7fa', minHeight: '100vh' }}>
-      <div style={{
+      <div  style={{
         display: 'flex',
-        justifyContent: '',
+        justifyContent: 'center',
 
         alignItems: 'center',
         gap: '230px',
-        padding: '4px 4px 4px 120px',
+        padding: '4px 4px 4px 4px',
         backgroundColor: '#ffffff',
         border: '1px solid #e0e0e0',
         borderRadius: '12px',
