@@ -353,7 +353,7 @@ const VendorPlatformChargeOrder = () => {
         justifyContent: 'center',
 
         alignItems: 'center',
-        gap: '230px',
+        gap: '20px',
         padding: '4px 4px 4px 4px',
         backgroundColor: '#ffffff',
         border: '1px solid #e0e0e0',
@@ -365,7 +365,7 @@ const VendorPlatformChargeOrder = () => {
           <h1 className='text-3xl font-semibold'>Global Marine Safety - America</h1>
           <p className='text-xs'>9145 Wallisville Rd, Houston TX 77029, USA
           </p>
-          <p className='text-xs'>Tel: 1 713-518-1715, Fax: 1 713-518-1760, Email: sales@gms-america.com
+          <p className='text-xs'>Tel: 1 713-518-1715, Fax: 1 713-518-1760, Email: Email
           </p>
         </div>
       </div>
