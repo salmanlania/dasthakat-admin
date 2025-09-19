@@ -100,7 +100,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
       const portName = initialFormValues?.port_id || '';
       const refDocumentIdentity = initialFormValues?.ref_document_identity || '';
       const chargeOrderNo = initialFormValues?.charger_order_id || '';
-      const billingAddress = initialFormValues?.vessel_billing_address ? initialFormValues?.vessel_billing_address : initialFormValues?.vessel?.billing_address || '';
+      const billingAddress = initialFormValues?.vessel_billing_address ? initialFormValues?.vessel_billing_address : '';
 
       setTotalQuantity(quantity);
       setTotalAmount(amount);
