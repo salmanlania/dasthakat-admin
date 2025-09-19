@@ -5,16 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 
-class Supplier extends Model 
+class Supplier extends Model
 {
 
-    protected $primaryKey = 'supplier_id'; 
-    public $incrementing = false; 
+    protected $primaryKey = 'supplier_id';
+    public $incrementing = false;
     protected $keyType = 'string';
 
     // protected $connection = 'mysql';
     protected $table = 'supplier';
-  
+
 
     /**
      * The attributes that are mass assignable.
@@ -34,6 +34,7 @@ class Supplier extends Model
         'contact2',
         'email',
         'address',
+        'outstanding_account_id',
         'status',
         'created_by',
         'updated_by',
@@ -46,7 +47,9 @@ class Supplier extends Model
      */
     public function payment()
     {
-        return $this->hasOne(Payment::class, 'payment_id','payment_id')->select('*');
+        return $this->hasOne(Payment::class, 'payment_id', 'payment_id')->select('*');
     }
-    
+    public function outstanding_account(){
+        return $this->hasOne(Accounts::class, 'account_id', 'outstanding_account_id')->select('*');
+    }
 }

@@ -248,3 +248,6 @@ ALTER TABLE `product` ADD COLUMN `cogs_account_id` CHAR(36) NULL AFTER `sale_pri
 ADD COLUMN `inventory_account_id` CHAR(36) NULL AFTER `cogs_account_id`,
 ADD COLUMN `revenue_account_id` CHAR(36) NULL AFTER `inventory_account_id`,
 ADD COLUMN `adjustment_account_id` CHAR(36) NULL AFTER `revenue_account_id`;
+
+ALTER TABLE `customer` ADD COLUMN `outstanding_account_id` CHAR(36) NULL AFTER `rebate_percent`;
+ALTER TABLE `supplier` ADD COLUMN `outstanding_account_id` CHAR(36) NULL AFTER `address`;

@@ -42,6 +42,10 @@ class Product extends Model
         'unit_id',
         'cost_price',
         'sale_price',
+        'cogs_account_id',
+        'inventory_account_id',
+        'revenue_account_id',
+        'adjustment_account_id',
         'status',
         'created_by',
         'updated_by'
