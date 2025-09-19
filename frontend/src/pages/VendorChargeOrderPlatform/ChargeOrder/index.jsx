@@ -12,6 +12,16 @@ import DebounceInput from '../../../components/Input/DebounceInput';
 import useDocumentTitle from '../../../hooks/useDocumentTitle';
 import useError from '../../../hooks/useError';
 
+// images
+
+import Logo1 from '../../../assets/quotation/logo1.png';
+import Logo2 from '../../../assets/quotation/logo2.png';
+import Logo3 from '../../../assets/quotation/logo3.png';
+import Logo4 from '../../../assets/quotation/logo4.png';
+import Logo5 from '../../../assets/quotation/logo5.png';
+import Logo6 from '../../../assets/quotation/logo6.png';
+import Logo7 from '../../../assets/quotation/logo7.png';
+
 const VendorPlatformChargeOrder = () => {
   useDocumentTitle('Vendor Platform Charge Order');
   const [data, setData] = useState(null);
@@ -486,6 +496,19 @@ const VendorPlatformChargeOrder = () => {
             Submit
           </Button>
         </div>
+
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px' }}>
+          <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <img src={Logo1} alt="ABS" style={{ height: '65px', objectFit: 'contain' }} />
+            <img src={Logo2} alt="ClassNK" style={{ height: '35px', objectFit: 'contain' }} />
+            <img src={Logo3} alt="RINA" style={{ height: '65px', objectFit: 'contain' }} />
+            <img src={Logo4} alt="DNV" style={{ height: '65px', objectFit: 'contain' }} />
+            <img src={Logo5} alt="Lloyds Register" style={{ height: '65px', objectFit: 'contain' }} />
+            <img src={Logo6} alt="Bureau Veritas" style={{ height: '65px', objectFit: 'contain' }} />
+            <img src={Logo7} alt="GIC" style={{ height: '65px', objectFit: 'contain' }} />
+          </div>
+        </div>
+
       </div>
     </div>
   );
