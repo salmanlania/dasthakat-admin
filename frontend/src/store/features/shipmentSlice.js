@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import api from '../../axiosInstance';
+import dayjs from 'dayjs';
 
 export const getShipmentList = createAsyncThunk(
   'shipment/list',
@@ -190,7 +191,7 @@ export const shipmentSlice = createSlice({
     });
     addCase(getShipment.fulfilled, (state, action) => {
       state.isItemLoading = false;
-      const { charge_orders, charge_order, event, shipment_detail, document_identity, document_type_id } =
+      const { charge_orders, charge_order, event, shipment_detail, document_identity, document_type_id, document_date } =
         action.payload;
 
       state.initialFormValues = {
@@ -240,7 +241,8 @@ export const shipmentSlice = createSlice({
             }
             : null,
         document_identity: document_identity || null,
-        document_type_id: document_type_id || null
+        document_type_id: document_type_id || null,
+        document_date: document_date ? dayjs(document_date).format('YYYY-MM-DD') : null,
       };
 
       if (!shipment_detail || !shipment_detail.length) return;

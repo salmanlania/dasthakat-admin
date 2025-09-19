@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Col, Form, Input, Row, Select, Table } from 'antd';
+import { Button, Col, DatePicker, Form, Input, Row, Select, Table } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import useError from '../../hooks/useError';
@@ -57,7 +57,7 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
       title: 'Product Name',
       dataIndex: 'product_name',
       key: 'product_name',
-      width: 300
+      width: 200
     },
     {
       title: 'Description',
@@ -290,6 +290,11 @@ const ShipmentForm = ({ mode = 'create', onSubmit }) => {
                 addNewLink={permissions.event.add ? '/event/create' : null}
                 onChange={onEventChange}
               />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="document_date" label="Shipment Date">
+              <Input disabled />
             </Form.Item>
           </Col>
           <Col span={24} sm={12} md={8} lg={8}>
