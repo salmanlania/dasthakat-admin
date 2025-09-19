@@ -205,3 +205,46 @@ CREATE TABLE `account_heads` (
   `updated_by` CHAR(36) NULL,
   PRIMARY KEY (`head_account_id`)
 );
+
+CREATE TABLE `core_ledger` (
+    `ledger_id` CHAR(36) NOT NULL PRIMARY KEY,
+    `company_id` CHAR(36) NOT NULL,
+    `company_branch_id` CHAR(36),
+    `document_type_id` TINYINT NOT NULL,
+    `document_id` CHAR(36) NOT NULL,
+    `document_identity` VARCHAR(100),
+    `document_detail_id` CHAR(36),
+    `document_date` DATE NOT NULL,
+    `sort_order` TINYINT,
+    `partner_type` ENUM('Customer','Vendor') DEFAULT NULL,
+    `partner_id` CHAR(36),
+    `ref_document_type_id` TINYINT,
+    `ref_document_identity` VARCHAR(100),
+    `account_id` CHAR(36) NOT NULL,
+    `remarks` TEXT,
+    `document_currency_id` CHAR(36),
+    `document_debit` DECIMAL(15,2) DEFAULT 0,
+    `document_credit` DECIMAL(15,2) DEFAULT 0,
+    `base_currency_id` CHAR(36),
+    `conversion_rate` DECIMAL(15,2) DEFAULT 1.00,
+    `debit` DECIMAL(15,2) DEFAULT 0,
+    `credit` DECIMAL(15,2) DEFAULT 0,
+    `product_id` CHAR(36),
+    `qty` DECIMAL(15,2),
+    `document_amount` DECIMAL(15,2) DEFAULT 0,
+    `amount` DECIMAL(15,2) DEFAULT 0,
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `created_by_id` CHAR(36),
+    `cheque_no` VARCHAR(50),
+    `cheque_date` DATE,
+
+    -- Indexes for speed
+    INDEX idx_company (company_id),
+    INDEX idx_account (account_id),
+    INDEX idx_doc_date (document_date)
+);
+
+ALTER TABLE `product` ADD COLUMN `cogs_account_id` CHAR(36) NULL AFTER `sale_price`,
+ADD COLUMN `inventory_account_id` CHAR(36) NULL AFTER `cogs_account_id`,
+ADD COLUMN `revenue_account_id` CHAR(36) NULL AFTER `inventory_account_id`,
+ADD COLUMN `adjustment_account_id` CHAR(36) NULL AFTER `revenue_account_id`;
