@@ -20,6 +20,7 @@ use App\Models\SaleReturnDetail;
 use App\Models\ServicelistReceivedDetail;
 use App\Models\Shipment;
 use App\Models\ShipmentDetail;
+use App\Models\StockReturnDetail;
 use App\Models\User;
 use Carbon\Carbon;
 use Error;
@@ -432,7 +433,11 @@ class Controller extends BaseController
                 $returnQuantity = SaleReturnDetail::query()
                     ->where('charge_order_detail_id', $row->charge_order_detail_id)
                     ->sum('quantity');
-                $quantity = $quantity - $returnQuantity;
+                $returnStockQuantity = StockReturnDetail::query()
+                    ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                    ->sum('quantity');
+
+                $quantity = $quantity - ($returnQuantity + $returnStockQuantity);
             }
         } else
 		if ($row->product_type_id == 3 || $row->product_type_id == 4) {
@@ -448,7 +453,7 @@ class Controller extends BaseController
         } else {
             $quantity = 0;
         }
-        return $quantity;
+        return (float)$quantity;
     }
     static public function getShipmentQuantity($row)
     {
@@ -471,6 +476,10 @@ class Controller extends BaseController
             $quantity = SaleReturnDetail::query()
                 ->where('charge_order_detail_id', $row->charge_order_detail_id)
                 ->sum('quantity');
+            $quantity += StockReturnDetail::query()
+                ->where('charge_order_detail_id', $row->charge_order_detail_id)
+                ->sum('quantity');
+
         } else
 		if ($row->product_type_id == 3 || $row->product_type_id == 4) {
             $quantity = PurchaseReturnDetail::query()

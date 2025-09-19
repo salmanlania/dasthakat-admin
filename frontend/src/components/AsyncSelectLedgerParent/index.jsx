@@ -8,7 +8,7 @@ import useError from '../../hooks/useError';
 
 const { Option } = Select;
 
-const AsyncSelectLedger = ({
+const AsyncSelectLedgerParent = ({
   endpoint,
   labelInValue = false,
   params = {},
@@ -43,7 +43,7 @@ const AsyncSelectLedger = ({
         params: { ...params, search: inputValue, page }
       });
       let data = Array.isArray(response.data) ? response.data : response.data.data;
-      
+
       let optionsData = [];
       if (valueKey && labelKey) {
         optionsData = data.map((item) => ({
@@ -110,8 +110,9 @@ const AsyncSelectLedger = ({
       filterOption={false}
       onFocus={() => setIsClicked(true)}
       {...props}
-      onChange={(v) => {
-        props.onChange && props.onChange(v);
+      onChange={(v, option) => {
+        const fullObj = option?.data || v;
+        props.onChange && props.onChange({ ...v, data: fullObj });
         setSearchValue('');
       }}
       onPopupScroll={handleScroll}
@@ -161,4 +162,4 @@ const AsyncSelectLedger = ({
   );
 };
 
-export default AsyncSelectLedger;
+export default AsyncSelectLedgerParent;

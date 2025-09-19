@@ -103,18 +103,26 @@ const addHeader = (doc, data, pageWidth, sideMargin) => {
   doc.setFont('times', 'normal');
 
   // Bill To content
+  // const customerInfo = [
+  //   data?.charge_order?.customer?.name,
+  //   data?.charge_order?.customer ? data?.charge_order?.customer?.address : null,
+  //   data?.charge_order?.customer ? data?.charge_order?.customer?.billing_address : null
+  // ].filter(Boolean);
+
   const customerInfo = [
-    data?.charge_order?.customer?.name,
-    data?.charge_order?.customer ? data?.charge_order?.customer?.address : null,
-    data?.charge_order?.customer ? data?.charge_order?.customer?.billing_address : null
+    data?.vessel_billing_address ? data?.vessel_billing_address : data?.charge_order?.vessel ? data?.charge_order?.vessel?.billing_address : null,
   ].filter(Boolean);
 
   const billTo = doc.splitTextToSize(customerInfo.join('\n'), boxWidth);
   const billToHeight = billTo.length * 4;
 
   // Ship To content
+  // const vesselInfo = [
+  //   `${data?.charge_order?.vessel ? data?.charge_order?.vessel?.name : ''} ${data?.charge_order?.vessel?.name && data?.charge_order?.vessel?.billing_address ? '-' : ''} ${data?.charge_order?.vessel?.billing_address ? data?.charge_order?.vessel?.billing_address : ''}`,
+  // ].filter(Boolean).join('\n');
+
   const vesselInfo = [
-    `${data?.charge_order?.vessel ? data?.charge_order?.vessel?.name : ''} ${data?.charge_order?.vessel?.name && data?.charge_order?.vessel?.billing_address ? '-' : ''} ${data?.charge_order?.vessel?.billing_address ? data?.charge_order?.vessel?.billing_address : ''}`,
+    `${data?.charge_order?.event ? data?.charge_order?.event?.event_code : ''} ${data?.charge_order?.vessel?.name && data?.charge_order?.event?.event_code ? '-' : ''} ${data?.charge_order?.vessel?.name ? data?.charge_order?.vessel?.name : ''}`,
   ].filter(Boolean).join('\n');
 
   const shipTo = doc.splitTextToSize(vesselInfo, boxWidth);
