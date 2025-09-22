@@ -420,7 +420,7 @@ const VendorPlatformQuotation = () => {
             </div>
             <div>
               <span style={{ marginRight: '8px', color: '#555', fontWeight: 500 }}>Buyer Email:</span>
-              <span style={{ fontWeight: 600 }}>{data?.quotation?.person_incharge ? data?.quotation?.person_incharge?.email : '-'}</span>
+              <span style={{ fontWeight: 600 }}>{'tech1@gms-americ.com'}</span>
             </div>
           </div>
           <div className='grid grid-cols-1 w-full md:grid-cols-2 lg:grid-cols-4 gap-4'>
