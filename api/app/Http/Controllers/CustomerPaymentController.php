@@ -71,7 +71,8 @@ class CustomerPaymentController extends Controller
     public function show($id, Request $request)
     {
 
-        $data = CustomerPayment::LeftJoin('customer as c', 'c.customer_id', '=', 'customer_payment.customer_id')
+        $data = CustomerPayment::with('details', 'customer', 'transaction_account', 'document_currency', 'base_currency', 'details.sale_invoice')
+            ->LeftJoin('customer as c', 'c.customer_id', '=', 'customer_payment.customer_id')
             ->LeftJoin('accounts as a', 'a.account_id', '=', 'customer_payment.transaction_account_id')
             ->where('customer_payment.customer_payment_id', $id)
             ->first();

@@ -29,4 +29,9 @@ class CustomerPaymentDetail extends Model
     {
         return $this->belongsTo(CustomerPayment::class, 'customer_payment_id', 'customer_payment_id');
     }
+
+    public function sale_invoice()
+    {
+        return $this->belongsTo(SaleInvoice::class, 'sale_invoice_id', 'sale_invoice_id');
+    }
 }

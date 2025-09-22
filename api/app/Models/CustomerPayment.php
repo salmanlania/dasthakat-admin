@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use PhpOffice\PhpSpreadsheet\Calculation\DateTimeExcel\Current;
 
 class CustomerPayment extends Model
 {
@@ -40,5 +41,19 @@ class CustomerPayment extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'customer_id', 'customer_id');
+    }
+    public function transaction_account()
+    {
+        return $this->belongsTo(Accounts::class, 'transaction_account_id', 'account_id');
+    }
+    
+    public function document_currency()
+    {
+        return $this->belongsTo(Currency::class, 'document_currency_id', 'currency_id');
+    }
+
+    public function base_currency()
+    {
+        return $this->belongsTo(Currency::class, 'base_currency_id', 'currency_id');
     }
 }
