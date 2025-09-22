@@ -12,6 +12,7 @@ use App\Models\Quotation;
 use App\Models\SaleInvoice;
 use App\Models\Vessel;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class CustomerController extends Controller
@@ -118,11 +119,29 @@ class CustomerController extends Controller
 	public function getLedgerInvoices($id, Request $request)
 	{
 
-		// $data = Ledger::where(['partner_id' => $id, 'partner_type' => 'Customer','company_id' => $request->company_id, 'company_branch_id' => $request->company_branch_id])->get();
 		$data = SaleInvoice::leftJoin('charge_order as co', 'co.charge_order_id', '=', 'sale_invoice.charge_order_id')
-			->where(['co.customer_id' => $id, 'sale_invoice.company_id' => $request->company_id, 'sale_invoice.company_branch_id' => $request->company_branch_id])
-			->select("sale_invoice_id", "sale_invoice.document_identity", 'sale_invoice.document_type_id', "sale_invoice.document_date", "sale_invoice.net_amount", "sale_invoice.net_amount as balance_amount")
+			->where([
+				'co.customer_id' => $id,
+				'sale_invoice.company_id' => $request->company_id,
+				'sale_invoice.company_branch_id' => $request->company_branch_id,
+			])
+			->select(
+				'sale_invoice.sale_invoice_id',
+				'sale_invoice.document_identity',
+				'sale_invoice.document_type_id',
+				'sale_invoice.document_date',
+				'sale_invoice.net_amount',
+				DB::raw("sale_invoice.net_amount - (
+                    SELECT COALESCE(SUM(settled_amount), 0) 
+                    FROM customer_payment_detail 
+                    WHERE sale_invoice_id = sale_invoice.sale_invoice_id 
+                      AND company_id = sale_invoice.company_id 
+                      AND company_branch_id = sale_invoice.company_branch_id
+                ) as balance_amount")
+			)
 			->get();
+
+
 
 		if (!$data) {
 			return $this->jsonResponse(null, 404, "Customer Invoices not found");

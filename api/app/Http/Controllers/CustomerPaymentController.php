@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Setting;
 use App\Models\CustomerPayment;
 use App\Models\CustomerPaymentDetail;
+use App\Models\Ledger;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -123,7 +124,7 @@ class CustomerPaymentController extends Controller
             $default_currency_id = Currency::where('company_id', $request->company_id)
                 ->where('company_branch_id', $request->company_branch_id)
                 ->value('currency_id');
-
+            $conversion_rate = 1;
             $data = [
                 'company_id' => $request->company_id ?? "",
                 'company_branch_id' => $request->company_branch_id ?? "",
@@ -137,7 +138,7 @@ class CustomerPaymentController extends Controller
                 'base_currency_id' => $base_currency_id ?? "",
                 'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
                 'transaction_account_id' => Setting::getValue('gl_account_setting', 'undeposited_account'),
-                'conversion_rate' => 1,
+                'conversion_rate' => $conversion_rate,
                 'payment_amount' => $request->payment_amount ?? "",
                 'total_amount' => $request->total_amount ?? "",
                 'remarks' => $request->remarks ?? "",
@@ -145,6 +146,35 @@ class CustomerPaymentController extends Controller
                 'created_by' => $request->login_user_id,
             ];
             CustomerPayment::create($data);
+
+            Ledger::create([
+                'ledger_id' => $this->get_uuid(),
+                'company_id' => $request->company_id,
+                'company_branch_id' => $request->company_branch_id,
+                'document_type_id' => $this->document_type_id,
+                'document_no' => $document['document_no'] ?? "",
+                'document_prefix' => $document['document_prefix'] ?? "",
+                'document_identity' => $document['document_identity'] ?? "",
+                'document_date' => $request->document_date ?? "",
+                'sort_order' => "",
+                'partner_type' => 'Customer',
+                'partner_id' => $request->customer_id,
+                'ref_document_type_id' => "",
+                'ref_document_identity' => "",
+                'account_id' => $outstanding_account_id,
+                'remarks' => '',
+                'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
+                'document_debit' => $request->payment_amount ?? "",
+                'document_credit' => 0,
+                'base_currency_id' => $base_currency_id,
+                'conversion_rate' => $conversion_rate,
+                'debit' => $request->payment_amount * $conversion_rate ?? "",
+                'credit' => 0,
+                'document_amount' => $request->payment_amount ?? "",
+                'amount' => $request->payment_amount * $conversion_rate ?? "",
+                'created_at' => Carbon::now(),
+                'created_by' => $request->login_user_id,
+            ]);
 
             if ($request->details) {
                 foreach ($request->details as $key => $value) {
@@ -169,25 +199,29 @@ class CustomerPaymentController extends Controller
                         'ledger_id' => $this->get_uuid(),
                         'company_id' => $request->company_id,
                         'company_branch_id' => $request->company_branch_id,
-
                         'document_type_id' => $this->document_type_id,
                         'document_no' => $document['document_no'] ?? "",
                         'document_prefix' => $document['document_prefix'] ?? "",
                         'document_identity' => $document['document_identity'] ?? "",
                         'document_date' => $request->document_date ?? "",
                         'sort_order' => $value['sort_order'] ?? "",
-                        
                         'partner_type' => 'Customer',
                         'partner_id' => $request->customer_id,
-                        
                         'ref_document_type_id' => $value['ref_document_type_id'] ?? "",
                         'ref_document_identity' => $value['ref_document_identity'] ?? "",
-                        'account_id' => Setting::getValue('gl_account_setting', 'undeposited_account'),
-                        'transaction_account_id' => Setting::getValue('gl_account_setting', 'undeposited_account'),
+                        'account_id' => $outstanding_account_id,
+                        'remarks' => '',
                         'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
-                        'conversion_rate' => 1,
-                        'amount' => $value['original_amount'] ?? "",
+                        'document_debit' => 0,
+                        'document_credit' => $value['settled_amount'] ?? "",
+                        'base_currency_id' => $base_currency_id,
+                        'conversion_rate' => $conversion_rate,
+                        'debit' => 0,
+                        'credit' => $value['settled_amount'] * $conversion_rate ?? "",
+                        'document_amount' => $value['settled_amount'] ?? "",
+                        'amount' => $value['settled_amount'] * $conversion_rate ?? "",
                         'created_at' => Carbon::now(),
+                        'created_by' => $request->login_user_id,
                     ]);
                 }
             }
