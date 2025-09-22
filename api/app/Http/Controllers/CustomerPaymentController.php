@@ -90,6 +90,8 @@ class CustomerPaymentController extends Controller
         $rules = [
             'document_date' => 'required|date',
             'customer_id' => 'required|string|size:36',
+            'total_amount' => 'required|numeric|min:0',
+            'payment_amount' => 'required|numeric|min:0',
             'details' => 'required|array|min:1',
             'details.*.sale_invoice_id' => 'required|string|size:36',
             'details.*.settled_amount' => 'required|numeric|min:0',
