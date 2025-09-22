@@ -27,11 +27,11 @@ class Setting extends Model
     'created_at'
   ];
 
-  public function getValue($module, $field)
+   static public function getValue($module, $field)
   {
     return Setting::where('module', $module)->where('field', $field)->first()->value ?? null;
   }
-  public function getRow($module, $field)
+  static public function getRow($module, $field)
   {
     return Setting::where('module', $module)->where('field', $field)->first();
   }
