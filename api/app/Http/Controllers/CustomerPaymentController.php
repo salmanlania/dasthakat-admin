@@ -123,6 +123,9 @@ class CustomerPaymentController extends Controller
             $document = DocumentType::getNextDocument($this->document_type_id, $request);
             $base_currency_id = Company::where('company_id', $request->company_id)->pluck('base_currency_id')->first();
             $outstanding_account_id = Customer::where('customer_id', $request->customer_id)->pluck('outstanding_account_id')->first();
+            $transaction_account_id = Setting::getValue('gl_accounts_setting', 'undeposited_account', true)[0] ?? "";
+            if (empty($outstanding_account_id)) return $this->jsonResponse(null, 400, "Customer Outstanding Account not found");
+            if (empty($transaction_account_id)) return $this->jsonResponse(null, 400, "Undeposited Transaction Account not found");
             $default_currency_id = Currency::where('company_id', $request->company_id)
                 ->where('company_branch_id', $request->company_branch_id)
                 ->value('currency_id');
@@ -140,7 +143,7 @@ class CustomerPaymentController extends Controller
                 'customer_id' => $request->customer_id ?? "",
                 'base_currency_id' => $base_currency_id ?? "",
                 'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
-                'transaction_account_id' => Setting::getValue('gl_accounts_setting', 'undeposited_account', true)[0] ?? null,
+                'transaction_account_id' => $transaction_account_id ?? null,
                 'conversion_rate' => $conversion_rate,
                 'payment_amount' => $request->payment_amount ?? "",
                 'total_amount' => $request->total_amount ?? "",
@@ -250,6 +253,8 @@ class CustomerPaymentController extends Controller
 
         $base_currency_id = Company::where('company_id', $request->company_id)->pluck('base_currency_id')->first();
         $outstanding_account_id = Customer::where('customer_id', $request->customer_id)->pluck('outstanding_account_id')->first();
+        if (empty($outstanding_account_id)) return $this->jsonResponse(null, 400, "Customer Outstanding Account not found");
+
         $default_currency_id = Currency::where('company_id', $request->company_id)
             ->where('company_branch_id', $request->company_branch_id)
             ->value('currency_id');
