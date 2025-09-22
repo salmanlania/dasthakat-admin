@@ -167,7 +167,7 @@ CREATE TABLE `accounts` (
 );
 ALTER TABLE `accounts` ADD COLUMN `head_account_id` INT(11) NULL AFTER `parent_account_id`;
 
-CREATE TABLE `account_heads` (
+CREATE TABLE `head_accounts` (
   `head_account_id` INT(11) NOT NULL AUTO_INCREMENT,
   `company_id` CHAR(36) NOT NULL,
   `head_account_name` VARCHAR(255) NOT NULL,
@@ -194,7 +194,7 @@ INSERT INTO `const_gl_type` (`gl_type_id`, `name`) VALUES('5','Expense');
 
 ALTER TABLE `accounts` ADD COLUMN `head_account_id` INT(11) NULL AFTER `parent_account_id`;
 
-CREATE TABLE `account_heads` (
+CREATE TABLE `head_accounts` (
   `head_account_id` INT(11) NOT NULL AUTO_INCREMENT,
   `company_id` CHAR(36) NOT NULL,
   `head_account_name` VARCHAR(255) NOT NULL,

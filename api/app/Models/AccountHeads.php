@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AccountHeads extends Model
 {
-    protected $table = 'account_heads';
+    protected $table = 'head_accounts';
     protected $primaryKey = 'head_account_id';
     public $incrementing = false; // UUID
     public $timestamps = false;

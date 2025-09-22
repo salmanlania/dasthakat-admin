@@ -146,7 +146,7 @@ class AccountsController extends Controller
 
         $query = Accounts::leftJoin('accounts as parent', 'parent.account_id', '=', 'accounts.parent_account_id')
             ->leftJoin('const_gl_type as gl_type', 'gl_type.gl_type_id', '=', 'accounts.gl_type_id')
-            ->leftJoin('account_heads as head', 'head.head_account_id', '=', 'accounts.head_account_id')
+            ->leftJoin('head_accounts as head', 'head.head_account_id', '=', 'accounts.head_account_id')
             ->where('accounts.company_id', $request->company_id);
         if (!empty($gl_type_id)) {
             $query->where('accounts.gl_type_id', $gl_type_id);

@@ -1,7 +1,7 @@
-TRUNCATE TABLE `account_heads`;
+TRUNCATE TABLE `head_accounts`;
 
 INSERT INTO
-  `account_heads`(
+  `head_accounts`(
     `head_account_id`,
     `company_id`,
     `head_account_name`,
