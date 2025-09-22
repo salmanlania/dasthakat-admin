@@ -308,6 +308,8 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
             cost_price: detail.product_type_id?.value === 1 ? 0 : detail.cost_price,
             sort_order: index,
             quotation_detail_id: id ? id : null,
+            // quotation_detail_id: detail?.quotation_detail_id ?? null,
+            // ...(detail?.quotation_detail_id ? { quotation_detail_id: detail.quotation_detail_id } : {}),
             ...(edit === 'edit' ? { row_status } : {}),
           };
         },
@@ -322,7 +324,6 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
       rebate_amount: rebateAmount,
       salesman_amount: salesmanAmount,
     };
-
     submitAction === 'save'
       ? onSubmit(data).then(() => dispatch(resetCommissionAgent()))
       : submitAction === 'saveAndExit'

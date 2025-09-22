@@ -294,6 +294,7 @@ export const quotationSlice = createSlice({
         id: uuidv4(),
         row_status: 'I',
         isDeleted: false,
+        // quotation_detail_id: null
       };
 
       state.quotationDetails.splice(index + 1, 0, newDetail);

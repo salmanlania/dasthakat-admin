@@ -390,7 +390,7 @@ const VendorSelectionChargeModal = ({ open, onClose }) => {
           columns={columns}
           dataSource={data}
           pagination={false}
-          scroll={{ x: 'calc(100% - 200px)', y: 400 }}
+          scroll={{ x: 'calc(100% - 200px)', y: 900 }}
           summary={(pageData) => {
             if (pageData.length === 0) return null;
             let totalQuantity = 0;
