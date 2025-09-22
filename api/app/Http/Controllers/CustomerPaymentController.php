@@ -152,8 +152,8 @@ class CustomerPaymentController extends Controller
                 'company_id' => $request->company_id,
                 'company_branch_id' => $request->company_branch_id,
                 'document_type_id' => $this->document_type_id,
-                'document_no' => $document['document_no'] ?? "",
-                'document_prefix' => $document['document_prefix'] ?? "",
+                'document_id' => $uuid ?? "",
+                'document_detail_id' => "",
                 'document_identity' => $document['document_identity'] ?? "",
                 'document_date' => $request->document_date ?? "",
                 'sort_order' => "",
@@ -168,12 +168,12 @@ class CustomerPaymentController extends Controller
                 'document_credit' => 0,
                 'base_currency_id' => $base_currency_id,
                 'conversion_rate' => $conversion_rate,
-                'debit' => $request->payment_amount * $conversion_rate ?? "",
+                'debit' => ($request->payment_amount ?? 0) * $conversion_rate,
                 'credit' => 0,
                 'document_amount' => $request->payment_amount ?? "",
-                'amount' => $request->payment_amount * $conversion_rate ?? "",
+                'amount' => ($value['settled_amount'] ?? 0) * $conversion_rate,
                 'created_at' => Carbon::now(),
-                'created_by' => $request->login_user_id,
+                'created_by_id' => $request->login_user_id,
             ]);
 
             if ($request->details) {
@@ -200,8 +200,8 @@ class CustomerPaymentController extends Controller
                         'company_id' => $request->company_id,
                         'company_branch_id' => $request->company_branch_id,
                         'document_type_id' => $this->document_type_id,
-                        'document_no' => $document['document_no'] ?? "",
-                        'document_prefix' => $document['document_prefix'] ?? "",
+                        'document_id' => $uuid,
+                        'document_detail_id' => $detail_uuid,
                         'document_identity' => $document['document_identity'] ?? "",
                         'document_date' => $request->document_date ?? "",
                         'sort_order' => $value['sort_order'] ?? "",
@@ -221,7 +221,7 @@ class CustomerPaymentController extends Controller
                         'document_amount' => $value['settled_amount'] ?? "",
                         'amount' => $value['settled_amount'] * $conversion_rate ?? "",
                         'created_at' => Carbon::now(),
-                        'created_by' => $request->login_user_id,
+                        'created_by_id' => $request->login_user_id,
                     ]);
                 }
             }
@@ -244,7 +244,13 @@ class CustomerPaymentController extends Controller
         // Validation Rules
         $isError = $this->validateRequest($request->all(), $id);
         if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
+
+        $base_currency_id = Company::where('company_id', $request->company_id)->pluck('base_currency_id')->first();
         $outstanding_account_id = Customer::where('customer_id', $request->customer_id)->pluck('outstanding_account_id')->first();
+        $default_currency_id = Currency::where('company_id', $request->company_id)
+            ->where('company_branch_id', $request->company_branch_id)
+            ->value('currency_id');
+        $conversion_rate = 1;
 
         DB::beginTransaction();
         try {
@@ -254,16 +260,48 @@ class CustomerPaymentController extends Controller
             $data->document_date = $request->document_date;
             $data->customer_id = $request->customer_id;
             $data->document_currency_id = $request->document_currency_id;
-            $data->conversion_rate = $request->conversion_rate;
+            $data->conversion_rate = $conversion_rate;
             $data->payment_amount = $request->payment_amount;
             $data->total_amount = $request->total_amount;
             $data->remarks = $request->remarks;
             $data->updated_at = Carbon::now();
             $data->updated_by = $request->login_user_id;
             $data->save();
+            Ledger::where('document_id', $id)
+                ->where('document_type_id', $this->document_type_id)
+                ->delete();
+            Ledger::create([
+                'ledger_id' => $this->get_uuid(),
+                'company_id' => $request->company_id,
+                'company_branch_id' => $request->company_branch_id,
+                'document_type_id' => $this->document_type_id,
+                'document_id' => $id,
+                'document_detail_id' => "",
+                'document_identity' => $request->document_identity ?? "",
+                'document_date' => $request->document_date ?? "",
+                'sort_order' => "",
+                'partner_type' => 'Customer',
+                'partner_id' => $request->customer_id,
+                'ref_document_type_id' => "",
+                'ref_document_identity' => "",
+                'account_id' => $outstanding_account_id,
+                'remarks' => '',
+                'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
+                'document_debit' => $request->payment_amount ?? "",
+                'document_credit' => 0,
+                'base_currency_id' => $base_currency_id,
+                'conversion_rate' => $conversion_rate,
+                'debit' => ($request->payment_amount ?? 0) * $conversion_rate,
+                'credit' => 0,
+                'document_amount' => $request->payment_amount ?? "",
+                'amount' => ($value['settled_amount'] ?? 0) * $conversion_rate,
+                'created_at' => Carbon::now(),
+                'created_by_id' => $request->login_user_id,
+            ]);
 
             if ($request->details) {
                 foreach ($request->details as $value) {
+                    $detail_uuid = null;
                     if ($value['row_status'] == 'I') {
                         $detail_uuid = $this->get_uuid();
                         $insert = [
@@ -297,6 +335,37 @@ class CustomerPaymentController extends Controller
                     }
                     if ($value['row_status'] == 'D') {
                         CustomerPaymentDetail::where('customer_payment_detail_id', $value['customer_payment_detail_id'])->delete();
+                    }
+
+                    if ($value['row_status'] != 'D') {
+                        Ledger::create([
+                            'ledger_id' => $this->get_uuid(),
+                            'company_id' => $request->company_id,
+                            'company_branch_id' => $request->company_branch_id,
+                            'document_type_id' => $this->document_type_id,
+                            'document_id' => $id,
+                            'document_detail_id' => $value['customer_payment_detail_id'] ?? $detail_uuid,
+                            'document_identity' => $document['document_identity'] ?? "",
+                            'document_date' => $request->document_date ?? "",
+                            'sort_order' => $value['sort_order'] ?? "",
+                            'partner_type' => 'Customer',
+                            'partner_id' => $request->customer_id,
+                            'ref_document_type_id' => $value['ref_document_type_id'] ?? "",
+                            'ref_document_identity' => $value['ref_document_identity'] ?? "",
+                            'account_id' => $outstanding_account_id,
+                            'remarks' => '',
+                            'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
+                            'document_debit' => 0,
+                            'document_credit' => $value['settled_amount'] ?? "",
+                            'base_currency_id' => $base_currency_id,
+                            'conversion_rate' => $conversion_rate,
+                            'debit' => 0,
+                            'credit' => $value['settled_amount'] * $conversion_rate ?? "",
+                            'document_amount' => $value['settled_amount'] ?? "",
+                            'amount' => $value['settled_amount'] * $conversion_rate ?? "",
+                            'created_at' => Carbon::now(),
+                            'created_by_id' => $request->login_user_id,
+                        ]);
                     }
                 }
             }
