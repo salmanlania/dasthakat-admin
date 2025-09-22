@@ -134,9 +134,9 @@ class CustomerController extends Controller
 				DB::raw("sale_invoice.net_amount - (
                     SELECT COALESCE(SUM(settled_amount), 0) 
                     FROM customer_payment_detail 
-                    WHERE sale_invoice_id = sale_invoice.sale_invoice_id 
-                      AND company_id = sale_invoice.company_id 
-                      AND company_branch_id = sale_invoice.company_branch_id
+                    WHERE customer_payment_detail.sale_invoice_id = sale_invoice.sale_invoice_id 
+                      AND customer_payment_detail.company_id = sale_invoice.company_id 
+                      AND customer_payment_detail.company_branch_id = sale_invoice.company_branch_id
                 ) as balance_amount")
 			)
 			->get();
@@ -167,8 +167,6 @@ class CustomerController extends Controller
 		}
 		return [];
 	}
-
-
 
 	public function store(Request $request)
 	{
