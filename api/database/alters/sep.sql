@@ -253,3 +253,59 @@ ALTER TABLE `customer` ADD COLUMN `outstanding_account_id` CHAR(36) NULL AFTER `
 ALTER TABLE `supplier` ADD COLUMN `outstanding_account_id` CHAR(36) NULL AFTER `address`;
 ALTER TABLE `accounts` ADD COLUMN `is_post` TINYINT DEFAULT 0 AFTER `status`;
 
+CREATE TABLE `customer_payment` (
+  `company_id` CHAR(36) NOT NULL,
+  `company_branch_id` CHAR(36) NOT NULL,
+  `customer_payment_id` CHAR(36) NOT NULL,
+  `document_type_id` INT(11) NOT NULL,
+  `document_prefix` VARCHAR(255) NOT NULL,
+  `document_no` INT(11) NOT NULL,
+  `document_identity` VARCHAR(255) NOT NULL,
+  `document_date` DATE NOT NULL,
+  `customer_id` CHAR(36) NOT NULL,
+  `base_currency_id` CHAR(36) NOT NULL,
+  `document_currency_id` CHAR(36) NOT NULL,
+  `transaction_account_id` CHAR(36) NOT NULL,
+  `conversion_rate` CHAR(36) NOT NULL,
+  `payment_amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `total_amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `remarks` TEXT,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` CHAR(36) NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_by` CHAR(36) NULL
+);
+
+CREATE TABLE `customer_payment_detail` (
+  `customer_payment_id` CHAR(36) NOT NULL,
+  `customer_payment_detail_id` CHAR(36) NOT NULL,
+  `sort_order` INT(11) NOT NULL,
+  `sale_invoice_id` CHAR(36) NOT NULL,
+  `ref_document_identity` VARCHAR(255) NOT NULL,
+  `original_amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `balance_amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `settled_amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `account_id` CHAR(36) NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` CHAR(36) NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_by` CHAR(36) NULL
+);
+
+ALTER TABLE `customer_payment`
+  ADD INDEX `idx_company` (`company_id`),
+  ADD INDEX
+   `idx_company_branch` (`company_branch_id`),
+  ADD INDEX `idx_customer` (`customer_id`),
+  ADD INDEX `idx_transaction_account` (`transaction_account_id`),
+  ADD INDEX `idx_document_identity` (`document_identity`),
+  ADD INDEX `idx_document_date` (`document_date`);
+
+ALTER TABLE `customer_payment_detail`
+  ADD INDEX `idx_customer_payment` (`customer_payment_id`),
+  ADD INDEX `idx_sale_invoice` (`sale_invoice_id`),
+  ADD INDEX `idx_account` (`account_id`);
+
+  
+INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `document_prefix`, `table_name`, `primary_key`)
+VALUES ( 58, 'Customer Payment', '{BC}/CP-', 'customer_payment', 'customer_payment_id' );

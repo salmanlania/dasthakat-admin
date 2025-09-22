@@ -498,6 +498,16 @@ $router->group(['prefix' => 'accounts'], function ($router) {
     $router->delete('/{id}', 'AccountsController@delete');
 });
 
+// Accounts routes
+$router->group(['prefix' => 'customer-payment'], function ($router) {
+    $router->get('/', 'CustomerPaymentController@index');
+    $router->post('/', 'CustomerPaymentController@store');
+    $router->post('/bulk-delete', 'CustomerPaymentController@bulkDelete');
+    $router->get('/{id}', 'CustomerPaymentController@show');
+    $router->put('/{id}', 'CustomerPaymentController@update');
+    $router->delete('/{id}', 'CustomerPaymentController@delete');
+});
+
 // COA Level1 routes
 $router->group(['prefix' => 'coa-level1'], function ($router) {
     $router->get('/', 'CoaLevel1Controller@index');

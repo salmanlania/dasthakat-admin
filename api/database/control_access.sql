@@ -113,6 +113,16 @@
   ('General Ledger', 'Coa Level 3', 'coa_level3', 'edit', 'Edit', 1.103),
   ('General Ledger', 'Coa Level 3', 'coa_level3', 'delete', 'Delete', 1.104),
   
+  ('General Ledger', 'Customer Payment', 'customer_payment', 'list', 'List', 1.101),
+  ('General Ledger', 'Customer Payment', 'customer_payment', 'add', 'Add', 1.102),
+  ('General Ledger', 'Customer Payment', 'customer_payment', 'edit', 'Edit', 1.103),
+  ('General Ledger', 'Customer Payment', 'customer_payment', 'delete', 'Delete', 1.104),
+  
+  ('General Ledger', 'Vendor Payment', 'vendor_payment', 'list', 'List', 1.101),
+  ('General Ledger', 'Vendor Payment', 'vendor_payment', 'add', 'Add', 1.102),
+  ('General Ledger', 'Vendor Payment', 'vendor_payment', 'edit', 'Edit', 1.103),
+  ('General Ledger', 'Vendor Payment', 'vendor_payment', 'delete', 'Delete', 1.104),
+  
   ('Inventory Setup', 'Category', 'category', 'list', 'List', 1.101),
   ('Inventory Setup', 'Category', 'category', 'add', 'Add', 1.102),
   ('Inventory Setup', 'Category', 'category', 'edit', 'Edit', 1.103),
