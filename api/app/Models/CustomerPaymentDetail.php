@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class CustomerPaymentDetail extends Model
 {
-    protected $table = 'customer_payment';
-    protected $primaryKey = 'customer_payment_id';
+    protected $table = 'customer_payment_detail';
+    protected $primaryKey = 'customer_payment_detail_id';
     public $incrementing = false; // since CHAR(36) UUID
     protected $keyType = 'string';
 
