@@ -140,7 +140,7 @@ class CustomerPaymentController extends Controller
                 'customer_id' => $request->customer_id ?? "",
                 'base_currency_id' => $base_currency_id ?? "",
                 'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
-                'transaction_account_id' => json_decode(Setting::getValue('gl_account_setting', 'undeposited_account'))[0],
+                'transaction_account_id' => Setting::getValue('gl_account_setting', 'undeposited_account', true)[0] ?? null,
                 'conversion_rate' => $conversion_rate,
                 'payment_amount' => $request->payment_amount ?? "",
                 'total_amount' => $request->total_amount ?? "",

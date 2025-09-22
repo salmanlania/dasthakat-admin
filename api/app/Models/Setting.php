@@ -27,12 +27,13 @@ class Setting extends Model
     'created_at'
   ];
 
-  static public function getValue($module, $field)
+  static public function getValue($module, $field, $decode = false)
   {
-    return Setting::where('module', $module)
+    $value = Setting::where('module', $module)
       ->where('field', $field)
-      ->first()
-      ->value ?? null;
+      ->value('value');
+
+    return $decode ? json_decode($value, true) : $value;
   }
 
   static public function getRow($module, $field)
