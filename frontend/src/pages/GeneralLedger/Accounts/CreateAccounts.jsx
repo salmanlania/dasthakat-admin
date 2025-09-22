@@ -19,7 +19,7 @@ const CreateAccounts = () => {
       const res = await dispatch(createAccounts(data)).unwrap();
       const id = res?.data?.account_id
       toast.success('Accounts created successfully');
-      navigate(`/general-ledger/accounts/edit/${id}`);
+      navigate(`/general-ledger/gl-setup/accounts/edit/${id}`);
     } catch (error) {
       handleError(error);
     }
@@ -29,7 +29,7 @@ const CreateAccounts = () => {
     try {
       await dispatch(createAccounts(data)).unwrap();
       toast.success('Accounts created successfully');
-      navigate('/general-ledger/accounts');
+      navigate('/general-ledger/gl-setup/accounts');
     } catch (error) {
       handleError(error);
     }
@@ -40,7 +40,7 @@ const CreateAccounts = () => {
       const res = await dispatch(createAccounts(data)).unwrap();
       toast.success('Accounts created successfully');
       // dispatch(resetAccounts());
-      navigate('/general-ledger/accounts/create');
+      navigate('/general-ledger/gl-setup/accounts/create');
       return { success: true, data: res };
     } catch (error) {
       handleError(error);

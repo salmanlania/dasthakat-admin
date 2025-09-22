@@ -1,0 +1,405 @@
+/* eslint-disable react/prop-types */
+import { useEffect, useState } from 'react';
+import { Button, Col, DatePicker, Form, Input, Row, Select, Table } from 'antd';
+import dayjs from 'dayjs';
+import toast from 'react-hot-toast';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom'
+import useError from '../../hooks/useError';
+import { getProduct } from '../../store/features/productSlice';
+import AsyncSelect from '../AsyncSelect';
+import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
+import DebounceInput from '../Input/DebounceInput';
+import SaleReturnModal from '../Modals/ReturnModal'
+import { formatThreeDigitCommas } from '../../utils/number';
+
+const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
+  const [form] = Form.useForm();
+  const handleError = useError();
+  const dispatch = useDispatch();
+  const { isFormSubmitting, initialFormValues, quotationDetails } = useSelector(
+    (state) => state.quotation
+  );
+
+  const DetailSummaryInfo = ({ title, value }) => {
+    return (
+      <div className="flex justify-between items-center mb-2">
+        <span className="text-sm text-gray-600">{title}</span>
+        <span className="text-sm font-semibold text-black">{value}</span>
+      </div>
+    );
+  };
+
+  const [totalQuantity, setTotalQuantity] = useState('');
+  const [totalAmount, setTotalAmount] = useState('');
+  const [submitAction, setSubmitAction] = useState(null);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [returnModalVisible, setReturnModalVisible] = useState(false);
+
+  const onFinish = (values) => {
+    if (!totalAmount) return toast.error('Total Amount cannot be zero');
+
+    const formatDate = (date) => (date ? dayjs(date).format('YYYY-MM-DD') : null);
+
+    const data = {
+      ...values,
+      ship_date: formatDate(values.ship_date),
+      document_date: formatDate(values.document_date),
+      required_date: formatDate(values.required_date),
+      vessel_billing_address: values?.vessel_billing_address ? values?.vessel_billing_address : null
+    };
+
+    submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
+  };
+
+  const onProductChange = async (index, selected) => {
+    dispatch(
+      changePurchaseInvoiceDetailValue({
+        index,
+        key: 'product_id',
+        value: selected
+      })
+    );
+    if (!selected) return;
+    try {
+      const product = await dispatch(getProduct(selected.value)).unwrap();
+
+      dispatch(
+        changePurchaseInvoiceDetailValue({
+          index,
+          key: 'product_code',
+          value: product.product_code
+        })
+      );
+
+      dispatch(
+        changePurchaseInvoiceDetailValue({
+          index,
+          key: 'unit_id',
+          value: { value: product.unit_id, label: product.unit_name }
+        })
+      );
+
+      dispatch(
+        changePurchaseInvoiceDetailValue({
+          index,
+          key: 'rate',
+          value: product.cost_price
+        })
+      );
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  useEffect(() => {
+    if (mode === 'edit' && initialFormValues) {
+      const salesmanId = initialFormValues?.salesman_id || '';
+      const quantity = initialFormValues?.totalQuantity || '';
+      const amount = initialFormValues?.totalAmount || '';
+      const customerPoNo = initialFormValues?.customer_po_no || '';
+      const eventName = initialFormValues?.event_id || '';
+      const vesselName = initialFormValues?.vessel_id || '';
+      const customerName = initialFormValues?.customer_id || '';
+      const portName = initialFormValues?.port_id || '';
+      const refDocumentIdentity = initialFormValues?.ref_document_identity || '';
+      const chargeOrderNo = initialFormValues?.charger_order_id || '';
+      const billingAddress = initialFormValues?.vessel_billing_address ? initialFormValues?.vessel_billing_address : initialFormValues?.vessel?.billing_address || '';
+
+      setTotalQuantity(quantity);
+      setTotalAmount(amount);
+      form.setFieldsValue({
+        salesman_id: salesmanId,
+        totalQuantity: quantity,
+        totalAmount: amount,
+
+        customer_po_no: customerPoNo,
+        event_id: eventName,
+        vessel_id: vesselName,
+        customer_id: customerName,
+        charger_order_id: chargeOrderNo,
+        port_id: portName,
+        vessel_billing_address: billingAddress,
+        ref_document_identity: refDocumentIdentity,
+        document_date: initialFormValues.document_date
+          ? dayjs(initialFormValues.document_date)
+          : null,
+        required_date: initialFormValues.required_date
+          ? dayjs(initialFormValues.required_date)
+          : null,
+        ship_date: initialFormValues?.ship_date
+          ? dayjs(dayjs(initialFormValues.ship_date).format('YYYY-MM-DD'))
+          : null,
+      });
+    }
+  }, [initialFormValues, form, mode]);
+
+  const columns = [
+    {
+      title: 'Sr.',
+      dataIndex: 'sr',
+      key: 'sr',
+      render: (_, record, index) => {
+        return <>{index + 1}.</>;
+      },
+      width: 50
+    },
+    {
+      title: 'Invoice Date',
+      dataIndex: 'product_type_id',
+      key: 'product_type_id',
+      render: (_, record, index) => {
+        const fullValue = record.product_type_id?.label.toString() || '';
+        const shortKey = fullValue.substring(0, 2);
+        return (
+          <DebounceInput
+            disabled
+            value={shortKey}
+          />
+        );
+      },
+      width: 140
+    },
+    {
+      title: 'Invoice No',
+      dataIndex: 'product_name',
+      key: 'product_name',
+      render: (_, record, { product_id }, index) => {
+        return (
+          <AsyncSelect
+            endpoint="/product"
+            valueKey="product_id"
+            labelKey="product_name"
+            labelInValue
+            className="w-full"
+            disabled
+            value={record.product_name}
+            onChange={(selected) => onProductChange(index, selected)}
+          />
+        );
+      },
+      width: 150
+    },
+    {
+      title: 'Original Amount',
+      dataIndex: 'rate',
+      key: 'rate',
+      render: (_, { rate }, index) => {
+        return (
+          <DebouncedCommaSeparatedInput
+            disabled
+            value={rate}
+          />
+        );
+      },
+      width: 120
+    },
+    {
+      title: 'Balance Amount',
+      dataIndex: 'amount',
+      key: 'amount',
+      render: (_, { amount }) => (
+        <DebouncedCommaSeparatedInput value={amount ? amount + '' : ''} disabled />
+      ),
+      width: 120
+    },
+    {
+      title: 'Settle Amount',
+      dataIndex: 'amount',
+      key: 'amount',
+      render: (_, { amount }) => (
+        <DebouncedCommaSeparatedInput value={amount ? amount + '' : ''} />
+      ),
+      width: 120
+    },
+  ];
+
+  const saleReturnRows = selectedRows.filter(row =>
+    row.product_type_no !== '1' || row.product_type_no !== 1
+  );
+
+  return (
+    <>
+      <Form
+        name="saleInvoice"
+        layout="vertical"
+        autoComplete="off"
+        form={form}
+        onFinish={onFinish}
+        initialValues={
+          mode === 'edit'
+            ? {
+              ...initialFormValues
+            }
+            : { document_date: dayjs() }
+        }
+        scrollToFirstError>
+        {/* Make this sticky */}
+        <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
+          <span className="text-gray-500">Vendor Payment No:</span>
+          <span
+            className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
+              } rounded px-1`}
+            onClick={() => {
+              if (mode !== 'edit') return;
+              navigator.clipboard.writeText(initialFormValues?.document_identity);
+              toast.success('Copied');
+            }}>
+            {mode === 'edit' ? initialFormValues?.document_identity : 'AUTO'}
+          </span>
+        </p>
+
+        <Row gutter={12}>
+          <Col span={24} sm={6} md={6} lg={6}>
+            <Form.Item
+              name="document_date"
+              label="Date"
+              disabled
+              rules={[{ required: true, message: 'date is required' }]}>
+              <DatePicker format="MM-DD-YYYY" className="w-full" />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={6} md={6} lg={6}>
+            <Form.Item
+              name="salesman_id"
+              label="Select Vendor"
+              rules={[{ required: true, message: 'Salesman is required' }]}>
+              <AsyncSelect
+                endpoint="/salesman"
+                valueKey="salesman_id"
+                labelKey="name"
+                labelInValue
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={12}>
+          <Col span={24} sm={6} md={6} lg={6}>
+            <Form.Item name="customer_po_no" label="Payment Amount">
+              <Input />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={6} md={6} lg={6}>
+            <Form.Item name="vessel_billing_address" label="Reference No.">
+              <Input />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Table
+          columns={columns}
+          dataSource={quotationDetails}
+          rowKey={'charge_order_detail_id'}
+          size="small"
+          scroll={{ x: 'calc(100% - 200px)' }}
+          pagination={false}
+          sticky={{
+            offsetHeader: 56
+          }}
+          rowSelection={{
+            selectedRowKeys,
+            onChange: (newSelectedRowKeys, newSelectedRows) => {
+              setSelectedRowKeys(newSelectedRowKeys);
+              setSelectedRows(newSelectedRows);
+            }
+          }}
+        />
+
+        <div className="flex justify-end w-full">
+          <div className="border rounded-lg bg-white shadow-sm w-full max-w-sm mt-4">
+            <div className="flex justify-center -mt-3">
+              <span className="bg-cyan-100 text-black px-4 py-1 rounded-full text-sm font-semibold shadow-sm">
+                Amount For Selected Invoices
+              </span>
+            </div>
+
+            <div className="p-4">
+              <DetailSummaryInfo
+                title="Amount Due"
+                // value={formatThreeDigitCommas(totalQuantity || 0)}
+                value={totalQuantity || "0.00"}
+              />
+              <DetailSummaryInfo
+                title="Applied"
+                // value={formatThreeDigitCommas(totalAmount || 0)}
+                value={totalAmount || "0.00"}
+              />
+              <DetailSummaryInfo
+                title="Discount & Credit Applied"
+                // value={formatThreeDigitCommas(initialFormValues?.totalDiscount || 0)}
+                value={initialFormValues?.totalDiscount || "0.00"}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 flex items-center justify-end gap-2">
+          <Link to="/general-ledger/transactions/vendor-payment">
+            <Button className="w-28">Exit</Button>
+          </Link>
+          <Button
+            type="primary"
+            className="w-28"
+            loading={isFormSubmitting && submitAction === 'save'}
+            onClick={() => {
+              setSubmitAction('save');
+              form.submit()
+            }}>
+            Save
+          </Button>
+          <Button
+            type="primary"
+            className="w-28 bg-green-600 hover:!bg-green-500"
+            loading={isFormSubmitting && submitAction === 'saveAndExit'}
+            onClick={() => {
+              setSubmitAction('saveAndExit');
+              form.submit();
+            }}>
+            Save & Exit
+          </Button>
+          {
+            quotationDetails?.some(i => i?.product_type_no !== 1) ?
+              <>
+                <Button
+                  className="w-32 bg-amber-500 text-white hover:!bg-amber-400"
+                  type="primary"
+                  disabled={saleReturnRows.length === 0}
+                  onClick={() => {
+                    const hasRestrictedProduct = selectedRows.some(
+                      row => row.product_type_no === '1' || row.product_type_no === 1
+                    );
+
+                    if (hasRestrictedProduct) {
+                      toast.error(`Service Product Can't be return`)
+                      return
+                    }
+                    setReturnModalVisible(true);
+                  }}
+                >
+                  Return
+                </Button>
+              </>
+              : null
+          }
+          {/* <Button
+            type="primary"
+            className="w-28 bg-gray-600 hover:!bg-gray-500"
+            loading={isFormSubmitting && submitAction === 'saveAndExit'}
+            onClick={() => toast.success('Vendor Payment cancelled successfully')}>
+            Cancel
+          </Button> */}
+        </div>
+      </Form>
+
+      <SaleReturnModal
+        visible={returnModalVisible}
+        onClose={() => {
+          setReturnModalVisible(false)
+        }}
+        data={saleReturnRows}
+      />
+    </>
+  );
+};
+
+export default VendorPaymentForm;

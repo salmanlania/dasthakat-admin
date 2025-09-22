@@ -158,9 +158,19 @@ const MainLayout = () => {
   if (href === '/vendor-platform' && !permissions.vp_quotation.list) return <NotFound />;
   if (href.startsWith('/vendor-platform/edit') && !permissions.vp_quotation.edit) return <NotFound />;
 
-  if (href === '/general-ledger/accounts' && !permissions.accounts.list) return <NotFound />;
-  if (href === '/general-ledger/accounts/create' && !permissions.accounts.add) return <NotFound />;
-  if (href.startsWith('/general-ledger/accounts/edit') && !permissions.accounts.edit)
+  if (href === '/general-ledger/gl-setup/accounts' && !permissions.accounts.list) return <NotFound />;
+  if (href === '/general-ledger/gl-setup/accounts/create' && !permissions.accounts.add) return <NotFound />;
+  if (href.startsWith('/general-ledger/gl-setup/accounts/edit') && !permissions.accounts.edit)
+    return <NotFound />;
+
+  if (href === '/general-ledger/transactions/customer-payment' && !permissions.customer_payment.list) return <NotFound />;
+  if (href === '/general-ledger/transactions/customer-payment' && !permissions.customer_payment.add) return <NotFound />;
+  if (href.startsWith('/general-ledger/transactions/customer-payment') && !permissions.customer_payment.edit)
+    return <NotFound />;
+
+  if (href === '/general-ledger/transactions/vendor-payment' && !permissions.vendor_payment.list) return <NotFound />;
+  if (href === '/general-ledger/transactions/vendor-payment' && !permissions.vendor_payment.add) return <NotFound />;
+  if (href.startsWith('/general-ledger/transactions/vendor-payment') && !permissions.vendor_payment.edit)
     return <NotFound />;
 
   return (

@@ -150,6 +150,17 @@ const Accounts = lazy(() => import('./pages/GeneralLedger/Accounts'));
 const CreateAccounts = lazy(() => import('./pages/GeneralLedger/Accounts/CreateAccounts'));
 const EditAccounts = lazy(() => import('./pages/GeneralLedger/Accounts/EditAccounts'));
 
+const ModuleSetting = lazy(() => import('./pages/GeneralLedger/ModulesSetting'));
+
+
+const CustomerPayment = lazy(() => import('./pages/CustomerPayment'));
+const CreateCustomerPayment = lazy(() => import('./pages/CustomerPayment/CreateCustomerPayment'));
+const EditCustomerPayment = lazy(() => import('./pages/CustomerPayment/EditCustomerPayment'));
+
+const VendorPayment = lazy(() => import('./pages/VendorPayment'));
+const CreateVendorPayment = lazy(() => import('./pages/VendorPayment/CreateVendorPayment'));
+const EditVendorPayment = lazy(() => import('./pages/VendorPayment/EditVendorPayment'));
+
 function Routes() {
   const router = createBrowserRouter(
     [
@@ -940,28 +951,94 @@ function Routes() {
             path: '/general-ledger',
             children: [
               {
-                path: 'accounts',
-                element: (
-                  <Suspense fallback={<PageLoader />}>
-                    <Accounts />
-                  </Suspense>
-                ),
+                path: 'gl-setup',
+                children: [
+                  {
+                    path: 'accounts',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <Accounts />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'accounts/create',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <CreateAccounts />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'accounts/edit/:id',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <EditAccounts />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'gl-module-setting',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <ModuleSetting />
+                      </Suspense>
+                    ),
+                  },
+                ]
               },
               {
-                path: 'accounts/create',
-                element: (
-                  <Suspense fallback={<PageLoader />}>
-                    <CreateAccounts />
-                  </Suspense>
-                ),
-              },
-              {
-                path: 'accounts/edit/:id',
-                element: (
-                  <Suspense fallback={<PageLoader />}>
-                    <EditAccounts />
-                  </Suspense>
-                ),
+                path: 'transactions',
+                children: [
+                  {
+                    path: 'customer-payment',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <CustomerPayment />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'customer-payment/create',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <CreateCustomerPayment />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'customer-payment/edit/:id',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <EditCustomerPayment />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'vendor-payment',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <VendorPayment />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'vendor-payment/create',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <CreateVendorPayment />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'vendor-payment/edit/:id',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <EditVendorPayment />
+                      </Suspense>
+                    ),
+                  },
+                ]
               },
             ]
           },

@@ -31,7 +31,7 @@ const EditAccounts = () => {
     try {
       await dispatch(updateAccountsForm({ id, data })).unwrap();
       toast.success('Accounts updated successfully');
-      navigate('/general-ledger/accounts');
+      navigate('/general-ledger/gl-setup/accounts');
     } catch (error) {
       handleError(error);
     }
@@ -42,7 +42,7 @@ const EditAccounts = () => {
       const res = await dispatch(updateAccountsForm({ id, data })).unwrap();
       toast.success('Accounts updated successfully');
       // dispatch(resetAccounts());
-      navigate('/general-ledger/accounts/create');
+      navigate('/general-ledger/gl-setup/accounts/create');
       return { success: true, data: res };
     } catch (error) {
       handleError(error);

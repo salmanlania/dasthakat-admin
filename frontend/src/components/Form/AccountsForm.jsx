@@ -137,7 +137,7 @@ const AccountsForm = ({ mode, onSubmit, onSave, onNew }) => {
             <Col span={24}>
               <Form.Item name="parent_account" label="Parent Account">
                 <AsyncSelectLedgerParent
-                  endpoint={mode === 'edit' ? `/accounts?exempt_account_id=${id}` : '/accounts'}
+                  endpoint={mode === 'edit' ? `/accounts?exempt_account_id=${id}&exempt_referred_accounts=true` : `/accounts?exempt_referred_accounts=true`}
                   valueKey="account_id"
                   labelKey="name"
                   labelInValue
@@ -236,7 +236,7 @@ const AccountsForm = ({ mode, onSubmit, onSave, onNew }) => {
       </Form >
 
       <div className="mt-4 flex items-center justify-end gap-2">
-        <Link to="/general-ledger/accounts">
+        <Link to="/general-ledger/gl-setup/accounts">
           <Button className="w-28">Exit</Button>
         </Link>
 

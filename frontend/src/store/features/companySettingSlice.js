@@ -50,13 +50,21 @@ const initialState = {
   isFormSubmitting: false,
   initialFormValues: null,
   isTestEmailSending: null,
-  testEmailResponse: null
+  testEmailResponse: null,
+  params: {}, 
 };
 
 export const companySettingSlice = createSlice({
   name: 'companySetting',
   initialState,
-  reducers: {},
+  reducers: {
+    setCompanySettingParams: (state, action) => {
+      state.params = {
+        ...state.params,
+        ...action.payload
+      };
+    },
+  },
   extraReducers: ({ addCase }) => {
     addCase(getCompanySetting.pending, (state) => {
       state.isItemLoading = true;
@@ -94,4 +102,5 @@ export const companySettingSlice = createSlice({
   }
 });
 
+export const { setCompanySettingParams } = companySettingSlice.actions;
 export default companySettingSlice.reducer;

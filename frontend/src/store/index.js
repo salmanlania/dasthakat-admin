@@ -43,11 +43,12 @@ import vendorReducer from './features/vendorSlice';
 import vesselReducer from './features/vesselSlice';
 import warehouseReducer from './features/warehouseSlice';
 import auditReducer from './features/auditSlice';
-import CompanySettingReducer from './features/companySettingSlice';
-import SaleReturnReducer from './features/saleReturnSlice';
-import StockReturnReducer from './features/stockReturnSlice';
-import PurchaseReturnReducer from './features/purchaseReturnSlice';
+import companySettingReducer from './features/companySettingSlice';
+import saleReturnReducer from './features/saleReturnSlice';
+import stockReturnReducer from './features/stockReturnSlice';
+import purchaseReturnReducer from './features/purchaseReturnSlice';
 import vendorQuotationReducer from './features/vendorQuotationSlice';
+import transactionAccountReducer from './features/transactionAccountSlice'
 
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
@@ -86,9 +87,9 @@ const rootReducer = combineReducers({
   purchaseInvoice: purchaseInvoiceReducer,
   saleInvoice: saleInvoiceReducer,
   accounts: accountsReducer,
-  saleReturn: SaleReturnReducer,
-  stockReturn: StockReturnReducer,
-  purchaseReturn: PurchaseReturnReducer,
+  saleReturn: saleReturnReducer,
+  stockReturn: stockReturnReducer,
+  purchaseReturn: purchaseReturnReducer,
   goodsReceivedNote: goodsReceivedNoteReducer,
   openingStock: openingStockReducer,
   quotation: quotationReducer,
@@ -96,8 +97,9 @@ const rootReducer = combineReducers({
   ijo: ijoReducer,
   shipment: shipmentReducer,
   serviceOrder: serviceOrderReducer,
-  companySetting: CompanySettingReducer,
+  companySetting: companySettingReducer,
   vendorQuotation: vendorQuotationReducer,
+  transactionAccount: transactionAccountReducer,
 });
 
 export const store = configureStore({

@@ -1,7 +1,7 @@
 import { Avatar, Layout, Menu, Select, Modal } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { BiChevronLeft } from 'react-icons/bi';
-import { FaRegUser, FaRegSave} from 'react-icons/fa';
+import { FaRegUser, FaRegSave, FaExchangeAlt } from 'react-icons/fa';
 import { TbBuildingStore } from 'react-icons/tb';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import { TbReportAnalytics } from 'react-icons/tb';
@@ -121,8 +121,18 @@ const Sidebar = () => {
     !permissions?.job_order?.list;
   !permissions?.service_order?.list;
 
-  const accountsPermission =
+  const generalLedgerPermission =
     !permissions?.accounts?.list
+
+  const accountsPermission =
+    !permissions?.accounts?.list &&
+    !permissions?.vendor_payment?.list &&
+    !permissions?.customer_payment?.list
+
+
+  const transactionPermission =
+    !permissions?.vendor_payment?.list &&
+    !permissions?.customer_payment?.list
 
   const warehousingPermission =
     !permissions?.good_received_note?.list &&
@@ -490,7 +500,7 @@ const Sidebar = () => {
       key: 'general ledger',
       label: 'General Ledger',
       icon: <LuClipboardList size={18} />,
-      disabled: accountsPermission,
+      disabled: generalLedgerPermission,
       children: [
         {
           key: 'gl setup',
@@ -500,13 +510,31 @@ const Sidebar = () => {
           children: [
             {
               key: 'gl module setting',
-              label: 'GL Module Setting',
+              label: <Link to="/general-ledger/gl-setup/gl-module-setting">GL Module Setting</Link>,
               disabled: accountsPermission,
             },
             {
-              key: 'Accounts',
-              label: <Link to="/general-ledger/accounts">Accounts</Link>,
+              key: '/general-ledger/gl-setup/accounts',
+              label: <Link to="/general-ledger/gl-setup/accounts">Accounts</Link>,
               disabled: !permissions?.accounts?.list,
+            },
+          ]
+        },
+        {
+          key: 'transaction',
+          label: 'Transaction',
+          icon: <FaExchangeAlt size={18} />,
+          disabled: transactionPermission,
+          children: [
+            {
+              key: 'general-ledger/transactions/customer-payment',
+              label: <Link to="/general-ledger/transactions/customer-payment">Customer Payment</Link>,
+              disabled: !permissions?.customer_payment?.list,
+            },
+            {
+              key: 'general-ledger/transactions/vendor-payment',
+              label: <Link to="/general-ledger/transactions/vendor-payment">Vendor Payment</Link>,
+              disabled: !permissions?.vendor_payment?.list,
             },
           ]
         },

@@ -1,4 +1,4 @@
-import { Button, Col, Form, Image, Input, Row, Select } from 'antd';
+import { Button, Col, Form, Image, Input, Row, Select, Tabs, Typography } from 'antd';
 import { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -6,7 +6,10 @@ import productImagePlaceholder from '../../assets/img-placeholder.png';
 import AsyncSelect from '../AsyncSelect';
 import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate.jsx';
 import CommaSeparatedInput from '../Input/CommaSeparatedInput';
+import AsyncSelectLedger from '../AsyncSelectLedger/index.jsx';
 
+const { TabPane } = Tabs;
+const { Title } = Typography;
 // eslint-disable-next-line react/prop-types
 const ProductForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
@@ -15,6 +18,7 @@ const ProductForm = ({ mode, onSubmit }) => {
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission;
 
+  const [activeTab, setActiveTab] = useState('1');
   const [imageSrc, setImageSrc] = useState(initialFormValues?.image_url || null);
 
   const categoryID = Form.useWatch('category_id', form);
@@ -60,175 +64,241 @@ const ProductForm = ({ mode, onSubmit }) => {
       autoComplete="off"
       onFinish={onFinish}
       initialValues={mode === 'edit' ? initialFormValues : { status: 1 }}>
-      <div className="flex flex-col-reverse items-center justify-between gap-6 md:flex-row md:items-start">
-        <div>
-          <Row gutter={[12, 12]} className="w-full">
-            <Col span={24} sm={12} md={8} lg={8}>
-              <Form.Item name="product_code" label="Code">
-                <Input disabled placeholder="Auto" />
-              </Form.Item>
-            </Col>
-            <Col span={24} sm={12} md={8} lg={8}>
-              <Form.Item
-                name="product_type_id"
-                label="Type"
-                rules={[{ required: true, message: 'Type is required' }]}>
-                <AsyncSelectNoPaginate
-                  endpoint="/lookups/product-types"
-                  valueKey="product_type_id"
-                  labelKey="name"
-                  params={{
-                    include_other: 0
-                  }}
-                  labelInValue
-                />
-              </Form.Item>
-            </Col>
-            <Col span={24} sm={12} md={8} lg={8}>
-              <Form.Item
-                name="name"
-                label="Name"
-                rules={[
-                  {
-                    required: true,
-                    whitespace: true,
-                    message: 'Name is required'
-                  }
-                ]}>
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={24} sm={12} md={8} lg={8}>
-              <Form.Item name="impa_code" label="IMPA Code">
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={24} sm={12} md={8} lg={8}>
-              <Form.Item name="category_id" label="Category">
-                <AsyncSelect
-                  endpoint="/category"
-                  valueKey="category_id"
-                  labelKey="name"
-                  labelInValue
-                  onChange={() => form.setFieldsValue({ sub_category_id: null })}
-                  addNewLink={
-                    permissions.category.list && permissions.category.add ? '/category' : null
-                  }
-                />
-              </Form.Item>
-            </Col>
-            <Col span={24} sm={12} md={8} lg={8}>
-              <Form.Item name="sub_category_id" label="Sub Category">
-                <AsyncSelect
-                  disabled={!categoryID}
-                  endpoint="/sub-category"
-                  valueKey="sub_category_id"
-                  labelKey="name"
-                  labelInValue
-                  params={{ category_id: categoryID ? categoryID.value : null }}
-                  dependencies={[categoryID]}
-                  addNewLink={
-                    permissions.sub_category.list && permissions.sub_category.add
-                      ? '/sub-category'
-                      : null
-                  }
-                />
-              </Form.Item>
-            </Col>
+      <Tabs activeKey={activeTab} onChange={setActiveTab} className="mb-6" type="card">
+        <TabPane tab="Product Details" key="1">
+          <div className="flex flex-col-reverse items-center justify-between gap-6 md:flex-row md:items-start">
+            <Row gutter={[12, 12]} className="w-full">
+              <Col span={24} sm={12} md={8} lg={8}>
+                <Form.Item name="product_code" label="Code">
+                  <Input disabled placeholder="Auto" />
+                </Form.Item>
+              </Col>
+              <Col span={24} sm={12} md={8} lg={8}>
+                <Form.Item
+                  name="product_type_id"
+                  label="Type"
+                  rules={[{ required: true, message: 'Type is required' }]}>
+                  <AsyncSelectNoPaginate
+                    endpoint="/lookups/product-types"
+                    valueKey="product_type_id"
+                    labelKey="name"
+                    params={{
+                      include_other: 0
+                    }}
+                    labelInValue
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={24} sm={12} md={8} lg={8}>
+                <Form.Item
+                  name="name"
+                  label="Name"
+                  rules={[
+                    {
+                      required: true,
+                      whitespace: true,
+                      message: 'Name is required'
+                    }
+                  ]}>
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col span={24} sm={12} md={8} lg={8}>
+                <Form.Item name="impa_code" label="IMPA Code">
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col span={24} sm={12} md={8} lg={8}>
+                <Form.Item name="category_id" label="Category">
+                  <AsyncSelect
+                    endpoint="/category"
+                    valueKey="category_id"
+                    labelKey="name"
+                    labelInValue
+                    onChange={() => form.setFieldsValue({ sub_category_id: null })}
+                    addNewLink={
+                      permissions.category.list && permissions.category.add ? '/category' : null
+                    }
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={24} sm={12} md={8} lg={8}>
+                <Form.Item name="sub_category_id" label="Sub Category">
+                  <AsyncSelect
+                    disabled={!categoryID}
+                    endpoint="/sub-category"
+                    valueKey="sub_category_id"
+                    labelKey="name"
+                    labelInValue
+                    params={{ category_id: categoryID ? categoryID.value : null }}
+                    dependencies={[categoryID]}
+                    addNewLink={
+                      permissions.sub_category.list && permissions.sub_category.add
+                        ? '/sub-category'
+                        : null
+                    }
+                  />
+                </Form.Item>
+              </Col>
 
-            <Col span={24} sm={12} md={8} lg={8}>
-              <Form.Item name="brand_id" label="Brand">
-                <AsyncSelect
-                  endpoint="/brand"
-                  valueKey="brand_id"
-                  labelKey="name"
-                  labelInValue
-                  addNewLink={permissions.brand.list && permissions.brand.add ? '/brand' : null}
-                />
-              </Form.Item>
-            </Col>
+              <Col span={24} sm={12} md={8} lg={8}>
+                <Form.Item name="brand_id" label="Brand">
+                  <AsyncSelect
+                    endpoint="/brand"
+                    valueKey="brand_id"
+                    labelKey="name"
+                    labelInValue
+                    addNewLink={permissions.brand.list && permissions.brand.add ? '/brand' : null}
+                  />
+                </Form.Item>
+              </Col>
 
-            <Col span={24} sm={12} md={8} lg={8}>
-              <Form.Item
-                name="unit_id"
-                label="Unit"
-                rules={[{ required: true, message: 'Unit is required' }]}>
-                <AsyncSelect
-                  endpoint="/unit"
-                  valueKey="unit_id"
-                  labelKey="name"
-                  labelInValue
-                  addNewLink={permissions.unit.list && permissions.unit.add ? '/unit' : null}
-                />
-              </Form.Item>
-            </Col>
+              <Col span={24} sm={12} md={8} lg={8}>
+                <Form.Item
+                  name="unit_id"
+                  label="Unit"
+                  rules={[{ required: true, message: 'Unit is required' }]}>
+                  <AsyncSelect
+                    endpoint="/unit"
+                    valueKey="unit_id"
+                    labelKey="name"
+                    labelInValue
+                    addNewLink={permissions.unit.list && permissions.unit.add ? '/unit' : null}
+                  />
+                </Form.Item>
+              </Col>
 
-            <Col span={24} sm={12} md={8} lg={8}>
-              <Form.Item name="cost_price" label="Cost Price">
-                <CommaSeparatedInput />
-              </Form.Item>
-            </Col>
+              <Col span={24} sm={12} md={8} lg={8}>
+                <Form.Item name="cost_price" label="Cost Price">
+                  <CommaSeparatedInput />
+                </Form.Item>
+              </Col>
 
-            <Col span={24} sm={12} md={8} lg={8}>
-              <Form.Item name="sale_price" label="Sale Price">
-                <CommaSeparatedInput />
-              </Form.Item>
-            </Col>
+              <Col span={24} sm={12} md={8} lg={8}>
+                <Form.Item name="sale_price" label="Sale Price">
+                  <CommaSeparatedInput />
+                </Form.Item>
+              </Col>
 
-            <Col span={24} sm={12} md={8} lg={8}>
-              <Form.Item name="status" label="Status">
-                <Select
-                  options={[
-                    { value: 1, label: 'Active' },
-                    { value: 0, label: 'Inactive' }
-                  ]}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={24} sm={12} md={8} lg={8}>
-              <Form.Item
-                name="short_code"
-                label="Short Code"
+              <Col span={24} sm={12} md={8} lg={8}>
+                <Form.Item name="status" label="Status">
+                  <Select
+                    options={[
+                      { value: 1, label: 'Active' },
+                      { value: 0, label: 'Inactive' }
+                    ]}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={24} sm={12} md={8} lg={8}>
+                <Form.Item
+                  name="short_code"
+                  label="Short Code"
                 >
-                <Input />
-              </Form.Item>
-            </Col>
-          </Row>
-        </div>
+                  <Input />
+                </Form.Item>
+              </Col>
+            </Row>
+            <div className="mb-4 mt-2 flex w-[234px] flex-col gap-2">
+              <Image
+                alt="Product Logo"
+                width={234}
+                height={180}
+                src={imageSrc || productImagePlaceholder}
+                loading="lazy"
+                className="h-full w-full rounded-md object-cover"
+              />
 
-        <div className="mb-4 mt-2 flex w-[234px] flex-col gap-2">
-          <Image
-            alt="Product Logo"
-            width={234}
-            height={180}
-            src={imageSrc || productImagePlaceholder}
-            loading="lazy"
-            className="h-full w-full rounded-md object-cover"
-          />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                style={{ display: 'none' }}
+                ref={fileInputRef}
+              />
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            style={{ display: 'none' }}
-            ref={fileInputRef}
-          />
-
-          <div className="flex gap-2">
-            <Button block onClick={() => setImageSrc(null)}>
-              Clear
-            </Button>
-            <Button
-              block
-              type="primary"
-              className="bg-gray-500 hover:!bg-gray-600"
-              onClick={() => fileInputRef.current.click()}>
-              Upload
-            </Button>
+              <div className="flex gap-2">
+                <Button block onClick={() => setImageSrc(null)}>
+                  Clear
+                </Button>
+                <Button
+                  block
+                  type="primary"
+                  className="bg-gray-500 hover:!bg-gray-600"
+                  onClick={() => fileInputRef.current.click()}>
+                  Upload
+                </Button>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-
+        </TabPane>
+        <TabPane tab="Bind Product Accounts" key="2">
+          <div className="flex flex-col-reverse items-center justify-between gap-6 md:flex-row md:items-start">
+            <Row gutter={24} className="w-full">
+              <Col span={12}>
+                <Form.Item
+                  name="cogs_account_id"
+                  label="COGS Account"
+                  rules={[{ required: true, message: 'COGS account is required' }]}>
+                  <AsyncSelectLedger
+                    endpoint="/accounts?only_leaf=1"
+                    size="small"
+                    className="w-full font-normal"
+                    valueKey="account_id"
+                    labelKey="name"
+                    allowClear
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="inventory_account_id"
+                  label="Inventory Account"
+                  rules={[{ required: true, message: 'Inventory account is required' }]}>
+                  <AsyncSelectLedger
+                    endpoint="/accounts?only_leaf=1"
+                    size="small"
+                    className="w-full font-normal"
+                    valueKey="account_id"
+                    labelKey="name"
+                    allowClear
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="revenue_account_id"
+                  label="Revenue Account"
+                  rules={[{ required: true, message: 'Revenue account is required' }]}>
+                  <AsyncSelectLedger
+                    endpoint="/accounts?only_leaf=1"
+                    size="small"
+                    className="w-full font-normal"
+                    valueKey="account_id"
+                    labelKey="name"
+                    allowClear
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="adjustment_account_id"
+                  label="Adjustment Account"
+                  rules={[{ required: true, message: 'Adjustment account is required' }]}>
+                  <AsyncSelectLedger
+                    endpoint="/accounts?only_leaf=1"
+                    size="small"
+                    className="w-full font-normal"
+                    valueKey="account_id"
+                    labelKey="name"
+                    allowClear
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          </div>
+        </TabPane>
+      </Tabs>
       <div className="mt-4 flex items-center justify-end gap-2">
         <Link to="/product">
           <Button className="w-28">Cancel</Button>

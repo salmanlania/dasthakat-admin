@@ -213,7 +213,7 @@ const Accounts = () => {
             <>
               <div className="flex items-center gap-1">
                 <Tooltip title="Edit">
-                  <Link to={`/general-ledger/accounts/edit/${account_id}`}>
+                  <Link to={`/general-ledger/gl-setup/accounts/edit/${account_id}`}>
                     <Button
                       size="small"
                       type="primary"
@@ -296,7 +296,7 @@ const Accounts = () => {
               {permissions.add ? (
                 <Button
                   type="primary"
-                  onClick={() => navigate('/general-ledger/accounts/create')}
+                  onClick={() => navigate('/general-ledger/gl-setup/accounts/create')}
                 >
                   Create
                 </Button>
