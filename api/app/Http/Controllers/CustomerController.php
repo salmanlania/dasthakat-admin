@@ -135,8 +135,6 @@ class CustomerController extends Controller
                     SELECT COALESCE(SUM(settled_amount), 0) 
                     FROM customer_payment_detail 
                     WHERE customer_payment_detail.sale_invoice_id = sale_invoice.sale_invoice_id 
-                      AND customer_payment_detail.company_id = sale_invoice.company_id 
-                      AND customer_payment_detail.company_branch_id = sale_invoice.company_branch_id
                 ) as balance_amount")
 			)
 			->get();
