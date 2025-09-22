@@ -353,7 +353,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
               name="document_date"
               label="Sale Invoice Date"
               disabled
-              rules={[{ required: true, message: 'charge order date is required' }]}>
+              rules={[{ required: true, message: 'sale invoices date is required' }]}>
               <DatePicker format="MM-DD-YYYY" className="w-full" />
             </Form.Item>
           </Col>
@@ -435,7 +435,6 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
               name="ship_date"
               label="Shipment Date"
               disabled
-            // rules={[{ required: true, message: 'charge order date is required' }]}
             >
               <DatePicker format="MM-DD-YYYY" className="w-full" />
             </Form.Item>
