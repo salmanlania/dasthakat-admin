@@ -138,7 +138,7 @@ class CustomerPaymentController extends Controller
                 'customer_id' => $request->customer_id ?? "",
                 'base_currency_id' => $base_currency_id ?? "",
                 'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
-                'transaction_account_id' => Setting::getValue('gl_account_setting', 'undeposited_account'),
+                'transaction_account_id' => json_decode(Setting::getValue('gl_account_setting', 'undeposited_account'))[0],
                 'conversion_rate' => $conversion_rate,
                 'payment_amount' => $request->payment_amount ?? "",
                 'total_amount' => $request->total_amount ?? "",
@@ -232,7 +232,7 @@ class CustomerPaymentController extends Controller
         } catch (\Exception $e) {
             DB::rollBack(); // Rollback on error
             Log::error('Customer Payment Store Error: ' . $e->getMessage());
-            return $this->jsonResponse("Something went wrong while saving customer payment.", 500, "Transaction Failed");
+            return $this->jsonResponse("Something went wrong while saving customer payment." . $e->getMessage(), 500, "Transaction Failed");
         }
     }
 
@@ -376,7 +376,7 @@ class CustomerPaymentController extends Controller
         } catch (\Exception $e) {
             DB::rollBack(); // Rollback on error
             Log::error('Customer Payment Updating Error: ' . $e->getMessage());
-            return $this->jsonResponse("Something went wrong while updating Customer Payment.", 500, "Transaction Failed");
+            return $this->jsonResponse("Something went wrong while updating Customer Payment." . $e->getMessage(), 500, "Transaction Failed");
         }
     }
     public function delete($id, Request $request)
