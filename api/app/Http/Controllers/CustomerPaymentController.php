@@ -81,7 +81,7 @@ class CustomerPaymentController extends Controller
 
         return $this->jsonResponse($data, 200, "Customer Payment Data");
     }
-    
+
 
     public function validateRequest($request, $id = null)
     {
@@ -164,6 +164,31 @@ class CustomerPaymentController extends Controller
                     ];
 
                     CustomerPaymentDetail::create($data);
+
+                    Ledger::create([
+                        'ledger_id' => $this->get_uuid(),
+                        'company_id' => $request->company_id,
+                        'company_branch_id' => $request->company_branch_id,
+
+                        'document_type_id' => $this->document_type_id,
+                        'document_no' => $document['document_no'] ?? "",
+                        'document_prefix' => $document['document_prefix'] ?? "",
+                        'document_identity' => $document['document_identity'] ?? "",
+                        'document_date' => $request->document_date ?? "",
+                        'sort_order' => $value['sort_order'] ?? "",
+                        
+                        'partner_type' => 'Customer',
+                        'partner_id' => $request->customer_id,
+                        
+                        'ref_document_type_id' => $value['ref_document_type_id'] ?? "",
+                        'ref_document_identity' => $value['ref_document_identity'] ?? "",
+                        'account_id' => Setting::getValue('gl_account_setting', 'undeposited_account'),
+                        'transaction_account_id' => Setting::getValue('gl_account_setting', 'undeposited_account'),
+                        'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
+                        'conversion_rate' => 1,
+                        'amount' => $value['original_amount'] ?? "",
+                        'created_at' => Carbon::now(),
+                    ]);
                 }
             }
 

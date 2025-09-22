@@ -119,7 +119,10 @@ class CustomerController extends Controller
 	{
 
 		// $data = Ledger::where(['partner_id' => $id, 'partner_type' => 'Customer','company_id' => $request->company_id, 'company_branch_id' => $request->company_branch_id])->get();
-		$data = SaleInvoice::where(['customer_id' => $id, 'company_id' => $request->company_id, 'company_branch_id' => $request->company_branch_id])->select("sale_invoice_id", "document_identity", "document_date", "net_amount", "net_amount as balance_amount")->get();
+		$data = SaleInvoice::leftJoin('charge_order as co', 'co.charge_order_id', '=', 'sale_invoice.charge_order_id')
+			->where(['co.customer_id' => $id, 'sale_invoice.company_id' => $request->company_id, 'sale_invoice.company_branch_id' => $request->company_branch_id])
+			->select("sale_invoice_id", "sale_invoice.document_identity", 'sale_invoice.document_type_id', "sale_invoice.document_date", "sale_invoice.net_amount", "sale_invoice.net_amount as balance_amount")
+			->get();
 
 		if (!$data) {
 			return $this->jsonResponse(null, 404, "Customer Invoices not found");
