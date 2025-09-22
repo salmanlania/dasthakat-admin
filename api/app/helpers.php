@@ -3,6 +3,20 @@
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
 
+if (!function_exists('public_path')) {
+    function public_path($path = '')
+    {
+        return app()->basePath('resources\views') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+    }
+}
+
+if (!function_exists('public_path2')) {
+    function public_path2($path = '')
+    {
+        return app()->basePath('public') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+    }
+}
+
 
 if (!function_exists('hello')) {
 
