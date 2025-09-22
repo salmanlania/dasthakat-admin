@@ -89,6 +89,7 @@ $router->group(['prefix' => 'company-branch'], function ($router) {
 
 $router->group(['prefix' => 'customer'], function ($router) {
    $router->get('/', 'CustomerController@index');
+   $router->get('/{id}/ledger-invoices', 'CustomerController@getLedgerInvoices');
    $router->get('/{id}', 'CustomerController@show');
    $router->post('/', 'CustomerController@store');
    $router->put('/{id}', 'CustomerController@update');

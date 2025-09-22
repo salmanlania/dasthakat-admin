@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Customer;
 use App\Models\CustomerCommissionAgent;
 use App\Models\CustomerVessel;
+use App\Models\Ledger;
 use App\Models\Quotation;
+use App\Models\SaleInvoice;
 use App\Models\Vessel;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
@@ -111,6 +113,19 @@ class CustomerController extends Controller
 		$data->vessel = $vessel;
 
 		return $this->jsonResponse($data, 200, "Customer Data");
+	}
+
+	public function getLedgerInvoices($id, Request $request)
+	{
+
+		// $data = Ledger::where(['partner_id' => $id, 'partner_type' => 'Customer','company_id' => $request->company_id, 'company_branch_id' => $request->company_branch_id])->get();
+		$data = SaleInvoice::where(['customer_id' => $id, 'company_id' => $request->company_id, 'company_branch_id' => $request->company_branch_id])->select("document_identity", "document_date", "net_amount", "net_amount as balance_amount")->get();
+
+		if (!$data) {
+			return $this->jsonResponse(null, 404, "Customer Invoices not found");
+		}
+
+		return $this->jsonResponse($data, 200, "Customer Invoices Data");
 	}
 
 	public function validateRequest($request, $id = null)

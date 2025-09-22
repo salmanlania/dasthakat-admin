@@ -81,6 +81,7 @@ class CustomerPaymentController extends Controller
 
         return $this->jsonResponse($data, 200, "Customer Payment Data");
     }
+    
 
     public function validateRequest($request, $id = null)
     {
