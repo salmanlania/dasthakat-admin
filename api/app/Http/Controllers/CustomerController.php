@@ -125,7 +125,6 @@ class CustomerController extends Controller
 				'sale_invoice.company_id' => $request->company_id,
 				'sale_invoice.company_branch_id' => $request->company_branch_id,
 			])
-			->where('balance_amount', '>', 0)
 			->select(
 				'sale_invoice.sale_invoice_id',
 				'sale_invoice.document_identity',
@@ -136,8 +135,9 @@ class CustomerController extends Controller
                     SELECT COALESCE(SUM(settled_amount), 0) 
                     FROM customer_payment_detail 
                     WHERE customer_payment_detail.sale_invoice_id = sale_invoice.sale_invoice_id 
-                ) as balance_amount")
+					) as balance_amount")
 			)
+			->having('balance_amount', '>', 0)
 			->get();
 
 
