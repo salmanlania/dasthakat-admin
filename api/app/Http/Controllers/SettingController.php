@@ -16,28 +16,36 @@ class SettingController extends Controller
 	public function update(Request $request)
 	{
 		$post = $request->only(['mail', 'sms', 'whatsapp', 'inventory_accounts_setting', 'gl_accounts_setting']);
-		foreach ($post as $module_name => $data) {
-			Setting::where('module', $module_name)->delete();
-			if (is_array($data) || is_object($data))
+		DB::transaction(function () use ($post) {
+			foreach ($post as $module_name => $data) {
+				Setting::where('module', $module_name)->delete();
+				$insertData = [];
 				foreach ($data as $field => $value) {
-
-					$uuid = $this->get_uuid();
-					$iData = [
-						'id' =>  $uuid,
+					$insertData[] = [
+						'id' => $this->get_uuid(),
 						'module' => $module_name,
-						"field" => $field,
-						"value" =>  is_array($value) || is_object($value) ? json_encode($value) : $value,
+						'field' => $field,
+						'value' => is_array($value) || is_object($value) ? json_encode($value) : $value,
 					];
-					Setting::create($iData);
 				}
-		}
+				Setting::insert($insertData);
+			}
+		});
 		return $this->jsonResponse('Updated', 200, "Update Setting Successfully!");
 	}
 
-	public function show()
+	public function show(Request $request)
 	{
-		$setting = Setting::get();
-
+		$module = $request->input('module', '');
+		$field = $request->input('field', '');
+		$setting = Setting::query();
+		if (!empty($module)) {
+			$setting->where('module', $module);
+		}
+		if (!empty($field)) {
+			$setting->where('field', $field);
+		}
+		$setting = $setting->get();
 		if ($setting->isNotEmpty()) {
 			foreach ($setting as $key => $value) {
 				$decoded = json_decode($value->value, true);
