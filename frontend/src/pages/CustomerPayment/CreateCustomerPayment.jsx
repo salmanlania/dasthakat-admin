@@ -6,7 +6,8 @@ import CustomerPaymentForm from '../../components/Form/CustomerPaymentForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
-import { createCustomerPayment } from '../../store/features/transactionAccountSlice';
+import { createCustomerPayment, resetCustomerPaymentForm } from '../../store/features/transactionAccountSlice';
+import { useEffect } from 'react';
 
 const CreateCustomerPayment = () => {
   useDocumentTitle('Create Customer Payment');
@@ -16,25 +17,27 @@ const CreateCustomerPayment = () => {
 
   const onCustomerPaymentCreate = async (data) => {
     try {
-      // const res = await dispatch(createCustomerPayment(data)).unwrap();
-      await dispatch(createCustomerPayment(data)).unwrap();
-      // const createdId = res.data.data.quotation_id;
+      const res = await dispatch(createCustomerPayment(data)).unwrap();
+      const createdId = res?.data.customer_payment_id;
       toast.success('Customer Payment created successfully');
-      // navigate(`/general-ledger/transactions/customer-payment/edit/${createdId}`);
+      navigate(`/general-ledger/transactions/customer-payment/edit/${createdId}`);
     } catch (error) {
       handleError(error);
     }
   };
   const onCustomerPaymentCreates = async (data) => {
     try {
-      const res = await dispatch(createCustomerPayment(data)).unwrap();
-      const createdId = res.data.data.quotation_id;
+      await dispatch(createCustomerPayment(data)).unwrap();
       toast.success('Customer Payment created successfully');
       navigate('/general-ledger/transactions/customer-payment');
     } catch (error) {
       handleError(error);
     }
   };
+
+  useEffect(() => {
+    dispatch(resetCustomerPaymentForm());
+  }, []);
 
   return (
     <>

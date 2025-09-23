@@ -36,7 +36,7 @@ const CustomerPayment = () => {
 
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedQuotationNo = useDebounce(params.document_identity, 500);
-  const debouncedCustomerRef = useDebounce(params.customer_ref, 500);
+  const debouncedCustomerRef = useDebounce(params.remarks, 500);
   const debouncedTotalAmount = useDebounce(params.total_amount, 500);
 
   const formattedParams = {
@@ -150,13 +150,13 @@ const CustomerPayment = () => {
             allowClear
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.customer_ref}
-            onChange={(e) => dispatch(setCustomerPaymentListParams({ customer_ref: e.target.value }))}
+            value={params.remarks}
+            onChange={(e) => dispatch(setCustomerPaymentListParams({ remarks: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: 'customer_ref',
-      key: 'customer_ref',
+      dataIndex: 'remarks',
+      key: 'remarks',
       sorter: true,
       width: 150,
       ellipsis: true,
@@ -164,12 +164,12 @@ const CustomerPayment = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_, { quotation_id }) => (
+      render: (_, { customer_payment_id }) => (
         <div className="flex flex-col justify-center gap-1">
           <div className="flex items-center gap-1">
             {permissions.edit ? (
               <Tooltip title="Edit">
-                <Link to={`/general-ledger/transactions/customer-payment/edit/${quotation_id}`}>
+                <Link to={`/general-ledger/transactions/customer-payment/edit/${customer_payment_id}`}>
                   <Button
                     size="small"
                     type="primary"
@@ -187,7 +187,7 @@ const CustomerPayment = () => {
                   okButtonProps={{ danger: true }}
                   okText="Yes"
                   cancelText="No"
-                  onConfirm={() => onQuotationDelete(quotation_id)}
+                  onConfirm={() => onQuotationDelete(customer_payment_id)}
                   >
                   <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                 </Popconfirm>
@@ -281,7 +281,7 @@ const CustomerPayment = () => {
           }
           loading={isListLoading}
           className="mt-2"
-          rowKey={(record) => record.quotation_id}
+          rowKey={(record) => record.customer_payment_id}
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,

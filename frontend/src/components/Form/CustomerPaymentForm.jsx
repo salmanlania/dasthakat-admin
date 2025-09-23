@@ -5,16 +5,13 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import useError from '../../hooks/useError';
-import { getProduct } from '../../store/features/productSlice';
-import { getCustomerLedgerInvoices, setFormField } from '../../store/features/transactionAccountSlice';
+import { getCustomerLedgerInvoices } from '../../store/features/transactionAccountSlice';
 import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
 
 const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
-  const handleError = useError();
   const dispatch = useDispatch();
   const { isFormSubmitting, initialFormValues, ledgerInvoices, isLedgerLoading } = useSelector(
     (state) => state.transactionAccount
@@ -28,111 +25,119 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       </div>
     );
   };
-  // setTotalQuantity
 
   const [totalAmountDue, setTotalAmountDue] = useState('');
-  const [totalAmount, setTotalAmount] = useState('');
+  const [totalSettled, setTotalSettled] = useState(0);
+  const [totalAmountVal, setTotalAmountVal] = useState(0);
   const [submitAction, setSubmitAction] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [settledAmounts, setSettledAmounts] = useState({});
 
   const onFinish = (values) => {
-    console.log('selectedRows', selectedRows)
-    console.log('values', values)
     const paymentAmount = parseInt(values?.payment_amount ? values?.payment_amount : null)
-    console.log('paymentAmount', paymentAmount)
-    console.log('totalAmount', totalAmount)
-    if (totalAmount != paymentAmount) return toast.error('Total amount must be equal to amount due');
+    if (totalSettled != paymentAmount) return toast.error('Total amount must be equal to amount due');
 
     const formatDate = (date) => (date ? dayjs(date).format('YYYY-MM-DD') : null);
 
     const data = {
       ...values,
       customer_id: values?.customer_id?.value ? values?.customer_id?.value : values?.customer_id?.key ? values?.customer_id?.key : null,
-      total_amount: totalAmount,
+      total_amount: totalSettled ? totalSettled : totalAmountVal,
       payment_amount: parseInt(values?.payment_amount ? values?.payment_amount : null),
       document_date: formatDate(values.document_date),
-      details: selectedRows.map((row, index) => ({
-        sale_invoice_id: row?.sale_invoice_id,
-        ref_document_identity: row?.document_identity,
-        original_amount: row?.net_amount,
-        balance_amount: parseInt(row?.balance_amount),
-        settled_amount: row?.settled_amount,
-        sort_order: index + 1
-      }))
+      details:
+        mode === 'edit' ?
+          ledgerInvoices.map((row, index) => {
+            const isSelected = selectedRowKeys.includes(row.sale_invoice_id);
+            return {
+              ...row,
+              sale_invoice_id: row?.sale_invoice_id,
+              ref_document_identity: row?.document_identity || row?.ref_document_identity,
+              ref_document_type_id: row?.document_type_id,
+              original_amount: row?.net_amount,
+              balance_amount: parseInt(row?.balance_amount),
+              settled_amount: settledAmounts[row.sale_invoice_id] || 0,
+              sort_order: index + 1,
+              row_status: isSelected ? (row?.row_status || "U") : "D"
+            };
+          })
+          : selectedRows.map((row, index) => ({
+            ...row,
+            sale_invoice_id: row?.sale_invoice_id,
+            ref_document_identity: row?.document_identity,
+            ref_document_type_id: row?.document_type_id,
+            original_amount: row?.net_amount,
+            balance_amount: parseInt(row?.balance_amount),
+            settled_amount: settledAmounts[row.sale_invoice_id] || 0,
+            sort_order: index + 1,
+            row_status: row?.row_status
+          }))
     };
-    // console.log('data', data)
-    // return
 
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 
-  // const handleSettledAmountChange = (value) => {
-  //   dispatch(setFormField({ field: name, value }));
-  // };
-
   const handleSettledAmountChange = (value, record) => {
-    const settledAmount = parseFloat(value.replace(/,/g, '')) || 0;
+    const rawValue = typeof value === "string" ? value : String(value ?? "0");
+    const settledAmount = parseFloat(rawValue.replace(/,/g, "")) || 0
 
-    console.log(`Updated Settled Amount for Invoice ${record.document_identity}: ${settledAmount}`);
+    if (settledAmount > (record.balance_amount || 0)) {
+      toast.error("Settled amount cannot be greater than Balance Amount");
+      return;
+    }
 
-    const updatedRows = selectedRows.map(row =>
-      row.sale_invoice_id === record.sale_invoice_id
-        ? { ...row, settled_amount: settledAmount }
-        : row
-    );
-    setSelectedRows(updatedRows);
-    console.log('SelectedRows', selectedRows)
+    setSettledAmounts(prev => ({
+      ...prev,
+      [record.sale_invoice_id]: settledAmount
+    }));
 
-    const totalSettledAmount = updatedRows.reduce((sum, row) => sum + (row.settled_amount || 0), 0);
-    setTotalAmount(totalSettledAmount);
-
-    console.log('Total Settled Amount:', totalSettledAmount);
+    // const totalSettledAmount = selectedRowKeys.reduce((sum, key) => sum + (settledAmounts[key] || settledAmount || 0), 0);
+    // setTotalAmount(totalSettledAmount);
   };
 
+  // useEffect(() => {
+  //   if (selectedRowKeys.length === 0) return;
+  //   if (selectedRowKeys.length > 0) {
+  //     const totalSettledAmount = selectedRowKeys.reduce((sum, key) => sum + (settledAmounts[key] || 0), 0);
+  //     setTotalAmount(totalSettledAmount);
+  //   }
+  // }, [selectedRowKeys, settledAmounts]);
+
   useEffect(() => {
-    if (selectedRows.length > 0) {
-      const totalDue = selectedRows.reduce((sum, row) => sum + (row.balance_amount || 0), 0);
-      setTotalAmountDue(totalDue);
-    }
-  }, [selectedRows]);
+    const total = selectedRowKeys.reduce(
+      (sum, key) => sum + (settledAmounts[key] || 0),
+      0
+    );
+    setTotalSettled(total);
+  }, [selectedRowKeys, settledAmounts]);
 
   useEffect(() => {
     if (mode === 'edit' && initialFormValues) {
       const customerId = initialFormValues?.customer_id || '';
-      // const amount = initialFormValues?.totalAmount || '';
-      const customerPoNo = initialFormValues?.customer_po_no || '';
-      const eventName = initialFormValues?.event_id || '';
-      const vesselName = initialFormValues?.vessel_id || '';
-      const customerName = initialFormValues?.customer_id || '';
-      const portName = initialFormValues?.port_id || '';
-      const refDocumentIdentity = initialFormValues?.ref_document_identity || '';
-      const chargeOrderNo = initialFormValues?.charger_order_id || '';
-      const billingAddress = initialFormValues?.vessel_billing_address ? initialFormValues?.vessel_billing_address : initialFormValues?.vessel?.billing_address || '';
-
-      // setTotalAmount(amount);
+      const documentDate = initialFormValues?.document_date ? dayjs(initialFormValues?.document_date) : null;
+      const amount = initialFormValues?.total_amount ? initialFormValues?.total_amount : 0
+      const paymentAmount = initialFormValues?.payment_amount ? initialFormValues?.payment_amount : null
+      const remarks = initialFormValues?.remarks ? initialFormValues?.remarks : null
+      setTotalAmountVal(amount)
       form.setFieldsValue({
         customer_id: customerId,
-        // totalAmount: amount,
-
-        customer_po_no: customerPoNo,
-        event_id: eventName,
-        vessel_id: vesselName,
-        customer_id: customerName,
-        charger_order_id: chargeOrderNo,
-        port_id: portName,
-        vessel_billing_address: billingAddress,
-        ref_document_identity: refDocumentIdentity,
-        document_date: initialFormValues.document_date
-          ? dayjs(initialFormValues.document_date)
-          : null,
-        required_date: initialFormValues.required_date
-          ? dayjs(initialFormValues.required_date)
-          : null,
-        ship_date: initialFormValues?.ship_date
-          ? dayjs(dayjs(initialFormValues.ship_date).format('YYYY-MM-DD'))
-          : null,
+        document_date: documentDate,
+        payment_amount: paymentAmount,
+        remarks: remarks,
       });
+
+      if (initialFormValues?.details?.length > 0) {
+        const keys = initialFormValues.details.map((d) => d.sale_invoice_id);
+        setSelectedRowKeys(keys);
+        setSelectedRows(initialFormValues.details);
+
+        const settledMap = {};
+        initialFormValues.details.forEach((d) => {
+          settledMap[d.sale_invoice_id] = d.settled_amount || 0;
+        });
+        setSettledAmounts(settledMap);
+      }
     }
   }, [initialFormValues, form, mode]);
 
@@ -142,7 +147,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'sr',
       key: 'sr',
       render: (_, record, index) => {
-        return <>{index + 1}.</>;
+        return <>{record?.sort_order ? record?.sort_order : index + 1}.</>;
       },
       width: 50
     },
@@ -150,11 +155,12 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       title: 'Invoice Date',
       dataIndex: 'document_date',
       key: 'document_date',
-      render: (_, { document_date }) => {
+      render: (_, record, { document_date }) => {
+        const documentDate = document_date ? dayjs(document_date).format("MM-DD-YYYY") : record?.document_date ? dayjs(record?.document_date).format("MM-DD-YYYY") : ""
         return (
           <DebounceInput
             disabled
-            value={document_date}
+            value={documentDate}
           />
         );
       },
@@ -164,11 +170,12 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       title: 'Invoice No',
       dataIndex: 'document_identity',
       key: 'document_identity',
-      render: (_, { document_identity }) => {
+      render: (_, record, { ref_document_identity }) => {
+        const documentIdentity = ref_document_identity ? ref_document_identity : record?.ref_document_identity ? record?.ref_document_identity : record?.document_identity ? record?.document_identity : ""
         return (
           <DebounceInput
             disabled
-            value={document_identity}
+            value={documentIdentity}
           />
         );
       },
@@ -178,11 +185,12 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       title: 'Original Amount',
       dataIndex: 'net_amount',
       key: 'net_amount',
-      render: (_, { net_amount }, index) => {
+      render: (_, record, { net_amount }, index) => {
+        const documentNetAmount = net_amount ? net_amount : record?.net_amount ? record?.net_amount : ""
         return (
           <DebouncedCommaSeparatedInput
             disabled
-            value={net_amount}
+            value={documentNetAmount}
           />
         );
       },
@@ -192,8 +200,8 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       title: 'Balance Amount',
       dataIndex: 'balance_amount',
       key: 'balance_amount',
-      render: (_, { balance_amount }) => (
-        <DebouncedCommaSeparatedInput value={balance_amount ? balance_amount + '' : ''} disabled />
+      render: (_, record) => (
+        <DebouncedCommaSeparatedInput value={record?.balance_amount ? record?.balance_amount + '' : ''} disabled />
       ),
       width: 120
     },
@@ -201,16 +209,18 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       title: 'Settle Amount',
       dataIndex: 'settled_amount',
       key: 'settled_amount',
-      render: (_, record) => (
-        <DebouncedCommaSeparatedInput
-          value={record.settled_amount ? record.settled_amount : ''}
-          onChange={(value) => handleSettledAmountChange(value, record)}
-        />
-      ),
+      render: (_, record) => {
+        const value = settledAmounts[record?.sale_invoice_id] ?? '';
+        return (
+          <DebouncedCommaSeparatedInput
+            value={value ? value : record?.settled_amount}
+            onChange={(val) => handleSettledAmountChange(val, record)}
+          />
+        )
+      },
       width: 120
     },
   ];
-
   return (
     <>
       <Form
@@ -222,9 +232,12 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
         initialValues={
           mode === 'edit'
             ? {
-              ...initialFormValues
+              ...initialFormValues,
+              document_date: initialFormValues?.document_date
+                ? dayjs(initialFormValues.document_date)
+                : null,
             }
-            : { document_date: dayjs() }
+            : {}
         }
         scrollToFirstError>
         {/* Make this sticky */}
@@ -249,7 +262,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
               label="Date"
               disabled
               rules={[{ required: true, message: 'date is required' }]}>
-              <DatePicker format="MM-DD-YYYY" className="w-full" />
+              <DatePicker format="MM-DD-YYYY" className="w-full" value={initialFormValues?.document_date ? dayjs(initialFormValues?.document_date) : null} />
             </Form.Item>
           </Col>
           <Col span={24} sm={6} md={6} lg={6}>
@@ -284,6 +297,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
             </Form.Item>
           </Col>
         </Row>
+
         <Table
           columns={columns}
           dataSource={ledgerInvoices}
@@ -299,6 +313,17 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
             onChange: (newSelectedRowKeys, newSelectedRows) => {
               setSelectedRowKeys(newSelectedRowKeys);
               setSelectedRows(newSelectedRows);
+
+              setSettledAmounts(prev => {
+                const updated = { ...prev };
+                newSelectedRows.forEach(row => {
+                  if (!(row.sale_invoice_id in updated)) {
+                    updated[row.sale_invoice_id] = row.balance_amount || 0;
+                  }
+                });
+
+                return updated;
+              });
             }
           }}
         />
@@ -315,7 +340,10 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
               <DetailSummaryInfo
                 title="Amount Due"
                 // value={formatThreeDigitCommas(totalQuantity || 0)}
-                value={totalAmount || "0.00"}
+                // value={mode === 'edit'
+                //   ? (selectedRowKeys.length > 0 ? totalAmount : totalAmountVal)
+                //   : totalAmount || "0.00"}
+                value={totalSettled ? totalSettled : totalAmountVal || "0.00"}
               />
               <DetailSummaryInfo
                 title="Applied"
