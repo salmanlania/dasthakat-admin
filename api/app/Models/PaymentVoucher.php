@@ -29,7 +29,7 @@ class PaymentVoucher extends Model
         'transaction_account_id',
         'conversion_rate',
         'total_amount',
-        'net_amount',
+        // 'net_amount',
         'remarks',
         'created_at',
         'created_by',
@@ -40,7 +40,7 @@ class PaymentVoucher extends Model
     protected $casts = [
         'document_date'  => 'date',
         'total_amount'   => 'decimal:2',
-        'net_amount'     => 'decimal:2',
+        // 'net_amount'     => 'decimal:2',
     ];
 
     // Relationships

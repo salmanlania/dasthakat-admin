@@ -22,11 +22,11 @@ class PaymentVoucherDetail extends Model
         'account_id',
         "cheque_no",
         "cheque_date",
-        'document_amount',
+        // 'document_amount',
         'payment_amount',
-        'tax_amount',
-        'tax_percent',
-        'net_amount',
+        // 'tax_amount',
+        // 'tax_percent',
+        // 'net_amount',
         'created_at',
         'created_by',
         'updated_at',
@@ -34,11 +34,11 @@ class PaymentVoucherDetail extends Model
     ];
 
     protected $casts = [
-        'document_amount' => 'decimal:2',
+        // 'document_amount' => 'decimal:2',
         'payment_amount'  => 'decimal:2',
-        'tax_amount'      => 'decimal:2',
-        'tax_percent'     => 'decimal:2',
-        'net_amount'      => 'decimal:2',
+        // 'tax_amount'      => 'decimal:2',
+        // 'tax_percent'     => 'decimal:2',
+        // 'net_amount'      => 'decimal:2',
         
     ];
 
