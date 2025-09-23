@@ -121,15 +121,20 @@ const Sidebar = () => {
     !permissions?.job_order?.list;
   !permissions?.service_order?.list;
 
-  const generalLedgerPermission =
-    !permissions?.accounts?.list
+  const glSettingPermission =
+    !permissions?.gl_accounts_setting?.gl_update &&
+    !permissions?.gl_inventory_setting?.inventory_update
 
-  const accountsPermission =
-    !permissions?.accounts?.list &&
+  const generalLedgerPermission =
     !permissions?.vendor_payment?.list &&
     !permissions?.customer_payment?.list &&
-    !permissions?.payment_voucher?.list
+    !permissions?.payment_voucher?.list &&
+    !permissions?.accounts?.list &&
+    glSettingPermission
 
+  const accountsPermission =
+    glSettingPermission &&
+    !permissions?.accounts?.list
 
   const transactionPermission =
     !permissions?.vendor_payment?.list &&
@@ -149,10 +154,6 @@ const Sidebar = () => {
     !permissions?.purchase_invoice?.list &&
     !permissions?.sale_invoice?.list &&
     !permissions?.sale_return?.list &&
-    !permissions?.gl_accounts_setting?.gl_update &&
-    !permissions?.gl_inventory_setting?.inventory_update
-
-  const glSettingPermission =
     !permissions?.gl_accounts_setting?.gl_update &&
     !permissions?.gl_inventory_setting?.inventory_update
 
