@@ -64,7 +64,7 @@ class PaymentVoucherController extends Controller
     public function show($id, Request $request)
     {
 
-        $data = PaymentVoucher::with('details','details.account' ,'transaction_account', 'document_currency', 'base_currency')
+        $data = PaymentVoucher::with('details', 'details.account', 'transaction_account', 'document_currency', 'base_currency')
             ->where('payment_voucher.payment_voucher_id', $id)
             ->first();
 
@@ -175,6 +175,8 @@ class PaymentVoucherController extends Controller
                         'payment_voucher_detail_id' => $detail_uuid,
                         'sort_order' => $value['sort_order'] ?? "",
                         'account_id' => $value['account_id'] ?? "",
+                        'cheque_no' => $value['cheque_no'] ?? "",
+                        'cheque_date' => $value['cheque_date'] ?? "",
                         'document_amount' => $value['document_amount'] ?? "",
                         'payment_amount' => $value['payment_amount'] ?? "",
                         'tax_amount' => $value['tax_amount'] ?? "",
@@ -214,6 +216,8 @@ class PaymentVoucherController extends Controller
                             'amount' => ($request->payment_amount ?? 0) * $conversion_rate,
                             'created_at' => Carbon::now(),
                             'created_by_id' => $request->login_user_id,
+                            'cheque_no' => $value['cheque_no'] ?? "",
+                            'cheque_date' => $value['cheque_date'] ?? "",
                         ]);
 
                     if ((float)$value['tax_amount'] > 0)
@@ -244,6 +248,8 @@ class PaymentVoucherController extends Controller
                             'amount' => ($request->tax_amount ?? 0) * $conversion_rate,
                             'created_at' => Carbon::now(),
                             'created_by_id' => $request->login_user_id,
+                            'cheque_no' => $value['cheque_no'] ?? "",
+                            'cheque_date' => $value['cheque_date'] ?? "",
                         ]);
                 }
             }
@@ -333,6 +339,8 @@ class PaymentVoucherController extends Controller
                             'payment_voucher_detail_id' => $detail_uuid,
                             'sort_order' => $value['sort_order'] ?? "",
                             'account_id' => $value['account_id'] ?? "",
+                            'cheque_no' => $value['cheque_no'] ?? "",
+                            'cheque_date' => $value['cheque_date'] ?? "",
                             'document_amount' => $value['document_amount'] ?? "",
                             'payment_amount' => $value['payment_amount'] ?? "",
                             'tax_amount' => $value['tax_amount'] ?? "",
@@ -347,6 +355,8 @@ class PaymentVoucherController extends Controller
                         $update = [
                             'sort_order' => $value['sort_order'] ?? "",
                             'account_id' => $value['account_id'] ?? "",
+                            'cheque_no' => $value['cheque_no'] ?? "",
+                            'cheque_date' => $value['cheque_date'] ?? "",
                             'document_amount' => $value['document_amount'] ?? "",
                             'payment_amount' => $value['payment_amount'] ?? "",
                             'tax_amount' => $value['tax_amount'] ?? "",
@@ -390,6 +400,8 @@ class PaymentVoucherController extends Controller
                                 'amount' => ($value['payment_amount'] ?? 0) * $conversion_rate,
                                 'created_at' => Carbon::now(),
                                 'created_by_id' => $request->login_user_id,
+                                'cheque_no' => $value['cheque_no'] ?? "",
+                                'cheque_date' => $value['cheque_date'] ?? "",
                             ]);
 
                     if ((float)$value['tax_amount'] > 0)
@@ -420,6 +432,8 @@ class PaymentVoucherController extends Controller
                             'amount' => ($value['tax_amount'] ?? 0) * $conversion_rate,
                             'created_at' => Carbon::now(),
                             'created_by_id' => $request->login_user_id,
+                            'cheque_no' => $value['cheque_no'] ?? "",
+                            'cheque_date' => $value['cheque_date'] ?? "",
                         ]);
                 }
             }

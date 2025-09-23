@@ -353,6 +353,8 @@ CREATE TABLE `payment_voucher_detail` (
   `tax_amount` DECIMAL(15, 2) NULL DEFAULT 0,
   `tax_percent` DECIMAL(15, 2) NULL DEFAULT 0,
   `net_amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `checque_no` VARCHAR(255) DEFAULT NULL,
+  `checque_date` DATE DEFAULT NULL,
   `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   `created_by` CHAR(36) NULL,
   `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,

@@ -20,6 +20,8 @@ class PaymentVoucherDetail extends Model
         'payment_voucher_detail_id',
         'sort_order',
         'account_id',
+        "cheque_no",
+        "cheque_date",
         'document_amount',
         'payment_amount',
         'tax_amount',
@@ -37,6 +39,7 @@ class PaymentVoucherDetail extends Model
         'tax_amount'      => 'decimal:2',
         'tax_percent'     => 'decimal:2',
         'net_amount'      => 'decimal:2',
+        
     ];
 
     // Relationships
