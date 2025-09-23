@@ -27,7 +27,8 @@ class CustomerPaymentController extends Controller
         $document_date = $request->input('document_date', '');
         $customer_id = $request->input('customer_id', '');
         $transaction_account_id = $request->input('transaction_account_id', '');
-
+        $remarks = $request->input('remarks', '');
+        $payment_amount = $request->input('payment_amount', '');
         $search = $request->input('search', '');
         $page = $request->input('page', 1);
         $perPage = $request->input('limit', 10);
@@ -41,6 +42,8 @@ class CustomerPaymentController extends Controller
         $data = $data->where('customer_payment.company_branch_id', '=', $request->company_branch_id);
 
         if (!empty($document_identity)) $data->where('customer_payment.document_identity', 'like', "%$document_identity%");
+        if (!empty($payment_amount)) $data->where('customer_payment.payment_amount', 'like', "%$payment_amount%");
+        if (!empty($remarks)) $data->where('customer_payment.remarks', 'like', "%$remarks%");
         if (!empty($document_date)) $data->where('customer_payment.document_date', $document_date);
         if (!empty($customer_id)) $data->where('c.customer_id', $customer_id);
         if (!empty($transaction_account_id)) $data->where('a.account_id', $transaction_account_id);

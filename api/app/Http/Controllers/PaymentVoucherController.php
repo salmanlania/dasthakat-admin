@@ -24,6 +24,8 @@ class PaymentVoucherController extends Controller
         $document_identity = $request->input('document_identity', '');
         $document_date = $request->input('document_date', '');
         $transaction_account_id = $request->input('transaction_account_id', '');
+        $remarks = $request->input('remarks', '');
+        $payment_amount = $request->input('payment_amount', '');
 
         $search = $request->input('search', '');
         $page = $request->input('page', 1);
@@ -37,6 +39,8 @@ class PaymentVoucherController extends Controller
         $data = $data->where('payment_voucher.company_branch_id', '=', $request->company_branch_id);
 
         if (!empty($document_identity)) $data->where('payment_voucher.document_identity', 'like', "%$document_identity%");
+        if (!empty($remarks)) $data->where('payment_voucher.remarks', 'like', "%$remarks%");
+        if (!empty($payment_amount)) $data->where('payment_voucher.payment_amount', 'like', "%$payment_amount%");
         if (!empty($document_date)) $data->where('payment_voucher.document_date', $document_date);
         if (!empty($transaction_account_id)) $data->where('a.account_id', $transaction_account_id);
 
