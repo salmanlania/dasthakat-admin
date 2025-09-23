@@ -25,7 +25,7 @@ class PaymentVoucherController extends Controller
         $document_date = $request->input('document_date', '');
         $transaction_account_id = $request->input('transaction_account_id', '');
         $remarks = $request->input('remarks', '');
-        $payment_amount = $request->input('payment_amount', '');
+        $total_amount = $request->input('total_amount', '');
 
         $search = $request->input('search', '');
         $page = $request->input('page', 1);
@@ -40,7 +40,7 @@ class PaymentVoucherController extends Controller
 
         if (!empty($document_identity)) $data->where('payment_voucher.document_identity', 'like', "%$document_identity%");
         if (!empty($remarks)) $data->where('payment_voucher.remarks', 'like', "%$remarks%");
-        if (!empty($payment_amount)) $data->where('payment_voucher.payment_amount', 'like', "%$payment_amount%");
+        if (!empty($total_amount)) $data->where('payment_voucher.total_amount', 'like', "%$total_amount%");
         if (!empty($document_date)) $data->where('payment_voucher.document_date', $document_date);
         if (!empty($transaction_account_id)) $data->where('a.account_id', $transaction_account_id);
 
@@ -49,6 +49,8 @@ class PaymentVoucherController extends Controller
             $data->where(function ($query) use ($search) {
                 $query
                     ->orWhere('payment_voucher.document_identity', 'like', "%$search%")
+                    ->orWhere('payment_voucher.remarks', 'like', "%$search%")
+
                     ->orWhere('a.name', 'like', "%$search%");
             });
         }

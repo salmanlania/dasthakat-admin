@@ -54,6 +54,7 @@ class CustomerPaymentController extends Controller
                 $query
                     ->where('c.name', 'like', "%$search%")
                     ->orWhere('customer_payment.document_identity', 'like', "%$search%")
+                    ->orWhere('customer_payment.remarks', 'like', "%$search%")
                     ->orWhere('a.name', 'like', "%$search%");
             });
         }
