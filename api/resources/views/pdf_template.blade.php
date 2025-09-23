@@ -9,6 +9,7 @@
       font-family: "Times New Roman", Times, serif;
       color: #203272;
       margin: 0;
+      
 /*      padding: 40px 20px;*/
     }
 
@@ -82,6 +83,9 @@
     td.description {
       text-align: left;
     }
+    tr{
+       border-bottom: 1px solid #747474 !important;
+    }
 
     .note-section {
       margin-top: 20px;
@@ -104,12 +108,10 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 30px;
+/*      margin-top: 30px;*/
     }
 
-    .footer-images img {
-/*      height: 40px;*/
-    }
+
 
     .page-note {
       text-align: center;
@@ -121,6 +123,7 @@
     .total-row td {
       font-weight: bold;
       font-size: 13px;
+
     }
 
 
@@ -135,14 +138,27 @@
   
 
   .footer {
-    position: fixed;
+   /* position: fixed;
     bottom: 10px;
     left: 0;
     right: 0;
     text-align: center;
     font-size: 11px;
-    color: #203272;
+    color: #203272;*/
+
+     position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px; /* define fixed height */
+  background: white; /* prevent bleed from content */
+  text-align: center;
+  font-size: 16px;
+  color: #203272;
+  z-index: 999;
   }
+
+
 
   .footer-images {
     display: flex;
@@ -152,7 +168,7 @@
   }
 
   .footer-images img {
-    height: 30px;
+    height: 50px;
   }
 
   .page-note::after {
@@ -239,12 +255,10 @@
       @foreach($charge_order_detail as $key => $detail)
         @php
           $total += $detail['gross_amount'];
-          $productName = $detail['product']['product_name'] ?? '';
-          $chunks = str_split($productName, 10);
+          $productName = $detail['product_description'] ?? '';
+          $chunks = str_split($productName, 60);
           $chunks = array_slice($chunks, 0, 10); // Limit to 10 lines
 
-        
-          $count+= (count($chunks) ? count($chunks) : 1 ) ;
 
         @endphp
 
@@ -252,14 +266,42 @@
 
          @php 
          $class = '';
-         if($count>=12) {
+         if($count>=14) {
             $count =0;
             $class = 'page-break-before' ;
         }  @endphp
 
+
+        @if($count==0)
+
+          <tr>
+          <div class="footer">
+            <div class="footer-images">
+              @for ($i = 1; $i <= 7; $i++)
+                <img src="{{ public_path2('images/logo' . $i . '.png') }}" alt="Logo{{ $i }}" />
+              @endfor
+            </div>
+            <div class="page-note"></div>
+          </div>
+        </tr>
+  
+
+        @endif
+
+
+
         <tr class="{{$class}}">
           <td>{{ $key+1 }}</td>
-          <td class="description">{{ $detail['product']['product_name'] ?? '' }}</td>
+          <td class="description">
+
+          @foreach($chunks as $value)
+               {{ $value }}
+               @php $count++  @endphp
+
+          @endforeach
+
+
+        </td>
           <td>{{ $detail['unit']['name'] ?? '' }}</td>
           <td>{{ $detail['quantity'] }}</td>
           <td>{{ $detail['rate'] }}</td>
@@ -305,14 +347,20 @@
     </tbody>
   </table>
 
+<htmlpagefooter name="myFooter">
   <div class="footer">
     <div class="footer-images">
       @for ($i = 1; $i <= 7; $i++)
         <img src="{{ public_path2('images/logo' . $i . '.png') }}" alt="Logo{{ $i }}" />
       @endfor
     </div>
-    <div class="page-note">Last Page</div>
+    <div class="page-note"></div>
   </div>
+  </htmlpagefooter>
+
+
+
+<sethtmlpagefooter name="myFooter" value="on" />
 
 </body>
 </html>
