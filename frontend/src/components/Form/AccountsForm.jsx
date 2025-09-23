@@ -139,7 +139,7 @@ const AccountsForm = ({ mode, onSubmit, onSave, onNew }) => {
                 <AsyncSelectLedgerParent
                   endpoint={mode === 'edit' ? `/accounts?exempt_account_id=${id}&exempt_referred_accounts=true` : `/accounts?exempt_referred_accounts=true`}
                   valueKey="account_id"
-                  labelKey="name"
+                  labelKey="display_account_name"
                   labelInValue
                   className="w-full"
                   onChange={(selected) => {
