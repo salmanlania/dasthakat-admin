@@ -8,25 +8,35 @@
     body {
       font-family: "Times New Roman", Times, serif;
       color: #203272;
-      margin: 0;
+      margin: 0px;
+      padding: 0 px;
       
-/*      padding: 40px 20px;*/
     }
 
     .header {
       text-align: center;
-      margin-bottom: 20px;
+
     }
 
     .header img {
       float: left;
-      height: 60px;
+      height: 110px;
+   
     }
 
     .company-details {
+      width: 80%;
+      top:0;
       text-align: center;
-      font-size: 14px;
+      padding: 0px;
+    }
+    .company-details h2{
+      font-size: 28px;
       margin-bottom: 10px;
+    }
+     .company-details p{
+      font-size: 13px;
+      margin-top: -11px;
     }
 
     .invoice-title {
@@ -35,6 +45,7 @@
       margin: 40px 0 10px;
       text-align: center;
       position: relative;
+      margin-top: 20px;
     }
 
     .invoice-title::after {
@@ -47,13 +58,13 @@
     }
 
     .addresses {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 30px;
+      width: 100%;
+      margin-top: 30px;
     }
 
     .address-box {
-      width: 45%;
+       width: 50%;
+       float: left;
       font-size: 12px;
     }
 
@@ -206,11 +217,11 @@
         <td>{{ $document_date }}</td>
         <td>{{ $document_identity }}</td>
         <td>{{ $event['event_code'] ?? '' }}</td>
+        <td>{{ $customer['name'] ?? '' }}</td>
         <td>{{ $port['name'] ?? '' }}</td>
         <td>{{ $service_order['document_identity'] ?? '' }}</td>
         <td>{{ $payment_terms ?? '' }}</td>
         <td>{{ $ship_date ?? '' }}</td>
-        <td></td>
       </tr>
     </tbody>
   </table>
@@ -289,11 +300,11 @@
         </td>
           <td>{{ $detail['unit']['name'] ?? '' }}</td>
           <td>{{ $detail['quantity'] }}</td>
-          <td>{{ $detail['rate'] }}</td>
-          <td>{{ $detail['amount'] }}</td>
+          <td>${{ $detail['rate'] }}</td>
+          <td>${{ $detail['amount'] }}</td>
           <td>{{ $detail['discount_percent'] }}</td>
-          <td>{{ $detail['discount_amount'] }}</td>
-          <td>{{ $detail['gross_amount'] }}</td>
+          <td>${{ $detail['discount_amount'] }}</td>
+          <td>${{ $detail['gross_amount'] }}</td>
         </tr>
       @endforeach
  
