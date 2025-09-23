@@ -125,6 +125,7 @@ class CustomerController extends Controller
 				'sale_invoice.company_id' => $request->company_id,
 				'sale_invoice.company_branch_id' => $request->company_branch_id,
 			])
+			->where('balance_amount', '>', 0)
 			->select(
 				'sale_invoice.sale_invoice_id',
 				'sale_invoice.document_identity',

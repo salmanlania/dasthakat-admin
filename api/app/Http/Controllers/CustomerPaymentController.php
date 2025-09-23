@@ -71,9 +71,7 @@ class CustomerPaymentController extends Controller
     public function show($id, Request $request)
     {
 
-        $data = CustomerPayment::with('details', 'customer', 'transaction_account', 'document_currency', 'base_currency', 'details.sale_invoice')
-            ->LeftJoin('customer as c', 'c.customer_id', '=', 'customer_payment.customer_id')
-            ->LeftJoin('accounts as a', 'a.account_id', '=', 'customer_payment.transaction_account_id')
+        $data = CustomerPayment::with('details', 'customer', 'transaction_account', 'document_currency', 'base_currency', 'details.sale_invoice','details.account')
             ->where('customer_payment.customer_payment_id', $id)
             ->first();
 
@@ -162,7 +160,7 @@ class CustomerPaymentController extends Controller
                 'document_detail_id' => "",
                 'document_identity' => $document['document_identity'] ?? "",
                 'document_date' => $request->document_date ?? "",
-                'sort_order' => "",
+                'sort_order' => 0,
                 'partner_type' => 'Customer',
                 'partner_id' => $request->customer_id,
                 'ref_document_type_id' => "",
@@ -177,7 +175,7 @@ class CustomerPaymentController extends Controller
                 'debit' => ($request->payment_amount ?? 0) * $conversion_rate,
                 'credit' => 0,
                 'document_amount' => $request->payment_amount ?? "",
-                'amount' => ($value['settled_amount'] ?? 0) * $conversion_rate,
+                'amount' => ($request->payment_amount ?? 0) * $conversion_rate,
                 'created_at' => Carbon::now(),
                 'created_by_id' => $request->login_user_id,
             ]);
@@ -287,7 +285,7 @@ class CustomerPaymentController extends Controller
                 'document_detail_id' => "",
                 'document_identity' => $request->document_identity ?? "",
                 'document_date' => $request->document_date ?? "",
-                'sort_order' => "",
+                'sort_order' => 0,
                 'partner_type' => 'Customer',
                 'partner_id' => $request->customer_id,
                 'ref_document_type_id' => "",
@@ -302,7 +300,7 @@ class CustomerPaymentController extends Controller
                 'debit' => ($request->payment_amount ?? 0) * $conversion_rate,
                 'credit' => 0,
                 'document_amount' => $request->payment_amount ?? "",
-                'amount' => ($value['settled_amount'] ?? 0) * $conversion_rate,
+                'amount' => ($request->payment_amount ?? 0) * $conversion_rate,
                 'created_at' => Carbon::now(),
                 'created_by_id' => $request->login_user_id,
             ]);
@@ -393,6 +391,9 @@ class CustomerPaymentController extends Controller
         $data  = CustomerPayment::where('customer_payment_id', $id)->first();
         if ($data) {
             $data->delete();
+            Ledger::where('document_id', $id)
+                ->where('document_type_id', $this->document_type_id)
+                ->delete();
             CustomerPaymentDetail::where('customer_payment_id', $id)->delete();
         }
         return $this->jsonResponse(['customer_payment_id' => $id], 200, "Delete Customer Payment Successfully!");
@@ -408,6 +409,9 @@ class CustomerPaymentController extends Controller
                     $user = CustomerPayment::where(['customer_payment_id' => $customer_payment_id])->first();
                     if ($user) {
                         $user->delete();
+                        Ledger::where('document_id', $customer_payment_id)
+                            ->where('document_type_id', $this->document_type_id)
+                            ->delete();
                         CustomerPaymentDetail::where('customer_payment_id', $customer_payment_id)->delete();
                     }
                 }

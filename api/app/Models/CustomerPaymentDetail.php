@@ -34,4 +34,10 @@ class CustomerPaymentDetail extends Model
     {
         return $this->belongsTo(SaleInvoice::class, 'sale_invoice_id', 'sale_invoice_id');
     }
+    
+    public function account()
+    {
+        return $this->belongsTo(Accounts::class, 'account_id', 'account_id');
+    }
+    
 }

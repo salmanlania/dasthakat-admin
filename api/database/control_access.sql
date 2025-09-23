@@ -126,6 +126,11 @@
   ('General Ledger', 'Vendor Payment', 'vendor_payment', 'edit', 'Edit', 1.103),
   ('General Ledger', 'Vendor Payment', 'vendor_payment', 'delete', 'Delete', 1.104),
   
+  ('General Ledger', 'Payment Voucher', 'payment_voucher', 'list', 'List', 1.101),
+  ('General Ledger', 'Payment Voucher', 'payment_voucher', 'add', 'Add', 1.102),
+  ('General Ledger', 'Payment Voucher', 'payment_voucher', 'edit', 'Edit', 1.103),
+  ('General Ledger', 'Payment Voucher', 'payment_voucher', 'delete', 'Delete', 1.104),
+  
   ('Inventory Setup', 'Category', 'category', 'list', 'List', 1.101),
   ('Inventory Setup', 'Category', 'category', 'add', 'Add', 1.102),
   ('Inventory Setup', 'Category', 'category', 'edit', 'Edit', 1.103),

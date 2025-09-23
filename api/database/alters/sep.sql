@@ -266,7 +266,7 @@ CREATE TABLE `customer_payment` (
   `base_currency_id` CHAR(36) NOT NULL,
   `document_currency_id` CHAR(36) NOT NULL,
   `transaction_account_id` CHAR(36) NOT NULL,
-  `conversion_rate` CHAR(36) NOT NULL,
+  `conversion_rate` DECIMAL(15, 2) NOT NULL,
   `payment_amount` DECIMAL(15, 2) NULL DEFAULT 0,
   `total_amount` DECIMAL(15, 2) NULL DEFAULT 0,
   `remarks` TEXT,
@@ -293,6 +293,7 @@ CREATE TABLE `customer_payment_detail` (
 );
 
 ALTER TABLE `customer_payment`
+  ADD PRIMARY KEY (`customer_payment_id`),
   ADD INDEX `idx_company` (`company_id`),
   ADD INDEX
    `idx_company_branch` (`company_branch_id`),
@@ -302,6 +303,7 @@ ALTER TABLE `customer_payment`
   ADD INDEX `idx_document_date` (`document_date`);
 
 ALTER TABLE `customer_payment_detail`
+  ADD PRIMARY KEY (`customer_payment_detail_id`),
   ADD INDEX `idx_customer_payment` (`customer_payment_id`),
   ADD INDEX `idx_sale_invoice` (`sale_invoice_id`),
   ADD INDEX `idx_account` (`account_id`);
@@ -309,3 +311,58 @@ ALTER TABLE `customer_payment_detail`
   
 INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `document_prefix`, `table_name`, `primary_key`)
 VALUES ( 58, 'Customer Payment', '{BC}/CP-', 'customer_payment', 'customer_payment_id' );
+
+
+
+CREATE TABLE `payment_voucher` (
+  `company_id` CHAR(36) NOT NULL,
+  `company_branch_id` CHAR(36) NOT NULL,
+  `payment_voucher_id` CHAR(36) NOT NULL,
+  `document_type_id` INT(11) NOT NULL,
+  `document_prefix` VARCHAR(255) NOT NULL,
+  `document_no` INT(11) NOT NULL,
+  `document_identity` VARCHAR(255) NOT NULL,
+  `document_date` DATE NOT NULL,
+  `base_currency_id` CHAR(36) NOT NULL,
+  `document_currency_id` CHAR(36) NOT NULL,
+  `transaction_account_id` CHAR(36) NOT NULL,
+  `conversion_rate` DECIMAL(15, 2) NOT NULL,
+  `total_amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `net_amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `remarks` TEXT,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` CHAR(36) NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_by` CHAR(36) NULL,
+  
+  PRIMARY KEY (`payment_voucher_id`),
+  INDEX idx_company (`company_id`),
+  INDEX idx_branch (`company_branch_id`),
+  INDEX idx_document_identity (`document_identity`),
+  INDEX idx_document_date (`document_date`),
+  INDEX idx_transaction_account (`transaction_account_id`)
+);
+
+CREATE TABLE `payment_voucher_detail` (
+  `payment_voucher_id` CHAR(36) NOT NULL,
+  `payment_voucher_detail_id` CHAR(36) NOT NULL,
+  `sort_order` INT(11) NOT NULL,
+  `account_id` CHAR(36) NOT NULL,
+  `document_amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `payment_amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `tax_amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `tax_percent` DECIMAL(15, 2) NULL DEFAULT 0,
+  `net_amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` CHAR(36) NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_by` CHAR(36) NULL,
+  
+  PRIMARY KEY (`payment_voucher_detail_id`),
+  INDEX idx_payment_voucher (`payment_voucher_id`),
+  INDEX idx_account (`account_id`)
+);
+
+  
+INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `document_prefix`, `table_name`, `primary_key`)
+VALUES ( 59, 'Payment Voucher', '{BC}/PV-', 'payment_voucher', 'payment_voucher_id' );
