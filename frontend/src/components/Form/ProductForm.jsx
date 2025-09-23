@@ -7,6 +7,7 @@ import AsyncSelect from '../AsyncSelect';
 import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate.jsx';
 import CommaSeparatedInput from '../Input/CommaSeparatedInput';
 import AsyncSelectLedger from '../AsyncSelectLedger/index.jsx';
+import AsyncSelectProduct from '../AsyncSelectProduct/index.jsx';
 
 const { TabPane } = Tabs;
 const { Title } = Typography;
@@ -240,8 +241,8 @@ const ProductForm = ({ mode, onSubmit }) => {
                   name="cogs_account_id"
                   label="COGS Account"
                   rules={[{ required: true, message: 'COGS account is required' }]}>
-                  <AsyncSelectLedger
-                    endpoint="/accounts?only_leaf=1"
+                  <AsyncSelectProduct
+                    endpoint="/setting?field=cogs_accounts"
                     size="small"
                     className="w-full font-normal"
                     valueKey="account_id"
@@ -255,8 +256,8 @@ const ProductForm = ({ mode, onSubmit }) => {
                   name="inventory_account_id"
                   label="Inventory Account"
                   rules={[{ required: true, message: 'Inventory account is required' }]}>
-                  <AsyncSelectLedger
-                    endpoint="/accounts?only_leaf=1"
+                  <AsyncSelectProduct
+                    endpoint="/setting?field=inventory_accounts"
                     size="small"
                     className="w-full font-normal"
                     valueKey="account_id"
@@ -270,8 +271,8 @@ const ProductForm = ({ mode, onSubmit }) => {
                   name="revenue_account_id"
                   label="Revenue Account"
                   rules={[{ required: true, message: 'Revenue account is required' }]}>
-                  <AsyncSelectLedger
-                    endpoint="/accounts?only_leaf=1"
+                  <AsyncSelectProduct
+                    endpoint="/setting?field=revenue_accounts"
                     size="small"
                     className="w-full font-normal"
                     valueKey="account_id"
@@ -285,8 +286,8 @@ const ProductForm = ({ mode, onSubmit }) => {
                   name="adjustment_account_id"
                   label="Adjustment Account"
                   rules={[{ required: true, message: 'Adjustment account is required' }]}>
-                  <AsyncSelectLedger
-                    endpoint="/accounts?only_leaf=1"
+                  <AsyncSelectProduct
+                    endpoint="/setting?field=adjustment_accounts"
                     size="small"
                     className="w-full font-normal"
                     valueKey="account_id"
