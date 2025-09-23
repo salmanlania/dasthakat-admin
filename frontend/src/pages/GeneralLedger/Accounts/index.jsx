@@ -71,7 +71,7 @@ const Accounts = () => {
   const columns = [
     {
       title: (
-        <div>
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Account Type</p>
           <AsyncSelectLedger
             endpoint="/lookups/gl-types"

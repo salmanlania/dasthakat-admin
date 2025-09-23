@@ -48,7 +48,8 @@ import saleReturnReducer from './features/saleReturnSlice';
 import stockReturnReducer from './features/stockReturnSlice';
 import purchaseReturnReducer from './features/purchaseReturnSlice';
 import vendorQuotationReducer from './features/vendorQuotationSlice';
-import transactionAccountReducer from './features/transactionAccountSlice'
+import customerPaymentReducer from './features/customerPaymentSlice'
+import paymentVoucherReducer from './features/paymentVoucherSlice'
 
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
@@ -99,7 +100,8 @@ const rootReducer = combineReducers({
   serviceOrder: serviceOrderReducer,
   companySetting: companySettingReducer,
   vendorQuotation: vendorQuotationReducer,
-  transactionAccount: transactionAccountReducer,
+  customerPayment: customerPaymentReducer,
+  paymentVoucher: paymentVoucherReducer,
 });
 
 export const store = configureStore({

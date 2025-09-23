@@ -7,7 +7,7 @@ import CustomerPaymentForm from '../../components/Form/CustomerPaymentForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
-import { getCustomerPayment, updateCustomerPaymentForm } from '../../store/features/transactionAccountSlice';
+import { getCustomerPayment, updateCustomerPaymentForm } from '../../store/features/customerPaymentSlice';
 
 const EditCustomerPayment = () => {
   useDocumentTitle('Edit Customer Payment');
@@ -15,7 +15,7 @@ const EditCustomerPayment = () => {
   const navigate = useNavigate();
   const handleError = useError();
   const { id } = useParams();
-  const { isItemLoading, initialFormValues } = useSelector((state) => state.transactionAccount);
+  const { isItemLoading, initialFormValues } = useSelector((state) => state.customerPayment);
 
   const onCustomerPaymentUpdate = async (data) => {
     try {

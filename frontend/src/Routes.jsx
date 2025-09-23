@@ -161,6 +161,10 @@ const VendorPayment = lazy(() => import('./pages/VendorPayment'));
 const CreateVendorPayment = lazy(() => import('./pages/VendorPayment/CreateVendorPayment'));
 const EditVendorPayment = lazy(() => import('./pages/VendorPayment/EditVendorPayment'));
 
+const VoucherPayment = lazy(() => import('./pages/PaymentVoucher'));
+const CreateVoucherPayment = lazy(() => import('./pages/PaymentVoucher/CreatePaymentVoucher'));
+const EditVoucherPayment = lazy(() => import('./pages/PaymentVoucher/EditPaymentVoucher'));
+
 function Routes() {
   const router = createBrowserRouter(
     [
@@ -1035,6 +1039,30 @@ function Routes() {
                     element: (
                       <Suspense fallback={<PageLoader />}>
                         <EditVendorPayment />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'payment-voucher',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <VoucherPayment />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'payment-voucher/create',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <CreateVoucherPayment />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'payment-voucher/edit/:id',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <EditVoucherPayment />
                       </Suspense>
                     ),
                   },

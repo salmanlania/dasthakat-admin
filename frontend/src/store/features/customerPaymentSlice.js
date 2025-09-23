@@ -115,8 +115,8 @@ const initialState = {
   }
 };
 
-export const transactionAccountSlice = createSlice({
-  name: 'transactionAccount',
+export const customerPaymentSlice = createSlice({
+  name: 'customerPayment',
   initialState,
   reducers: {
     setCustomerPaymentListParams: (state, action) => {
@@ -244,5 +244,5 @@ export const transactionAccountSlice = createSlice({
   }
 });
 
-export const { setCustomerPaymentListParams, setCustomerPaymentDeleteIDs, setFormField, resetCustomerPaymentForm } = transactionAccountSlice.actions;
-export default transactionAccountSlice.reducer;
+export const { setCustomerPaymentListParams, setCustomerPaymentDeleteIDs, setFormField, resetCustomerPaymentForm } = customerPaymentSlice.actions;
+export default customerPaymentSlice.reducer;

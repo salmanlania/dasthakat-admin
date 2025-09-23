@@ -6,49 +6,50 @@ import { GoTrash } from 'react-icons/go';
 import { MdOutlineEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import AsyncSelect from '../../components/AsyncSelect';
-import PageHeading from '../../components/Heading/PageHeading';
-import ChargeOrderModal from '../../components/Modals/ChargeOrderModal';
-import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
-import useDebounce from '../../hooks/useDebounce';
+import AsyncSelect from '../../components/AsyncSelect/index.jsx';
+import PageHeading from '../../components/Heading/PageHeading.jsx';
+import ChargeOrderModal from '../../components/Modals/ChargeOrderModal.jsx';
+import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal.jsx';
+import useDebounce from '../../hooks/useDebounce.js';
 import useDocumentTitle from '../../hooks/useDocumentTitle.js';
-import useError from '../../hooks/useError';
+import useError from '../../hooks/useError.jsx';
 import {
-  bulkDeleteCustomerPayment,
-  deleteCustomerPayment,
-  getCustomerPaymentList,
-  setCustomerPaymentDeleteIDs,
-  setCustomerPaymentListParams,
-} from '../../store/features/customerPaymentSlice.js';
+  bulkDeletePaymentVoucher,
+  deletePaymentVoucher,
+  getPaymentVoucherList,
+  setPaymentVoucherDeleteIDs,
+  setPaymentVoucherListParams,
+} from '../../store/features/paymentVoucherSlice.js';
 
-const CustomerPayment = () => {
-  useDocumentTitle('Customer Payment List');
+const PaymentVoucher = () => {
+  useDocumentTitle('Payment Voucher List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.customerPayment,
+    (state) => state.paymentVoucher,
   );
   const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.customer_payment;
+  const permissions = user.permission.payment_voucher;
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedQuotationNo = useDebounce(params.document_identity, 500);
-  const debouncedCustomerRef = useDebounce(params.remarks, 500);
-  const debouncedTotalAmount = useDebounce(params.payment_amount, 500);
+  const debouncedVoucherRef = useDebounce(params.remarks, 500);
+  const debouncedTotalAmount = useDebounce(params.total_amount, 500);
+  const debouncedDocumentDate = useDebounce(params.document_date, 500);
 
   const formattedParams = {
     ...params,
-    document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null,
+    // document_date: params.document_date ? dayjs(params.document_date).format('YYYY-MM-DD') : null,
   };
 
   const onQuotationDelete = async (id) => {
     try {
-      await dispatch(deleteCustomerPayment(id)).unwrap();
-      toast.success('Customer Payment deleted successfully');
-      dispatch(getCustomerPaymentList(formattedParams)).unwrap();
+      await dispatch(deletePaymentVoucher(id)).unwrap();
+      toast.success('Payment Voucher deleted successfully');
+      dispatch(getPaymentVoucherList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -56,10 +57,10 @@ const CustomerPayment = () => {
 
   const onBulkDelete = async () => {
     try {
-      await dispatch(bulkDeleteCustomerPayment(deleteIDs)).unwrap();
-      toast.success('Customer Payments deleted successfully');
+      await dispatch(bulkDeletePaymentVoucher(deleteIDs)).unwrap();
+      toast.success('Payment Vouchers deleted successfully');
       closeDeleteModal();
-      await dispatch(getCustomerPaymentList(formattedParams)).unwrap();
+      await dispatch(getPaymentVoucherList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -82,9 +83,17 @@ const CustomerPayment = () => {
           <div onClick={(e) => e.stopPropagation()}>
             <DatePicker
               size="small"
-              value={params.document_date}
+              // value={params.document_date}
+              value={params.document_date ? dayjs(params.document_date) : null}
               className="font-normal"
-              onChange={(date) => dispatch(setCustomerPaymentListParams({ document_date: date }))}
+              // onChange={(date) => dispatch(setPaymentVoucherListParams({ document_date: date }))}
+              onChange={(date) => {
+                dispatch(
+                  setPaymentVoucherListParams({
+                    document_date: date ? dayjs(date).format("YYYY-MM-DD") : null,
+                  })
+                );
+              }}
               format="MM-DD-YYYY"
             />
           </div>
@@ -101,20 +110,21 @@ const CustomerPayment = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
-          <p>Customer</p>
-          <AsyncSelect
-            endpoint="/customer"
+          <p>Voucher No</p>
+          <Input
+            className="font-normal"
             size="small"
-            className="w-full font-normal"
-            valueKey="customer_id"
-            labelKey="name"
-            value={params.customer_id}
-            onChange={(value) => dispatch(setCustomerPaymentListParams({ customer_id: value }))}
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.document_identity}
+            onChange={(e) => {
+              dispatch(setPaymentVoucherListParams({ document_identity: e.target.value }));
+            }}
           />
         </div>
       ),
-      dataIndex: 'customer_name',
-      key: 'customer_name',
+      dataIndex: 'document_identity',
+      key: 'document_identity',
       sorter: true,
       width: 200,
       ellipsis: true,
@@ -122,21 +132,42 @@ const CustomerPayment = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
-          <p>Payment Amount</p>
+          <p>Transaction Account</p>
+          <AsyncSelect
+            endpoint="/accounts"
+            size="small"
+            className="w-full font-normal"
+            valueKey="account_id"
+            labelKey="name"
+            value={params.transaction_account_id}
+            onChange={(value) => dispatch(setPaymentVoucherListParams({ transaction_account_id: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'transaction_account_name',
+      key: 'transaction_account_name',
+      sorter: true,
+      width: 150,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Total Amount</p>
           <Input
             className="font-normal"
             size="small"
             allowClear
             onClick={(e) => e.stopPropagation()}
-            value={params.payment_amount}
+            value={params.total_amount}
             onChange={(e) => {
-              dispatch(setCustomerPaymentListParams({ payment_amount: e.target.value }));
+              dispatch(setPaymentVoucherListParams({ total_amount: e.target.value }));
             }}
           />
         </div>
       ),
-      dataIndex: 'payment_amount',
-      key: 'payment_amount',
+      dataIndex: 'total_amount',
+      key: 'total_amount',
       sorter: true,
       width: 140,
       ellipsis: true,
@@ -144,14 +175,14 @@ const CustomerPayment = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
-          <p>Reference No.</p>
+          <p>Remarks</p>
           <Input
             className="font-normal"
             allowClear
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.remarks}
-            onChange={(e) => dispatch(setCustomerPaymentListParams({ remarks: e.target.value }))}
+            onChange={(e) => dispatch(setPaymentVoucherListParams({ remarks: e.target.value }))}
           />
         </div>
       ),
@@ -164,12 +195,12 @@ const CustomerPayment = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_, { customer_payment_id }) => (
+      render: (_, { payment_voucher_id }) => (
         <div className="flex flex-col justify-center gap-1">
           <div className="flex items-center gap-1">
             {permissions.edit ? (
               <Tooltip title="Edit">
-                <Link to={`/general-ledger/transactions/customer-payment/edit/${customer_payment_id}`}>
+                <Link to={`/general-ledger/transactions/payment-voucher/edit/${payment_voucher_id}`}>
                   <Button
                     size="small"
                     type="primary"
@@ -187,8 +218,8 @@ const CustomerPayment = () => {
                   okButtonProps={{ danger: true }}
                   okText="Yes"
                   cancelText="No"
-                  onConfirm={() => onQuotationDelete(customer_payment_id)}
-                  >
+                  onConfirm={() => onQuotationDelete(payment_voucher_id)}
+                >
                   <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                 </Popconfirm>
               </Tooltip>
@@ -207,8 +238,8 @@ const CustomerPayment = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    dispatch(getCustomerPaymentList(formattedParams)).unwrap().catch(handleError);
-    const savedLimit = sessionStorage.getItem('customerPayments');
+    dispatch(getPaymentVoucherList(formattedParams)).unwrap().catch(handleError);
+    const savedLimit = sessionStorage.getItem('paymentVoucher');
   }, [
     params.page,
     params.limit,
@@ -218,23 +249,24 @@ const CustomerPayment = () => {
     params.sales_team_ids,
     params.event_code,
     params.document_date,
-    params.customer_id,
+    params.voucher_id,
     params.vessel_id,
+    params.transaction_account_id,
     params.event_id,
     params.port_id,
-    params.payment_amount,
     params.status,
     debouncedSearch,
     debouncedQuotationNo,
-    debouncedCustomerRef,
+    debouncedVoucherRef,
     debouncedTotalAmount,
+    debouncedDocumentDate
   ]);
 
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>CUSTOMER PAYMENT</PageHeading>
-        <Breadcrumb items={[{ title: 'Customer Payment' }, { title: 'List' }]} separator=">" />
+        <PageHeading>PAYMENT VOUCHER</PageHeading>
+        <Breadcrumb items={[{ title: 'Payment Voucher' }, { title: 'List' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
@@ -244,7 +276,7 @@ const CustomerPayment = () => {
             allowClear
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) => dispatch(setCustomerPaymentListParams({ search: e.target.value }))}
+            onChange={(e) => dispatch(setPaymentVoucherListParams({ search: e.target.value }))}
           />
 
           <div className="flex items-center gap-2">
@@ -258,7 +290,7 @@ const CustomerPayment = () => {
               </Button>
             ) : null}
             {permissions.add ? (
-              <Link to="/general-ledger/transactions/customer-payment/create">
+              <Link to="/general-ledger/transactions/payment-voucher/create">
                 <Button type="primary">Add New</Button>
               </Link>
             ) : null}
@@ -273,7 +305,7 @@ const CustomerPayment = () => {
                 type: 'checkbox',
                 selectedRowKeys: deleteIDs,
                 onChange: (selectedRowKeys) =>
-                  dispatch(setCustomerPaymentDeleteIDs(selectedRowKeys)),
+                  dispatch(setPaymentVoucherDeleteIDs(selectedRowKeys)),
                 getCheckboxProps: (record) => ({
                   disabled: record.isEventHeader,
                 }),
@@ -282,18 +314,18 @@ const CustomerPayment = () => {
           }
           loading={isListLoading}
           className="mt-2"
-          rowKey={(record) => record.customer_payment_id}
+          rowKey={(record) => record.payment_voucher_id}
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} customer payments`,
+            showTotal: (total) => `Total ${total} payment vouchers`,
           }}
           onChange={(page, _, sorting) => {
-            sessionStorage.setItem('customerPayments', page.pageSize);
+            sessionStorage.setItem('paymentVouchers', page.pageSize);
             dispatch(
-              setCustomerPaymentListParams({
+              setPaymentVoucherListParams({
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
@@ -320,7 +352,7 @@ const CustomerPayment = () => {
         onCancel={closeDeleteModal}
         isDeleting={isBulkDeleting}
         onDelete={onBulkDelete}
-        title="Are you sure you want to delete these customer payments?"
+        title="Are you sure you want to delete these payment vouchers?"
         description="After deleting, you will not be able to recover."
       />
 
@@ -329,4 +361,4 @@ const CustomerPayment = () => {
   );
 };
 
-export default CustomerPayment;
+export default PaymentVoucher;

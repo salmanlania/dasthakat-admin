@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { getCustomerLedgerInvoices } from '../../store/features/transactionAccountSlice';
+import { getCustomerLedgerInvoices } from '../../store/features/customerPaymentSlice';
 import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
@@ -14,7 +14,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const { isFormSubmitting, initialFormValues, ledgerInvoices, isLedgerLoading } = useSelector(
-    (state) => state.transactionAccount
+    (state) => state.customerPayment
   );
 
   const DetailSummaryInfo = ({ title, value }) => {
@@ -82,7 +82,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
     const rawValue = typeof value === "string" ? value : String(value ?? "0");
     const settledAmount = parseFloat(rawValue.replace(/,/g, "")) || 0
 
-    if (settledAmount > (record.balance_amount || 0)) {
+    if (settledAmount > (record?.balance_amount || 0)) {
       toast.error("Settled amount cannot be greater than Balance Amount");
       return;
     }
@@ -91,6 +91,8 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       ...prev,
       [record.sale_invoice_id]: settledAmount
     }));
+
+    form.setFieldsValue({ payment_amount: settledAmount });
 
     // const totalSettledAmount = selectedRowKeys.reduce((sum, key) => sum + (settledAmounts[key] || settledAmount || 0), 0);
     // setTotalAmount(totalSettledAmount);
@@ -182,7 +184,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       width: 150
     },
     {
-      title: 'Original Amount',
+      title: 'Invoice Amount',
       dataIndex: 'net_amount',
       key: 'net_amount',
       render: (_, record, { net_amount }, index) => {
@@ -221,6 +223,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       width: 120
     },
   ];
+
   return (
     <>
       <Form
@@ -237,7 +240,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
                 ? dayjs(initialFormValues.document_date)
                 : null,
             }
-            : {}
+            : { document_date: dayjs() }
         }
         scrollToFirstError>
         {/* Make this sticky */}

@@ -6,7 +6,7 @@ import CustomerPaymentForm from '../../components/Form/CustomerPaymentForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
-import { createCustomerPayment, resetCustomerPaymentForm } from '../../store/features/transactionAccountSlice';
+import { createCustomerPayment, resetCustomerPaymentForm } from '../../store/features/customerPaymentSlice';
 import { useEffect } from 'react';
 
 const CreateCustomerPayment = () => {

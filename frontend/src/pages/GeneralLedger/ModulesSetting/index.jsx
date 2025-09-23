@@ -33,6 +33,12 @@ const ModulesSetting = () => {
     (state) => state.companySetting,
   );
 
+  const { user } = useSelector((state) => state.auth);
+  const permissions = user?.permission;
+  const bothPermission =
+    permissions?.gl_inventory_setting?.inventory_update &&
+    permissions?.gl_accounts_setting?.gl_update
+
   useEffect(() => {
     const fieldKeyMap = {
       transaction_account: 'transaction_account',
@@ -75,7 +81,7 @@ const ModulesSetting = () => {
               label: item.field,
             }
             // acc[formKey] = item.value;
-          } 
+          }
           else {
             acc[formKey] = item.value;
           }
@@ -155,12 +161,22 @@ const ModulesSetting = () => {
           }}>
           <div className="px-6">
             <Tabs activeKey={activeTab} onChange={setActiveTab} className="mb-6" type="card">
-              <TabPane tab="General Ledger" key="1">
-                <GeneralLedgerSettingForm />
-              </TabPane>
-              <TabPane tab="Inventory" key="2">
-                <InventorySettingForm />
-              </TabPane>
+              {permissions?.gl_accounts_setting?.gl_update
+                ? (
+                  <TabPane tab="General Ledger" key="1">
+                    <GeneralLedgerSettingForm />
+                  </TabPane>
+                )
+                : null
+              }
+              {permissions?.gl_inventory_setting?.inventory_update
+                ? (
+                  <TabPane TabPane tab="Inventory" key="2">
+                    <InventorySettingForm />
+                  </TabPane>
+                )
+                : null
+              }
             </Tabs>
           </div>
 
@@ -168,12 +184,17 @@ const ModulesSetting = () => {
             <Button className="mr-2" onClick={dashboardRedirection}>
               Exit
             </Button>
-            <Button type="primary" onClick={() => form.submit()}>
-              Save
-            </Button>
+            {bothPermission
+              ? (
+                <Button type="primary" onClick={() => form.submit()}>
+                  Save
+                </Button>
+              )
+              : null
+            }
           </div>
         </Form>
-      </div>
+      </div >
     </Spin >
   );
 };

@@ -498,7 +498,6 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo }) => {
       },
       width: 50,
       fixed: 'left'
-
     },
     {
       title: 'Sr.',

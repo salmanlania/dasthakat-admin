@@ -127,11 +127,13 @@ const Sidebar = () => {
   const accountsPermission =
     !permissions?.accounts?.list &&
     !permissions?.vendor_payment?.list &&
-    !permissions?.customer_payment?.list
+    !permissions?.customer_payment?.list &&
+    !permissions?.payment_voucher?.list
 
 
   const transactionPermission =
     !permissions?.vendor_payment?.list &&
+    !permissions?.payment_voucher?.list &&
     !permissions?.customer_payment?.list
 
   const warehousingPermission =
@@ -146,7 +148,13 @@ const Sidebar = () => {
   const accountingPermission =
     !permissions?.purchase_invoice?.list &&
     !permissions?.sale_invoice?.list &&
-    !permissions?.sale_return?.list;
+    !permissions?.sale_return?.list &&
+    !permissions?.gl_accounts_setting?.gl_update &&
+    !permissions?.gl_inventory_setting?.inventory_update
+
+  const glSettingPermission =
+    !permissions?.gl_accounts_setting?.gl_update &&
+    !permissions?.gl_inventory_setting?.inventory_update
 
   const LogisticsPermission = !permissions?.dispatch?.list;
   const systemPermission = !permissions?.audit?.list;
@@ -511,7 +519,7 @@ const Sidebar = () => {
             {
               key: 'gl module setting',
               label: <Link to="/general-ledger/gl-setup/gl-module-setting">GL Module Setting</Link>,
-              disabled: accountsPermission,
+              disabled: glSettingPermission,
             },
             {
               key: '/general-ledger/gl-setup/accounts',
@@ -535,6 +543,11 @@ const Sidebar = () => {
               key: 'general-ledger/transactions/vendor-payment',
               label: <Link to="/general-ledger/transactions/vendor-payment">Vendor Payment</Link>,
               disabled: !permissions?.vendor_payment?.list,
+            },
+            {
+              key: 'general-ledger/transactions/payment-voucher',
+              label: <Link to="/general-ledger/transactions/payment-voucher">Payment Voucher</Link>,
+              disabled: !permissions?.payment_voucher?.list,
             },
           ]
         },

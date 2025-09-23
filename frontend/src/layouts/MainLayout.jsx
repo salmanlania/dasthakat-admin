@@ -158,19 +158,26 @@ const MainLayout = () => {
   if (href === '/vendor-platform' && !permissions.vp_quotation.list) return <NotFound />;
   if (href.startsWith('/vendor-platform/edit') && !permissions.vp_quotation.edit) return <NotFound />;
 
+  if (href === '/general-ledger/gl-setup/gl-module-setting' && !permissions?.gl_accounts_setting?.gl_update && !permissions?.gl_inventory_setting?.inventory_update) return <NotFound />;
+
   if (href === '/general-ledger/gl-setup/accounts' && !permissions.accounts.list) return <NotFound />;
   if (href === '/general-ledger/gl-setup/accounts/create' && !permissions.accounts.add) return <NotFound />;
   if (href.startsWith('/general-ledger/gl-setup/accounts/edit') && !permissions.accounts.edit)
     return <NotFound />;
 
   if (href === '/general-ledger/transactions/customer-payment' && !permissions.customer_payment.list) return <NotFound />;
-  if (href === '/general-ledger/transactions/customer-payment' && !permissions.customer_payment.add) return <NotFound />;
-  if (href.startsWith('/general-ledger/transactions/customer-payment') && !permissions.customer_payment.edit)
+  if (href === '/general-ledger/transactions/customer-payment/create' && !permissions.customer_payment.add) return <NotFound />;
+  if (href.startsWith('/general-ledger/transactions/customer-payment/edit') && !permissions.customer_payment.edit)
     return <NotFound />;
 
   if (href === '/general-ledger/transactions/vendor-payment' && !permissions.vendor_payment.list) return <NotFound />;
-  if (href === '/general-ledger/transactions/vendor-payment' && !permissions.vendor_payment.add) return <NotFound />;
-  if (href.startsWith('/general-ledger/transactions/vendor-payment') && !permissions.vendor_payment.edit)
+  if (href === '/general-ledger/transactions/vendor-payment/create' && !permissions.vendor_payment.add) return <NotFound />;
+  if (href.startsWith('/general-ledger/transactions/vendor-payment/edit') && !permissions.vendor_payment.edit)
+    return <NotFound />;
+
+  if (href === '/general-ledger/transactions/payment-voucher' && !permissions.payment_voucher?.list) return <NotFound />;
+  if (href === '/general-ledger/transactions/payment-voucher/create' && !permissions.payment_voucher?.add) return <NotFound />;
+  if (href.startsWith('/general-ledger/transactions/payment-voucher/edit') && !permissions.payment_voucher?.edit)
     return <NotFound />;
 
   return (
