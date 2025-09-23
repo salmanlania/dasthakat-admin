@@ -77,6 +77,7 @@
     th, td {
       border: 1px solid #747474;
       padding: 6px;
+      margin: 0px;
       text-align: center;
     }
 
@@ -84,7 +85,7 @@
       text-align: left;
     }
     tr{
-       border-bottom: 1px solid #747474 !important;
+/*       border-bottom: 1px solid #747474 !important;*/
     }
 
     .note-section {
@@ -104,49 +105,28 @@
       font-style: italic;
     }
 
-    .footer-images {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-/*      margin-top: 30px;*/
-    }
-
-
-
-    .page-note {
+  .page-note {
       text-align: center;
       font-size: 11px;
       font-style: italic;
       margin-top: 10px;
-    }
-
-    .total-row td {
+  }
+  .total-row td {
       font-weight: bold;
       font-size: 13px;
 
-    }
+  }
 
-
-
-      @page {
+  @page {
     margin: 50px 30px 80px 30px;
   }
-.page-break-before {
-  page-break-before: always;
-  break-before: page;
-}
-  
+  .page-break-before {
+    page-break-before: always;
+    break-before: page;
+  }
 
   .footer {
-   /* position: fixed;
-    bottom: 10px;
-    left: 0;
-    right: 0;
-    text-align: center;
-    font-size: 11px;
-    color: #203272;*/
-
-     position: fixed;
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
@@ -156,6 +136,8 @@
   font-size: 16px;
   color: #203272;
   z-index: 999;
+  margin-top: 0px;
+
   }
 
 
@@ -165,6 +147,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 0 40px;
+         margin-top: 0px;
+
   }
 
   .footer-images img {
@@ -177,7 +161,6 @@
   }
 
 
- 
 
   </style>
 </head>
@@ -250,6 +233,7 @@
       @php
         $total = 0;
         $count = 0;
+        $all_count = 1;
       @endphp
 
       @foreach($charge_order_detail as $key => $detail)
@@ -266,16 +250,17 @@
 
          @php 
          $class = '';
-         if($count>=14) {
+         $length = ($all_count!=1) ? 37 : 14;
+         if($count>=$length) {
             $count =0;
             $class = 'page-break-before' ;
+            $all_count++;
         }  @endphp
 
-
-        @if($count==0)
-
-          <tr>
-          <div class="footer">
+        @if($count==0 && $key!=0)
+          <tr style="border: 1px solid white !important;"  >
+          <td colspan="9" style="border: 0px solid red  !important;  ;">
+            <div class="footer">
             <div class="footer-images">
               @for ($i = 1; $i <= 7; $i++)
                 <img src="{{ public_path2('images/logo' . $i . '.png') }}" alt="Logo{{ $i }}" />
@@ -283,9 +268,8 @@
             </div>
             <div class="page-note"></div>
           </div>
+          </td>
         </tr>
-  
-
         @endif
 
 
@@ -297,6 +281,7 @@
           @foreach($chunks as $value)
                {{ $value }}
                @php $count++  @endphp
+               
 
           @endforeach
 
@@ -311,9 +296,13 @@
           <td>{{ $detail['gross_amount'] }}</td>
         </tr>
       @endforeach
+ 
+
+       @php $length = ($all_count!=1) ? 27 : 14  @endphp
+
+      @for($i = $count; $i < $length; $i++)
 
 
-      @for($i = $count; $i < 14; $i++)
 
 
        
@@ -347,7 +336,7 @@
     </tbody>
   </table>
 
-<htmlpagefooter name="myFooter">
+<!-- <htmlpagefooter name="myFooter"> -->
   <div class="footer">
     <div class="footer-images">
       @for ($i = 1; $i <= 7; $i++)
@@ -356,11 +345,11 @@
     </div>
     <div class="page-note"></div>
   </div>
-  </htmlpagefooter>
+  <!-- </htmlpagefooter> -->
 
 
 
-<sethtmlpagefooter name="myFooter" value="on" />
+<!-- <sethtmlpagefooter name="myFooter" value="on" /> -->
 
 </body>
 </html>
