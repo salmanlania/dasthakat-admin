@@ -10,25 +10,38 @@
       color: #203272;
       margin: 0px;
       padding: 0 px;
+      margin-top: 130px;
       
     }
-
     .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 520px;
+      height: 120px; /* match your header height */
+      background: white; /* prevent overlap */
+      z-index: 9999;
       text-align: center;
-
+      padding-top: 10px;
+      box-sizing: border-box;
+      margin-bottom: 200px !important;
     }
 
     .header img {
-      float: left;
+      position: absolute; /* instead of fixed */
+      left: 0px;
+      top: 10px;
       height: 110px;
-   
+      float: left; /* float doesn't work with absolute */
     }
 
     .company-details {
-      width: 80%;
+/*      width: 80%;*/
       top:0;
+      left:0;
       text-align: center;
       padding: 0px;
+
     }
     .company-details h2{
       font-size: 28px;
@@ -158,7 +171,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0 40px;
-         margin-top: 0px;
+    margin-top: 0px;
 
   }
 
@@ -261,7 +274,7 @@
 
          @php 
          $class = '';
-         $length = ($all_count!=1) ? 37 : 14;
+         $length = ($all_count!=1) ? 33 : 14;
          if($count>=$length) {
             $count =0;
             $class = 'page-break-before' ;
@@ -309,7 +322,7 @@
       @endforeach
  
 
-       @php $length = ($all_count!=1) ? 27 : 14  @endphp
+       @php $length = ($all_count!=1) ? 23 : 14  @endphp
 
       @for($i = $count; $i < $length; $i++)
 
@@ -347,20 +360,15 @@
     </tbody>
   </table>
 
-<!-- <htmlpagefooter name="myFooter"> -->
   <div class="footer">
-    <div class="footer-images">
-      @for ($i = 1; $i <= 7; $i++)
-        <img src="{{ public_path2('images/logo' . $i . '.png') }}" alt="Logo{{ $i }}" />
-      @endfor
-    </div>
-    <div class="page-note"></div>
-  </div>
-  <!-- </htmlpagefooter> -->
-
-
-
-<!-- <sethtmlpagefooter name="myFooter" value="on" /> -->
+          <div class="footer-images">
+            @for ($i = 1; $i <= 7; $i++)
+              <img src="{{ public_path2('images/logo' . $i . '.png') }}" alt="Logo{{ $i }}" />
+            @endfor
+          </div>
+          <div class="page-note"></div>
+        </div>
+ 
 
 </body>
 </html>
