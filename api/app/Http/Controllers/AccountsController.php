@@ -117,7 +117,7 @@ class AccountsController extends Controller
         }
 
 
-        $data = $data->select('c1.*', 'gl_type.name as gl_type', 'ah.head_account_name', 'ah.head_account_type', 'parent.account_code as parent_account_code', 'parent.name as parent_account_name')
+        $data = $data->select('c1.*', 'gl_type.name as gl_type', 'ah.head_account_name', 'ah.head_account_type', 'parent.account_code as parent_account_code', 'parent.name as parent_account_name', DB::raw("CONCAT(c1.account_code, ' - ', c1.name) as display_account_name"), DB::raw("CONCAT(parent.account_code, ' - ', parent.name) as display_parent_account_name"))
             ->orderBy($sort_column, $sort_direction)
             ->paginate($perPage, ['*'], 'page', $page);
 
