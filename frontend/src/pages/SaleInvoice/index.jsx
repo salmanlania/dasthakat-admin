@@ -184,6 +184,27 @@ const SaleInvoice = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
+          <p>Customer</p>
+          <AsyncSelect
+            endpoint="/customer"
+            size="small"
+            className="w-full font-normal"
+            valueKey="customer_id"
+            labelKey="name"
+            value={params.customer_name}
+            onChange={(value) => dispatch(setSaleInvoiceListParams({ customer_id: value || null }))}
+          />
+        </div>
+      ),
+      dataIndex: 'customer_name',
+      key: 'customer_name',
+      sorter: true,
+      width: 180,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Event No</p>
           <AsyncSelect
             endpoint="/event"

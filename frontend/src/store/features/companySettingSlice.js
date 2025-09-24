@@ -10,6 +10,15 @@ export const getCompanySetting = createAsyncThunk('setting/get', async (_, { rej
   }
 });
 
+export const getCompanyDefaultAcountsSetting = createAsyncThunk('setting-default/get', async (_, { rejectWithValue }) => {
+  try {
+    const res = await api.get('/setting/default-accounts');
+    return res.data.data;
+  } catch (err) {
+    throw rejectWithValue(err);
+  }
+});
+
 export const updateCompanySetting = createAsyncThunk(
   'setting/update',
   async (data, { rejectWithValue }) => {
@@ -49,9 +58,11 @@ const initialState = {
   isItemLoading: false,
   isFormSubmitting: false,
   initialFormValues: null,
+  initialFormData: null,
+  isFormDataLoading: null,
   isTestEmailSending: null,
   testEmailResponse: null,
-  params: {}, 
+  params: {},
 };
 
 export const companySettingSlice = createSlice({
@@ -76,6 +87,18 @@ export const companySettingSlice = createSlice({
     addCase(getCompanySetting.rejected, (state) => {
       state.isItemLoading = false;
       state.initialFormValues = null;
+    });
+
+    addCase(getCompanyDefaultAcountsSetting.pending, (state) => {
+      state.isFormDataLoading = true;
+    });
+    addCase(getCompanyDefaultAcountsSetting.fulfilled, (state, action) => {
+      state.isFormDataLoading = false;
+      state.initialFormData = action.payload;
+    });
+    addCase(getCompanyDefaultAcountsSetting.rejected, (state) => {
+      state.isFormDataLoading = false;
+      state.initialFormData = null;
     });
 
     addCase(updateCompanySetting.pending, (state) => {
