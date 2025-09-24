@@ -15,14 +15,24 @@ class SettingController extends Controller
 	protected $db;
 	public function getDefaultAccounts()
 	{
-		$customer_outstanding_account_id = env('CUSTOMER_OUTSTANDING_ACCOUNT_ID','');
-		$vendor_outstanding_account_id = env('VENDOR_OUTSTANDING_ACCOUNT_ID','');
+		$customer_outstanding_account_id = env('CUSTOMER_OUTSTANDING_ACCOUNT_ID', '');
+		$vendor_outstanding_account_id = env('VENDOR_OUTSTANDING_ACCOUNT_ID', '');
 		$customer_outstanding_account = Accounts::where('account_id', $customer_outstanding_account_id)->first(['account_id', 'account_code', DB::raw('concat(account_code, " - ", name) as display_account_name'), 'name']);
 		$vendor_outstanding_account = Accounts::where('account_id', $vendor_outstanding_account_id)->first(['account_id', 'account_code', DB::raw('concat(account_code, " - ", name) as display_account_name'), 'name']);
-		return $this->jsonResponse([
-			'customer_outstanding_account' => $customer_outstanding_account,
-			'vendor_outstanding_account' => $vendor_outstanding_account,
-		], 200, "Accounts Data");
+
+		$res = [
+			[
+				'field' => 'customer_outstanding_account',
+				'value' => [$customer_outstanding_account]
+			],
+			[
+				'field' => 'vendor_outstanding_account',
+				'value' => [$vendor_outstanding_account]
+			]
+
+		];
+
+		return $this->jsonResponse($res, 200, "Accounts Data");
 	}
 	public function update(Request $request)
 	{
