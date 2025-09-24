@@ -198,6 +198,8 @@ class PaymentVoucherController extends Controller
                             'amount' => ($value['payment_amount'] ?? 0) * $conversion_rate,
                             'created_at' => Carbon::now(),
                             'created_by_id' => $request->login_user_id,
+                            'cheque_no' => $value['cheque_no'] ?? "",
+                            'cheque_date' => $value['cheque_date'] ?? "",
                         ]);
                         Ledger::create([
                             'ledger_id' => $this->get_uuid(),
@@ -216,14 +218,14 @@ class PaymentVoucherController extends Controller
                             'account_id' => $value['account_id'] ?? "",
                             'remarks' => '',
                             'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
-                            'document_debit' => $request->payment_amount ?? "",
+                            'document_debit' => $value['payment_amount'] ?? "",
                             'document_credit' => 0,
                             'base_currency_id' => $base_currency_id,
                             'conversion_rate' => $conversion_rate,
-                            'debit' => ($request->payment_amount ?? 0) * $conversion_rate,
+                            'debit' => ($value['payment_amount'] ?? 0) * $conversion_rate,
                             'credit' => 0,
-                            'document_amount' => $request->payment_amount ?? "",
-                            'amount' => ($request->payment_amount ?? 0) * $conversion_rate,
+                            'document_amount' => $value['payment_amount'] ?? "",
+                            'amount' => ($value['payment_amount'] ?? 0) * $conversion_rate,
                             'created_at' => Carbon::now(),
                             'created_by_id' => $request->login_user_id,
                             'cheque_no' => $value['cheque_no'] ?? "",
@@ -382,6 +384,8 @@ class PaymentVoucherController extends Controller
                                 'amount' => ($value['payment_amount'] ?? 0) * $conversion_rate,
                                 'created_at' => Carbon::now(),
                                 'created_by_id' => $request->login_user_id,
+                                'cheque_no' => $value['cheque_no'] ?? "",
+                                'cheque_date' => $value['cheque_date'] ?? "",
                             ]);
                             Ledger::create([
                                 'ledger_id' => $this->get_uuid(),
