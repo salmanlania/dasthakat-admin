@@ -254,6 +254,9 @@ class CustomerPaymentController extends Controller
         if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
         $base_currency_id = Company::where('company_id', $request->company_id)->pluck('base_currency_id')->first();
+        $transaction_account_id = Setting::getValue('gl_accounts_setting', 'undeposited_account', true)[0] ?? "";
+        if (empty($transaction_account_id)) return $this->jsonResponse(null, 400, "Undeposited Transaction Account not found");
+
         $outstanding_account_id = Customer::where('customer_id', $request->customer_id)->pluck('outstanding_account_id')->first();
         if (empty($outstanding_account_id)) return $this->jsonResponse(null, 400, "Customer Outstanding Account not found");
 
@@ -294,7 +297,7 @@ class CustomerPaymentController extends Controller
                 'partner_id' => $request->customer_id,
                 'ref_document_type_id' => "",
                 'ref_document_identity' => "",
-                'account_id' => $outstanding_account_id,
+                'account_id' => $transaction_account_id ,
                 'remarks' => '',
                 'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
                 'document_debit' => $request->payment_amount ?? "",
