@@ -111,7 +111,6 @@ const Vessel = () => {
             value={params.customer_id}
             onChange={(value) => dispatch(setVesselListParams({ customer_id: value }))}
           />
-          <Select size="small" className="w-full font-normal" />
         </div>
       ),
       dataIndex: 'customer_name',
@@ -133,7 +132,6 @@ const Vessel = () => {
             value={params.flag_id}
             onChange={(value) => dispatch(setVesselListParams({ flag_id: value }))}
           />
-          <Select size="small" className="w-full font-normal" />
         </div>
       ),
       dataIndex: 'flag_name',
@@ -155,7 +153,6 @@ const Vessel = () => {
             value={params.class1_id}
             onChange={(value) => dispatch(setVesselListParams({ class1_id: value }))}
           />
-          <Select size="small" className="w-full font-normal" />
         </div>
       ),
       dataIndex: 'class1_name',
@@ -177,7 +174,6 @@ const Vessel = () => {
             value={params.class2_id}
             onChange={(value) => dispatch(setVesselListParams({ class2_id: value }))}
           />
-          <Select size="small" className="w-full font-normal" />
         </div>
       ),
       dataIndex: 'class2_name',
