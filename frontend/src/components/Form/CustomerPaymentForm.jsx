@@ -9,6 +9,7 @@ import { getCustomerLedgerInvoices } from '../../store/features/customerPaymentS
 import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
+import DebouncedCommaSeparatedInputRate from '../Input/DebouncedCommaSeparatedInputRate';
 
 const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
@@ -17,11 +18,16 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
     (state) => state.customerPayment
   );
 
-  const DetailSummaryInfo = ({ title, value }) => {
+  const DetailSummaryInfo = ({ title, value, disabled }) => {
     return (
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-between items-center mb-2 gap-4">
         <span className="text-sm text-gray-600">{title}</span>
-        <span className="text-sm font-semibold text-black">{value}</span>
+        {/* <span className="text-sm font-semibold text-black">{value}</span> */}
+        <DebouncedCommaSeparatedInputRate
+          disabled={disabled}
+          className="text-sm font-semibold text-black"
+          value={value}
+        />
       </div>
     );
   };
@@ -92,8 +98,6 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       [record.sale_invoice_id]: settledAmount
     }));
 
-    form.setFieldsValue({ payment_amount: settledAmount });
-
     // const totalSettledAmount = selectedRowKeys.reduce((sum, key) => sum + (settledAmounts[key] || settledAmount || 0), 0);
     // setTotalAmount(totalSettledAmount);
   };
@@ -108,10 +112,19 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
 
   useEffect(() => {
     const total = selectedRowKeys.reduce(
-      (sum, key) => sum + (settledAmounts[key] || 0),
+      (sum, key) => sum + Number(settledAmounts[key] || 0),
       0
     );
     setTotalSettled(total);
+
+    const receiptAmount = form.getFieldValue("payment_amount");
+
+    if (total && total !== receiptAmount) {
+      form.setFieldsValue({
+        payment_amount: total,
+      });
+    }
+
   }, [selectedRowKeys, settledAmounts]);
 
   useEffect(() => {
@@ -119,7 +132,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       const customerId = initialFormValues?.customer_id || '';
       const documentDate = initialFormValues?.document_date ? dayjs(initialFormValues?.document_date) : null;
       const amount = initialFormValues?.total_amount ? initialFormValues?.total_amount : 0
-      const paymentAmount = initialFormValues?.payment_amount ? initialFormValues?.payment_amount : null
+      const paymentAmount = initialFormValues?.payment_amount ? Number(initialFormValues?.payment_amount).toFixed(2) : null
       const remarks = initialFormValues?.remarks ? initialFormValues?.remarks : null
       setTotalAmountVal(amount)
       form.setFieldsValue({
@@ -192,7 +205,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
         return (
           <DebouncedCommaSeparatedInput
             disabled
-            value={documentNetAmount}
+            value={documentNetAmount && Number(documentNetAmount).toFixed(2)}
           />
         );
       },
@@ -203,7 +216,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'balance_amount',
       key: 'balance_amount',
       render: (_, record) => (
-        <DebouncedCommaSeparatedInput value={record?.balance_amount ? record?.balance_amount + '' : ''} disabled />
+        <DebouncedCommaSeparatedInput value={record?.balance_amount ? Number(record?.balance_amount).toFixed(2) : ''} disabled />
       ),
       width: 120
     },
@@ -214,8 +227,8 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       render: (_, record) => {
         const value = settledAmounts[record?.sale_invoice_id] ?? '';
         return (
-          <DebouncedCommaSeparatedInput
-            value={value ? value : record?.settled_amount}
+          <DebouncedCommaSeparatedInputRate
+            value={value ? Number(value).toFixed(2) : Number(record?.settled_amount).toFixed(2) ? record?.settled_amount : null}
             onChange={(val) => handleSettledAmountChange(val, record)}
           />
         )
@@ -291,7 +304,8 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
         <Row gutter={12}>
           <Col span={24} sm={6} md={6} lg={6}>
             <Form.Item name="payment_amount" label="Receipt Amount">
-              <Input />
+              {/* <Input /> */}
+              <DebouncedCommaSeparatedInputRate />
             </Form.Item>
           </Col>
           <Col span={24} sm={6} md={6} lg={6}>
@@ -321,7 +335,8 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
                 const updated = { ...prev };
                 newSelectedRows.forEach(row => {
                   if (!(row.sale_invoice_id in updated)) {
-                    updated[row.sale_invoice_id] = row.balance_amount || 0;
+                    // updated[row.sale_invoice_id] = row.balance_amount || 0;
+                    updated[row.sale_invoice_id] = 0;
                   }
                 });
 
@@ -342,11 +357,12 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
             <div className="p-4">
               <DetailSummaryInfo
                 title="Amount Due"
-                // value={formatThreeDigitCommas(totalQuantity || 0)}
-                // value={mode === 'edit'
-                //   ? (selectedRowKeys.length > 0 ? totalAmount : totalAmountVal)
-                //   : totalAmount || "0.00"}
-                value={totalSettled ? totalSettled : totalAmountVal || "0.00"}
+                disabled
+                value={
+                  (totalSettled || totalAmountVal)
+                    ? (Number(totalSettled || totalAmountVal)).toFixed(2)
+                    : "0.00"
+                }
               />
               <DetailSummaryInfo
                 title="Applied"
