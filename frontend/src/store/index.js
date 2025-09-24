@@ -49,6 +49,7 @@ import stockReturnReducer from './features/stockReturnSlice';
 import purchaseReturnReducer from './features/purchaseReturnSlice';
 import vendorQuotationReducer from './features/vendorQuotationSlice';
 import customerPaymentReducer from './features/customerPaymentSlice'
+import vendorPaymentReducer from './features/vendorPaymentSlice'
 import paymentVoucherReducer from './features/paymentVoucherSlice'
 
 const rootReducer = combineReducers({
@@ -101,6 +102,7 @@ const rootReducer = combineReducers({
   companySetting: companySettingReducer,
   vendorQuotation: vendorQuotationReducer,
   customerPayment: customerPaymentReducer,
+  vendorPayment: vendorPaymentReducer,
   paymentVoucher: paymentVoucherReducer,
 });
 

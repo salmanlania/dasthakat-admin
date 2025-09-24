@@ -1,137 +1,166 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from 'react';
-import { Button, Col, DatePicker, Form, Input, Row, Select, Table } from 'antd';
+import { Button, Col, DatePicker, Form, Input, Row, Table } from 'antd';
 import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom'
-import useError from '../../hooks/useError';
-import { getProduct } from '../../store/features/productSlice';
+import { Link } from 'react-router-dom';
+import { getVendorLedgerInvoices } from '../../store/features/vendorPaymentSlice';
 import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
-import SaleReturnModal from '../Modals/ReturnModal'
-import { formatThreeDigitCommas } from '../../utils/number';
+import DebouncedCommaSeparatedInputRate from '../Input/DebouncedCommaSeparatedInputRate';
+import LedgerModal from '../Modals/LedgerModal';
 
 const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
-  const handleError = useError();
   const dispatch = useDispatch();
-  const { isFormSubmitting, initialFormValues, quotationDetails } = useSelector(
-    (state) => state.quotation
+  const { isFormSubmitting, initialFormValues, ledgerInvoices, isLedgerLoading } = useSelector(
+    (state) => state.vendorPayment
   );
 
-  const DetailSummaryInfo = ({ title, value }) => {
+  const DetailSummaryInfo = ({ title, value, disabled }) => {
     return (
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-between items-center mb-2 gap-4">
         <span className="text-sm text-gray-600">{title}</span>
-        <span className="text-sm font-semibold text-black">{value}</span>
+        {/* <span className="text-sm font-semibold text-black">{value}</span> */}
+        <DebouncedCommaSeparatedInputRate
+          disabled={disabled}
+          className="text-sm font-semibold text-black"
+          value={value}
+        />
       </div>
     );
   };
 
-  const [totalQuantity, setTotalQuantity] = useState('');
-  const [totalAmount, setTotalAmount] = useState('');
+  const [totalAmountDue, setTotalAmountDue] = useState('');
+  const [totalSettled, setTotalSettled] = useState(0);
+  const [totalAmountVal, setTotalAmountVal] = useState(0);
   const [submitAction, setSubmitAction] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [returnModalVisible, setReturnModalVisible] = useState(false);
+  const [settledAmounts, setSettledAmounts] = useState({});
+  const [ledgerModalOpen, setLedgerModalOpen] = useState(false);
 
   const onFinish = (values) => {
-    if (!totalAmount) return toast.error('Total Amount cannot be zero');
+    console.log('values', values)
+    // return
+    const normalize = (num) => Number(parseFloat(num).toFixed(2));
+    const paymentAmount = normalize(values?.payment_amount ? values?.payment_amount : null)
+    const settledAmount = normalize(totalSettled);
+    if (settledAmount != paymentAmount) return toast.error('Total amount must be equal to amount due');
 
     const formatDate = (date) => (date ? dayjs(date).format('YYYY-MM-DD') : null);
 
     const data = {
       ...values,
-      ship_date: formatDate(values.ship_date),
+      supplier_id: values?.supplier_id?.value ? values?.supplier_id?.value : values?.supplier_id?.key ? values?.supplier_id?.key : null,
+      total_amount: totalSettled ? totalSettled : totalAmountVal,
+      payment_amount: paymentAmount,
       document_date: formatDate(values.document_date),
-      required_date: formatDate(values.required_date),
-      vessel_billing_address: values?.vessel_billing_address ? values?.vessel_billing_address : null
+      details:
+        mode === 'edit' ?
+          ledgerInvoices.map((row, index) => {
+            const isSelected = selectedRowKeys.includes(row?.purchase_invoice_id);
+            return {
+              ...row,
+              purchase_invoice_id: row?.purchase_invoice_id,
+              ref_document_identity: row?.document_identity || row?.ref_document_identity,
+              ref_document_type_id: row?.document_type_id,
+              original_amount: row?.net_amount,
+              balance_amount: parseInt(row?.balance_amount),
+              settled_amount: settledAmounts[row.purchase_invoice_id] || 0,
+              sort_order: index + 1,
+              row_status: isSelected ? (row?.row_status || "U") : "D"
+            };
+          })
+          : selectedRows.map((row, index) => ({
+            ...row,
+            purchase_invoice_id: row?.purchase_invoice_id,
+            ref_document_identity: row?.document_identity,
+            ref_document_type_id: row?.document_type_id,
+            original_amount: row?.net_amount,
+            balance_amount: parseInt(row?.balance_amount),
+            settled_amount: settledAmounts[row.purchase_invoice_id] || 0,
+            sort_order: index + 1,
+            row_status: row?.row_status
+          }))
     };
+    console.log('data' , data)
+    // return 
 
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 
-  const onProductChange = async (index, selected) => {
-    dispatch(
-      changePurchaseInvoiceDetailValue({
-        index,
-        key: 'product_id',
-        value: selected
-      })
-    );
-    if (!selected) return;
-    try {
-      const product = await dispatch(getProduct(selected.value)).unwrap();
+  const handleSettledAmountChange = (value, record) => {
+    const rawValue = typeof value === "string" ? value : String(value ?? "0");
+    const settledAmount = parseFloat(rawValue.replace(/,/g, "")) || 0
 
-      dispatch(
-        changePurchaseInvoiceDetailValue({
-          index,
-          key: 'product_code',
-          value: product.product_code
-        })
-      );
-
-      dispatch(
-        changePurchaseInvoiceDetailValue({
-          index,
-          key: 'unit_id',
-          value: { value: product.unit_id, label: product.unit_name }
-        })
-      );
-
-      dispatch(
-        changePurchaseInvoiceDetailValue({
-          index,
-          key: 'rate',
-          value: product.cost_price
-        })
-      );
-    } catch (error) {
-      handleError(error);
+    if (settledAmount > (Number(record?.balance_amount || 0))) {
+      toast.error("Settled amount cannot be greater than Balance Amount");
+      return;
     }
+
+    setSettledAmounts(prev => ({
+      ...prev,
+      [record.purchase_invoice_id]: settledAmount
+    }));
+
+    // const totalSettledAmount = selectedRowKeys.reduce((sum, key) => sum + (settledAmounts[key] || settledAmount || 0), 0);
+    // setTotalAmount(totalSettledAmount);
   };
+
+  // useEffect(() => {
+  //   if (selectedRowKeys.length === 0) return;
+  //   if (selectedRowKeys.length > 0) {
+  //     const totalSettledAmount = selectedRowKeys.reduce((sum, key) => sum + (settledAmounts[key] || 0), 0);
+  //     setTotalAmount(totalSettledAmount);
+  //   }
+  // }, [selectedRowKeys, settledAmounts]);
+
+  useEffect(() => {
+    const total = selectedRowKeys.reduce(
+      (sum, key) => sum + Number(settledAmounts[key] || 0),
+      0
+    );
+    setTotalSettled(total);
+
+    const receiptAmount = form.getFieldValue("payment_amount");
+
+    if (total && total !== receiptAmount) {
+      form.setFieldsValue({
+        payment_amount: Number(total).toFixed(2),
+      });
+    }
+
+  }, [selectedRowKeys, settledAmounts]);
 
   useEffect(() => {
     if (mode === 'edit' && initialFormValues) {
-      const salesmanId = initialFormValues?.salesman_id || '';
-      const quantity = initialFormValues?.totalQuantity || '';
-      const amount = initialFormValues?.totalAmount || '';
-      const customerPoNo = initialFormValues?.customer_po_no || '';
-      const eventName = initialFormValues?.event_id || '';
-      const vesselName = initialFormValues?.vessel_id || '';
-      const customerName = initialFormValues?.customer_id || '';
-      const portName = initialFormValues?.port_id || '';
-      const refDocumentIdentity = initialFormValues?.ref_document_identity || '';
-      const chargeOrderNo = initialFormValues?.charger_order_id || '';
-      const billingAddress = initialFormValues?.vessel_billing_address ? initialFormValues?.vessel_billing_address : initialFormValues?.vessel?.billing_address || '';
-
-      setTotalQuantity(quantity);
-      setTotalAmount(amount);
+      const vendorId = initialFormValues?.supplier_id || '';
+      const documentDate = initialFormValues?.document_date ? dayjs(initialFormValues?.document_date) : null;
+      const amount = initialFormValues?.total_amount ? initialFormValues?.total_amount : 0
+      const paymentAmount = initialFormValues?.payment_amount ? initialFormValues?.payment_amount : null
+      const remarks = initialFormValues?.remarks ? initialFormValues?.remarks : null
+      setTotalAmountVal(amount)
       form.setFieldsValue({
-        salesman_id: salesmanId,
-        totalQuantity: quantity,
-        totalAmount: amount,
-
-        customer_po_no: customerPoNo,
-        event_id: eventName,
-        vessel_id: vesselName,
-        customer_id: customerName,
-        charger_order_id: chargeOrderNo,
-        port_id: portName,
-        vessel_billing_address: billingAddress,
-        ref_document_identity: refDocumentIdentity,
-        document_date: initialFormValues.document_date
-          ? dayjs(initialFormValues.document_date)
-          : null,
-        required_date: initialFormValues.required_date
-          ? dayjs(initialFormValues.required_date)
-          : null,
-        ship_date: initialFormValues?.ship_date
-          ? dayjs(dayjs(initialFormValues.ship_date).format('YYYY-MM-DD'))
-          : null,
+        supplier_id: vendorId,
+        document_date: documentDate,
+        payment_amount: paymentAmount,
+        remarks: remarks,
       });
+
+      if (initialFormValues?.details?.length > 0) {
+        const keys = initialFormValues.details.map((d) => d.purchase_invoice_id);
+        setSelectedRowKeys(keys);
+        setSelectedRows(initialFormValues.details);
+
+        const settledMap = {};
+        initialFormValues.details.forEach((d) => {
+          settledMap[d.purchase_invoice_id] = d.settled_amount || 0;
+        });
+        setSettledAmounts(settledMap);
+      }
     }
   }, [initialFormValues, form, mode]);
 
@@ -141,21 +170,24 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'sr',
       key: 'sr',
       render: (_, record, index) => {
-        return <>{index + 1}.</>;
+        return <>{record?.sort_order ? record?.sort_order : index + 1}.</>;
       },
       width: 50
     },
     {
       title: 'Invoice Date',
-      dataIndex: 'product_type_id',
-      key: 'product_type_id',
-      render: (_, record, index) => {
-        const fullValue = record.product_type_id?.label.toString() || '';
-        const shortKey = fullValue.substring(0, 2);
+      dataIndex: 'document_date',
+      key: 'document_date',
+      render: (_, record, { document_date }) => {
+        console.log('record' , {
+          record,
+          document_date
+        })
+        const documentDate = document_date ? dayjs(document_date).format("MM-DD-YYYY") : record?.document_date ? dayjs(record?.document_date).format("MM-DD-YYYY") : ""
         return (
           <DebounceInput
             disabled
-            value={shortKey}
+            value={documentDate}
           />
         );
       },
@@ -163,33 +195,29 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
     },
     {
       title: 'Invoice No',
-      dataIndex: 'product_name',
-      key: 'product_name',
-      render: (_, record, { product_id }, index) => {
+      dataIndex: 'document_identity',
+      key: 'document_identity',
+      render: (_, record, { ref_document_identity }) => {
+        const documentIdentity = ref_document_identity ? ref_document_identity : record?.ref_document_identity ? record?.ref_document_identity : record?.document_identity ? record?.document_identity : ""
         return (
-          <AsyncSelect
-            endpoint="/product"
-            valueKey="product_id"
-            labelKey="product_name"
-            labelInValue
-            className="w-full"
+          <DebounceInput
             disabled
-            value={record.product_name}
-            onChange={(selected) => onProductChange(index, selected)}
+            value={documentIdentity}
           />
         );
       },
       width: 150
     },
     {
-      title: 'Original Amount',
-      dataIndex: 'rate',
-      key: 'rate',
-      render: (_, { rate }, index) => {
+      title: 'Invoice Amount',
+      dataIndex: 'net_amount',
+      key: 'net_amount',
+      render: (_, record, { net_amount }, index) => {
+        const documentNetAmount = net_amount ? net_amount : record?.net_amount ? record?.net_amount : ""
         return (
           <DebouncedCommaSeparatedInput
             disabled
-            value={rate}
+            value={documentNetAmount && Number(documentNetAmount).toFixed(2)}
           />
         );
       },
@@ -197,32 +225,34 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
     },
     {
       title: 'Balance Amount',
-      dataIndex: 'amount',
-      key: 'amount',
-      render: (_, { amount }) => (
-        <DebouncedCommaSeparatedInput value={amount ? amount + '' : ''} disabled />
+      dataIndex: 'balance_amount',
+      key: 'balance_amount',
+      render: (_, record) => (
+        <DebouncedCommaSeparatedInput value={record?.balance_amount ? Number(record?.balance_amount).toFixed(2) : ''} disabled />
       ),
       width: 120
     },
     {
       title: 'Settle Amount',
-      dataIndex: 'amount',
-      key: 'amount',
-      render: (_, { amount }) => (
-        <DebouncedCommaSeparatedInput value={amount ? amount + '' : ''} />
-      ),
+      dataIndex: 'settled_amount',
+      key: 'settled_amount',
+      render: (_, record) => {
+        const value = settledAmounts[record?.purchase_invoice_id] ?? '';
+        return (
+          <DebouncedCommaSeparatedInputRate
+            value={value ? Number(value).toFixed(2) : Number(record?.settled_amount).toFixed(2) ? record?.settled_amount : null}
+            onChange={(val) => handleSettledAmountChange(val, record)}
+          />
+        )
+      },
       width: 120
     },
   ];
 
-  const saleReturnRows = selectedRows.filter(row =>
-    row.product_type_no !== '1' || row.product_type_no !== 1
-  );
-
   return (
     <>
       <Form
-        name="saleInvoice"
+        name="vendorPayment"
         layout="vertical"
         autoComplete="off"
         form={form}
@@ -230,7 +260,10 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
         initialValues={
           mode === 'edit'
             ? {
-              ...initialFormValues
+              ...initialFormValues,
+              document_date: initialFormValues?.document_date
+                ? dayjs(initialFormValues.document_date)
+                : null,
             }
             : { document_date: dayjs() }
         }
@@ -257,39 +290,45 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
               label="Date"
               disabled
               rules={[{ required: true, message: 'date is required' }]}>
-              <DatePicker format="MM-DD-YYYY" className="w-full" />
+              <DatePicker format="MM-DD-YYYY" className="w-full" value={initialFormValues?.document_date ? dayjs(initialFormValues?.document_date) : null} />
             </Form.Item>
           </Col>
           <Col span={24} sm={6} md={6} lg={6}>
             <Form.Item
-              name="salesman_id"
+              name="supplier_id"
               label="Select Vendor"
-              rules={[{ required: true, message: 'Salesman is required' }]}>
+              rules={[{ required: true, message: 'Vendor is required' }]}>
               <AsyncSelect
-                endpoint="/salesman"
-                valueKey="salesman_id"
+                endpoint="/supplier"
+                valueKey="supplier_id"
                 labelKey="name"
                 labelInValue
+                onChange={(value) => {
+                  if (value?.value) {
+                    dispatch(getVendorLedgerInvoices(value.value));
+                  }
+                }}
               />
             </Form.Item>
           </Col>
         </Row>
         <Row gutter={12}>
           <Col span={24} sm={6} md={6} lg={6}>
-            <Form.Item name="customer_po_no" label="Payment Amount">
+            <Form.Item name="payment_amount" label="Receipt Amount">
               <Input />
             </Form.Item>
           </Col>
           <Col span={24} sm={6} md={6} lg={6}>
-            <Form.Item name="vessel_billing_address" label="Reference No.">
+            <Form.Item name="remarks" label="Reference No.">
               <Input />
             </Form.Item>
           </Col>
         </Row>
+
         <Table
           columns={columns}
-          dataSource={quotationDetails}
-          rowKey={'charge_order_detail_id'}
+          dataSource={ledgerInvoices}
+          rowKey={'purchase_invoice_id'}
           size="small"
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={false}
@@ -301,6 +340,18 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
             onChange: (newSelectedRowKeys, newSelectedRows) => {
               setSelectedRowKeys(newSelectedRowKeys);
               setSelectedRows(newSelectedRows);
+
+              setSettledAmounts(prev => {
+                const updated = { ...prev };
+                newSelectedRows.forEach(row => {
+                  if (!(row.purchase_invoice_id in updated)) {
+                    updated[row.purchase_invoice_id] = row.balance_amount || 0;
+                    // updated[row.purchase_invoice_id] = 0;
+                  }
+                });
+
+                return updated;
+              });
             }
           }}
         />
@@ -316,16 +367,22 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
             <div className="p-4">
               <DetailSummaryInfo
                 title="Amount Due"
-                // value={formatThreeDigitCommas(totalQuantity || 0)}
-                value={totalQuantity || "0.00"}
+                disabled
+                value={
+                  (totalSettled || totalAmountVal)
+                    ? (Number(totalSettled || totalAmountVal)).toFixed(2)
+                    : "0.00"
+                }
               />
               <DetailSummaryInfo
                 title="Applied"
+                disabled
                 // value={formatThreeDigitCommas(totalAmount || 0)}
-                value={totalAmount || "0.00"}
+                value={totalAmountDue || "0.00"}
               />
               <DetailSummaryInfo
                 title="Discount & Credit Applied"
+                disabled
                 // value={formatThreeDigitCommas(initialFormValues?.totalDiscount || 0)}
                 value={initialFormValues?.totalDiscount || "0.00"}
               />
@@ -358,45 +415,26 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
             Save & Exit
           </Button>
           {
-            quotationDetails?.some(i => i?.product_type_no !== 1) ?
-              <>
+            mode === 'edit'
+              ? (
                 <Button
-                  className="w-32 bg-amber-500 text-white hover:!bg-amber-400"
                   type="primary"
-                  disabled={saleReturnRows.length === 0}
-                  onClick={() => {
-                    const hasRestrictedProduct = selectedRows.some(
-                      row => row.product_type_no === '1' || row.product_type_no === 1
-                    );
-
-                    if (hasRestrictedProduct) {
-                      toast.error(`Service Product Can't be return`)
-                      return
-                    }
-                    setReturnModalVisible(true);
-                  }}
+                  className="w-28 bg-indigo-600 hover:!bg-indigo-500"
+                  onClick={() => setLedgerModalOpen(true)}
                 >
-                  Return
+                  Ledger
                 </Button>
-              </>
-              : null
+              ) : null
           }
-          {/* <Button
-            type="primary"
-            className="w-28 bg-gray-600 hover:!bg-gray-500"
-            loading={isFormSubmitting && submitAction === 'saveAndExit'}
-            onClick={() => toast.success('Vendor Payment cancelled successfully')}>
-            Cancel
-          </Button> */}
         </div>
       </Form>
 
-      <SaleReturnModal
-        visible={returnModalVisible}
-        onClose={() => {
-          setReturnModalVisible(false)
-        }}
-        data={saleReturnRows}
+      {/* Modals */}
+
+      <LedgerModal
+        open={ledgerModalOpen}
+        initialFormValues={initialFormValues}
+        onClose={() => setLedgerModalOpen(false)}
       />
     </>
   );

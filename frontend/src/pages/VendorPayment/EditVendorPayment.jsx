@@ -7,7 +7,7 @@ import VendorPaymentForm from '../../components/Form/VendorPaymentForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
-import { getQuotation, updateQuotation } from '../../store/features/quotationSlice';
+import { getVendorPayment, updateVendorPaymentForm } from '../../store/features/vendorPaymentSlice';
 
 const EditVendorPayment = () => {
   useDocumentTitle('Edit Vendor Payment');
@@ -15,31 +15,31 @@ const EditVendorPayment = () => {
   const navigate = useNavigate();
   const handleError = useError();
   const { id } = useParams();
-  const { isItemLoading, initialFormValues } = useSelector((state) => state.quotation);
+  const { isItemLoading, initialFormValues } = useSelector((state) => state.vendorPayment);
 
-  const onQuotationUpdate = async (data) => {
+  const onVendorPaymentUpdate = async (data) => {
     try {
-      await dispatch(updateQuotation({ id, data })).unwrap();
-      toast.success('Quotation updated successfully');
-      dispatch(getQuotation(id)).unwrap()
+      await dispatch(updateVendorPaymentForm({ id, data })).unwrap();
+      toast.success('Vendor Payment updated successfully');
+      dispatch(getVendorPayment(id)).unwrap()
     } catch (error) {
       handleError(error);
     }
   };
 
-  const onQuotationUpdates = async (data) => {
+  const onVendorPaymentUpdates = async (data) => {
     try {
-      await dispatch(updateQuotation({ id, data })).unwrap();
-      toast.success('Quotation updated successfully');
+      await dispatch(updateVendorPaymentForm({ id, data })).unwrap();
+      toast.success('Vendor Payment updated successfully');
       navigate('/general-ledger/transactions/vendor-payment');
     } catch (error) {
       handleError(error);
     }
   };
 
-  const onQuotationUpdateVendor = async (data) => {
+  const onVendorPaymentUpdateVendor = async (data) => {
     try {
-      const res = await dispatch(updateQuotation({ id, data })).unwrap();
+      const res = await dispatch(updateVendorPaymentForm({ id, data })).unwrap();
       return res;
     } catch (error) {
       handleError(error);
@@ -48,7 +48,7 @@ const EditVendorPayment = () => {
 
   useEffect(() => {
     try {
-      dispatch(getQuotation(id)).unwrap();
+      dispatch(getVendorPayment(id)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -70,7 +70,7 @@ const EditVendorPayment = () => {
 
       {!isItemLoading && initialFormValues ? (
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <VendorPaymentForm mode="edit" onSubmit={onQuotationUpdate} onSave={onQuotationUpdates} onVendor={onQuotationUpdateVendor} />
+          <VendorPaymentForm mode="edit" onSubmit={onVendorPaymentUpdate} onSave={onVendorPaymentUpdates} onVendor={onVendorPaymentUpdateVendor} />
         </div>
       ) : null}
     </>

@@ -1,51 +1,43 @@
-import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Select, Table, Tooltip } from 'antd';
+import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { FaRegFilePdf } from 'react-icons/fa';
-import { FaRegFileExcel } from 'react-icons/fa6';
 import { GoTrash } from 'react-icons/go';
-import { HiRefresh } from 'react-icons/hi';
 import { MdOutlineEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect';
-import { quotationStatusOptions } from '../../components/Form/QuotationForm.jsx';
 import PageHeading from '../../components/Heading/PageHeading';
 import ChargeOrderModal from '../../components/Modals/ChargeOrderModal';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
 import useDocumentTitle from '../../hooks/useDocumentTitle.js';
 import useError from '../../hooks/useError';
-import { setChargeQuotationID } from '../../store/features/chargeOrderSlice';
 import {
-  bulkDeleteQuotation,
-  deleteQuotation,
-  getQuotationForPrint,
-  getQuotationList,
-  setQuotationDeleteIDs,
-  setQuotationListParams,
-} from '../../store/features/quotationSlice';
-import generateQuotationExcel from '../../utils/excel/quotation-excel.js';
-import { createQuotationPrint } from '../../utils/prints/quotation-print';
+  bulkDeleteVendorPayment,
+  deleteVendorPayment,
+  getVendorPaymentList,
+  setVendorPaymentDeleteIDs,
+  setVendorPaymentListParams,
+} from '../../store/features/vendorPaymentSlice.js';
 
 const VendorPayment = () => {
   useDocumentTitle('Vendor Payment List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.quotation,
+    (state) => state.vendorPayment,
   );
   const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.quotation;
+  const permissions = user.permission.vendor_payment;
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
   const debouncedQuotationNo = useDebounce(params.document_identity, 500);
-  const debouncedCustomerRef = useDebounce(params.customer_ref, 500);
-  const debouncedTotalAmount = useDebounce(params.total_amount, 500);
+  const debouncedVendorRef = useDebounce(params.remarks, 500);
+  const debouncedTotalAmount = useDebounce(params.payment_amount, 500);
 
   const formattedParams = {
     ...params,
@@ -54,9 +46,9 @@ const VendorPayment = () => {
 
   const onQuotationDelete = async (id) => {
     try {
-      // await dispatch(deleteQuotation(id)).unwrap();
-      toast.success('Quotation deleted successfully');
-      // dispatch(getQuotationList(formattedParams)).unwrap();
+      await dispatch(deleteVendorPayment(id)).unwrap();
+      toast.success('Vendor Payment deleted successfully');
+      dispatch(getVendorPaymentList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -64,10 +56,10 @@ const VendorPayment = () => {
 
   const onBulkDelete = async () => {
     try {
-      // await dispatch(bulkDeleteQuotation(deleteIDs)).unwrap();
-      toast.success('Quotations deleted successfully');
+      await dispatch(bulkDeleteVendorPayment(deleteIDs)).unwrap();
+      toast.success('Vendor Payments deleted successfully');
       closeDeleteModal();
-      // await dispatch(getQuotationList(formattedParams)).unwrap();
+      await dispatch(getVendorPaymentList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -85,14 +77,14 @@ const VendorPayment = () => {
     },
     {
       title: (
-        <div>
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Date</p>
           <div onClick={(e) => e.stopPropagation()}>
             <DatePicker
               size="small"
               value={params.document_date}
               className="font-normal"
-              onChange={(date) => dispatch(setQuotationListParams({ document_date: date }))}
+              onChange={(date) => dispatch(setVendorPaymentListParams({ document_date: date }))}
               format="MM-DD-YYYY"
             />
           </div>
@@ -111,60 +103,60 @@ const VendorPayment = () => {
         <div onClick={(e) => e.stopPropagation()}>
           <p>Vendor</p>
           <AsyncSelect
-            endpoint="/customer"
+            endpoint="/supplier"
             size="small"
             className="w-full font-normal"
-            valueKey="customer_id"
+            valueKey="supplier_id"
             labelKey="name"
-            value={params.customer_id}
-            onChange={(value) => dispatch(setQuotationListParams({ customer_id: value }))}
+            value={params.supplier_id}
+            onChange={(value) => dispatch(setVendorPaymentListParams({ supplier_id: value }))}
           />
         </div>
       ),
-      dataIndex: 'customer_name',
-      key: 'customer_name',
+      dataIndex: 'supplier_name',
+      key: 'supplier_name',
       sorter: true,
       width: 200,
       ellipsis: true,
     },
     {
       title: (
-        <div>
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Payment Amount</p>
           <Input
             className="font-normal"
             size="small"
             allowClear
             onClick={(e) => e.stopPropagation()}
-            value={params.total_amount}
+            value={params.payment_amount}
             onChange={(e) => {
-              dispatch(setQuotationListParams({ total_amount: e.target.value }));
+              dispatch(setVendorPaymentListParams({ payment_amount: e.target.value }));
             }}
           />
         </div>
       ),
-      dataIndex: 'total_amount',
-      key: 'total_amount',
+      dataIndex: 'payment_amount',
+      key: 'payment_amount',
       sorter: true,
       width: 140,
       ellipsis: true,
     },
     {
       title: (
-        <div>
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Reference No.</p>
           <Input
             className="font-normal"
             allowClear
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.customer_ref}
-            onChange={(e) => dispatch(setQuotationListParams({ customer_ref: e.target.value }))}
+            value={params.remarks}
+            onChange={(e) => dispatch(setVendorPaymentListParams({ remarks: e.target.value }))}
           />
         </div>
       ),
-      dataIndex: 'customer_ref',
-      key: 'customer_ref',
+      dataIndex: 'remarks',
+      key: 'remarks',
       sorter: true,
       width: 150,
       ellipsis: true,
@@ -172,12 +164,12 @@ const VendorPayment = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_, { quotation_id }) => (
+      render: (_, { vendor_payment_id }) => (
         <div className="flex flex-col justify-center gap-1">
           <div className="flex items-center gap-1">
             {permissions.edit ? (
               <Tooltip title="Edit">
-                <Link to={`/general-ledger/transactions/vendor-payment/edit/${quotation_id}`}>
+                <Link to={`/general-ledger/transactions/vendor-payment/edit/${vendor_payment_id}`}>
                   <Button
                     size="small"
                     type="primary"
@@ -195,7 +187,7 @@ const VendorPayment = () => {
                   okButtonProps={{ danger: true }}
                   okText="Yes"
                   cancelText="No"
-                  onConfirm={() => onQuotationDelete(quotation_id)}
+                  onConfirm={() => onQuotationDelete(vendor_payment_id)}
                   >
                   <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                 </Popconfirm>
@@ -204,7 +196,7 @@ const VendorPayment = () => {
           </div>
         </div>
       ),
-      width: 40,
+      width: 70,
       fixed: 'right',
     },
   ];
@@ -215,8 +207,8 @@ const VendorPayment = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    dispatch(getQuotationList(formattedParams)).unwrap().catch(handleError);
-    const savedLimit = sessionStorage.getItem('quotationLimit');
+    dispatch(getVendorPaymentList(formattedParams)).unwrap().catch(handleError);
+    const savedLimit = sessionStorage.getItem('vendorPayments');
   }, [
     params.page,
     params.limit,
@@ -226,14 +218,16 @@ const VendorPayment = () => {
     params.sales_team_ids,
     params.event_code,
     params.document_date,
-    params.customer_id,
+    params.vendor_id,
+    params.supplier_id,
     params.vessel_id,
     params.event_id,
     params.port_id,
+    params.payment_amount,
     params.status,
     debouncedSearch,
     debouncedQuotationNo,
-    debouncedCustomerRef,
+    debouncedVendorRef,
     debouncedTotalAmount,
   ]);
 
@@ -251,7 +245,7 @@ const VendorPayment = () => {
             allowClear
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) => dispatch(setQuotationListParams({ search: e.target.value }))}
+            onChange={(e) => dispatch(setVendorPaymentListParams({ search: e.target.value }))}
           />
 
           <div className="flex items-center gap-2">
@@ -280,7 +274,7 @@ const VendorPayment = () => {
                 type: 'checkbox',
                 selectedRowKeys: deleteIDs,
                 onChange: (selectedRowKeys) =>
-                  dispatch(setQuotationDeleteIDs(selectedRowKeys)),
+                  dispatch(setVendorPaymentDeleteIDs(selectedRowKeys)),
                 getCheckboxProps: (record) => ({
                   disabled: record.isEventHeader,
                 }),
@@ -289,18 +283,18 @@ const VendorPayment = () => {
           }
           loading={isListLoading}
           className="mt-2"
-          rowKey={(record) => record.quotation_id}
+          rowKey={(record) => record.vendor_payment_id}
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} quotations`,
+            showTotal: (total) => `Total ${total} vendor payments`,
           }}
           onChange={(page, _, sorting) => {
-            sessionStorage.setItem('quotationLimit', page.pageSize);
+            sessionStorage.setItem('vendorPayments', page.pageSize);
             dispatch(
-              setQuotationListParams({
+              setVendorPaymentListParams({
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
@@ -327,7 +321,7 @@ const VendorPayment = () => {
         onCancel={closeDeleteModal}
         isDeleting={isBulkDeleting}
         onDelete={onBulkDelete}
-        title="Are you sure you want to delete these quotations?"
+        title="Are you sure you want to delete these vendor payments?"
         description="After deleting, you will not be able to recover."
       />
 
