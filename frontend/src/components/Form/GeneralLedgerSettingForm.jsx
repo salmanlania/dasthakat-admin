@@ -70,6 +70,7 @@ export default function GeneralLedgerSettingForm() {
                             valueKey="account_id"
                             labelKey="name"
                             allowClear
+                            disabled
                         />
                     </Form.Item>
                 </Col>
@@ -85,6 +86,7 @@ export default function GeneralLedgerSettingForm() {
                             valueKey="account_id"
                             labelKey="name"
                             allowClear
+                            disabled
                         />
                     </Form.Item>
                 </Col>

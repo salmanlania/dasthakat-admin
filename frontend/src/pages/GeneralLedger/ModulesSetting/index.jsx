@@ -15,7 +15,8 @@ import useDocumentTitle from '../../../hooks/useDocumentTitle.js';
 import useError from '../../../hooks/useError.jsx';
 import {
   getCompanySetting,
-  updateCompanySetting
+  updateCompanySetting,
+  getCompanyDefaultAcountsSetting
 } from '../../../store/features/companySettingSlice.js';
 
 const { TabPane } = Tabs;
@@ -29,10 +30,9 @@ const ModulesSetting = () => {
   const handleError = useError();
   const navigate = useNavigate();
 
-  const { initialFormValues, isItemLoading } = useSelector(
+  const { initialFormValues, isItemLoading, initialFormData, isFormDataLoading } = useSelector(
     (state) => state.companySetting,
   );
-
   const { user } = useSelector((state) => state.auth);
   const permissions = user?.permission;
   const bothPermission =
@@ -45,8 +45,8 @@ const ModulesSetting = () => {
       cash_account: 'cash_account',
       sales_tax_account: 'sales_tax_account',
       suspense_account: 'suspense_account',
-      default_receivable_account: 'default_receivable_account',
-      default_payable_account: 'default_payable_account',
+      customer_outstanding_account: 'default_receivable_account',
+      vendor_outstanding_account: 'default_payable_account',
       undeposited_account: 'undeposited_account',
       // inventory settings
       inventory_accounts: 'inventory_accounts',
@@ -60,8 +60,14 @@ const ModulesSetting = () => {
       contra_account: 'contra_account',
     };
 
-    if (initialFormValues && Array.isArray(initialFormValues)) {
-      const formValues = initialFormValues.reduce((acc, item) => {
+    const combinedData = [
+      ...(initialFormValues || []),
+      ...(initialFormData || []),
+    ];
+    // initialFormData
+    // if (initialFormValues && Array.isArray(initialFormValues)) {
+    if (combinedData.length > 0) {
+      const formValues = combinedData.reduce((acc, item) => {
         const formKey = fieldKeyMap[item.field];
         if (formKey) {
           if (Array.isArray(item.value) && item.value.length > 0 && item.value[0]?.account_id) {
@@ -90,10 +96,11 @@ const ModulesSetting = () => {
       }, {});
       form.setFieldsValue(formValues);
     }
-  }, [initialFormValues, form]);
+  }, [initialFormValues, form, initialFormData]);
 
   useEffect(() => {
     dispatch(getCompanySetting());
+    dispatch(getCompanyDefaultAcountsSetting());
   }, [dispatch]);
 
   const onFinish = async (values) => {
@@ -145,7 +152,7 @@ const ModulesSetting = () => {
   };
 
   return (
-    <Spin spinning={isItemLoading}>
+    <Spin spinning={isItemLoading || isFormDataLoading}>
       <div className="min-h-screen bg-white">
         <div className="px-6 py-4">
           <Title level={4} className="mb-1">
