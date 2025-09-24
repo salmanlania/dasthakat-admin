@@ -1,33 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Proforma Invoice</title>
-  <style>
-    body {
-      font-family: "Times New Roman", Times, serif;
-      color: #203272;
-      margin: 0px;
-      padding: 0 px;
-      margin-top: 130px;
-      
-    }
-    .header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 520px;
-      height: 120px; /* match your header height */
-      background: white; /* prevent overlap */
-      z-index: 9999;
-      text-align: center;
-      padding-top: 10px;
-      box-sizing: border-box;
-      margin-bottom: 200px !important;
-    }
+    <meta charset="UTF-8">
+    <title>PDF Document</title>
+    <style>
+        @page {
+            margin: 20px 40px 100px 40px; 
+        }
 
-    .header img {
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12px;
+        }
+
+        header {
+            position: fixed;
+/*            top: -140px;*/
+            left: 0;
+            right: 0;
+            height: 120px;
+        }
+
+        footer {
+            position: fixed;
+            bottom: -60px;
+            left: 0;
+            right: 0;
+            height: 50px;
+            text-align: center;
+            font-size: 10px;
+        }
+   .header img {
       position: absolute; /* instead of fixed */
       left: 0px;
       top: 10px;
@@ -35,7 +38,11 @@
       float: left; /* float doesn't work with absolute */
     }
 
-    .company-details {
+        .page-break {
+            page-break-before: always;
+        }
+
+   .company-details {
 /*      width: 80%;*/
       top:0;
       left:0;
@@ -48,86 +55,88 @@
       margin-bottom: 10px;
     }
      .company-details p{
-      font-size: 13px;
+      font-size: 12px;
       margin-top: -11px;
     }
 
-    .invoice-title {
-      font-size: 28px;
-      font-weight: bold;
-      margin: 40px 0 10px;
-      text-align: center;
-      position: relative;
-      margin-top: 20px;
-    }
+.image-content {
+  position: fixed;
+  top: 100;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 60px; /* define fixed height */
+  background: white; /* prevent bleed from content */
+  text-align: center;
+  font-size: 16px;
+/*  color: #203272;*/
+  z-index: 999;
+  margin-top: 10px;
+  margin-bottom: 10px;
 
-    .invoice-title::after {
-      content: "";
-      display: block;
-      width: 100px;
-      height: 2px;
-      background-color: #203272;
-      margin: 5px auto 0;
-    }
 
-    .addresses {
-      width: 100%;
-      margin-top: 30px;
-    }
+  }
 
-    .address-box {
-       width: 50%;
-       float: left;
-      font-size: 12px;
-    }
+  .image-content table th{
+    width: 55px;
+    font-size: 12px;
+  }
 
-    .address-title {
-      font-weight: bold;
-      margin-bottom: 4px;
-    }
+  .div-images {
+    
+   
 
-    table {
-      width: 100%;
+     position: fixed;
+  top: 100;
+  left: 0;
+  right: 0;
+
+  margin-bottom: 100px;
+
+
+  }
+
+  .div-images img {
+    height: 30px;
+  }
+
+  .image-content table{
+
+     width: 100%;
       border-collapse: collapse;
       margin-bottom: 30px;
       font-size: 12px;
-    }
+      margin-top: 10px;
+  }
 
-    table thead {
-      background-color: #ddd9c4;
-      color: #203272;
-    }
+  .image-content td,th{
 
-    th, td {
-      border: 1px solid #747474;
+     border: 1px solid #747474;
       padding: 6px;
       margin: 0px;
       text-align: center;
-    }
+    margin-bottom: 200px;
+    float: left;
+  }
 
-    td.description {
-      text-align: left;
-    }
-    tr{
-/*       border-bottom: 1px solid #747474 !important;*/
-    }
+  .page-break-with-space {
+  page-break-before: always;
+ }
 
-    .note-section {
-      margin-top: 20px;
-      font-size: 12px;
-    }
+.page-break-with-space td {
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  height: 340px !important;
+}
+.footer{
+    font-size: 12px;
+}
 
-    .note-section p {
-      margin: 8px 0;
-    }
-
-    .bold {
-      font-weight: bold;
-    }
-
-    .italic {
-      font-style: italic;
-    }
+.page-note::after {
+    content: "Page " counter(page);
+    font-style: italic;
+  }
 
   .page-note {
       text-align: center;
@@ -135,201 +144,158 @@
       font-style: italic;
       margin-top: 10px;
   }
-  .total-row td {
-      font-weight: bold;
-      font-size: 13px;
-
-  }
-
-  @page {
-    margin: 50px 30px 80px 30px;
-  }
-  .page-break-before {
-    page-break-before: always;
-    break-before: page;
-  }
-
-  .footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 60px; /* define fixed height */
-  background: white; /* prevent bleed from content */
-  text-align: center;
-  font-size: 16px;
-  color: #203272;
-  z-index: 999;
-  margin-top: 0px;
-
-  }
 
 
+    </style>
 
-  .footer-images {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 40px;
-    margin-top: 0px;
-
-  }
-
-  .footer-images img {
-    height: 50px;
-  }
-
-  .page-note::after {
-    content: "Page " counter(page);
-    font-style: italic;
-  }
-
-
-
-  </style>
+    @stack('styles')
 </head>
 <body>
 
+
+
   <div class="header">
-    <img src="{{ public_path2('images/logo-with-title.png') }}" alt="Company Logo" />
-    <div class="company-details">
-      <h2>Global Marine Safety - America</h2>
-      <p>9145 Wallisville Rd, Houston TX 77029, USA</p>
-      <p>Tel: 1 713-518-1715, Fax: 1 713-518-1760, Email: sales@gms-america.com</p>
-    </div>
+  <img src="{{ public_path2('images/logo-with-title.png') }}" alt="Company Logo" />
+  <div class="company-details">
+    <h2>Global Marine Safety - America</h2>
+    <p>9145 Wallisville Rd, Houston TX 77029, USA</p>
+    <p>Tel: 1 713-518-1715, Fax: 1 713-518-1760, Email: sales@gms-america.com</p>
   </div>
+</div>
 
-  <div class="addresses">
-    <div class="address-box">
-      <div class="address-title">Bill To</div>
-      <div>{{ $billing_address ?? '1234 Billing Address Lane, Houston, TX' }}</div>
-    </div>
-    <div class="address-box">
-      <div class="address-title">Ship To</div>
-      <div>{{ $event['event_code'] ?? 'EVENT123' }} - {{ $event['vessel_name'] ?? 'Vessel Name' }}</div>
-    </div>
-  </div>
 
-  <div class="invoice-title">PROFORMA</div>
+<div class="image-content" >
+      <div class="div-images">
+        @for ($i = 1; $i <= 7; $i++)
+          <img src="{{ public_path2('images/logo' . $i . '.png') }}" alt="Logo{{ $i }}" />
+        @endfor
+      </div>
+    
+  <div class="invoice-title" style="margin:40px 0px 0px 0px;font-size: 20px;font-weight: bold;"><u>PROFORMA </u></div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Charge #</th>
-        <th>Event No.</th>
-        <th>Customer's Ref</th>
-        <th>Delivery Location</th>
-        <th>S.O No.</th>
-        <th>Payment Terms</th>
-        <th>Ship Date</th>
-      </tr>
-    </thead>
+ <table style="margin-bottom: 300px;">
     <tbody>
       <tr>
+         <th>Date</th>
         <td>{{ $document_date }}</td>
+      
+        <th>Charge #</th>
         <td>{{ $document_identity }}</td>
+      
+         <th>Event No.</th>
         <td>{{ $event['event_code'] ?? '' }}</td>
-        <td>{{ $customer['name'] ?? '' }}</td>
-        <td>{{ $port['name'] ?? '' }}</td>
-        <td>{{ $service_order['document_identity'] ?? '' }}</td>
-        <td>{{ $payment_terms ?? '' }}</td>
-        <td>{{ $ship_date ?? '' }}</td>
       </tr>
+
+      <tr>
+        <th>Charge #</th>
+        <td>{{ $customer['name'] ?? '' }}</td>
+  
+         <th>Location</th>
+        <td>{{ $port['name'] ?? '' }}</td>
+
+        <th>S.O No.</th>
+        <td>{{ $service_order['document_identity'] ?? '' }}</td>
+
+      </tr>
+     
+      <tr>
+        <th>Ship To.</th>
+        <td >{{ $event['event_code'] ?? 'EVENT123' }} - {{ $event['vessel_name'] ?? 'Vessel Name' }}</td>
+        <th>Payment.</th>
+        <td>{{ $ship_date ?? '' }}</td>
+        <th>Cust Ref.</th>
+        <td>{{  '' }}</td>
+      </tr>
+
+       <tr>
+        <th>Bill To.</th>
+        <td colspan="5">{{ $billing_address ?? '1234 Billing Address Lane, Houston, TX' }}</td>
+      </tr>
+      
     </tbody>
   </table>
+</div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>S. No</th>
-        <th>Description</th>
-        <th>UOM</th>
-        <th>QTY</th>
-        <th>Price per Unit</th>
-        <th>Gross Amount</th>
-        <th>Discount %</th>
-        <th>Discount Amount</th>
-        <th>Net Amount</th>
-      </tr>
-    </thead>
-    <tbody>
+
+
+
+   <table id="detail" >
+  <thead>
+  
+</thead>
+  <tbody>
+
+    <tr>
+    <th>S. No</th>
+    <th>Description</th>
+    <th>UOM</th>
+    <th>QTY</th>
+    <th>Price per Unit</th>
+    <th>Gross Amount</th>
+    <th>Discount %</th>
+    <th>Discount Amount</th>
+    <th>Net Amount</th>
+  </tr>
+    @php
+      $total = 0;
+      $count = 0;       // line tracker (for wrapped text)
+      $all_count = 1;   // actual row index
+    @endphp
+
+    @foreach($charge_order_detail as $key => $detail)
       @php
-        $total = 0;
-        $count = 0;
-        $all_count = 1;
+        $productName = $detail['product_description'] ?? '';
+        $chunks = array_slice(str_split($productName, 60), 0, 10);
+        $rowLines = count($chunks); // how many lines this row takes
+
+        $addBreak = false;
+        if ($count + $rowLines >= 20) { // if this row will overflow the 19-line page
+          $addBreak = true;
+          $count = 0; // reset after break
+           $all_count++;
+        }
+
+        $count += $rowLines; // accumulate total lines printed
       @endphp
 
-      @foreach($charge_order_detail as $key => $detail)
-        @php
-          $total += $detail['gross_amount'];
-          $productName = $detail['product_description'] ?? '';
-          $chunks = str_split($productName, 60);
-          $chunks = array_slice($chunks, 0, 10); // Limit to 10 lines
-
-
-        @endphp
-
-
-
-         @php 
-         $class = '';
-         $length = ($all_count!=1) ? 33 : 14;
-         if($count>=$length) {
-            $count =0;
-            $class = 'page-break-before' ;
-            $all_count++;
-        }  @endphp
-
-        @if($count==0 && $key!=0)
-          <tr style="border: 1px solid white !important;"  >
-          <td colspan="9" style="border: 0px solid red  !important;  ;">
-            <div class="footer">
-            <div class="footer-images">
-              @for ($i = 1; $i <= 7; $i++)
-                <img src="{{ public_path2('images/logo' . $i . '.png') }}" alt="Logo{{ $i }}" />
-              @endfor
-            </div>
-            <div class="page-note"></div>
-          </div>
-          </td>
+      @if($addBreak)
+        <tr class="page-break-with-space">
+          <td colspan="9"></td>
         </tr>
-        @endif
+<tr>
+    <th>S. No</th>
+    <th>Description</th>
+    <th>UOM</th>
+    <th>QTY</th>
+    <th>Price per Unit</th>
+    <th>Gross Amount</th>
+    <th>Discount %</th>
+    <th>Discount Amount</th>
+    <th>Net Amount</th>
+  </tr>
 
+      @endif
 
-
-        <tr class="{{$class}}">
-          <td>{{ $key+1 }}</td>
-          <td class="description">
-
+      <tr>
+        <td>{{ $key + 1 }}</td>
+        <td class="description">
           @foreach($chunks as $value)
-               {{ $value }}
-               @php $count++  @endphp
-               
-
+            {{ $value }}<br>
           @endforeach
-
-
         </td>
-          <td>{{ $detail['unit']['name'] ?? '' }}</td>
-          <td>{{ $detail['quantity'] }}</td>
-          <td>${{ $detail['rate'] }}</td>
-          <td>${{ $detail['amount'] }}</td>
-          <td>{{ $detail['discount_percent'] }}</td>
-          <td>${{ $detail['discount_amount'] }}</td>
-          <td>${{ $detail['gross_amount'] }}</td>
-        </tr>
-      @endforeach
- 
+        <td>{{ $detail['unit']['name'] ?? '' }}</td>
+        <td>{{ $detail['quantity'] }}</td>
+        <td>${{ $detail['rate'] }}</td>
+        <td>${{ $detail['amount'] }}</td>
+        <td>{{ $detail['discount_percent'] }}</td>
+        <td>${{ $detail['discount_amount'] }}</td>
+        <td>${{ $detail['gross_amount'] }}</td>
+      </tr>
+    @endforeach
 
-       @php $length = ($all_count!=1) ? 23 : 14  @endphp
 
+      @php $length = 19  @endphp
       @for($i = $count; $i < $length; $i++)
-
-
-
-
-       
         <tr class="">
             <td >&nbsp;</td>
             <td >&nbsp;</td>
@@ -343,32 +309,17 @@
         </tr>
       @endfor
 
-      <tr class="total-row">
-        <td colspan="6">
-          Remit Payment to: Global Marine Safety Service Inc<br/>
-          Frost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44
-        </td>
-        <td colspan="2">USD Total:</td>
-        <td>${{ number_format($total, 2) }}</td>
+     <tr>
+        <td colspan="3">Total</td>
+        <td>34,000.00</td>
+        <td>34,000.00</td>
+        <td>34,000.00</td>
+        <td>34,000.00</td>
+        <td>34,000.00</td>
+        <td>34,000.00</td>
       </tr>
-
-      <tr>
-        <td colspan="9" class="italic">
-          Note: Any invoice discrepancies must be reported prior to invoice due date. Please arrange payment in full by due date to avoid any late fee or charges. Appropriate wire fee must be included to avoid short payment.
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="footer">
-          <div class="footer-images">
-            @for ($i = 1; $i <= 7; $i++)
-              <img src="{{ public_path2('images/logo' . $i . '.png') }}" alt="Logo{{ $i }}" />
-            @endfor
-          </div>
-          <div class="page-note"></div>
-        </div>
- 
+  </tbody>
+</table>
 
 </body>
 </html>
