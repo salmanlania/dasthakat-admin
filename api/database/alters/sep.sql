@@ -370,3 +370,64 @@ INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `docume
 VALUES ( 59, 'Payment Voucher', '{BC}/PV-', 'payment_voucher', 'payment_voucher_id' );
 
 ALTER TABLE `payment_voucher_detail` ADD COLUMN `ledger_date` DATE DEFAULT NULL AFTER `cheque_date`;
+
+
+
+CREATE TABLE `vendor_payment` (
+  `company_id` CHAR(36) NOT NULL,
+  `company_branch_id` CHAR(36) NOT NULL,
+  `vendor_payment_id` CHAR(36) NOT NULL,
+  `document_type_id` INT(11) NOT NULL,
+  `document_prefix` VARCHAR(255) NOT NULL,
+  `document_no` INT(11) NOT NULL,
+  `document_identity` VARCHAR(255) NOT NULL,
+  `document_date` DATE NOT NULL,
+  `supplier_id` CHAR(36) NOT NULL,
+  `base_currency_id` CHAR(36) NOT NULL,
+  `document_currency_id` CHAR(36) NOT NULL,
+  `transaction_account_id` CHAR(36) NOT NULL,
+  `conversion_rate` DECIMAL(15, 2) NOT NULL,
+  `payment_amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `total_amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `remarks` TEXT,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` CHAR(36) NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_by` CHAR(36) NULL
+);
+
+CREATE TABLE `vendor_payment_detail` (
+  `vendor_payment_id` CHAR(36) NOT NULL,
+  `vendor_payment_detail_id` CHAR(36) NOT NULL,
+  `sort_order` INT(11) NOT NULL,
+  `purchase_invoice_id` CHAR(36) NOT NULL,
+  `ref_document_identity` VARCHAR(255) NOT NULL,
+  `original_amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `balance_amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `settled_amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `account_id` CHAR(36) NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` CHAR(36) NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_by` CHAR(36) NULL
+);
+
+ALTER TABLE `vendor_payment`
+  ADD PRIMARY KEY (`vendor_payment_id`),
+  ADD INDEX `idx_company` (`company_id`),
+  ADD INDEX
+   `idx_company_branch` (`company_branch_id`),
+  ADD INDEX `idx_supplier` (`supplier_id`),
+  ADD INDEX `idx_transaction_account` (`transaction_account_id`),
+  ADD INDEX `idx_document_identity` (`document_identity`),
+  ADD INDEX `idx_document_date` (`document_date`);
+
+ALTER TABLE `vendor_payment_detail`
+  ADD PRIMARY KEY (`vendor_payment_detail_id`),
+  ADD INDEX `idx_vendor_payment` (`vendor_payment_id`),
+  ADD INDEX `idx_purchase_invoice` (`purchase_invoice_id`),
+  ADD INDEX `idx_account` (`account_id`);
+
+  
+INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `document_prefix`, `table_name`, `primary_key`)
+VALUES ( 60, 'Vendor Payment', '{BC}/VP-', 'vendor_payment', 'vendor_payment_id' );

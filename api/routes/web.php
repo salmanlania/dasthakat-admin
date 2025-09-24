@@ -103,6 +103,7 @@ $router->group(['prefix' => 'customer'], function ($router) {
 
 $router->group(['prefix' => 'supplier'], function ($router) {
    $router->get('/', 'SupplierController@index');
+   $router->get('/{id}/ledger-invoices', 'SupplierController@getLedgerInvoices');
    $router->get('/{id}', 'SupplierController@show');
    $router->post('/', 'SupplierController@store');
    $router->put('/{id}', 'SupplierController@update');
@@ -502,7 +503,7 @@ $router->group(['prefix' => 'accounts'], function ($router) {
     $router->delete('/{id}', 'AccountsController@delete');
 });
 
-// Accounts routes
+// customer payment routes
 $router->group(['prefix' => 'customer-payment'], function ($router) {
     $router->get('/', 'CustomerPaymentController@index');
     $router->post('/', 'CustomerPaymentController@store');
@@ -510,6 +511,16 @@ $router->group(['prefix' => 'customer-payment'], function ($router) {
     $router->get('/{id}', 'CustomerPaymentController@show');
     $router->put('/{id}', 'CustomerPaymentController@update');
     $router->delete('/{id}', 'CustomerPaymentController@delete');
+});
+
+// vendor payment routes
+$router->group(['prefix' => 'vendor-payment'], function ($router) {
+    $router->get('/', 'VendorPaymentController@index');
+    $router->post('/', 'VendorPaymentController@store');
+    $router->post('/bulk-delete', 'VendorPaymentController@bulkDelete');
+    $router->get('/{id}', 'VendorPaymentController@show');
+    $router->put('/{id}', 'VendorPaymentController@update');
+    $router->delete('/{id}', 'VendorPaymentController@delete');
 });
 
 // Accounts routes

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use App\Mail\GenerateMail;
 use App\Models\Customer;
+use App\Models\PurchaseInvoice;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
 use Illuminate\Support\Facades\Mail;
@@ -85,6 +86,39 @@ class SupplierController extends Controller
 		return $this->jsonResponse($data, 200, "Supplier Data");
 	}
 
+
+	public function getLedgerInvoices($id, Request $request)
+	{
+
+		$data = PurchaseInvoice::where([
+				'supplier_id' => $id,
+				'company_id' => $request->company_id,
+				'company_branch_id' => $request->company_branch_id,
+			])
+			->select(
+				'purchase_invoice_id',
+				'document_identity',
+				'document_type_id',
+				'document_date',
+				'net_amount',
+				DB::raw("net_amount - (
+                    SELECT COALESCE(SUM(settled_amount), 0) 
+                    FROM vendor_payment_detail 
+                    WHERE vendor_payment_detail.purchase_invoice_id = purchase_invoice.purchase_invoice_id 
+					) as balance_amount")
+			)
+			->having('balance_amount', '>', 0)
+			->get();
+
+
+
+		if (!$data) {
+			return $this->jsonResponse(null, 404, "Supplier Invoices not found");
+		}
+
+		return $this->jsonResponse($data, 200, "Supplier Invoices Data");
+	}
+
 	public function validateRequest($request, $id = null)
 	{
 		$rules = [
@@ -134,7 +168,7 @@ class SupplierController extends Controller
 			'contact2' => $request->contact2 ?? "",
 			'email' => $request->email ?? "",
 			'address' => $request->address ?? "",
-			'outstanding_account_id' => env('VENDOR_OUTSTANDING_ACCOUNT_ID',''),
+			'outstanding_account_id' => env('VENDOR_OUTSTANDING_ACCOUNT_ID', ''),
 			'status' => $request->status ?? 0,
 			'created_at' => date('Y-m-d H:i:s'),
 			'created_by' => $request->login_user_id,
@@ -168,7 +202,7 @@ class SupplierController extends Controller
 		$data->contact2 = $request->contact2 ?? "";
 		$data->email = $request->email ?? "";
 		$data->address = $request->address ?? "";
-		$data->outstanding_account_id = env('VENDOR_OUTSTANDING_ACCOUNT_ID','');
+		$data->outstanding_account_id = env('VENDOR_OUTSTANDING_ACCOUNT_ID', '');
 		$data->status = $request->status ?? 0;
 		$data->updated_at =  date('Y-m-d H:i:s');
 		$data->updated_by = $request->login_user_id;
