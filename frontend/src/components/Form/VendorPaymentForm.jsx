@@ -53,6 +53,7 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
     const formatDate = (date) => (date ? dayjs(date).format('YYYY-MM-DD') : null);
 
     const data = {
+      ...initialFormValues,
       ...values,
       supplier_id: values?.supplier_id?.value ? values?.supplier_id?.value : values?.supplier_id?.key ? values?.supplier_id?.key : null,
       total_amount: totalSettled ? totalSettled : totalAmountVal,

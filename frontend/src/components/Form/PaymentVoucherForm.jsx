@@ -31,6 +31,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
 
   const onFinish = (values) => {
     const data = {
+      ...initialFormValues,
       ...values,
       transaction_account_id: values?.transaction_account_id ? values?.transaction_account_id?.value || values?.transaction_account_id : null,
       total_amount: totalSettled,
@@ -219,12 +220,6 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
         />
       ),
     },
-    // {
-    //   title: "Net Amount",
-    //   dataIndex: "net_amount",
-    //   key: "net_amount",
-    //   render: (val) => <DebouncedCommaSeparatedInput value={val} />
-    // },
     {
       title: (
         <Button
@@ -236,39 +231,6 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
         />
       ),
       key: 'action',
-      // render: (record, { id, editable }, index) => {
-      //   return (
-      //     <Dropdown
-      //       trigger={['click']}
-      //       // disabled={isDisable}
-      //       arrow
-      //       menu={{
-      //         items: [
-      //           {
-      //             key: '1',
-      //             label: 'Add',
-      //             onClick: () => dispatch(addPaymentVoucherDetail(index))
-      //           },
-      //           {
-      //             key: '2',
-      //             label: 'Copy',
-      //             onClick: () => dispatch(copyPaymentVoucherDetail(index))
-      //           },
-      //           {
-      //             key: '3',
-      //             label: 'Delete',
-      //             danger: true,
-      //             onClick: () => dispatch(removePaymentVoucherDetail(id)),
-      //             disabled: editable === false
-      //           }
-      //         ]
-      //       }}>
-      //       <Button size="small">
-      //         <BsThreeDotsVertical />
-      //       </Button>
-      //     </Dropdown>
-      //   );
-      // },
       width: 50,
       fixed: 'right'
     }

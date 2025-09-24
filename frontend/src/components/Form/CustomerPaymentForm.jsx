@@ -51,6 +51,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
     const formatDate = (date) => (date ? dayjs(date).format('YYYY-MM-DD') : null);
 
     const data = {
+      ...initialFormValues,
       ...values,
       customer_id: values?.customer_id?.value ? values?.customer_id?.value : values?.customer_id?.key ? values?.customer_id?.key : null,
       total_amount: totalSettled ? totalSettled : totalAmountVal,
