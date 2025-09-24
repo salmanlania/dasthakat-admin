@@ -35,7 +35,7 @@ class CustomerPayment extends Model
 
     public function details()
     {
-        return $this->hasMany(CustomerPaymentDetail::class, 'customer_payment_id', 'customer_payment_id');
+        return $this->hasMany(CustomerPaymentDetail::class, 'customer_payment_id', 'customer_payment_id')->orderBy('sort_order');
     }
 
     public function customer()

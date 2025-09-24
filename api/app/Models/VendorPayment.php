@@ -34,7 +34,7 @@ class VendorPayment extends Model
 
     public function details()
     {
-        return $this->hasMany(VendorPaymentDetail::class, 'vendor_payment_id', 'vendor_payment_id');
+        return $this->hasMany(VendorPaymentDetail::class, 'vendor_payment_id', 'vendor_payment_id')->orderBy('sort_order');
     }
 
     public function supplier()

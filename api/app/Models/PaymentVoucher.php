@@ -46,7 +46,7 @@ class PaymentVoucher extends Model
     // Relationships
     public function details()
     {
-        return $this->hasMany(PaymentVoucherDetail::class, 'payment_voucher_id', 'payment_voucher_id');
+        return $this->hasMany(PaymentVoucherDetail::class, 'payment_voucher_id', 'payment_voucher_id')->orderBy('sort_order');
     }
     public function transaction_account()
     {
