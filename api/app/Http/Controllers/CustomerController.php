@@ -2,22 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Database\DatabaseManager;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use App\Mail\GenerateMail;
 use App\Models\Customer;
 use App\Models\CustomerCommissionAgent;
 use App\Models\CustomerVessel;
+use App\Models\Ledger;
 use App\Models\Quotation;
+use App\Models\SaleInvoice;
 use App\Models\Vessel;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class CustomerController extends Controller
 {
@@ -48,8 +44,9 @@ class CustomerController extends Controller
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
 		$data =  Customer::with("pivot_vessel")
-			->LeftJoin('salesman as s', 's.salesman_id', '=', 'customer.salesman_id')
-			->LeftJoin('payment as p', 'p.payment_id', '=', 'customer.payment_id');
+			->leftJoin('salesman as s', 's.salesman_id', '=', 'customer.salesman_id')
+			->leftJoin('payment as p', 'p.payment_id', '=', 'customer.payment_id')
+			->leftJoin('accounts as outstanding', 'outstanding.account_id', '=', 'customer.outstanding_account_id');
 		$data = $data->where('customer.company_id', '=', $request->company_id);
 		$data = $data->where('customer.company_branch_id', '=', $request->company_branch_id);
 		if (!empty($customer_code)) $data = $data->where('customer.customer_code', 'like', '%' . $customer_code . '%');
@@ -91,7 +88,7 @@ class CustomerController extends Controller
 			});
 		}
 
-		$data = $data->select("customer.*", "p.name as payment_name", "s.name as salesman_name");
+		$data = $data->select("customer.*", "p.name as payment_name", "s.name as salesman_name", "outstanding.name as outstanding_account_name");
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		foreach ($data as $key => &$value) {
@@ -107,15 +104,49 @@ class CustomerController extends Controller
 	public function show($id, Request $request)
 	{
 
-		$data = Customer::with("customer_commission_agent","customer_commission_agent.commission_agent","payment")
+		$data = Customer::with("customer_commission_agent", "customer_commission_agent.commission_agent", "payment")
 			->LeftJoin('salesman as s', 's.salesman_id', '=', 'customer.salesman_id')
+			->leftJoin('accounts as outstanding', 'outstanding.account_id', '=', 'customer.outstanding_account_id')
 			->where('customer_id', $id)
-			->select("customer.*", "s.name as salesman_name")->first();
+			->select("customer.*", "s.name as salesman_name", "outstanding.name as outstanding_account_name")->first();
 		$vessels = CustomerVessel::where('customer_id', $id)->pluck('vessel_id')->toArray();
 		$vessel = Vessel::whereIn('vessel_id', $vessels)->get();
 		$data->vessel = $vessel;
 
 		return $this->jsonResponse($data, 200, "Customer Data");
+	}
+
+	public function getLedgerInvoices($id, Request $request)
+	{
+
+		$data = SaleInvoice::leftJoin('charge_order as co', 'co.charge_order_id', '=', 'sale_invoice.charge_order_id')
+			->where([
+				'co.customer_id' => $id,
+				'sale_invoice.company_id' => $request->company_id,
+				'sale_invoice.company_branch_id' => $request->company_branch_id,
+			])
+			->select(
+				'sale_invoice.sale_invoice_id',
+				'sale_invoice.document_identity',
+				'sale_invoice.document_type_id',
+				'sale_invoice.document_date',
+				'sale_invoice.net_amount',
+				DB::raw("sale_invoice.net_amount - (
+                    SELECT COALESCE(SUM(settled_amount), 0) 
+                    FROM customer_payment_detail 
+                    WHERE customer_payment_detail.sale_invoice_id = sale_invoice.sale_invoice_id 
+					) as balance_amount")
+			)
+			->having('balance_amount', '>', 0)
+			->get();
+
+
+
+		if (!$data) {
+			return $this->jsonResponse(null, 404, "Customer Invoices not found");
+		}
+
+		return $this->jsonResponse($data, 200, "Customer Invoices Data");
 	}
 
 	public function validateRequest($request, $id = null)
@@ -135,8 +166,6 @@ class CustomerController extends Controller
 		}
 		return [];
 	}
-
-
 
 	public function store(Request $request)
 	{
@@ -170,6 +199,7 @@ class CustomerController extends Controller
 			'email_accounting' => $request->email_accounting ?? "",
 			'payment_id' => $request->payment_id ?? "",
 			'rebate_percent' => $request->rebate_percent ?? "",
+			'outstanding_account_id' => env('CUSTOMER_OUTSTANDING_ACCOUNT_ID', ''),
 			'status' => $request->status ?? 0,
 			'created_at' => date('Y-m-d H:i:s'),
 			'created_by' => $request->login_user_id,
@@ -188,26 +218,7 @@ class CustomerController extends Controller
 				CustomerVessel::insert($insert);
 			}
 		}
-	
-		// if(!empty($request->customer_commission_agent)){
-		// 	foreach($request->customer_commission_agent as $row){
 
-		// 		$insert = [
-		// 			'customer_commission_agent_id' => $this->get_uuid(),
-		// 			'customer_id' => $uuid,
-		// 			'type' => $row['type'] ?? "",
-		// 			'commission_agent_id' => $row['commission_agent_id'] ?? "",
-		// 			'commission_percentage' => $row['commission_percentage'] ?? 0,
-		// 			'status' => $row['status'],
-		// 			'created_at' => Carbon::now(),
-		// 			'created_by' => $request->login_user_id,
-		// 		];
-		// 		CustomerCommissionAgent::insert($insert);
-
-		// 	}
-		// }
-		
-	
 		return $this->jsonResponse(['customer_id' => $uuid], 200, "Add Customer Successfully!");
 	}
 
@@ -236,6 +247,7 @@ class CustomerController extends Controller
 		$data->email_accounting = $request->email_accounting ?? "";
 		$data->payment_id = $request->payment_id ?? "";
 		$data->rebate_percent = $request->rebate_percent ?? "";
+		$data->outstanding_account_id = env('CUSTOMER_OUTSTANDING_ACCOUNT_ID', '');
 		$data->status = $request->status ?? 0;
 		$data->updated_at =  date('Y-m-d H:i:s');
 		$data->updated_by = $request->login_user_id;
@@ -254,39 +266,6 @@ class CustomerController extends Controller
 				CustomerVessel::insert($insert);
 			}
 		}
-
-		// if(!empty($request->customer_commission_agent)){
-		// 	foreach($request->customer_commission_agent as $row){
-		// 		if($row['row_status'] == "D"){
-
-		// 		}
-		// 		if($row['row_status'] == "I"){
-		// 			$insert = [
-		// 				'customer_commission_agent_id' => $this->get_uuid(),
-		// 				'customer_id' => $id,
-		// 				'type' => $row['type'] ?? "",
-		// 				'commission_agent_id' => $row['commission_agent_id'] ?? "",
-		// 				'commission_percentage' => $row['commission_percentage'] ?? 0,
-		// 				'status' => $row['status'],
-		// 				'created_at' => Carbon::now(),
-		// 				'created_by' => $request->login_user_id,
-		// 			];
-		// 			CustomerCommissionAgent::insert($insert);
-		// 		}
-		// 		if($row['row_status'] == "U"){
-		// 			$update = [
-		// 				'type' => $row['type'] ?? "",
-		// 				'commission_percentage' => $row['commission_percentage'] ?? 0,
-		// 				'status' => $row['status'],
-		// 				'updated_at' => Carbon::now(),
-		// 				'updated_by' => $request->login_user_id,
-		// 			];
-		// 			CustomerCommissionAgent::where('customer_commission_agent_id',$row['customer_commission_agent_id'])->update($update);
-		// 		}
-		// 	}
-		// }
-
-
 		return $this->jsonResponse(['customer_id' => $id], 200, "Update Customer Successfully!");
 	}
 	public function updateCommissionAgent(Request $request, $id)
@@ -295,17 +274,12 @@ class CustomerController extends Controller
 		if (!isPermission('edit', 'customer_commission_agent', $request->permission_list))
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
-		// Validation Rules
-		// $isError = $this->validateRequest($request->all(), $id);
-		// if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
-
-
-		if(!empty($request->customer_commission_agent)){
-			foreach($request->customer_commission_agent as $row){
-				if($row['row_status'] == "D"){
-					CustomerCommissionAgent::where('customer_commission_agent_id',$row['customer_commission_agent_id'])->delete();
+		if (!empty($request->customer_commission_agent)) {
+			foreach ($request->customer_commission_agent as $row) {
+				if ($row['row_status'] == "D") {
+					CustomerCommissionAgent::where('customer_commission_agent_id', $row['customer_commission_agent_id'])->delete();
 				}
-				if($row['row_status'] == "I"){
+				if ($row['row_status'] == "I") {
 					$insert = [
 						'sort_order' => $row['sort_order'] ?? 0,
 						'customer_commission_agent_id' => $this->get_uuid(),
@@ -319,7 +293,7 @@ class CustomerController extends Controller
 					];
 					CustomerCommissionAgent::insert($insert);
 				}
-				if($row['row_status'] == "U"){
+				if ($row['row_status'] == "U") {
 					$update = [
 						'sort_order' => $row['sort_order'] ?? 0,
 						'type' => $row['type'] ?? "",
@@ -329,7 +303,7 @@ class CustomerController extends Controller
 						'updated_at' => Carbon::now(),
 						'updated_by' => $request->login_user_id,
 					];
-					CustomerCommissionAgent::where('customer_commission_agent_id',$row['customer_commission_agent_id'])->update($update);
+					CustomerCommissionAgent::where('customer_commission_agent_id', $row['customer_commission_agent_id'])->update($update);
 				}
 			}
 		}

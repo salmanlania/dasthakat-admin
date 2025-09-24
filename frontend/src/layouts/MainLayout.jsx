@@ -64,7 +64,6 @@ const MainLayout = () => {
   if (href.startsWith('/commission-agent/edit') && !permissions.commission_agent.edit)
     return <NotFound />;
 
-  // if (href === '/technician' && !permissions.technician.list) return <NotFound />;
   if (href === '/technician' && !permissions.sales_team.list) return <NotFound />;
   if (href === '/sales-team' && !permissions.sales_team.list) return <NotFound />;
   if (href === '/notes' && !permissions.terms.list) return <NotFound />;
@@ -162,25 +161,27 @@ const MainLayout = () => {
   if (href === '/vendor-platform-charge' && !permissions.vp_charge_order.list) return <NotFound />;
   if (href.startsWith('/vendor-platform-charge/edit') && !permissions.vp_charge_order.edit) return <NotFound />;
 
-  if (href === '/general-ledger/accounts' && !permissions.accounts.list) return <NotFound />;
-  if (href === '/general-ledger/accounts/create' && !permissions.accounts.add) return <NotFound />;
-  if (href.startsWith('/general-ledger/accounts/edit') && !permissions.accounts.edit)
+  if (href === '/general-ledger/gl-setup/gl-module-setting' && !permissions?.gl_accounts_setting?.gl_update && !permissions?.gl_inventory_setting?.inventory_update) return <NotFound />;
+
+  if (href === '/general-ledger/gl-setup/accounts' && !permissions.accounts.list) return <NotFound />;
+  if (href === '/general-ledger/gl-setup/accounts/create' && !permissions.accounts.add) return <NotFound />;
+  if (href.startsWith('/general-ledger/gl-setup/accounts/edit') && !permissions.accounts.edit)
     return <NotFound />;
 
-  // if (href === '/general-ledger/coa/level1' && !permissions.coa_level1.list) return <NotFound />;
-  // if (href === '/general-ledger/coa/level1/create' && !permissions.coa_level1.add) return <NotFound />;
-  // if (href.startsWith('/general-ledger/coa/level1/edit') && !permissions.coa_level1.edit)
-  //   return <NotFound />;
+  if (href === '/general-ledger/transactions/customer-payment' && !permissions.customer_payment.list) return <NotFound />;
+  if (href === '/general-ledger/transactions/customer-payment/create' && !permissions.customer_payment.add) return <NotFound />;
+  if (href.startsWith('/general-ledger/transactions/customer-payment/edit') && !permissions.customer_payment.edit)
+    return <NotFound />;
 
-  // if (href === '/general-ledger/coa/level2' && !permissions.coa_level2.list) return <NotFound />;
-  // if (href === '/general-ledger/coa/level2/create' && !permissions.coa_level2.add) return <NotFound />;
-  // if (href.startsWith('/general-ledger/coa/level2/edit') && !permissions.coa_level2.edit)
-  //   return <NotFound />;
+  if (href === '/general-ledger/transactions/vendor-payment' && !permissions.vendor_payment.list) return <NotFound />;
+  if (href === '/general-ledger/transactions/vendor-payment/create' && !permissions.vendor_payment.add) return <NotFound />;
+  if (href.startsWith('/general-ledger/transactions/vendor-payment/edit') && !permissions.vendor_payment.edit)
+    return <NotFound />;
 
-  // if (href === '/general-ledger/coa/level3' && !permissions.coa_level3.list) return <NotFound />;
-  // if (href === '/general-ledger/coa/level3/create' && !permissions.coa_level3.add) return <NotFound />;
-  // if (href.startsWith('/general-ledger/coa/level3/edit') && !permissions.coa_level3.edit)
-  //   return <NotFound />;
+  if (href === '/general-ledger/transactions/payment-voucher' && !permissions.payment_voucher?.list) return <NotFound />;
+  if (href === '/general-ledger/transactions/payment-voucher/create' && !permissions.payment_voucher?.add) return <NotFound />;
+  if (href.startsWith('/general-ledger/transactions/payment-voucher/edit') && !permissions.payment_voucher?.edit)
+    return <NotFound />;
 
   return (
     <Layout className="min-h-screen">

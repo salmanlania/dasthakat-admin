@@ -599,14 +599,6 @@ const Shipment = () => {
             onClick={onShipmentCreate}>
             Create Shipment
           </Button>
-          {/* <Button
-            type="primary"
-            className="mb-[1px] w-28"
-            disabled={!eventId}
-            loading={isFormSubmitting}
-            onClick={openCreateModal}>
-            Create DO
-          </Button> */}
         </Form>
 
         <div className="flex items-center justify-between gap-2">
@@ -742,12 +734,6 @@ const Shipment = () => {
               </div>
             ))}
 
-            {/* <div className="mt-4 flex justify-end gap-2">
-              <Button onClick={closeCreateModal}>Cancel</Button>
-              <Button type="primary" onClick={onDoShipmentCreate} loading={isFormSubmitting}>
-                Create
-              </Button>
-            </div> */}
           </div>
         ) : null}
       </Modal>

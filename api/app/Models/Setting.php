@@ -9,18 +9,9 @@ class Setting extends Model
 
 
   protected $primaryKey = 'id';
-
-  // protected $connection = 'mysql';
-    protected $keyType = 'string';
+  protected $keyType = 'string';
   public $incrementing = false;
   protected $table = 'setting';
-
-
-  protected $mailKeys = [
-    'order_conformation' => ["title" => "Order Conformation", "tags" => ["<Name>", "<botton>", "<link>"]],
-    'order_cancellation' => ["title" => "Order Cancellation", "tags" => ["<Name>", "<botton>", "<link>"]],
-    'forgot_password' => ["title" => "Forgot Password", "tags" => ["<Name>", "<botton>", "<link>"]],
-  ];
 
 
   /**
@@ -36,16 +27,17 @@ class Setting extends Model
     'created_at'
   ];
 
-
-  public function getEmailKeys()
+  static public function getValue($module, $field, $decode = false)
   {
-    return $this->mailKeys;
+    $value = Setting::where('module', $module)
+      ->where('field', $field)
+      ->value('value');
+
+    return $decode ? json_decode($value, true) : $value;
   }
 
-
-  /**
-   * The attributes excluded from the model's JSON form.
-   *
-   * @var string[]
-   */
+  static public function getRow($module, $field)
+  {
+    return Setting::where('module', $module)->where('field', $field)->first();
+  }
 }

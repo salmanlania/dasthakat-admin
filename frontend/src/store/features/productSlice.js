@@ -149,41 +149,57 @@ export const productSlice = createSlice({
         name: data.name,
         product_type_id: data.product_type_id
           ? {
-              value: data.product_type_id,
-              label: data.product_type_name
-            }
+            value: data.product_type_id,
+            label: data.product_type_name
+          }
           : null,
         impa_code: data.impa_code,
         short_code: data.short_code,
         category_id: data.category_id
           ? {
-              value: data.category_id,
-              label: data.category_name
-            }
+            value: data.category_id,
+            label: data.category_name
+          }
           : null,
         sub_category_id: data.sub_category_id
           ? {
-              value: data.sub_category_id,
-              label: data.sub_category_name
-            }
+            value: data.sub_category_id,
+            label: data.sub_category_name
+          }
           : null,
         brand_id: data.brand_id
           ? {
-              value: data.brand_id,
-              label: data.brand_name
-            }
+            value: data.brand_id,
+            label: data.brand_name
+          }
           : null,
         unit_id: data.unit_id
           ? {
-              value: data.unit_id,
-              label: data.unit_name
-            }
+            value: data.unit_id,
+            label: data.unit_name
+          }
           : null,
         cost_price: data.cost_price,
         sale_price: data.sale_price,
         status: data.status,
         image: data.image,
-        image_url: data.image_url
+        image_url: data.image_url,
+        adjustment_account_id: data?.adjustment_account_id && data?.adjustment_account_name ? {
+          value: data?.adjustment_account_id,
+          label: data?.adjustment_account_name
+        } : null,
+        cogs_account_id: data?.cogs_account_id && data?.cogs_account_name  ? {
+          value: data?.cogs_account_id,
+          label: data?.cogs_account_name
+        } : null,
+        inventory_account_id: data?.inventory_account_id && data?.inventory_account_name ? {
+          value: data?.inventory_account_id,
+          label: data?.inventory_account_name
+        } : null,
+        revenue_account_id: data?.revenue_account_id && data?.revenue_account_name ? {
+          value: data?.revenue_account_id,
+          label: data?.revenue_account_name
+        } : null,
       };
     });
     addCase(getProduct.rejected, (state) => {

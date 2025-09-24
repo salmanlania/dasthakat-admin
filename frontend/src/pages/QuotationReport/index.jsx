@@ -118,7 +118,6 @@ const QuotationReport = () => {
 
   const exportPdf = async () => {
     if (!filtersAreActive) {
-      // toast.error("Please select at least one filter before exporting.");
       return;
     }
 

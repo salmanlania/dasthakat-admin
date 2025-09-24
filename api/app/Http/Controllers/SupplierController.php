@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use App\Mail\GenerateMail;
 use App\Models\Customer;
+use App\Models\PurchaseInvoice;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
 use Illuminate\Support\Facades\Mail;
@@ -39,7 +40,8 @@ class SupplierController extends Controller
 		$sort_column = $request->input('sort_column', 'supplier.created_at');
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
-		$data = Supplier::LeftJoin('payment as p', 'supplier.payment_id', '=', 'p.payment_id');
+		$data = Supplier::LeftJoin('payment as p', 'supplier.payment_id', '=', 'p.payment_id')
+			->leftJoin('accounts as outstanding', 'outstanding.account_id', '=', 'supplier.outstanding_account_id');
 		$data = $data->where('supplier.company_id', '=', $request->company_id);
 		$data = $data->where('supplier.company_branch_id', '=', $request->company_branch_id);
 
@@ -68,7 +70,7 @@ class SupplierController extends Controller
 			});
 		}
 
-		$data = $data->select("supplier.*", "p.name as payment_name");
+		$data = $data->select("supplier.*", "p.name as payment_name", "outstanding.name as outstanding_account_name");
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
@@ -77,8 +79,44 @@ class SupplierController extends Controller
 	public function show($id, Request $request)
 	{
 
-		$data = Supplier::with('payment')->where('supplier_id', $id)->first();
+		$data = Supplier::with('payment')
+			->leftJoin('accounts as outstanding', 'outstanding.account_id', '=', 'supplier.outstanding_account_id')
+			->where('supplier_id', $id)
+			->select("supplier.*", "outstanding.name as outstanding_account_name")->first();
 		return $this->jsonResponse($data, 200, "Supplier Data");
+	}
+
+
+	public function getLedgerInvoices($id, Request $request)
+	{
+
+		$data = PurchaseInvoice::where([
+				'supplier_id' => $id,
+				'company_id' => $request->company_id,
+				'company_branch_id' => $request->company_branch_id,
+			])
+			->select(
+				'purchase_invoice_id',
+				'document_identity',
+				'document_type_id',
+				'document_date',
+				'net_amount',
+				DB::raw("net_amount - (
+                    SELECT COALESCE(SUM(settled_amount), 0) 
+                    FROM vendor_payment_detail 
+                    WHERE vendor_payment_detail.purchase_invoice_id = purchase_invoice.purchase_invoice_id 
+					) as balance_amount")
+			)
+			->having('balance_amount', '>', 0)
+			->get();
+
+
+
+		if (!$data) {
+			return $this->jsonResponse(null, 404, "Supplier Invoices not found");
+		}
+
+		return $this->jsonResponse($data, 200, "Supplier Invoices Data");
 	}
 
 	public function validateRequest($request, $id = null)
@@ -130,6 +168,7 @@ class SupplierController extends Controller
 			'contact2' => $request->contact2 ?? "",
 			'email' => $request->email ?? "",
 			'address' => $request->address ?? "",
+			'outstanding_account_id' => env('VENDOR_OUTSTANDING_ACCOUNT_ID', ''),
 			'status' => $request->status ?? 0,
 			'created_at' => date('Y-m-d H:i:s'),
 			'created_by' => $request->login_user_id,
@@ -163,6 +202,7 @@ class SupplierController extends Controller
 		$data->contact2 = $request->contact2 ?? "";
 		$data->email = $request->email ?? "";
 		$data->address = $request->address ?? "";
+		$data->outstanding_account_id = env('VENDOR_OUTSTANDING_ACCOUNT_ID', '');
 		$data->status = $request->status ?? 0;
 		$data->updated_at =  date('Y-m-d H:i:s');
 		$data->updated_by = $request->login_user_id;

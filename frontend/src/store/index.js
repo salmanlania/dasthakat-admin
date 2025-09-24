@@ -23,10 +23,7 @@ import portReducer from './features/portSlice';
 import productReducer from './features/productSlice';
 import purchaseInvoiceReducer from './features/purchaseInvoiceSlice';
 import saleInvoiceReducer from './features/saleInvoiceSlice';
-import coaOneReducer from './features/coaOneSlice';
-import coaAccountsReducer from './features/coaAccountsSlice';
-import coaTwoReducer from './features/coaTwoSlice';
-import coaThreeReducer from './features/coaThreeSlice';
+import accountsReducer from './features/accountsSlice';
 import purchaseOrderReducer from './features/purchaseOrderSlice';
 import quotationReducer from './features/quotationSlice';
 import salesmanReducer from './features/salesmanSlice';
@@ -46,12 +43,15 @@ import vendorReducer from './features/vendorSlice';
 import vesselReducer from './features/vesselSlice';
 import warehouseReducer from './features/warehouseSlice';
 import auditReducer from './features/auditSlice';
-import CompanySettingReducer from './features/companySetting';
-import SaleReturnReducer from './features/saleReturnSlice';
-import StockReturnReducer from './features/stockReturnSlice';
-import PurchaseReturnReducer from './features/purchaseReturnSlice';
+import companySettingReducer from './features/companySettingSlice';
+import saleReturnReducer from './features/saleReturnSlice';
+import stockReturnReducer from './features/stockReturnSlice';
+import purchaseReturnReducer from './features/purchaseReturnSlice';
 import vendorQuotationReducer from './features/vendorQuotationSlice';
 import vendorChargeOrderReducer from './features/vendorChargeOrderSlice';
+import customerPaymentReducer from './features/customerPaymentSlice'
+import vendorPaymentReducer from './features/vendorPaymentSlice'
+import paymentVoucherReducer from './features/paymentVoucherSlice'
 
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
@@ -89,13 +89,10 @@ const rootReducer = combineReducers({
   purchaseOrder: purchaseOrderReducer,
   purchaseInvoice: purchaseInvoiceReducer,
   saleInvoice: saleInvoiceReducer,
-  coaOne: coaOneReducer,
-  coaAccounts: coaAccountsReducer,
-  coaTwo: coaTwoReducer,
-  coaThree: coaThreeReducer,
-  saleReturn: SaleReturnReducer,
-  stockReturn: StockReturnReducer,
-  purchaseReturn: PurchaseReturnReducer,
+  accounts: accountsReducer,
+  saleReturn: saleReturnReducer,
+  stockReturn: stockReturnReducer,
+  purchaseReturn: purchaseReturnReducer,
   goodsReceivedNote: goodsReceivedNoteReducer,
   openingStock: openingStockReducer,
   quotation: quotationReducer,
@@ -103,9 +100,12 @@ const rootReducer = combineReducers({
   ijo: ijoReducer,
   shipment: shipmentReducer,
   serviceOrder: serviceOrderReducer,
-  CompanySetting: CompanySettingReducer,
+  companySetting: companySettingReducer,
   vendorQuotation: vendorQuotationReducer,
   vendorChargeOrder: vendorChargeOrderReducer,
+  customerPayment: customerPaymentReducer,
+  vendorPayment: vendorPaymentReducer,
+  paymentVoucher: paymentVoucherReducer,
 });
 
 export const store = configureStore({

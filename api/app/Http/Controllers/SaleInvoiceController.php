@@ -31,6 +31,7 @@ class SaleInvoiceController extends Controller
 		$document_identity = $request->input('document_identity', '');
 		$document_date = $request->input('document_date', '');
 		$quotation_no = $request->input('quotation_no', '');
+		$customer_id = $request->input('customer_id', '');
 		$event_id = $request->input('event_id', '');
 		$vessel_id = $request->input('vessel_id', '');
 		$charge_no = $request->input('charge_no', '');
@@ -45,6 +46,7 @@ class SaleInvoiceController extends Controller
 
 		$data = SaleInvoice::LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'sale_invoice.charge_order_id')
 			->LeftJoin('event as e', 'e.event_id', '=', 'co.event_id')
+			->LeftJoin('customer as c', 'c.customer_id', '=', 'co.customer_id')
 			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'co.vessel_id')
 			->LeftJoin('quotation as q', 'q.document_identity', '=', 'co.ref_document_identity')
 			->LeftJoin('sales_team as st', 'st.sales_team_id', '=', 'e.sales_team_id');
@@ -55,6 +57,7 @@ class SaleInvoiceController extends Controller
 		if (!empty($quotation_no)) $data = $data->where('q.document_identity', 'like', "%". $quotation_no."%");
 		if (!empty($vessel_id)) $data = $data->where('co.vessel_id', '=',  $vessel_id);
 		if (!empty($event_id)) $data = $data->where('co.event_id', '=',  $event_id);
+		if (!empty($customer_id)) $data = $data->where('co.customer_id', '=',  $customer_id);
 		if (!empty($charge_no)) $data = $data->where('co.document_identity', 'like', "%". $charge_no."%");
 		if (!empty($status)) $data = $data->where('sale_invoice.status', '=',  $status);
 		if (!empty($document_identity)) $data = $data->where('sale_invoice.document_identity', 'like', '%' . $document_identity . '%');
@@ -73,6 +76,7 @@ class SaleInvoiceController extends Controller
 					->OrWhere('v.name', 'like', '%' . $search . '%')
 					->OrWhere('e.event_code', 'like', '%' . $search . '%')
 					->OrWhere('sale_invoice.status', 'like', '%' . $search . '%')
+					->OrWhere('c.name', 'like', '%' . $search . '%')
 					->OrWhere('st.name', 'like', '%' . $search . '%')
 					->OrWhere('sale_invoice.document_identity', 'like', '%' . $search . '%');
 			});
@@ -85,6 +89,7 @@ class SaleInvoiceController extends Controller
 			"e.event_code",
 			"v.name as vessel_name",
 			"e.sales_team_id",
+			"c.name as customer_name",
 			"st.name as sales_team_name"
 		);
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);

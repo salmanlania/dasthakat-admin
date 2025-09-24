@@ -1,7 +1,7 @@
 import { Avatar, Layout, Menu, Select, Modal } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { BiChevronLeft } from 'react-icons/bi';
-import { FaRegUser, FaRegSave} from 'react-icons/fa';
+import { FaRegUser, FaRegSave, FaExchangeAlt } from 'react-icons/fa';
 import { TbBuildingStore } from 'react-icons/tb';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import { TbReportAnalytics } from 'react-icons/tb';
@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toggleSidebar } from '../../store/features/sidebarSlice';
 import BackupModal from '../Modals/BackupModal';
-import { dbBackup } from '../../store/features/companySetting';
+import { dbBackup } from '../../store/features/companySettingSlice';
 import toast from 'react-hot-toast';
 import useError from '../../hooks/useError';
 
@@ -93,7 +93,6 @@ const Sidebar = () => {
     !permissions?.supplier?.list &&
     !permissions?.agent?.list &&
     !permissions?.commission_agent?.list &&
-    // !permissions?.technician?.list &&
     !permissions?.sales_team?.list &&
     !permissions?.flag?.list &&
     !permissions?.class?.list &&
@@ -122,11 +121,25 @@ const Sidebar = () => {
     !permissions?.job_order?.list;
   !permissions?.service_order?.list;
 
-  const coaPermission =
-    // !permissions?.coa_level1?.list &&
-    // !permissions?.coa_level2?.list &&
-    // !permissions?.coa_level3?.list &&
+  const glSettingPermission =
+    !permissions?.gl_accounts_setting?.gl_update &&
+    !permissions?.gl_inventory_setting?.inventory_update
+
+  const generalLedgerPermission =
+    !permissions?.vendor_payment?.list &&
+    !permissions?.customer_payment?.list &&
+    !permissions?.payment_voucher?.list &&
+    !permissions?.accounts?.list &&
+    glSettingPermission
+
+  const accountsPermission =
+    glSettingPermission &&
     !permissions?.accounts?.list
+
+  const transactionPermission =
+    !permissions?.vendor_payment?.list &&
+    !permissions?.payment_voucher?.list &&
+    !permissions?.customer_payment?.list
 
   const warehousingPermission =
     !permissions?.good_received_note?.list &&
@@ -140,7 +153,9 @@ const Sidebar = () => {
   const accountingPermission =
     !permissions?.purchase_invoice?.list &&
     !permissions?.sale_invoice?.list &&
-    !permissions?.sale_return?.list;
+    !permissions?.sale_return?.list &&
+    !permissions?.gl_accounts_setting?.gl_update &&
+    !permissions?.gl_inventory_setting?.inventory_update
 
   const LogisticsPermission = !permissions?.dispatch?.list;
   const systemPermission = !permissions?.audit?.list;
@@ -217,7 +232,6 @@ const Sidebar = () => {
             {
               key: 'technician',
               label: <Link to="/technician">Technician</Link>,
-              // disabled: !permissions?.technician?.list,
               disabled: !permissions?.sales_team?.list,
             },
             {
@@ -500,23 +514,46 @@ const Sidebar = () => {
       key: 'general ledger',
       label: 'General Ledger',
       icon: <LuClipboardList size={18} />,
-      disabled: coaPermission,
+      disabled: generalLedgerPermission,
       children: [
         {
           key: 'gl setup',
           label: 'GL Setup',
           icon: <MdOutlineAccountTree size={18} />,
-          disabled: coaPermission,
+          disabled: accountsPermission,
           children: [
             {
               key: 'gl module setting',
-              label: 'GL Module Setting',
-              disabled: coaPermission,
+              label: <Link to="/general-ledger/gl-setup/gl-module-setting">GL Module Setting</Link>,
+              disabled: glSettingPermission,
             },
             {
-              key: 'Accounts',
-              label: <Link to="/general-ledger/accounts">Accounts</Link>,
+              key: '/general-ledger/gl-setup/accounts',
+              label: <Link to="/general-ledger/gl-setup/accounts">Accounts</Link>,
               disabled: !permissions?.accounts?.list,
+            },
+          ]
+        },
+        {
+          key: 'transaction',
+          label: 'Transaction',
+          icon: <FaExchangeAlt size={18} />,
+          disabled: transactionPermission,
+          children: [
+            {
+              key: 'general-ledger/transactions/customer-payment',
+              label: <Link to="/general-ledger/transactions/customer-payment">Customer Payment</Link>,
+              disabled: !permissions?.customer_payment?.list,
+            },
+            {
+              key: 'general-ledger/transactions/vendor-payment',
+              label: <Link to="/general-ledger/transactions/vendor-payment">Vendor Payment</Link>,
+              disabled: !permissions?.vendor_payment?.list,
+            },
+            {
+              key: 'general-ledger/transactions/payment-voucher',
+              label: <Link to="/general-ledger/transactions/payment-voucher">Payment Voucher</Link>,
+              disabled: !permissions?.payment_voucher?.list,
             },
           ]
         },

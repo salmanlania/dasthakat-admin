@@ -318,7 +318,7 @@ const VendorSelectionModal = ({ open, onClose }) => {
         ellipsis: true,
         onCell: (_) => ({
           className: `${_.vendors[vendorIndex].rfq_responded ? '!bg-green-300/50' : ''}`,
-          style: { padding: 0, width: '100%' } // <-- Remove padding, set width
+          style: { padding: 0, width: '100%' }
         }),
         render: (_, record, productIndex) => (
           <div style={{ width: '100%' }}>

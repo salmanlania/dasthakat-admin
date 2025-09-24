@@ -51,7 +51,6 @@ const ReturnModal = ({ visible, onClose, data, onRefresh }) => {
             const picklistItem = tableData.find(item => item.picklist_id);
             const picklist_id = picklistItem?.picklist_id || null;
             const status = 'created'
-            // stock
             const stock_return_detail = tableData.map((item) => {
                 const detail = {
                     picklist_detail_id: item.picklist_detail_id,
@@ -61,7 +60,6 @@ const ReturnModal = ({ visible, onClose, data, onRefresh }) => {
                 return detail;
             });
 
-            // purchase
             const purchase_order_id = tableData[0]?.purchase_order_id || null;
             const purchase_return_detail = tableData.map((item) => {
                 const detail = {

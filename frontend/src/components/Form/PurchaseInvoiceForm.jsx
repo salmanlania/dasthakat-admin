@@ -49,8 +49,8 @@ const PurchaseInvoiceForm = ({ mode, onSubmit, onSave }) => {
   let totalQuantity = 0;
 
   purchaseOrderDetails.forEach((detail) => {
-    totalAmount += +detail.amount || 0;
-    totalQuantity += +detail.quantity || 0;
+    totalAmount += +detail?.amount || 0;
+    totalQuantity += +detail?.quantity || 0;
   });
 
   const onFinish = (values) => {
@@ -188,6 +188,7 @@ const PurchaseInvoiceForm = ({ mode, onSubmit, onSave }) => {
       const vendorInvoice = initialFormValues?.vendor_invoice_no
         ? initialFormValues?.vendor_invoice_no
         : '';
+      const freight = initialFormValues?.freight ? parseFloat(initialFormValues.freight) : 0;
       form.setFieldsValue({
         supplier_id: supplierValue,
         ship_via: shipVia,
@@ -201,10 +202,22 @@ const PurchaseInvoiceForm = ({ mode, onSubmit, onSave }) => {
           ? dayjs(initialFormValues.required_date)
           : null
       });
-      setFreightRate(initialFormValues.freight || 0);
-      setNetAmount(initialFormValues.net_amount || 0);
+      setFreightRate(isNaN(freight) ? 0 : freight);
+      setNetAmount(initialFormValues?.net_amount);
     }
   }, [initialFormValues, form, mode]);
+
+  useEffect(() => {
+    const newTotalAmount = purchaseOrderDetails.reduce((sum, item) => {
+      const quantity = parseFloat(item.quantity) || 0;
+      const rate = parseFloat(item.rate) || 0;
+      return sum + quantity * rate;
+    }, 0);
+    const newNetAmount = (isNaN(newTotalAmount) ? 0 : Number(newTotalAmount)) + (isNaN(freightRate) ? 0 : Number(freightRate));
+
+    setNetAmount(newNetAmount);
+  }, [purchaseOrderDetails, freightRate]);
+
 
   const columns = [
     {
@@ -470,8 +483,8 @@ const PurchaseInvoiceForm = ({ mode, onSubmit, onSave }) => {
       initialValues={
         mode === 'edit'
           ? {
-              ...initialFormValues
-            }
+            ...initialFormValues
+          }
           : { document_date: dayjs() }
       }
       scrollToFirstError>
@@ -479,9 +492,8 @@ const PurchaseInvoiceForm = ({ mode, onSubmit, onSave }) => {
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-base font-semibold">
         <span className="text-sm text-gray-500">Purchase Invoice No:</span>
         <span
-          className={`ml-4 text-amber-600 ${
-            mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
-          } rounded px-1`}
+          className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
+            } rounded px-1`}
           onClick={() => {
             if (mode !== 'edit') return;
             navigator.clipboard.writeText(initialFormValues?.document_identity);
@@ -565,15 +577,23 @@ const PurchaseInvoiceForm = ({ mode, onSubmit, onSave }) => {
                   value={freightRate}
                   type="decimal"
                   size="small"
-                  className="w-20"
-                  onChange={(value) => setFreightRate(value)}
+                  className="w-20 text-right"
+                  onChange={(value) => {
+                    // setFreightRate(Number(value))
+                    const parsedValue = value ? parseFloat(value) : freightRate;
+                    setFreightRate(isNaN(parsedValue) ? 0 : parsedValue);
+                  }
+                  }
                   decimalPlaces={2}
                 />
               }
             />
             <DetailSummaryInfo
               title="Net Amount:"
-              value={netAmount > 0 ? netAmount : parseInt(totalAmount) + parseInt(freightRate) || 0}
+              // value={netAmount > 0 ? netAmount : parseInt(totalAmount) + parseInt(freightRate) || 0}
+              // value={parseInt(totalAmount) + parseInt(freightRate) || 0}
+              // value={totalAmount ? parseInt(totalAmount) + parseInt(freightRate) || 0 : netAmount}
+              value={netAmount}
             />
           </Col>
         </Row>

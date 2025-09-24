@@ -94,7 +94,6 @@ const EditSaleReturn = () => {
   };
 
   useEffect(() => {
-    // dispatch(getSaleReturn(id)).unwrap().catch(handleError);
     try {
       dispatch(getSaleReturn(id)).unwrap();
     } catch (error) {

@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\PurchaseOrderDetail;
 use App\Models\QuotationDetail;
 use App\Models\StockLedger;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -42,7 +43,11 @@ class ProductController extends Controller
 			->leftJoin('sub_category as sc', 'sc.sub_category_id', '=', 'product.sub_category_id')
 			->leftJoin('product_type as pt', 'pt.product_type_id', '=', 'product.product_type_id')
 			->leftJoin('unit as u', 'u.unit_id', '=', 'product.unit_id')
-			->leftJoin('brand as b', 'b.brand_id', '=', 'product.brand_id');
+			->leftJoin('brand as b', 'b.brand_id', '=', 'product.brand_id')
+			->leftJoin('accounts as cogs', 'cogs.account_id', '=', 'product.cogs_account_id')
+			->leftJoin('accounts as inv', 'inv.account_id', '=', 'product.inventory_account_id')
+			->leftJoin('accounts as rev', 'rev.account_id', '=', 'product.revenue_account_id')
+			->leftJoin('accounts as adj', 'adj.account_id', '=', 'product.adjustment_account_id');
 		$query->where('product.company_id', '=', $request->company_id);
 		$query->where('product.company_branch_id', '=', $request->company_branch_id);
 
@@ -77,13 +82,17 @@ class ProductController extends Controller
 
 		$query->select(
 			'product.*',
-    		DB::raw("TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM FORMAT(product.sale_price, 2))) AS sale_price"),
+			DB::raw("TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM FORMAT(product.sale_price, 2))) AS sale_price"),
 			"pt.name as product_type_name",
 			'c.name as category_name',
 			'sc.name as sub_category_name',
 			'b.name as brand_name',
 			'u.name as unit_name',
-			DB::raw("CONCAT(product.impa_code, ' ', product.name) as product_name")
+			DB::raw("CONCAT(product.impa_code, ' ', product.name) as product_name"),
+			'cogs.name as cogs_account_name',
+			'inv.name as inventory_account_name',
+			'rev.name as revenue_account_name',
+			'adj.name as adjustment_account_name'
 		);
 
 		$query->orderBy($sort_column, $sort_direction);
@@ -105,14 +114,29 @@ class ProductController extends Controller
 	public function show($id, Request $request)
 	{
 		$product = Product::leftJoin('category as c', 'c.category_id', '=', 'product.category_id')
-			->LeftJoin('sub_category as sc', 'sc.sub_category_id', '=', 'product.sub_category_id')
-			->LeftJoin('unit as u', 'u.unit_id', '=', 'product.unit_id')
-			->LeftJoin('product_type as pt', 'pt.product_type_id', '=', 'product.product_type_id')
-			->LeftJoin('brand as b', 'b.brand_id', '=', 'product.brand_id');
+			->leftJoin('sub_category as sc', 'sc.sub_category_id', '=', 'product.sub_category_id')
+			->leftJoin('unit as u', 'u.unit_id', '=', 'product.unit_id')
+			->leftJoin('product_type as pt', 'pt.product_type_id', '=', 'product.product_type_id')
+			->leftJoin('brand as b', 'b.brand_id', '=', 'product.brand_id')
+			->leftJoin('accounts as cogs', 'cogs.account_id', '=', 'product.cogs_account_id')
+			->leftJoin('accounts as inv', 'inv.account_id', '=', 'product.inventory_account_id')
+			->leftJoin('accounts as rev', 'rev.account_id', '=', 'product.revenue_account_id')
+			->leftJoin('accounts as adj', 'adj.account_id', '=', 'product.adjustment_account_id');
 
 		$product = $product->where('product.product_id', $id);
-		$product = $product->select('product.*',
-		 'pt.product_type_id', 'pt.name as product_type_name', 'c.name as category_name', 'sc.name as sub_category_name', 'b.name as brand_name', 'u.name as unit_name')->first();
+		$product = $product->select(
+			'product.*',
+			'pt.product_type_id',
+			'pt.name as product_type_name',
+			'c.name as category_name',
+			'sc.name as sub_category_name',
+			'b.name as brand_name',
+			'u.name as unit_name',
+			'cogs.name as cogs_account_name',
+			'inv.name as inventory_account_name',
+			'rev.name as revenue_account_name',
+			'adj.name as adjustment_account_name'
+		)->first();
 		$product['image_url']  = !empty($product['image']) ?  url('public/uploads/' . $product['image']) : '';
 
 		$data = StockLedger::Check($product, $request->all());
@@ -125,12 +149,25 @@ class ProductController extends Controller
 		$product = Product::leftJoin('category as c', 'c.category_id', '=', 'product.category_id')
 			->LeftJoin('sub_category as sc', 'sc.sub_category_id', '=', 'product.sub_category_id')
 			->LeftJoin('unit as u', 'u.unit_id', '=', 'product.unit_id')
-			->LeftJoin('brand as b', 'b.brand_id', '=', 'product.brand_id');
+			->LeftJoin('brand as b', 'b.brand_id', '=', 'product.brand_id')
+			->leftJoin('accounts as cogs', 'cogs.account_id', '=', 'product.cogs_account_id')
+			->leftJoin('accounts as inv', 'inv.account_id', '=', 'product.inventory_account_id')
+			->leftJoin('accounts as rev', 'rev.account_id', '=', 'product.revenue_account_id')
+			->leftJoin('accounts as adj', 'adj.account_id', '=', 'product.adjustment_account_id');
 
 		$product = $product->where('product.product_code', $code);
-		$product = $product->select('product.*',
-    		DB::raw("TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM FORMAT(product.sale_price, 2))) AS sale_price"),
-		 'c.name as category_name', 'sc.name as sub_category_name', 'b.name as brand_name', 'u.name as unit_name')->first();
+		$product = $product->select(
+			'product.*',
+			DB::raw("TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM FORMAT(product.sale_price, 2))) AS sale_price"),
+			'c.name as category_name',
+			'sc.name as sub_category_name',
+			'b.name as brand_name',
+			'u.name as unit_name',
+			'cogs.name as cogs_account_name',
+			'inv.name as inventory_account_name',
+			'rev.name as revenue_account_name',
+			'adj.name as adjustment_account_name'
+		)->first();
 		$product['image_url']  = !empty($product['image']) ?  url('public/uploads/' . $product['image']) : '';
 		return $this->jsonResponse($product, 200, "Product Data");
 	}
@@ -185,6 +222,10 @@ class ProductController extends Controller
 			'unit_id' => $request->unit_id ?? "",
 			'cost_price' => $request->cost_price ?? "",
 			'sale_price' => $request->sale_price ?? "",
+			'cogs_account_id' => $request->cogs_account_id ?? "",
+			'inventory_account_id' => $request->inventory_account_id ?? "",
+			'revenue_account_id' => $request->revenue_account_id ?? "",
+			'adjustment_account_id' => $request->adjustment_account_id ?? "",
 			'status' => $request->status,
 			'created_at' => date('Y-m-d H:i:s'),
 			'created_by' => $request->login_user_id,
@@ -228,8 +269,12 @@ class ProductController extends Controller
 		$product->brand_id  = $request->brand_id ?? "";
 		$product->cost_price  = $request->cost_price ?? "";
 		$product->sale_price  = $request->sale_price ?? "";
+		$product->cogs_account_id = $request->cogs_account_id ?? "";
+		$product->inventory_account_id = $request->inventory_account_id ?? "";
+		$product->revenue_account_id = $request->revenue_account_id ?? "";
+		$product->adjustment_account_id = $request->adjustment_account_id ?? "";
 		$product->status  = $request->status ?? "";
-		$product->updated_at  = date('Y-m-d H:i:s');
+		$product->updated_at  = Carbon::now();
 		$product->updated_by  = $request->login_user_id ?? "";
 
 		if (deleteFile($request->delete_image)) {

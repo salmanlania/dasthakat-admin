@@ -72,13 +72,6 @@ const Session = () => {
     company_branch_id: companies[0]?.branches[0]?.value,
   };
 
-  // const initialFormValues = {
-  //   company_id: companies?.length ? companies[0].value : null,
-  //   company_branch_id: companies?.length && companies[0].branches?.length
-  //     ? companies[0].branches[0].value
-  //     : null,
-  // };
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-neutral-50">
       <div className="mx-2 w-[450px] rounded-md border border-gray-300 bg-white px-4 py-6 sm:px-12">

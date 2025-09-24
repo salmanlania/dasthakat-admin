@@ -130,7 +130,7 @@ const VendorQuotationForm = () => {
       render: (_, record) => {
         const cost = parseFloat(record.cost_price) || 0;
         const discount = parseFloat(record.discount_percent) || 0;
-        const net = cost - discount// ((cost * discount)) // / 100);
+        const net = cost - discount
         return formatThreeDigitCommas(roundUpto(net));
       }
     },
@@ -291,7 +291,6 @@ const VendorQuotationForm = () => {
                 rowKey={'id'}
                 size="small"
                 style={{ marginTop: '10px', backgroundColor: '#fff', border: '1px solid #d9d9d9', borderRadius: '10px !important' }}
-                // rowClassName={(record, index) => index % 2 === 0 ? 'even-row' : 'odd-row'}
                 rowClassName={(record, index) => {
                   if (record.is_deleted) return 'disabled-row';
                   return index % 2 === 0 ? 'even-row' : 'odd-row';

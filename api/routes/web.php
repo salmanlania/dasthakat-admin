@@ -38,6 +38,9 @@ $router->group(['prefix' => 'auth'], function ($router) {
    $router->post('/logout', 'AuthController@logout');
    $router->post('/reset-password', 'AuthController@forgotPassword');
 });
+$router->group(['prefix' => 'ledger'], function ($router) {
+   $router->get('/document-ledger', 'LedgerController@getDocumentLedger');
+});
 
 $router->group(['prefix' => 'audit'], function ($router) {
    $router->get('/', 'AuditController@index');
@@ -47,6 +50,7 @@ $router->group(['prefix' => 'audit'], function ($router) {
 $router->group(['prefix' => 'setting'], function ($router) {
    $router->put('/', 'SettingController@update');
    $router->get('/', 'SettingController@show');
+   $router->get('/default-accounts', 'SettingController@getDefaultAccounts');
    $router->get('dbbackup/', 'SettingController@DBBackup');
    $router->get('/test-mail', 'SettingController@EmailDubugging');
 });
@@ -89,6 +93,7 @@ $router->group(['prefix' => 'company-branch'], function ($router) {
 
 $router->group(['prefix' => 'customer'], function ($router) {
    $router->get('/', 'CustomerController@index');
+   $router->get('/{id}/ledger-invoices', 'CustomerController@getLedgerInvoices');
    $router->get('/{id}', 'CustomerController@show');
    $router->post('/', 'CustomerController@store');
    $router->put('/{id}', 'CustomerController@update');
@@ -99,6 +104,7 @@ $router->group(['prefix' => 'customer'], function ($router) {
 
 $router->group(['prefix' => 'supplier'], function ($router) {
    $router->get('/', 'SupplierController@index');
+   $router->get('/{id}/ledger-invoices', 'SupplierController@getLedgerInvoices');
    $router->get('/{id}', 'SupplierController@show');
    $router->post('/', 'SupplierController@store');
    $router->put('/{id}', 'SupplierController@update');
@@ -489,15 +495,43 @@ $router->group(['prefix' => 'vendor-platform/charge-order'], function ($router) 
 // Accounts routes
 $router->group(['prefix' => 'accounts'], function ($router) {
     $router->get('/', 'AccountsController@index');
-
+    $router->get('/account/heads', 'AccountsController@getAccountHeads');
     $router->get('/account/tree', 'AccountsController@getAccountsTree');
-
     $router->post('/', 'AccountsController@store');
     $router->post('/bulk-delete', 'AccountsController@bulkDelete');
-
     $router->get('/{id}', 'AccountsController@show');
     $router->put('/{id}', 'AccountsController@update');
     $router->delete('/{id}', 'AccountsController@delete');
+});
+
+// customer payment routes
+$router->group(['prefix' => 'customer-payment'], function ($router) {
+    $router->get('/', 'CustomerPaymentController@index');
+    $router->post('/', 'CustomerPaymentController@store');
+    $router->post('/bulk-delete', 'CustomerPaymentController@bulkDelete');
+    $router->get('/{id}', 'CustomerPaymentController@show');
+    $router->put('/{id}', 'CustomerPaymentController@update');
+    $router->delete('/{id}', 'CustomerPaymentController@delete');
+});
+
+// vendor payment routes
+$router->group(['prefix' => 'vendor-payment'], function ($router) {
+    $router->get('/', 'VendorPaymentController@index');
+    $router->post('/', 'VendorPaymentController@store');
+    $router->post('/bulk-delete', 'VendorPaymentController@bulkDelete');
+    $router->get('/{id}', 'VendorPaymentController@show');
+    $router->put('/{id}', 'VendorPaymentController@update');
+    $router->delete('/{id}', 'VendorPaymentController@delete');
+});
+
+// Accounts routes
+$router->group(['prefix' => 'payment-voucher'], function ($router) {
+    $router->get('/', 'PaymentVoucherController@index');
+    $router->post('/', 'PaymentVoucherController@store');
+    $router->post('/bulk-delete', 'PaymentVoucherController@bulkDelete');
+    $router->get('/{id}', 'PaymentVoucherController@show');
+    $router->put('/{id}', 'PaymentVoucherController@update');
+    $router->delete('/{id}', 'PaymentVoucherController@delete');
 });
 
 // COA Level1 routes

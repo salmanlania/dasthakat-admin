@@ -20,9 +20,6 @@ const DebouncedNumberInputMarkup = ({
   delay = 500,
   ...restProps
 }) => {
-  // const isFirstRender = useRef(true);
-  // const [inputValue, setInputValue] = useState(value || value === 0 ? value.toString() : '');
-  // const debouncedValue = useDebounce(inputValue, delay);
 
   const [inputValue, setInputValue] = useState(value)
 
@@ -35,21 +32,9 @@ const DebouncedNumberInputMarkup = ({
       rawValue = rawValue.replace(/[^0-9.]/g, '');
       rawValue = rawValue.replace(/^(\d*\.\d*)\./, '$1');
     }
-
-    // if (onChange) {
-      setInputValue(rawValue);
-    // }
+    setInputValue(rawValue);
   };
 
-  // useEffect(() => {
-  //   if (isFirstRender.current) {
-  //     isFirstRender.current = false;
-  //     return;
-  //   }
-
-  //   onChange(debouncedValue);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [debouncedValue]);
 
   useEffect(() => {
     if (value !== inputValue) {
@@ -58,17 +43,14 @@ const DebouncedNumberInputMarkup = ({
 
   }, [value])
 
-  // useEffect(() => {
-  //   setInputValue(value);
-  // }, [value]);
-
   return (
     <Input
       {...restProps}
       value={inputValue}
       onChange={handleInputChange}
-      onBlur={() => { 
-        onChange(inputValue) }}
+      onBlur={() => {
+        onChange(inputValue)
+      }}
     />
   );
 };

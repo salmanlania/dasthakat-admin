@@ -44,6 +44,7 @@ class Customer extends Model implements AuthenticatableContract, AuthorizableCon
         'vessel_id',
         'payment_id',
         'rebate_percent',
+        'outstanding_account_id',
         'status',
         'created_by',
         'updated_by',
@@ -64,11 +65,16 @@ class Customer extends Model implements AuthenticatableContract, AuthorizableCon
     {
         return $this->hasOne(Payment::class, 'payment_id', 'payment_id')->select('payment_id', 'name');
     }
-    public function customer_commission_agent(){
+    public function customer_commission_agent()
+    {
         return $this->hasMany(CustomerCommissionAgent::class, 'customer_id', 'customer_id')->select('*');
     }
     public function salesman()
     {
         return $this->hasOne(Salesman::class, 'salesman_id', 'salesman_id')->select('salesman_id', 'name');
+    }
+    public function outstanding_account()
+    {
+        return $this->hasOne(Accounts::class, 'account_id', 'outstanding_account_id')->select('*');
     }
 }

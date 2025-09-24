@@ -150,21 +150,24 @@ const BidResponseReport = lazy(() => import('./pages/BidResponseReport'));
 
 //ledger
 
-const CoaLevel = lazy(() => import('./pages/GeneralLedger/CoaLevel'));
-const CreateCoaLevel = lazy(() => import('./pages/GeneralLedger/CoaLevel/CreateCoaLevel'));
-const EditCoaLevel = lazy(() => import('./pages/GeneralLedger/CoaLevel/EditCoaLevel'));
+const Accounts = lazy(() => import('./pages/GeneralLedger/Accounts'));
+const CreateAccounts = lazy(() => import('./pages/GeneralLedger/Accounts/CreateAccounts'));
+const EditAccounts = lazy(() => import('./pages/GeneralLedger/Accounts/EditAccounts'));
 
-const CoaLevelOne = lazy(() => import('./pages/GeneralLedger/CoaLevelOne'));
-const CreateCoaLevelOne = lazy(() => import('./pages/GeneralLedger/CoaLevelOne/CreateCoaLevelOne'));
-const EditCoaLevelOne = lazy(() => import('./pages/GeneralLedger/CoaLevelOne/EditCoaLevelOne'));
+const ModuleSetting = lazy(() => import('./pages/GeneralLedger/ModulesSetting'));
 
-const CoaLevelTwo = lazy(() => import('./pages/GeneralLedger/CoaLevelTwo'));
-const CreateCoaLevelTwo = lazy(() => import('./pages/GeneralLedger/CoaLevelTwo/CreateCoaLevelTwo'));
-const EditCoaLevelTwo = lazy(() => import('./pages/GeneralLedger/CoaLevelTwo/EditCoaLevelTwo'));
 
-const CoaLevelThree = lazy(() => import('./pages/GeneralLedger/CoaLevelThree'));
-const CreateCoaLevelThree = lazy(() => import('./pages/GeneralLedger/CoaLevelThree/CreateCoaLevelThree'));
-const EditCoaLevelThree = lazy(() => import('./pages/GeneralLedger/CoaLevelThree/EditCoaLevelThree'));
+const CustomerPayment = lazy(() => import('./pages/CustomerPayment'));
+const CreateCustomerPayment = lazy(() => import('./pages/CustomerPayment/CreateCustomerPayment'));
+const EditCustomerPayment = lazy(() => import('./pages/CustomerPayment/EditCustomerPayment'));
+
+const VendorPayment = lazy(() => import('./pages/VendorPayment'));
+const CreateVendorPayment = lazy(() => import('./pages/VendorPayment/CreateVendorPayment'));
+const EditVendorPayment = lazy(() => import('./pages/VendorPayment/EditVendorPayment'));
+
+const VoucherPayment = lazy(() => import('./pages/PaymentVoucher'));
+const CreateVoucherPayment = lazy(() => import('./pages/PaymentVoucher/CreatePaymentVoucher'));
+const EditVoucherPayment = lazy(() => import('./pages/PaymentVoucher/EditPaymentVoucher'));
 
 function Routes() {
   const router = createBrowserRouter(
@@ -972,104 +975,119 @@ function Routes() {
             path: '/general-ledger',
             children: [
               {
-                path: 'accounts',
-                element: (
-                  <Suspense fallback={<PageLoader />}>
-                    <CoaLevel />
-                  </Suspense>
-                ),
+                path: 'gl-setup',
+                children: [
+                  {
+                    path: 'accounts',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <Accounts />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'accounts/create',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <CreateAccounts />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'accounts/edit/:id',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <EditAccounts />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'gl-module-setting',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <ModuleSetting />
+                      </Suspense>
+                    ),
+                  },
+                ]
               },
               {
-                path: 'accounts/create',
-                element: (
-                  <Suspense fallback={<PageLoader />}>
-                    <CreateCoaLevel />
-                  </Suspense>
-                ),
+                path: 'transactions',
+                children: [
+                  {
+                    path: 'customer-payment',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <CustomerPayment />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'customer-payment/create',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <CreateCustomerPayment />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'customer-payment/edit/:id',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <EditCustomerPayment />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'vendor-payment',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <VendorPayment />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'vendor-payment/create',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <CreateVendorPayment />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'vendor-payment/edit/:id',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <EditVendorPayment />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'payment-voucher',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <VoucherPayment />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'payment-voucher/create',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <CreateVoucherPayment />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'payment-voucher/edit/:id',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <EditVoucherPayment />
+                      </Suspense>
+                    ),
+                  },
+                ]
               },
-              {
-                path: 'accounts/edit/:id',
-                element: (
-                  <Suspense fallback={<PageLoader />}>
-                    <EditCoaLevel />
-                  </Suspense>
-                ),
-              },
-              // level 1
-              // {
-              //   path: 'coa/level1',
-              //   element: (
-              //     <Suspense fallback={<PageLoader />}>
-              //       <CoaLevelOne />
-              //     </Suspense>
-              //   ),
-              // },
-              // {
-              //   path: 'coa/level1/create',
-              //   element: (
-              //     <Suspense fallback={<PageLoader />}>
-              //       <CreateCoaLevelOne />
-              //     </Suspense>
-              //   ),
-              // },
-              // {
-              //   path: 'coa/level1/edit/:id',
-              //   element: (
-              //     <Suspense fallback={<PageLoader />}>
-              //       <EditCoaLevelOne />
-              //     </Suspense>
-              //   ),
-              // },
-              // // level 2
-              // {
-              //   path: 'coa/level2',
-              //   element: (
-              //     <Suspense fallback={<PageLoader />}>
-              //       <CoaLevelTwo />
-              //     </Suspense>
-              //   ),
-              // },
-              // {
-              //   path: 'coa/level2/create',
-              //   element: (
-              //     <Suspense fallback={<PageLoader />}>
-              //       <CreateCoaLevelTwo />
-              //     </Suspense>
-              //   ),
-              // },
-              // {
-              //   path: 'coa/level2/edit/:id',
-              //   element: (
-              //     <Suspense fallback={<PageLoader />}>
-              //       <EditCoaLevelTwo />
-              //     </Suspense>
-              //   ),
-              // },
-              // // level 3
-              // {
-              //   path: 'coa/level3',
-              //   element: (
-              //     <Suspense fallback={<PageLoader />}>
-              //       <CoaLevelThree />
-              //     </Suspense>
-              //   ),
-              // },
-              // {
-              //   path: 'coa/level3/create',
-              //   element: (
-              //     <Suspense fallback={<PageLoader />}>
-              //       <CreateCoaLevelThree />
-              //     </Suspense>
-              //   ),
-              // },
-              // {
-              //   path: 'coa/level3/edit/:id',
-              //   element: (
-              //     <Suspense fallback={<PageLoader />}>
-              //       <EditCoaLevelThree />
-              //     </Suspense>
-              //   ),
-              // },
             ]
           },
         ],
