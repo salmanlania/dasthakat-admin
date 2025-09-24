@@ -101,6 +101,30 @@ const CustomerPayment = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
+          <p>Document No</p>
+          <div onClick={(e) => e.stopPropagation()}>
+            <Input
+              className="font-normal"
+              size="small"
+              allowClear
+              onClick={(e) => e.stopPropagation()}
+              value={params.document_identity}
+              onChange={(e) => {
+                dispatch(setCustomerPaymentListParams({ document_identity: e.target.value }));
+              }}
+            />
+          </div>
+        </div>
+      ),
+      dataIndex: 'document_identity',
+      key: 'document_identity',
+      sorter: true,
+      width: 150,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Customer</p>
           <AsyncSelect
             endpoint="/customer"
@@ -188,7 +212,7 @@ const CustomerPayment = () => {
                   okText="Yes"
                   cancelText="No"
                   onConfirm={() => onQuotationDelete(customer_payment_id)}
-                  >
+                >
                   <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                 </Popconfirm>
               </Tooltip>
