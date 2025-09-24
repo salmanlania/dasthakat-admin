@@ -202,7 +202,6 @@ const PurchaseInvoiceForm = ({ mode, onSubmit, onSave }) => {
           ? dayjs(initialFormValues.required_date)
           : null
       });
-      // setFreightRate(Number(initialFormValues?.freight || 0));
       setFreightRate(isNaN(freight) ? 0 : freight);
       setNetAmount(initialFormValues?.net_amount);
     }
@@ -214,16 +213,10 @@ const PurchaseInvoiceForm = ({ mode, onSubmit, onSave }) => {
       const rate = parseFloat(item.rate) || 0;
       return sum + quantity * rate;
     }, 0);
-    const freight = initialFormValues?.freight != null ? parseFloat(initialFormValues?.freight) : 0;
-    // setFreightRate(isNaN(freight) ? 0 : freight);
-
-    // const newNetAmount = parseInt(newTotalAmount) + parseInt(freightRate) || 0;
-    // const newNetAmount = (parseInt(newTotalAmount) + parseInt(freightRate)) || 0;
-    // const newNetAmount = (isNaN(newTotalAmount) ? 0 : newTotalAmount) + (isNaN(freightRate) ? 0 : freightRate);
-    const newNetAmount = (isNaN(newTotalAmount) ? 0 : Number(newTotalAmount)) + (isNaN(freight) ? 0 : Number(freight));
+    const newNetAmount = (isNaN(newTotalAmount) ? 0 : Number(newTotalAmount)) + (isNaN(freightRate) ? 0 : Number(freightRate));
 
     setNetAmount(newNetAmount);
-  }, [purchaseOrderDetails, initialFormValues]);
+  }, [purchaseOrderDetails, freightRate]);
 
 
   const columns = [
