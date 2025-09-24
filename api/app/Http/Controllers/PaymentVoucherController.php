@@ -145,34 +145,7 @@ class PaymentVoucherController extends Controller
             ];
             PaymentVoucher::create($data);
 
-            Ledger::create([
-                'ledger_id' => $this->get_uuid(),
-                'company_id' => $request->company_id,
-                'company_branch_id' => $request->company_branch_id,
-                'document_type_id' => $this->document_type_id,
-                'document_id' => $uuid ?? "",
-                'document_detail_id' => "",
-                'document_identity' => $document['document_identity'] ?? "",
-                'document_date' => $request->document_date ?? "",
-                'sort_order' => 0,
-                'partner_type' => '',
-                'partner_id' => '',
-                'ref_document_type_id' => "",
-                'ref_document_identity' => "",
-                'account_id' => $request->transaction_account_id ?? "",
-                'remarks' => '',
-                'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
-                'document_debit' => 0,
-                'document_credit' => $request->total_amount ?? "",
-                'base_currency_id' => $base_currency_id,
-                'conversion_rate' => $conversion_rate,
-                'debit' => 0,
-                'credit' => ($request->total_amount ?? 0) * $conversion_rate,
-                'document_amount' => $request->total_amount ?? "",
-                'amount' => ($request->total_amount ?? 0) * $conversion_rate,
-                'created_at' => Carbon::now(),
-                'created_by_id' => $request->login_user_id,
-            ]);
+
 
             if ($request->details) {
                 foreach ($request->details as $key => $value) {
@@ -197,37 +170,66 @@ class PaymentVoucherController extends Controller
                     PaymentVoucherDetail::create($data);
 
                     if ((float)$value['payment_amount'] > 0)
+
+
                         Ledger::create([
                             'ledger_id' => $this->get_uuid(),
                             'company_id' => $request->company_id,
                             'company_branch_id' => $request->company_branch_id,
                             'document_type_id' => $this->document_type_id,
-                            'document_id' => $uuid,
-                            'document_detail_id' => $detail_uuid,
+                            'document_id' => $uuid ?? "",
+                            'document_detail_id' => "",
                             'document_identity' => $document['document_identity'] ?? "",
-                            'document_date' => $value['ledger_date'] ?? $request->document_date,
-                            'sort_order' => $value['sort_order'] ?? "",
+                            'document_date' => $value['ledger_date'] ?? "",
+                            'sort_order' => 0,
                             'partner_type' => '',
                             'partner_id' => '',
                             'ref_document_type_id' => "",
                             'ref_document_identity' => "",
-                            'account_id' => $value['account_id'] ?? "",
+                            'account_id' => $request->transaction_account_id ?? "",
                             'remarks' => '',
                             'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
-                            'document_debit' => $request->payment_amount ?? "",
-                            'document_credit' => 0,
+                            'document_debit' => 0,
+                            'document_credit' => $value['payment_amount'] ?? "",
                             'base_currency_id' => $base_currency_id,
                             'conversion_rate' => $conversion_rate,
-                            'debit' => ($request->payment_amount ?? 0) * $conversion_rate,
-                            'credit' => 0,
-                            'document_amount' => $request->payment_amount ?? "",
-                            'amount' => ($request->payment_amount ?? 0) * $conversion_rate,
+                            'debit' => 0,
+                            'credit' => ($value['payment_amount'] ?? 0) * $conversion_rate,
+                            'document_amount' => $value['payment_amount'] ?? "",
+                            'amount' => ($value['payment_amount'] ?? 0) * $conversion_rate,
                             'created_at' => Carbon::now(),
                             'created_by_id' => $request->login_user_id,
-                            'cheque_no' => $value['cheque_no'] ?? "",
-                            'cheque_date' => $value['cheque_date'] ?? "",
                         ]);
-
+                    Ledger::create([
+                        'ledger_id' => $this->get_uuid(),
+                        'company_id' => $request->company_id,
+                        'company_branch_id' => $request->company_branch_id,
+                        'document_type_id' => $this->document_type_id,
+                        'document_id' => $uuid,
+                        'document_detail_id' => $detail_uuid,
+                        'document_identity' => $document['document_identity'] ?? "",
+                        'document_date' => $value['ledger_date'] ?? $request->document_date,
+                        'sort_order' => $value['sort_order'] ?? "",
+                        'partner_type' => '',
+                        'partner_id' => '',
+                        'ref_document_type_id' => "",
+                        'ref_document_identity' => "",
+                        'account_id' => $value['account_id'] ?? "",
+                        'remarks' => '',
+                        'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
+                        'document_debit' => $request->payment_amount ?? "",
+                        'document_credit' => 0,
+                        'base_currency_id' => $base_currency_id,
+                        'conversion_rate' => $conversion_rate,
+                        'debit' => ($request->payment_amount ?? 0) * $conversion_rate,
+                        'credit' => 0,
+                        'document_amount' => $request->payment_amount ?? "",
+                        'amount' => ($request->payment_amount ?? 0) * $conversion_rate,
+                        'created_at' => Carbon::now(),
+                        'created_by_id' => $request->login_user_id,
+                        'cheque_no' => $value['cheque_no'] ?? "",
+                        'cheque_date' => $value['cheque_date'] ?? "",
+                    ]);
                     // if ((float)$value['tax_amount'] > 0)
                     //     Ledger::create([
                     //         'ledger_id' => $this->get_uuid(),
@@ -307,36 +309,6 @@ class PaymentVoucherController extends Controller
                 ->where('document_type_id', $this->document_type_id)
                 ->delete();
 
-            Ledger::create([
-                'ledger_id' => $this->get_uuid(),
-                'company_id' => $request->company_id,
-                'company_branch_id' => $request->company_branch_id,
-                'document_type_id' => $this->document_type_id,
-                'document_id' => $id,
-                'document_detail_id' => "",
-                'document_identity' => $request->document_identity ?? "",
-                'document_date' => $request->document_date ?? "",
-                'sort_order' => 0,
-                'partner_type' => '',
-                'partner_id' => '',
-                'ref_document_type_id' => "",
-                'ref_document_identity' => "",
-                'account_id' => $request->transaction_account_id ?? "",
-                'remarks' => '',
-                'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
-                'document_debit' => 0,
-                'document_credit' => $request->total_amount ?? "",
-                'base_currency_id' => $base_currency_id,
-                'conversion_rate' => $conversion_rate,
-                'debit' => 0,
-                'credit' => ($request->total_amount ?? 0) * $conversion_rate,
-                'document_amount' => $request->total_amount ?? "",
-                'amount' => ($request->total_amount ?? 0) * $conversion_rate,
-                'created_at' => Carbon::now(),
-                'created_by_id' => $request->login_user_id,
-            ]);
-
-
             if ($request->details) {
                 foreach ($request->details as $value) {
                     $detail_uuid = null;
@@ -383,6 +355,35 @@ class PaymentVoucherController extends Controller
 
                     if ($value['row_status'] != 'D')
                         if ((float)$value['payment_amount'] > 0)
+
+                            Ledger::create([
+                                'ledger_id' => $this->get_uuid(),
+                                'company_id' => $request->company_id,
+                                'company_branch_id' => $request->company_branch_id,
+                                'document_type_id' => $this->document_type_id,
+                                'document_id' => $id,
+                                'document_detail_id' => "",
+                                'document_identity' => $request->document_identity ?? "",
+                                'document_date' => $value['ledger_date'] ?? "",
+                                'sort_order' => 0,
+                                'partner_type' => '',
+                                'partner_id' => '',
+                                'ref_document_type_id' => "",
+                                'ref_document_identity' => "",
+                                'account_id' => $request->transaction_account_id ?? "",
+                                'remarks' => '',
+                                'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
+                                'document_debit' => 0,
+                                'document_credit' => $value['payment_amount'] ?? "",
+                                'base_currency_id' => $base_currency_id,
+                                'conversion_rate' => $conversion_rate,
+                                'debit' => 0,
+                                'credit' => ($value['payment_amount'] ?? 0) * $conversion_rate,
+                                'document_amount' => $value['payment_amount'] ?? "",
+                                'amount' => ($value['payment_amount'] ?? 0) * $conversion_rate,
+                                'created_at' => Carbon::now(),
+                                'created_by_id' => $request->login_user_id,
+                            ]);
                             Ledger::create([
                                 'ledger_id' => $this->get_uuid(),
                                 'company_id' => $request->company_id,
