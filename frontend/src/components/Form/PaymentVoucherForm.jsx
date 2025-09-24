@@ -160,6 +160,25 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
       ),
     },
     {
+      title: "Transaction Date",
+      dataIndex: "ledger_date",
+      key: "ledger_date",
+      render: (val, record) => (
+        <DatePicker
+          value={val ? dayjs(val) : null}
+          format="MM-DD-YYYY"
+          onChange={(date) => {
+            dispatch(updatePaymentVoucherDetail({
+              id: record.id,
+              field: "ledger_date",
+              value: date ? date.format("YYYY-MM-DD") : null,
+            }));
+          }}
+          style={{ width: "100%" }}
+        />
+      ),
+    },
+    {
       title: "Cheque No",
       dataIndex: "cheque_no",
       key: "cheque_no",

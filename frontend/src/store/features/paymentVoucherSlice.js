@@ -157,6 +157,7 @@ export const paymentVoucherSlice = createSlice({
         document_no: null,
         account_id: null,
         cheque_date: null,
+        ledger_date: null,
         cheque_no: null,
         payment_amount: 0,
         net_amount: 0,
@@ -310,6 +311,7 @@ export const paymentVoucherSlice = createSlice({
           }
           : null,
         cheque_date: detail?.cheque_date ? dayjs(detail?.cheque_date) : null,
+        ledger_date: detail?.ledger_date ? dayjs(detail?.ledger_date) : null,
         cheque_no: detail?.cheque_no ? detail?.cheque_no : null,
         payment_amount: detail?.payment_amount ? detail?.payment_amount : null,
         row_status: 'U',
