@@ -169,7 +169,7 @@ class CustomerPaymentController extends Controller
                 'partner_id' => $request->customer_id,
                 'ref_document_type_id' => "",
                 'ref_document_identity' => "",
-                'account_id' => $outstanding_account_id,
+                'account_id' => $transaction_account_id,
                 'remarks' => '',
                 'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
                 'document_debit' => $request->payment_amount ?? "",
