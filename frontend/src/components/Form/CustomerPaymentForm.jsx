@@ -10,6 +10,7 @@ import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
 import DebouncedCommaSeparatedInputRate from '../Input/DebouncedCommaSeparatedInputRate';
+import LedgerModal from '../Modals/LedgerModal';
 
 const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
@@ -39,10 +40,13 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [settledAmounts, setSettledAmounts] = useState({});
+  const [ledgerModalOpen, setLedgerModalOpen] = useState(false);
 
   const onFinish = (values) => {
-    const paymentAmount = parseInt(values?.payment_amount ? values?.payment_amount : null)
-    if (totalSettled != paymentAmount) return toast.error('Total amount must be equal to amount due');
+    const normalize = (num) => Number(parseFloat(num).toFixed(2));
+    const paymentAmount = normalize(values?.payment_amount ? values?.payment_amount : null)
+    const settledAmount = normalize(totalSettled);
+    if (settledAmount != paymentAmount) return toast.error('Total amount must be equal to amount due');
 
     const formatDate = (date) => (date ? dayjs(date).format('YYYY-MM-DD') : null);
 
@@ -50,7 +54,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       ...values,
       customer_id: values?.customer_id?.value ? values?.customer_id?.value : values?.customer_id?.key ? values?.customer_id?.key : null,
       total_amount: totalSettled ? totalSettled : totalAmountVal,
-      payment_amount: parseInt(values?.payment_amount ? values?.payment_amount : null),
+      payment_amount: paymentAmount,
       document_date: formatDate(values.document_date),
       details:
         mode === 'edit' ?
@@ -80,6 +84,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
             row_status: row?.row_status
           }))
     };
+    // return 
 
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
@@ -88,7 +93,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
     const rawValue = typeof value === "string" ? value : String(value ?? "0");
     const settledAmount = parseFloat(rawValue.replace(/,/g, "")) || 0
 
-    if (settledAmount > (record?.balance_amount || 0)) {
+    if (settledAmount > (Number(record?.balance_amount || 0))) {
       toast.error("Settled amount cannot be greater than Balance Amount");
       return;
     }
@@ -121,7 +126,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
 
     if (total && total !== receiptAmount) {
       form.setFieldsValue({
-        payment_amount: total,
+        payment_amount: Number(total).toFixed(2),
       });
     }
 
@@ -132,7 +137,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       const customerId = initialFormValues?.customer_id || '';
       const documentDate = initialFormValues?.document_date ? dayjs(initialFormValues?.document_date) : null;
       const amount = initialFormValues?.total_amount ? initialFormValues?.total_amount : 0
-      const paymentAmount = initialFormValues?.payment_amount ? Number(initialFormValues?.payment_amount).toFixed(2) : null
+      const paymentAmount = initialFormValues?.payment_amount ? initialFormValues?.payment_amount : null
       const remarks = initialFormValues?.remarks ? initialFormValues?.remarks : null
       setTotalAmountVal(amount)
       form.setFieldsValue({
@@ -228,6 +233,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
         const value = settledAmounts[record?.sale_invoice_id] ?? '';
         return (
           <DebouncedCommaSeparatedInputRate
+            allowClear
             value={value ? Number(value).toFixed(2) : Number(record?.settled_amount).toFixed(2) ? record?.settled_amount : null}
             onChange={(val) => handleSettledAmountChange(val, record)}
           />
@@ -304,8 +310,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
         <Row gutter={12}>
           <Col span={24} sm={6} md={6} lg={6}>
             <Form.Item name="payment_amount" label="Receipt Amount">
-              {/* <Input /> */}
-              <DebouncedCommaSeparatedInputRate />
+              <Input />
             </Form.Item>
           </Col>
           <Col span={24} sm={6} md={6} lg={6}>
@@ -335,8 +340,8 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
                 const updated = { ...prev };
                 newSelectedRows.forEach(row => {
                   if (!(row.sale_invoice_id in updated)) {
-                    // updated[row.sale_invoice_id] = row.balance_amount || 0;
-                    updated[row.sale_invoice_id] = 0;
+                    updated[row.sale_invoice_id] = row.balance_amount || 0;
+                    // updated[row.sale_invoice_id] = 0;
                   }
                 });
 
@@ -366,11 +371,13 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
               />
               <DetailSummaryInfo
                 title="Applied"
+                disabled
                 // value={formatThreeDigitCommas(totalAmount || 0)}
                 value={totalAmountDue || "0.00"}
               />
               <DetailSummaryInfo
                 title="Discount & Credit Applied"
+                disabled
                 // value={formatThreeDigitCommas(initialFormValues?.totalDiscount || 0)}
                 value={initialFormValues?.totalDiscount || "0.00"}
               />
@@ -402,8 +409,28 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
             }}>
             Save & Exit
           </Button>
+          {
+            mode === 'edit'
+              ? (
+                <Button
+                  type="primary"
+                  className="w-28 bg-indigo-600 hover:!bg-indigo-500"
+                  onClick={() => setLedgerModalOpen(true)}
+                >
+                  Ledger
+                </Button>
+              ) : null
+          }
         </div>
       </Form>
+
+      {/* Modals */}
+
+      <LedgerModal
+        open={ledgerModalOpen}
+        initialFormValues={initialFormValues}
+        onClose={() => setLedgerModalOpen(false)}
+      />
     </>
   );
 };

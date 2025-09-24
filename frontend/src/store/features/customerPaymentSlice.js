@@ -83,7 +83,21 @@ export const getCustomerLedgerInvoices = createAsyncThunk(
   async (customerId, { rejectWithValue }) => {
     try {
       const res = await api.get(`/customer/${customerId}/ledger-invoices`);
-      return res.data.data; // adjust if your API response is different
+      return res.data.data;
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
+export const getCustomerPaymentLedger = createAsyncThunk(
+  'customerPayment/ledger',
+  async ({ typeId, document_id }, { rejectWithValue }) => {
+    try {
+      const res = await api.get('/ledger/document-ledger/', {
+        params: { document_type_id: typeId, document_id }
+      });
+      return res?.data;
     } catch (err) {
       return rejectWithValue(err);
     }
@@ -98,7 +112,10 @@ const initialState = {
   saleInvoiceDetail: null,
   isItemLoading: false,
   ledgerInvoices: [],
+  ledger: [],
+  ledgerData: null,
   isLedgerLoading: false,
+  ledgerLoading: false,
   list: [],
   listID: [],
   deleteIDs: [],
@@ -240,6 +257,30 @@ export const customerPaymentSlice = createSlice({
     });
     addCase(getCustomerLedgerInvoices.rejected, (state) => {
       state.isLedgerLoading = false;
+    });
+
+    addCase(getCustomerPaymentLedger.pending, (state) => {
+      state.ledgerLoading = true;
+      state.ledger = [];
+    });
+    addCase(getCustomerPaymentLedger.fulfilled, (state, action) => {
+      state.ledgerLoading = false;
+      const data = action.payload;
+      state.ledgerData = {
+        total_debit: data?.data?.total_debit ? data?.data?.total_debit : null,
+        total_credit: data?.data?.total_credit ? data?.data?.total_credit : null,
+      };
+      state.ledger = data?.data?.data.map((detail) => ({
+        id: detail?.ledger_id ? detail?.ledger_id : null,
+        ledger_id: detail?.ledger_id ? detail?.ledger_id : null,
+        account_name: detail?.display_account_name ? detail?.display_account_name : null,
+        display_account_name: detail?.display_account_name ? detail?.display_account_name : null,
+        debit_amount: detail?.debit ? detail?.debit : 0,
+        credit_amount: detail?.credit ? detail?.credit : 0,
+      }));
+    });
+    addCase(getCustomerPaymentLedger.rejected, (state) => {
+      state.ledgerLoading = false;
     });
   }
 });

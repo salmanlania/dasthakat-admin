@@ -13,6 +13,7 @@ import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
 import AsyncSelectProduct from '../AsyncSelectProduct';
+import LedgerModal from '../Modals/LedgerModal';
 
 const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
@@ -26,6 +27,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [settledAmounts, setSettledAmounts] = useState({});
   const [totalSettled, setTotalSettled] = useState(0);
+  const [ledgerModalOpen, setLedgerModalOpen] = useState(false);
 
   const onFinish = (values) => {
     const data = {
@@ -33,11 +35,13 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
       transaction_account_id: values?.transaction_account_id ? values?.transaction_account_id?.value || values?.transaction_account_id : null,
       total_amount: totalSettled,
       net_amount: totalSettled + 100,
-      document_date: values?.document_date ? dayjs(values.document_date).format("YYYY-MM-DD") : null,
+      document_date: values?.document_date ? dayjs(values?.document_date).format("YYYY-MM-DD") : null,
       details: paymentVoucherDetails.map((row, index) => ({
         ...row,
         sort_order: index + 1,
         account_id: row?.account_id ? row?.account_id?.value || row?.account_id : null,
+        cheque_date: row?.cheque_date ? dayjs(row?.cheque_date).format("YYYY-MM-DD") : null,
+        ledger_date: row?.ledger_date ? dayjs(row?.ledger_date).format("YYYY-MM-DD") : null,
       }))
     };
     submitAction === 'save'
@@ -271,128 +275,150 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
   ];
 
   return (
-    <Form
-      form={form}
-      layout="vertical"
-      onFinish={onFinish}
-      initialValues={
-        mode === "edit"
-          ? {
-            ...initialFormValues,
-            document_date: initialFormValues?.document_date
-              ? dayjs(initialFormValues.document_date)
-              : null
+    <>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        initialValues={
+          mode === "edit"
+            ? {
+              ...initialFormValues,
+              document_date: initialFormValues?.document_date
+                ? dayjs(initialFormValues.document_date)
+                : null
+            }
+            : { document_date: dayjs() }
+        }
+      >
+        <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold mb-4">
+          <span className="text-gray-500">Payment Voucher No:</span>
+          <span
+            className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
+              } rounded px-1`}
+            onClick={() => {
+              if (mode !== 'edit') return;
+              navigator.clipboard.writeText(initialFormValues?.document_identity);
+              toast.success('Copied');
+            }}>
+            {mode === 'edit' ? initialFormValues?.document_identity : 'AUTO'}
+          </span>
+        </p>
+        <Row gutter={12}>
+          <Col span={8}>
+            <Form.Item label="Document No">
+              <Input disabled value={mode === "edit" ? initialFormValues?.document_identity : "AUTO"} />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item
+              name="document_date"
+              label="Document Date"
+              rules={[{ required: true, message: "Date is required" }]}
+            >
+              <DatePicker format="MM-DD-YYYY" className="w-full" />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item
+              name="transaction_account_id"
+              label="Transaction Account"
+            // rules={[{ required: true, message: "Transaction Account is required" }]}
+            >
+              <AsyncSelectProduct
+                endpoint="/setting?field=transaction_account"
+                size="medium"
+                className="w-full font-normal"
+                valueKey="account_id"
+                labelKey="name"
+                allowClear
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={12}>
+          <Col span={12}>
+            <Form.Item name="remarks" label="Remarks">
+              <Input />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Table
+          columns={columns}
+          dataSource={paymentVoucherDetails}
+          rowKey="id"
+          pagination={false}
+          size="small"
+        // virtual
+        // scroll={{ y: 400 }}
+        // rowSelection={{
+        //   columnWidth: 40,
+        //   selectedRowKeys,
+        //   onChange: (newKeys, newRows) => {
+        //     setSelectedRowKeys(newKeys);
+        //     setSelectedRows(newRows);
+        //   }
+        // }}
+        />
+
+        <Row justify="end" gutter={12} className="mt-4">
+          <Col span={6}>
+            <Form.Item label="Total Amount">
+              <Input disabled value={totalSettled} />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <div className="mt-4 flex items-center justify-end gap-2">
+          <Link to="/general-ledger/transactions/payment-voucher">
+            <Button className="w-28">Exit</Button>
+          </Link>
+          <Button
+            type="primary"
+            className="w-28"
+            loading={isFormSubmitting && submitAction === "save"}
+            onClick={() => {
+              setSubmitAction("save");
+              form.submit();
+            }}
+          >
+            Save
+          </Button>
+          <Button
+            type="primary"
+            className="w-28 bg-green-600 hover:!bg-green-500"
+            loading={isFormSubmitting && submitAction === "saveAndExit"}
+            onClick={() => {
+              setSubmitAction("saveAndExit");
+              form.submit();
+            }}
+          >
+            Save & Exit
+          </Button>
+          {
+            mode === 'edit'
+              ? (
+                <Button
+                  type="primary"
+                  className="w-28 bg-indigo-600 hover:!bg-indigo-500"
+                  onClick={() => setLedgerModalOpen(true)}
+                >
+                  Ledger
+                </Button>
+              ) : null
           }
-          : { document_date: dayjs() }
-      }
-    >
-      <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold mb-4">
-        <span className="text-gray-500">Payment Voucher No:</span>
-        <span
-          className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
-            } rounded px-1`}
-          onClick={() => {
-            if (mode !== 'edit') return;
-            navigator.clipboard.writeText(initialFormValues?.document_identity);
-            toast.success('Copied');
-          }}>
-          {mode === 'edit' ? initialFormValues?.document_identity : 'AUTO'}
-        </span>
-      </p>
-      <Row gutter={12}>
-        <Col span={8}>
-          <Form.Item label="Document No">
-            <Input disabled value={mode === "edit" ? initialFormValues?.document_no : "AUTO"} />
-          </Form.Item>
-        </Col>
-        <Col span={8}>
-          <Form.Item
-            name="document_date"
-            label="Document Date"
-            rules={[{ required: true, message: "Date is required" }]}
-          >
-            <DatePicker format="MM-DD-YYYY" className="w-full" />
-          </Form.Item>
-        </Col>
-        <Col span={8}>
-          <Form.Item
-            name="transaction_account_id"
-            label="Transaction Account"
-          // rules={[{ required: true, message: "Transaction Account is required" }]}
-          >
-            <AsyncSelectProduct
-              endpoint="/setting?field=transaction_account"
-              size="medium"
-              className="w-full font-normal"
-              valueKey="account_id"
-              labelKey="name"
-              allowClear
-            />
-          </Form.Item>
-        </Col>
-      </Row>
-      <Row gutter={12}>
-        <Col span={12}>
-          <Form.Item name="remarks" label="Remarks">
-            <Input />
-          </Form.Item>
-        </Col>
-      </Row>
+        </div>
+      </Form>
 
-      <Table
-        columns={columns}
-        dataSource={paymentVoucherDetails}
-        rowKey="id"
-        pagination={false}
-        size="small"
-      // virtual
-      // scroll={{ y: 400 }}
-      // rowSelection={{
-      //   columnWidth: 40,
-      //   selectedRowKeys,
-      //   onChange: (newKeys, newRows) => {
-      //     setSelectedRowKeys(newKeys);
-      //     setSelectedRows(newRows);
-      //   }
-      // }}
+      {/* Modals */}
+
+      <LedgerModal
+        open={ledgerModalOpen}
+        initialFormValues={initialFormValues}
+        onClose={() => setLedgerModalOpen(false)}
       />
-
-      <Row justify="end" gutter={12} className="mt-4">
-        <Col span={6}>
-          <Form.Item label="Total Amount">
-            <Input disabled value={totalSettled} />
-          </Form.Item>
-        </Col>
-      </Row>
-
-      <div className="mt-4 flex items-center justify-end gap-2">
-        <Link to="/general-ledger/transactions/payment-voucher">
-          <Button className="w-28">Cancel</Button>
-        </Link>
-        <Button
-          type="primary"
-          className="w-28"
-          loading={isFormSubmitting && submitAction === "save"}
-          onClick={() => {
-            setSubmitAction("save");
-            form.submit();
-          }}
-        >
-          Save
-        </Button>
-        <Button
-          type="primary"
-          className="w-28 bg-green-600 hover:!bg-green-500"
-          loading={isFormSubmitting && submitAction === "saveAndExit"}
-          onClick={() => {
-            setSubmitAction("saveAndExit");
-            form.submit();
-          }}
-        >
-          Save & Exit
-        </Button>
-      </div>
-    </Form>
+    </>
   );
 };
 
