@@ -243,7 +243,7 @@ const ProductForm = ({ mode, onSubmit }) => {
                   rules={[{ required: true, message: 'COGS account is required' }]}>
                   <AsyncSelectProduct
                     endpoint="/setting?field=cogs_accounts"
-                    size="small"
+                    size="medium"
                     className="w-full font-normal"
                     valueKey="account_id"
                     labelKey="name"
@@ -258,7 +258,7 @@ const ProductForm = ({ mode, onSubmit }) => {
                   rules={[{ required: true, message: 'Inventory account is required' }]}>
                   <AsyncSelectProduct
                     endpoint="/setting?field=inventory_accounts"
-                    size="small"
+                    size="medium"
                     className="w-full font-normal"
                     valueKey="account_id"
                     labelKey="name"
@@ -273,7 +273,7 @@ const ProductForm = ({ mode, onSubmit }) => {
                   rules={[{ required: true, message: 'Revenue account is required' }]}>
                   <AsyncSelectProduct
                     endpoint="/setting?field=revenue_accounts"
-                    size="small"
+                    size="medium"
                     className="w-full font-normal"
                     valueKey="account_id"
                     labelKey="name"
@@ -288,7 +288,7 @@ const ProductForm = ({ mode, onSubmit }) => {
                   rules={[{ required: true, message: 'Adjustment account is required' }]}>
                   <AsyncSelectProduct
                     endpoint="/setting?field=adjustment_accounts"
-                    size="small"
+                    size="medium"
                     className="w-full font-normal"
                     valueKey="account_id"
                     labelKey="name"

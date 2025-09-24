@@ -12,6 +12,7 @@ import { addPaymentVoucherDetail, changePaymentVoucherDetailOrder, copyPaymentVo
 import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
+import AsyncSelectProduct from '../AsyncSelectProduct';
 
 const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
@@ -300,10 +301,13 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
             label="Transaction Account"
           // rules={[{ required: true, message: "Transaction Account is required" }]}
           >
-            <AsyncSelect
-              endpoint="/accounts?only_leaf=1"
+            <AsyncSelectProduct
+              endpoint="/setting?field=transaction_account"
+              size="medium"
+              className="w-full font-normal"
               valueKey="account_id"
               labelKey="name"
+              allowClear
             />
           </Form.Item>
         </Col>
