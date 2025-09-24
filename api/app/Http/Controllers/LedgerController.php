@@ -11,19 +11,19 @@ class LedgerController extends Controller
     public function getDocumentLedger(Request $request)
     {
 
-        $data = Ledger::leftJoin('accounts as a', 'a.account_id', '=', 'ledger.account_id')
-            ->leftJoin('customer as c', 'c.customer_id', '=', 'ledger.partner_id')
-            ->leftJoin('supplier as s', 's.supplier_id', '=', 'ledger.partner_id')
-            ->leftJoin('currency as dc', 'dc.currency_id', '=', 'ledger.document_currency_id')
-            ->leftJoin('currency as bc', 'bc.currency_id', '=', 'ledger.base_currency_id')
-            ->leftJoin('product as p', 'p.product_id', '=', 'ledger.product_id')
+        $data = Ledger::leftJoin('accounts as a', 'a.account_id', '=', 'core_ledger.account_id')
+            ->leftJoin('customer as c', 'c.customer_id', '=', 'core_ledger.partner_id')
+            ->leftJoin('supplier as s', 's.supplier_id', '=', 'core_ledger.partner_id')
+            ->leftJoin('currency as dc', 'dc.currency_id', '=', 'core_ledger.document_currency_id')
+            ->leftJoin('currency as bc', 'bc.currency_id', '=', 'core_ledger.base_currency_id')
+            ->leftJoin('product as p', 'p.product_id', '=', 'core_ledger.product_id')
 
-            ->where('ledger.document_type_id', $request->document_type_id)
-            ->where('ledger.document_id', $request->document_id)
-            ->where('ledger.company_id', $request->company_id)
-            ->where('ledger.company_branch_id', $request->company_branch_id)
+            ->where('core_ledger.document_type_id', $request->document_type_id)
+            ->where('core_ledger.document_id', $request->document_id)
+            ->where('core_ledger.company_id', $request->company_id)
+            ->where('core_ledger.company_branch_id', $request->company_branch_id)
             ->select(
-                'ledger.*',
+                'core_ledger.*',
                 'a.account_code as account_code',
                 'a.name as account_name',
                 DB::raw('concat(a.account_code, " - ", a.name) as display_account_name'),
