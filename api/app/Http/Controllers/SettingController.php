@@ -17,9 +17,12 @@ class SettingController extends Controller
 	{
 		$customer_outstanding_account_id = env('CUSTOMER_OUTSTANDING_ACCOUNT_ID');
 		$vendor_outstanding_account_id = env('VENDOR_OUTSTANDING_ACCOUNT_ID');
-		$accounts = Accounts::whereIn('account_id', [$customer_outstanding_account_id, $vendor_outstanding_account_id])
-			->get(['account_id', 'account_code', DB::raw('concat(account_code, " - ", name) as display_account_name'), 'name']);
-		return $this->jsonResponse($accounts, 200, "Accounts Data");
+		$customer_outstanding_account = Accounts::where('account_id', $customer_outstanding_account_id)->first(['account_id', 'account_code', DB::raw('concat(account_code, " - ", name) as display_account_name'), 'name']);
+		$vendor_outstanding_account = Accounts::where('account_id', $vendor_outstanding_account_id)->first(['account_id', 'account_code', DB::raw('concat(account_code, " - ", name) as display_account_name'), 'name']);
+		return $this->jsonResponse([
+			'customer_outstanding_account' => $customer_outstanding_account,
+			'vendor_outstanding_account' => $vendor_outstanding_account,
+		], 200, "Accounts Data");
 	}
 	public function update(Request $request)
 	{
