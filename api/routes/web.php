@@ -38,6 +38,9 @@ $router->group(['prefix' => 'auth'], function ($router) {
    $router->post('/logout', 'AuthController@logout');
    $router->post('/reset-password', 'AuthController@forgotPassword');
 });
+$router->group(['prefix' => 'ledger'], function ($router) {
+   $router->get('/document-ledger', 'LedgerController@getDocumentLedger');
+});
 
 $router->group(['prefix' => 'audit'], function ($router) {
    $router->get('/', 'AuditController@index');
