@@ -187,6 +187,9 @@ class ChargeOrderController extends Controller
 		])->where('charge_order_id', $id)->orderBy('sort_order')->get();
 
 
+		// dd($data->charge_order_detail);
+
+
 		$data->commission_agent = ChargeOrderCommissionAgent::join('commission_agent', 'commission_agent.commission_agent_id', '=', 'charge_order_commission_agent.commission_agent_id')
 			->where('charge_order_commission_agent.charge_order_id', $id)
 			->select(
@@ -222,11 +225,8 @@ class ChargeOrderController extends Controller
 
 
     $dompdf = App::make('dompdf.wrapper');
-    $html = view('pdf_template',$data)->render(); // this now works
-
-
-
-
+    // return $html = view('pdf_template',$data); // this now works
+     $html = view('co_performa.temp',$data)->render(); // this now works
 
 
      // dd($data);
