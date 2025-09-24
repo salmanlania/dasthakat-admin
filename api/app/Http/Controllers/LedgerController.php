@@ -42,7 +42,11 @@ class LedgerController extends Controller
             ->orderBy('credit')
             ->orderBy('sort_order')
             ->get();
-        return $this->jsonResponse($data, 200, 'Document Ledger Data');
+
+        $res['data'] = $data;
+        $res['total_debit'] = $data->sum('debit');
+        $res['total_credit'] = $data->sum('credit'); 
+        return $this->jsonResponse($res, 200, 'Document Ledger Data');
     }
    
 }
