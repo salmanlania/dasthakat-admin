@@ -22,6 +22,7 @@ class PaymentVoucherDetail extends Model
         'account_id',
         "cheque_no",
         "cheque_date",
+        "ledger_date",
         // 'document_amount',
         'payment_amount',
         // 'tax_amount',

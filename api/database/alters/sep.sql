@@ -368,3 +368,5 @@ CREATE TABLE `payment_voucher_detail` (
   
 INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `document_prefix`, `table_name`, `primary_key`)
 VALUES ( 59, 'Payment Voucher', '{BC}/PV-', 'payment_voucher', 'payment_voucher_id' );
+
+ALTER TABLE `payment_voucher_detail` ADD COLUMN `ledger_date` DATE DEFAULT NULL AFTER `cheque_date`;
