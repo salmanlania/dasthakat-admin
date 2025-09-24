@@ -50,6 +50,7 @@ $router->group(['prefix' => 'audit'], function ($router) {
 $router->group(['prefix' => 'setting'], function ($router) {
    $router->put('/', 'SettingController@update');
    $router->get('/', 'SettingController@show');
+   $router->get('/default-accounts', 'SettingController@getDefaultAccounts');
    $router->get('dbbackup/', 'SettingController@DBBackup');
    $router->get('/test-mail', 'SettingController@EmailDubugging');
 });
