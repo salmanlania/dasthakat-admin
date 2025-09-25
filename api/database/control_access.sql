@@ -66,6 +66,11 @@
   ('General Group', 'Flag', 'flag', 'edit', 'Edit', 1.103),
   ('General Group', 'Flag', 'flag', 'delete', 'Delete', 1.104),
 
+  ('General Group', 'Cost Center', 'cost_center', 'list', 'List', 1.101),
+  ('General Group', 'Cost Center', 'cost_center', 'add', 'Add', 1.102),
+  ('General Group', 'Cost Center', 'cost_center', 'edit', 'Edit', 1.103),
+  ('General Group', 'Cost Center', 'cost_center', 'delete', 'Delete', 1.104),
+
   ('General Group', 'Class', 'class', 'list', 'List', 1.101),
   ('General Group', 'Class', 'class', 'add', 'Add', 1.102),
   ('General Group', 'Class', 'class', 'edit', 'Edit', 1.103),

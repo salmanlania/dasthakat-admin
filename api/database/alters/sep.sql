@@ -433,3 +433,15 @@ ALTER TABLE `vendor_payment_detail`
   
 INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `document_prefix`, `table_name`, `primary_key`)
 VALUES ( 60, 'Vendor Payment', '{BC}/VP-', 'vendor_payment', 'vendor_payment_id' );
+
+
+CREATE TABLE `cost_center` (
+    `company_id` CHAR(36) NOT NULL,
+    `company_branch_id` CHAR(36) NOT NULL,
+    `cost_center_id` CHAR(36) NOT NULL PRIMARY KEY,
+    `name` VARCHAR(255) NOT NULL,
+    `created_by` CHAR(36),
+    `updated_by` CHAR(36),
+    `created_at` DATETIME,
+    `updated_at` DATETIME
+);

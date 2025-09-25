@@ -148,6 +148,15 @@ $router->group(['prefix' => 'technician'], function ($router) {
    $router->post('/bulk-delete', 'TechnicianController@bulkDelete');
 });
 
+$router->group(['prefix' => 'cost-center'], function ($router) {
+   $router->get('/', 'CostCenterController@index');
+   $router->get('/{id}', 'CostCenterController@show');
+   $router->post('/', 'CostCenterController@store');
+   $router->put('/{id}', 'CostCenterController@update');
+   $router->delete('/{id}', 'CostCenterController@delete');
+   $router->post('/bulk-delete', 'CostCenterController@bulkDelete');
+});
+
 $router->group(['prefix' => 'flag'], function ($router) {
    $router->get('/', 'FlagController@index');
    $router->get('/{id}', 'FlagController@show');
