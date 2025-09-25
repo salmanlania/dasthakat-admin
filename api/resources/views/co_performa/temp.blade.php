@@ -29,6 +29,7 @@
 
     td.description {
       text-align: left;
+      width: 45%;
     }
     tr{
 /*       border-bottom: 1px solid #747474 !important;*/
@@ -72,7 +73,7 @@
 
       @php
         $productName = $detail['product_description'] ?? '';
-        $chunks = array_slice(str_split($productName, 30), 0, 10);
+        $chunks = array_slice(str_split($productName, 40), 0, 10);
        
         $qty+=$detail['quantity'];
         $gross_amount+=$detail['amount'];
@@ -81,7 +82,7 @@
 
         $addBreak = false;
 
-        if ($count >= 28) { 
+        if ($count >= 21) { 
           $addBreak = true;
           $count = 0; // reset after break
            $all_count++;
@@ -92,7 +93,7 @@
 
       @if($addBreak)
       <tr>
-     <td colspan="9" style="padding-top:20px;font-size: 1rem;border:none;"> Continue to next page ...</td>
+     <td colspan="9" style="padding-top:15px;font-size: 1rem;border:none;"> Continue to next page ...</td>
 </tr>
         <tr class="page-break-with-space">
           <td colspan="9"></td>
@@ -120,7 +121,7 @@
         </td>
         <td>{{ $detail['unit']['name'] ?? '' }}</td>
         <td class="text-right">{{ $detail['quantity'] }}</td>
-        <td >${{ $detail['rate'] }}</td>
+        <td class="text-right">${{ $detail['rate'] }}</td>
         <td class="text-right">${{ $detail['amount'] }}</td>
         <td >{{ $detail['discount_percent'] }}</td>
         <td class="text-right">${{ $detail['discount_amount'] }}</td>
@@ -129,7 +130,7 @@
     @endforeach
 
 
-      @php $length = 23  @endphp
+      @php $length = 21  @endphp
       @for($i = $count; $i < $length; $i++)
         <tr class="">
             <td >&nbsp;</td>
