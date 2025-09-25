@@ -632,7 +632,7 @@ const ChargeOrderForm = ({ mode, onSubmit, onSave, onSavePo, onVendor }) => {
             <AsyncSelect
               endpoint="/product"
               valueKey="product_id"
-              labelKey="product_name"
+              labelKey="name"
               labelInValue
               disabled={isDisable}
               className="w-full"
