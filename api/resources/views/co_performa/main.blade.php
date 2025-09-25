@@ -5,7 +5,7 @@
     <title>PDF Document</title>
     <style>
         @page {
-            margin: 2px 40px 100px 40px; 
+            margin: 2px 40px 10px 40px; 
         }
 
         body {
@@ -24,7 +24,7 @@
 
         footer {
             position: fixed;
-            bottom: -80px;
+            bottom: 0px;
             left: 0;
             right: 0;
             height: 50px;

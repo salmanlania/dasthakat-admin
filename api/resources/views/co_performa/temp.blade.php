@@ -42,6 +42,12 @@
   padding: 3px 0;   /* vertical padding */
   margin: 1px 0;    /* optional vertical margin between lines */
 }
+.extra{
+  border-top: 1px solid white !important;
+}
+.bottom{
+  border-bottom: 1px solid white !important;
+}
 
   </style>
 @endpush
@@ -85,21 +91,31 @@
         $gross_amount+=$detail['amount'];
         $disc_amount+=$detail['discount_amount'];
         $net_amount+=$detail['gross_amount'];
+        $add_class = count($chunks) > 1 ? 'bottom' : '';
+    @endphp
 
-        $addBreak = false;
+    
+      @foreach($chunks as $k => $value)
 
-        if ($count >= 17) { 
+      @if($k==0)
+
+
+
+      @php
+           $addBreak = false;
+
+        if ($count >=  23) { 
           $addBreak = true;
           $count = 0; // reset after break
            $all_count++;
         }
 
-        $count += count($chunks);
+        $count ++;
       @endphp
 
       @if($addBreak)
       <tr>
-     <td colspan="9" style="padding-top:5px;font-size: 0.8rem;border:none;"> Continue to next page ...</td>
+     <td colspan="9" style="padding-top:16px;font-size: 1rem;border:none;"> Continue to next page ...</td>
 </tr>
         <tr class="page-break-with-space">
           <td colspan="9"></td>
@@ -118,25 +134,81 @@
 
       @endif
 
-      <tr>
-        <td>{{ $key + 1 }}</td>
-        <td class="description">
-           @foreach($chunks as $value)
-            <div class="line">{{ $value }}</div>
-          @endforeach
+
+
+        <tr>
+        <td class="{{ $add_class}} ">{{ $key + 1 }}</td>
+        <td class="description {{ $add_class}}">
+          {{ $value }}
         </td>
-        <td>{{ $detail['unit']['name'] ?? '' }}</td>
-        <td class="text-right">{{ $detail['quantity'] }}</td>
-        <td class="text-right">${{ $detail['rate'] }}</td>
-        <td class="text-right">${{ $detail['amount'] }}</td>
-        <td >{{ $detail['discount_percent'] }}</td>
-        <td class="text-right">${{ $detail['discount_amount'] }}</td>
-        <td class="text-right">${{ $detail['gross_amount'] }}</td>
+        <td class="{{ $add_class}}">{{ $detail['unit']['name'] ?? '' }}</td>
+        <td class="text-right {{ $add_class}}">{{ $detail['quantity'] }}</td>
+        <td class="text-right {{ $add_class}}">${{ $detail['rate'] }}</td>
+        <td class="text-right {{ $add_class}}">${{ $detail['amount'] }}</td>
+        <td class="{{ $add_class}}">{{ $detail['discount_percent'] }}</td>
+        <td class="text-right {{ $add_class}}">${{ $detail['discount_amount'] }}</td>
+        <td class="text-right {{ $add_class}}">${{ $detail['gross_amount'] }}</td>
       </tr>
+
+      @else
+
+ @php
+           $addBreak = false;
+
+        if ($count >= 23) { 
+          $addBreak = true;
+          $count = 0; // reset after break
+           $all_count++;
+        }
+
+        $count ++;
+      @endphp
+
+      @if($addBreak)
+      <tr>
+          <td colspan="9" style="padding-top:16px;font-size: 1rem;border:none;"> Continue to next page ...</td>
+      </tr>
+        <tr class="page-break-with-space">
+          <td colspan="9"></td>
+        </tr>
+          <tr style="margin-top:10px !important">
+              <th>S. No</th>
+              <th>Description</th>
+              <th>UOM</th>
+              <th>QTY</th>
+              <th>Price per Unit</th>
+              <th>Gross Amount</th>
+              <th>Disc %</th>
+              <th>Discount Amount</th>
+              <th>Net Amount</th>
+            </tr>
+
+      @endif
+
+
+      <tr>
+        <td class="extra"></td>
+        <td class="description extra" >
+          {{ $value }}
+        </td>
+        <td></td>
+        <td class="text-right extra"></td>
+        <td class="text-right extra"></td>
+        <td class="text-right extra"></td>
+        <td class="extra"></td>
+        <td class="text-right extra"></td>
+        <td class="text-right extra"></td>
+      </tr>
+
+      @endif
+
+       @endforeach
+
+
     @endforeach
 
 
-      @php $length = 17  @endphp
+      @php $length =  23  @endphp
       @for($i = $count; $i < $length; $i++)
         <tr class="">
             <td >&nbsp;</td>
