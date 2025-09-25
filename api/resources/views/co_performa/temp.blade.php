@@ -29,7 +29,7 @@
 
     td.description {
       text-align: left;
-      width: 45%;
+      width: 40%;
     }
     tr{
 /*       border-bottom: 1px solid #747474 !important;*/
@@ -55,7 +55,7 @@
     <th>QTY</th>
     <th>Price per Unit</th>
     <th>Gross Amount</th>
-    <th>Discount %</th>
+    <th>Disc %</th>
     <th>Discount Amount</th>
     <th>Net Amount</th>
   </tr>
@@ -73,7 +73,7 @@
 
       @php
         $productName = $detail['product_description'] ?? '';
-        $chunks = array_slice(str_split($productName, 40), 0, 10);
+        $chunks = array_slice(str_split($productName, 50), 0, 10);
        
         $qty+=$detail['quantity'];
         $gross_amount+=$detail['amount'];
@@ -105,7 +105,7 @@
               <th>QTY</th>
               <th>Price per Unit</th>
               <th>Gross Amount</th>
-              <th>Discount %</th>
+              <th>Disc %</th>
               <th>Discount Amount</th>
               <th>Net Amount</th>
             </tr>
