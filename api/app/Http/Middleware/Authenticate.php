@@ -36,6 +36,7 @@ class Authenticate
             'vendor-platform/quotation/rfq/*',
             'vendor-platform/charge-order/vendor/*',
             'vendor-platform/charge-order/rfq/*',
+            'charge-order/*'
         ];
 
 

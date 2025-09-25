@@ -3,7 +3,7 @@
 @push('styles')
   <style>
    #detail{
-    margin-top: 350px;
+    margin-top: 320px;
     color: #203272;
        font-family:  Times, serif;
    }
@@ -76,7 +76,7 @@
         $net_amount+=$detail['gross_amount'];
 
         $addBreak = false;
-        if ($count + $rowLines >= 20) { // if this row will overflow the 19-line page
+        if ($count + $rowLines >= 22) { // if this row will overflow the 19-line page
           $addBreak = true;
           $count = 0; // reset after break
            $all_count++;
@@ -124,7 +124,7 @@
     @endforeach
 
 
-      @php $length = 19  @endphp
+      @php $length = 21  @endphp
       @for($i = $count; $i < $length; $i++)
         <tr class="">
             <td >&nbsp;</td>

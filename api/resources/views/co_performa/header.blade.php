@@ -15,45 +15,45 @@
         @endfor
       </div>
     
-  <div class="invoice-title" style="margin:40px 0px 0px 0px;font-size: 20px;font-weight: bold;"><u>PROFORMA </u></div>
+  <div class="invoice-title" style="margin:10px 0px 0px 0px;font-size: 20px;font-weight: bold;"><u>PROFORMA </u></div>
 
  <table style="margin-bottom: 300px;">
     <tbody>
       <tr>
          <th>Date</th>
-        <td class="text-left">{{ \Carbon\Carbon::parse($document_date)->format('d-m-Y') }}</td>
+        <td class="text-left first">{{ \Carbon\Carbon::parse($document_date)->format('d-m-Y') }}</td>
       
         <th>Charge #</th>
-        <td class="text-left">{{ $document_identity }}</td>
+        <td class="text-left first">{{ $document_identity }}</td>
       
          <th>Event No.</th>
-        <td class="text-left">{{ $event['event_code'] ?? '' }}</td>
+        <td class="text-left first">{{ $event['event_code'] ?? '' }}</td>
       </tr>
 
       <tr>
-        <th>Charge #</th>
-        <td class="text-left">{{ $customer['name'] ?? '' }}</td>
+        <th>Cust Ref #</th>
+        <td class="text-left first">{{ $customer['name'] ?? '' }}</td>
   
          <th>Location</th>
-        <td class="text-left">{{ $port['name'] ?? '' }}</td>
+        <td class="text-left first">{{ $port['name'] ?? '' }}</td>
 
         <th>S.O No.</th>
-        <td class="text-left">{{ $service_order['document_identity'] ?? '' }}</td>
+        <td class="text-left first">{{ $service_order['document_identity'] ?? '' }}</td>
 
       </tr>
      
       <tr>
         <th>Ship To.</th>
-        <td class="text-left">{{ $event['event_code'] ?? 'EVENT123' }} - {{ $event['vessel_name'] ?? 'Vessel Name' }}</td>
+        <td class="text-left first">{{ $event['vessel_name'] ?? 'Vessel Name' }}</td>
         <th>Payment.</th>
         <td class="text-left">{{ !empty($ship_date) ? \Carbon\Carbon::parse($ship_date)->format('d-m-Y') : '' }}</td>
-        <th>Cust Ref.</th>
-        <td class="text-left">{{  '' }}</td>
+        <th>Ship Date.</th>
+        <td class="text-left">{{ !empty($ship_date) ? \Carbon\Carbon::parse($ship_date)->format('d-m-Y') : '' }}</td>
       </tr>
 
        <tr>
         <th>Bill To.</th>
-        <td colspan="5" class="text-left">{{ $billing_address ?? '1234 Billing Address Lane, Houston, TX' }}</td>
+        <td colspan="5" class="text-left">{{ $billing_address ?? '1234 Billing Address Lane, Houston, TX hdhdh dhdhdh dhdhd ddhdjkkd 1234 Billing Address Lane, Houston, TX hdhdh dhdhdh dhdhd ddhdjkkd 1234 Billing Address Lane, Houston, TX hdhdh dhdhdh dhdhd ddhdjkkd' }}</td>
       </tr>
       
     </tbody>

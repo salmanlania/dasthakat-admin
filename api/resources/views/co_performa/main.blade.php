@@ -5,7 +5,7 @@
     <title>PDF Document</title>
     <style>
         @page {
-            margin: 10px 40px 100px 40px; 
+            margin: 2px 40px 100px 40px; 
         }
 
         body {
@@ -45,7 +45,7 @@
         }
 
    .company-details {
-      width: 80%;
+      width: 85%;
       top:0;
       left:0;
       text-align: center;
@@ -89,27 +89,29 @@
    
 
      position: fixed;
-  top: 100;
+  top: 80;
   left: 0;
   right: 0;
 
-  margin-bottom: 100px;
+  margin-bottom: 50px;
 
 
   }
 
   .div-images img {
-    height: 50px;
-object-fit: contain;
-padding-left: 5px;
-  }
-  #image2{
-height: 25px;
-margin-bottom: 5px;
-  }
-  #image3{
-height: 30px;
-margin-bottom: 5px;
+    height: 30px;
+    object-fit: contain;
+    padding-left: 5px;
+/*    border: 1px solid #ccc;*/
+      }
+      #image2{
+    height: 15px;
+    margin-bottom: 5px;
+/*     padding-top: 5px;*/
+      }
+      #image3{
+    height: 25px;
+    margin-bottom: 1px;
   }
 
   .image-content table{
@@ -122,11 +124,10 @@ margin-bottom: 5px;
   }
 
   .image-content td,th{
-
-     border: 1px solid #747474;
-      padding: 6px;
-      margin: 0px;
-      text-align: center;
+    border: 1px solid #747474;
+    padding: 6px;
+    margin: 0px;
+    text-align: center;
     margin-bottom: 20px;
     float: left;
   }
@@ -139,7 +140,7 @@ margin-bottom: 5px;
   border: none !important;
   padding: 0 !important;
   margin: 0 !important;
-  height: 350px !important;
+  height: 320px !important;
 }
 .footer{
     font-size: 12px;
@@ -159,7 +160,9 @@ margin-bottom: 5px;
  .text-left{
     text-align: left !important;
  }
-
+ .first{
+    width: 140px;
+ }
     </style>
 
     @stack('styles')
