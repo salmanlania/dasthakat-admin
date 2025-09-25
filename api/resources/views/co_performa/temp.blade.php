@@ -144,17 +144,17 @@
 
 
         <tr>
-        <td class="{{ {{ $count!=23 ? $add_class : ''}} ">{{ $key + 1 }}</td>
-        <td class="description {{ {{ $count!=23 ? $add_class : ''}}">
+        <td class="{{ $count!=23 ? $add_class : ''}} ">{{ $key + 1 }}</td>
+        <td class="description {{ $count!=23 ? $add_class : ''}}">
           {{ $value }}
         </td>
-        <td class="{{ {{ $count!=23 ? $add_class : ''}}">{{ $detail['unit']['name'] ?? '' }}</td>
-        <td class="text-right {{ {{ $count!=23 ? $add_class : ''}}">{{ $detail['quantity'] }}</td>
-        <td class="text-right {{ {{ $count!=23 ? $add_class : ''}}">${{ $detail['rate'] }}</td>
-        <td class="text-right {{ {{ $count!=23 ? $add_class : ''}}">${{ $detail['amount'] }}</td>
-        <td class="{{ {{ $count!=23 ? $add_class : ''}}">{{ $detail['discount_percent'] }}</td>
-        <td class="text-right {{ {{ $count!=23 ? $add_class : ''}}">${{ $detail['discount_amount'] }}</td>
-        <td class="text-right {{ {{ $count!=23 ? $add_class : ''}}">${{ $detail['gross_amount'] }}</td>
+        <td class="{{ $count!=23 ? $add_class : ''}}">{{ $detail['unit']['name'] ?? '' }}</td>
+        <td class="text-right {{  $count!=23 ? $add_class : ''}}">{{ $detail['quantity'] }}</td>
+        <td class="text-right {{  $count!=23 ? $add_class : ''}}">${{ $detail['rate'] }}</td>
+        <td class="text-right {{  $count!=23 ? $add_class : ''}}">${{ $detail['amount'] }}</td>
+        <td class="{{  $count!=23 ? $add_class : ''}}">{{ $detail['discount_percent'] }}</td>
+        <td class="text-right {{  $count!=23 ? $add_class : ''}}">${{ $detail['discount_amount'] }}</td>
+        <td class="text-right {{  $count!=23 ? $add_class : ''}}">${{ $detail['gross_amount'] }}</td>
       </tr>
 
       @else
