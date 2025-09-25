@@ -9,12 +9,13 @@
 
 
 <div class="image-content" >
-      <div class="div-images">
+      <div class="div-images" style="border-bottom: 2px solid #2f3960 ;">
         @for ($i = 1; $i <= 7; $i++)
           <img id="image{{$i}}" src="{{ public_path2('images/logo' . $i . '.png') }}" alt="Logo{{ $i }}" />
         @endfor
+      
       </div>
-    
+  
   <div class="invoice-title" style="margin:10px 0px 0px 0px;font-size: 20px;font-weight: bold;"><u>PROFORMA </u></div>
 
  <table style="margin-bottom: 300px;">
