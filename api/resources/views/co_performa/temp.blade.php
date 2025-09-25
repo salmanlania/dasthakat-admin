@@ -54,8 +54,6 @@
   border-bottom: 1px solid white !important;
   border-top: 1px solid white !important;
 }
-
-
   </style>
 @endpush
 
@@ -92,7 +90,7 @@
 
       @php
         $productName = $detail['product_description'] ?? '';
-        $chunks = array_slice(str_split($productName, 45), 0, 10);
+        $chunks = str_split_word($productName);
        
         $qty+=$detail['quantity'];
         $gross_amount+=$detail['amount'];
@@ -105,8 +103,6 @@
       @foreach($chunks as $k => $value)
 
       @if($k==0)
-
-
 
       @php
            $addBreak = false;
@@ -140,9 +136,6 @@
             </tr>
 
       @endif
-
-
-
         <tr>
         <td class="{{ $count!=23 ? $add_class : ''}} ">{{ $key + 1 }}</td>
         <td class="description {{ $count!=23 ? $add_class : ''}}">
@@ -159,7 +152,7 @@
 
       @else
 
- @php
+        @php
            $addBreak = false;
 
         if ($count >= 23) { 
@@ -191,10 +184,6 @@
             </tr>
 
       @endif
-
-
-
-
       <tr>
         <td class="{{ ($count==23 || count($chunks)-1==$k) ? 'top' : 'top-bottom' }}"></td>
         <td class="description {{ ($count==23 || count($chunks)-1==$k) ? 'top' : 'top-bottom' }}" >
@@ -210,13 +199,8 @@
       </tr>
 
       @endif
-
        @endforeach
-
-
     @endforeach
-
-
       @php $length =  23  @endphp
       @for($i = $count; $i < $length; $i++)
         <tr class="">
@@ -243,5 +227,37 @@
       </tr>
   </tbody>
 </table>
+
+
+
+
+@php
+function str_split_word($remarks){
+$words = explode(' ', $remarks);
+
+$chunks = [];
+$chunk = '';
+foreach ($words as $word) {
+    // Check if adding the next word exceeds 45 characters
+    if (strlen($chunk . ' ' . $word) > 50) {
+        $chunks[] = trim($chunk); // Add the current chunk to result
+        $chunk = $word; // Start a new chunk
+    } else {
+        $chunk .= ' ' . $word;
+    }
+}
+
+// Add the last chunk if not empty
+if (!empty($chunk)) {
+    $chunks[] = trim($chunk);
+}
+
+// Limit to 10 chunks if needed
+$chunks = array_slice($chunks, 0, 10);
+return $chunks;
+}
+
+@endphp
+
 
 @endsection
