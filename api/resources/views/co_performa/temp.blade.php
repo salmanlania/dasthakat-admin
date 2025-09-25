@@ -33,6 +33,9 @@
     tr{
 /*       border-bottom: 1px solid #747474 !important;*/
     }
+    .text-right{
+    text-align: right !important;
+   }
   </style>
 @endpush
 
@@ -114,12 +117,12 @@
           @endforeach
         </td>
         <td>{{ $detail['unit']['name'] ?? '' }}</td>
-        <td>{{ $detail['quantity'] }}</td>
-        <td>${{ $detail['rate'] }}</td>
-        <td>${{ $detail['amount'] }}</td>
-        <td>{{ $detail['discount_percent'] }}</td>
-        <td>${{ $detail['discount_amount'] }}</td>
-        <td>${{ $detail['gross_amount'] }}</td>
+        <td class="text-right">{{ $detail['quantity'] }}</td>
+        <td >${{ $detail['rate'] }}</td>
+        <td class="text-right">${{ $detail['amount'] }}</td>
+        <td >{{ $detail['discount_percent'] }}</td>
+        <td class="text-right">${{ $detail['discount_amount'] }}</td>
+        <td class="text-right">${{ $detail['gross_amount'] }}</td>
       </tr>
     @endforeach
 
@@ -141,12 +144,12 @@
 
      <tr>
         <th colspan="3">Total</th>
-        <th>{{$qty}}</th>
+        <th class="text-right">{{$qty}}</th>
         <th></th>
-        <th>${{$gross_amount}}</th>
+        <th class="text-right">${{$gross_amount}}</th>
         <th></th>
-        <th>${{$disc_amount}}</th>
-        <th>${{$net_amount}}</th>
+        <th class="text-right">${{$disc_amount}}</th>
+        <th class="text-right">${{$net_amount}}</th>
       </tr>
   </tbody>
 </table>

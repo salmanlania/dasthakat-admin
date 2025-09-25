@@ -32,7 +32,7 @@
 
       <tr>
         <th>Cust Ref #</th>
-        <td class="text-left first">{{ $customer['name'] ?? '' }}</td>
+        <td class="text-left first">{{ $customer_po_no ?? '' }}</td>
   
          <th>Location</th>
         <td class="text-left first">{{ $port['name'] ?? '' }}</td>
@@ -46,9 +46,25 @@
         <th>Ship To.</th>
         <td class="text-left first">{{ $event['vessel_name'] ?? 'Vessel Name' }}</td>
         <th>Payment.</th>
-        <td class="text-left">{{ !empty($ship_date) ? \Carbon\Carbon::parse($ship_date)->format('d-m-Y') : '' }}</td>
+        <td class="text-left">{{ $quotation['payment']['name'] }}</td>
         <th>Ship Date.</th>
-        <td class="text-left">{{ !empty($ship_date) ? \Carbon\Carbon::parse($ship_date)->format('d-m-Y') : '' }}</td>
+        <td class="text-left">
+          @php
+            $formattedShipDate = '';
+            $ship_date = @$shipment['document_date'] ?? "";
+            if (!empty(@$ship_date)) {
+                if ($ship_date === '0000-00-00') {
+                    $formattedShipDate = 'TBA';
+                } else {
+                    try {
+                        $formattedShipDate = \Carbon\Carbon::parse($ship_date)->format('d-m-Y');
+                    } catch (\Exception $e) {
+                        $formattedShipDate = '';
+                    }
+                }
+            }
+        @endphp
+        </td>
       </tr>
 
        <tr>
