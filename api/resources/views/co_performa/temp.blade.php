@@ -69,23 +69,25 @@
     @endphp
 
     @foreach($charge_order_detail as $key => $detail)
+
       @php
         $productName = $detail['product_description'] ?? '';
-        $chunks = array_slice(str_split($productName, 60), 0, 10);
-        $rowLines = count($chunks); // how many lines this row takes
+        $chunks = array_slice(str_split($productName, 30), 0, 10);
+       
         $qty+=$detail['quantity'];
         $gross_amount+=$detail['amount'];
         $disc_amount+=$detail['discount_amount'];
         $net_amount+=$detail['gross_amount'];
 
         $addBreak = false;
-        if ($count + $rowLines >= 22) { // if this row will overflow the 19-line page
+
+        if ($count >= 28) { 
           $addBreak = true;
           $count = 0; // reset after break
            $all_count++;
         }
 
-        $count += $rowLines; // accumulate total lines printed
+        $count += count($chunks);
       @endphp
 
       @if($addBreak)
@@ -127,7 +129,7 @@
     @endforeach
 
 
-      @php $length = 21  @endphp
+      @php $length = 23  @endphp
       @for($i = $count; $i < $length; $i++)
         <tr class="">
             <td >&nbsp;</td>
