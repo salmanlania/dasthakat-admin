@@ -42,12 +42,19 @@
   padding: 3px 0;   /* vertical padding */
   margin: 1px 0;    /* optional vertical margin between lines */
 }
-.extra{
-  border-top: 1px solid white !important;
-}
+
 .bottom{
   border-bottom: 1px solid white !important;
 }
+.top{
+  border-top: 1px solid white !important;*/
+}
+
+.top-bottom{
+  border-bottom: 1px solid white !important;
+  border-top: 1px solid white !important;
+}
+
 
   </style>
 @endpush
@@ -85,7 +92,7 @@
 
       @php
         $productName = $detail['product_description'] ?? '';
-        $chunks = array_slice(str_split($productName, 50), 0, 10);
+        $chunks = array_slice(str_split($productName, 45), 0, 10);
        
         $qty+=$detail['quantity'];
         $gross_amount+=$detail['amount'];
@@ -186,18 +193,20 @@
       @endif
 
 
+
+
       <tr>
-        <td class="extra"></td>
-        <td class="description extra" >
+        <td class="{{ ($count==23 || count($chunks)-1==$k) ? 'top' : 'top-bottom' }}"></td>
+        <td class="description {{ ($count==23 || count($chunks)-1==$k) ? 'top' : 'top-bottom' }}" >
           {{ $value }}
         </td>
-        <td></td>
-        <td class="text-right extra"></td>
-        <td class="text-right extra"></td>
-        <td class="text-right extra"></td>
-        <td class="extra"></td>
-        <td class="text-right extra"></td>
-        <td class="text-right extra"></td>
+        <td class="{{ ($count==23 || count($chunks)-1==$k) ? 'top' : 'top-bottom' }}"></td>
+        <td class="text-right {{ ($count==23 || count($chunks)-1==$k) ? 'top' : 'top-bottom' }}"></td>
+        <td class="text-right {{ ($count==23 || count($chunks)-1==$k) ? 'top' : 'top-bottom' }}"></td>
+        <td class="text-right {{ ($count==23 || count($chunks)-1==$k) ? 'top' : 'top-bottom' }}"></td>
+        <td class="{{ ($count==23 || count($chunks)-1==$k) ? 'top' : 'top-bottom' }}"></td>
+        <td class="text-right {{ ($count==23 || count($chunks)-1==$k) ? 'top' : 'top-bottom' }}"></td>
+        <td class="text-right {{ ($count==23 || count($chunks)-1==$k) ? 'top' : 'top-bottom' }}"></td>
       </tr>
 
       @endif
