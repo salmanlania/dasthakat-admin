@@ -445,3 +445,12 @@ CREATE TABLE `cost_center` (
     `created_at` DATETIME,
     `updated_at` DATETIME
 );
+
+ALTER TABLE `payment_voucher_detail`
+ADD COLUMN `event_id` CHAR(36) DEFAULT NULL AFTER `ledger_date`,
+ADD COLUMN `cost_center_id` CHAR(36) DEFAULT NULL AFTER `event_id`,
+DROP COLUMN `cheque_date`;
+
+ALTER TABLE `core_ledger`
+ADD COLUMN `event_id` CHAR(36) DEFAULT NULL AFTER `partner_id`,
+ADD COLUMN `cost_center_id` CHAR(36) DEFAULT NULL AFTER `event_id`;

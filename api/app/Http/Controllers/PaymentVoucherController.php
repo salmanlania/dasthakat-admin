@@ -70,7 +70,7 @@ class PaymentVoucherController extends Controller
     public function show($id, Request $request)
     {
 
-        $data = PaymentVoucher::with('details', 'details.account', 'transaction_account', 'document_currency', 'base_currency')
+        $data = PaymentVoucher::with('details','details.event','details.cost_center', 'details.account', 'transaction_account', 'document_currency', 'base_currency')
             ->where('payment_voucher.payment_voucher_id', $id)
             ->first();
 
@@ -156,7 +156,9 @@ class PaymentVoucherController extends Controller
                         'sort_order' => $value['sort_order'] ?? "",
                         'account_id' => $value['account_id'] ?? "",
                         'cheque_no' => $value['cheque_no'] ?? "",
-                        'cheque_date' => $value['cheque_date'] ?? "",
+                        'event_id' => $value['event_id'] ?? "",
+                        'cost_center_id' => $value['cost_center_id'] ?? "",
+                        // 'cheque_date' => $value['cheque_date'] ?? "",
                         'ledger_date' => $value['ledger_date'] ?? "",
                         // 'document_amount' => $value['document_amount'] ?? "",
                         'payment_amount' => $value['payment_amount'] ?? "",
@@ -169,7 +171,8 @@ class PaymentVoucherController extends Controller
 
                     PaymentVoucherDetail::create($data);
 
-                    if ((float)$value['payment_amount'] > 0)
+                    if ((float)$value['payment_amount'] > 0) {
+
 
                         Ledger::create([
                             'ledger_id' => $this->get_uuid(),
@@ -183,6 +186,8 @@ class PaymentVoucherController extends Controller
                             'sort_order' => 0,
                             'partner_type' => '',
                             'partner_id' => '',
+                            'event_id' => $value['event_id'],
+                            'cost_center_id' => $value['cost_center_id'],
                             'ref_document_type_id' => "",
                             'ref_document_identity' => "",
                             'account_id' => $request->transaction_account_id ?? "",
@@ -199,7 +204,7 @@ class PaymentVoucherController extends Controller
                             'created_at' => Carbon::now(),
                             'created_by_id' => $request->login_user_id,
                             'cheque_no' => $value['cheque_no'] ?? "",
-                            'cheque_date' => $value['cheque_date'] ?? "",
+                            // 'cheque_date' => $value['cheque_date'] ?? "",
                         ]);
                         Ledger::create([
                             'ledger_id' => $this->get_uuid(),
@@ -213,6 +218,8 @@ class PaymentVoucherController extends Controller
                             'sort_order' => $value['sort_order'] ?? "",
                             'partner_type' => '',
                             'partner_id' => '',
+                            'event_id' => $value['event_id'],
+                            'cost_center_id' => $value['cost_center_id'],
                             'ref_document_type_id' => "",
                             'ref_document_identity' => "",
                             'account_id' => $value['account_id'] ?? "",
@@ -229,8 +236,9 @@ class PaymentVoucherController extends Controller
                             'created_at' => Carbon::now(),
                             'created_by_id' => $request->login_user_id,
                             'cheque_no' => $value['cheque_no'] ?? "",
-                            'cheque_date' => $value['cheque_date'] ?? "",
+                            // 'cheque_date' => $value['cheque_date'] ?? "",
                         ]);
+                    }
                     // if ((float)$value['tax_amount'] > 0)
                     //     Ledger::create([
                     //         'ledger_id' => $this->get_uuid(),
@@ -321,7 +329,9 @@ class PaymentVoucherController extends Controller
                             'sort_order' => $value['sort_order'] ?? "",
                             'account_id' => $value['account_id'] ?? "",
                             'cheque_no' => $value['cheque_no'] ?? "",
-                            'cheque_date' => $value['cheque_date'] ?? "",
+                            'event_id' => $value['event_id'] ?? "",
+                            'cost_center_id' => $value['cost_center_id'] ?? "",
+                            // 'cheque_date' => $value['cheque_date'] ?? "",
                             'ledger_date' => $value['ledger_date'] ?? "",
                             // 'document_amount' => $value['document_amount'] ?? "",
                             'payment_amount' => $value['payment_amount'] ?? "",
@@ -338,7 +348,9 @@ class PaymentVoucherController extends Controller
                             'sort_order' => $value['sort_order'] ?? "",
                             'account_id' => $value['account_id'] ?? "",
                             'cheque_no' => $value['cheque_no'] ?? "",
-                            'cheque_date' => $value['cheque_date'] ?? "",
+                            'event_id' => $value['event_id'] ?? "",
+                            'cost_center_id' => $value['cost_center_id'] ?? "",
+                            // 'cheque_date' => $value['cheque_date'] ?? "",
                             'ledger_date' => $value['ledger_date'] ?? "",
                             // 'document_amount' => $value['document_amount'] ?? "",
                             'payment_amount' => $value['payment_amount'] ?? "",
@@ -354,8 +366,8 @@ class PaymentVoucherController extends Controller
                         PaymentVoucherDetail::where('payment_voucher_detail_id', $value['payment_voucher_detail_id'])->delete();
                     }
 
-                    if ($value['row_status'] != 'D')
-                        if ((float)$value['payment_amount'] > 0)
+                    if ($value['row_status'] != 'D') {
+                        if ((float)$value['payment_amount'] > 0) {
 
                             Ledger::create([
                                 'ledger_id' => $this->get_uuid(),
@@ -367,6 +379,8 @@ class PaymentVoucherController extends Controller
                                 'document_identity' => $request->document_identity ?? "",
                                 'document_date' => $value['ledger_date'] ?? "",
                                 'sort_order' => 0,
+                                'event_id' => $value['event_id'],
+                                'cost_center_id' => $value['cost_center_id'],
                                 'partner_type' => '',
                                 'partner_id' => '',
                                 'ref_document_type_id' => "",
@@ -385,7 +399,7 @@ class PaymentVoucherController extends Controller
                                 'created_at' => Carbon::now(),
                                 'created_by_id' => $request->login_user_id,
                                 'cheque_no' => $value['cheque_no'] ?? "",
-                                'cheque_date' => $value['cheque_date'] ?? "",
+                                // 'cheque_date' => $value['cheque_date'] ?? "",
                             ]);
                             Ledger::create([
                                 'ledger_id' => $this->get_uuid(),
@@ -398,6 +412,8 @@ class PaymentVoucherController extends Controller
                                 'document_date' => $value['ledger_date'] ?? $request->document_date,
                                 'sort_order' => $value['sort_order'] ?? "",
                                 'partner_type' => '',
+                                'event_id' => $value['event_id'],
+                                'cost_center_id' => $value['cost_center_id'],
                                 'partner_id' => '',
                                 'ref_document_type_id' => "",
                                 'ref_document_identity' => "",
@@ -415,8 +431,10 @@ class PaymentVoucherController extends Controller
                                 'created_at' => Carbon::now(),
                                 'created_by_id' => $request->login_user_id,
                                 'cheque_no' => $value['cheque_no'] ?? "",
-                                'cheque_date' => $value['cheque_date'] ?? "",
+                                // 'cheque_date' => $value['cheque_date'] ?? "",
                             ]);
+                        }
+                    }
 
                     // if ((float)$value['tax_amount'] > 0)
                     //     Ledger::create([
