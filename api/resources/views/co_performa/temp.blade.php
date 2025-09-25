@@ -37,6 +37,12 @@
     .text-right{
     text-align: right !important;
    }
+
+   .description .line {
+  padding: 3px 0;   /* vertical padding */
+  margin: 1px 0;    /* optional vertical margin between lines */
+}
+
   </style>
 @endpush
 
@@ -82,7 +88,7 @@
 
         $addBreak = false;
 
-        if ($count >= 21) { 
+        if ($count >= 17) { 
           $addBreak = true;
           $count = 0; // reset after break
            $all_count++;
@@ -93,7 +99,7 @@
 
       @if($addBreak)
       <tr>
-     <td colspan="9" style="padding-top:15px;font-size: 1rem;border:none;"> Continue to next page ...</td>
+     <td colspan="9" style="padding-top:5px;font-size: 0.8rem;border:none;"> Continue to next page ...</td>
 </tr>
         <tr class="page-break-with-space">
           <td colspan="9"></td>
@@ -115,8 +121,8 @@
       <tr>
         <td>{{ $key + 1 }}</td>
         <td class="description">
-          @foreach($chunks as $value)
-            {{ $value }}<br>
+           @foreach($chunks as $value)
+            <div class="line">{{ $value }}</div>
           @endforeach
         </td>
         <td>{{ $detail['unit']['name'] ?? '' }}</td>
@@ -130,7 +136,7 @@
     @endforeach
 
 
-      @php $length = 21  @endphp
+      @php $length = 17  @endphp
       @for($i = $count; $i < $length; $i++)
         <tr class="">
             <td >&nbsp;</td>
