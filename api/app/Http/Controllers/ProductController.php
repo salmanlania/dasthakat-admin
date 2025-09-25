@@ -90,7 +90,7 @@ class ProductController extends Controller
 			'u.name as unit_name',
 			DB::raw("CONCAT(
 				(CASE 
-					WHEN product.product_type_id = 1 
+					WHEN product.product_type_id = 2
 					THEN product.product_code 
 					ELSE product.impa_code 
 				END), 
