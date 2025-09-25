@@ -5,12 +5,13 @@
     <title>PDF Document</title>
     <style>
         @page {
-            margin: 20px 40px 100px 40px; 
+            margin: 10px 40px 100px 40px; 
         }
 
         body {
-            font-family: 'Times New Roman', Times, serif;
+              font-family: Times, serif;
             font-size: 12px;
+             color: #203272;
         }
 
         header {
@@ -35,6 +36,7 @@
       left: 0px;
       top: 10px;
       height: 110px;
+
       float: left; /* float doesn't work with absolute */
     }
 
@@ -43,7 +45,7 @@
         }
 
    .company-details {
-/*      width: 80%;*/
+      width: 80%;
       top:0;
       left:0;
       text-align: center;
@@ -97,7 +99,17 @@
   }
 
   .div-images img {
-    height: 30px;
+    height: 50px;
+object-fit: contain;
+padding-left: 5px;
+  }
+  #image2{
+height: 25px;
+margin-bottom: 5px;
+  }
+  #image3{
+height: 30px;
+margin-bottom: 5px;
   }
 
   .image-content table{
@@ -115,7 +127,7 @@
       padding: 6px;
       margin: 0px;
       text-align: center;
-    margin-bottom: 200px;
+    margin-bottom: 20px;
     float: left;
   }
 
@@ -127,7 +139,7 @@
   border: none !important;
   padding: 0 !important;
   margin: 0 !important;
-  height: 340px !important;
+  height: 350px !important;
 }
 .footer{
     font-size: 12px;
@@ -144,7 +156,9 @@
       font-style: italic;
       margin-top: 10px;
   }
-
+ .text-left{
+    text-align: left !important;
+ }
 
     </style>
 
@@ -153,11 +167,11 @@
 <body>
 
     <header>
-        @include('header')
+        @include('co_performa.header')
     </header>
 
     <footer>
-        @include('footer')
+        @include('co_performa.footer')
     </footer>
 
     @yield('content')

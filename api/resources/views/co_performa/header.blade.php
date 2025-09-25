@@ -11,7 +11,7 @@
 <div class="image-content" >
       <div class="div-images">
         @for ($i = 1; $i <= 7; $i++)
-          <img src="{{ public_path2('images/logo' . $i . '.png') }}" alt="Logo{{ $i }}" />
+          <img id="image{{$i}}" src="{{ public_path2('images/logo' . $i . '.png') }}" alt="Logo{{ $i }}" />
         @endfor
       </div>
     
@@ -21,39 +21,39 @@
     <tbody>
       <tr>
          <th>Date</th>
-        <td>{{ $document_date }}</td>
+        <td class="text-left">{{ \Carbon\Carbon::parse($document_date)->format('d-m-Y') }}</td>
       
         <th>Charge #</th>
-        <td>{{ $document_identity }}</td>
+        <td class="text-left">{{ $document_identity }}</td>
       
          <th>Event No.</th>
-        <td>{{ $event['event_code'] ?? '' }}</td>
+        <td class="text-left">{{ $event['event_code'] ?? '' }}</td>
       </tr>
 
       <tr>
         <th>Charge #</th>
-        <td>{{ $customer['name'] ?? '' }}</td>
+        <td class="text-left">{{ $customer['name'] ?? '' }}</td>
   
          <th>Location</th>
-        <td>{{ $port['name'] ?? '' }}</td>
+        <td class="text-left">{{ $port['name'] ?? '' }}</td>
 
         <th>S.O No.</th>
-        <td>{{ $service_order['document_identity'] ?? '' }}</td>
+        <td class="text-left">{{ $service_order['document_identity'] ?? '' }}</td>
 
       </tr>
      
       <tr>
         <th>Ship To.</th>
-        <td >{{ $event['event_code'] ?? 'EVENT123' }} - {{ $event['vessel_name'] ?? 'Vessel Name' }}</td>
+        <td class="text-left">{{ $event['event_code'] ?? 'EVENT123' }} - {{ $event['vessel_name'] ?? 'Vessel Name' }}</td>
         <th>Payment.</th>
-        <td>{{ $ship_date ?? '' }}</td>
+        <td class="text-left">{{ !empty($ship_date) ? \Carbon\Carbon::parse($ship_date)->format('d-m-Y') : '' }}</td>
         <th>Cust Ref.</th>
-        <td>{{  '' }}</td>
+        <td class="text-left">{{  '' }}</td>
       </tr>
 
        <tr>
         <th>Bill To.</th>
-        <td colspan="5">{{ $billing_address ?? '1234 Billing Address Lane, Houston, TX' }}</td>
+        <td colspan="5" class="text-left">{{ $billing_address ?? '1234 Billing Address Lane, Houston, TX' }}</td>
       </tr>
       
     </tbody>
