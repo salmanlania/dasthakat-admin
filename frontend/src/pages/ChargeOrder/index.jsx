@@ -36,6 +36,7 @@ import { createIJOPrint } from '../../utils/prints/ijo-print.js';
 import { createServiceOrderPrint } from '../../utils/prints/service-order-print.js';
 import { createProformaInvoicePrint } from '../../utils/prints/proforma-invoice.js';
 import { createEstimateInvoicePrint } from '../../utils/prints/estimate-invoice.js';
+import api from '../../axiosInstance.js';
 
 const ChargeOrder = () => {
   useDocumentTitle('Charge Order List');
@@ -134,8 +135,9 @@ const ChargeOrder = () => {
   const printProforma = async (id) => {
     const loadingToast = toast.loading('Loading Proforma Print...');
     try {
-      const data = await dispatch(getChargeOrder(id)).unwrap()
-      createProformaInvoicePrint(data, true);
+      // const data = await dispatch(getChargeOrder(id)).unwrap()
+      // createProformaInvoicePrint(data, true);
+      window.open(`http://localhost/php_gms/api/charge-order/print/${id}` , '_blank')
     } catch (error) {
       handleError(error);
     } finally {
