@@ -25,7 +25,7 @@
         <td class="text-left first">{{ \Carbon\Carbon::parse($document_date)->format('d-m-Y') }}</td>
       
         <th>Charge #</th>
-        <td class="text-left first">{{ $document_identity }}</td>
+        <td class="text-left first">{{ $document_identity ?? "" }}</td>
       
          <th>Event No.</th>
         <td class="text-left first">{{ $event['event_code'] ?? '' }}</td>
@@ -47,7 +47,7 @@
         <th>Ship To.</th>
         <td class="text-left first">{{ $event['vessel_name'] ?? 'Vessel Name' }}</td>
         <th>Payment.</th>
-        <td class="text-left">{{ $quotation['payment']['name'] }}</td>
+        <td class="text-left">{{ isset($quotation['payment']) ? $quotation['payment']['name'] : '' }}</td>
         <th>Ship Date.</th>
         <td class="text-left">
           @php
@@ -70,7 +70,7 @@
 
        <tr>
         <th>Bill To.</th>
-        <td colspan="5" class="text-left">{{ $billing_address ?? '1234 Billing Address Lane, Houston, TX hdhdh dhdhdh dhdhd ddhdjkkd 1234 Billing Address Lane, Houston, TX hdhdh dhdhdh dhdhd ddhdjkkd 1234 Billing Address Lane, Houston, TX hdhdh dhdhdh dhdhd ddhdjkkd' }}</td>
+        <td colspan="5" class="text-left">{{ $billing_address ?? '1234 Billing Address Lane, Houston, TX' }}</td>
       </tr>
       
     </tbody>
