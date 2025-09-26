@@ -22,7 +22,7 @@
     <tbody>
       <tr>
          <th>Date</th>
-        <td class="text-left first">{{ \Carbon\Carbon::parse($document_date)->format('d-m-Y') }}</td>
+        <td class="text-left first">{{ \Carbon\Carbon::parse($document_date)->format('m-d-Y') }}</td>
       
         <th>Charge #</th>
         <td class="text-left first">{{ $document_identity ?? "" }}</td>
@@ -45,7 +45,7 @@
      
       <tr>
         <th>Ship To.</th>
-        <td class="text-left first">{{ $event['vessel_name'] ?? 'Vessel Name' }}</td>
+        <td class="text-left first">{{ $vessel['name'] ?? 'Vessel Name' }}</td>
         <th>Payment.</th>
         <td class="text-left">{{ isset($quotation['payment']) ? $quotation['payment']['name'] : '' }}</td>
         <th>Ship Date.</th>
@@ -58,7 +58,7 @@
                     $formattedShipDate = 'TBA';
                 } else {
                     try {
-                        $formattedShipDate = \Carbon\Carbon::parse($ship_date)->format('d-m-Y');
+                        $formattedShipDate = \Carbon\Carbon::parse($ship_date)->format('m-d-Y');
                     } catch (\Exception $e) {
                         $formattedShipDate = '';
                     }
@@ -70,7 +70,7 @@
 
        <tr>
         <th>Bill To.</th>
-        <td colspan="5" class="text-left">{{ $billing_address ?? '1234 Billing Address Lane, Houston, TX' }}</td>
+        <td colspan="5" class="text-left">{{ $vessel['billing_address'] ?? '' }}</td>
       </tr>
       
     </tbody>
