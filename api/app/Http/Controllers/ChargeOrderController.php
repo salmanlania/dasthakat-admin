@@ -37,6 +37,9 @@ use App\Models\User;
 use App\Models\VendorChargeOrderDetail;
 use App\Models\VendorQuotationDetail;
 use Carbon\Carbon;
+use PDF;
+use Barryvdh\DomPDF\PDF as DomPDF;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -147,6 +150,103 @@ class ChargeOrderController extends Controller
 	// }
 
 	// attemp 2
+
+	public function print(DomPDF $dompdf, Request $request,$id){
+
+           
+
+		// Main query with eager loading
+		$data = ChargeOrder::with([
+			"quotation",
+			"quotation.payment",
+			"service_order",
+			"salesman",
+			"event",
+			"vessel",
+			"customer",
+			"port",
+			"flag",
+			"class1",
+			"class2",
+			"agent",
+			// "charge_order_detail.product",
+			// "charge_order_detail.supplier",
+			// "charge_order_detail.unit",
+			// "charge_order_detail.product_type"
+		])->where('charge_order_id', $id)->first();
+
+		if (!$data) {
+			return $this->jsonResponse(null, 404, "Charge Order not found");
+		}
+
+		$data->charge_order_detail = ChargeOrderDetail::with([
+			"product",
+			"supplier",
+			"unit",
+			"product_type"
+		])->where('charge_order_id', $id)->orderBy('sort_order')->get();
+
+
+		// dd($data->charge_order_detail);
+
+
+		$data->commission_agent = ChargeOrderCommissionAgent::join('commission_agent', 'commission_agent.commission_agent_id', '=', 'charge_order_commission_agent.commission_agent_id')
+			->where('charge_order_commission_agent.charge_order_id', $id)
+			->select(
+				'commission_agent.commission_agent_id',
+				'commission_agent.name',
+				'commission_agent.phone',
+				'commission_agent.address',
+				'charge_order_commission_agent.vessel_id',
+				'charge_order_commission_agent.customer_id',
+				'charge_order_commission_agent.percentage',
+				'charge_order_commission_agent.amount',
+				'charge_order_commission_agent.sort_order',
+				'charge_order_commission_agent.created_at',
+				'charge_order_commission_agent.created_by'
+			)->get();
+
+
+		// Load technicians (assuming technician_id stores JSON array)
+		$technicianIds = is_array($data->technician_id) ? $data->technician_id : [];
+		$data->technicians = !empty($technicianIds)
+			? User::whereIn('user_id', $technicianIds)->get()
+			: null;
+
+		// Process charge order details
+		$data->charge_order_detail->each(function ($detail) use ($request) {
+			$detail->purchase_order_exists = PurchaseOrderDetail::where('charge_order_detail_id', $detail->charge_order_detail_id)->exists();
+			$detail->picked_quantity = $this->getPickedQuantity($detail);
+			
+		});
+		$data->shipment = Shipment::where('charge_order_id', $data->charge_order_id)
+			->orderBy('created_at', 'desc')
+			->first();
+
+
+    // $dompdf = App::make('dompdf.wrapper');
+    // // return $html = view('pdf_template',$data); // this now works
+    //  $html = view('co_performa.temp',$data)->render(); // this now works
+
+
+    //  // dd($data);
+
+    // $dompdf->loadHTML($html );
+    // return $dompdf->stream('test.pdf');
+
+	$dompdf = App::make('dompdf.wrapper');
+    // return $html = view('pdf_template',$data); // this now works
+    $html = view('co_performa.temp',$data)->render(); // this now works
+
+    $dompdf->loadHTML($html );
+    $pdfData = $dompdf->output();
+	return $base64Pdf = base64_encode($pdfData);
+    $title = 'Performa-'.($data->document_identity ?? "" ).'-'.($data->vessel['name'] ?? "").'.pdf';
+    return $dompdf->stream($title);
+
+
+	}
+
 
 	public function index(Request $request)
 	{

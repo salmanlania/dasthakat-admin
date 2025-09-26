@@ -36,6 +36,7 @@ class Authenticate
             'vendor-platform/quotation/rfq/*',
             'vendor-platform/charge-order/vendor/*',
             'vendor-platform/charge-order/rfq/*',
+            'charge-order/print/*'
         ];
 
 
@@ -60,22 +61,22 @@ class Authenticate
      */
     public function handle($request, Closure $next, $guard = null)
     {
-        
         foreach ($this->except as $route) {
             if ($request->is($route)) {
             return $next($request);
         }
     }
         
+        
         $access_token = $request->header('Authorization');
          $access_token = str_replace('access_token ', '', $access_token);
 	     $access_token = str_replace('Bearer ', '', $access_token);
+
          $exist = UserToken::where('api_token', $access_token)->first();
 	     $payload = UserToken::is_token_valid($access_token);
 
          $payload = json_decode($payload);
          $token_get_permission_id = json_decode($payload->permission_id??"");
-         
          $currentTime = date("H:i:s");
          $fromTime = $exist['from_time'] ?? '00:00:00';
          $toTime = $exist['to_time'] ?? '23:59:59';
