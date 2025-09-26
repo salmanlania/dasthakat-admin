@@ -48,6 +48,7 @@ const Quotation = () => {
   const debouncedQuotationNo = useDebounce(params.document_identity, 500);
   const debouncedCustomerRef = useDebounce(params.customer_ref, 500);
   const debouncedTotalAmount = useDebounce(params.total_amount, 500);
+  const debouncedNetAmount = useDebounce(params.net_amount, 500);
 
   const formattedParams = {
     ...params,
@@ -264,21 +265,21 @@ const Quotation = () => {
     {
       title: (
         <div>
-          <p>Total Amount</p>
+          <p>Net Amount</p>
           <Input
             className="font-normal"
             size="small"
             allowClear
             onClick={(e) => e.stopPropagation()}
-            value={params.total_amount}
+            value={params.net_amount}
             onChange={(e) => {
-              dispatch(setQuotationListParams({ total_amount: e.target.value }));
+              dispatch(setQuotationListParams({ net_amount: e.target.value }));
             }}
           />
         </div>
       ),
-      dataIndex: 'total_amount',
-      key: 'total_amount',
+      dataIndex: 'net_amount',
+      key: 'net_amount',
       sorter: true,
       width: 140,
       ellipsis: true,
@@ -455,6 +456,7 @@ const Quotation = () => {
     debouncedQuotationNo,
     debouncedCustomerRef,
     debouncedTotalAmount,
+    debouncedNetAmount,
   ]);
 
   const groupedQuotationData = useMemo(() => {
