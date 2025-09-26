@@ -241,8 +241,8 @@ class ChargeOrderController extends Controller
     $dompdf->loadHTML($html );
     $pdfData = $dompdf->output();
 	return $base64Pdf = base64_encode($pdfData);
-
-    return $dompdf->stream('test.pdf');
+    $title = 'Performa-'.($data->document_identity ?? "" ).'-'.($data->vessel['name'] ?? "").'.pdf';
+    return $dompdf->stream($title);
 
 
 	}
