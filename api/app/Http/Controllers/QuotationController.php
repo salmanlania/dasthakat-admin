@@ -30,6 +30,7 @@ class QuotationController extends Controller
 		// Extract all input parameters at once
 		$params = $request->only([
 			'total_amount',
+			'net_amount',
 			'port_id',
 			'customer_ref',
 			'customer_id',
@@ -72,6 +73,7 @@ class QuotationController extends Controller
 		$query = Quotation::query()
 			->select([
 				'quotation.total_amount',
+				'quotation.net_amount',
 				'quotation.document_date',
 				'quotation.quotation_id',
 				'quotation.document_identity',
@@ -129,7 +131,8 @@ class QuotationController extends Controller
 		$prefixFilters = [
 			'customer_ref' => 'quotation.customer_ref',
 			'document_identity' => 'quotation.document_identity',
-			'total_amount' => 'quotation.total_amount'
+			'total_amount' => 'quotation.total_amount',
+			'net_amount' => 'quotation.net_amount'
 		];
 
 		foreach ($prefixFilters as $param => $column) {
