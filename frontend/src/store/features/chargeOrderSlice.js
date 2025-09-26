@@ -81,6 +81,31 @@ export const getChargeOrder = createAsyncThunk(
   }
 );
 
+export const printProformaInvoicePrint = createAsyncThunk(
+  'proforma-invoice/print',
+  async (id, { rejectWithValue }) => {
+
+    try {
+      const response = await api.get("charge-order/print/" + id);
+
+      console.log('response', response);
+      const byteCharacters = atob(response?.data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+
+      const url = window.URL.createObjectURL(blob);
+
+      window.open(url, '_blank');
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+)
+
 export const getChargeOrderVendorWise = createAsyncThunk(
   'chargeOrder/getDetailsVenderWise',
   async (id, { rejectWithValue }) => {
@@ -142,7 +167,7 @@ export const bulkDeleteChargeOrder = createAsyncThunk(
   async (ids, { rejectWithValue }) => {
     try {
       await api.post('/charge-order/bulk-delete', {
-      charge_order_ids: ids
+        charge_order_ids: ids
       });
     } catch (err) {
       throw rejectWithValue(err);

@@ -27,7 +27,8 @@ import {
   setChargeOrderDeleteIDs,
   setChargeOrderListParams,
   cancelledChargeOrder,
-  getChargeOrder
+  getChargeOrder,
+  printProformaInvoicePrint
 } from '../../store/features/chargeOrderSlice';
 import { getEventJobOrders, getEventServiceOrder } from '../../store/features/dispatchSlice.js';
 import { setChargePoID } from '../../store/features/purchaseOrderSlice';
@@ -135,9 +136,7 @@ const ChargeOrder = () => {
   const printProforma = async (id) => {
     const loadingToast = toast.loading('Loading Proforma Print...');
     try {
-      // const data = await dispatch(getChargeOrder(id)).unwrap()
-      // createProformaInvoicePrint(data, true);
-      window.open(`http://localhost/php_gms/api/charge-order/print/${id}` , '_blank')
+      await dispatch(printProformaInvoicePrint(id)).unwrap()
     } catch (error) {
       handleError(error);
     } finally {

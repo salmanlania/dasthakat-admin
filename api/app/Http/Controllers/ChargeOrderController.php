@@ -224,14 +224,24 @@ class ChargeOrderController extends Controller
 			->first();
 
 
-    $dompdf = App::make('dompdf.wrapper');
+    // $dompdf = App::make('dompdf.wrapper');
+    // // return $html = view('pdf_template',$data); // this now works
+    //  $html = view('co_performa.temp',$data)->render(); // this now works
+
+
+    //  // dd($data);
+
+    // $dompdf->loadHTML($html );
+    // return $dompdf->stream('test.pdf');
+
+	$dompdf = App::make('dompdf.wrapper');
     // return $html = view('pdf_template',$data); // this now works
-     $html = view('co_performa.temp',$data)->render(); // this now works
-
-
-     // dd($data);
+    $html = view('co_performa.temp',$data)->render(); // this now works
 
     $dompdf->loadHTML($html );
+    $pdfData = $dompdf->output();
+	return $base64Pdf = base64_encode($pdfData);
+
     return $dompdf->stream('test.pdf');
 
 
