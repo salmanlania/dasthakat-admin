@@ -1,4 +1,4 @@
-<div class="header">
+<div class="header pdf-header">
   <img src="{{ public_path2('images/logo-with-title.png') }}" alt="Company Logo" />
   <div class="company-details">
     <h2>Global Marine Safety - America</h2>
@@ -15,16 +15,18 @@
         @endfor
       
       </div>
+
+
   
-  <div class="invoice-title" style="margin:10px 0px 0px 0px;font-size: 20px;font-weight: bold;"><u>PROFORMA </u></div>
+  <div class="invoice-title" style="margin:10px 0px 0px 0px;font-size: 20px;font-weight: bold;"><u>ESTIMATE </u></div>
 
  <table style="margin-bottom: 300px;">
     <tbody>
       <tr>
-         <th>Date</th>
+         <th>Quote Date</th>
         <td class="text-left first">{{ \Carbon\Carbon::parse($document_date)->format('m-d-Y') }}</td>
       
-        <th>Charge #</th>
+        <th>Quote  #</th>
         <td class="text-left first">{{ $document_identity ?? "" }}</td>
       
          <th>Event No.</th>
@@ -38,23 +40,25 @@
          <th>Location</th>
         <td class="text-left first">{{ $port['name'] ?? '' }}</td>
 
-        <th>S.O No.</th>
-        <td class="text-left first">{{ $service_order['document_identity'] ?? '' }}</td>
+        <th>Flag.</th>
+        <td class="text-left first">{{ $flag['name'] ?? '' }}</td>
 
       </tr>
      
       <tr>
         <th>Ship To.</th>
-        <td class="text-left first">{{ $vessel['name'] ?? 'Vessel Name' }}</td>
-        <th>Payment.</th>
-        <td class="text-left">{{ isset($quotation['payment']) ? $quotation['payment']['name'] : '' }}</td>
-        <th>Ship Date.</th>
+        <td class="text-left first">{{ $vessel['name'] ?? '' }}</td>
+        <th>Class.</th>
+        <td class="text-left first">{{ ($class1['name'] ?? '').' '.($class1['name'] ?? '')  }}</td>
+       
+        <th>Date of Serv.</th>
         <td class="text-left">
           @php
             $formattedShipDate = '';
-            $ship_date = @$shipment['document_date'] ?? "";
+            $ship_date = @$service_date ?? "";
+
             if (!empty(@$ship_date)) {
-                if ($ship_date === '0000-00-00') {
+                if ($ship_date == '0000-00-00') {
                     $formattedShipDate = 'TBA';
                 } else {
                     try {
@@ -64,14 +68,16 @@
                     }
                 }
             }
-              echo  $formattedShipDate;
+            echo  $formattedShipDate;
         @endphp
         </td>
       </tr>
 
        <tr>
+         <th>Payment.</th>
+        <td class="text-left">{{ isset($quotation['payment']) ? $quotation['payment']['name'] : '' }}</td>
         <th>Bill To.</th>
-        <td colspan="5" class="text-left">{{ $vessel['billing_address'] ?? '' }}</td>
+        <td colspan="3" class="text-left">{{ $vessel['billing_address'] ?? '' }}</td>
       </tr>
       
     </tbody>

@@ -19,6 +19,9 @@ class Authenticate
      * @var \Illuminate\Contracts\Auth\Factory
      */
     protected $auth;
+
+
+
     
         protected $except = [
             'test',
@@ -61,12 +64,22 @@ class Authenticate
      */
     public function handle($request, Closure $next, $guard = null)
     {
+
+        if (!empty($request->path())) {
+
+            $print_url = explode('print',$request->path());
+            if(isset($print_url[1]))
+              $this->except[] = $print_url[0].'print/*';
+        }
+
         foreach ($this->except as $route) {
             if ($request->is($route)) {
-            return $next($request);
+                return $next($request);
+            }
         }
-    }
-        
+
+
+
         
         $access_token = $request->header('Authorization');
          $access_token = str_replace('access_token ', '', $access_token);

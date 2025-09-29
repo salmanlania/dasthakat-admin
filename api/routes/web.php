@@ -324,6 +324,7 @@ $router->group(['prefix' => 'lookups'], function ($router) {
 
 $router->group(['prefix' => 'quotation'], function ($router) {
    $router->get('/', 'QuotationController@index');
+   $router->get('/print/{id}', 'QuotationController@print');
    $router->get('/{id}', 'QuotationController@show');
    $router->post('/', 'QuotationController@store');
    $router->put('/{id}', 'QuotationController@update');

@@ -16,9 +16,12 @@ use App\Models\VendorQuotationDetail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\PDF as DomPDF;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use setasign\Fpdi\Fpdi;
 
 class QuotationController extends Controller
 {
@@ -108,6 +111,143 @@ class QuotationController extends Controller
 
 		return response()->json($result);
 	}
+
+	public function print(DomPDF $dompdf, Request $request,$id){
+
+		$data = Quotation::with(
+
+			"salesman",
+			"event",
+			"vessel",
+			"customer",
+			"flag",
+			"class1",
+			"class2",
+			"validity",
+			"payment",
+			"port",
+			"person_incharge",
+		)
+			->where('quotation_id', $id)
+			->first();
+
+		if (!$data) {
+			return $this->jsonResponse(null, 404, 'Quotation not found');
+		}
+		$data->quotation_detail = QuotationDetail::with([
+			"product",
+			"supplier",
+			"unit",
+			"product_type"
+		])->where('quotation_id', $id)->orderBy('sort_order')->get();
+
+
+
+		$data->commission_agent = QuotationCommissionAgent::join('commission_agent', 'commission_agent.commission_agent_id', '=', 'quotation_commission_agent.commission_agent_id')
+			->where('quotation_commission_agent.quotation_id', $id)
+			->select(
+				'commission_agent.commission_agent_id',
+				'commission_agent.name',
+				'commission_agent.phone',
+				'commission_agent.address',
+				'quotation_commission_agent.vessel_id',
+				'quotation_commission_agent.customer_id',
+				'quotation_commission_agent.percentage',
+				'quotation_commission_agent.amount',
+				'quotation_commission_agent.sort_order',
+				'quotation_commission_agent.created_at',
+				'quotation_commission_agent.created_by'
+			)->get();
+
+		// Process quotation details
+		$data->quotation_detail->each(function ($detail) use ($request) {
+			// Calculate available quantity
+			$chargeOrderQty = ChargeOrderDetail::where('quotation_detail_id', $detail->quotation_detail_id)
+				->sum('quantity') ?? 0;
+			$detail->available_quantity = ($detail->quantity ?? 0) - $chargeOrderQty;
+
+			// Add stock info if product exists
+			if ($detail->product) {
+				// $detail->product->stock = StockLedger::Check($detail->product, $request->all());
+			}
+			$currentRate = (float)($detail->vendor_rate ?? 0);
+			if ($currentRate <= 0) {
+				$productId = $detail->product_id ?? null;
+				$productName = $detail->product_name ?? null;
+				$lastRate = QuotationVendorRateHistory::getLastValidRate($detail->supplier_id, $productId, $productName);
+				if (!is_null($lastRate)) {
+					$detail->last_valid_rate = $lastRate;
+					$detail->last_rate_validity_date = QuotationVendorRateHistory::getLastValidRateValidityDate($detail->supplier_id, $productId, $productName);
+				}
+			}
+		});
+
+		// Process terms
+		$terms = [];
+		if (!empty($data->term_id)) {
+			$termIds = json_decode($data->term_id, true) ?? [];
+			$terms = Terms::whereIn('term_id', $termIds)
+				->select('term_id as value', 'name as label')
+				->get()
+				->keyBy('value')
+				->toArray();
+		}
+		$data['term_id'] = $terms;
+
+		// Filter by available quantity if requested
+		if ($request->hasAvailableQty) {
+			$data->quotation_detail = $data
+				->quotation_detail
+				->filter(fn($detail) => ($detail->available_quantity ?? 0) > 0)
+				->values();
+		}
+
+
+
+	$dompdf = App::make('dompdf.wrapper');
+    // return $html = view('pdf_template',$data); // this now works
+    $html = view('quotation.temp',$data)->render(); // this now works
+
+    $dompdf->loadHTML($html );
+   // $pdfData = $dompdf->output();
+	//return $base64Pdf = base64_encode($pdfData);
+    $title = 'Performa-'.($data->document_identity ?? "" ).'-'.($data->vessel['name'] ?? "").'.pdf';
+$mainPdfContent = $dompdf->output();
+    // Save to temp file
+$tempMainPdf = storage_path('app/temp_main.pdf');
+file_put_contents($tempMainPdf, $mainPdfContent);
+
+// 2. Create FPDI instance
+$fpdi = new Fpdi();
+
+
+$appendPdfPath = public_path2('images/quotationTerms.pdf'); // adjust path
+// Set source file as the Dompdf-generated one
+$pageCount = $fpdi->setSourceFile($tempMainPdf);
+for ($i = 1; $i <= $pageCount; $i++) {
+    $tplId = $fpdi->importPage($i);
+    $size = $fpdi->getTemplateSize($tplId);
+    $fpdi->AddPage($size['orientation'], [$size['width'], $size['height']]);
+    $fpdi->useTemplate($tplId);
+}
+// Now append pages from another static PDF
+$appendCount = $fpdi->setSourceFile($appendPdfPath);
+for ($i = 1; $i <= $appendCount; $i++) {
+    $tplId = $fpdi->importPage($i);
+    $size = $fpdi->getTemplateSize($tplId);
+    $fpdi->AddPage($size['orientation'], [$size['width'], $size['height']]);
+    $fpdi->useTemplate($tplId);
+}
+
+$pdfData = $fpdi->Output($title, 'S');
+return $base64Pdf = base64_encode($pdfData);
+// // Final output
+//    return response($fpdi->Output($title, 'S'), 200)
+//     ->header('Content-Type', 'application/pdf')
+//     ->header('Content-Disposition', 'inline; filename="' . $title . '"');
+
+	}
+
 
 	protected function applyFilters($query, $params)
 	{
