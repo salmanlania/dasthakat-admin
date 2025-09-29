@@ -79,6 +79,15 @@ $app->configure('cors');
 $app->configure('mail');
 
 
+$app->configure('view'); // Enable view config
+$app->withFacades(); // already required for many things
+$app->register(Illuminate\View\ViewServiceProvider::class); // registers the view engine
+
+
+$app->withFacades();
+// class_alias(Barryvdh\DomPDF\Facade::class, 'PDF');
+
+$app->register(Barryvdh\DomPDF\ServiceProvider::class);
 /*
 |--------------------------------------------------------------------------
 | Register Middleware

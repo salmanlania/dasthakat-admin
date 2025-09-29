@@ -97,9 +97,9 @@ const Dashboard = () => {
           <h4 className="text-lg">Shortcuts</h4>
           <Row gutter={[12, 12]} className="mt-4">
             {allowedShortcuts.map(({ title, url }, i) => (
-              <Col span={24} lg={6} md={8} sm={12} key={i}>
+              <Col onClick={() => navigate(url)} span={24} lg={6} md={8} sm={12} key={i}>
                 <div className="flex h-6 w-fit cursor-pointer items-center gap-1 text-sm text-gray-600 transition-all hover:border-b hover:border-gray-400">
-                  <span onClick={() => navigate(url)}>{title}</span>
+                  <span>{title}</span>
                   <GoArrowUpRight size={16} />
                 </div>
               </Col>

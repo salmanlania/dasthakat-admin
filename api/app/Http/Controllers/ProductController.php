@@ -88,7 +88,15 @@ class ProductController extends Controller
 			'sc.name as sub_category_name',
 			'b.name as brand_name',
 			'u.name as unit_name',
-			DB::raw("CONCAT(product.impa_code, ' ', product.name) as product_name"),
+			DB::raw("CONCAT(
+				(CASE 
+					WHEN product.product_type_id = 2
+					THEN product.product_code 
+					ELSE product.impa_code 
+				END), 
+				' ', 
+				product.name
+			) as product_name"),
 			'cogs.name as cogs_account_name',
 			'inv.name as inventory_account_name',
 			'rev.name as revenue_account_name',

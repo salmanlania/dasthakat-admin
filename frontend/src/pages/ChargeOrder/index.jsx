@@ -27,7 +27,8 @@ import {
   setChargeOrderDeleteIDs,
   setChargeOrderListParams,
   cancelledChargeOrder,
-  getChargeOrder
+  getChargeOrder,
+  printProformaInvoicePrint
 } from '../../store/features/chargeOrderSlice';
 import { getEventJobOrders, getEventServiceOrder } from '../../store/features/dispatchSlice.js';
 import { setChargePoID } from '../../store/features/purchaseOrderSlice';
@@ -36,6 +37,7 @@ import { createIJOPrint } from '../../utils/prints/ijo-print.js';
 import { createServiceOrderPrint } from '../../utils/prints/service-order-print.js';
 import { createProformaInvoicePrint } from '../../utils/prints/proforma-invoice.js';
 import { createEstimateInvoicePrint } from '../../utils/prints/estimate-invoice.js';
+import api from '../../axiosInstance.js';
 
 const ChargeOrder = () => {
   useDocumentTitle('Charge Order List');
@@ -134,8 +136,7 @@ const ChargeOrder = () => {
   const printProforma = async (id) => {
     const loadingToast = toast.loading('Loading Proforma Print...');
     try {
-      const data = await dispatch(getChargeOrder(id)).unwrap()
-      createProformaInvoicePrint(data, true);
+      await dispatch(printProformaInvoicePrint(id)).unwrap()
     } catch (error) {
       handleError(error);
     } finally {
