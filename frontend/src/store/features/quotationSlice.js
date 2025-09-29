@@ -149,6 +149,32 @@ export const getQuotationForPrint = createAsyncThunk(
   },
 );
 
+
+export const getQuotationForPrintPdf = createAsyncThunk(
+  'quotationForPrintPdf/get',
+  async (id, { rejectWithValue }) => {
+
+    try {
+      const response = await api.get("/quotation/print/" + id);
+
+      console.log('response', response);
+      const byteCharacters = atob(response?.data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+
+      const url = window.URL.createObjectURL(blob);
+
+      window.open(url, '_blank');
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+)
+
 export const updateQuotation = createAsyncThunk(
   'quotation/update',
   async ({ id, data }, { rejectWithValue }) => {

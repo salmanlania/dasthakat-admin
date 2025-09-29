@@ -23,6 +23,7 @@ import {
   deleteQuotation,
   duplicateQuotation,
   getQuotationForPrint,
+  getQuotationForPrintPdf,
   getQuotationList,
   setQuotationDeleteIDs,
   setQuotationListParams,
@@ -89,8 +90,8 @@ const Quotation = () => {
     const loadingToast = toast.loading('Loading print...');
 
     try {
-      const data = await dispatch(getQuotationForPrint(id)).unwrap();
-      createQuotationPrint(data);
+      const data = await dispatch(getQuotationForPrintPdf(id)).unwrap();
+      // createQuotationPrint(data);
     } catch (error) {
       handleError(error);
     } finally {

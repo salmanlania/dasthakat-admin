@@ -35,6 +35,7 @@ import {
   copyQuotationDetail,
   getQuotation,
   getQuotationForPrint,
+  getQuotationForPrintPdf,
   removeQuotationDetail,
   resetQuotationDetail,
   setRebatePercentage,
@@ -495,8 +496,8 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
   const printQuotation = async () => {
     const loadingToast = toast.loading('Loading print...');
     try {
-      const data = await dispatch(getQuotationForPrint(id)).unwrap();
-      createQuotationPrint(data);
+      await dispatch(getQuotationForPrintPdf(id)).unwrap();
+      // createQuotationPrint(data);
     } catch (error) {
       handleError(error);
     } finally {
