@@ -455,3 +455,62 @@ ALTER TABLE `core_ledger`
 ADD COLUMN `event_id` CHAR(36) DEFAULT NULL AFTER `partner_id`,
 ADD COLUMN `cost_center_id` CHAR(36) DEFAULT NULL AFTER `event_id`;
 ALTER TABLE `payment_voucher_detail` ADD COLUMN `supplier_id` CHAR(36) DEFAULT NULL AFTER `ledger_date`;
+
+CREATE TABLE `customer_payment_settlement` (
+  `company_id` CHAR(36) NOT NULL,
+  `company_branch_id` CHAR(36) NOT NULL,
+  `customer_payment_settlement_id` CHAR(36) NOT NULL,
+  `document_type_id` INT(11) NOT NULL,
+  `document_prefix` VARCHAR(255) NOT NULL,
+  `document_no` INT(11) NOT NULL,
+  `document_identity` VARCHAR(255) NOT NULL,
+  `document_date` DATE NOT NULL,
+  `customer_id` CHAR(36) NOT NULL,
+  `base_currency_id` CHAR(36) NOT NULL,
+  `document_currency_id` CHAR(36) NOT NULL,
+  `transaction_account_id` CHAR(36) NOT NULL,
+  `conversion_rate` DECIMAL(15, 2) NOT NULL,
+  `total_amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `remarks` TEXT,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` CHAR(36) NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_by` CHAR(36) NULL
+);
+
+CREATE TABLE `customer_payment_settlement_detail` (
+  `customer_payment_settlement_id` CHAR(36) NOT NULL,
+  `customer_payment_settlement_detail_id` CHAR(36) NOT NULL,
+  `sort_order` INT(11) NOT NULL,
+  `customer_payment_id` CHAR(36) NOT NULL,
+  `ref_document_identity` VARCHAR(255) NOT NULL,
+  `account_id` CHAR(36) NOT NULL,
+  `check_date` Date NULL,
+  `check_no` TEXT NULL,
+  `amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `remarks` TEXT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` CHAR(36) NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_by` CHAR(36) NULL
+);
+
+ALTER TABLE `customer_payment_settlement`
+  ADD PRIMARY KEY (`customer_payment_settlement_id`),
+  ADD INDEX `idx_company` (`company_id`),
+  ADD INDEX
+   `idx_company_branch` (`company_branch_id`),
+  ADD INDEX `idx_customer` (`customer_id`),
+  ADD INDEX `idx_transaction_account` (`transaction_account_id`),
+  ADD INDEX `idx_document_identity` (`document_identity`),
+  ADD INDEX `idx_document_date` (`document_date`);
+
+ALTER TABLE `customer_payment_settlement_detail`
+  ADD PRIMARY KEY (`customer_payment_settlement_detail_id`),
+  ADD INDEX `idx_customer_payment_settlement` (`customer_payment_settlement_id`),
+  ADD INDEX `idx_customer_payment` (`customer_payment_id`),
+  ADD INDEX `idx_account` (`account_id`);
+
+  
+INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `document_prefix`, `table_name`, `primary_key`)
+VALUES ( 61, 'Customer Payment Settlement', '{BC}/CPS-', 'customer_payment_settlement', 'customer_payment_settlement_id' );

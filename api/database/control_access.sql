@@ -126,6 +126,11 @@
   ('General Ledger', 'Customer Payment', 'customer_payment', 'edit', 'Edit', 1.103),
   ('General Ledger', 'Customer Payment', 'customer_payment', 'delete', 'Delete', 1.104),
   
+  ('General Ledger', 'Customer Payment Settlement', 'customer_payment_settlement', 'list', 'List', 1.101),
+  ('General Ledger', 'Customer Payment Settlement', 'customer_payment_settlement', 'add', 'Add', 1.102),
+  ('General Ledger', 'Customer Payment Settlement', 'customer_payment_settlement', 'edit', 'Edit', 1.103),
+  ('General Ledger', 'Customer Payment Settlement', 'customer_payment_settlement', 'delete', 'Delete', 1.104),
+  
   ('General Ledger', 'Vendor Payment', 'vendor_payment', 'list', 'List', 1.101),
   ('General Ledger', 'Vendor Payment', 'vendor_payment', 'add', 'Add', 1.102),
   ('General Ledger', 'Vendor Payment', 'vendor_payment', 'edit', 'Edit', 1.103),
