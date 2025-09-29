@@ -514,3 +514,7 @@ ALTER TABLE `customer_payment_settlement_detail`
   
 INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `document_prefix`, `table_name`, `primary_key`)
 VALUES ( 61, 'Customer Payment Settlement', '{BC}/CPS-', 'customer_payment_settlement', 'customer_payment_settlement_id' );
+
+ALTER TABLE `customer_payment_settlement_detail`
+  CHANGE COLUMN `check_date` `cheque_date` DATE NULL,
+  CHANGE COLUMN `check_no` `cheque_no` TEXT NULL;
