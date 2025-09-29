@@ -26,6 +26,7 @@ class PaymentVoucherDetail extends Model
         "ledger_date",
         "event_id",
         "cost_center_id",
+        "supplier_id",
         // 'document_amount',
         'payment_amount',
         // 'tax_amount',
@@ -71,4 +72,10 @@ class PaymentVoucherDetail extends Model
     {
         return $this->belongsTo(Accounts::class, 'account_id', 'account_id');
     }
+    
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_id', 'supplier_id');
+    }
+
 }
