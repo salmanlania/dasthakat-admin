@@ -78,7 +78,7 @@ class CustomerPaymentSettlementController extends Controller
     {
 
         $data = CustomerPaymentSettlement::with('details', 'customer', 'transaction_account', 'document_currency', 'base_currency', 'details.customer_payment', 'details.account')
-            ->where('customer_payment.customer_payment_settlement_id', $id)
+            ->where('customer_payment_settlement_id', $id)
             ->first();
 
         if (!$data) {

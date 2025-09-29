@@ -33,7 +33,7 @@ class CustomerPaymentSettlement extends Model
 
     public function details()
     {
-        return $this->hasMany(CustomerPaymentDetail::class, 'customer_payment_id', 'customer_payment_id')->orderBy('sort_order');
+        return $this->hasMany(CustomerPaymentSettlementDetail::class, 'customer_payment_settlement_id', 'customer_payment_settlement_id')->orderBy('sort_order');
     }
 
     public function customer()
