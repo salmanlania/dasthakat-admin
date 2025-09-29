@@ -193,7 +193,7 @@ class CustomerPaymentSettlementController extends Controller
                         'sort_order' => $value['sort_order'] ?? "",
                         'customer_payment_id' => $value['customer_payment_id'] ?? "",
                         'ref_document_identity' => $value['ref_document_identity'] ?? "",
-                        'account_id' => $outstanding_account_id,
+                        'account_id' => $value['account_id'] ?? "",
                         'check_no' => $value['check_no'] ?? "",
                         'check_date' => $value['check_date'] ?? "",
                         'amount' => $value['amount'] ?? "",
@@ -218,7 +218,7 @@ class CustomerPaymentSettlementController extends Controller
                         'partner_id' => $request->customer_id,
                         'ref_document_type_id' => $value['ref_document_type_id'] ?? "",
                         'ref_document_identity' => $value['ref_document_identity'] ?? "",
-                        'account_id' => $outstanding_account_id,
+                        'account_id' => $value['account_id'] ?? '',
                         'remarks' => '',
                         'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
                         'document_debit' => $value['amount'] ?? "",
@@ -255,12 +255,6 @@ class CustomerPaymentSettlementController extends Controller
         if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
         $base_currency_id = Company::where('company_id', $request->company_id)->pluck('base_currency_id')->first();
-        // $undeposited_account_id = Setting::getValue('gl_accounts_setting', 'undeposited_account', true)[0] ?? "";
-        // if (empty($undeposited_account_id)) return $this->jsonResponse(null, 400, "Undeposited Transaction Account not found");
-
-        $outstanding_account_id = Customer::where('customer_id', $request->customer_id)->pluck('outstanding_account_id')->first();
-        if (empty($outstanding_account_id)) return $this->jsonResponse(null, 400, "Customer Outstanding Account not found");
-
         $default_currency_id = Currency::where('company_id', $request->company_id)
             ->where('company_branch_id', $request->company_branch_id)
             ->value('currency_id');
@@ -324,7 +318,7 @@ class CustomerPaymentSettlementController extends Controller
                             'sort_order' => $value['sort_order'] ?? 0,
                             'customer_payment_id' => $value['customer_payment_id'] ?? "",
                             'ref_document_identity' => $value['ref_document_identity'] ?? "",
-                            'account_id' => $outstanding_account_id,
+                            'account_id' => $value['account_id'] ?? "",
                             'check_no' => $value['check_no'] ?? "",
                             'check_date' => $value['check_date'] ?? "",
                             'amount' => $value['amount'] ?? "",
@@ -339,7 +333,7 @@ class CustomerPaymentSettlementController extends Controller
                             'sort_order' => $value['sort_order'] ?? 0,
                             'customer_payment_id' => $value['customer_payment_id'] ?? "",
                             'ref_document_identity' => $value['ref_document_identity'] ?? "",
-                            'account_id' => $outstanding_account_id,
+                            'account_id' => $value['account_id'] ?? "",
                             'check_no' => $value['check_no'] ?? "",
                             'check_date' => $value['check_date'] ?? "",
                             'amount' => $value['amount'] ?? "",
@@ -368,7 +362,7 @@ class CustomerPaymentSettlementController extends Controller
                             'partner_id' => $request->customer_id,
                             'ref_document_type_id' => $value['ref_document_type_id'] ?? "",
                             'ref_document_identity' => $value['ref_document_identity'] ?? "",
-                            'account_id' => $outstanding_account_id,
+                            'account_id' => $value['account_id'] ?? "",
                             'remarks' => '',
                             'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
                             'document_debit' => $value['amount'] ?? "",
