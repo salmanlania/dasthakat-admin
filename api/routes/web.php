@@ -93,6 +93,7 @@ $router->group(['prefix' => 'company-branch'], function ($router) {
 
 $router->group(['prefix' => 'customer'], function ($router) {
    $router->get('/', 'CustomerController@index');
+   $router->get('/{id}/payments', 'CustomerController@getPaymentsByCustomer');
    $router->get('/{id}/ledger-invoices', 'CustomerController@getLedgerInvoices');
    $router->get('/{id}', 'CustomerController@show');
    $router->post('/', 'CustomerController@store');
@@ -522,6 +523,16 @@ $router->group(['prefix' => 'customer-payment'], function ($router) {
     $router->get('/{id}', 'CustomerPaymentController@show');
     $router->put('/{id}', 'CustomerPaymentController@update');
     $router->delete('/{id}', 'CustomerPaymentController@delete');
+});
+
+// customer payment routes
+$router->group(['prefix' => 'customer-payment-settlement'], function ($router) {
+    $router->get('/', 'CustomerPaymentSettlementController@index');
+    $router->post('/', 'CustomerPaymentSettlementController@store');
+    $router->post('/bulk-delete', 'CustomerPaymentSettlementController@bulkDelete');
+    $router->get('/{id}', 'CustomerPaymentSettlementController@show');
+    $router->put('/{id}', 'CustomerPaymentSettlementController@update');
+    $router->delete('/{id}', 'CustomerPaymentSettlementController@delete');
 });
 
 // vendor payment routes
