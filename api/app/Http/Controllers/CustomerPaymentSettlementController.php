@@ -96,7 +96,7 @@ class CustomerPaymentSettlementController extends Controller
             'customer_id' => 'required|string|size:36',
             'total_amount' => 'required|numeric|min:0',
             'details' => 'required|array|min:1',
-            'details.*.customer_payment_id' => 'required|string|size:36',
+            // 'details.*.customer_payment_id' => 'required|string|size:36',
             'details.*.amount' => 'required|numeric|min:0',
         ];
 
