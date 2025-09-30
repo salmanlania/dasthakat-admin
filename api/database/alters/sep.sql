@@ -520,10 +520,10 @@ ALTER TABLE `customer_payment_settlement_detail`
   CHANGE COLUMN `check_no` `cheque_no` TEXT NULL;
 
   
-CREATE TABLE `payment_voucher_settlement` (
+CREATE TABLE `payment_voucher_taging` (
   `company_id` CHAR(36) NOT NULL,
   `company_branch_id` CHAR(36) NOT NULL,
-  `payment_voucher_settlement_id` CHAR(36) NOT NULL,
+  `payment_voucher_taging_id` CHAR(36) NOT NULL,
   `document_type_id` INT(11) NOT NULL,
   `document_prefix` VARCHAR(255) NOT NULL,
   `document_no` INT(11) NOT NULL,
@@ -533,7 +533,6 @@ CREATE TABLE `payment_voucher_settlement` (
   `supplier_id` CHAR(36) NOT NULL,
   `base_currency_id` CHAR(36) NOT NULL,
   `document_currency_id` CHAR(36) NOT NULL,
-  `transaction_account_id` CHAR(36) NOT NULL,
   `conversion_rate` DECIMAL(15, 2) NOT NULL,
   `total_amount` DECIMAL(15, 2) NULL DEFAULT 0,
   `remarks` TEXT,
@@ -543,13 +542,12 @@ CREATE TABLE `payment_voucher_settlement` (
   `updated_by` CHAR(36) NULL
 );
 
-CREATE TABLE `payment_voucher_settlement_detail` (
-  `payment_voucher_settlement_id` CHAR(36) NOT NULL,
-  `payment_voucher_settlement_detail_id` CHAR(36) NOT NULL,
+CREATE TABLE `payment_voucher_taging_detail` (
+  `payment_voucher_taging_id` CHAR(36) NOT NULL,
+  `payment_voucher_taging_detail_id` CHAR(36) NOT NULL,
   `sort_order` INT(11) NOT NULL,
   `purchase_invoice_id` CHAR(36) NOT NULL,
   `ref_document_identity` VARCHAR(255) NOT NULL,
-  `account_id` CHAR(36) NOT NULL,
   `amount` DECIMAL(15, 2) NULL DEFAULT 0,
   `remarks` TEXT NULL,
   `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
@@ -558,21 +556,19 @@ CREATE TABLE `payment_voucher_settlement_detail` (
   `updated_by` CHAR(36) NULL
 );
 
-ALTER TABLE `payment_voucher_settlement`
-  ADD PRIMARY KEY (`payment_voucher_settlement_id`),
+ALTER TABLE `payment_voucher_taging`
+  ADD PRIMARY KEY (`payment_voucher_taging_id`),
   ADD INDEX `idx_company` (`company_id`),
   ADD INDEX `idx_company_branch` (`company_branch_id`),
   ADD INDEX `idx_supplier` (`supplier_id`),
   ADD INDEX `idx_payment_voucher` (`payment_voucher_id`),
-  ADD INDEX `idx_transaction_account` (`transaction_account_id`),
   ADD INDEX `idx_document_identity` (`document_identity`),
   ADD INDEX `idx_document_date` (`document_date`);
 
-ALTER TABLE `payment_voucher_settlement_detail`
-  ADD PRIMARY KEY (`payment_voucher_settlement_detail_id`),
-  ADD INDEX `idx_payment_voucher_settlement` (`payment_voucher_settlement_id`),
-  ADD INDEX `idx_payment_purchase_invoice` (`purchase_invoice_id`),
-  ADD INDEX `idx_account` (`account_id`);
+ALTER TABLE `payment_voucher_taging_detail`
+  ADD PRIMARY KEY (`payment_voucher_taging_detail_id`),
+  ADD INDEX `idx_payment_voucher_taging` (`payment_voucher_taging_id`),
+  ADD INDEX `idx_payment_purchase_invoice` (`purchase_invoice_id`);
 
 INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `document_prefix`, `table_name`, `primary_key`)
-VALUES ( 62, 'Payment Voucher Settlement', '{BC}/PVS-', 'payment_voucher_settlement', 'payment_voucher_settlement_id' );
+VALUES ( 62, 'Payment Voucher Taging', '{BC}/PVS-', 'payment_voucher_taging', 'payment_voucher_taging_id' );
