@@ -57,6 +57,19 @@
   </style>
 @endpush
 
+@php
+
+$lines = explode("\n", $term_desc);
+$term_desc =[];
+  foreach ($lines as $line) {
+    $line = trim($line);
+    $term_desc[]= wordwrap($line, 70, "\n");
+  
+}
+
+$termCount = (!empty($term_desc) ? (count($term_desc)>2 ? 3  : count($term_desc) ) : 0 );
+@endphp
+
 @section('content')
   
  <table id="detail" >
@@ -103,7 +116,6 @@
       @foreach($chunks as $k => $value)
 
       @if($k==0)
-
       @php
            $addBreak = false;
 
@@ -154,7 +166,6 @@
 
         @php
            $addBreak = false;
-
         if ($count >= 23) { 
           $addBreak = true;
           $count = 0; // reset after break
@@ -201,8 +212,12 @@
       @endif
        @endforeach
     @endforeach
-      @php $length =  23  @endphp
+      @php $length = 23 - $termCount; 
+      $emtyRows = 0;
+      @endphp
       @for($i = $count; $i < $length; $i++)
+
+      @php  $emtyRows++; @endphp
         <tr class="">
             <td >&nbsp;</td>
             <td >&nbsp;</td>
@@ -225,9 +240,38 @@
         <th class="text-right">${{$disc_amount}}</th>
         <th class="text-right">${{$net_amount}}</th>
       </tr>
+
+
+
+    @php 
+    $i=0; 
+
+    $all_tds = $count+ $emtyRows;
+    $all_tds = 24-$all_tds;
+    @endphp
+    @foreach($term_desc as $key =>  $desc)
+
+     @if(($key==$all_tds && $all_tds < 4) || $key==3)
+      <tr class="page-break-with-space">
+          <td colspan="9"></td>
+      </tr>
+       @php $i=0; @endphp
+
+     @endif
+
+      <tr>
+        @if($i==0)
+        <td rowspan="{{ $key == 0 ? ( $all_tds <4 ? $all_tds : 3 ) : ( ($all_tds < 4) ? count($term_desc)-($all_tds) : count($term_desc)-3 ) }}" colspan="1" class="text-center">Note.</td>
+        @endif
+        <td colspan="8" class="text-left">{{ $desc }} </td>
+
+         @php $i++; @endphp
+      </tr>
+    @endforeach
+
+
   </tbody>
 </table>
-
 
 
 

@@ -203,48 +203,46 @@ class QuotationController extends Controller
 		}
 
 
-
 	$dompdf = App::make('dompdf.wrapper');
     // return $html = view('pdf_template',$data); // this now works
     $html = view('quotation.temp',$data)->render(); // this now works
 
     $dompdf->loadHTML($html );
-   // $pdfData = $dompdf->output();
-	//return $base64Pdf = base64_encode($pdfData);
+
     $title = 'Performa-'.($data->document_identity ?? "" ).'-'.($data->vessel['name'] ?? "").'.pdf';
-$mainPdfContent = $dompdf->output();
-    // Save to temp file
-$tempMainPdf = storage_path('app/temp_main.pdf');
-file_put_contents($tempMainPdf, $mainPdfContent);
+	$mainPdfContent = $dompdf->output();
+	    // Save to temp file
+	$tempMainPdf = storage_path('app/temp_main.pdf');
+	file_put_contents($tempMainPdf, $mainPdfContent);
 
-// 2. Create FPDI instance
-$fpdi = new Fpdi();
+	// 2. Create FPDI instance
+	$fpdi = new Fpdi();
 
 
-$appendPdfPath = public_path2('images/quotationTerms.pdf'); // adjust path
-// Set source file as the Dompdf-generated one
-$pageCount = $fpdi->setSourceFile($tempMainPdf);
-for ($i = 1; $i <= $pageCount; $i++) {
-    $tplId = $fpdi->importPage($i);
-    $size = $fpdi->getTemplateSize($tplId);
-    $fpdi->AddPage($size['orientation'], [$size['width'], $size['height']]);
-    $fpdi->useTemplate($tplId);
-}
-// Now append pages from another static PDF
-$appendCount = $fpdi->setSourceFile($appendPdfPath);
-for ($i = 1; $i <= $appendCount; $i++) {
-    $tplId = $fpdi->importPage($i);
-    $size = $fpdi->getTemplateSize($tplId);
-    $fpdi->AddPage($size['orientation'], [$size['width'], $size['height']]);
-    $fpdi->useTemplate($tplId);
-}
+	$appendPdfPath = public_path2('images/quotationTerms.pdf'); // adjust path
+	// Set source file as the Dompdf-generated one
+	$pageCount = $fpdi->setSourceFile($tempMainPdf);
+	for ($i = 1; $i <= $pageCount; $i++) {
+	    $tplId = $fpdi->importPage($i);
+	    $size = $fpdi->getTemplateSize($tplId);
+	    $fpdi->AddPage($size['orientation'], [$size['width'], $size['height']]);
+	    $fpdi->useTemplate($tplId);
+	}
+	// Now append pages from another static PDF
+	$appendCount = $fpdi->setSourceFile($appendPdfPath);
+	for ($i = 1; $i <= $appendCount; $i++) {
+	    $tplId = $fpdi->importPage($i);
+	    $size = $fpdi->getTemplateSize($tplId);
+	    $fpdi->AddPage($size['orientation'], [$size['width'], $size['height']]);
+	    $fpdi->useTemplate($tplId);
+	}
 
 $pdfData = $fpdi->Output($title, 'S');
 return $base64Pdf = base64_encode($pdfData);
-// // Final output
-//    return response($fpdi->Output($title, 'S'), 200)
-//     ->header('Content-Type', 'application/pdf')
-//     ->header('Content-Disposition', 'inline; filename="' . $title . '"');
+// Final output
+   // return response($fpdi->Output($title, 'S'), 200)
+   //  ->header('Content-Type', 'application/pdf')
+   //  ->header('Content-Disposition', 'inline; filename="' . $title . '"');
 
 	}
 

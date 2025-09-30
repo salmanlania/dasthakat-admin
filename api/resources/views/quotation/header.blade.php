@@ -1,4 +1,4 @@
-<div class="header pdf-header">
+<div class="header">
   <img src="{{ public_path2('images/logo-with-title.png') }}" alt="Company Logo" />
   <div class="company-details">
     <h2>Global Marine Safety - America</h2>
