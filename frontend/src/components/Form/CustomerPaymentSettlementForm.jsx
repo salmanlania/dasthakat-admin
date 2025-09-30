@@ -1,50 +1,58 @@
 /* eslint-disable react/prop-types */
-import { Button, Col, DatePicker, Dropdown, Form, Input, Row, Table } from 'antd';
+import { Button, Col, DatePicker, Form, Input, Row, Table } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { BiPlus } from 'react-icons/bi';
-import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { addPaymentVoucherDetail, changePaymentVoucherDetailOrder, updatePaymentVoucherDetail } from '../../store/features/paymentVoucherSlice';
+import { addCustomerPaymentSettlementDetail, changeCustomerPaymentSettlementDetailOrder, getCustomerPayments, updateCustomerPaymentSettlementDetail } from '../../store/features/customerPaymentSettlementSlice';
 import AsyncSelect from '../AsyncSelect';
-import AsyncSelectPaymentVoucher from '../AsyncSelectPaymentVoucher';
 import AsyncSelectProduct from '../AsyncSelectProduct';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
 import LedgerModal from '../Modals/LedgerModal';
 
-const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
+const CustomerPaymentSettlementForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const { isFormSubmitting, initialFormValues, paymentVoucherDetails } = useSelector(
-    (state) => state.paymentVoucher
+  const { isFormSubmitting, initialFormValues, customerPaymentSettlementDetails, customerPaymentSettlementPayments } = useSelector(
+    (state) => state.customerPaymentSettlement
   );
 
   const [submitAction, setSubmitAction] = useState(null);
-  const [settledAmounts, setSettledAmounts] = useState({});
-  const [totalSettled, setTotalSettled] = useState(0);
+  const [finalData, setFinalData] = useState([]);
+  const [totalSettled, setTotalSettled] = useState(0.00);
   const [ledgerModalOpen, setLedgerModalOpen] = useState(false);
+
+  useEffect(() => {
+    const merged = [...customerPaymentSettlementPayments, ...customerPaymentSettlementDetails]
+    setFinalData(merged)
+    const total = merged.reduce(
+      (sum, row) => sum + (parseFloat(row?.amount) || 0),
+      0
+    );
+    const totalAmount = initialFormValues?.total_amount ? initialFormValues?.total_amount : total
+    setTotalSettled(totalAmount);
+
+  }, [customerPaymentSettlementDetails, customerPaymentSettlementPayments, setFinalData]);
 
   const onFinish = (values) => {
     const data = {
       ...initialFormValues,
       ...values,
       transaction_account_id: values?.transaction_account_id ? values?.transaction_account_id?.value || values?.transaction_account_id : null,
+      customer_id: values?.customer_id ? values?.customer_id?.value || values?.customer_id : null,
       total_amount: totalSettled,
-      net_amount: totalSettled + 100,
       document_date: values?.document_date ? dayjs(values?.document_date).format("YYYY-MM-DD") : null,
-      details: paymentVoucherDetails.map((row, index) => ({
+      details: finalData.map((row, index) => ({
         ...row,
         sort_order: index + 1,
         account_id: row?.account_id ? row?.account_id?.value || row?.account_id : null,
-        cost_center_id: row?.cost_center_id ? row?.cost_center_id?.value || row?.cost_center_id : null,
-        event_id: row?.event_id ? row?.event_id?.value || row?.event_id : null,
-        supplier_id: row?.supplier_id ? row?.supplier_id?.value || row?.supplier_id : null,
         cheque_date: row?.cheque_date ? dayjs(row?.cheque_date).format("YYYY-MM-DD") : null,
-        ledger_date: row?.ledger_date ? dayjs(row?.ledger_date).format("YYYY-MM-DD") : null,
+        cheque_date: row?.cheque_date ? dayjs(row?.cheque_date).format("YYYY-MM-DD") : null,
+        customer_payment_id: row?.customer_payment_id ? row?.customer_payment_id : null
       }))
     };
     submitAction === 'save'
@@ -54,15 +62,6 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
         : null;
   };
 
-  useEffect(() => {
-    const total = paymentVoucherDetails.reduce((sum, row) => {
-      const settled = settledAmounts[row.id] ?? row.payment_amount ?? 0;
-      return sum + (Number(settled) || 0);
-    }, 0);
-
-    setTotalSettled(total);
-  }, [paymentVoucherDetails, settledAmounts]);
-
   const columns = [
     {
       title: (
@@ -71,7 +70,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
           type="primary"
           className="!w-8"
           icon={<BiPlus size={14} />}
-          onClick={() => dispatch(addPaymentVoucherDetail())}
+          onClick={() => dispatch(addCustomerPaymentSettlementDetail())}
         />
       ),
       key: 'order',
@@ -85,7 +84,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
               icon={<IoMdArrowDropup size={16} />}
               disabled={index === 0}
               onClick={() => {
-                dispatch(changePaymentVoucherDetailOrder({ from: index, to: index - 1 }));
+                dispatch(changeCustomerPaymentSettlementDetailOrder({ from: index, to: index - 1 }));
               }}
             />
             <Button
@@ -93,7 +92,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
               size="small"
               icon={<IoMdArrowDropdown size={16} />}
               onClick={() => {
-                dispatch(changePaymentVoucherDetailOrder({ from: index, to: index + 1 }));
+                dispatch(changeCustomerPaymentSettlementDetailOrder({ from: index, to: index + 1 }));
               }}
             />
           </div>
@@ -103,7 +102,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
       fixed: 'left'
     },
     {
-      title: "Account",
+      title: "From Account",
       dataIndex: "account_id",
       key: "account_id",
       render: (val, record) => {
@@ -113,16 +112,17 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
             valueKey="account_id"
             labelKey="name"
             value={record?.account_id}
+            disabled={record?.disabled || record?.customer_payment_id || record?.customer_payment_id === ""}
             onChange={(newVal) => {
               if (!newVal) {
-                dispatch(updatePaymentVoucherDetail({
+                dispatch(updateCustomerPaymentSettlementDetail({
                   id: record.id,
                   field: "account_id",
                   value: null,
                 }));
                 return;
               }
-              dispatch(updatePaymentVoucherDetail({
+              dispatch(updateCustomerPaymentSettlementDetail({
                 id: record.id,
                 field: "account_id",
                 value: newVal,
@@ -132,64 +132,10 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
           />
         );
       },
-      width: 150,
+      width: 230,
     },
     {
-      title: "Vendor",
-      dataIndex: "supplier_id",
-      key: "supplier_id",
-      width: 250,
-      render: (val, record) => (
-        <AsyncSelectPaymentVoucher
-          endpoint="/supplier"
-          size="medium"
-          className="w-full font-normal"
-          valueKey="supplier_id"
-          labelKey="name"
-          value={val}
-          allowClear
-          onChange={(newVal, supplier) => {
-            dispatch(updatePaymentVoucherDetail({
-              id: record.id,
-              field: "supplier_id",
-              value: newVal,
-            }))
-            if (supplier?.outstanding_account_id) {
-              dispatch(updatePaymentVoucherDetail({
-                id: record.id,
-                field: "account_id",
-                value: {
-                  value: supplier.outstanding_account_id,
-                  label: supplier.outstanding_account_name,
-                },
-              }));
-            }
-          }}
-        />
-      ),
-    },
-    {
-      title: "Transaction Date",
-      dataIndex: "ledger_date",
-      key: "ledger_date",
-      width: 180,
-      render: (val, record) => (
-        <DatePicker
-          value={val ? dayjs(val) : null}
-          format="MM-DD-YYYY"
-          onChange={(date) => {
-            dispatch(updatePaymentVoucherDetail({
-              id: record.id,
-              field: "ledger_date",
-              value: date ? date.format("YYYY-MM-DD") : null,
-            }));
-          }}
-          style={{ width: "100%" }}
-        />
-      ),
-    },
-    {
-      title: "Transaction No",
+      title: "Cheque No",
       dataIndex: "cheque_no",
       key: "cheque_no",
       width: 150,
@@ -197,7 +143,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
         <DebounceInput
           value={val}
           onChange={(newVal) =>
-            dispatch(updatePaymentVoucherDetail({
+            dispatch(updateCustomerPaymentSettlementDetail({
               id: record.id,
               field: "cheque_no",
               value: newVal,
@@ -207,69 +153,62 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
       ),
     },
     {
-      title: "Cost Center",
-      dataIndex: "cost_center_id",
-      key: "cost_center_id",
-      width: 150,
+      title: "Cheque Date",
+      dataIndex: "cheque_date",
+      key: "cheque_date",
+      width: 180,
       render: (val, record) => (
-        <AsyncSelectProduct
-          endpoint="/cost-center"
-          size="medium"
-          className="w-full font-normal"
-          valueKey="cost_center_id"
-          labelKey="name"
-          value={val}
-          allowClear
-          onChange={(newVal) => {
-            dispatch(updatePaymentVoucherDetail({
+        <DatePicker
+          value={val ? dayjs(val) : null}
+          format="MM-DD-YYYY"
+          onChange={(date) => {
+            dispatch(updateCustomerPaymentSettlementDetail({
               id: record.id,
-              field: "cost_center_id",
-              value: newVal,
-            }))
+              field: "cheque_date",
+              value: date ? date.format("YYYY-MM-DD") : null,
+            }));
           }}
+          style={{ width: "100%" }}
         />
       ),
     },
     {
-      title: "Event",
-      dataIndex: "event_id",
-      key: "event_id",
+      title: "Remarks",
+      dataIndex: "remarks",
+      key: "remarks",
       width: 150,
-      render: (value, record) => (
-        <AsyncSelectProduct
-          endpoint="/event"
-          size="medium"
-          className="w-full font-normal"
-          valueKey="event_id"
-          labelKey="event_name"
-          value={value}
-          allowClear
-          onChange={(newVal) => {
-            dispatch(updatePaymentVoucherDetail({
-              id: record?.id,
-              field: "event_id",
-              value: newVal,
-            }))
-          }}
-        />
-      ),
+      render: (val, record) => {
+        return (
+          <Input
+            value={val || ""}
+            onChange={(e) =>
+              dispatch(updateCustomerPaymentSettlementDetail({
+                id: record.id,
+                field: "remarks",
+                value: e.target.value,
+              }))
+            }
+          />
+        )
+      },
     },
     {
-      title: "Pay Amount",
-      dataIndex: "payment_amount",
-      key: "payment_amount",
+      title: "Amount",
+      dataIndex: "amount",
+      key: "amount",
       width: 150,
       render: (_, record) => (
         <DebouncedCommaSeparatedInput
-          value={record.payment_amount}
           className="text-right"
+          value={record.amount}
+          disabled={record?.disabled || record?.customer_payment_id || record?.customer_payment_id === ""}
           onChange={(val) => {
             const rawValue = String(val ?? "0");
             const clean = parseFloat(rawValue.replace(/,/g, "")) || 0;
 
-            dispatch(updatePaymentVoucherDetail({
+            dispatch(updateCustomerPaymentSettlementDetail({
               id: record.id,
-              field: "payment_amount",
+              field: "amount",
               value: clean,
             }));
           }}
@@ -283,12 +222,12 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
           type="primary"
           className="!w-8"
           icon={<BiPlus size={14} />}
-          onClick={() => dispatch(addPaymentVoucherDetail())}
+          onClick={() => dispatch(addCustomerPaymentSettlementDetail())}
         />
       ),
       key: 'action',
       width: 50,
-      fixed: 'right',
+      fixed: 'right'
     }
   ];
 
@@ -310,7 +249,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
         }
       >
         <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold mb-4">
-          <span className="text-gray-500">Payment Voucher No:</span>
+          <span className="text-gray-500">Customer Payment Settlement No:</span>
           <span
             className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
               } rounded px-1`}
@@ -323,11 +262,11 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
           </span>
         </p>
         <Row gutter={12}>
-          <Col span={8}>
+          {/* <Col span={8}>
             <Form.Item label="Document No">
               <Input disabled value={mode === "edit" ? initialFormValues?.document_identity : "AUTO"} />
             </Form.Item>
-          </Col>
+          </Col> */}
           <Col span={8}>
             <Form.Item
               name="document_date"
@@ -339,23 +278,42 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
           </Col>
           <Col span={8}>
             <Form.Item
-              name="transaction_account_id"
-              label="Transaction Account" s
+              name="customer_id"
+              label="Select Customer"
             >
               <AsyncSelectProduct
-                endpoint="/setting?field=transaction_account"
-                size="medium"
-                className="w-full font-normal"
+                endpoint="/customer"
+                valueKey="customer_id"
+                labelKey="name"
+                labelInValue
+                onChange={(value) => {
+                  if (value?.value) {
+                    dispatch(getCustomerPayments(value?.value));
+                  }
+                }}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={12}>
+          <Col span={8}>
+            <Form.Item
+              name="transaction_account_id"
+              label="Deposit To"
+              rules={[{ required: true, message: "Deposit to is required" }]}
+            >
+              <AsyncSelectProduct
+                endpoint="/accounts?only_leaf=1"
+                // size="small"
+                className="w-full"
                 valueKey="account_id"
                 labelKey="name"
                 allowClear
               />
             </Form.Item>
           </Col>
-        </Row>
-        <Row gutter={12}>
-          <Col span={12}>
-            <Form.Item name="remarks" label="Remarks">
+          <Col span={8}>
+            <Form.Item name="remarks" label="Memo">
               <Input />
             </Form.Item>
           </Col>
@@ -363,23 +321,28 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
 
         <Table
           columns={columns}
-          dataSource={paymentVoucherDetails}
+          dataSource={finalData}
           rowKey="id"
           pagination={false}
           size="small"
           scroll={{ x: 'calc(100% - 200px)' }}
+          summary={() => {
+            return (
+              <>
+                <Table.Summary.Row>
+                  <Table.Summary.Cell index={0} colSpan={2} className="tracking-wide font-bold">Deposited Sub Total</Table.Summary.Cell>
+                  <Table.Summary.Cell index={2} />
+                  <Table.Summary.Cell index={3} />
+                  <Table.Summary.Cell index={4} />
+                  <Table.Summary.Cell index={5} className="text-right font-bold">{totalSettled.toFixed(2)}</Table.Summary.Cell>
+                </Table.Summary.Row>
+              </>
+            );
+          }}
         />
 
-        <Row justify="end" gutter={12} className="mt-4">
-          <Col span={6}>
-            <Form.Item label="Total Amount">
-              <Input className='text-right' disabled value={totalSettled} />
-            </Form.Item>
-          </Col>
-        </Row>
-
         <div className="mt-4 flex items-center justify-end gap-2">
-          <Link to="/general-ledger/transactions/payment-voucher">
+          <Link to="/general-ledger/transactions/customer-payment-settlement">
             <Button className="w-28">Exit</Button>
           </Link>
           <Button
@@ -404,7 +367,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
           >
             Save & Exit
           </Button>
-          {
+          {/* {
             mode === 'edit'
               ? (
                 <Button
@@ -415,7 +378,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
                   Ledger
                 </Button>
               ) : null
-          }
+          } */}
         </div>
       </Form>
 
@@ -430,4 +393,4 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
   );
 };
 
-export default PaymentVoucherForm;
+export default CustomerPaymentSettlementForm;

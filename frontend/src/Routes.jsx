@@ -61,6 +61,7 @@ const EditCommissionAgent = lazy(() => import('./pages/CommissionAgent/EditCommi
 const Technician = lazy(() => import('./pages/Technician'));
 const Notes = lazy(() => import('./pages/Notes'));
 const Flag = lazy(() => import('./pages/Flag'));
+const CostCenter = lazy(() => import('./pages/CostCenter'));
 const Class = lazy(() => import('./pages/Class'));
 const Port = lazy(() => import('./pages/Port'));
 
@@ -156,7 +157,6 @@ const EditAccounts = lazy(() => import('./pages/GeneralLedger/Accounts/EditAccou
 
 const ModuleSetting = lazy(() => import('./pages/GeneralLedger/ModulesSetting'));
 
-
 const CustomerPayment = lazy(() => import('./pages/CustomerPayment'));
 const CreateCustomerPayment = lazy(() => import('./pages/CustomerPayment/CreateCustomerPayment'));
 const EditCustomerPayment = lazy(() => import('./pages/CustomerPayment/EditCustomerPayment'));
@@ -168,6 +168,10 @@ const EditVendorPayment = lazy(() => import('./pages/VendorPayment/EditVendorPay
 const VoucherPayment = lazy(() => import('./pages/PaymentVoucher'));
 const CreateVoucherPayment = lazy(() => import('./pages/PaymentVoucher/CreatePaymentVoucher'));
 const EditVoucherPayment = lazy(() => import('./pages/PaymentVoucher/EditPaymentVoucher'));
+
+const CustomerPaymentSettlement = lazy(() => import('./pages/CustomerPaymentSettlement'));
+const CreateCustomerPaymentSettlement = lazy(() => import('./pages/CustomerPaymentSettlement/CreateCustomerPaymentSettlement'));
+const EditCustomerPaymentSettlement = lazy(() => import('./pages/CustomerPaymentSettlement/EditCustomerPaymentSettlement'));
 
 function Routes() {
   const router = createBrowserRouter(
@@ -446,6 +450,14 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Flag />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/cost-center',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CostCenter />
               </Suspense>
             ),
           },
@@ -1083,6 +1095,30 @@ function Routes() {
                     element: (
                       <Suspense fallback={<PageLoader />}>
                         <EditVoucherPayment />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'customer-payment-settlement',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <CustomerPaymentSettlement />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'customer-payment-settlement/create',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <CreateCustomerPaymentSettlement />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'customer-payment-settlement/edit/:id',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <EditCustomerPaymentSettlement />
                       </Suspense>
                     ),
                   },

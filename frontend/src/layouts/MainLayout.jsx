@@ -183,6 +183,11 @@ const MainLayout = () => {
   if (href.startsWith('/general-ledger/transactions/payment-voucher/edit') && !permissions.payment_voucher?.edit)
     return <NotFound />;
 
+  if (href === '/general-ledger/transactions/customer-payment-settlement' && !permissions.customer_payment_settlement?.list) return <NotFound />;
+  if (href === '/general-ledger/transactions/customer-payment-settlement/create' && !permissions.customer_payment_settlement?.add) return <NotFound />;
+  if (href.startsWith('/general-ledger/transactions/customer-payment-settlement/edit') && !permissions.customer_payment_settlement?.edit)
+    return <NotFound />;
+
   return (
     <Layout className="min-h-screen">
       <Sidebar />

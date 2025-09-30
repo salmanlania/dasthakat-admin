@@ -984,7 +984,7 @@ const Scheduling = () => {
               type="primary"
               className="bg-sky-800 hover:!bg-sky-700">
               Clear Filters
-            </Button>
+            </Button> 
             <Button
               type="primary"
               icon={<FaRegFileExcel size={14} />}

@@ -227,7 +227,7 @@ const Brand = () => {
               );
             }}
             loading={isListLoading}
-            rowKey="id"
+            rowKey="audit_id"
             className="mt-2"
             scroll={{ x: 'calc(100% - 200px)' }}
             pagination={{

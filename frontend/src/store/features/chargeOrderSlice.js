@@ -87,8 +87,6 @@ export const printProformaInvoicePrint = createAsyncThunk(
 
     try {
       const response = await api.get("charge-order/print/" + id);
-
-      console.log('response', response);
       const byteCharacters = atob(response?.data);
       const byteNumbers = new Array(byteCharacters.length);
       for (let i = 0; i < byteCharacters.length; i++) {

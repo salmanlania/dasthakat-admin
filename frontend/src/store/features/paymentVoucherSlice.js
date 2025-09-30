@@ -55,6 +55,18 @@ export const createPaymentVoucher = createAsyncThunk(
   }
 );
 
+export const createPaymentVoucherSettlement = createAsyncThunk(
+  'paymentVoucherSettlement/create',
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await api.post('/payment-voucher-settlement', data);
+      return res?.data
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const deletePaymentVoucher = createAsyncThunk(
   'paymentVoucher/delete',
   async (id, { rejectWithValue }) => {
@@ -84,7 +96,23 @@ export const getCustomerLedgerInvoices = createAsyncThunk(
   async (customerId, { rejectWithValue }) => {
     try {
       const res = await api.get(`/customer/${customerId}/ledger-invoices`);
-      return res.data.data; // adjust if your API response is different
+      return res.data.data;
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
+export const getUnsettledInvoices = createAsyncThunk(
+  'paymentVoucher/getUnsettledInvoices',
+  async ({ supplierId, paymentVoucherId }, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/supplier/${supplierId}/unsettled-invoices`, {
+        params: {
+          payment_voucher_id: paymentVoucherId
+        }
+      });
+      return res.data.data;
     } catch (err) {
       return rejectWithValue(err);
     }
@@ -99,6 +127,7 @@ const initialState = {
   saleInvoiceDetail: null,
   isItemLoading: false,
   paymentVoucherDetails: [],
+  vendorPaymentSettlementDetails: [],
   isLedgerLoading: false,
   list: [],
   listID: [],
@@ -127,6 +156,10 @@ export const paymentVoucherSlice = createSlice({
       };
     },
 
+    clearVendorSettlementDetails: (state) => {
+      state.vendorPaymentSettlementDetails = [];
+    },
+
     setPaymentVoucherDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
     },
@@ -150,6 +183,13 @@ export const paymentVoucherSlice = createSlice({
       state.paymentVoucherDetails[to] = temp;
     },
 
+    changeVendorSettlementDetail: (state, action) => {
+      const { from, to } = action.payload;
+      const temp = state.vendorPaymentSettlementDetails[from];
+      state.vendorPaymentSettlementDetails[from] = state.vendorPaymentSettlementDetails[to];
+      state.vendorPaymentSettlementDetails[to] = temp;
+    },
+
     addPaymentVoucherDetail: (state, action) => {
       const index = action.payload;
       const newDetail = {
@@ -159,7 +199,11 @@ export const paymentVoucherSlice = createSlice({
         cheque_date: null,
         ledger_date: null,
         cheque_no: null,
+        event_no: null,
+        event_id: null,
+        cost_center_id: null,
         payment_amount: 0,
+        supplier_id: null,
         net_amount: 0,
         sort_order: state.paymentVoucherDetails.length + 1,
         row_status: 'I',
@@ -173,6 +217,38 @@ export const paymentVoucherSlice = createSlice({
       }
 
       state.paymentVoucherDetails = state.paymentVoucherDetails.map((item, i) => ({
+        ...item,
+        sort_order: i + 1,
+      }));
+    },
+
+    addVendorSettlementDetail: (state, action) => {
+      const index = action.payload;
+      const newDetail = {
+        id: uuidv4(),
+        document_no: null,
+        account_id: null,
+        cheque_date: null,
+        ledger_date: null,
+        cheque_no: null,
+        event_no: null,
+        event_id: null,
+        cost_center_id: null,
+        payment_amount: 0,
+        supplier_id: null,
+        net_amount: 0,
+        sort_order: state.vendorPaymentSettlementDetails.length + 1,
+        row_status: 'I',
+        isDeleted: false
+      };
+
+      if (index || index === 0) {
+        state.vendorPaymentSettlementDetails.splice(index + 1, 0, newDetail);
+      } else {
+        state.vendorPaymentSettlementDetails.push(newDetail);
+      }
+
+      state.vendorPaymentSettlementDetails = state.vendorPaymentSettlementDetails.map((item, i) => ({
         ...item,
         sort_order: i + 1,
       }));
@@ -232,6 +308,17 @@ export const paymentVoucherSlice = createSlice({
       }
     },
 
+    updateVendorSettlementDetail: (state, action) => {
+      const { id, field, value } = action.payload;
+      const index = state.vendorPaymentSettlementDetails.findIndex((d) => d.id === id);
+      if (index !== -1) {
+        state.vendorPaymentSettlementDetails[index] = {
+          ...state.vendorPaymentSettlementDetails[index],
+          [field]: value,
+        };
+      }
+    },
+
   },
   extraReducers: ({ addCase }) => {
     addCase(getPaymentVoucherList.pending, (state) => {
@@ -261,6 +348,17 @@ export const paymentVoucherSlice = createSlice({
       state.isFormSubmitting = false;
     });
     addCase(createPaymentVoucher.rejected, (state) => {
+      state.isFormSubmitting = false;
+    });
+
+
+    addCase(createPaymentVoucherSettlement.pending, (state) => {
+      state.isFormSubmitting = true;
+    });
+    addCase(createPaymentVoucherSettlement.fulfilled, (state) => {
+      state.isFormSubmitting = false;
+    });
+    addCase(createPaymentVoucherSettlement.rejected, (state) => {
       state.isFormSubmitting = false;
     });
 
@@ -310,6 +408,24 @@ export const paymentVoucherSlice = createSlice({
             label: detail?.account?.name
           }
           : null,
+        cost_center_id: detail?.cost_center
+          ? {
+            value: detail?.cost_center?.cost_center_id,
+            label: detail?.cost_center?.name
+          }
+          : null,
+        supplier_id: detail?.supplier
+          ? {
+            value: detail?.supplier?.supplier_id,
+            label: detail?.supplier?.name
+          }
+          : null,
+        event_id: detail?.event
+          ? {
+            value: detail?.event?.event_id,
+            label: detail?.event?.event_name
+          }
+          : null,
         cheque_date: detail?.cheque_date ? dayjs(detail?.cheque_date) : null,
         ledger_date: detail?.ledger_date ? dayjs(detail?.ledger_date) : null,
         cheque_no: detail?.cheque_no ? detail?.cheque_no : null,
@@ -335,8 +451,32 @@ export const paymentVoucherSlice = createSlice({
     addCase(getCustomerLedgerInvoices.rejected, (state) => {
       state.isLedgerLoading = false;
     });
+
+    addCase(getUnsettledInvoices.pending, (state) => {
+      state.isLedgerLoading = true;
+      state.vendorPaymentSettlementDetails = [];
+    });
+    addCase(getUnsettledInvoices.fulfilled, (state, action) => {
+      state.isLedgerLoading = false;
+      const data = action.payload
+      console.log('data slice' , data)
+      state.vendorPaymentSettlementDetails = data?.map((detail) => ({
+        ...detail,
+        id: detail?.purchase_invoice_id ? detail?.purchase_invoice_id : null,
+        purchase_invoice_id: detail?.purchase_invoice_id ? detail?.purchase_invoice_id : null,
+        document_identity: detail?.document_identity ? detail?.document_identity : null,
+        amount: detail?.balance_amount ? detail?.balance_amount : null,
+        disabled: true,
+        isDeleted: false,
+        row_status: "I"
+      }))
+    });
+    addCase(getUnsettledInvoices.rejected, (state) => {
+      state.isLedgerLoading = false;
+    });
   }
 });
 
-export const { setPaymentVoucherListParams, setPaymentVoucherDeleteIDs, setFormField, resetPaymentVoucherForm, changePaymentVoucherDetailOrder, addPaymentVoucherDetail, updatePaymentVoucherDetail, copyPaymentVoucherDetail, removePaymentVoucherDetail } = paymentVoucherSlice.actions;
+export const { setPaymentVoucherListParams, setPaymentVoucherDeleteIDs, setFormField, resetPaymentVoucherForm, changePaymentVoucherDetailOrder, addPaymentVoucherDetail,
+  addVendorSettlementDetail, updatePaymentVoucherDetail, updateVendorSettlementDetail, copyPaymentVoucherDetail, removePaymentVoucherDetail, changeVendorSettlementDetail, clearVendorSettlementDetails } = paymentVoucherSlice.actions;
 export default paymentVoucherSlice.reducer;

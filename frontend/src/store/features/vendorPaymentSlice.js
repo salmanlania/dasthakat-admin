@@ -143,6 +143,17 @@ export const vendorPaymentSlice = createSlice({
       };
     },
 
+    updateVendorPaymentDetail: (state, action) => {
+      const { id, field, value } = action.payload;
+      const index = state.ledgerInvoices.findIndex((d) => d.id === id);
+      if (index !== -1) {
+        state.ledgerInvoices[index] = {
+          ...state.ledgerInvoices[index],
+          [field]: value,
+        };
+      }
+    },
+
     setVendorPaymentDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
     },
@@ -221,6 +232,12 @@ export const vendorPaymentSlice = createSlice({
             label: data?.supplier?.name
           }
           : null,
+        transaction_account_id: data?.transaction_account
+          ? {
+            value: data?.transaction_account?.account_id,
+            label: data?.transaction_account?.name
+          }
+          : null,
         total_amount: data?.total_amount ? parseInt(data?.total_amount) : null,
         remarks: data?.remarks ? data?.remarks : null,
         payment_amount: data?.payment_amount ? parseInt(data?.payment_amount) : null,
@@ -236,6 +253,12 @@ export const vendorPaymentSlice = createSlice({
         net_amount: detail?.original_amount ? parseInt(detail?.original_amount) : null,
         balance_amount: detail?.balance_amount ? parseInt(detail?.balance_amount) : null,
         vendor_payment_detail_id: detail?.vendor_payment_detail_id ? detail?.vendor_payment_detail_id : null,
+        account_id: detail?.account
+          ? {
+            value: detail?.account?.account_id,
+            label: detail?.account?.name
+          }
+          : null,
         vendorpayment_id: detail?.vendorpayment_id ? detail?.vendorpayment_id : null,
         row_status: 'U',
         isDeleted: false
@@ -285,5 +308,5 @@ export const vendorPaymentSlice = createSlice({
   }
 });
 
-export const { setVendorPaymentListParams, setVendorPaymentDeleteIDs, setFormField, resetVendorPaymentForm } = vendorPaymentSlice.actions;
+export const { setVendorPaymentListParams, setVendorPaymentDeleteIDs, setFormField, resetVendorPaymentForm, updateVendorPaymentDetail } = vendorPaymentSlice.actions;
 export default vendorPaymentSlice.reducer;

@@ -1,8 +1,10 @@
 import { Col, Form, Row } from 'antd';
 import AsyncSelectLedger from '../AsyncSelectLedger';
+import { useSelector } from 'react-redux';
 
 export default function GeneralLedgerSettingForm() {
-
+    const { user } = useSelector((state) => state.auth);
+    const permissions = user?.permission;
     return (
         <div className="rounded border border-gray-200 bg-white p-6">
             <Form.Item
@@ -31,6 +33,7 @@ export default function GeneralLedgerSettingForm() {
                             valueKey="account_id"
                             labelKey="name"
                             allowClear
+                            // addNewLink={permissions?.accounts?.list && permissions?.accounts?.add ? '/general-ledger/gl-setup/accounts' : null}
                         />
                     </Form.Item>
                 </Col>

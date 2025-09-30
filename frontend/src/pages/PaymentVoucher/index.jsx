@@ -2,13 +2,13 @@ import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Table, Tooltip } fro
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { AiOutlineTag } from 'react-icons/ai';
 import { GoTrash } from 'react-icons/go';
 import { MdOutlineEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect/index.jsx';
 import PageHeading from '../../components/Heading/PageHeading.jsx';
-import ChargeOrderModal from '../../components/Modals/ChargeOrderModal.jsx';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal.jsx';
 import useDebounce from '../../hooks/useDebounce.js';
 import useDocumentTitle from '../../hooks/useDocumentTitle.js';
@@ -20,6 +20,7 @@ import {
   setPaymentVoucherDeleteIDs,
   setPaymentVoucherListParams,
 } from '../../store/features/paymentVoucherSlice.js';
+import VendorSettlementTaggingModal from '../../components/Modals/vendorSettlementTaggingModal.jsx';
 
 const PaymentVoucher = () => {
   useDocumentTitle('Payment Voucher List');
@@ -30,8 +31,11 @@ const PaymentVoucher = () => {
   );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.payment_voucher;
+  const permissionsSettlement = user.permission
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
+  const [taggingModalOpen, setTaggingModalOpen] = useState(false);
+  const [paymentVoucherId, setPaymentVoucherId] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
@@ -171,6 +175,10 @@ const PaymentVoucher = () => {
       sorter: true,
       width: 140,
       ellipsis: true,
+      onCell: () => ({
+        style: { textAlign: 'right' },
+      }),
+      render: (value) => `${value}.`,
     },
     {
       title: (
@@ -224,10 +232,23 @@ const PaymentVoucher = () => {
                 </Popconfirm>
               </Tooltip>
             ) : null}
+            {permissionsSettlement.payment_voucher_settlement ? (
+              <Tooltip title="Tagging">
+                <Button
+                  size="small"
+                  type="primary"
+                  icon={<AiOutlineTag size={14} />}
+                  onClick={() => {
+                    setPaymentVoucherId(payment_voucher_id)
+                    setTaggingModalOpen(true)
+                  }}
+                />
+              </Tooltip>
+            ) : null}
           </div>
         </div>
       ),
-      width: 70,
+      width: 90,
       fixed: 'right',
     },
   ];
@@ -356,7 +377,11 @@ const PaymentVoucher = () => {
         description="After deleting, you will not be able to recover."
       />
 
-      <ChargeOrderModal />
+      <VendorSettlementTaggingModal
+        open={taggingModalOpen}
+        paymentVoucherId={paymentVoucherId}
+        onClose={() => setTaggingModalOpen(false)}
+      />
     </>
   );
 };

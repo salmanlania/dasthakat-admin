@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { getVendorLedgerInvoices } from '../../store/features/vendorPaymentSlice';
+import { getVendorLedgerInvoices, updateVendorPaymentDetail } from '../../store/features/vendorPaymentSlice';
 import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
@@ -21,12 +21,11 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
 
   const DetailSummaryInfo = ({ title, value, disabled }) => {
     return (
-      <div className="flex justify-between items-center mb-2 gap-4">
+      <div className="grid grid-cols-2 items-center gap-4 mb-2">
         <span className="text-sm text-gray-600">{title}</span>
-        {/* <span className="text-sm font-semibold text-black">{value}</span> */}
         <DebouncedCommaSeparatedInputRate
           disabled={disabled}
-          className="text-sm font-semibold text-black"
+          className="text-sm font-semibold text-black text-right"
           value={value}
         />
       </div>
@@ -43,8 +42,6 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
   const [ledgerModalOpen, setLedgerModalOpen] = useState(false);
 
   const onFinish = (values) => {
-    console.log('values', values)
-    // return
     const normalize = (num) => Number(parseFloat(num).toFixed(2));
     const paymentAmount = normalize(values?.payment_amount ? values?.payment_amount : null)
     const settledAmount = normalize(totalSettled);
@@ -56,6 +53,7 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
       ...initialFormValues,
       ...values,
       supplier_id: values?.supplier_id?.value ? values?.supplier_id?.value : values?.supplier_id?.key ? values?.supplier_id?.key : null,
+      transaction_account_id: values?.transaction_account_id?.value ? values?.transaction_account_id?.value : values?.transaction_account_id?.key ? values?.transaction_account_id?.key : null,
       total_amount: totalSettled ? totalSettled : totalAmountVal,
       payment_amount: paymentAmount,
       document_date: formatDate(values.document_date),
@@ -71,6 +69,7 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
               original_amount: row?.net_amount,
               balance_amount: parseInt(row?.balance_amount),
               settled_amount: settledAmounts[row.purchase_invoice_id] || 0,
+              account_id: row?.account_id ? row?.account_id?.value || row?.account_id : null,
               sort_order: index + 1,
               row_status: isSelected ? (row?.row_status || "U") : "D"
             };
@@ -87,8 +86,6 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
             row_status: row?.row_status
           }))
     };
-    console.log('data' , data)
-    // return 
 
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
@@ -106,18 +103,7 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
       ...prev,
       [record.purchase_invoice_id]: settledAmount
     }));
-
-    // const totalSettledAmount = selectedRowKeys.reduce((sum, key) => sum + (settledAmounts[key] || settledAmount || 0), 0);
-    // setTotalAmount(totalSettledAmount);
   };
-
-  // useEffect(() => {
-  //   if (selectedRowKeys.length === 0) return;
-  //   if (selectedRowKeys.length > 0) {
-  //     const totalSettledAmount = selectedRowKeys.reduce((sum, key) => sum + (settledAmounts[key] || 0), 0);
-  //     setTotalAmount(totalSettledAmount);
-  //   }
-  // }, [selectedRowKeys, settledAmounts]);
 
   useEffect(() => {
     const total = selectedRowKeys.reduce(
@@ -180,10 +166,6 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'document_date',
       key: 'document_date',
       render: (_, record, { document_date }) => {
-        console.log('record' , {
-          record,
-          document_date
-        })
         const documentDate = document_date ? dayjs(document_date).format("MM-DD-YYYY") : record?.document_date ? dayjs(record?.document_date).format("MM-DD-YYYY") : ""
         return (
           <DebounceInput
@@ -217,6 +199,7 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
         const documentNetAmount = net_amount ? net_amount : record?.net_amount ? record?.net_amount : ""
         return (
           <DebouncedCommaSeparatedInput
+            className="text-right"
             disabled
             value={documentNetAmount && Number(documentNetAmount).toFixed(2)}
           />
@@ -229,7 +212,11 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'balance_amount',
       key: 'balance_amount',
       render: (_, record) => (
-        <DebouncedCommaSeparatedInput value={record?.balance_amount ? Number(record?.balance_amount).toFixed(2) : ''} disabled />
+        <DebouncedCommaSeparatedInput
+          className="text-right"
+          value={record?.balance_amount ? Number(record?.balance_amount).toFixed(2) : ''}
+          disabled
+        />
       ),
       width: 120
     },
@@ -241,6 +228,7 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
         const value = settledAmounts[record?.purchase_invoice_id] ?? '';
         return (
           <DebouncedCommaSeparatedInputRate
+            className="text-right"
             value={value ? Number(value).toFixed(2) : Number(record?.settled_amount).toFixed(2) ? record?.settled_amount : null}
             onChange={(val) => handleSettledAmountChange(val, record)}
           />
@@ -312,6 +300,22 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
               />
             </Form.Item>
           </Col>
+          <Col span={24} sm={6} md={6} lg={6}>
+            <Form.Item
+              name="transaction_account_id"
+              label="Select Bank"
+            // rules={[{ required: true, message: 'Vendor is required' }]}
+            >
+              <AsyncSelect
+                endpoint="/accounts?only_leaf=1"
+                valueKey="account_id"
+                labelKey="name"
+                labelInValue
+                // value={record?.account_id}
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
+          </Col>
         </Row>
         <Row gutter={12}>
           <Col span={24} sm={6} md={6} lg={6}>
@@ -347,7 +351,6 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
                 newSelectedRows.forEach(row => {
                   if (!(row.purchase_invoice_id in updated)) {
                     updated[row.purchase_invoice_id] = row.balance_amount || 0;
-                    // updated[row.purchase_invoice_id] = 0;
                   }
                 });
 
@@ -358,7 +361,7 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
         />
 
         <div className="flex justify-end w-full">
-          <div className="border rounded-lg bg-white shadow-sm w-full max-w-sm mt-4">
+          <div className="border rounded-lg bg-white shadow-sm w-full max-w-sm mt-8 mb-4">
             <div className="flex justify-center -mt-3">
               <span className="bg-cyan-100 text-black px-4 py-1 rounded-full text-sm font-semibold shadow-sm">
                 Amount For Selected Invoices
@@ -378,13 +381,11 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
               <DetailSummaryInfo
                 title="Applied"
                 disabled
-                // value={formatThreeDigitCommas(totalAmount || 0)}
                 value={totalAmountDue || "0.00"}
               />
               <DetailSummaryInfo
                 title="Discount & Credit Applied"
                 disabled
-                // value={formatThreeDigitCommas(initialFormValues?.totalDiscount || 0)}
                 value={initialFormValues?.totalDiscount || "0.00"}
               />
             </div>

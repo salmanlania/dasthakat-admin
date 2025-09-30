@@ -164,6 +164,10 @@ const VendorPayment = () => {
       sorter: true,
       width: 140,
       ellipsis: true,
+      onCell: () => ({
+        style: { textAlign: 'right' },
+      }),
+      render: (value) => `${value}.`,
     },
     {
       title: (
