@@ -208,7 +208,6 @@ class QuotationController extends Controller
     $html = view('quotation.temp',$data)->render(); // this now works
 
     $dompdf->loadHTML($html );
-
     $title = 'Performa-'.($data->document_identity ?? "" ).'-'.($data->vessel['name'] ?? "").'.pdf';
 	$mainPdfContent = $dompdf->output();
 	    // Save to temp file

@@ -59,14 +59,17 @@
 
 @php
 
-$lines = explode("\n", $term_desc);
-$term_desc =[];
-  foreach ($lines as $line) {
-    $line = trim($line);
-    $term_desc[]= wordwrap($line, 70, "\n");
-  
+if(!empty($term_desc)){
+  $lines = explode("\n", $term_desc);
+  $term_desc =[];
+    foreach ($lines as $line) {
+      $line = trim($line);
+      $term_desc[]= wordwrap($line, 70, "\n");
+    
+  }
+}else{
+  $term_desc = [];
 }
-
 $termCount = (!empty($term_desc) ? (count($term_desc)>2 ? 3  : count($term_desc) ) : 0 );
 @endphp
 
