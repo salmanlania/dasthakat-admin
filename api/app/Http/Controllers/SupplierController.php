@@ -136,7 +136,7 @@ class SupplierController extends Controller
 				DB::raw("purchase_invoice.net_amount - (
                     SELECT COALESCE(SUM(amount), 0) 
                     FROM payment_voucher_settlement_detail as pvsd Left join payment_voucher_settlement as pvs on pvs.payment_voucher_settlement_id = pvsd.payment_voucher_settlement_id
-                    WHERE pvsd.purchase_invoice_id = purchase_invoice.purchase_invoice_id AND pvs.payment_voucher_id = $request->payment_voucher_id
+                    WHERE pvsd.purchase_invoice_id = purchase_invoice.purchase_invoice_id AND pvs.payment_voucher_id = '$request->payment_voucher_id'
 					) as balance_amount")
 			)
 			->having('balance_amount', '>', 0)
