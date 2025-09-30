@@ -106,7 +106,7 @@ $router->group(['prefix' => 'customer'], function ($router) {
 $router->group(['prefix' => 'supplier'], function ($router) {
    $router->get('/', 'SupplierController@index');
    $router->get('/{id}/ledger-invoices', 'SupplierController@getLedgerInvoices');
-   $router->get('/{id}/unsettled-invoices', 'CustomerController@getPurchaseInvoices');
+   $router->get('/{id}/unsettled-invoices', 'CustomerController@getUnsettledPurchaseInvoices');
    $router->get('/{id}', 'SupplierController@show');
    $router->post('/', 'SupplierController@store');
    $router->put('/{id}', 'SupplierController@update');
