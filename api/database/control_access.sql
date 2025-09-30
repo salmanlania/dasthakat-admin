@@ -141,6 +141,11 @@
   ('General Ledger', 'Payment Voucher', 'payment_voucher', 'edit', 'Edit', 1.103),
   ('General Ledger', 'Payment Voucher', 'payment_voucher', 'delete', 'Delete', 1.104),
   
+  ('General Ledger', 'Payment Voucher Settlement', 'payment_voucher_settlement', 'list', 'List', 1.101),
+  ('General Ledger', 'Payment Voucher Settlement', 'payment_voucher_settlement', 'add', 'Add', 1.102),
+  ('General Ledger', 'Payment Voucher Settlement', 'payment_voucher_settlement', 'edit', 'Edit', 1.103),
+  ('General Ledger', 'Payment Voucher Settlement', 'payment_voucher_settlement', 'delete', 'Delete', 1.104),
+  
   ('Inventory Setup', 'Category', 'category', 'list', 'List', 1.101),
   ('Inventory Setup', 'Category', 'category', 'add', 'Add', 1.102),
   ('Inventory Setup', 'Category', 'category', 'edit', 'Edit', 1.103),

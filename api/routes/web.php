@@ -106,6 +106,7 @@ $router->group(['prefix' => 'customer'], function ($router) {
 $router->group(['prefix' => 'supplier'], function ($router) {
    $router->get('/', 'SupplierController@index');
    $router->get('/{id}/ledger-invoices', 'SupplierController@getLedgerInvoices');
+   $router->get('/{id}/unsettled-invoices', 'CustomerController@getPurchaseInvoices');
    $router->get('/{id}', 'SupplierController@show');
    $router->post('/', 'SupplierController@store');
    $router->put('/{id}', 'SupplierController@update');
@@ -555,6 +556,14 @@ $router->group(['prefix' => 'payment-voucher'], function ($router) {
     $router->delete('/{id}', 'PaymentVoucherController@delete');
 });
 
+$router->group(['prefix' => 'payment-voucher-settlement'], function ($router) {
+    $router->get('/', 'PaymentVoucherSettlementController@index');
+    $router->post('/', 'PaymentVoucherSettlementController@store');
+    $router->post('/bulk-delete', 'PaymentVoucherSettlementController@bulkDelete');
+    $router->get('/{id}', 'PaymentVoucherSettlementController@show');
+    $router->put('/{id}', 'PaymentVoucherSettlementController@update');
+    $router->delete('/{id}', 'PaymentVoucherSettlementController@delete');
+});
 // COA Level1 routes
 $router->group(['prefix' => 'coa-level1'], function ($router) {
     $router->get('/', 'CoaLevel1Controller@index');

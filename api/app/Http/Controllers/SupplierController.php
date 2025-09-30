@@ -118,7 +118,36 @@ class SupplierController extends Controller
 
 		return $this->jsonResponse($data, 200, "Supplier Invoices Data");
 	}
+	
+	public function getUnsettledPurchaseInvoices($id, Request $request)
+	{
 
+		$data = PurchaseInvoice::
+		// leftJoin('accounts as a', 'a.account_id', '=', 'purchase_invoice.transaction_account_id')
+			where('purchase_invoice.supplier_id', $id)
+			->select(
+				'purchase_invoice.purchase_invoice_id',
+				'purchase_invoice.document_identity',
+				'purchase_invoice.document_type_id',
+				'purchase_invoice.document_date',
+				// 'a.account_id as transaction_account_id',
+				// 'a.name as transaction_account',
+				'purchase_invoice.net_amount',
+				DB::raw("purchase_invoice.net_amount - (
+                    SELECT COALESCE(SUM(amount), 0) 
+                    FROM payment_voucher_settlement_detail as pvsd
+                    WHERE pvsd.purchase_invoice_id = purchase_invoice.purchase_invoice_id 
+					) as balance_amount")
+			)
+			->having('balance_amount', '>', 0)
+			->get();
+
+		if (!$data) {
+			return $this->jsonResponse(null, 404, "Unsettled Supplier Invoices not found");
+		}
+
+		return $this->jsonResponse($data, 200, "Customer Payment Data");
+	}
 	public function validateRequest($request, $id = null)
 	{
 		$rules = [
