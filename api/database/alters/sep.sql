@@ -571,4 +571,4 @@ ALTER TABLE `payment_voucher_tagging_detail`
   ADD INDEX `idx_payment_purchase_invoice` (`purchase_invoice_id`);
 
 INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `document_prefix`, `table_name`, `primary_key`)
-VALUES ( 62, 'Payment Voucher Taging', '{BC}/PVS-', 'payment_voucher_tagging', 'payment_voucher_tagging_id' );
+VALUES ( 62, 'Payment Voucher Tagging', '{BC}/PVS-', 'payment_voucher_tagging', 'payment_voucher_tagging_id' );
