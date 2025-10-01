@@ -27,11 +27,6 @@ class CustomerPaymentSettlementDetail extends Model
         return $this->belongsTo(CustomerPaymentSettlement::class, 'customer_payment_settlement_id', 'customer_payment_settlement_id');
     }
 
-    public function customer_payment()
-    {
-        return $this->belongsTo(CustomerPayment::class, 'customer_payment_id', 'customer_payment_id');
-    }
-    
     public function account()
     {
         return $this->belongsTo(Accounts::class, 'account_id', 'account_id');

@@ -77,7 +77,7 @@ class CustomerPaymentSettlementController extends Controller
     public function show($id, Request $request)
     {
 
-        $data = CustomerPaymentSettlement::with('details', 'customer', 'transaction_account', 'document_currency', 'base_currency', 'details.customer_payment', 'details.account')
+        $data = CustomerPaymentSettlement::with('details', 'customer', 'transaction_account', 'document_currency', 'base_currency', 'customer_payment', 'details.account')
             ->where('customer_payment_settlement_id', $id)
             ->first();
 
@@ -204,12 +204,12 @@ class CustomerPaymentSettlementController extends Controller
                 'account_id' => $request->transaction_account_id ?? null,
                 'remarks' => '',
                 'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
-                'document_debit' => 0,
-                'document_credit' => $request->bank_amount ?? "",
+                'document_credit' => 0,
+                'document_debit' => $request->bank_amount ?? "",
                 'base_currency_id' => $base_currency_id,
                 'conversion_rate' => $conversion_rate,
-                'debit' => 0,
-                'credit' => ($request->bank_amount ?? 0) * $conversion_rate,
+                'credit' => 0,
+                'debit' => ($request->bank_amount ?? 0) * $conversion_rate,
                 'document_amount' => $request->bank_amount ?? "",
                 'amount' => ($request->bank_amount ?? 0) * $conversion_rate,
                 'created_at' => Carbon::now(),
@@ -356,12 +356,12 @@ class CustomerPaymentSettlementController extends Controller
                 'account_id' => $request->transaction_account_id,
                 'remarks' => '',
                 'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
-                'document_debit' => 0,
-                'document_credit' => $request->bank_amount ?? "",
+                'document_credit' => 0,
+                'document_debit' => $request->bank_amount ?? "",
                 'base_currency_id' => $base_currency_id,
                 'conversion_rate' => $conversion_rate,
-                'debit' => 0,
-                'credit' => ($request->bank_amount ?? 0) * $conversion_rate,
+                'credit' => 0,
+                'debit' => ($request->bank_amount ?? 0) * $conversion_rate,
                 'document_amount' => $request->bank_amount ?? "",
                 'amount' => ($request->bank_amount ?? 0) * $conversion_rate,
                 'created_at' => Carbon::now(),
