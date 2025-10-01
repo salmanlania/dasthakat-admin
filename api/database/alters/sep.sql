@@ -582,3 +582,6 @@ DROP COLUMN `customer_payment_id`,
 DROP COLUMN `ref_document_identity`,
 DROP COLUMN `cheque_no`,
 DROP COLUMN `cheque_date`;
+
+ALTER TABLE customer_payment_settlement 
+ADD COLUMN `bank_amount` CHAR(36) NULL AFTER `customer_payment_id`;
