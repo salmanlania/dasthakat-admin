@@ -572,3 +572,13 @@ ALTER TABLE `payment_voucher_tagging_detail`
 
 INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `document_prefix`, `table_name`, `primary_key`)
 VALUES ( 62, 'Payment Voucher Tagging', '{BC}/PVS-', 'payment_voucher_tagging', 'payment_voucher_tagging_id' );
+
+ALTER TABLE customer_payment_settlement 
+ADD COLUMN `transaction_no` VARCHAR(255) NULL AFTER `transaction_account_id`,
+ADD COLUMN `customer_payment_id` CHAR(36) NULL AFTER `transaction_no`;
+
+ALTER TABLE customer_payment_settlement_detail 
+DROP COLUMN `customer_payment_id`,
+DROP COLUMN `ref_document_identity`,
+DROP COLUMN `cheque_no`,
+DROP COLUMN `cheque_date`;
