@@ -57,9 +57,9 @@ export const createPaymentVoucher = createAsyncThunk(
 
 export const createPaymentVoucherSettlement = createAsyncThunk(
   'paymentVoucherSettlement/create',
-  async (data, { rejectWithValue }) => {
+  async (payload, { rejectWithValue }) => {
     try {
-      const res = await api.post('/payment-voucher-settlement', data);
+      const res = await api.post('/payment-voucher-tagging', payload);
       return res?.data
     } catch (err) {
       throw rejectWithValue(err);
@@ -156,10 +156,6 @@ export const paymentVoucherSlice = createSlice({
       };
     },
 
-    clearVendorSettlementDetails: (state) => {
-      state.vendorPaymentSettlementDetails = [];
-    },
-
     setPaymentVoucherDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
     },
@@ -167,6 +163,11 @@ export const paymentVoucherSlice = createSlice({
     resetPaymentVoucherForm: (state) => {
       state.initialFormValues = null;
       state.paymentVoucherDetails = [];
+    },
+
+    resetPaymentVoucherSettlementForm: (state) => {
+      state.initialFormValues = null;
+      state.vendorPaymentSettlementDetails = [];
     },
 
     setFormField: (state, action) => {
@@ -459,7 +460,6 @@ export const paymentVoucherSlice = createSlice({
     addCase(getUnsettledInvoices.fulfilled, (state, action) => {
       state.isLedgerLoading = false;
       const data = action.payload
-      console.log('data slice' , data)
       state.vendorPaymentSettlementDetails = data?.map((detail) => ({
         ...detail,
         id: detail?.purchase_invoice_id ? detail?.purchase_invoice_id : null,
@@ -477,6 +477,6 @@ export const paymentVoucherSlice = createSlice({
   }
 });
 
-export const { setPaymentVoucherListParams, setPaymentVoucherDeleteIDs, setFormField, resetPaymentVoucherForm, changePaymentVoucherDetailOrder, addPaymentVoucherDetail,
-  addVendorSettlementDetail, updatePaymentVoucherDetail, updateVendorSettlementDetail, copyPaymentVoucherDetail, removePaymentVoucherDetail, changeVendorSettlementDetail, clearVendorSettlementDetails } = paymentVoucherSlice.actions;
+export const { setPaymentVoucherListParams, setPaymentVoucherDeleteIDs, setFormField, resetPaymentVoucherForm, resetPaymentVoucherSettlementForm, changePaymentVoucherDetailOrder, addPaymentVoucherDetail,
+  addVendorSettlementDetail, updatePaymentVoucherDetail, updateVendorSettlementDetail, copyPaymentVoucherDetail, removePaymentVoucherDetail, changeVendorSettlementDetail } = paymentVoucherSlice.actions;
 export default paymentVoucherSlice.reducer;

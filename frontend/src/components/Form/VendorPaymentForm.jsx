@@ -320,7 +320,7 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
         <Row gutter={12}>
           <Col span={24} sm={6} md={6} lg={6}>
             <Form.Item name="payment_amount" label="Receipt Amount">
-              <Input />
+              <DebouncedCommaSeparatedInput />
             </Form.Item>
           </Col>
           <Col span={24} sm={6} md={6} lg={6}>

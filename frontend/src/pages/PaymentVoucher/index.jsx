@@ -36,6 +36,7 @@ const PaymentVoucher = () => {
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const [taggingModalOpen, setTaggingModalOpen] = useState(false);
   const [paymentVoucherId, setPaymentVoucherId] = useState(null);
+  const [selectedTotalAmount, setSelectedTotalAmount] = useState(0);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
@@ -203,12 +204,12 @@ const PaymentVoucher = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_, { payment_voucher_id }) => (
+      render: (_, record) => (
         <div className="flex flex-col justify-center gap-1">
           <div className="flex items-center gap-1">
             {permissions.edit ? (
               <Tooltip title="Edit">
-                <Link to={`/general-ledger/transactions/payment-voucher/edit/${payment_voucher_id}`}>
+                <Link to={`/general-ledger/transactions/payment-voucher/edit/${record?.payment_voucher_id}`}>
                   <Button
                     size="small"
                     type="primary"
@@ -226,21 +227,22 @@ const PaymentVoucher = () => {
                   okButtonProps={{ danger: true }}
                   okText="Yes"
                   cancelText="No"
-                  onConfirm={() => onQuotationDelete(payment_voucher_id)}
+                  onConfirm={() => onQuotationDelete(record?.payment_voucher_id)}
                 >
                   <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                 </Popconfirm>
               </Tooltip>
             ) : null}
-            {permissionsSettlement.payment_voucher_settlement ? (
+            {permissionsSettlement?.payment_voucher_tagging ? (
               <Tooltip title="Tagging">
                 <Button
                   size="small"
                   type="primary"
                   icon={<AiOutlineTag size={14} />}
                   onClick={() => {
-                    setPaymentVoucherId(payment_voucher_id)
-                    setTaggingModalOpen(true)
+                    setSelectedTotalAmount(record?.total_amount);
+                    setPaymentVoucherId(record?.payment_voucher_id);
+                    setTaggingModalOpen(true);
                   }}
                 />
               </Tooltip>
@@ -380,6 +382,7 @@ const PaymentVoucher = () => {
       <VendorSettlementTaggingModal
         open={taggingModalOpen}
         paymentVoucherId={paymentVoucherId}
+        totalAmountValue={selectedTotalAmount}
         onClose={() => setTaggingModalOpen(false)}
       />
     </>

@@ -7,21 +7,19 @@ import AsyncSelect from "../AsyncSelect";
 import DebounceInput from "../Input/DebounceInput";
 import DebouncedCommaSeparatedInput from "../Input/DebouncedCommaSeparatedInput";
 
+import dayjs from "dayjs";
+import toast from "react-hot-toast";
+import useError from "../../hooks/useError";
 import {
   changeVendorSettlementDetail,
-  clearVendorSettlementDetails,
   createPaymentVoucherSettlement,
   getUnsettledInvoices,
-  updateVendorSettlementDetail
+  updateVendorSettlementDetail,
 } from "../../store/features/paymentVoucherSlice";
-import toast from "react-hot-toast";
-import dayjs from "dayjs";
-import useError from "../../hooks/useError";
 import DebouncedCommaSeparatedInputRate from "../Input/DebouncedCommaSeparatedInputRate";
 
-const VendorSettlementTaggingModal = ({ open, onClose, paymentVoucherId }) => {
+const VendorSettlementTaggingModal = ({ open, onClose, paymentVoucherId, totalAmountValue }) => {
   const DetailSummaryInfoVendor = ({ value, disabled }) => {
-    console.log('value', value)
     return (
       <div className="grid grid-cols-2 items-center gap-4 mb-2">
         <DebouncedCommaSeparatedInputRate
@@ -33,58 +31,61 @@ const VendorSettlementTaggingModal = ({ open, onClose, paymentVoucherId }) => {
       </div>
     );
   };
-  const handleError = useError
+  const handleError = useError()
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [totalAmount, setTotalAmount] = useState(0);
-  const { vendorPaymentSettlementDetails, isLedgerLoading } = useSelector((state) => state.paymentVoucher);
+  const [data, setData] = useState([]);
+  const { vendorPaymentSettlementDetails } = useSelector((state) => state.paymentVoucher);
 
   useEffect(() => {
-    const total = vendorPaymentSettlementDetails.reduce(
-      (sum, row) => sum + (parseFloat(row.settle_amount) || 0),
-      0
-    );
-    console.log('total', total)
-    console.log('totalAmount', totalAmount)
-    setTotalAmount(total);
+    setData(vendorPaymentSettlementDetails);
   }, [vendorPaymentSettlementDetails]);
 
-  const handleOk = async () => {
+  const onFinish = async () => {
     if (selectedRowKeys.length === 0) {
       toast.error("Please select at least one record");
       return;
     }
-    const selectedRows = vendorPaymentSettlementDetails.filter(row => selectedRowKeys.includes(row.id));
+    const selectedRows = data?.filter(row => selectedRowKeys.includes(row.id));
     const check = selectedRows.some(row => row?.settle_amount > row?.amount);
+    const checkValue = selectedRows.some(row => row?.settle_amount);
     if (check) {
       toast.error("Settle amount must be equal to or less than amount");
       return;
     }
+    else if (checkValue > totalAmountValue) {
+      toast.error("Settle amount must be equal to or less than Total Amount");
+      return;
+    }
     const values = await form.getFieldsValue();
     const supplierId = values.supplier_id?.value;
-    const data = {
+    const payload = {
       supplier_id: supplierId,
       document_date: dayjs().format('YYYY-MM-DD'),
       payment_voucher_id: paymentVoucherId,
       total_amount: selectedRows.reduce((sum, row) => sum + (parseFloat(row.settle_amount) || 0), 0),
       details: selectedRows.map((row, index) => ({
         ...row,
+        amount: parseFloat(row?.settle_amount) || 0,
       }))
     }
-    console.log('data', data)
-    // return
     try {
-      dispatch(createPaymentVoucherSettlement(data));
-      // onClose();
+      dispatch(createPaymentVoucherSettlement(payload));
+      form.resetFields();
+      setSelectedRowKeys([]);
+      setData([]);
+      toast.success("Vendor Settlement created successfully");
+      onClose();
     } catch (err) {
       handleError(err);
-      // validation errors
     }
   };
 
   const handleClose = () => {
-    dispatch(clearVendorSettlementDetails());
+    form.resetFields();
+    setData([]);
+    setSelectedRowKeys([])
     onClose();
   };
 
@@ -195,7 +196,7 @@ const VendorSettlementTaggingModal = ({ open, onClose, paymentVoucherId }) => {
         <Button key="cancel" onClick={handleClose}>
           Cancel
         </Button>,
-        <Button key="ok" type="primary" onClick={handleOk}>
+        <Button key="ok" type="primary" onClick={onFinish}>
           Save
         </Button>,
       ]}
@@ -203,7 +204,7 @@ const VendorSettlementTaggingModal = ({ open, onClose, paymentVoucherId }) => {
       destroyOnClose
       centered
     >
-      <Row gutter={12} style={{alignItems: 'center'}}>
+      <Row gutter={12} style={{ alignItems: 'center' }}>
         <Col span={24} sm={6} md={6} lg={6}>
           <Form layout="vertical" form={form}>
             <Form.Item
@@ -219,7 +220,6 @@ const VendorSettlementTaggingModal = ({ open, onClose, paymentVoucherId }) => {
                 placeholder="Select Vendor"
                 style={{ width: "100%" }}
                 onChange={(value) => {
-                  console.log('value', value);
                   const supplierId = value ? value?.value : null;
                   dispatch(getUnsettledInvoices({ supplierId, paymentVoucherId }));
                 }}
@@ -241,7 +241,7 @@ const VendorSettlementTaggingModal = ({ open, onClose, paymentVoucherId }) => {
             <label className="block text-sm font-medium text-gray-600">
               Total Amount
             </label>
-            <DetailSummaryInfoVendor disabled value={totalAmount || "0.00"} />
+            <DetailSummaryInfoVendor disabled value={totalAmountValue || "0.00"} />
           </div>
         </Col>
 
@@ -252,10 +252,26 @@ const VendorSettlementTaggingModal = ({ open, onClose, paymentVoucherId }) => {
           rowSelection={{
             type: 'checkbox',
             selectedRowKeys,
-            onChange: (selectedKeys) => setSelectedRowKeys(selectedKeys),
+            // onChange: (selectedKeys) => setSelectedRowKeys(selectedKeys),
+            onChange: (selectedKeys) => {
+              const newlySelected = selectedKeys.filter(id => !selectedRowKeys.includes(id));
+
+              // Update settle_amount = amount for newly selected rows
+              newlySelected.forEach((id) => {
+                const row = data.find(r => r.id === id);
+                if (row && row.settle_amount !== row.amount) {
+                  dispatch(updateVendorSettlementDetail({
+                    id: row.id,
+                    field: 'settle_amount',
+                    value: row.amount,
+                  }));
+                }
+              });
+              setSelectedRowKeys(selectedKeys);
+            }
           }}
           columns={columns}
-          dataSource={vendorPaymentSettlementDetails}
+          dataSource={data}
           rowKey="id"
           pagination={false}
           size="small"

@@ -367,7 +367,7 @@ const CustomerPaymentSettlementForm = ({ mode, onSubmit, onSave }) => {
           >
             Save & Exit
           </Button>
-          {/* {
+          {
             mode === 'edit'
               ? (
                 <Button
@@ -378,7 +378,7 @@ const CustomerPaymentSettlementForm = ({ mode, onSubmit, onSave }) => {
                   Ledger
                 </Button>
               ) : null
-          } */}
+          }
         </div>
       </Form>
 

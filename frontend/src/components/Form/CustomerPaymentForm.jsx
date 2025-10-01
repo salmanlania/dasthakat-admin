@@ -197,6 +197,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
         const documentNetAmount = net_amount ? net_amount : record?.net_amount ? record?.net_amount : ""
         return (
           <DebouncedCommaSeparatedInput
+            className="text-right"
             disabled
             value={documentNetAmount && Number(documentNetAmount).toFixed(2)}
           />
@@ -209,7 +210,11 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'balance_amount',
       key: 'balance_amount',
       render: (_, record) => (
-        <DebouncedCommaSeparatedInput value={record?.balance_amount ? Number(record?.balance_amount).toFixed(2) : ''} disabled />
+        <DebouncedCommaSeparatedInput
+          className="text-right"
+          value={record?.balance_amount ? Number(record?.balance_amount).toFixed(2) : ''}
+          disabled
+        />
       ),
       width: 120
     },
@@ -221,6 +226,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
         const value = settledAmounts[record?.sale_invoice_id] ?? '';
         return (
           <DebouncedCommaSeparatedInputRate
+            className="text-right"
             allowClear
             value={value ? Number(value).toFixed(2) : Number(record?.settled_amount).toFixed(2) ? record?.settled_amount : null}
             onChange={(val) => handleSettledAmountChange(val, record)}
@@ -297,7 +303,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
         <Row gutter={12}>
           <Col span={24} sm={6} md={6} lg={6}>
             <Form.Item name="payment_amount" label="Receipt Amount">
-              <Input />
+              <DebouncedCommaSeparatedInput />
             </Form.Item>
           </Col>
           <Col span={24} sm={6} md={6} lg={6}>
