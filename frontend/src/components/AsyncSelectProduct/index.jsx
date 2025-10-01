@@ -120,8 +120,9 @@ const AsyncSelectProduct = ({
       filterOption={false}
       onFocus={() => setIsClicked(true)}
       {...props}
-      onChange={(v) => {
-        props.onChange && props.onChange(v);
+      onChange={(v, option) => {
+        // props.onChange && props.onChange(v);
+        props.onChange && props.onChange(v, option?.data || option);
         setSearchValue('');
       }}
       onPopupScroll={handleScroll}
