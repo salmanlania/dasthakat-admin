@@ -584,4 +584,4 @@ DROP COLUMN `cheque_no`,
 DROP COLUMN `cheque_date`;
 
 ALTER TABLE customer_payment_settlement 
-ADD COLUMN `bank_amount` CHAR(36) NULL AFTER `customer_payment_id`;
+ADD COLUMN `bank_amount` DECIMAL(15, 2) NULL AFTER `customer_payment_id`;

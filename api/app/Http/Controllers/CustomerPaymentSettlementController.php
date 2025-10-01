@@ -8,9 +8,7 @@ use App\Models\Customer;
 use App\Models\DocumentType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Setting;
-use App\Models\CustomerPayment;
-use App\Models\CustomerPaymentDetail;
+
 use App\Models\CustomerPaymentSettlement;
 use App\Models\CustomerPaymentSettlementDetail;
 use App\Models\Ledger;
@@ -28,6 +26,7 @@ class CustomerPaymentSettlementController extends Controller
         $document_identity = $request->input('document_identity', '');
         $document_date = $request->input('document_date', '');
         $customer_id = $request->input('customer_id', '');
+        $customer_payment_no = $request->input('customer_payment_no', '');
         $transaction_account_id = $request->input('transaction_account_id', '');
         $remarks = $request->input('remarks', '');
         $total_amount = $request->input('total_amount', '');
@@ -38,16 +37,19 @@ class CustomerPaymentSettlementController extends Controller
         $sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
         $data = CustomerPaymentSettlement::LeftJoin('customer as c', 'c.customer_id', '=', 'customer_payment_settlement.customer_id')
+        ->leftJoin('customer_payment as cp', 'cp.customer_payment_id', '=', 'customer_payment_settlement.customer_payment_id')
             ->LeftJoin('accounts as a', 'a.account_id', '=', 'customer_payment_settlement.transaction_account_id');
 
         $data = $data->where('customer_payment_settlement.company_id', '=', $request->company_id);
         $data = $data->where('customer_payment_settlement.company_branch_id', '=', $request->company_branch_id);
 
         if (!empty($document_identity)) $data->where('customer_payment_settlement.document_identity', 'like', "%$document_identity%");
+        if (!empty($customer_payment_no)) $data->where('cp.customer_payment_no', 'like', "%$customer_payment_no%");
         if (!empty($total_amount)) $data->where('customer_payment_settlement.total_amount', 'like', "%$total_amount%");
         if (!empty($remarks)) $data->where('customer_payment_settlement.remarks', 'like', "%$remarks%");
         if (!empty($document_date)) $data->where('customer_payment_settlement.document_date', $document_date);
         if (!empty($customer_id)) $data->where('c.customer_id', $customer_id);
+        if (!empty($customer_payment_id)) $data->where('customer_payment_settlement.customer_payment_id', $customer_payment_id);
         if (!empty($transaction_account_id)) $data->where('a.account_id', $transaction_account_id);
 
         if (!empty($search)) {
@@ -56,6 +58,7 @@ class CustomerPaymentSettlementController extends Controller
                 $query
                     ->where('c.name', 'like', "%$search%")
                     ->orWhere('customer_payment_settlement.document_identity', 'like', "%$search%")
+                    ->orWhere('cp.document_identity', 'like', "%$search%")
                     ->orWhere('customer_payment_settlement.remarks', 'like', "%$search%")
                     ->orWhere('a.name', 'like', "%$search%");
             });
@@ -63,7 +66,8 @@ class CustomerPaymentSettlementController extends Controller
         $data = $data->select(
             'customer_payment_settlement.*',
             'c.name as customer_name',
-            'a.name as transaction_account_name'
+            'a.name as transaction_account_name',
+            'cp.document_identity as customer_payment_no'
         );
 
         $data = $data->orderBy($sort_column, $sort_direction)
