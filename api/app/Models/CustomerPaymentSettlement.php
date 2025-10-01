@@ -27,6 +27,7 @@ class CustomerPaymentSettlement extends Model
         'transaction_no',
         'customer_payment_id',
         'conversion_rate',
+        'bank_amount',
         'total_amount',
         'remarks',
         'created_by',
