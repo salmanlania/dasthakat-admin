@@ -146,6 +146,71 @@ const CustomerPaymentSettlement = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
+          <p>Customer Payment No</p>
+          <Input
+            className="font-normal"
+            size="small"
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.customer_payment_no}
+            onChange={(e) => {
+              dispatch(setCustomerPaymentSettlementListParams({ customer_payment_no: e.target.value }));
+            }}
+          />
+        </div>
+      ),
+      dataIndex: 'customer_payment_no',
+      key: 'customer_payment_no',
+      sorter: true,
+      width: 200,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Transaction No</p>
+          <Input
+            className="font-normal"
+            size="small"
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.transaction_no}
+            onChange={(e) => {
+              dispatch(setCustomerPaymentSettlementListParams({ transaction_no: e.target.value }));
+            }}
+          />
+        </div>
+      ),
+      dataIndex: 'transaction_no',
+      key: 'transaction_no',
+      sorter: true,
+      width: 200,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Deposit To</p>
+          <AsyncSelect
+            endpoint="/accounts?only_leaf=1"
+            size="small"
+            className="w-full font-normal"
+            valueKey="account_id"
+            labelKey="name"
+            value={params.transaction_account_id}
+            onChange={(value) => dispatch(setCustomerPaymentSettlementListParams({ transaction_account_id: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'transaction_account_name',
+      key: 'transaction_account_name',
+      sorter: true,
+      width: 200,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Payment Amount</p>
           <Input
             className="font-normal"
@@ -162,7 +227,7 @@ const CustomerPaymentSettlement = () => {
       dataIndex: 'total_amount',
       key: 'total_amount',
       sorter: true,
-      width: 140,
+      width: 160,
       ellipsis: true,
       onCell: () => ({
         style: { textAlign: 'right' },
@@ -247,10 +312,14 @@ const CustomerPaymentSettlement = () => {
     params.event_code,
     params.document_date,
     params.customer_id,
+    params.transaction_no,
     params.vessel_id,
     params.event_id,
     params.port_id,
     params.total_amount,
+    params.transaction_account_id,
+    params.customer_payment_no,
+    params.transaction_no,
     params.status,
     debouncedSearch,
     debouncedQuotationNo,
