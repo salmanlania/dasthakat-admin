@@ -330,6 +330,14 @@ export const customerPaymentSettlementSlice = createSlice({
             label: data?.customer?.name
           }
           : null,
+        customerId: data?.customer_id ? data?.customer_id : data?.customer ? data?.customer?.customer_id : null,
+        customer_payment_account_id: data?.customer_payment ? data?.customer_payment?.transaction_account_id : null, 
+        customer_payment_id: data?.customer_payment
+          ? {
+            value: data?.customer_payment?.customer_payment_id,
+            label: data?.customer_payment?.document_identity
+          }
+          : null,
         total_amount: data?.total_amount ? parseInt(data?.total_amount) : null,
         remarks: data?.remarks ? data?.remarks : null,
         total_amount: data?.total_amount ? parseInt(data?.total_amount) : null,
