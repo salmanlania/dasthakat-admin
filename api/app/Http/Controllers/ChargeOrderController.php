@@ -153,8 +153,6 @@ class ChargeOrderController extends Controller
 
 	public function print(DomPDF $dompdf, Request $request,$id){
 
-           
-
 		// Main query with eager loading
 		$data = ChargeOrder::with([
 			"quotation",
@@ -169,11 +167,9 @@ class ChargeOrderController extends Controller
 			"class1",
 			"class2",
 			"agent",
-			// "charge_order_detail.product",
-			// "charge_order_detail.supplier",
-			// "charge_order_detail.unit",
-			// "charge_order_detail.product_type"
 		])->where('charge_order_id', $id)->first();
+
+
 
 		if (!$data) {
 			return $this->jsonResponse(null, 404, "Charge Order not found");
@@ -222,17 +218,6 @@ class ChargeOrderController extends Controller
 		$data->shipment = Shipment::where('charge_order_id', $data->charge_order_id)
 			->orderBy('created_at', 'desc')
 			->first();
-
-
-    // $dompdf = App::make('dompdf.wrapper');
-    // // return $html = view('pdf_template',$data); // this now works
-    //  $html = view('co_performa.temp',$data)->render(); // this now works
-
-
-    //  // dd($data);
-
-    // $dompdf->loadHTML($html );
-    // return $dompdf->stream('test.pdf');
 
 	$dompdf = App::make('dompdf.wrapper');
     // return $html = view('pdf_template',$data); // this now works

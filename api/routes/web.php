@@ -440,6 +440,7 @@ $router->group(['prefix' => 'purchase-invoice'], function ($router) {
 
 $router->group(['prefix' => 'sale-invoice'], function ($router) {
    $router->get('/', 'SaleInvoiceController@index');
+   $router->get('/print/{id}', 'SaleInvoiceController@print');
    $router->get('/{id}', 'SaleInvoiceController@show');
    $router->post('/', 'SaleInvoiceController@store');
    $router->put('/{id}', 'SaleInvoiceController@update');
