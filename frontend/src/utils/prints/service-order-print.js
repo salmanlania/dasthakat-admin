@@ -102,7 +102,7 @@ const pdfContent = (doc, data, sideMargin, pageWidth, eventDate) => {
         }
       },
       {
-        content: data?.charge_order?.quotation?.port?.name || '-',
+        content: data?.charge_order?.port?.name || '-',
         styles: {
           halign: 'left',
         }
