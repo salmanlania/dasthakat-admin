@@ -135,7 +135,7 @@ class SupplierController extends Controller
 				'purchase_invoice.net_amount',
 				DB::raw("purchase_invoice.net_amount - (
                     SELECT COALESCE(SUM(amount), 0) 
-                    FROM payment_voucher_settlement_detail as pvsd Left join payment_voucher_settlement as pvs on pvs.payment_voucher_settlement_id = pvsd.payment_voucher_settlement_id
+                    FROM payment_voucher_tagging_detail as pvsd Left join payment_voucher_tagging as pvs on pvs.payment_voucher_tagging_id = pvsd.payment_voucher_tagging_id
                     WHERE pvsd.purchase_invoice_id = purchase_invoice.purchase_invoice_id AND pvs.payment_voucher_id = '$request->payment_voucher_id'
 					) as balance_amount")
 			)
