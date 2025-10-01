@@ -164,9 +164,9 @@ class CustomerController extends Controller
 				'a.name as transaction_account',
 				'customer_payment.total_amount',
 				DB::raw("customer_payment.total_amount - (
-                    SELECT COALESCE(SUM(amount), 0) 
-                    FROM customer_payment_settlement_detail 
-                    WHERE customer_payment_settlement_detail.customer_payment_id = customer_payment.customer_payment_id 
+                    SELECT COALESCE(SUM(total_amount), 0) 
+                    FROM customer_payment_settlement
+                    WHERE customer_payment_settlement.customer_payment_id = customer_payment.customer_payment_id 
 					) as balance_amount")
 			)
 			->having('balance_amount', '>', 0)
