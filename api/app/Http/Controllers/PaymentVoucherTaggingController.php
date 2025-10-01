@@ -4,12 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use App\Models\Currency;
-use App\Models\Customer;
 use App\Models\DocumentType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\PaymentVoucherTaggingDetail;
-use App\Models\Ledger;
 use App\Models\PaymentVoucherTagging;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -31,19 +29,19 @@ class PaymentVoucherTaggingController extends Controller
         $search = $request->input('search', '');
         $page = $request->input('page', 1);
         $perPage = $request->input('limit', 10);
-        $sort_column = $request->input('sort_column', 'payment_voucher_taging.created_at');
+        $sort_column = $request->input('sort_column', 'payment_voucher_tagging.created_at');
         $sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
-        $data = PaymentVoucherTagging::LeftJoin('supplier as c', 'c.supplier_id', '=', 'payment_voucher_taging.supplier_id')
-            ->LeftJoin('accounts as a', 'a.account_id', '=', 'payment_voucher_taging.transaction_account_id');
+        $data = PaymentVoucherTagging::LeftJoin('supplier as c', 'c.supplier_id', '=', 'payment_voucher_tagging.supplier_id')
+            ->LeftJoin('accounts as a', 'a.account_id', '=', 'payment_voucher_tagging.transaction_account_id');
 
-        $data = $data->where('payment_voucher_taging.company_id', '=', $request->company_id);
-        $data = $data->where('payment_voucher_taging.company_branch_id', '=', $request->company_branch_id);
+        $data = $data->where('payment_voucher_tagging.company_id', '=', $request->company_id);
+        $data = $data->where('payment_voucher_tagging.company_branch_id', '=', $request->company_branch_id);
 
-        if (!empty($document_identity)) $data->where('payment_voucher_taging.document_identity', 'like', "%$document_identity%");
-        if (!empty($total_amount)) $data->where('payment_voucher_taging.total_amount', 'like', "%$total_amount%");
-        if (!empty($remarks)) $data->where('payment_voucher_taging.remarks', 'like', "%$remarks%");
-        if (!empty($document_date)) $data->where('payment_voucher_taging.document_date', $document_date);
+        if (!empty($document_identity)) $data->where('payment_voucher_tagging.document_identity', 'like', "%$document_identity%");
+        if (!empty($total_amount)) $data->where('payment_voucher_tagging.total_amount', 'like', "%$total_amount%");
+        if (!empty($remarks)) $data->where('payment_voucher_tagging.remarks', 'like', "%$remarks%");
+        if (!empty($document_date)) $data->where('payment_voucher_tagging.document_date', $document_date);
         if (!empty($supplier_id)) $data->where('c.supplier_id', $supplier_id);
         if (!empty($transaction_account_id)) $data->where('a.account_id', $transaction_account_id);
 
@@ -52,13 +50,13 @@ class PaymentVoucherTaggingController extends Controller
             $data->where(function ($query) use ($search) {
                 $query
                     ->where('c.name', 'like', "%$search%")
-                    ->orWhere('payment_voucher_taging.document_identity', 'like', "%$search%")
-                    ->orWhere('payment_voucher_taging.remarks', 'like', "%$search%")
+                    ->orWhere('payment_voucher_tagging.document_identity', 'like', "%$search%")
+                    ->orWhere('payment_voucher_tagging.remarks', 'like', "%$search%")
                     ->orWhere('a.name', 'like', "%$search%");
             });
         }
         $data = $data->select(
-            'payment_voucher_taging.*',
+            'payment_voucher_tagging.*',
             'c.name as supplier_name',
             'a.name as transaction_account_name'
         );
@@ -75,7 +73,7 @@ class PaymentVoucherTaggingController extends Controller
     {
 
         $data = PaymentVoucherTagging::with('details', 'supplier', 'transaction_account', 'document_currency', 'base_currency', 'details.payment_voucher_detail', 'details.account')
-            ->where('payment_voucher_taging_id', $id)
+            ->where('payment_voucher_tagging_id', $id)
             ->first();
 
         if (!$data) {
@@ -108,7 +106,7 @@ class PaymentVoucherTaggingController extends Controller
 
     public function store(Request $request)
     {
-        if (!isPermission('add', 'payment_voucher_taging', $request->permission_list))
+        if (!isPermission('add', 'payment_voucher_tagging', $request->permission_list))
             return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
         // Validation Rules
@@ -130,7 +128,7 @@ class PaymentVoucherTaggingController extends Controller
             $data = [
                 'company_id' => $request->company_id ?? "",
                 'company_branch_id' => $request->company_branch_id ?? "",
-                'payment_voucher_taging_id' => $uuid,
+                'payment_voucher_tagging_id' => $uuid,
                 'document_type_id' => $document['document_type_id'] ?? "",
                 'document_no' => $document['document_no'] ?? "",
                 'document_prefix' => $document['document_prefix'] ?? "",
@@ -153,8 +151,8 @@ class PaymentVoucherTaggingController extends Controller
                 foreach ($request->details as $key => $value) {
                     $detail_uuid = $this->get_uuid();
                     $data = [
-                        'payment_voucher_taging_id' => $uuid,
-                        'payment_voucher_taging_detail_id' => $detail_uuid,
+                        'payment_voucher_tagging_id' => $uuid,
+                        'payment_voucher_tagging_detail_id' => $detail_uuid,
                         'sort_order' => $value['sort_order'] ?? "",
                         'purchase_invoice_id' => $value['purchase_invoice_id'] ?? "",
                         'ref_document_identity' => $value['ref_document_identity'] ?? "",
@@ -169,7 +167,7 @@ class PaymentVoucherTaggingController extends Controller
             }
 
             DB::commit();
-            return $this->jsonResponse(['payment_voucher_taging_id' => $uuid], 200, "Add Payment Voucher Tagging Successfully!");
+            return $this->jsonResponse(['payment_voucher_tagging_id' => $uuid], 200, "Add Payment Voucher Tagging Successfully!");
         } catch (\Exception $e) {
             DB::rollBack(); // Rollback on error
             Log::error('Payment Voucher Tagging Store Error: ' . $e->getMessage());
@@ -179,7 +177,7 @@ class PaymentVoucherTaggingController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (!isPermission('edit', 'payment_voucher_taging', $request->permission_list))
+        if (!isPermission('edit', 'payment_voucher_tagging', $request->permission_list))
             return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
 
@@ -195,7 +193,7 @@ class PaymentVoucherTaggingController extends Controller
 
         DB::beginTransaction();
         try {
-            $data  = PaymentVoucherTagging::where('payment_voucher_taging_id', $id)->first();
+            $data  = PaymentVoucherTagging::where('payment_voucher_tagging_id', $id)->first();
             $data->company_id = $request->company_id;
             $data->company_branch_id = $request->company_branch_id;
             $data->supplier_id = $request->supplier_id;
@@ -215,8 +213,8 @@ class PaymentVoucherTaggingController extends Controller
                     if ($value['row_status'] == 'I') {
                         $detail_uuid = $this->get_uuid();
                         $insert = [
-                            'payment_voucher_taging_id' => $id,
-                            'payment_voucher_taging_detail_id' => $detail_uuid,
+                            'payment_voucher_tagging_id' => $id,
+                            'payment_voucher_tagging_detail_id' => $detail_uuid,
                             'sort_order' => $value['sort_order'] ?? 0,
                             'purchase_invoice_id' => $value['purchase_invoice_id'] ?? "",
                             'ref_document_identity' => $value['ref_document_identity'] ?? "",
@@ -237,16 +235,16 @@ class PaymentVoucherTaggingController extends Controller
                             'updated_at' => Carbon::now(),
                             'updated_by' => $request->login_user_id,
                         ];
-                        PaymentVoucherTaggingDetail::where('payment_voucher_taging_detail_id', $value['payment_voucher_taging_detail_id'])->update($update);
+                        PaymentVoucherTaggingDetail::where('payment_voucher_tagging_detail_id', $value['payment_voucher_tagging_detail_id'])->update($update);
                     }
                     if ($value['row_status'] == 'D') {
-                        PaymentVoucherTaggingDetail::where('payment_voucher_taging_detail_id', $value['payment_voucher_taging_detail_id'])->delete();
+                        PaymentVoucherTaggingDetail::where('payment_voucher_tagging_detail_id', $value['payment_voucher_tagging_detail_id'])->delete();
                     }
                 }
             }
             DB::commit();
 
-            return $this->jsonResponse(['payment_voucher_taging_id' => $id], 200, "Update Payment Voucher Tagging Successfully!");
+            return $this->jsonResponse(['payment_voucher_tagging_id' => $id], 200, "Update Payment Voucher Tagging Successfully!");
         } catch (\Exception $e) {
             DB::rollBack(); // Rollback on error
             Log::error('Payment Voucher Tagging Updating Error: ' . $e->getMessage());
@@ -255,27 +253,27 @@ class PaymentVoucherTaggingController extends Controller
     }
     public function delete($id, Request $request)
     {
-        if (!isPermission('delete', 'payment_voucher_taging', $request->permission_list))
+        if (!isPermission('delete', 'payment_voucher_tagging', $request->permission_list))
             return $this->jsonResponse('Permission Denied!', 403, "No Permission");
-        $data  = PaymentVoucherTagging::where('payment_voucher_taging_id', $id)->first();
+        $data  = PaymentVoucherTagging::where('payment_voucher_tagging_id', $id)->first();
         if ($data) {
             $data->delete();
-            PaymentVoucherTaggingDetail::where('payment_voucher_taging_id', $id)->delete();
+            PaymentVoucherTaggingDetail::where('payment_voucher_tagging_id', $id)->delete();
         }
-        return $this->jsonResponse(['payment_voucher_taging_id' => $id], 200, "Delete Payment Voucher Tagging Successfully!");
+        return $this->jsonResponse(['payment_voucher_tagging_id' => $id], 200, "Delete Payment Voucher Tagging Successfully!");
     }
     public function bulkDelete(Request $request)
     {
-        if (!isPermission('delete', 'payment_voucher_taging', $request->permission_list))
+        if (!isPermission('delete', 'payment_voucher_tagging', $request->permission_list))
             return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 
         try {
             if (isset($request->id) && !empty($request->id) && is_array($request->id)) {
-                foreach ($request->id as $payment_voucher_taging_id) {
-                    $user = PaymentVoucherTagging::where(['payment_voucher_taging_id' => $payment_voucher_taging_id])->first();
+                foreach ($request->id as $payment_voucher_tagging_id) {
+                    $user = PaymentVoucherTagging::where(['payment_voucher_tagging_id' => $payment_voucher_tagging_id])->first();
                     if ($user) {
                         $user->delete();
-                        PaymentVoucherTaggingDetail::where('payment_voucher_taging_id', $payment_voucher_taging_id)->delete();
+                        PaymentVoucherTaggingDetail::where('payment_voucher_tagging_id', $payment_voucher_tagging_id)->delete();
                     }
                 }
             }

@@ -6,15 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class PaymentVoucherTagging extends Model
 {
-    protected $table = 'payment_voucher_taging';
-    protected $primaryKey = 'payment_voucher_taging_id';
+    protected $table = 'payment_voucher_tagging';
+    protected $primaryKey = 'payment_voucher_tagging_id';
     public $incrementing = false; // since CHAR(36) UUID
     protected $keyType = 'string';
 
     protected $fillable = [
         'company_id',
         'company_branch_id',
-        'payment_voucher_taging_id',
+        'payment_voucher_tagging_id',
         'document_type_id',
         'document_prefix',
         'document_no',
@@ -33,7 +33,7 @@ class PaymentVoucherTagging extends Model
 
     public function details()
     {
-        return $this->hasMany(PaymentVoucherTaggingDetail::class, 'payment_voucher_taging_id', 'payment_voucher_taging_id')->orderBy('sort_order');
+        return $this->hasMany(PaymentVoucherTaggingDetail::class, 'payment_voucher_tagging_id', 'payment_voucher_tagging_id')->orderBy('sort_order');
     }
 
     public function supplier()

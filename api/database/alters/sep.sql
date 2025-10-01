@@ -520,10 +520,10 @@ ALTER TABLE `customer_payment_settlement_detail`
   CHANGE COLUMN `check_no` `cheque_no` TEXT NULL;
 
   
-CREATE TABLE `payment_voucher_taging` (
+CREATE TABLE `payment_voucher_tagging` (
   `company_id` CHAR(36) NOT NULL,
   `company_branch_id` CHAR(36) NOT NULL,
-  `payment_voucher_taging_id` CHAR(36) NOT NULL,
+  `payment_voucher_tagging_id` CHAR(36) NOT NULL,
   `document_type_id` INT(11) NOT NULL,
   `document_prefix` VARCHAR(255) NOT NULL,
   `document_no` INT(11) NOT NULL,
@@ -542,9 +542,9 @@ CREATE TABLE `payment_voucher_taging` (
   `updated_by` CHAR(36) NULL
 );
 
-CREATE TABLE `payment_voucher_taging_detail` (
-  `payment_voucher_taging_id` CHAR(36) NOT NULL,
-  `payment_voucher_taging_detail_id` CHAR(36) NOT NULL,
+CREATE TABLE `payment_voucher_tagging_detail` (
+  `payment_voucher_tagging_id` CHAR(36) NOT NULL,
+  `payment_voucher_tagging_detail_id` CHAR(36) NOT NULL,
   `sort_order` INT(11) NOT NULL,
   `purchase_invoice_id` CHAR(36) NOT NULL,
   `ref_document_identity` VARCHAR(255) NOT NULL,
@@ -556,8 +556,8 @@ CREATE TABLE `payment_voucher_taging_detail` (
   `updated_by` CHAR(36) NULL
 );
 
-ALTER TABLE `payment_voucher_taging`
-  ADD PRIMARY KEY (`payment_voucher_taging_id`),
+ALTER TABLE `payment_voucher_tagging`
+  ADD PRIMARY KEY (`payment_voucher_tagging_id`),
   ADD INDEX `idx_company` (`company_id`),
   ADD INDEX `idx_company_branch` (`company_branch_id`),
   ADD INDEX `idx_supplier` (`supplier_id`),
@@ -565,10 +565,10 @@ ALTER TABLE `payment_voucher_taging`
   ADD INDEX `idx_document_identity` (`document_identity`),
   ADD INDEX `idx_document_date` (`document_date`);
 
-ALTER TABLE `payment_voucher_taging_detail`
-  ADD PRIMARY KEY (`payment_voucher_taging_detail_id`),
-  ADD INDEX `idx_payment_voucher_taging` (`payment_voucher_taging_id`),
+ALTER TABLE `payment_voucher_tagging_detail`
+  ADD PRIMARY KEY (`payment_voucher_tagging_detail_id`),
+  ADD INDEX `idx_payment_voucher_tagging` (`payment_voucher_tagging_id`),
   ADD INDEX `idx_payment_purchase_invoice` (`purchase_invoice_id`);
 
 INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `document_prefix`, `table_name`, `primary_key`)
-VALUES ( 62, 'Payment Voucher Taging', '{BC}/PVS-', 'payment_voucher_taging', 'payment_voucher_taging_id' );
+VALUES ( 62, 'Payment Voucher Taging', '{BC}/PVS-', 'payment_voucher_tagging', 'payment_voucher_tagging_id' );

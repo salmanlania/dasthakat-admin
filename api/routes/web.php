@@ -556,13 +556,13 @@ $router->group(['prefix' => 'payment-voucher'], function ($router) {
     $router->delete('/{id}', 'PaymentVoucherController@delete');
 });
 
-$router->group(['prefix' => 'payment-voucher-taging'], function ($router) {
-    $router->get('/', 'PaymentVoucherTagingController@index');
-    $router->post('/', 'PaymentVoucherTagingController@store');
-    $router->post('/bulk-delete', 'PaymentVoucherTagingController@bulkDelete');
-    $router->get('/{id}', 'PaymentVoucherTagingController@show');
-    $router->put('/{id}', 'PaymentVoucherTagingController@update');
-    $router->delete('/{id}', 'PaymentVoucherTagingController@delete');
+$router->group(['prefix' => 'payment-voucher-tagging'], function ($router) {
+    $router->get('/', 'PaymentVoucherTaggingController@index');
+    $router->post('/', 'PaymentVoucherTaggingController@store');
+    $router->post('/bulk-delete', 'PaymentVoucherTaggingController@bulkDelete');
+    $router->get('/{id}', 'PaymentVoucherTaggingController@show');
+    $router->put('/{id}', 'PaymentVoucherTaggingController@update');
+    $router->delete('/{id}', 'PaymentVoucherTaggingController@delete');
 });
 // COA Level1 routes
 $router->group(['prefix' => 'coa-level1'], function ($router) {
