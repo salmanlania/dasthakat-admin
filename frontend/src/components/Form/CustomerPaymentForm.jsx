@@ -227,7 +227,6 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
         return (
           <DebouncedCommaSeparatedInputRate
             className="text-right"
-            allowClear
             value={value ? Number(value).toFixed(2) : Number(record?.settled_amount).toFixed(2) ? record?.settled_amount : null}
             onChange={(val) => handleSettledAmountChange(val, record)}
           />
@@ -303,7 +302,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
         <Row gutter={12}>
           <Col span={24} sm={6} md={6} lg={6}>
             <Form.Item name="payment_amount" label="Receipt Amount">
-              <DebouncedCommaSeparatedInput />
+              <DebouncedCommaSeparatedInput className="text-right" />
             </Form.Item>
           </Col>
           <Col span={24} sm={6} md={6} lg={6}>

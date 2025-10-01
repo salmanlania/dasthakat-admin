@@ -304,7 +304,7 @@ const CustomerPaymentSettlementForm = ({ mode, onSubmit, onSave }) => {
         <Row gutter={12}>
           <Col span={6}>
             <Form.Item name="total_amount" label="Amount">
-              <DebouncedCommaSeparatedInput disabled />
+              <DebouncedCommaSeparatedInput disabled className="text-right" />
             </Form.Item>
           </Col>
           <Col span={6}>
