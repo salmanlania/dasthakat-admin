@@ -30,7 +30,7 @@
         <td class="text-left first">{{ $document_identity ?? "" }}</td>
       
          <th>Event No.</th>
-        <td class="text-left first">{{ $event['event_code'] ?? '' }}</td>
+        <td class="text-left first">{{ isset($charge_order['event']) ? $charge_order['event']['event_code'] : '' }}</td>
       </tr>
 
       <tr>
@@ -49,16 +49,15 @@
         <th>Ship To.</th>
         <td class="text-left first">{{ $vessel['name'] ?? '' }}</td>
         <th>Charge #.</th>
-        <td class="text-left first">{{ ''  }}</td>
+        <td class="text-left first">{{ $charge_order['document_identity'] ?? ''  }}</td>
        
         <th>Ship date.</th>
         <td class="text-left">
           @php
             $formattedShipDate = '';
-            $ship_date = @$service_date ?? "";
-
+            $ship_date = @$shipment['document_date'] ?? "";
             if (!empty(@$ship_date)) {
-                if ($ship_date == '0000-00-00') {
+                if ($ship_date === '0000-00-00') {
                     $formattedShipDate = 'TBA';
                 } else {
                     try {
@@ -68,7 +67,7 @@
                     }
                 }
             }
-            echo  $formattedShipDate;
+              echo  $formattedShipDate;
         @endphp
         </td>
       </tr>
