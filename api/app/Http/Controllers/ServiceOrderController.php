@@ -127,7 +127,7 @@ class ServiceOrderController extends Controller
 			"service_order_detail.supplier",
 			"scheduling",
 			"event",
-			"charge_order",
+			"charge_order.port",
 			"charge_order.quotation",
 			"charge_order.quotation.port",
 			"charge_order.agent",
