@@ -28,6 +28,7 @@ class CustomerPaymentSettlementController extends Controller
         $customer_id = $request->input('customer_id', '');
         $customer_payment_no = $request->input('customer_payment_no', '');
         $transaction_account_id = $request->input('transaction_account_id', '');
+        $transaction_no = $request->input('transaction_no', '');
         $remarks = $request->input('remarks', '');
         $total_amount = $request->input('total_amount', '');
         $search = $request->input('search', '');
@@ -44,6 +45,7 @@ class CustomerPaymentSettlementController extends Controller
         $data = $data->where('customer_payment_settlement.company_branch_id', '=', $request->company_branch_id);
 
         if (!empty($document_identity)) $data->where('customer_payment_settlement.document_identity', 'like', "%$document_identity%");
+        if (!empty($transaction_no)) $data->where('customer_payment_settlement.transaction_no', 'like', "%$transaction_no%");
         if (!empty($customer_payment_no)) $data->where('cp.document_identity', 'like', "%$customer_payment_no%");
         if (!empty($total_amount)) $data->where('customer_payment_settlement.total_amount', 'like', "%$total_amount%");
         if (!empty($remarks)) $data->where('customer_payment_settlement.remarks', 'like', "%$remarks%");
@@ -58,6 +60,7 @@ class CustomerPaymentSettlementController extends Controller
                 $query
                     ->where('c.name', 'like', "%$search%")
                     ->orWhere('customer_payment_settlement.document_identity', 'like', "%$search%")
+                    ->orWhere('customer_payment_settlement.transaction_no', 'like', "%$search%")
                     ->orWhere('cp.document_identity', 'like', "%$search%")
                     ->orWhere('customer_payment_settlement.remarks', 'like', "%$search%")
                     ->orWhere('a.name', 'like', "%$search%");
