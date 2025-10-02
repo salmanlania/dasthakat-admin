@@ -148,13 +148,13 @@ const CustomerPaymentSettlementForm = ({ mode, onSubmit, onSave }) => {
           />
         );
       },
-      width: 500,
+      width: 300,
     },
     {
       title: "Remarks",
       dataIndex: "remarks",
       key: "remarks",
-      width: 350,
+      width: 200,
       render: (val, record) => {
         return (
           <Input
@@ -174,7 +174,7 @@ const CustomerPaymentSettlementForm = ({ mode, onSubmit, onSave }) => {
       title: "Amount",
       dataIndex: "amount",
       key: "amount",
-      width: 350,
+      width: 200,
       render: (_, record) => (
         <DebouncedCommaSeparatedInput
           className="text-right"

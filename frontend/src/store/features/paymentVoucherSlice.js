@@ -130,6 +130,7 @@ const initialState = {
   vendorPaymentSettlementDetails: [],
   isLedgerLoading: false,
   list: [],
+  balanceAmount: [],
   listID: [],
   deleteIDs: [],
   params: {
@@ -332,6 +333,9 @@ export const paymentVoucherSlice = createSlice({
       state.list = data;
       state.listID = data.map((item) => {
         return item.sale_invoice_id;
+      });
+      state.balanceAmount = data.map((item) => {
+        return item.balance_amount;
       });
       state.paginationInfo = {
         total_records: rest.total,

@@ -15,8 +15,10 @@ import {
   createPaymentVoucherSettlement,
   getUnsettledInvoices,
   updateVendorSettlementDetail,
+  resetPaymentVoucherSettlementForm
 } from "../../store/features/paymentVoucherSlice";
 import DebouncedCommaSeparatedInputRate from "../Input/DebouncedCommaSeparatedInputRate";
+import AsyncSelectProduct from "../AsyncSelectProduct";
 
 const VendorSettlementTaggingModal = ({ open, onClose, paymentVoucherId, totalAmountValue }) => {
   const DetailSummaryInfoVendor = ({ value, disabled }) => {
@@ -36,11 +38,20 @@ const VendorSettlementTaggingModal = ({ open, onClose, paymentVoucherId, totalAm
   const dispatch = useDispatch();
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [data, setData] = useState([]);
+  const [totalAmount, setTotalAmount] = useState("0.00");
   const { vendorPaymentSettlementDetails } = useSelector((state) => state.paymentVoucher);
 
   useEffect(() => {
-    setData(vendorPaymentSettlementDetails);
-  }, [vendorPaymentSettlementDetails]);
+    if (!open) {
+      setData([]);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (open && vendorPaymentSettlementDetails?.length) {
+      setData(vendorPaymentSettlementDetails);
+    }
+  }, [vendorPaymentSettlementDetails, open]);
 
   const onFinish = async () => {
     if (selectedRowKeys.length === 0) {
@@ -49,12 +60,12 @@ const VendorSettlementTaggingModal = ({ open, onClose, paymentVoucherId, totalAm
     }
     const selectedRows = data?.filter(row => selectedRowKeys.includes(row.id));
     const check = selectedRows.some(row => row?.settle_amount > row?.amount);
-    const checkValue = selectedRows.some(row => row?.settle_amount);
+    const checkValue = selectedRows.map(row => row?.settle_amount);
     if (check) {
       toast.error("Settle amount must be equal to or less than amount");
       return;
     }
-    else if (checkValue > totalAmountValue) {
+    if (Number(checkValue) > Number(totalAmountValue)) {
       toast.error("Settle amount must be equal to or less than Total Amount");
       return;
     }
@@ -71,12 +82,15 @@ const VendorSettlementTaggingModal = ({ open, onClose, paymentVoucherId, totalAm
       }))
     }
     try {
-      dispatch(createPaymentVoucherSettlement(payload));
-      form.resetFields();
-      setSelectedRowKeys([]);
-      setData([]);
-      toast.success("Vendor Settlement created successfully");
-      onClose();
+      dispatch(createPaymentVoucherSettlement(payload)).unwrap().then(() => {
+        form.resetFields();
+        setSelectedRowKeys([]);
+        setData([]);
+        setTotalAmount("0.00")
+        toast.success("Vendor Settlement created successfully");
+        onClose();
+      });
+      // await onClose();
     } catch (err) {
       handleError(err);
     }
@@ -86,7 +100,9 @@ const VendorSettlementTaggingModal = ({ open, onClose, paymentVoucherId, totalAm
     form.resetFields();
     setData([]);
     setSelectedRowKeys([])
+    setTotalAmount("0.00")
     onClose();
+    dispatch(resetPaymentVoucherSettlementForm());
   };
 
   const columns = [
@@ -212,16 +228,25 @@ const VendorSettlementTaggingModal = ({ open, onClose, paymentVoucherId, totalAm
               label="Vendor"
               rules={[{ required: true, message: "Vendor is required" }]}
             >
-              <AsyncSelect
+              <AsyncSelectProduct
+                key={`vendor-settlement-vendor-${paymentVoucherId}`}
                 endpoint={`/payment-voucher/${paymentVoucherId}/vendors`}
                 valueKey="supplier_id"
                 labelKey="name"
                 labelInValue
                 placeholder="Select Vendor"
                 style={{ width: "100%" }}
-                onChange={(value) => {
+                onChange={(value, option) => {
+                  const amount = option?.payment_voucher_amount ? option?.payment_voucher_amount : "0.00";
+                  setTotalAmount(amount);
                   const supplierId = value ? value?.value : null;
-                  dispatch(getUnsettledInvoices({ supplierId, paymentVoucherId }));
+                  if (!supplierId) {
+                    dispatch(resetPaymentVoucherSettlementForm());
+                    setSelectedRowKeys([]);
+                    setData([]);
+                    return;
+                  }
+                  dispatch(getUnsettledInvoices({ supplierId, paymentVoucherId }))
                 }}
               />
             </Form.Item>
@@ -241,7 +266,7 @@ const VendorSettlementTaggingModal = ({ open, onClose, paymentVoucherId, totalAm
             <label className="block text-sm font-medium text-gray-600">
               Total Amount
             </label>
-            <DetailSummaryInfoVendor disabled value={totalAmountValue || "0.00"} />
+            <DetailSummaryInfoVendor disabled value={totalAmount || "0.00"} />
           </div>
         </Col>
 
