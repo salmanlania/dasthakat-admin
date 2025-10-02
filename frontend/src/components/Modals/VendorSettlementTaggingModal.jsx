@@ -65,7 +65,7 @@ const VendorSettlementTaggingModal = ({ open, onClose, paymentVoucherId, totalAm
       toast.error("Settle amount must be equal to or less than amount");
       return;
     }
-    if (Number(checkValue) > Number(totalAmountValue)) {
+    if (Number(checkValue) > Number(totalAmount)) {
       toast.error("Settle amount must be equal to or less than Total Amount");
       return;
     }

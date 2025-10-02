@@ -416,7 +416,9 @@ const PaymentVoucher = () => {
           open={taggingModalOpen}
           paymentVoucherId={paymentVoucherId}
           // totalAmountValue={selectedTotalAmount}
-          onClose={() => setTaggingModalOpen(false)}
+          onClose={() => {
+            setTaggingModalOpen(false)
+            dispatch(getPaymentVoucherList(formattedParams))}}
         />
       }
     </>
