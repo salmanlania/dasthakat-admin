@@ -237,7 +237,7 @@ const VendorSettlementTaggingModal = ({ open, onClose, paymentVoucherId, totalAm
                 placeholder="Select Vendor"
                 style={{ width: "100%" }}
                 onChange={(value, option) => {
-                  const amount = option?.payment_voucher_amount ? option?.payment_voucher_amount : "0.00";
+                  const amount = option?.balance_amount ? option?.balance_amount : "0.00";
                   setTotalAmount(amount);
                   const supplierId = value ? value?.value : null;
                   if (!supplierId) {
