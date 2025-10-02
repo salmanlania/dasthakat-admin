@@ -55,9 +55,28 @@ class PaymentVoucherController extends Controller
                     ->orWhere('a.name', 'like', "%$search%");
             });
         }
-        $data = $data->select(
-            'payment_voucher.*',
-            'a.name as transaction_account_name'
+        $data = $data->selectRaw(
+            'payment_voucher.*,
+            a.name as transaction_account_name,
+            (
+            (
+                SELECT COALESCE(SUM(pvd.payment_amount),0)
+                FROM payment_voucher_detail pvd
+                INNER JOIN payment_voucher pv 
+                    ON pv.payment_voucher_id = pvd.payment_voucher_id
+                WHERE pv.payment_voucher_id = payment_voucher.payment_voucher_id
+            ) 
+            -
+            (
+                SELECT COALESCE(SUM(pvd.amount),0)
+                FROM payment_voucher_tagging_detail pvd
+                INNER JOIN payment_voucher_tagging pvt 
+                    ON pvt.payment_voucher_tagging_id = pvd.payment_voucher_tagging_id
+                INNER JOIN payment_voucher pv 
+                    ON pv.payment_voucher_id = pvt.payment_voucher_id
+                WHERE pvt.payment_voucher_id = payment_voucher.payment_voucher_id
+            )
+        ) AS balance_amount'
         );
 
         $data = $data->orderBy($sort_column, $sort_direction)
