@@ -213,7 +213,7 @@ const VendorSettlementTaggingModal = ({ open, onClose, paymentVoucherId, totalAm
               rules={[{ required: true, message: "Vendor is required" }]}
             >
               <AsyncSelect
-                endpoint="/supplier"
+                endpoint={`/payment-voucher/${paymentVoucherId}/vendors`}
                 valueKey="supplier_id"
                 labelKey="name"
                 labelInValue

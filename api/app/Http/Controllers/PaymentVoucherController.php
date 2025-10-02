@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\PaymentVoucher;
 use App\Models\PaymentVoucherDetail;
 use App\Models\Ledger;
+use App\Models\Supplier;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -66,11 +67,52 @@ class PaymentVoucherController extends Controller
         return response()->json($data);
     }
 
+    public function getVendorPaymentVoucher($id, Request $request)
+    {
+        $search = $request->input('search', '');
+        $page = $request->input('page', 1);
+        $perPage = $request->input('limit', 10);
+        $sort_column = $request->input('sort_column', 'created_at');
+        $sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
+
+        $data = Supplier::query()
+            ->where('company_id', $request->company_id)
+            ->where('company_branch_id', $request->company_branch_id)
+            ->where('status', 1);
+
+        // Search filter
+        if (!empty($search)) {
+            $search = strtolower($search);
+            $data->where(function ($query) use ($search) {
+                $query->where('supplier_code', 'like', '%' . $search . '%')
+                    ->orWhere('name', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Subquery for payment voucher amount
+        $data->selectRaw("supplier.*, (
+        SELECT SUM(pvd.payment_amount)
+        FROM payment_voucher_detail pvd
+        INNER JOIN payment_voucher pv ON pv.payment_voucher_id = pvd.payment_voucher_id
+        WHERE pvd.supplier_id = supplier.supplier_id
+          AND pv.payment_voucher_id = ?
+    ) as payment_voucher_amount", [$id]);
+
+        // Only suppliers having voucher amount > 0
+        $data->having('payment_voucher_amount', '>', 0);
+
+        // Sorting + pagination
+        $data = $data->orderBy($sort_column, $sort_direction)
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json($data);
+    }
+
 
     public function show($id, Request $request)
     {
 
-        $data = PaymentVoucher::with('details','details.supplier','details.event','details.cost_center', 'details.account', 'transaction_account', 'document_currency', 'base_currency')
+        $data = PaymentVoucher::with('details', 'details.supplier', 'details.event', 'details.cost_center', 'details.account', 'transaction_account', 'document_currency', 'base_currency')
             ->where('payment_voucher.payment_voucher_id', $id)
             ->first();
 

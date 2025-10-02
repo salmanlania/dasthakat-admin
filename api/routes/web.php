@@ -550,6 +550,7 @@ $router->group(['prefix' => 'vendor-payment'], function ($router) {
 $router->group(['prefix' => 'payment-voucher'], function ($router) {
     $router->get('/', 'PaymentVoucherController@index');
     $router->post('/', 'PaymentVoucherController@store');
+    $router->get('/{id}/vendors', 'PaymentVoucherController@getVendorPaymentVoucher');
     $router->post('/bulk-delete', 'PaymentVoucherController@bulkDelete');
     $router->get('/{id}', 'PaymentVoucherController@show');
     $router->put('/{id}', 'PaymentVoucherController@update');
