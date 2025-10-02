@@ -304,7 +304,7 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
           <Col span={24} sm={6} md={6} lg={6}>
             <Form.Item
               name="transaction_account_id"
-              label="Select Bank"
+              label="Transaction Account"
             // rules={[{ required: true, message: 'Vendor is required' }]}
             >
               <AsyncSelectProduct
