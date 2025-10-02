@@ -18,6 +18,7 @@ import {
   deleteSaleInvoice,
   getSaleInvoice,
   getSaleInvoiceList,
+  saleInvoicePrint,
   setSaleInvoiceDeleteIDs,
   setSaleInvoiceListParams,
 } from '../../store/features/saleInvoiceSlice';
@@ -71,11 +72,11 @@ const SaleInvoice = () => {
     const loadingToast = toast.loading('Loading print...');
 
     try {
-      const data = await dispatch(getSaleInvoice(id)).unwrap();
-      toast.dismiss(loadingToast);
-      createSaleInvoicePrint(data);
+      await dispatch(saleInvoicePrint(id)).unwrap();
     } catch (error) {
       handleError(error);
+    } finally {
+      toast.dismiss(loadingToast);
     }
   };
 

@@ -43,8 +43,6 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
   const [ledgerModalOpen, setLedgerModalOpen] = useState(false);
 
   const onFinish = (values) => {
-    console.log('values', values)
-    // return
     const normalize = (num) => Number(parseFloat(num).toFixed(2));
     const paymentAmount = normalize(values?.payment_amount ? values?.payment_amount : null)
     const settledAmount = normalize(totalSettled);
@@ -87,8 +85,6 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
             row_status: row?.row_status
           }))
     };
-    console.log('data' , data)
-    // return 
 
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
@@ -180,10 +176,6 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'document_date',
       key: 'document_date',
       render: (_, record, { document_date }) => {
-        console.log('record' , {
-          record,
-          document_date
-        })
         const documentDate = document_date ? dayjs(document_date).format("MM-DD-YYYY") : record?.document_date ? dayjs(record?.document_date).format("MM-DD-YYYY") : ""
         return (
           <DebounceInput
