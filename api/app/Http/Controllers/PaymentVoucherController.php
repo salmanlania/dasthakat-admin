@@ -76,7 +76,13 @@ class PaymentVoucherController extends Controller
                     ON pv.payment_voucher_id = pvt.payment_voucher_id
                 WHERE pvt.payment_voucher_id = payment_voucher.payment_voucher_id
             )
-        ) AS balance_amount'
+        ) AS balance_amount,
+          (
+        SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
+        FROM payment_voucher_detail pvd3
+        WHERE pvd3.payment_voucher_id = payment_voucher.payment_voucher_id
+          AND pvd3.supplier_id IS NOT NULL  AND pvd3.supplier_id != ""
+        ) AS has_supplier'
         );
 
         $data = $data->orderBy($sort_column, $sort_direction)
@@ -85,7 +91,7 @@ class PaymentVoucherController extends Controller
 
         return response()->json($data);
     }
-   
+
     public function getVendorPaymentVoucher($id, Request $request)
     {
         $search = $request->input('search', '');
