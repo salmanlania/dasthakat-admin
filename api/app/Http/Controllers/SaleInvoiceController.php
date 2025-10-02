@@ -260,17 +260,19 @@ class SaleInvoiceController extends Controller
 		// 4. Prepare Invoice Meta Data
 		$uuid = $this->get_uuid();
 		$document = DocumentType::getNextDocument($this->document_type_id, $request);
-
+		$ship_date = Shipment::where('charge_order_id', $request->charge_order_id)
+	        ->orderBy('created_at', 'desc')
+	        ->first();
 		$invoiceData = [
 			'sale_invoice_id'   => $uuid,
 			'company_id'        => $request->company_id ?? "",
 			'company_branch_id' => $request->company_branch_id ?? "",
-			'ship_date'         => $request->ship_date ?? "",
+			'ship_date'         => $ship_date ?? "",
 			'document_type_id'  => $document['document_type_id'] ?? "",
 			'document_no'       => $document['document_no'] ?? "",
 			'document_prefix'   => $document['document_prefix'] ?? "",
 			'document_identity' => $document['document_identity'] ?? "",
-			'document_date'     => $request->ship_date ?? "",
+			'document_date'     => $ship_date ?? "",
 			'vessel_billing_address' => $chargeOrder?->vessel?->billing_address ?? "",
 			'charge_order_id'   => $request->charge_order_id,
 			'status'			=> $request->status ?? "Created",
