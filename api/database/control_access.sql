@@ -257,6 +257,11 @@
   ('Warehousing', 'Stock Return', 'stock_return', 'add', 'Add', 1.102),
   ('Warehousing', 'Stock Return', 'stock_return', 'edit', 'Edit', 1.103),
   ('Warehousing', 'Stock Return', 'stock_return', 'delete', 'Delete', 1.104),
+  
+  ('Warehousing', 'Credit Note', 'credit_note', 'list', 'List', 1.101),
+  ('Warehousing', 'Credit Note', 'credit_note', 'add', 'Add', 1.102),
+  ('Warehousing', 'Credit Note', 'credit_note', 'edit', 'Edit', 1.103),
+  ('Warehousing', 'Credit Note', 'credit_note', 'delete', 'Delete', 1.104),
 
   ('Logistics', 'Scheduling', 'dispatch', 'list', 'List', 1.101),
   ('Logistics', 'Scheduling', 'dispatch', 'update', 'Update', 1.102),

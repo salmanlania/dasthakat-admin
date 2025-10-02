@@ -394,6 +394,16 @@ $router->group(['prefix' => 'purchase-return'], function ($router) {
    $router->post('/bulk-delete', 'PurchaseReturnController@bulkDelete');
 });
 
+$router->group(['prefix' => 'credit-note'], function ($router) {
+   $router->get('/', 'CreditNoteController@index');
+   $router->get('/{id}', 'CreditNoteController@show');
+   $router->post('/', 'CreditNoteController@store');
+   $router->post('/bulk-store', 'CreditNoteController@bulkStore');
+   $router->put('/{id}', 'CreditNoteController@update');
+   $router->delete('/{id}', 'CreditNoteController@delete');
+   $router->post('/bulk-delete', 'CreditNoteController@bulkDelete');
+});
+
 // pick list routes
 $router->group(['prefix' => 'picklist'], function ($router) {
    $router->get('/', 'PicklistController@index');

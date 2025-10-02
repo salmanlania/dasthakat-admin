@@ -585,3 +585,27 @@ DROP COLUMN `cheque_date`;
 
 ALTER TABLE customer_payment_settlement 
 ADD COLUMN `bank_amount` DECIMAL(15, 2) NULL AFTER `customer_payment_id`;
+
+
+
+CREATE TABLE `credit_note` (
+    credit_note_id CHAR(36) PRIMARY KEY,
+    company_id CHAR(36) NOT NULL,
+    company_branch_id CHAR(36) NOT NULL,
+    document_type_id INT NOT NULL,
+    document_no INT NOT NULL,
+    document_prefix VARCHAR(255) NOT NULL,
+    document_identity VARCHAR(255) NOT NULL,
+    document_date DATE NOT NULL,
+    event_id CHAR(36) NOT NULL,
+    sale_invoice_id CHAR(36) NOT NULL,
+    credit_amount DECIMAL(15, 2) NOT NULL,
+    credit_percent DECIMAL(15, 2) NOT NULL,
+    created_by CHAR(36) DEFAULT NULL,
+    updated_by CHAR(36) DEFAULT NULL,
+    created_at DATETIME DEFAULT NULL,
+    updated_at DATETIME DEFAULT NULL
+);
+
+INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `document_prefix`, `table_name`, `primary_key`)
+VALUES ( 63, 'Credit Note', '{BC}/CN-', 'credit_note', 'credit_note_id' );
