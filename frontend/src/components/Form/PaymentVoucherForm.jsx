@@ -115,6 +115,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
       render: (val, record) => {
         return (
           <AsyncSelect
+          key={record.id}
             endpoint="/accounts?only_leaf=1"
             valueKey="account_id"
             labelKey="name"
@@ -148,6 +149,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
       width: 250,
       render: (val, record) => (
         <AsyncSelectPaymentVoucher
+          key={record.id}
           endpoint="/supplier"
           size="medium"
           className="w-full font-normal"
