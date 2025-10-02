@@ -11,6 +11,7 @@ import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput'
 import DebounceInput from '../Input/DebounceInput';
 import DebouncedCommaSeparatedInputRate from '../Input/DebouncedCommaSeparatedInputRate';
 import LedgerModal from '../Modals/LedgerModal';
+import AsyncSelectProduct from '../AsyncSelectProduct';
 
 const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
@@ -306,13 +307,14 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
               label="Select Bank"
             // rules={[{ required: true, message: 'Vendor is required' }]}
             >
-              <AsyncSelect
-                endpoint="/accounts?only_leaf=1"
+              <AsyncSelectProduct
+                key={'transaction_account_id'}
+                endpoint="/setting?field=transaction_account"
+                size="medium"
+                className="w-full font-normal"
                 valueKey="account_id"
                 labelKey="name"
-                labelInValue
-                // value={record?.account_id}
-                style={{ width: "100%" }}
+                allowClear
               />
             </Form.Item>
           </Col>
