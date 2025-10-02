@@ -263,7 +263,7 @@ const PaymentVoucher = () => {
                   </Popconfirm>
                 </Tooltip>
               ) : null}
-              {permissionsSettlement?.payment_voucher_tagging?.add && balanceAmount > 0 ? (
+              {permissionsSettlement?.payment_voucher_tagging?.add && balanceAmount > 0 && record?.has_supplier !== 0 ? (
                 <Tooltip title="Tagging">
                   <Button
                     size="small"
