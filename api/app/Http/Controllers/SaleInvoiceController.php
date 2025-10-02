@@ -270,7 +270,7 @@ class SaleInvoiceController extends Controller
 			'document_no'       => $document['document_no'] ?? "",
 			'document_prefix'   => $document['document_prefix'] ?? "",
 			'document_identity' => $document['document_identity'] ?? "",
-			'document_date'     => $request->document_date ?? "",
+			'document_date'     => $request->ship_date ?? "",
 			'vessel_billing_address' => $chargeOrder?->vessel?->billing_address ?? "",
 			'charge_order_id'   => $request->charge_order_id,
 			'status'			=> $request->status ?? "Created",
