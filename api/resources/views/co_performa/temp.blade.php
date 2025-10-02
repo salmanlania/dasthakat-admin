@@ -55,7 +55,7 @@
   border-top: 1px solid white !important;
 }
 .total_amount_row{
-  border: 2px solid #000 !important;
+  border: 1.5px solid #203272 !important;
 }
 
 
