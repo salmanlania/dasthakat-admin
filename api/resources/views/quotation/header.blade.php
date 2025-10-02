@@ -18,7 +18,7 @@
 
 
   
-  <div class="invoice-title" style="margin:10px 0px 0px 0px;font-size: 20px;font-weight: bold;"><u>ESTIMATE </u></div>
+  <div class="invoice-title" style="margin:10px 0px 0px 0px;font-size: 20px;font-weight: bold;"><u>Quotaion </u></div>
 
  <table style="margin-bottom: 300px;">
     <tbody>
