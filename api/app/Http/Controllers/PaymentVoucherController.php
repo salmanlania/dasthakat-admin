@@ -66,7 +66,7 @@ class PaymentVoucherController extends Controller
 
         return response()->json($data);
     }
-
+   
     public function getVendorPaymentVoucher($id, Request $request)
     {
         $search = $request->input('search', '');
@@ -80,7 +80,7 @@ class PaymentVoucherController extends Controller
             ->where('company_branch_id', $request->company_branch_id)
             ->where('status', 1);
 
-        // Search filter
+        // 🔍 Search filter
         if (!empty($search)) {
             $search = strtolower($search);
             $data->where(function ($query) use ($search) {
@@ -89,24 +89,57 @@ class PaymentVoucherController extends Controller
             });
         }
 
-        // Subquery for payment voucher amount
-        $data->selectRaw("supplier.*, (
-        SELECT SUM(pvd.payment_amount)
-        FROM payment_voucher_detail pvd
-        INNER JOIN payment_voucher pv ON pv.payment_voucher_id = pvd.payment_voucher_id
-        WHERE pvd.supplier_id = supplier.supplier_id
-          AND pv.payment_voucher_id = ?
-    ) as payment_voucher_amount", [$id]);
+        $data->selectRaw("
+        supplier.*, 
+        (
+            SELECT SUM(pvd.payment_amount)
+            FROM payment_voucher_detail pvd
+            INNER JOIN payment_voucher pv 
+                ON pv.payment_voucher_id = pvd.payment_voucher_id
+            WHERE pvd.supplier_id = supplier.supplier_id
+              AND pv.payment_voucher_id = ?
+        ) AS payment_voucher_amount,
+        (
+            SELECT SUM(pvd.amount)
+            FROM payment_voucher_tagging_detail pvd
+            INNER JOIN payment_voucher_tagging pvt 
+                ON pvt.payment_voucher_tagging_id = pvd.payment_voucher_tagging_id
+            INNER JOIN payment_voucher pv 
+                ON pv.payment_voucher_id = pvt.payment_voucher_id
+            WHERE pvt.supplier_id = supplier.supplier_id
+              AND pvt.payment_voucher_id = ?
+        ) AS payment_voucher_tagging_amount,
+        (
+            (
+                SELECT COALESCE(SUM(pvd.payment_amount),0)
+                FROM payment_voucher_detail pvd
+                INNER JOIN payment_voucher pv 
+                    ON pv.payment_voucher_id = pvd.payment_voucher_id
+                WHERE pvd.supplier_id = supplier.supplier_id
+                  AND pv.payment_voucher_id = ?
+            ) 
+            -
+            (
+                SELECT COALESCE(SUM(pvd.amount),0)
+                FROM payment_voucher_tagging_detail pvd
+                INNER JOIN payment_voucher_tagging pvt 
+                    ON pvt.payment_voucher_tagging_id = pvd.payment_voucher_tagging_id
+                INNER JOIN payment_voucher pv 
+                    ON pv.payment_voucher_id = pvt.payment_voucher_id
+                WHERE pvt.supplier_id = supplier.supplier_id
+                  AND pvt.payment_voucher_id = ?
+            )
+        ) AS balance_amount
+    ", [$id, $id, $id, $id]);
 
-        // Only suppliers having voucher amount > 0
-        $data->having('payment_voucher_amount', '>', 0);
+        $data->having('balance_amount', '>', 0);
 
-        // Sorting + pagination
         $data = $data->orderBy($sort_column, $sort_direction)
             ->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json($data);
     }
+
 
 
     public function show($id, Request $request)
