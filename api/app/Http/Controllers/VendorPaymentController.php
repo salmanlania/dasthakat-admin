@@ -125,9 +125,9 @@ class VendorPaymentController extends Controller
             $document = DocumentType::getNextDocument($this->document_type_id, $request);
             $base_currency_id = Company::where('company_id', $request->company_id)->pluck('base_currency_id')->first();
             $outstanding_account_id = Supplier::where('supplier_id', $request->supplier_id)->pluck('outstanding_account_id')->first();
-            $undeposited_account_id = Setting::getValue('gl_accounts_setting', 'undeposited_account', true)[0] ?? "";
+            // $undeposited_account_id = Setting::getValue('gl_accounts_setting', 'undeposited_account', true)[0] ?? "";
             if (empty($outstanding_account_id)) return $this->jsonResponse(null, 400, "Vendor Outstanding Account not found");
-            if (empty($undeposited_account_id)) return $this->jsonResponse(null, 400, "Undeposited Transaction Account not found");
+            // if (empty($undeposited_account_id)) return $this->jsonResponse(null, 400, "Undeposited Transaction Account not found");
             $default_currency_id = Currency::where('company_id', $request->company_id)
                 ->where('company_branch_id', $request->company_branch_id)
                 ->value('currency_id');
@@ -145,7 +145,7 @@ class VendorPaymentController extends Controller
                 'supplier_id' => $request->supplier_id ?? "",
                 'base_currency_id' => $base_currency_id ?? "",
                 'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
-                'transaction_account_id' => $undeposited_account_id ?? null,
+                'transaction_account_id' => $request->transaction_account_id ?? null,
                 'conversion_rate' => $conversion_rate,
                 'payment_amount' => $request->payment_amount ?? "",
                 'total_amount' => $request->total_amount ?? "",
@@ -169,7 +169,7 @@ class VendorPaymentController extends Controller
                 'partner_id' => '',
                 'ref_document_type_id' => "",
                 'ref_document_identity' => "",
-                'account_id' => $undeposited_account_id,
+                'account_id' => $request->transaction_account_id ?? null,
                 'remarks' => '',
                 'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
                 'document_credit' => $request->payment_amount ?? "",
@@ -254,8 +254,8 @@ class VendorPaymentController extends Controller
         if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
         $base_currency_id = Company::where('company_id', $request->company_id)->pluck('base_currency_id')->first();
-        $undeposited_account_id = Setting::getValue('gl_accounts_setting', 'undeposited_account', true)[0] ?? "";
-        if (empty($undeposited_account_id)) return $this->jsonResponse(null, 400, "Undeposited Transaction Account not found");
+        // $undeposited_account_id = Setting::getValue('gl_accounts_setting', 'undeposited_account', true)[0] ?? "";
+        // if (empty($undeposited_account_id)) return $this->jsonResponse(null, 400, "Undeposited Transaction Account not found");
         
         $outstanding_account_id = Supplier::where('supplier_id', $request->supplier_id)->pluck('outstanding_account_id')->first();
         if (empty($outstanding_account_id)) return $this->jsonResponse(null, 400, "Vendor Outstanding Account not found");
@@ -273,7 +273,7 @@ class VendorPaymentController extends Controller
             $data->document_date = $request->document_date;
             $data->supplier_id = $request->supplier_id;
             $data->document_currency_id = $request->document_currency_id;
-            $data->transaction_account_id = $undeposited_account_id;
+            $data->transaction_account_id = $request->transaction_account_id;
             $data->conversion_rate = $conversion_rate;
             $data->payment_amount = $request->payment_amount;
             $data->total_amount = $request->total_amount;
@@ -298,7 +298,7 @@ class VendorPaymentController extends Controller
                 'partner_id' => '',
                 'ref_document_type_id' => "",
                 'ref_document_identity' => "",
-                'account_id' => $undeposited_account_id,
+                'account_id' => $request->transaction_account_id,
                 'remarks' => '',
                 'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
                 'document_credit' => $request->payment_amount ?? "",

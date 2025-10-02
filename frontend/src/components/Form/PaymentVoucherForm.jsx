@@ -8,11 +8,12 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { addPaymentVoucherDetail, changePaymentVoucherDetailOrder, copyPaymentVoucherDetail, removePaymentVoucherDetail, updatePaymentVoucherDetail } from '../../store/features/paymentVoucherSlice';
+import { addPaymentVoucherDetail, changePaymentVoucherDetailOrder, updatePaymentVoucherDetail, removePaymentVoucherDetail, copyPaymentVoucherDetail } from '../../store/features/paymentVoucherSlice';
 import AsyncSelect from '../AsyncSelect';
+import AsyncSelectPaymentVoucher from '../AsyncSelectPaymentVoucher';
+import AsyncSelectProduct from '../AsyncSelectProduct';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
-import AsyncSelectProduct from '../AsyncSelectProduct';
 import LedgerModal from '../Modals/LedgerModal';
 
 const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
@@ -23,13 +24,16 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
   );
 
   const [submitAction, setSubmitAction] = useState(null);
-  const [selectedRows, setSelectedRows] = useState([]);
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [settledAmounts, setSettledAmounts] = useState({});
   const [totalSettled, setTotalSettled] = useState(0);
   const [ledgerModalOpen, setLedgerModalOpen] = useState(false);
 
   const onFinish = (values) => {
+    const checkDate = paymentVoucherDetails.map((row) => row.ledger_date ? row.ledger_date : null);
+    if (checkDate.includes(null)) {
+      toast.error("Transaction Date is required");
+      return;
+    }
     const data = {
       ...initialFormValues,
       ...values,
@@ -41,6 +45,9 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
         ...row,
         sort_order: index + 1,
         account_id: row?.account_id ? row?.account_id?.value || row?.account_id : null,
+        cost_center_id: row?.cost_center_id ? row?.cost_center_id?.value || row?.cost_center_id : null,
+        event_id: row?.event_id ? row?.event_id?.value || row?.event_id : null,
+        supplier_id: row?.supplier_id ? row?.supplier_id?.value || row?.supplier_id : null,
         cheque_date: row?.cheque_date ? dayjs(row?.cheque_date).format("YYYY-MM-DD") : null,
         ledger_date: row?.ledger_date ? dayjs(row?.ledger_date).format("YYYY-MM-DD") : null,
       }))
@@ -50,16 +57,6 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
       : submitAction === 'saveAndExit'
         ? onSave(data)
         : null;
-  };
-
-  const handleSettledAmountChange = (value, record) => {
-    const rawValue = typeof value === "string" ? value : String(value ?? "0");
-    const settledAmount = parseFloat(rawValue.replace(/,/g, "")) || 0;
-    if (settledAmount < 0) {
-      toast.error("Amount cannot be negative");
-      return;
-    }
-    setSettledAmounts(prev => ({ ...prev, [record.id]: settledAmount }));
   };
 
   useEffect(() => {
@@ -80,6 +77,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
           className="!w-8"
           icon={<BiPlus size={14} />}
           onClick={() => dispatch(addPaymentVoucherDetail())}
+
         />
       ),
       key: 'order',
@@ -100,7 +98,6 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
               className="h-4"
               size="small"
               icon={<IoMdArrowDropdown size={16} />}
-              // disabled={index === chargeOrderDetails.length - 1 }
               onClick={() => {
                 dispatch(changePaymentVoucherDetailOrder({ from: index, to: index + 1 }));
               }}
@@ -112,19 +109,53 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
       fixed: 'left'
     },
     {
+      title: "Vendor",
+      dataIndex: "supplier_id",
+      key: "supplier_id",
+      width: 250,
+      render: (val, record) => (
+        <AsyncSelectPaymentVoucher
+          key={record.id}
+          endpoint="/supplier"
+          size="medium"
+          className="w-full font-normal"
+          valueKey="supplier_id"
+          labelKey="name"
+          value={val}
+          allowClear
+          onChange={(newVal, supplier) => {
+            dispatch(updatePaymentVoucherDetail({
+              id: record.id,
+              field: "supplier_id",
+              value: newVal,
+            }))
+            if (supplier?.outstanding_account_id) {
+              dispatch(updatePaymentVoucherDetail({
+                id: record.id,
+                field: "account_id",
+                value: {
+                  value: supplier.outstanding_account_id,
+                  label: supplier.outstanding_account_name,
+                },
+              }));
+            }
+          }}
+        />
+      ),
+    },
+    {
       title: "Account",
       dataIndex: "account_id",
       key: "account_id",
       render: (val, record) => {
         return (
           <AsyncSelect
+            key={record.id}
             endpoint="/accounts?only_leaf=1"
             valueKey="account_id"
             labelKey="name"
             value={record?.account_id}
-            // value={val} // show current value
             onChange={(newVal) => {
-              // return
               if (!newVal) {
                 dispatch(updatePaymentVoucherDetail({
                   id: record.id,
@@ -140,34 +171,17 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
               }));
             }}
             style={{ width: "100%" }}
+            disabled={!!record.supplier_id}
           />
         );
       },
-      width: 150,
-    },
-    {
-      title: "Cheque Date",
-      dataIndex: "cheque_date",
-      key: "cheque_date",
-      render: (val, record) => (
-        <DatePicker
-          value={val ? dayjs(val) : null}
-          format="MM-DD-YYYY"
-          onChange={(date) => {
-            dispatch(updatePaymentVoucherDetail({
-              id: record.id,
-              field: "cheque_date",
-              value: date ? date.format("YYYY-MM-DD") : null,
-            }));
-          }}
-          style={{ width: "100%" }}
-        />
-      ),
+      width: 200,
     },
     {
       title: "Transaction Date",
       dataIndex: "ledger_date",
       key: "ledger_date",
+      width: 180,
       render: (val, record) => (
         <DatePicker
           value={val ? dayjs(val) : null}
@@ -184,9 +198,10 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
       ),
     },
     {
-      title: "Cheque No",
+      title: "Transaction No",
       dataIndex: "cheque_no",
       key: "cheque_no",
+      width: 150,
       render: (val, record) => (
         <DebounceInput
           value={val}
@@ -201,12 +216,62 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
       ),
     },
     {
+      title: "Cost Center",
+      dataIndex: "cost_center_id",
+      key: "cost_center_id",
+      width: 150,
+      render: (val, record) => (
+        <AsyncSelectProduct
+          endpoint="/cost-center"
+          size="medium"
+          className="w-full font-normal"
+          valueKey="cost_center_id"
+          labelKey="name"
+          value={val}
+          allowClear
+          onChange={(newVal) => {
+            dispatch(updatePaymentVoucherDetail({
+              id: record.id,
+              field: "cost_center_id",
+              value: newVal,
+            }))
+          }}
+        />
+      ),
+    },
+    {
+      title: "Event",
+      dataIndex: "event_id",
+      key: "event_id",
+      width: 150,
+      render: (value, record) => (
+        <AsyncSelectProduct
+          endpoint="/event"
+          size="medium"
+          className="w-full font-normal"
+          valueKey="event_id"
+          labelKey="event_name"
+          value={value}
+          allowClear
+          onChange={(newVal) => {
+            dispatch(updatePaymentVoucherDetail({
+              id: record?.id,
+              field: "event_id",
+              value: newVal,
+            }))
+          }}
+        />
+      ),
+    },
+    {
       title: "Pay Amount",
       dataIndex: "payment_amount",
       key: "payment_amount",
+      width: 150,
       render: (_, record) => (
         <DebouncedCommaSeparatedInput
           value={record.payment_amount}
+          className="text-right"
           onChange={(val) => {
             const rawValue = String(val ?? "0");
             const clean = parseFloat(rawValue.replace(/,/g, "")) || 0;
@@ -231,8 +296,44 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
         />
       ),
       key: 'action',
+      render: (record, { id, editable }, index) => {
+        // if (record.isDeleted) {
+        //   return null;
+        // }
+        return (
+          <Dropdown
+            trigger={['click']}
+            // disabled={isDisable}
+            arrow
+            menu={{
+              items: [
+                {
+                  key: '1',
+                  label: 'Add',
+                  onClick: () => dispatch(addPaymentVoucherDetail(index))
+                },
+                {
+                  key: '2',
+                  label: 'Copy',
+                  onClick: () => dispatch(copyPaymentVoucherDetail(index))
+                },
+                {
+                  key: '3',
+                  label: 'Delete',
+                  danger: true,
+                  onClick: () => dispatch(removePaymentVoucherDetail(id)),
+                  disabled: editable === false
+                }
+              ]
+            }}>
+            <Button size="small">
+              <BsThreeDotsVertical />
+            </Button>
+          </Dropdown>
+        );
+      },
       width: 50,
-      fixed: 'right'
+      fixed: 'right',
     }
   ];
 
@@ -285,7 +386,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
             <Form.Item
               name="transaction_account_id"
               label="Transaction Account"
-            // rules={[{ required: true, message: "Transaction Account is required" }]}
+              rules={[{ required: true, message: "Transaction Account is required" }]}
             >
               <AsyncSelectProduct
                 endpoint="/setting?field=transaction_account"
@@ -309,25 +410,17 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
         <Table
           columns={columns}
           dataSource={paymentVoucherDetails}
+          rowClassName={(record) => (record.isDeleted ? 'hidden-row' : '')}
           rowKey="id"
           pagination={false}
           size="small"
-        // virtual
-        // scroll={{ y: 400 }}
-        // rowSelection={{
-        //   columnWidth: 40,
-        //   selectedRowKeys,
-        //   onChange: (newKeys, newRows) => {
-        //     setSelectedRowKeys(newKeys);
-        //     setSelectedRows(newRows);
-        //   }
-        // }}
+          scroll={{ x: 'calc(100% - 200px)' }}
         />
 
         <Row justify="end" gutter={12} className="mt-4">
           <Col span={6}>
             <Form.Item label="Total Amount">
-              <Input disabled value={totalSettled} />
+              <Input className='text-right' disabled value={totalSettled} />
             </Form.Item>
           </Col>
         </Row>

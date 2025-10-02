@@ -29,6 +29,12 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [returnModalVisible, setReturnModalVisible] = useState(false);
 
+  const totalGrossAmount = saleInvoiceDetail?.reduce((acc, item) => {
+    const extCost = Number(item?.amount || 0);
+    const disAmount = Number(item?.discount_amount || 0);
+    return acc + (extCost - disAmount);
+  }, 0) || 0;
+
   const onFinish = (values) => {
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
 
@@ -106,7 +112,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
         salesman_id: salesmanId,
         totalQuantity: quantity,
         totalAmount: amount,
- 
+
         customer_po_no: customerPoNo,
         event_id: eventName,
         vessel_id: vesselName,
@@ -286,7 +292,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
         <DebouncedCommaSeparatedInput value={discount_percent ? discount_percent + '' : '0'} disabled />
       ),
       width: 120
-    }, 
+    },
     {
       title: 'Discount Amt',
       dataIndex: 'discount_amount',
@@ -300,9 +306,14 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
       title: 'Gross Amount',
       dataIndex: 'gross_amount',
       key: 'gross_amount',
-      render: (_, { gross_amount }) => (
-        <DebouncedCommaSeparatedInput value={gross_amount ? gross_amount + '' : ''} disabled />
-      ),
+      render: (_, record, { gross_amount }) => {
+        const extCost = Number(record?.amount)
+        const disAmount = Number(record?.discount_amount)
+        const grossAmount = extCost - disAmount
+        return (
+          <DebouncedCommaSeparatedInput value={gross_amount ? gross_amount : grossAmount ? grossAmount : "0"} disabled />
+        )
+      },
       width: 120
     },
   ];
@@ -480,7 +491,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
               />
               <DetailSummaryInfo
                 title="Net Amount:"
-                value={formatThreeDigitCommas(initialFormValues?.netAmount || 0)}
+                value={formatThreeDigitCommas(initialFormValues?.netAmount ? initialFormValues?.netAmount : totalGrossAmount ? totalGrossAmount : "0")}
               />
             </Col>
           </Row>

@@ -14,19 +14,19 @@ import useDebounce from '../../hooks/useDebounce';
 import useDocumentTitle from '../../hooks/useDocumentTitle.js';
 import useError from '../../hooks/useError';
 import {
-  bulkDeleteCustomerPayment,
-  deleteCustomerPayment,
-  getCustomerPaymentList,
-  setCustomerPaymentDeleteIDs,
-  setCustomerPaymentListParams,
-} from '../../store/features/customerPaymentSlice.js';
+  bulkDeleteCustomerPaymentSettlement,
+  deleteCustomerPaymentSettlement,
+  getCustomerPaymentSettlementList,
+  setCustomerPaymentSettlementDeleteIDs,
+  setCustomerPaymentSettlementListParams,
+} from '../../store/features/customerPaymentSettlementSlice.js';
 
-const CustomerPayment = () => {
-  useDocumentTitle('Customer Payment List');
+const CustomerPaymentSettlement = () => {
+  useDocumentTitle('Customer Payment Settlement List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.customerPayment,
+    (state) => state.customerPaymentSettlement,
   );
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.customer_payment;
@@ -46,9 +46,9 @@ const CustomerPayment = () => {
 
   const onQuotationDelete = async (id) => {
     try {
-      await dispatch(deleteCustomerPayment(id)).unwrap();
-      toast.success('Customer Payment deleted successfully');
-      dispatch(getCustomerPaymentList(formattedParams)).unwrap();
+      await dispatch(deleteCustomerPaymentSettlement(id)).unwrap();
+      toast.success('Customer Payment Settlement deleted successfully');
+      dispatch(getCustomerPaymentSettlementList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -56,10 +56,10 @@ const CustomerPayment = () => {
 
   const onBulkDelete = async () => {
     try {
-      await dispatch(bulkDeleteCustomerPayment(deleteIDs)).unwrap();
-      toast.success('Customer Payments deleted successfully');
+      await dispatch(bulkDeleteCustomerPaymentSettlement(deleteIDs)).unwrap();
+      toast.success('Customer Payment Settlements deleted successfully');
       closeDeleteModal();
-      await dispatch(getCustomerPaymentList(formattedParams)).unwrap();
+      await dispatch(getCustomerPaymentSettlementList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -73,7 +73,7 @@ const CustomerPayment = () => {
       render: (_, record, index) => {
         return <>{index + 1}.</>;
       },
-      width: 50,
+      width: 30,
     },
     {
       title: (
@@ -84,7 +84,7 @@ const CustomerPayment = () => {
               size="small"
               value={params.document_date}
               className="font-normal"
-              onChange={(date) => dispatch(setCustomerPaymentListParams({ document_date: date }))}
+              onChange={(date) => dispatch(setCustomerPaymentSettlementListParams({ document_date: date }))}
               format="MM-DD-YYYY"
             />
           </div>
@@ -110,7 +110,7 @@ const CustomerPayment = () => {
               onClick={(e) => e.stopPropagation()}
               value={params.document_identity}
               onChange={(e) => {
-                dispatch(setCustomerPaymentListParams({ document_identity: e.target.value }));
+                dispatch(setCustomerPaymentSettlementListParams({ document_identity: e.target.value }));
               }}
             />
           </div>
@@ -133,12 +133,77 @@ const CustomerPayment = () => {
             valueKey="customer_id"
             labelKey="name"
             value={params.customer_id}
-            onChange={(value) => dispatch(setCustomerPaymentListParams({ customer_id: value }))}
+            onChange={(value) => dispatch(setCustomerPaymentSettlementListParams({ customer_id: value }))}
           />
         </div>
       ),
       dataIndex: 'customer_name',
       key: 'customer_name',
+      sorter: true,
+      width: 200,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Customer Payment No</p>
+          <Input
+            className="font-normal"
+            size="small"
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.customer_payment_no}
+            onChange={(e) => {
+              dispatch(setCustomerPaymentSettlementListParams({ customer_payment_no: e.target.value }));
+            }}
+          />
+        </div>
+      ),
+      dataIndex: 'customer_payment_no',
+      key: 'customer_payment_no',
+      sorter: true,
+      width: 200,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Transaction No</p>
+          <Input
+            className="font-normal"
+            size="small"
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.transaction_no}
+            onChange={(e) => {
+              dispatch(setCustomerPaymentSettlementListParams({ transaction_no: e.target.value }));
+            }}
+          />
+        </div>
+      ),
+      dataIndex: 'transaction_no',
+      key: 'transaction_no',
+      sorter: true,
+      width: 200,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Deposit To</p>
+          <AsyncSelect
+            endpoint="/accounts?only_leaf=1"
+            size="small"
+            className="w-full font-normal"
+            valueKey="account_id"
+            labelKey="name"
+            value={params.transaction_account_id}
+            onChange={(value) => dispatch(setCustomerPaymentSettlementListParams({ transaction_account_id: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'transaction_account_name',
+      key: 'transaction_account_name',
       sorter: true,
       width: 200,
       ellipsis: true,
@@ -152,17 +217,17 @@ const CustomerPayment = () => {
             size="small"
             allowClear
             onClick={(e) => e.stopPropagation()}
-            value={params.payment_amount}
+            value={params.total_amount}
             onChange={(e) => {
-              dispatch(setCustomerPaymentListParams({ payment_amount: e.target.value }));
+              dispatch(setCustomerPaymentSettlementListParams({ total_amount: e.target.value }));
             }}
           />
         </div>
       ),
-      dataIndex: 'payment_amount',
-      key: 'payment_amount',
+      dataIndex: 'total_amount',
+      key: 'total_amount',
       sorter: true,
-      width: 140,
+      width: 160,
       ellipsis: true,
       onCell: () => ({
         style: { textAlign: 'right' },
@@ -179,7 +244,7 @@ const CustomerPayment = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.remarks}
-            onChange={(e) => dispatch(setCustomerPaymentListParams({ remarks: e.target.value }))}
+            onChange={(e) => dispatch(setCustomerPaymentSettlementListParams({ remarks: e.target.value }))}
           />
         </div>
       ),
@@ -192,12 +257,12 @@ const CustomerPayment = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_, { customer_payment_id }) => (
+      render: (_, { customer_payment_settlement_id }) => (
         <div className="flex flex-col justify-center gap-1">
           <div className="flex items-center gap-1">
             {permissions.edit ? (
               <Tooltip title="Edit">
-                <Link to={`/general-ledger/transactions/customer-payment/edit/${customer_payment_id}`}>
+                <Link to={`/general-ledger/transactions/customer-payment-settlement/edit/${customer_payment_settlement_id}`}>
                   <Button
                     size="small"
                     type="primary"
@@ -215,7 +280,7 @@ const CustomerPayment = () => {
                   okButtonProps={{ danger: true }}
                   okText="Yes"
                   cancelText="No"
-                  onConfirm={() => onQuotationDelete(customer_payment_id)}
+                  onConfirm={() => onQuotationDelete(customer_payment_settlement_id)}
                 >
                   <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                 </Popconfirm>
@@ -235,7 +300,7 @@ const CustomerPayment = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    dispatch(getCustomerPaymentList(formattedParams)).unwrap().catch(handleError);
+    dispatch(getCustomerPaymentSettlementList(formattedParams)).unwrap().catch(handleError);
     const savedLimit = sessionStorage.getItem('customerPayments');
   }, [
     params.page,
@@ -247,10 +312,14 @@ const CustomerPayment = () => {
     params.event_code,
     params.document_date,
     params.customer_id,
+    params.transaction_no,
     params.vessel_id,
     params.event_id,
     params.port_id,
-    params.payment_amount,
+    params.total_amount,
+    params.transaction_account_id,
+    params.customer_payment_no,
+    params.transaction_no,
     params.status,
     debouncedSearch,
     debouncedQuotationNo,
@@ -261,8 +330,8 @@ const CustomerPayment = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>CUSTOMER PAYMENT</PageHeading>
-        <Breadcrumb items={[{ title: 'Customer Payment' }, { title: 'List' }]} separator=">" />
+        <PageHeading>CUSTOMER PAYMENT SETTLEMENT</PageHeading>
+        <Breadcrumb items={[{ title: 'Customer Payment Settlement' }, { title: 'List' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
@@ -272,7 +341,7 @@ const CustomerPayment = () => {
             allowClear
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) => dispatch(setCustomerPaymentListParams({ search: e.target.value }))}
+            onChange={(e) => dispatch(setCustomerPaymentSettlementListParams({ search: e.target.value }))}
           />
 
           <div className="flex items-center gap-2">
@@ -286,7 +355,7 @@ const CustomerPayment = () => {
               </Button>
             ) : null}
             {permissions.add ? (
-              <Link to="/general-ledger/transactions/customer-payment/create">
+              <Link to="/general-ledger/transactions/customer-payment-settlement/create">
                 <Button type="primary">Add New</Button>
               </Link>
             ) : null}
@@ -301,7 +370,7 @@ const CustomerPayment = () => {
                 type: 'checkbox',
                 selectedRowKeys: deleteIDs,
                 onChange: (selectedRowKeys) =>
-                  dispatch(setCustomerPaymentDeleteIDs(selectedRowKeys)),
+                  dispatch(setCustomerPaymentSettlementDeleteIDs(selectedRowKeys)),
                 getCheckboxProps: (record) => ({
                   disabled: record.isEventHeader,
                 }),
@@ -310,18 +379,18 @@ const CustomerPayment = () => {
           }
           loading={isListLoading}
           className="mt-2"
-          rowKey={(record) => record.customer_payment_id}
+          rowKey={(record) => record?.customer_payment_settlement_id}
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
             pageSize: params.limit,
             current: params.page,
-            showTotal: (total) => `Total ${total} customer payments`,
+            showTotal: (total) => `Total ${total} customer payments settlements`,
           }}
           onChange={(page, _, sorting) => {
             sessionStorage.setItem('customerPayments', page.pageSize);
             dispatch(
-              setCustomerPaymentListParams({
+              setCustomerPaymentSettlementListParams({
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
@@ -357,4 +426,4 @@ const CustomerPayment = () => {
   );
 };
 
-export default CustomerPayment;
+export default CustomerPaymentSettlement;

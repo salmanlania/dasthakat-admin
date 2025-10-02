@@ -24,6 +24,7 @@ use App\Models\StockReturnDetail;
 use App\Models\User;
 use Carbon\Carbon;
 use Error;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 
@@ -365,14 +366,15 @@ class Controller extends BaseController
         ], $status);
     }
 
-    protected function jsonResponse($data = [], $status_code = 200, $message = ''): object
+    protected function jsonResponse($data = [], int $status_code = 200, string $message = ''): JsonResponse
     {
-        $responseKey = ($status_code != 200) ? 'error' : 'data';
+        $isSuccess = ($status_code >= 200 && $status_code < 300);
+
         return response()->json([
-            'message' => $message,
-            'status' => $this->getStatusName($status_code),
+            'message'     => $message,
+            'status'      => $this->getStatusName($status_code),
             'status_code' => $status_code,
-            $responseKey => $data
+            $isSuccess ? 'data' : 'error' => $data
         ], $status_code);
     }
 
@@ -618,14 +620,19 @@ class Controller extends BaseController
     private function getStatusName(int $code): string
     {
         $status = [
-            200 => 'Success',
+            200 => 'OK',
+            201 => 'Created',
+            202 => 'Accepted',
+            204 => 'No Content',
             400 => 'Bad Request',
             401 => 'Unauthorized',
             403 => 'Forbidden',
             404 => 'Not Found',
+            409 => 'Conflict',
+            422 => 'Unprocessable Entity',
             500 => 'Internal Server Error',
         ];
 
-        return $status[$code];
+        return $status[$code] ?? 'Unknown Status';
     }
 }

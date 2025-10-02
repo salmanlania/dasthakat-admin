@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Customer;
 use App\Models\CustomerCommissionAgent;
+use App\Models\CustomerPayment;
 use App\Models\CustomerVessel;
 use App\Models\Ledger;
 use App\Models\Quotation;
@@ -148,6 +149,37 @@ class CustomerController extends Controller
 
 		return $this->jsonResponse($data, 200, "Customer Invoices Data");
 	}
+
+	public function getPaymentsByCustomer($id, Request $request)
+	{
+
+		$data = CustomerPayment::leftJoin('accounts as a', 'a.account_id', '=', 'customer_payment.transaction_account_id')
+			->where('customer_payment.customer_id', $id)
+			->select(
+				'customer_payment.customer_payment_id',
+				'customer_payment.document_identity',
+				'customer_payment.document_type_id',
+				'customer_payment.document_date',
+				'a.account_id as transaction_account_id',
+				'a.name as transaction_account',
+				'customer_payment.total_amount',
+				DB::raw("customer_payment.total_amount - (
+                    SELECT COALESCE(SUM(total_amount), 0) 
+                    FROM customer_payment_settlement
+                    WHERE customer_payment_settlement.customer_payment_id = customer_payment.customer_payment_id 
+					) as balance_amount")
+			)
+			->having('balance_amount', '>', 0)
+			->get();
+
+		if (!$data) {
+			return $this->jsonResponse(null, 404, "Customer Payment not found");
+		}
+
+		return $this->jsonResponse($data, 200, "Customer Payment Data");
+	}
+
+
 
 	public function validateRequest($request, $id = null)
 	{

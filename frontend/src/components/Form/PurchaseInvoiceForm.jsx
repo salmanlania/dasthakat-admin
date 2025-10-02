@@ -590,9 +590,6 @@ const PurchaseInvoiceForm = ({ mode, onSubmit, onSave }) => {
             />
             <DetailSummaryInfo
               title="Net Amount:"
-              // value={netAmount > 0 ? netAmount : parseInt(totalAmount) + parseInt(freightRate) || 0}
-              // value={parseInt(totalAmount) + parseInt(freightRate) || 0}
-              // value={totalAmount ? parseInt(totalAmount) + parseInt(freightRate) || 0 : netAmount}
               value={netAmount}
             />
           </Col>

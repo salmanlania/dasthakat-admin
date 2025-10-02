@@ -93,6 +93,7 @@ $router->group(['prefix' => 'company-branch'], function ($router) {
 
 $router->group(['prefix' => 'customer'], function ($router) {
    $router->get('/', 'CustomerController@index');
+   $router->get('/{id}/payments', 'CustomerController@getPaymentsByCustomer');
    $router->get('/{id}/ledger-invoices', 'CustomerController@getLedgerInvoices');
    $router->get('/{id}', 'CustomerController@show');
    $router->post('/', 'CustomerController@store');
@@ -105,6 +106,7 @@ $router->group(['prefix' => 'customer'], function ($router) {
 $router->group(['prefix' => 'supplier'], function ($router) {
    $router->get('/', 'SupplierController@index');
    $router->get('/{id}/ledger-invoices', 'SupplierController@getLedgerInvoices');
+   $router->get('/{id}/unsettled-invoices', 'SupplierController@getUnsettledPurchaseInvoices');
    $router->get('/{id}', 'SupplierController@show');
    $router->post('/', 'SupplierController@store');
    $router->put('/{id}', 'SupplierController@update');
@@ -146,6 +148,15 @@ $router->group(['prefix' => 'technician'], function ($router) {
    $router->put('/{id}', 'TechnicianController@update');
    $router->delete('/{id}', 'TechnicianController@delete');
    $router->post('/bulk-delete', 'TechnicianController@bulkDelete');
+});
+
+$router->group(['prefix' => 'cost-center'], function ($router) {
+   $router->get('/', 'CostCenterController@index');
+   $router->get('/{id}', 'CostCenterController@show');
+   $router->post('/', 'CostCenterController@store');
+   $router->put('/{id}', 'CostCenterController@update');
+   $router->delete('/{id}', 'CostCenterController@delete');
+   $router->post('/bulk-delete', 'CostCenterController@bulkDelete');
 });
 
 $router->group(['prefix' => 'flag'], function ($router) {
@@ -384,6 +395,16 @@ $router->group(['prefix' => 'purchase-return'], function ($router) {
    $router->post('/bulk-delete', 'PurchaseReturnController@bulkDelete');
 });
 
+$router->group(['prefix' => 'credit-note'], function ($router) {
+   $router->get('/', 'CreditNoteController@index');
+   $router->get('/{id}', 'CreditNoteController@show');
+   $router->post('/', 'CreditNoteController@store');
+   $router->post('/bulk-store', 'CreditNoteController@bulkStore');
+   $router->put('/{id}', 'CreditNoteController@update');
+   $router->delete('/{id}', 'CreditNoteController@delete');
+   $router->post('/bulk-delete', 'CreditNoteController@bulkDelete');
+});
+
 // pick list routes
 $router->group(['prefix' => 'picklist'], function ($router) {
    $router->get('/', 'PicklistController@index');
@@ -517,6 +538,16 @@ $router->group(['prefix' => 'customer-payment'], function ($router) {
     $router->delete('/{id}', 'CustomerPaymentController@delete');
 });
 
+// customer payment routes
+$router->group(['prefix' => 'customer-payment-settlement'], function ($router) {
+    $router->get('/', 'CustomerPaymentSettlementController@index');
+    $router->post('/', 'CustomerPaymentSettlementController@store');
+    $router->post('/bulk-delete', 'CustomerPaymentSettlementController@bulkDelete');
+    $router->get('/{id}', 'CustomerPaymentSettlementController@show');
+    $router->put('/{id}', 'CustomerPaymentSettlementController@update');
+    $router->delete('/{id}', 'CustomerPaymentSettlementController@delete');
+});
+
 // vendor payment routes
 $router->group(['prefix' => 'vendor-payment'], function ($router) {
     $router->get('/', 'VendorPaymentController@index');
@@ -531,12 +562,21 @@ $router->group(['prefix' => 'vendor-payment'], function ($router) {
 $router->group(['prefix' => 'payment-voucher'], function ($router) {
     $router->get('/', 'PaymentVoucherController@index');
     $router->post('/', 'PaymentVoucherController@store');
+    $router->get('/{id}/vendors', 'PaymentVoucherController@getVendorPaymentVoucher');
     $router->post('/bulk-delete', 'PaymentVoucherController@bulkDelete');
     $router->get('/{id}', 'PaymentVoucherController@show');
     $router->put('/{id}', 'PaymentVoucherController@update');
     $router->delete('/{id}', 'PaymentVoucherController@delete');
 });
 
+$router->group(['prefix' => 'payment-voucher-tagging'], function ($router) {
+    $router->get('/', 'PaymentVoucherTaggingController@index');
+    $router->post('/', 'PaymentVoucherTaggingController@store');
+    $router->post('/bulk-delete', 'PaymentVoucherTaggingController@bulkDelete');
+    $router->get('/{id}', 'PaymentVoucherTaggingController@show');
+    $router->put('/{id}', 'PaymentVoucherTaggingController@update');
+    $router->delete('/{id}', 'PaymentVoucherTaggingController@delete');
+});
 // COA Level1 routes
 $router->group(['prefix' => 'coa-level1'], function ($router) {
     $router->get('/', 'CoaLevel1Controller@index');

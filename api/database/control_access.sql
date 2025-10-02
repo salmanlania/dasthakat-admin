@@ -66,6 +66,11 @@
   ('General Group', 'Flag', 'flag', 'edit', 'Edit', 1.103),
   ('General Group', 'Flag', 'flag', 'delete', 'Delete', 1.104),
 
+  ('General Group', 'Cost Center', 'cost_center', 'list', 'List', 1.101),
+  ('General Group', 'Cost Center', 'cost_center', 'add', 'Add', 1.102),
+  ('General Group', 'Cost Center', 'cost_center', 'edit', 'Edit', 1.103),
+  ('General Group', 'Cost Center', 'cost_center', 'delete', 'Delete', 1.104),
+
   ('General Group', 'Class', 'class', 'list', 'List', 1.101),
   ('General Group', 'Class', 'class', 'add', 'Add', 1.102),
   ('General Group', 'Class', 'class', 'edit', 'Edit', 1.103),
@@ -121,6 +126,11 @@
   ('General Ledger', 'Customer Payment', 'customer_payment', 'edit', 'Edit', 1.103),
   ('General Ledger', 'Customer Payment', 'customer_payment', 'delete', 'Delete', 1.104),
   
+  ('General Ledger', 'Customer Payment Settlement', 'customer_payment_settlement', 'list', 'List', 1.101),
+  ('General Ledger', 'Customer Payment Settlement', 'customer_payment_settlement', 'add', 'Add', 1.102),
+  ('General Ledger', 'Customer Payment Settlement', 'customer_payment_settlement', 'edit', 'Edit', 1.103),
+  ('General Ledger', 'Customer Payment Settlement', 'customer_payment_settlement', 'delete', 'Delete', 1.104),
+  
   ('General Ledger', 'Vendor Payment', 'vendor_payment', 'list', 'List', 1.101),
   ('General Ledger', 'Vendor Payment', 'vendor_payment', 'add', 'Add', 1.102),
   ('General Ledger', 'Vendor Payment', 'vendor_payment', 'edit', 'Edit', 1.103),
@@ -130,6 +140,11 @@
   ('General Ledger', 'Payment Voucher', 'payment_voucher', 'add', 'Add', 1.102),
   ('General Ledger', 'Payment Voucher', 'payment_voucher', 'edit', 'Edit', 1.103),
   ('General Ledger', 'Payment Voucher', 'payment_voucher', 'delete', 'Delete', 1.104),
+  
+  -- ('General Ledger', 'Payment Voucher Tagging', 'payment_voucher_tagging', 'list', 'List', 1.101),
+  ('General Ledger', 'Payment Voucher Tagging', 'payment_voucher_tagging', 'add', 'Add', 1.102),
+  -- ('General Ledger', 'Payment Voucher Tagging', 'payment_voucher_tagging', 'edit', 'Edit', 1.103),
+  -- ('General Ledger', 'Payment Voucher Tagging', 'payment_voucher_tagging', 'delete', 'Delete', 1.104),
   
   ('Inventory Setup', 'Category', 'category', 'list', 'List', 1.101),
   ('Inventory Setup', 'Category', 'category', 'add', 'Add', 1.102),
@@ -242,6 +257,11 @@
   ('Warehousing', 'Stock Return', 'stock_return', 'add', 'Add', 1.102),
   ('Warehousing', 'Stock Return', 'stock_return', 'edit', 'Edit', 1.103),
   ('Warehousing', 'Stock Return', 'stock_return', 'delete', 'Delete', 1.104),
+  
+  ('Warehousing', 'Credit Note', 'credit_note', 'list', 'List', 1.101),
+  ('Warehousing', 'Credit Note', 'credit_note', 'add', 'Add', 1.102),
+  ('Warehousing', 'Credit Note', 'credit_note', 'edit', 'Edit', 1.103),
+  ('Warehousing', 'Credit Note', 'credit_note', 'delete', 'Delete', 1.104),
 
   ('Logistics', 'Scheduling', 'dispatch', 'list', 'List', 1.101),
   ('Logistics', 'Scheduling', 'dispatch', 'update', 'Update', 1.102),

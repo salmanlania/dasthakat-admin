@@ -36,7 +36,7 @@ const ModulesSetting = () => {
   const { user } = useSelector((state) => state.auth);
   const permissions = user?.permission;
   const bothPermission =
-    permissions?.gl_inventory_setting?.inventory_update &&
+    permissions?.gl_inventory_setting?.inventory_update ||
     permissions?.gl_accounts_setting?.gl_update
 
   useEffect(() => {
@@ -64,8 +64,7 @@ const ModulesSetting = () => {
       ...(initialFormValues || []),
       ...(initialFormData || []),
     ];
-    // initialFormData
-    // if (initialFormValues && Array.isArray(initialFormValues)) {
+
     if (combinedData.length > 0) {
       const formValues = combinedData.reduce((acc, item) => {
         const formKey = fieldKeyMap[item.field];
@@ -78,7 +77,6 @@ const ModulesSetting = () => {
                 label: v.name,
               };
             });
-            // acc[formKey] = item.value;
           }
           else if (typeof item.value === "object" && item.value.includes("-")) {
             acc[formKey] = {
@@ -86,7 +84,6 @@ const ModulesSetting = () => {
               value: item.value,
               label: item.field,
             }
-            // acc[formKey] = item.value;
           }
           else {
             acc[formKey] = item.value;
@@ -96,7 +93,13 @@ const ModulesSetting = () => {
       }, {});
       form.setFieldsValue(formValues);
     }
-  }, [initialFormValues, form, initialFormData]);
+
+    if (permissions?.gl_accounts_setting?.gl_update) {
+      setActiveTab("1");
+    } else if (permissions?.gl_inventory_setting?.inventory_update) {
+      setActiveTab("2");
+    }
+  }, [initialFormValues, form, initialFormData, permissions]);
 
   useEffect(() => {
     dispatch(getCompanySetting());
@@ -135,8 +138,12 @@ const ModulesSetting = () => {
       };
 
       const data = {
-        gl_accounts_setting,
-        inventory_accounts_setting,
+        ...(permissions?.gl_accounts_setting?.gl_update && {
+          gl_accounts_setting
+        }),
+        ...(permissions?.gl_inventory_setting?.inventory_update && {
+          inventory_accounts_setting
+        }),
       };
 
       await dispatch(updateCompanySetting(data)).unwrap();

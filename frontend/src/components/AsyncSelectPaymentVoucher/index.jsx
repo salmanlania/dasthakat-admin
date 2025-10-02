@@ -8,7 +8,7 @@ import useError from '../../hooks/useError';
 
 const { Option } = Select;
 
-const AsyncSelectProduct = ({
+const AsyncSelectPaymentVoucher = ({
   endpoint,
   labelInValue = false,
   params = {},
@@ -120,9 +120,10 @@ const AsyncSelectProduct = ({
       filterOption={false}
       onFocus={() => setIsClicked(true)}
       {...props}
+      // onChange={(v) => {
       onChange={(v, option) => {
         // props.onChange && props.onChange(v);
-        props.onChange && props.onChange(v, option?.data || option);
+        props.onChange && props.onChange(v, option?.props?.data);
         setSearchValue('');
       }}
       onPopupScroll={handleScroll}
@@ -172,4 +173,4 @@ const AsyncSelectProduct = ({
   );
 };
 
-export default AsyncSelectProduct;
+export default AsyncSelectPaymentVoucher;

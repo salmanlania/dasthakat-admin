@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class PaymentVoucherDetail extends Model
 {
@@ -21,8 +22,11 @@ class PaymentVoucherDetail extends Model
         'sort_order',
         'account_id',
         "cheque_no",
-        "cheque_date",
+        // "cheque_date",
         "ledger_date",
+        "event_id",
+        "cost_center_id",
+        "supplier_id",
         // 'document_amount',
         'payment_amount',
         // 'tax_amount',
@@ -40,7 +44,7 @@ class PaymentVoucherDetail extends Model
         // 'tax_amount'      => 'decimal:2',
         // 'tax_percent'     => 'decimal:2',
         // 'net_amount'      => 'decimal:2',
-        
+
     ];
 
     // Relationships
@@ -48,8 +52,30 @@ class PaymentVoucherDetail extends Model
     {
         return $this->belongsTo(PaymentVoucher::class, 'payment_voucher_id', 'payment_voucher_id');
     }
+
+    public function event()
+    {
+        return $this->hasOne(Event::class, 'event_id', 'event_id')
+            ->join('vessel', 'vessel.vessel_id', '=', 'event.vessel_id')
+            ->select(
+                'event.event_id',
+                'event.event_code',
+                DB::raw("CONCAT(event.event_code, ' (', COALESCE(vessel.name, 'Unknown'), ')') as event_name")
+            );
+    }
+
+    public function cost_center()
+    {
+        return $this->belongsTo(CostCenter::class, 'cost_center_id', 'cost_center_id');
+    }
     public function account()
     {
         return $this->belongsTo(Accounts::class, 'account_id', 'account_id');
     }
+    
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_id', 'supplier_id');
+    }
+
 }

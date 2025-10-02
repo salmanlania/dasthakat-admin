@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\PaymentVoucher;
 use App\Models\PaymentVoucherDetail;
 use App\Models\Ledger;
+use App\Models\PaymentVoucherTagging;
+use App\Models\PaymentVoucherTaggingDetail;
+use App\Models\Supplier;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -54,23 +57,128 @@ class PaymentVoucherController extends Controller
                     ->orWhere('a.name', 'like', "%$search%");
             });
         }
-        $data = $data->select(
-            'payment_voucher.*',
-            'a.name as transaction_account_name'
+        $data = $data->selectRaw(
+            'payment_voucher.*,
+            a.name as transaction_account_name,
+            (
+            (
+                SELECT COALESCE(SUM(pvd.payment_amount),0)
+                FROM payment_voucher_detail pvd
+                INNER JOIN payment_voucher pv 
+                    ON pv.payment_voucher_id = pvd.payment_voucher_id
+                WHERE pv.payment_voucher_id = payment_voucher.payment_voucher_id
+            ) 
+            -
+            (
+                SELECT COALESCE(SUM(pvd.amount),0)
+                FROM payment_voucher_tagging_detail pvd
+                INNER JOIN payment_voucher_tagging pvt 
+                    ON pvt.payment_voucher_tagging_id = pvd.payment_voucher_tagging_id
+                INNER JOIN payment_voucher pv 
+                    ON pv.payment_voucher_id = pvt.payment_voucher_id
+                WHERE pvt.payment_voucher_id = payment_voucher.payment_voucher_id
+            ) 
+            ) AS balance_amount,
+          (
+        SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
+        FROM payment_voucher_detail pvd3
+        WHERE pvd3.payment_voucher_id = payment_voucher.payment_voucher_id
+          AND pvd3.supplier_id IS NOT NULL  AND pvd3.supplier_id != ""
+        ) AS has_supplier'
         );
 
         $data = $data->orderBy($sort_column, $sort_direction)
             ->paginate($perPage, ['*'], 'page', $page);
 
+      
+        return response()->json($data);
+    }
+
+    public function getVendorPaymentVoucher($id, Request $request)
+    {
+
+        $search = $request->input('search', '');
+        $page = $request->input('page', 1);
+        $perPage = $request->input('limit', 10);
+        $sort_column = $request->input('sort_column', 'created_at');
+        $sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
+
+        $data = Supplier::query()
+            ->where('company_id', $request->company_id)
+            ->where('company_branch_id', $request->company_branch_id)
+            ->where('status', 1);
+
+        // 🔍 Search filter
+        if (!empty($search)) {
+            $search = strtolower($search);
+            $data->where(function ($query) use ($search) {
+                $query->where('supplier_code', 'like', '%' . $search . '%')
+                    ->orWhere('name', 'like', '%' . $search . '%');
+            });
+        }
+
+        $data->selectRaw("
+        supplier.*, 
+        (
+            SELECT SUM(pvd.payment_amount)
+            FROM payment_voucher_detail pvd
+            INNER JOIN payment_voucher pv 
+                ON pv.payment_voucher_id = pvd.payment_voucher_id
+            WHERE pvd.supplier_id = supplier.supplier_id
+              AND pv.payment_voucher_id = ?
+        ) AS payment_voucher_amount,
+        (
+            SELECT SUM(pvd.amount)
+            FROM payment_voucher_tagging_detail pvd
+            INNER JOIN payment_voucher_tagging pvt 
+                ON pvt.payment_voucher_tagging_id = pvd.payment_voucher_tagging_id
+            INNER JOIN payment_voucher pv 
+                ON pv.payment_voucher_id = pvt.payment_voucher_id
+            WHERE pvt.supplier_id = supplier.supplier_id
+              AND pvt.payment_voucher_id = ?
+        ) AS payment_voucher_tagging_amount,
+        (
+            (
+                SELECT COALESCE(SUM(pvd.payment_amount),0)
+                FROM payment_voucher_detail pvd
+                INNER JOIN payment_voucher pv 
+                    ON pv.payment_voucher_id = pvd.payment_voucher_id
+                WHERE pvd.supplier_id = supplier.supplier_id
+                  AND pv.payment_voucher_id = ?
+            ) 
+            -
+            (
+                SELECT COALESCE(SUM(pvd.amount),0)
+                FROM payment_voucher_tagging_detail pvd
+                INNER JOIN payment_voucher_tagging pvt 
+                    ON pvt.payment_voucher_tagging_id = pvd.payment_voucher_tagging_id
+                INNER JOIN payment_voucher pv 
+                    ON pv.payment_voucher_id = pvt.payment_voucher_id
+                WHERE pvt.supplier_id = supplier.supplier_id
+                  
+            )
+                - (
+                    SELECT COALESCE(SUM(settled_amount), 0) 
+                    FROM vendor_payment_detail as vpd Left join vendor_payment as vp on vp.vendor_payment_id = vpd.vendor_payment_id
+                    WHERE  vp.supplier_id = '$id'
+					)
+        ) AS balance_amount
+    ", [$id, $id, $id]);
+
+        $data->having('balance_amount', '>', 0);
+
+        $data = $data->orderBy($sort_column, $sort_direction)
+            ->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json($data);
     }
 
 
+
     public function show($id, Request $request)
     {
 
-        $data = PaymentVoucher::with('details', 'details.account', 'transaction_account', 'document_currency', 'base_currency')
+        $data = PaymentVoucher::with('details', 'details.supplier', 'details.event', 'details.cost_center', 'details.account', 'transaction_account', 'document_currency', 'base_currency')
             ->where('payment_voucher.payment_voucher_id', $id)
             ->first();
 
@@ -156,8 +264,11 @@ class PaymentVoucherController extends Controller
                         'sort_order' => $value['sort_order'] ?? "",
                         'account_id' => $value['account_id'] ?? "",
                         'cheque_no' => $value['cheque_no'] ?? "",
-                        'cheque_date' => $value['cheque_date'] ?? "",
+                        'event_id' => $value['event_id'] ?? "",
+                        'cost_center_id' => $value['cost_center_id'] ?? "",
+                        // 'cheque_date' => $value['cheque_date'] ?? "",
                         'ledger_date' => $value['ledger_date'] ?? "",
+                        'supplier_id' => $value['supplier_id'] ?? "",
                         // 'document_amount' => $value['document_amount'] ?? "",
                         'payment_amount' => $value['payment_amount'] ?? "",
                         // 'tax_amount' => $value['tax_amount'] ?? "",
@@ -169,7 +280,8 @@ class PaymentVoucherController extends Controller
 
                     PaymentVoucherDetail::create($data);
 
-                    if ((float)$value['payment_amount'] > 0)
+                    if ((float)$value['payment_amount'] > 0) {
+
 
                         Ledger::create([
                             'ledger_id' => $this->get_uuid(),
@@ -183,6 +295,8 @@ class PaymentVoucherController extends Controller
                             'sort_order' => 0,
                             'partner_type' => '',
                             'partner_id' => '',
+                            'event_id' => $value['event_id'],
+                            'cost_center_id' => $value['cost_center_id'],
                             'ref_document_type_id' => "",
                             'ref_document_identity' => "",
                             'account_id' => $request->transaction_account_id ?? "",
@@ -199,7 +313,7 @@ class PaymentVoucherController extends Controller
                             'created_at' => Carbon::now(),
                             'created_by_id' => $request->login_user_id,
                             'cheque_no' => $value['cheque_no'] ?? "",
-                            'cheque_date' => $value['cheque_date'] ?? "",
+                            // 'cheque_date' => $value['cheque_date'] ?? "",
                         ]);
                         Ledger::create([
                             'ledger_id' => $this->get_uuid(),
@@ -213,6 +327,8 @@ class PaymentVoucherController extends Controller
                             'sort_order' => $value['sort_order'] ?? "",
                             'partner_type' => '',
                             'partner_id' => '',
+                            'event_id' => $value['event_id'],
+                            'cost_center_id' => $value['cost_center_id'],
                             'ref_document_type_id' => "",
                             'ref_document_identity' => "",
                             'account_id' => $value['account_id'] ?? "",
@@ -229,8 +345,9 @@ class PaymentVoucherController extends Controller
                             'created_at' => Carbon::now(),
                             'created_by_id' => $request->login_user_id,
                             'cheque_no' => $value['cheque_no'] ?? "",
-                            'cheque_date' => $value['cheque_date'] ?? "",
+                            // 'cheque_date' => $value['cheque_date'] ?? "",
                         ]);
+                    }
                     // if ((float)$value['tax_amount'] > 0)
                     //     Ledger::create([
                     //         'ledger_id' => $this->get_uuid(),
@@ -321,8 +438,11 @@ class PaymentVoucherController extends Controller
                             'sort_order' => $value['sort_order'] ?? "",
                             'account_id' => $value['account_id'] ?? "",
                             'cheque_no' => $value['cheque_no'] ?? "",
-                            'cheque_date' => $value['cheque_date'] ?? "",
+                            'event_id' => $value['event_id'] ?? "",
+                            'cost_center_id' => $value['cost_center_id'] ?? "",
+                            // 'cheque_date' => $value['cheque_date'] ?? "",
                             'ledger_date' => $value['ledger_date'] ?? "",
+                            'supplier_id' => $value['supplier_id'] ?? "",
                             // 'document_amount' => $value['document_amount'] ?? "",
                             'payment_amount' => $value['payment_amount'] ?? "",
                             // 'tax_amount' => $value['tax_amount'] ?? "",
@@ -338,8 +458,11 @@ class PaymentVoucherController extends Controller
                             'sort_order' => $value['sort_order'] ?? "",
                             'account_id' => $value['account_id'] ?? "",
                             'cheque_no' => $value['cheque_no'] ?? "",
-                            'cheque_date' => $value['cheque_date'] ?? "",
+                            'event_id' => $value['event_id'] ?? "",
+                            'cost_center_id' => $value['cost_center_id'] ?? "",
+                            // 'cheque_date' => $value['cheque_date'] ?? "",
                             'ledger_date' => $value['ledger_date'] ?? "",
+                            'supplier_id' => $value['supplier_id'] ?? "",
                             // 'document_amount' => $value['document_amount'] ?? "",
                             'payment_amount' => $value['payment_amount'] ?? "",
                             // 'tax_amount' => $value['tax_amount'] ?? "",
@@ -354,8 +477,8 @@ class PaymentVoucherController extends Controller
                         PaymentVoucherDetail::where('payment_voucher_detail_id', $value['payment_voucher_detail_id'])->delete();
                     }
 
-                    if ($value['row_status'] != 'D')
-                        if ((float)$value['payment_amount'] > 0)
+                    if ($value['row_status'] != 'D') {
+                        if ((float)$value['payment_amount'] > 0) {
 
                             Ledger::create([
                                 'ledger_id' => $this->get_uuid(),
@@ -367,6 +490,8 @@ class PaymentVoucherController extends Controller
                                 'document_identity' => $request->document_identity ?? "",
                                 'document_date' => $value['ledger_date'] ?? "",
                                 'sort_order' => 0,
+                                'event_id' => $value['event_id'],
+                                'cost_center_id' => $value['cost_center_id'],
                                 'partner_type' => '',
                                 'partner_id' => '',
                                 'ref_document_type_id' => "",
@@ -385,7 +510,7 @@ class PaymentVoucherController extends Controller
                                 'created_at' => Carbon::now(),
                                 'created_by_id' => $request->login_user_id,
                                 'cheque_no' => $value['cheque_no'] ?? "",
-                                'cheque_date' => $value['cheque_date'] ?? "",
+                                // 'cheque_date' => $value['cheque_date'] ?? "",
                             ]);
                             Ledger::create([
                                 'ledger_id' => $this->get_uuid(),
@@ -398,6 +523,8 @@ class PaymentVoucherController extends Controller
                                 'document_date' => $value['ledger_date'] ?? $request->document_date,
                                 'sort_order' => $value['sort_order'] ?? "",
                                 'partner_type' => '',
+                                'event_id' => $value['event_id'],
+                                'cost_center_id' => $value['cost_center_id'],
                                 'partner_id' => '',
                                 'ref_document_type_id' => "",
                                 'ref_document_identity' => "",
@@ -415,8 +542,10 @@ class PaymentVoucherController extends Controller
                                 'created_at' => Carbon::now(),
                                 'created_by_id' => $request->login_user_id,
                                 'cheque_no' => $value['cheque_no'] ?? "",
-                                'cheque_date' => $value['cheque_date'] ?? "",
+                                // 'cheque_date' => $value['cheque_date'] ?? "",
                             ]);
+                        }
+                    }
 
                     // if ((float)$value['tax_amount'] > 0)
                     //     Ledger::create([
@@ -470,6 +599,10 @@ class PaymentVoucherController extends Controller
             Ledger::where('document_id', $id)
                 ->where('document_type_id', $this->document_type_id)
                 ->delete();
+            $payment_voucher_tagging_ids = PaymentVoucherTagging::where('payment_voucher_id', $id)->pluck('payment_voucher_tagging_id')->toArray();
+            PaymentVoucherTaggingDetail::whereIn('payment_voucher_tagging_id', $payment_voucher_tagging_ids)->delete();
+            PaymentVoucherTagging::where('payment_voucher_id', $id)->delete();
+
             PaymentVoucherDetail::where('payment_voucher_id', $id)->delete();
         }
         return $this->jsonResponse(['payment_voucher_id' => $id], 200, "Delete Payment Voucher Successfully!");
@@ -488,6 +621,9 @@ class PaymentVoucherController extends Controller
                         Ledger::where('document_id', $payment_voucher_id)
                             ->where('document_type_id', $this->document_type_id)
                             ->delete();
+                        $payment_voucher_tagging_ids = PaymentVoucherTagging::where('payment_voucher_id', $payment_voucher_id)->pluck('payment_voucher_tagging_id')->toArray();
+                        PaymentVoucherTaggingDetail::whereIn('payment_voucher_tagging_id', $payment_voucher_tagging_ids)->delete();
+                        PaymentVoucherTagging::where('payment_voucher_id', $payment_voucher_id)->delete();
                         PaymentVoucherDetail::where('payment_voucher_id', $payment_voucher_id)->delete();
                     }
                 }

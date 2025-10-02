@@ -21,12 +21,11 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
 
   const DetailSummaryInfo = ({ title, value, disabled }) => {
     return (
-      <div className="flex justify-between items-center mb-2 gap-4">
+      <div className="grid grid-cols-2 items-center gap-4 mb-2">
         <span className="text-sm text-gray-600">{title}</span>
-        {/* <span className="text-sm font-semibold text-black">{value}</span> */}
         <DebouncedCommaSeparatedInputRate
           disabled={disabled}
-          className="text-sm font-semibold text-black"
+          className="text-sm font-semibold text-black text-right"
           value={value}
         />
       </div>
@@ -85,7 +84,6 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
             row_status: row?.row_status
           }))
     };
-    // return 
 
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
@@ -103,18 +101,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       ...prev,
       [record.sale_invoice_id]: settledAmount
     }));
-
-    // const totalSettledAmount = selectedRowKeys.reduce((sum, key) => sum + (settledAmounts[key] || settledAmount || 0), 0);
-    // setTotalAmount(totalSettledAmount);
   };
-
-  // useEffect(() => {
-  //   if (selectedRowKeys.length === 0) return;
-  //   if (selectedRowKeys.length > 0) {
-  //     const totalSettledAmount = selectedRowKeys.reduce((sum, key) => sum + (settledAmounts[key] || 0), 0);
-  //     setTotalAmount(totalSettledAmount);
-  //   }
-  // }, [selectedRowKeys, settledAmounts]);
 
   useEffect(() => {
     const total = selectedRowKeys.reduce(
@@ -210,6 +197,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
         const documentNetAmount = net_amount ? net_amount : record?.net_amount ? record?.net_amount : ""
         return (
           <DebouncedCommaSeparatedInput
+            className="text-right"
             disabled
             value={documentNetAmount && Number(documentNetAmount).toFixed(2)}
           />
@@ -222,7 +210,11 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'balance_amount',
       key: 'balance_amount',
       render: (_, record) => (
-        <DebouncedCommaSeparatedInput value={record?.balance_amount ? Number(record?.balance_amount).toFixed(2) : ''} disabled />
+        <DebouncedCommaSeparatedInput
+          className="text-right"
+          value={record?.balance_amount ? Number(record?.balance_amount).toFixed(2) : ''}
+          disabled
+        />
       ),
       width: 120
     },
@@ -234,7 +226,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
         const value = settledAmounts[record?.sale_invoice_id] ?? '';
         return (
           <DebouncedCommaSeparatedInputRate
-            allowClear
+            className="text-right"
             value={value ? Number(value).toFixed(2) : Number(record?.settled_amount).toFixed(2) ? record?.settled_amount : null}
             onChange={(val) => handleSettledAmountChange(val, record)}
           />
@@ -299,7 +291,6 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
                 labelKey="name"
                 labelInValue
                 onChange={(value) => {
-                  // form.setFieldsValue({ customer_id: value });
                   if (value?.value) {
                     dispatch(getCustomerLedgerInvoices(value.value));
                   }
@@ -311,7 +302,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
         <Row gutter={12}>
           <Col span={24} sm={6} md={6} lg={6}>
             <Form.Item name="payment_amount" label="Receipt Amount">
-              <Input />
+              <DebouncedCommaSeparatedInput className="text-right" />
             </Form.Item>
           </Col>
           <Col span={24} sm={6} md={6} lg={6}>
@@ -342,7 +333,6 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
                 newSelectedRows.forEach(row => {
                   if (!(row.sale_invoice_id in updated)) {
                     updated[row.sale_invoice_id] = row.balance_amount || 0;
-                    // updated[row.sale_invoice_id] = 0;
                   }
                 });
 
@@ -353,7 +343,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
         />
 
         <div className="flex justify-end w-full">
-          <div className="border rounded-lg bg-white shadow-sm w-full max-w-sm mt-4">
+          <div className="border rounded-lg bg-white shadow-sm w-full max-w-sm mt-8 mb-4">
             <div className="flex justify-center -mt-3">
               <span className="bg-cyan-100 text-black px-4 py-1 rounded-full text-sm font-semibold shadow-sm">
                 Amount For Selected Invoices
@@ -373,13 +363,11 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
               <DetailSummaryInfo
                 title="Applied"
                 disabled
-                // value={formatThreeDigitCommas(totalAmount || 0)}
                 value={totalAmountDue || "0.00"}
               />
               <DetailSummaryInfo
                 title="Discount & Credit Applied"
                 disabled
-                // value={formatThreeDigitCommas(initialFormValues?.totalDiscount || 0)}
                 value={initialFormValues?.totalDiscount || "0.00"}
               />
             </div>

@@ -433,3 +433,179 @@ ALTER TABLE `vendor_payment_detail`
   
 INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `document_prefix`, `table_name`, `primary_key`)
 VALUES ( 60, 'Vendor Payment', '{BC}/VP-', 'vendor_payment', 'vendor_payment_id' );
+
+
+CREATE TABLE `cost_center` (
+    `company_id` CHAR(36) NOT NULL,
+    `company_branch_id` CHAR(36) NOT NULL,
+    `cost_center_id` CHAR(36) NOT NULL PRIMARY KEY,
+    `name` VARCHAR(255) NOT NULL,
+    `created_by` CHAR(36),
+    `updated_by` CHAR(36),
+    `created_at` DATETIME,
+    `updated_at` DATETIME
+);
+
+ALTER TABLE `payment_voucher_detail`
+ADD COLUMN `event_id` CHAR(36) DEFAULT NULL AFTER `ledger_date`,
+ADD COLUMN `cost_center_id` CHAR(36) DEFAULT NULL AFTER `event_id`,
+DROP COLUMN `cheque_date`;
+
+ALTER TABLE `core_ledger`
+ADD COLUMN `event_id` CHAR(36) DEFAULT NULL AFTER `partner_id`,
+ADD COLUMN `cost_center_id` CHAR(36) DEFAULT NULL AFTER `event_id`;
+ALTER TABLE `payment_voucher_detail` ADD COLUMN `supplier_id` CHAR(36) DEFAULT NULL AFTER `ledger_date`;
+
+CREATE TABLE `customer_payment_settlement` (
+  `company_id` CHAR(36) NOT NULL,
+  `company_branch_id` CHAR(36) NOT NULL,
+  `customer_payment_settlement_id` CHAR(36) NOT NULL,
+  `document_type_id` INT(11) NOT NULL,
+  `document_prefix` VARCHAR(255) NOT NULL,
+  `document_no` INT(11) NOT NULL,
+  `document_identity` VARCHAR(255) NOT NULL,
+  `document_date` DATE NOT NULL,
+  `customer_id` CHAR(36) NOT NULL,
+  `base_currency_id` CHAR(36) NOT NULL,
+  `document_currency_id` CHAR(36) NOT NULL,
+  `transaction_account_id` CHAR(36) NOT NULL,
+  `conversion_rate` DECIMAL(15, 2) NOT NULL,
+  `total_amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `remarks` TEXT,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` CHAR(36) NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_by` CHAR(36) NULL
+);
+
+CREATE TABLE `customer_payment_settlement_detail` (
+  `customer_payment_settlement_id` CHAR(36) NOT NULL,
+  `customer_payment_settlement_detail_id` CHAR(36) NOT NULL,
+  `sort_order` INT(11) NOT NULL,
+  `customer_payment_id` CHAR(36) NOT NULL,
+  `ref_document_identity` VARCHAR(255) NOT NULL,
+  `account_id` CHAR(36) NOT NULL,
+  `check_date` Date NULL,
+  `check_no` TEXT NULL,
+  `amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `remarks` TEXT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` CHAR(36) NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_by` CHAR(36) NULL
+);
+
+ALTER TABLE `customer_payment_settlement`
+  ADD PRIMARY KEY (`customer_payment_settlement_id`),
+  ADD INDEX `idx_company` (`company_id`),
+  ADD INDEX
+   `idx_company_branch` (`company_branch_id`),
+  ADD INDEX `idx_customer` (`customer_id`),
+  ADD INDEX `idx_transaction_account` (`transaction_account_id`),
+  ADD INDEX `idx_document_identity` (`document_identity`),
+  ADD INDEX `idx_document_date` (`document_date`);
+
+ALTER TABLE `customer_payment_settlement_detail`
+  ADD PRIMARY KEY (`customer_payment_settlement_detail_id`),
+  ADD INDEX `idx_customer_payment_settlement` (`customer_payment_settlement_id`),
+  ADD INDEX `idx_customer_payment` (`customer_payment_id`),
+  ADD INDEX `idx_account` (`account_id`);
+
+  
+INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `document_prefix`, `table_name`, `primary_key`)
+VALUES ( 61, 'Customer Payment Settlement', '{BC}/CPS-', 'customer_payment_settlement', 'customer_payment_settlement_id' );
+
+ALTER TABLE `customer_payment_settlement_detail`
+  CHANGE COLUMN `check_date` `cheque_date` DATE NULL,
+  CHANGE COLUMN `check_no` `cheque_no` TEXT NULL;
+
+  
+CREATE TABLE `payment_voucher_tagging` (
+  `company_id` CHAR(36) NOT NULL,
+  `company_branch_id` CHAR(36) NOT NULL,
+  `payment_voucher_tagging_id` CHAR(36) NOT NULL,
+  `document_type_id` INT(11) NOT NULL,
+  `document_prefix` VARCHAR(255) NOT NULL,
+  `document_no` INT(11) NOT NULL,
+  `document_identity` VARCHAR(255) NOT NULL,
+  `document_date` DATE NOT NULL,
+  `payment_voucher_id` CHAR(36) NOT NULL,
+  `supplier_id` CHAR(36) NOT NULL,
+  `base_currency_id` CHAR(36) NOT NULL,
+  `document_currency_id` CHAR(36) NOT NULL,
+  `conversion_rate` DECIMAL(15, 2) NOT NULL,
+  `total_amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `remarks` TEXT,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` CHAR(36) NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_by` CHAR(36) NULL
+);
+
+CREATE TABLE `payment_voucher_tagging_detail` (
+  `payment_voucher_tagging_id` CHAR(36) NOT NULL,
+  `payment_voucher_tagging_detail_id` CHAR(36) NOT NULL,
+  `sort_order` INT(11) NOT NULL,
+  `purchase_invoice_id` CHAR(36) NOT NULL,
+  `ref_document_identity` VARCHAR(255) NOT NULL,
+  `amount` DECIMAL(15, 2) NULL DEFAULT 0,
+  `remarks` TEXT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` CHAR(36) NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_by` CHAR(36) NULL
+);
+
+ALTER TABLE `payment_voucher_tagging`
+  ADD PRIMARY KEY (`payment_voucher_tagging_id`),
+  ADD INDEX `idx_company` (`company_id`),
+  ADD INDEX `idx_company_branch` (`company_branch_id`),
+  ADD INDEX `idx_supplier` (`supplier_id`),
+  ADD INDEX `idx_payment_voucher` (`payment_voucher_id`),
+  ADD INDEX `idx_document_identity` (`document_identity`),
+  ADD INDEX `idx_document_date` (`document_date`);
+
+ALTER TABLE `payment_voucher_tagging_detail`
+  ADD PRIMARY KEY (`payment_voucher_tagging_detail_id`),
+  ADD INDEX `idx_payment_voucher_tagging` (`payment_voucher_tagging_id`),
+  ADD INDEX `idx_payment_purchase_invoice` (`purchase_invoice_id`);
+
+INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `document_prefix`, `table_name`, `primary_key`)
+VALUES ( 62, 'Payment Voucher Tagging', '{BC}/PVS-', 'payment_voucher_tagging', 'payment_voucher_tagging_id' );
+
+ALTER TABLE customer_payment_settlement 
+ADD COLUMN `transaction_no` VARCHAR(255) NULL AFTER `transaction_account_id`,
+ADD COLUMN `customer_payment_id` CHAR(36) NULL AFTER `transaction_no`;
+
+ALTER TABLE customer_payment_settlement_detail 
+DROP COLUMN `customer_payment_id`,
+DROP COLUMN `ref_document_identity`,
+DROP COLUMN `cheque_no`,
+DROP COLUMN `cheque_date`;
+
+ALTER TABLE customer_payment_settlement 
+ADD COLUMN `bank_amount` DECIMAL(15, 2) NULL AFTER `customer_payment_id`;
+
+
+
+CREATE TABLE `credit_note` (
+    credit_note_id CHAR(36) PRIMARY KEY,
+    company_id CHAR(36) NOT NULL,
+    company_branch_id CHAR(36) NOT NULL,
+    document_type_id INT NOT NULL,
+    document_no INT NOT NULL,
+    document_prefix VARCHAR(255) NOT NULL,
+    document_identity VARCHAR(255) NOT NULL,
+    document_date DATE NOT NULL,
+    event_id CHAR(36) NOT NULL,
+    sale_invoice_id CHAR(36) NOT NULL,
+    credit_amount DECIMAL(15, 2) NOT NULL,
+    credit_percent DECIMAL(15, 2) NOT NULL,
+    created_by CHAR(36) DEFAULT NULL,
+    updated_by CHAR(36) DEFAULT NULL,
+    created_at DATETIME DEFAULT NULL,
+    updated_at DATETIME DEFAULT NULL
+);
+
+INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `document_prefix`, `table_name`, `primary_key`)
+VALUES ( 63, 'Credit Note', '{BC}/CN-', 'credit_note', 'credit_note_id' );

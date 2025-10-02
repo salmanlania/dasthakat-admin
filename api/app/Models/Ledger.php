@@ -29,7 +29,8 @@ class Ledger extends Model
         
         'partner_type',
         'partner_id',
-
+        'event_id',
+        'cost_center_id',
         'ref_document_type_id',
         'ref_document_identity',
         

@@ -128,6 +128,7 @@ const Sidebar = () => {
   const generalLedgerPermission =
     !permissions?.vendor_payment?.list &&
     !permissions?.customer_payment?.list &&
+    !permissions?.customer_payment_settlement?.list &&
     !permissions?.payment_voucher?.list &&
     !permissions?.accounts?.list &&
     glSettingPermission
@@ -140,6 +141,7 @@ const Sidebar = () => {
     !permissions?.vendor_payment?.list &&
     !permissions?.payment_voucher?.list &&
     !permissions?.customer_payment?.list
+    !permissions?.customer_payment_settlement?.list
 
   const warehousingPermission =
     !permissions?.good_received_note?.list &&
@@ -243,6 +245,11 @@ const Sidebar = () => {
               key: 'flag',
               label: <Link to="/flag">Flag</Link>,
               disabled: !permissions?.flag?.list,
+            },
+            {
+              key: 'cost-center',
+              label: <Link to="/cost-center">Cost Center</Link>,
+              // disabled: !permissions?.flag?.list,
             },
             {
               key: 'class',
@@ -517,13 +524,13 @@ const Sidebar = () => {
       disabled: generalLedgerPermission,
       children: [
         {
-          key: 'gl setup',
+          key: 'gl-setup',
           label: 'GL Setup',
           icon: <MdOutlineAccountTree size={18} />,
           disabled: accountsPermission,
           children: [
             {
-              key: 'gl module setting',
+              key: '/general-ledger/gl-setup/gl-module-setting',
               label: <Link to="/general-ledger/gl-setup/gl-module-setting">GL Module Setting</Link>,
               disabled: glSettingPermission,
             },
@@ -535,7 +542,7 @@ const Sidebar = () => {
           ]
         },
         {
-          key: 'transaction',
+          key: 'general-ledger/transactions',
           label: 'Transaction',
           icon: <FaExchangeAlt size={18} />,
           disabled: transactionPermission,
@@ -554,6 +561,11 @@ const Sidebar = () => {
               key: 'general-ledger/transactions/payment-voucher',
               label: <Link to="/general-ledger/transactions/payment-voucher">Payment Voucher</Link>,
               disabled: !permissions?.payment_voucher?.list,
+            },
+            {
+              key: 'general-ledger/transactions/customer-payment-settlement/create',
+              label: <Link to="/general-ledger/transactions/customer-payment-settlement">Customer Payment Settlement</Link>,
+              disabled: !permissions?.customer_payment_settlement?.list,
             },
           ]
         },
@@ -636,7 +648,7 @@ const Sidebar = () => {
       collapsed={isCollapsed}
       className={`${isSmallScreen ? '!fixed' : '!sticky'} ${isCollapsed ? '' : 'border-r'
         } scrollbar !left-0 !top-0 z-50 h-screen overflow-y-auto`}
-      width={240}>
+      width={250}>
       <div className="m-2 flex flex-col items-center justify-center gap-2 rounded-xl bg-slate-200 p-4 px-2">
         {isSmallScreen && (
           <div

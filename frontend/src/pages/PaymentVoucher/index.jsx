@@ -2,13 +2,13 @@ import { Breadcrumb, Button, DatePicker, Input, Popconfirm, Table, Tooltip } fro
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { AiOutlineTag } from 'react-icons/ai';
 import { GoTrash } from 'react-icons/go';
 import { MdOutlineEdit } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect/index.jsx';
 import PageHeading from '../../components/Heading/PageHeading.jsx';
-import ChargeOrderModal from '../../components/Modals/ChargeOrderModal.jsx';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal.jsx';
 import useDebounce from '../../hooks/useDebounce.js';
 import useDocumentTitle from '../../hooks/useDocumentTitle.js';
@@ -17,21 +17,28 @@ import {
   bulkDeletePaymentVoucher,
   deletePaymentVoucher,
   getPaymentVoucherList,
+  resetPaymentVoucherSettlementForm,
   setPaymentVoucherDeleteIDs,
   setPaymentVoucherListParams,
 } from '../../store/features/paymentVoucherSlice.js';
+import VendorSettlementTaggingModal from '../../components/Modals/vendorSettlementTaggingModal.jsx';
 
 const PaymentVoucher = () => {
   useDocumentTitle('Payment Voucher List');
   const dispatch = useDispatch();
   const handleError = useError();
-  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
+  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs, balanceAmount } = useSelector(
     (state) => state.paymentVoucher,
   );
+
   const { user } = useSelector((state) => state.auth);
   const permissions = user.permission.payment_voucher;
+  const permissionsSettlement = user.permission
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
+  const [taggingModalOpen, setTaggingModalOpen] = useState(false);
+  const [paymentVoucherId, setPaymentVoucherId] = useState(null);
+  // const [selectedTotalAmount, setSelectedTotalAmount] = useState(0);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
@@ -171,6 +178,36 @@ const PaymentVoucher = () => {
       sorter: true,
       width: 140,
       ellipsis: true,
+      onCell: () => ({
+        style: { textAlign: 'right' },
+      }),
+      render: (value) => `${value}.`,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Balance Amount</p>
+          <Input
+            className="font-normal"
+            size="small"
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.total_amount}
+            onChange={(e) => {
+              dispatch(setPaymentVoucherListParams({ total_amount: e.target.value }));
+            }}
+          />
+        </div>
+      ),
+      dataIndex: 'total_amount',
+      key: 'total_amount',
+      sorter: true,
+      width: 140,
+      ellipsis: true,
+      onCell: () => ({
+        style: { textAlign: 'right' },
+      }),
+      render: (value) => `${value}.`,
     },
     {
       title: (
@@ -195,39 +232,57 @@ const PaymentVoucher = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_, { payment_voucher_id }) => (
-        <div className="flex flex-col justify-center gap-1">
-          <div className="flex items-center gap-1">
-            {permissions.edit ? (
-              <Tooltip title="Edit">
-                <Link to={`/general-ledger/transactions/payment-voucher/edit/${payment_voucher_id}`}>
+      render: (_, record) => {
+        const balanceAmount = Number(record?.balance_amount);
+        return (
+          <div className="flex flex-col justify-center gap-1">
+            <div className="flex items-center gap-1">
+              {permissions.edit ? (
+                <Tooltip title="Edit">
+                  <Link to={`/general-ledger/transactions/payment-voucher/edit/${record?.payment_voucher_id}`}>
+                    <Button
+                      size="small"
+                      type="primary"
+                      className="bg-gray-500 hover:!bg-gray-400"
+                      icon={<MdOutlineEdit size={14} />}
+                    />
+                  </Link>
+                </Tooltip>
+              ) : null}
+              {permissions.delete ? (
+                <Tooltip title="Delete">
+                  <Popconfirm
+                    title="Are you sure you want to delete?"
+                    description="After deleting, You will not be able to recover it."
+                    okButtonProps={{ danger: true }}
+                    okText="Yes"
+                    cancelText="No"
+                    onConfirm={() => onQuotationDelete(record?.payment_voucher_id)}
+                  >
+                    <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
+                  </Popconfirm>
+                </Tooltip>
+              ) : null}
+              {permissionsSettlement?.payment_voucher_tagging?.add && balanceAmount > 0 && record?.has_supplier !== 0 ? (
+                <Tooltip title="Tagging">
                   <Button
                     size="small"
                     type="primary"
-                    className="bg-gray-500 hover:!bg-gray-400"
-                    icon={<MdOutlineEdit size={14} />}
+                    icon={<AiOutlineTag size={14} />}
+                    onClick={() => {
+                      dispatch(resetPaymentVoucherSettlementForm());
+                      // setSelectedTotalAmount(record?.total_amount);
+                      setPaymentVoucherId(record?.payment_voucher_id);
+                      setTaggingModalOpen(true);
+                    }}
                   />
-                </Link>
-              </Tooltip>
-            ) : null}
-            {permissions.delete ? (
-              <Tooltip title="Delete">
-                <Popconfirm
-                  title="Are you sure you want to delete?"
-                  description="After deleting, You will not be able to recover it."
-                  okButtonProps={{ danger: true }}
-                  okText="Yes"
-                  cancelText="No"
-                  onConfirm={() => onQuotationDelete(payment_voucher_id)}
-                >
-                  <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
-                </Popconfirm>
-              </Tooltip>
-            ) : null}
+                </Tooltip>
+              ) : null}
+            </div>
           </div>
-        </div>
-      ),
-      width: 70,
+        )
+      },
+      width: 90,
       fixed: 'right',
     },
   ];
@@ -356,7 +411,16 @@ const PaymentVoucher = () => {
         description="After deleting, you will not be able to recover."
       />
 
-      <ChargeOrderModal />
+      {
+        <VendorSettlementTaggingModal
+          open={taggingModalOpen}
+          paymentVoucherId={paymentVoucherId}
+          // totalAmountValue={selectedTotalAmount}
+          onClose={() => {
+            setTaggingModalOpen(false)
+            dispatch(getPaymentVoucherList(formattedParams))}}
+        />
+      }
     </>
   );
 };
