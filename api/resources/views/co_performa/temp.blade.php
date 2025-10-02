@@ -54,6 +54,12 @@
   border-bottom: 1px solid white !important;
   border-top: 1px solid white !important;
 }
+.total_amount_row{
+  border: 2px solid #000 !important;
+}
+
+
+
   </style>
 @endpush
 
@@ -216,14 +222,14 @@
         </tr>
       @endfor
 
-     <tr>
-        <th colspan="3">Total</th>
-        <th class="text-right">{{$qty}}</th>
-        <th></th>
-        <th class="text-right">${{$gross_amount}}</th>
-        <th></th>
-        <th class="text-right">${{$disc_amount}}</th>
-        <th class="text-right">${{$net_amount}}</th>
+     <tr >
+        <th class="total_amount_row" colspan="3">Total</th>
+        <th class=" total_amount_row text-right">{{$qty}}</th>
+        <th class="total_amount_row"></th>
+        <th class="text-right total_amount_row">${{$gross_amount}}</th>
+        <th class="total_amount_row"></th>
+        <th class="total_amount_row text-right">${{$disc_amount}}</th>
+        <th class="total_amount_row text-right">${{$net_amount}}</th>
       </tr>
   </tbody>
 </table>
