@@ -91,10 +91,10 @@ class SupplierController extends Controller
 	{
 
 		$data = PurchaseInvoice::where([
-				'supplier_id' => $id,
-				'company_id' => $request->company_id,
-				'company_branch_id' => $request->company_branch_id,
-			])
+			'supplier_id' => $id,
+			'company_id' => $request->company_id,
+			'company_branch_id' => $request->company_branch_id,
+		])
 			->select(
 				'purchase_invoice_id',
 				'document_identity',
@@ -118,12 +118,12 @@ class SupplierController extends Controller
 
 		return $this->jsonResponse($data, 200, "Supplier Invoices Data");
 	}
-	
+
 	public function getUnsettledPurchaseInvoices($id, Request $request)
 	{
 
 		$data = PurchaseInvoice::
-		// leftJoin('accounts as a', 'a.account_id', '=', 'purchase_invoice.transaction_account_id')
+			// leftJoin('accounts as a', 'a.account_id', '=', 'purchase_invoice.transaction_account_id')
 			where('purchase_invoice.supplier_id', $id)
 			->select(
 				'purchase_invoice.purchase_invoice_id',
@@ -136,12 +136,17 @@ class SupplierController extends Controller
 				DB::raw("purchase_invoice.net_amount - (
                     SELECT COALESCE(SUM(amount), 0) 
                     FROM payment_voucher_tagging_detail as pvsd Left join payment_voucher_tagging as pvs on pvs.payment_voucher_tagging_id = pvsd.payment_voucher_tagging_id
-                    WHERE pvsd.purchase_invoice_id = purchase_invoice.purchase_invoice_id AND pvs.payment_voucher_id = '$request->payment_voucher_id'
-					) as balance_amount")
+                    WHERE pvsd.purchase_invoice_id = purchase_invoice.purchase_invoice_id AND pvs.supplier_id = '$id'
+					) 
+					- (
+                    SELECT COALESCE(SUM(settled_amount), 0) 
+                    FROM vendor_payment_detail as vpd Left join vendor_payment as vp on vp.vendor_payment_id = vpd.vendor_payment_id
+                    WHERE vpd.purchase_invoice_id = purchase_invoice.purchase_invoice_id AND vp.supplier_id = '$id'
+					)
+					 as balance_amount")
 			)
 			->having('balance_amount', '>', 0)
 			->get();
-
 		if (!$data) {
 			return $this->jsonResponse(null, 404, "Unsettled Supplier Invoices not found");
 		}

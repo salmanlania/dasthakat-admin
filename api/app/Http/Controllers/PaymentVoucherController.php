@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\PaymentVoucher;
 use App\Models\PaymentVoucherDetail;
 use App\Models\Ledger;
+use App\Models\PaymentVoucherTagging;
+use App\Models\PaymentVoucherTaggingDetail;
 use App\Models\Supplier;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -75,8 +77,8 @@ class PaymentVoucherController extends Controller
                 INNER JOIN payment_voucher pv 
                     ON pv.payment_voucher_id = pvt.payment_voucher_id
                 WHERE pvt.payment_voucher_id = payment_voucher.payment_voucher_id
-            )
-        ) AS balance_amount,
+            ) 
+            ) AS balance_amount,
           (
         SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
         FROM payment_voucher_detail pvd3
@@ -88,12 +90,13 @@ class PaymentVoucherController extends Controller
         $data = $data->orderBy($sort_column, $sort_direction)
             ->paginate($perPage, ['*'], 'page', $page);
 
-
+      
         return response()->json($data);
     }
 
     public function getVendorPaymentVoucher($id, Request $request)
     {
+
         $search = $request->input('search', '');
         $page = $request->input('page', 1);
         $perPage = $request->input('limit', 10);
@@ -152,10 +155,15 @@ class PaymentVoucherController extends Controller
                 INNER JOIN payment_voucher pv 
                     ON pv.payment_voucher_id = pvt.payment_voucher_id
                 WHERE pvt.supplier_id = supplier.supplier_id
-                  AND pvt.payment_voucher_id = ?
+                  
             )
+                - (
+                    SELECT COALESCE(SUM(settled_amount), 0) 
+                    FROM vendor_payment_detail as vpd Left join vendor_payment as vp on vp.vendor_payment_id = vpd.vendor_payment_id
+                    WHERE  vp.supplier_id = '$id'
+					)
         ) AS balance_amount
-    ", [$id, $id, $id, $id]);
+    ", [$id, $id, $id]);
 
         $data->having('balance_amount', '>', 0);
 
@@ -591,6 +599,10 @@ class PaymentVoucherController extends Controller
             Ledger::where('document_id', $id)
                 ->where('document_type_id', $this->document_type_id)
                 ->delete();
+            $payment_voucher_tagging_ids = PaymentVoucherTagging::where('payment_voucher_id', $id)->pluck('payment_voucher_tagging_id')->toArray();
+            PaymentVoucherTaggingDetail::whereIn('payment_voucher_tagging_id', $payment_voucher_tagging_ids)->delete();
+            PaymentVoucherTagging::where('payment_voucher_id', $id)->delete();
+
             PaymentVoucherDetail::where('payment_voucher_id', $id)->delete();
         }
         return $this->jsonResponse(['payment_voucher_id' => $id], 200, "Delete Payment Voucher Successfully!");
@@ -609,6 +621,9 @@ class PaymentVoucherController extends Controller
                         Ledger::where('document_id', $payment_voucher_id)
                             ->where('document_type_id', $this->document_type_id)
                             ->delete();
+                        $payment_voucher_tagging_ids = PaymentVoucherTagging::where('payment_voucher_id', $payment_voucher_id)->pluck('payment_voucher_tagging_id')->toArray();
+                        PaymentVoucherTaggingDetail::whereIn('payment_voucher_tagging_id', $payment_voucher_tagging_ids)->delete();
+                        PaymentVoucherTagging::where('payment_voucher_id', $payment_voucher_id)->delete();
                         PaymentVoucherDetail::where('payment_voucher_id', $payment_voucher_id)->delete();
                     }
                 }
