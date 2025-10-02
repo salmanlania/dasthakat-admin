@@ -77,7 +77,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
           className="!w-8"
           icon={<BiPlus size={14} />}
           onClick={() => dispatch(addPaymentVoucherDetail())}
-          
+
         />
       ),
       key: 'order',
@@ -107,40 +107,6 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
       },
       width: 50,
       fixed: 'left'
-    },
-    {
-      title: "Account",
-      dataIndex: "account_id",
-      key: "account_id",
-      render: (val, record) => {
-        return (
-          <AsyncSelect
-          key={record.id}
-            endpoint="/accounts?only_leaf=1"
-            valueKey="account_id"
-            labelKey="name"
-            value={record?.account_id}
-            onChange={(newVal) => {
-              if (!newVal) {
-                dispatch(updatePaymentVoucherDetail({
-                  id: record.id,
-                  field: "account_id",
-                  value: null,
-                }));
-                return;
-              }
-              dispatch(updatePaymentVoucherDetail({
-                id: record.id,
-                field: "account_id",
-                value: newVal,
-              }));
-            }}
-            style={{ width: "100%" }}
-            disabled={!!record.supplier_id}
-          />
-        );
-      },
-      width: 200,
     },
     {
       title: "Vendor",
@@ -176,6 +142,40 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
           }}
         />
       ),
+    },
+    {
+      title: "Account",
+      dataIndex: "account_id",
+      key: "account_id",
+      render: (val, record) => {
+        return (
+          <AsyncSelect
+            key={record.id}
+            endpoint="/accounts?only_leaf=1"
+            valueKey="account_id"
+            labelKey="name"
+            value={record?.account_id}
+            onChange={(newVal) => {
+              if (!newVal) {
+                dispatch(updatePaymentVoucherDetail({
+                  id: record.id,
+                  field: "account_id",
+                  value: null,
+                }));
+                return;
+              }
+              dispatch(updatePaymentVoucherDetail({
+                id: record.id,
+                field: "account_id",
+                value: newVal,
+              }));
+            }}
+            style={{ width: "100%" }}
+            disabled={!!record.supplier_id}
+          />
+        );
+      },
+      width: 200,
     },
     {
       title: "Transaction Date",
