@@ -399,7 +399,7 @@ export const paymentVoucherSlice = createSlice({
         payment_amount: data?.payment_amount ? parseInt(data?.payment_amount) : null,
       };
       state.paymentVoucherDetails = data?.details.map((detail) => ({
-        id: detail?.payment_voucher_id ? detail?.payment_voucher_id : null,
+        id: detail?.payment_voucher_detail_id ? detail?.payment_voucher_detail_id : null,
         payment_voucher_id: detail?.payment_voucher_id ? detail?.payment_voucher_id : null,
         payment_voucher_detail_id: detail?.payment_voucher_detail_id ? detail?.payment_voucher_detail_id : null,
         sort_order: detail?.sort_order ? detail?.sort_order : null,

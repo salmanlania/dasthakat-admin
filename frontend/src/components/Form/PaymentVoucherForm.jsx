@@ -8,7 +8,7 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { addPaymentVoucherDetail, changePaymentVoucherDetailOrder, updatePaymentVoucherDetail } from '../../store/features/paymentVoucherSlice';
+import { addPaymentVoucherDetail, changePaymentVoucherDetailOrder, updatePaymentVoucherDetail, removePaymentVoucherDetail, copyPaymentVoucherDetail } from '../../store/features/paymentVoucherSlice';
 import AsyncSelect from '../AsyncSelect';
 import AsyncSelectPaymentVoucher from '../AsyncSelectPaymentVoucher';
 import AsyncSelectProduct from '../AsyncSelectProduct';
@@ -29,6 +29,11 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
   const [ledgerModalOpen, setLedgerModalOpen] = useState(false);
 
   const onFinish = (values) => {
+    const checkDate = paymentVoucherDetails.map((row) => row.ledger_date ? row.ledger_date : null);
+    if (checkDate.includes(null)) {
+      toast.error("Transaction Date is required");
+      return;
+    }
     const data = {
       ...initialFormValues,
       ...values,
@@ -72,6 +77,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
           className="!w-8"
           icon={<BiPlus size={14} />}
           onClick={() => dispatch(addPaymentVoucherDetail())}
+          
         />
       ),
       key: 'order',
@@ -129,10 +135,11 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
               }));
             }}
             style={{ width: "100%" }}
+            disabled={!!record.supplier_id}
           />
         );
       },
-      width: 150,
+      width: 200,
     },
     {
       title: "Vendor",
@@ -287,6 +294,42 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
         />
       ),
       key: 'action',
+      render: (record, { id, editable }, index) => {
+        // if (record.isDeleted) {
+        //   return null;
+        // }
+        return (
+          <Dropdown
+            trigger={['click']}
+            // disabled={isDisable}
+            arrow
+            menu={{
+              items: [
+                {
+                  key: '1',
+                  label: 'Add',
+                  onClick: () => dispatch(addPaymentVoucherDetail(index))
+                },
+                {
+                  key: '2',
+                  label: 'Copy',
+                  onClick: () => dispatch(copyPaymentVoucherDetail(index))
+                },
+                {
+                  key: '3',
+                  label: 'Delete',
+                  danger: true,
+                  onClick: () => dispatch(removePaymentVoucherDetail(id)),
+                  disabled: editable === false
+                }
+              ]
+            }}>
+            <Button size="small">
+              <BsThreeDotsVertical />
+            </Button>
+          </Dropdown>
+        );
+      },
       width: 50,
       fixed: 'right',
     }
@@ -340,7 +383,8 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
           <Col span={8}>
             <Form.Item
               name="transaction_account_id"
-              label="Transaction Account" s
+              label="Transaction Account"
+              rules={[{ required: true, message: "Transaction Account is required" }]}
             >
               <AsyncSelectProduct
                 endpoint="/setting?field=transaction_account"
@@ -364,6 +408,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
         <Table
           columns={columns}
           dataSource={paymentVoucherDetails}
+          rowClassName={(record) => (record.isDeleted ? 'hidden-row' : '')}
           rowKey="id"
           pagination={false}
           size="small"
