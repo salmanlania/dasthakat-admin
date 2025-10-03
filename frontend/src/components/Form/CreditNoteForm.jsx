@@ -227,6 +227,7 @@ const CreditNoteForm = ({ mode, onSubmit, onSave }) => {
         return (
           <DebouncedCommaSeparatedInput
             value={rate}
+            className="text-right"
             disabled
           />
         );
@@ -238,7 +239,7 @@ const CreditNoteForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'amount',
       key: 'amount',
       render: (_, { amount }) => (
-        <DebouncedCommaSeparatedInput value={amount ? amount + '' : ''} disabled />
+        <DebouncedCommaSeparatedInput value={amount ? amount + '' : ''} className="text-right" disabled />
       ),
       width: 120
     },
@@ -256,7 +257,7 @@ const CreditNoteForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'discount_amount',
       key: 'discount_amount',
       render: (_, { discount_amount }) => (
-        <DebouncedCommaSeparatedInput value={discount_amount ? discount_amount + '' : '0'} disabled />
+        <DebouncedCommaSeparatedInput value={discount_amount ? discount_amount + '' : '0'} className="text-right" disabled />
       ),
       width: 120
     },
@@ -269,7 +270,7 @@ const CreditNoteForm = ({ mode, onSubmit, onSave }) => {
         const disAmount = Number(record?.discount_amount)
         const grossAmount = extCost - disAmount
         return (
-          <DebouncedCommaSeparatedInput value={gross_amount ? gross_amount : grossAmount ? grossAmount : "0"} disabled />
+          <DebouncedCommaSeparatedInput value={gross_amount ? gross_amount : grossAmount ? grossAmount : "0"} className="text-right" disabled />
         )
       },
       width: 120
@@ -392,7 +393,7 @@ const CreditNoteForm = ({ mode, onSubmit, onSave }) => {
             name="credit_total_amount"
             label="Sale Invoice Amount"
           >
-            <Input className="w-full" disabled />
+            <Input className="w-full text-right" disabled />
           </Form.Item>
         </Col>
         <Col span={24} sm={8} md={6} lg={6}>
@@ -413,7 +414,7 @@ const CreditNoteForm = ({ mode, onSubmit, onSave }) => {
             label="Credit Amount"
           >
             <DebouncedCommaSeparatedInputRate
-              className="w-full"
+              className="w-full text-right"
               onChange={handleCreditAmountChange}
               disabled={!isEventSelected}
             />
