@@ -133,11 +133,15 @@ const MainLayout = () => {
   if (href === '/sale-invoice' && !permissions.sale_invoice.list) return <NotFound />;
   if (href.startsWith('/sale-invoice/edit') && !permissions.sale_invoice.edit) return <NotFound />;
 
+  if (href === '/credit-note' && !permissions.credit_note.list) return <NotFound />;
+  if (href === '/credit-note/create' && !permissions.credit_note.add) return <NotFound />;
+  if (href.startsWith('/credit-note/edit') && !permissions.credit_note.edit) return <NotFound />;
+
   if (href === '/stock-return' && !permissions.stock_return.list) return <NotFound />;
   if (href.startsWith('/stock-return/edit') && !permissions.stock_return.edit) return <NotFound />;
 
-  if (href === '/credit-note' && !permissions.sale_return.list) return <NotFound />;
-  if (href.startsWith('/credit-note/edit') && !permissions.sale_return.edit) return <NotFound />;
+  if (href === '/sale-return' && !permissions.sale_return.list) return <NotFound />;
+  if (href.startsWith('/sale-return/edit') && !permissions.sale_return.edit) return <NotFound />;
 
   if (href === '/purchase-invoice' && !permissions.purchase_invoice.list) return <NotFound />;
   if (href.startsWith('/purchase-invoice/edit') && !permissions.purchase_invoice.edit)

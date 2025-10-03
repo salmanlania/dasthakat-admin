@@ -32,6 +32,53 @@ const getLevelKeys = (items1) => {
   return key;
 };
 
+// function sortMenuItems(items) {
+//   return items
+//     .map(item => {
+//       if (item.children) {
+//         return {
+//           ...item,
+//           children: sortMenuItems(item.children), // sort children recursively
+//         };
+//       }
+//       return item;
+//     })
+//     .sort((a, b) => {
+//       const labelA = typeof a.label === 'string'
+//         ? a.label
+//         : a.label?.props?.children?.toString() || '';
+
+//       const labelB = typeof b.label === 'string'
+//         ? b.label
+//         : b.label?.props?.children?.toString() || '';
+
+//       return labelA.localeCompare(labelB);
+//     });
+// }
+
+function sortChildren(items) {
+  return items.map(item => {
+    if (item.children && item.children.length > 0) {
+      // sort the children alphabetically
+      const sortedChildren = [...item.children].sort((a, b) => {
+        const labelA = typeof a.label === 'string'
+          ? a.label
+          : a.label?.props?.children?.toString() || '';
+        const labelB = typeof b.label === 'string'
+          ? b.label
+          : b.label?.props?.children?.toString() || '';
+        return labelA.localeCompare(labelB);
+      });
+
+      return {
+        ...item,
+        children: sortChildren(sortedChildren), // recursively sort deeper levels
+      };
+    }
+    return item;
+  });
+}
+
 const Sidebar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -141,7 +188,7 @@ const Sidebar = () => {
     !permissions?.vendor_payment?.list &&
     !permissions?.payment_voucher?.list &&
     !permissions?.customer_payment?.list
-    !permissions?.customer_payment_settlement?.list
+  !permissions?.customer_payment_settlement?.list
 
   const warehousingPermission =
     !permissions?.good_received_note?.list &&
@@ -155,6 +202,7 @@ const Sidebar = () => {
   const accountingPermission =
     !permissions?.purchase_invoice?.list &&
     !permissions?.sale_invoice?.list &&
+    !permissions?.credit_note?.list &&
     !permissions?.sale_return?.list &&
     !permissions?.gl_accounts_setting?.gl_update &&
     !permissions?.gl_inventory_setting?.inventory_update
@@ -442,9 +490,14 @@ const Sidebar = () => {
           disabled: !permissions?.sale_invoice?.list,
         },
         {
-          key: 'credit-note',
-          label: <Link to="/credit-note">Credit Note</Link>,
+          key: 'sale-return',
+          label: <Link to="/sale-return">Sale Return</Link>,
           disabled: !permissions?.sale_return?.list,
+        },
+        {
+          key: 'credit-note',
+          label: <Link to="credit-note">Credit Note</Link>,
+          disabled: !permissions?.credit_note?.list,
         },
       ],
     },
@@ -563,7 +616,7 @@ const Sidebar = () => {
               disabled: !permissions?.payment_voucher?.list,
             },
             {
-              key: 'general-ledger/transactions/customer-payment-settlement/create',
+              key: 'general-ledger/transactions/customer-payment-settlement',
               label: <Link to="/general-ledger/transactions/customer-payment-settlement">Customer Payment Settlement</Link>,
               disabled: !permissions?.customer_payment_settlement?.list,
             },
@@ -572,7 +625,9 @@ const Sidebar = () => {
       ],
     },
   ];
-  const levelKeys = getLevelKeys(items);
+  const sortedItems = sortChildren(items);
+  // const levelKeys = getLevelKeys(items);
+  const levelKeys = getLevelKeys(sortedItems);
 
   function getEnabledLeafLabelsAndKeys(items) {
     const result = [];
@@ -673,7 +728,8 @@ const Sidebar = () => {
           notFoundContent={null}
           value={null}
           optionFilterProp="label"
-          options={getEnabledLeafLabelsAndKeys(items)}
+          // options={getEnabledLeafLabelsAndKeys(items)}
+          options={getEnabledLeafLabelsAndKeys(sortedItems)}
           onChange={(selectedKey) => {
             if (selectedKey) {
               const parentKeys = getParentKeys(selectedKey, items);
@@ -700,7 +756,8 @@ const Sidebar = () => {
           isSmallScreen && dispatch(toggleSidebar());
         }}
         mode="inline"
-        items={items}
+        // items={items}
+        items={sortedItems}
         openKeys={stateOpenKeys}
         onOpenChange={onOpenChange}
       />

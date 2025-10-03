@@ -82,7 +82,7 @@ const initialState = {
   isFormSubmitting: false,
   isBulkDeleting: false,
   initialFormValues: null,
-  saleInvoiceDetail: null,
+  saleInvoiceDetail: [],
   isItemLoading: false,
   list: [],
   listID: [],
@@ -109,6 +109,14 @@ export const saleInvoiceSlice = createSlice({
         ...state.params,
         ...action.payload
       };
+    },
+
+    clearSaleInvoiceList: (state) => {
+      state.list = [];
+    },
+
+    clearSaleInvoiceDetail: (state) => {
+      state.saleInvoiceDetail = [];
     },
 
     setSaleInvoiceDeleteIDs: (state, action) => {
@@ -242,5 +250,5 @@ export const saleInvoiceSlice = createSlice({
   }
 });
 
-export const { setSaleInvoiceListParams, setSaleInvoiceDeleteIDs } = saleInvoiceSlice.actions;
+export const { setSaleInvoiceListParams, setSaleInvoiceDeleteIDs, clearSaleInvoiceList, clearSaleInvoiceDetail } = saleInvoiceSlice.actions;
 export default saleInvoiceSlice.reducer;

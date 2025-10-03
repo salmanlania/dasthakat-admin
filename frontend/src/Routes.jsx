@@ -106,6 +106,10 @@ const EditStockReturn = lazy(() => import('./pages/StockReturn/EditStockReturn')
 const SaleReturn = lazy(() => import('./pages/SaleReturn'));
 const EditSaleReturn = lazy(() => import('./pages/SaleReturn/EditSaleReturn'));
 
+const CreditNote = lazy(() => import('./pages/CreditNote'));
+const CreateCreditNote = lazy(() => import('./pages/CreditNote/CreateCreditNote'));
+const EditCreditNote = lazy(() => import('./pages/CreditNote/EditCreditNote'));
+
 const PurchaseReturn = lazy(() => import('./pages/PurchaseReturn'));
 const EditPurchaseReturn = lazy(() => import('./pages/PurchaseReturn/EditPurchaseReturn'));
 
@@ -172,6 +176,7 @@ const EditVoucherPayment = lazy(() => import('./pages/PaymentVoucher/EditPayment
 const CustomerPaymentSettlement = lazy(() => import('./pages/CustomerPaymentSettlement'));
 const CreateCustomerPaymentSettlement = lazy(() => import('./pages/CustomerPaymentSettlement/CreateCustomerPaymentSettlement'));
 const EditCustomerPaymentSettlement = lazy(() => import('./pages/CustomerPaymentSettlement/EditCustomerPaymentSettlement'));
+
 
 function Routes() {
   const router = createBrowserRouter(
@@ -703,7 +708,7 @@ function Routes() {
             ),
           },
           {
-            path: '/credit-note',
+            path: '/sale-return',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <SaleReturn />
@@ -711,10 +716,34 @@ function Routes() {
             ),
           },
           {
-            path: '/credit-note/edit/:id',
+            path: '/sale-return/edit/:id',
             element: (
               <Suspense fallback={<PageLoader />}>
                 <EditSaleReturn />
+              </Suspense>
+            ),
+          },
+          {
+            path: 'credit-note',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreditNote />
+              </Suspense>
+            ),
+          },
+          {
+            path: 'credit-note/create',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CreateCreditNote />
+              </Suspense>
+            ),
+          },
+          {
+            path: 'credit-note/edit/:id',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <EditCreditNote />
               </Suspense>
             ),
           },

@@ -12,7 +12,7 @@ import { getSaleReturn, updateSaleReturn } from '../../store/features/saleReturn
 import { updateStockReturn } from '../../store/features/stockReturnSlice';
 
 const EditSaleReturn = () => {
-  useDocumentTitle('Edit Credit Note');
+  useDocumentTitle('Edit Sale Return');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();
@@ -49,7 +49,7 @@ const EditSaleReturn = () => {
         }
       }
 
-      toast.success('Credit Note updated successfully');
+      toast.success('Sale Return updated successfully');
       dispatch(getSaleReturn(id)).unwrap().catch(handleError);
     } catch (error) {
       handleError(error);
@@ -86,8 +86,8 @@ const EditSaleReturn = () => {
         }
       }
 
-      toast.success('Credit Note updated successfully');
-      navigate('/credit-note');
+      toast.success('Sale Return updated successfully');
+      navigate('/sale-return');
     } catch (error) {
       handleError(error);
     }
@@ -104,8 +104,8 @@ const EditSaleReturn = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>EDIT CREDIT NOTE</PageHeading>
-        <Breadcrumb items={[{ title: 'Credit Note' }, { title: 'Edit' }]} separator=">" />
+        <PageHeading>EDIT SALE RETURN</PageHeading>
+        <Breadcrumb items={[{ title: 'Sale Return' }, { title: 'Edit' }]} separator=">" />
       </div>
 
       {isItemLoading && (
