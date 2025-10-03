@@ -56,7 +56,6 @@ const CustomerPaymentSettlementForm = ({ mode, onSubmit, onSave }) => {
         sort_order: index + 1,
         account_id: row?.account_id ? row?.account_id?.value || row?.account_id : null,
         cheque_date: row?.cheque_date ? dayjs(row?.cheque_date).format("YYYY-MM-DD") : null,
-        cheque_date: row?.cheque_date ? dayjs(row?.cheque_date).format("YYYY-MM-DD") : null,
         customer_payment_id: row?.customer_payment_id ? row?.customer_payment_id : null
       }))
     };
