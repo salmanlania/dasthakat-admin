@@ -27,7 +27,8 @@ class CreditNoteController extends Controller
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
 		$data = CreditNote::leftJoin('sale_invoice', 'credit_note.sale_invoice_id', '=', 'sale_invoice.sale_invoice_id')
-			->leftJoin('event', 'sale_invoice.event_id', '=', 'event.event_id');
+		->leftJoin('charge_order as co', 'co.charge_order_id', '=', 'sale_invoice.charge_order_id')
+			->leftJoin('event', 'co.event_id', '=', 'event.event_id');
 
 		$data = $data->where('credit_note.company_id', '=', $request->company_id);
 		$data = $data->where('credit_note.company_branch_id', '=', $request->company_branch_id);
