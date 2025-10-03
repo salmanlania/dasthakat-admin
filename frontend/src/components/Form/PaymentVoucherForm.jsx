@@ -419,7 +419,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
 
         <Row justify="end" gutter={12} className="mt-4">
           <Col span={6}>
-            <Form.Item label="Total Amount">
+            <Form.Item labelCol={{ style: { fontWeight: 'bold' } }} label="Total Amount">
               <Input className='text-right' disabled value={totalSettled} />
             </Form.Item>
           </Col>
