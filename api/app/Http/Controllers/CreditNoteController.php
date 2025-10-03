@@ -26,7 +26,7 @@ class CreditNoteController extends Controller
 		$sort_column = $request->input('sort_column', 'credit_note.created_at');
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
-		$data = CreditNote::with('sale_invoice','event')->leftJoin('sale_invoice', 'credit_note.sale_invoice_id', '=', 'sale_invoice.sale_invoice_id')
+		$data = CreditNote::leftJoin('sale_invoice', 'credit_note.sale_invoice_id', '=', 'sale_invoice.sale_invoice_id')
 		->leftJoin('charge_order as co', 'co.charge_order_id', '=', 'sale_invoice.charge_order_id')
 			->leftJoin('event', 'co.event_id', '=', 'event.event_id');
 
@@ -56,7 +56,7 @@ class CreditNoteController extends Controller
 
 	public function show($id, $jsonResponse = true)
 	{
-		$data = CreditNote::with('company', 'company_branch', 'created_user', 'updated_user')->find($id);
+		$data = CreditNote::with('sale_invoice','event','company', 'company_branch', 'created_user', 'updated_user')->find($id);
 		if ($jsonResponse) {
 			return $this->jsonResponse($data, 200, "Show Data");
 		} else {
