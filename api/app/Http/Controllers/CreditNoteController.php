@@ -19,7 +19,7 @@ class CreditNoteController extends Controller
 		$event_id = $request->input('event_id', '');
 		$sale_invoice_no = $request->input('sale_invoice_no', '');
 		$credit_amount = $request->input('credit_amount', '');
-		$credit_precent = $request->input('credit_precent', '');
+		$credit_percent = $request->input('credit_percent', '');
 		$search = $request->input('search', '');
 		$page =  $request->input('page', 1);
 		$perPage =  $request->input('limit', 10);
@@ -35,7 +35,7 @@ class CreditNoteController extends Controller
 		if (!empty($event_id)) $data = $data->where('credit_note.event_id', 'like', '%' . $event_id . '%');
 		if (!empty($sale_invoice_no)) $data = $data->where('sale_invoice.document_identity', 'like', '%' . $sale_invoice_no . '%');
 		if (!empty($credit_amount)) $data = $data->where('credit_note.credit_amount', 'like', '%' . $credit_amount . '%');
-		if (!empty($credit_precent)) $data = $data->where('credit_note.credit_precent', 'like', '%' . $credit_precent . '%');
+		if (!empty($credit_percent)) $data = $data->where('credit_note.credit_percent', 'like', '%' . $credit_percent . '%');
 
 		if (!empty($search)) {
 			$search = strtolower($search);
@@ -69,7 +69,7 @@ class CreditNoteController extends Controller
 			'event_id' => 'required|string|size:36',
 			'sale_invoice_id' => 'required|string|size:36',
 			'credit_amount' => 'required|numeric|min:0',
-			'credit_precent' => 'required|numeric|min:0',
+			'credit_percent' => 'required|numeric|min:0',
 		];
 
 
@@ -110,7 +110,7 @@ class CreditNoteController extends Controller
 			'event_id' => $request->event_id,
 			'sale_invoice_id' => $request->sale_invoice_id,
 			'credit_amount' => $request->credit_amount,
-			'credit_precent' => $request->credit_precent,
+			'credit_percent' => $request->credit_percent,
 			'created_at' => Carbon::now(),
 			'created_by' => $request->login_user_id,
 		];
@@ -137,7 +137,7 @@ class CreditNoteController extends Controller
 		$data->event_id  = $request->event_id ?? $data->event_id;
 		$data->sale_invoice_id  = $request->sale_invoice_id;
 		$data->credit_amount  = $request->credit_amount;
-		$data->credit_precent  = $request->credit_precent;
+		$data->credit_percent  = $request->credit_percent;
 		$data->updated_at = Carbon::now();
 		$data->updated_by = $request->login_user_id;
 		$data->update();
