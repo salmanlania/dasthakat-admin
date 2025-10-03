@@ -14,7 +14,7 @@ const shortcuts = [
   { title: 'Purchase Order', url: '/purchase-order/', permissionKey: 'purchase_order' },
   { title: 'Pick List', url: '/pick-list/', permissionKey: 'picklist' },
   { title: 'Service List', url: '/service-list/', permissionKey: 'servicelist' },
-  { title: 'Sales Invoice', url: '/sale-invoice/', permissionKey: 'sale_invoice' },
+  { title: 'Sale Invoice', url: '/sale-invoice/', permissionKey: 'sale_invoice' },
   { title: 'Purchase Invoice', url: '/purchase-invoice/', permissionKey: 'purchase_invoice' },
 ];
 

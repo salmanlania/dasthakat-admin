@@ -72,7 +72,9 @@ const SaleInvoice = () => {
     const loadingToast = toast.loading('Loading print...');
 
     try {
-      await dispatch(saleInvoicePrint(id)).unwrap();
+      // await dispatch(saleInvoicePrint(id)).unwrap();
+      const data = await dispatch(getSaleInvoice(id)).unwrap();
+      createSaleInvoicePrint(data);
     } catch (error) {
       handleError(error);
     } finally {
