@@ -22,7 +22,7 @@ class CreditNote extends Model
         'event_id',
         'sale_invoice_id',
         'credit_amount',
-        'credit_precent',
+        'credit_percent',
         'created_by',
         'updated_by'
     ];
