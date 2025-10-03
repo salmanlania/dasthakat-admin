@@ -105,7 +105,13 @@ class SupplierController extends Controller
                     SELECT COALESCE(SUM(settled_amount), 0) 
                     FROM vendor_payment_detail 
                     WHERE vendor_payment_detail.purchase_invoice_id = purchase_invoice.purchase_invoice_id 
-					) as balance_amount")
+					) - 
+					 (
+                    SELECT COALESCE(SUM(amount), 0) 
+                    FROM payment_voucher_tagging_detail pvtd
+                    WHERE pvtd.purchase_invoice_id = purchase_invoice.purchase_invoice_id 
+					)
+					 as balance_amount")
 			)
 			->having('balance_amount', '>', 0)
 			->get();
