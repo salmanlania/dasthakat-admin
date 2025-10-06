@@ -21,7 +21,7 @@ const CreateCreditNote = () => {
   const onCreditNoteCreate = async (data) => {
     try {
       const res = await dispatch(createCreditNote(data)).unwrap();
-      const createdId = res.data.data.credit_note_id;
+      const createdId = res?.credit_note_id;
       toast.success('Credit note created successfully');
       navigate(`/credit-note/edit/${createdId}`);
     } catch (error) {
