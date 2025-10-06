@@ -35,7 +35,7 @@
 
       <tr>
         <th>Cust Ref #</th>
-        <td class="text-left first">{{ $customer_po_no ?? '' }}</td>
+        <td class="text-left first">{{ $customer_ref ?? '' }}</td>
   
          <th>Location</th>
         <td class="text-left first">{{ $port['name'] ?? '' }}</td>
@@ -75,7 +75,7 @@
 
        <tr>
          <th>Payment.</th>
-        <td class="text-left">{{ isset($quotation['payment']) ? $quotation['payment']['name'] : '' }}</td>
+        <td class="text-left">{{ $payment']['name'] : '' }}</td>
         <th>Bill To.</th>
         <td colspan="3" class="text-left">{{ $vessel['billing_address'] ?? '' }}</td>
       </tr>
