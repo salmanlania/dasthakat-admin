@@ -11,7 +11,6 @@ import { addCustomerPaymentSettlementDetail, changeCustomerPaymentSettlementDeta
 import AsyncSelect from '../AsyncSelect';
 import AsyncSelectProduct from '../AsyncSelectProduct';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
-import DebounceInput from '../Input/DebounceInput';
 import LedgerModal from '../Modals/LedgerModal';
 
 const CustomerPaymentSettlementForm = ({ mode, onSubmit, onSave }) => {
@@ -56,7 +55,6 @@ const CustomerPaymentSettlementForm = ({ mode, onSubmit, onSave }) => {
         ...row,
         sort_order: index + 1,
         account_id: row?.account_id ? row?.account_id?.value || row?.account_id : null,
-        cheque_date: row?.cheque_date ? dayjs(row?.cheque_date).format("YYYY-MM-DD") : null,
         cheque_date: row?.cheque_date ? dayjs(row?.cheque_date).format("YYYY-MM-DD") : null,
         customer_payment_id: row?.customer_payment_id ? row?.customer_payment_id : null
       }))
@@ -342,19 +340,27 @@ const CustomerPaymentSettlementForm = ({ mode, onSubmit, onSave }) => {
           pagination={false}
           size="small"
           scroll={{ x: 'calc(100% - 200px)' }}
-          summary={() => {
-            return (
-              <>
-                <Table.Summary.Row>
-                  <Table.Summary.Cell index={0} colSpan={2} className="tracking-wide font-bold">Deposited Sub Total</Table.Summary.Cell>
-                  <Table.Summary.Cell index={2} />
-                  {/* <Table.Summary.Cell index={3} /> */}
-                  <Table.Summary.Cell index={3} colSpan={2} className="text-right font-bold">{totalSettled.toFixed(2)}</Table.Summary.Cell>
-                </Table.Summary.Row>
-              </>
-            );
-          }}
+        // summary={() => {
+        //   return (
+        //     <>
+        //       <Table.Summary.Row>
+        //         <Table.Summary.Cell index={0} colSpan={2} className="tracking-wide font-bold">Deposited Sub Total</Table.Summary.Cell>
+        //         <Table.Summary.Cell index={2} />
+        //         {/* <Table.Summary.Cell index={3} /> */}
+        //         <Table.Summary.Cell index={3} colSpan={2} className="text-right font-bold">{totalSettled.toFixed(2)}</Table.Summary.Cell>
+        //       </Table.Summary.Row>
+        //     </>
+        //   );
+        // }}
         />
+
+        <Row justify="end" gutter={12} className="mt-4">
+          <Col span={6}>
+            <Form.Item labelCol={{ style: { fontWeight: 'bold' } }} label="Total Amount">
+              <Input className='text-right' disabled value={totalSettled ? totalSettled.toFixed(2) : "0.00"} />
+            </Form.Item>
+          </Col>
+        </Row>
 
         <div className="mt-4 flex items-center justify-end gap-2">
           <Link to="/general-ledger/transactions/customer-payment-settlement">

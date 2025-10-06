@@ -122,7 +122,7 @@ const Accounts = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
-          <p>Account Number</p>
+          <p>Account Code</p>
           <Input
             className="font-normal"
             size="small"
@@ -139,7 +139,7 @@ const Accounts = () => {
           />
         </div>
       ),
-      render: (_, record, index) => record?.account_code ? (record?.account_code).toString().replace(/\D/g, '') : '',
+      render: (_, record, index) => record?.account_code ? record?.account_code : '',
       sorter: true,
       width: 180,
       ellipsis: true,

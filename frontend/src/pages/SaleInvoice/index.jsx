@@ -370,6 +370,7 @@ const SaleInvoice = () => {
     params.document_date,
     params.customer_id,
     params.event_id,
+    params.charge_no,
     params.sales_team_ids,
     params.sales_team_id,
     params.vessel_id,

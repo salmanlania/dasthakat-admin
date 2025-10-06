@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class CreditNote extends Model
 {
@@ -22,7 +23,7 @@ class CreditNote extends Model
         'event_id',
         'sale_invoice_id',
         'credit_amount',
-        'credit_precent',
+        'credit_percent',
         'created_by',
         'updated_by'
     ];
@@ -42,4 +43,20 @@ class CreditNote extends Model
     {
         return $this->belongsTo(User::class, 'updated_by', 'user_id')->select('user_id', 'email', 'user_name');
     }
+    public function sale_invoice(){
+        return $this->belongsTo(SaleInvoice::class, 'sale_invoice_id', 'sale_invoice_id')->select('*');
+    }
+    
+  public function event()
+    {
+        return $this->belongsTo(Event::class, 'event_id', 'event_id')
+            ->join('vessel', 'vessel.vessel_id', '=', 'event.vessel_id')
+            ->select(
+                'event.event_id',
+                'event.event_code',
+                DB::raw("CONCAT(event.event_code, ' (', COALESCE(vessel.name, 'Unknown'), ')') as event_name")
+            );
+    }
+
+
 }

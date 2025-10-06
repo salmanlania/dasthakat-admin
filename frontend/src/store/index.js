@@ -46,6 +46,7 @@ import warehouseReducer from './features/warehouseSlice';
 import auditReducer from './features/auditSlice';
 import companySettingReducer from './features/companySettingSlice';
 import saleReturnReducer from './features/saleReturnSlice';
+import creditNoteReducer from './features/creditNoteSlice';
 import stockReturnReducer from './features/stockReturnSlice';
 import purchaseReturnReducer from './features/purchaseReturnSlice';
 import vendorQuotationReducer from './features/vendorQuotationSlice';
@@ -94,6 +95,7 @@ const rootReducer = combineReducers({
   saleInvoice: saleInvoiceReducer,
   accounts: accountsReducer,
   saleReturn: saleReturnReducer,
+  creditNote: creditNoteReducer,
   stockReturn: stockReturnReducer,
   purchaseReturn: purchaseReturnReducer,
   goodsReceivedNote: goodsReceivedNoteReducer,

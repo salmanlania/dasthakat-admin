@@ -12,6 +12,19 @@ import DebounceInput from '../Input/DebounceInput';
 import DebouncedCommaSeparatedInputRate from '../Input/DebouncedCommaSeparatedInputRate';
 import LedgerModal from '../Modals/LedgerModal';
 
+export const DetailSummaryInfoCP = ({ title, value, disabled }) => {
+  return (
+    <div className="grid grid-cols-2 items-center gap-4 mb-2">
+      <span className="text-sm text-gray-600">{title}</span>
+      <DebouncedCommaSeparatedInputRate
+        disabled={disabled}
+        className="text-sm font-semibold text-black text-right"
+        value={value}
+      />
+    </div>
+  );
+};
+
 const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
@@ -19,18 +32,6 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
     (state) => state.customerPayment
   );
 
-  const DetailSummaryInfo = ({ title, value, disabled }) => {
-    return (
-      <div className="grid grid-cols-2 items-center gap-4 mb-2">
-        <span className="text-sm text-gray-600">{title}</span>
-        <DebouncedCommaSeparatedInputRate
-          disabled={disabled}
-          className="text-sm font-semibold text-black text-right"
-          value={value}
-        />
-      </div>
-    );
-  };
 
   const [totalAmountDue, setTotalAmountDue] = useState('');
   const [totalSettled, setTotalSettled] = useState(0);
@@ -351,7 +352,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
             </div>
 
             <div className="p-4">
-              <DetailSummaryInfo
+              <DetailSummaryInfoCP
                 title="Amount Due"
                 disabled
                 value={
@@ -360,12 +361,12 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
                     : "0.00"
                 }
               />
-              <DetailSummaryInfo
+              <DetailSummaryInfoCP
                 title="Applied"
                 disabled
                 value={totalAmountDue || "0.00"}
               />
-              <DetailSummaryInfo
+              <DetailSummaryInfoCP
                 title="Discount & Credit Applied"
                 disabled
                 value={initialFormValues?.totalDiscount || "0.00"}

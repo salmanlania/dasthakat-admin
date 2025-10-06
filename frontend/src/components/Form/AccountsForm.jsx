@@ -159,6 +159,7 @@ const AccountsForm = ({ mode, onSubmit, onSave, onNew }) => {
                           value: parentAcc.head_account_id,
                           label: parentAcc.head_account_name,
                         },
+                        account_code: parentAcc.child_next_account_code
                       });
                     }
                   }}
@@ -188,7 +189,7 @@ const AccountsForm = ({ mode, onSubmit, onSave, onNew }) => {
               </Form.Item>
             </Col>
             <Col span={24}>
-              <Form.Item name="account_code" label="Account Number" preserve={false} rules={[{ required: true }]}>
+              <Form.Item name="account_code" label="Account Code" preserve={false} rules={[{ required: true }]}>
                 <Input
                   required
                   allowClear
@@ -227,6 +228,7 @@ const AccountsForm = ({ mode, onSubmit, onSave, onNew }) => {
                   gl_types: { value: node.gl_type_id, label: node.gl_type_name },
                   parent_account: { value: node.account_id, label: node.name },
                   head_account: { value: node.head_account_id, label: node.head_account_name },
+                  account_code: node.child_next_account_code
                 });
                 loadAccountsTree()
               }

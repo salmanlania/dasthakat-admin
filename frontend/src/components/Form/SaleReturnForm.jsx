@@ -340,7 +340,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
       scrollToFirstError>
       {/* Make this sticky */}
       <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
-        <span className="text-gray-500">Credit Note No:</span>
+        <span className="text-gray-500">Sale Return No:</span>
         <span
           className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
             } rounded px-1`}
@@ -357,7 +357,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
         <Col span={24} sm={12} md={8} lg={8}>
           <Form.Item
             name="document_date"
-            label="Credit Note Date"
+            label="Sale Return Date"
             disabled>
             <DatePicker format="MM-DD-YYYY" className="w-full" disabled />
           </Form.Item>
@@ -463,7 +463,7 @@ const SaleReturnForm = ({ mode, onSubmit, onSave }) => {
       </div>
 
       <div className="mt-4 flex items-center justify-end gap-2">
-        <Link to="/credit-note">
+        <Link to="/sale-return">
           <Button className="w-28">Exit</Button>
         </Link>
         <Button

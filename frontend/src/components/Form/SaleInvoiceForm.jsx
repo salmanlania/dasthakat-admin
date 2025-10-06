@@ -45,7 +45,8 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
       ship_date: formatDate(values.ship_date),
       document_date: formatDate(values.document_date),
       required_date: formatDate(values.required_date),
-      vessel_billing_address: values?.vessel_billing_address ? values?.vessel_billing_address : null
+      vessel_billing_address: values?.vessel_billing_address ? values?.vessel_billing_address : null,
+      net_amount: Number(totalGrossAmount).toFixed(2).replace(/\.?0+$/, '')
     };
 
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
@@ -458,7 +459,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
         <Table
           columns={columns}
           dataSource={saleInvoiceDetail}
-          rowKey={'charge_order_detail_id'}
+          rowKey={'sale_invoice_detail_id'}
           size="small"
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={false}
@@ -491,7 +492,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
               />
               <DetailSummaryInfo
                 title="Net Amount:"
-                value={formatThreeDigitCommas(initialFormValues?.netAmount ? initialFormValues?.netAmount : totalGrossAmount ? totalGrossAmount : "0")}
+                value={formatThreeDigitCommas(initialFormValues?.netAmount ? initialFormValues?.netAmount : totalGrossAmount ? Number(totalGrossAmount).toFixed(2).replace(/\.?0+$/, '') : "0")}
               />
             </Col>
           </Row>

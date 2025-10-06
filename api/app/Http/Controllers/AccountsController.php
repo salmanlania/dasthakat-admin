@@ -26,8 +26,8 @@ class AccountsController extends Controller
         $search         = $request->input('search', '');
         $page           = $request->input('page', 1);
         $perPage        = $request->input('limit', 10);
-        $sort_column    = $request->input('sort_column', 'c1.created_at');
-        $sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
+        $sort_column    = $request->input('sort_column', 'c1.gl_type_id');
+        $sort_direction = ($request->input('sort_direction', 'ascend') == 'ascend') ? 'asc' : 'desc';
 
         // Dynamic table names
         $accountsTable = (new Accounts())->getTable();
@@ -83,45 +83,77 @@ class AccountsController extends Controller
         }
 
         if ($request->input('exempt_referred_accounts', false)) {
-        // Product references
-        $data->whereNotExists(function ($q) {
-            $q->selectRaw(1)
-                ->from('product')
-                ->whereColumn('product.cogs_account_id', 'c1.account_id')
-                ->orWhereColumn('product.inventory_account_id', 'c1.account_id')
-                ->orWhereColumn('product.revenue_account_id', 'c1.account_id')
-                ->orWhereColumn('product.adjustment_account_id', 'c1.account_id');
-        });
+            // Product references
+            $data->whereNotExists(function ($q) {
+                $q->selectRaw(1)
+                    ->from('product')
+                    ->whereColumn('product.cogs_account_id', 'c1.account_id')
+                    ->orWhereColumn('product.inventory_account_id', 'c1.account_id')
+                    ->orWhereColumn('product.revenue_account_id', 'c1.account_id')
+                    ->orWhereColumn('product.adjustment_account_id', 'c1.account_id');
+            });
 
-        // Customer references
-        $data->whereNotExists(function ($q) {
-            $q->selectRaw(1)
-                ->from('customer')
-                ->whereColumn('customer.outstanding_account_id', 'c1.account_id');
-        });
+            // Customer references
+            $data->whereNotExists(function ($q) {
+                $q->selectRaw(1)
+                    ->from('customer')
+                    ->whereColumn('customer.outstanding_account_id', 'c1.account_id');
+            });
 
-        // Supplier references
-        $data->whereNotExists(function ($q) {
-            $q->selectRaw(1)
-                ->from('supplier')
-                ->whereColumn('supplier.outstanding_account_id', 'c1.account_id');
-        });
+            // Supplier references
+            $data->whereNotExists(function ($q) {
+                $q->selectRaw(1)
+                    ->from('supplier')
+                    ->whereColumn('supplier.outstanding_account_id', 'c1.account_id');
+            });
 
-        // Settings table references
-        $data->whereNotExists(function ($q) {
-            $q->selectRaw(1)
-                ->from('setting')
-                ->whereRaw("JSON_VALID(setting.value)")
-                ->whereRaw("JSON_CONTAINS(setting.value, JSON_QUOTE(c1.account_id))");
-        });
+            // Settings table references
+            $data->whereNotExists(function ($q) {
+                $q->selectRaw(1)
+                    ->from('setting')
+                    ->whereRaw("JSON_VALID(setting.value)")
+                    ->whereRaw("JSON_CONTAINS(setting.value, JSON_QUOTE(c1.account_id))");
+            });
         }
 
 
         $data = $data->select('c1.*', 'gl_type.name as gl_type', 'ah.head_account_name', 'ah.head_account_type', 'parent.account_code as parent_account_code', 'parent.name as parent_account_name', DB::raw("CONCAT(c1.account_code, ' - ', c1.name) as display_account_name"), DB::raw("CONCAT(parent.account_code, ' - ', parent.name) as display_parent_account_name"))
-            ->orderBy($sort_column, $sort_direction)
-            ->paginate($perPage, ['*'], 'page', $page);
+            ->orderBy($sort_column, $sort_direction);
+        if ($request->input('sort_column', '') == '') {
+            $data = $data->orderBy('parent.name', 'asc');
+        }
+
+        $data = $data->paginate($perPage, ['*'], 'page', $page);
+
+        if ($data->total() > 0) {
+            foreach ($data->items() as $key => $value) {
+                $nextCode = $this->getNextChildAccountCode($value->account_id);
+                $data->items()[$key]->child_next_account_code = $nextCode;
+            }
+        }
 
         return response()->json($data);
+    }
+    private function getNextChildAccountCode($parentId)
+    {
+        $lastChild = Accounts::where('parent_account_id', $parentId)
+            ->orderByRaw("CAST(SUBSTRING_INDEX(account_code, '-', -1) AS UNSIGNED) DESC")
+            ->first();
+
+        if (!$lastChild) {
+            return null; // no children
+        }
+
+        $parts = explode('-', $lastChild->account_code);
+        $lastPartRaw = end($parts);              // e.g. "01" or "002" or "215"
+        $lastPartInt = intval($lastPartRaw);     // e.g. 1 or 2 or 215
+        $paddingLength = strlen($lastPartRaw);   // e.g. 2 or 3
+
+        $nextPart = str_pad($lastPartInt + 1, $paddingLength, '0', STR_PAD_LEFT);
+
+        $parts[count($parts) - 1] = $nextPart;
+
+        return implode('-', $parts);
     }
     public function getAccountHeads(Request $request)
     {
@@ -148,17 +180,25 @@ class AccountsController extends Controller
             ->leftJoin('const_gl_type as gl_type', 'gl_type.gl_type_id', '=', 'accounts.gl_type_id')
             ->leftJoin('head_accounts as head', 'head.head_account_id', '=', 'accounts.head_account_id')
             ->where('accounts.company_id', $request->company_id);
+
         if (!empty($gl_type_id)) {
             $query->where('accounts.gl_type_id', $gl_type_id);
         }
 
-        // Always fetch ALL accounts matching GL type (so recursion works)
-        $accounts = $query->select("accounts.*", "gl_type.name as gl_type_name", "parent.account_code as parent_account_code", "parent.name as parent_account_name", "head.head_account_name", "head.head_account_type")->get()->toArray();
+        $accounts = $query->select(
+            "accounts.*",
+            "gl_type.name as gl_type_name",
+            "parent.account_code as parent_account_code",
+            "parent.name as parent_account_name",
+            "head.head_account_name",
+            "head.head_account_type"
+        )->get()->toArray();
 
-        // Build map of accounts
+        // Build map
         $map = [];
         foreach ($accounts as $acc) {
             $acc['children'] = [];
+            $acc['child_next_account_code'] = $this->getNextChildAccountCode($acc['account_id']); // ✅ Add next code here
             $map[$acc['account_id']] = $acc;
         }
 
@@ -172,13 +212,30 @@ class AccountsController extends Controller
             }
         }
 
-        // If filtering by a parent account → extract its subtree
+        // Recursive sorting function
+        $sortFn = function (&$nodes) use (&$sortFn) {
+            usort($nodes, function ($a, $b) {
+                return strcmp($a['account_code'], $b['account_code']);
+            });
+            foreach ($nodes as &$n) {
+                if (!empty($n['children'])) {
+                    $sortFn($n['children']);
+                }
+            }
+        };
+
+        // Sort the whole tree
+        $sortFn($tree);
+
+        // Filter by specific parent if needed
         if (!empty($parent_account_id) && isset($map[$parent_account_id])) {
-            $tree = [$map[$parent_account_id]]; // return only this subtree
+            $tree = [$map[$parent_account_id]];
+            $sortFn($tree); // sort this subtree too
         }
 
         return $this->jsonResponse($tree, 200, 'Accounts Data Tree');
     }
+
 
 
 
