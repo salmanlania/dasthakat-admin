@@ -159,6 +159,32 @@ const CreditNote = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
+          <p>Credit Amount</p>
+          <Input
+            className="font-normal"
+            size="small"
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.credit_amount}
+            onChange={(e) =>
+              dispatch(
+                setCreditNoteListParams({
+                  credit_amount: e.target.value,
+                }),
+              )
+            }
+          />
+        </div>
+      ),
+      dataIndex: 'credit_amount',
+      key: 'credit_amount',
+      sorter: true,
+      width: 180,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Event No</p>
           <AsyncSelect
             endpoint="/event"
@@ -253,6 +279,7 @@ const CreditNote = () => {
     params.event_id,
     params.sale_invoice_id,
     params.sale_invoice_no,
+    params.credit_amount,
     params.sales_team_ids,
     params.sales_team_id,
     params.vessel_id,
