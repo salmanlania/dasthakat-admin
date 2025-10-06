@@ -18,6 +18,7 @@ class CreditNoteController extends Controller
 	{
 		$document_identity = $request->input('document_identity', '');
 		$event_id = $request->input('event_id', '');
+		$vessel_id = $request->input('vessel_id', '');
 		$sale_invoice_no = $request->input('sale_invoice_no', '');
 		$credit_amount = $request->input('credit_amount', '');
 		$credit_percent = $request->input('credit_percent', '');
@@ -36,6 +37,7 @@ class CreditNoteController extends Controller
 		$data = $data->where('credit_note.company_branch_id', '=', $request->company_branch_id);
 		if (!empty($document_identity)) $data = $data->where('credit_note.document_identity', 'like', '%' . $document_identity . '%');
 		if (!empty($event_id)) $data = $data->where('credit_note.event_id', 'like', '%' . $event_id . '%');
+		if (!empty($vessel_id)) $data = $data->where('vessel.vessel_id', 'like', '%' . $vessel_id . '%');
 		if (!empty($sale_invoice_no)) $data = $data->where('sale_invoice.document_identity', 'like', '%' . $sale_invoice_no . '%');
 		if (!empty($credit_amount)) $data = $data->where('credit_note.credit_amount', 'like', '%' . $credit_amount . '%');
 		if (!empty($credit_percent)) $data = $data->where('credit_note.credit_percent', 'like', '%' . $credit_percent . '%');
