@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\CreditNote;
 use App\Models\DocumentType;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class CreditNoteController extends Controller
 {
@@ -48,7 +49,7 @@ class CreditNoteController extends Controller
 			});
 		}
 
-		$data = $data->select("credit_note.*", "sale_invoice.document_identity as sale_invoice_no", "event.event_code as event_code");
+		$data = $data->select("credit_note.*", "sale_invoice.document_identity as sale_invoice_no", DB::raw("(SELECT CONCAT(event_code, ' (', IF(status = 1, 'Active', 'Inactive'), ')') FROM event WHERE event_id = credit_note.event_id) as event_code"));
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
