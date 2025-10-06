@@ -19,6 +19,7 @@ class CreditNoteController extends Controller
 		$document_identity = $request->input('document_identity', '');
 		$event_id = $request->input('event_id', '');
 		$vessel_id = $request->input('vessel_id', '');
+		$customer_id = $request->input('customer_id', '');
 		$sale_invoice_no = $request->input('sale_invoice_no', '');
 		$credit_amount = $request->input('credit_amount', '');
 		$credit_percent = $request->input('credit_percent', '');
@@ -31,13 +32,15 @@ class CreditNoteController extends Controller
 		$data = CreditNote::leftJoin('sale_invoice', 'credit_note.sale_invoice_id', '=', 'sale_invoice.sale_invoice_id')
 		->leftJoin('charge_order as co', 'co.charge_order_id', '=', 'sale_invoice.charge_order_id')
 			->leftJoin('event', 'co.event_id', '=', 'event.event_id')
+			->leftJoin('customer', 'co.customer_id', '=', 'customer.customer_id')
 			->leftJoin('vessel', 'co.vessel_id', '=', 'vessel.vessel_id');
 
 		$data = $data->where('credit_note.company_id', '=', $request->company_id);
 		$data = $data->where('credit_note.company_branch_id', '=', $request->company_branch_id);
 		if (!empty($document_identity)) $data = $data->where('credit_note.document_identity', 'like', '%' . $document_identity . '%');
-		if (!empty($event_id)) $data = $data->where('credit_note.event_id', 'like', '%' . $event_id . '%');
-		if (!empty($vessel_id)) $data = $data->where('vessel.vessel_id', 'like', '%' . $vessel_id . '%');
+		if (!empty($event_id)) $data = $data->where('credit_note.event_id', '=',  $event_id);
+		if (!empty($vessel_id)) $data = $data->where('vessel.vessel_id', '=', $vessel_id );
+		if (!empty($customer_id)) $data = $data->where('customer.customer_id', '=', $customer_id );
 		if (!empty($sale_invoice_no)) $data = $data->where('sale_invoice.document_identity', 'like', '%' . $sale_invoice_no . '%');
 		if (!empty($credit_amount)) $data = $data->where('credit_note.credit_amount', 'like', '%' . $credit_amount . '%');
 		if (!empty($credit_percent)) $data = $data->where('credit_note.credit_percent', 'like', '%' . $credit_percent . '%');
@@ -49,11 +52,12 @@ class CreditNoteController extends Controller
 					->where('credit_note.document_identity', 'like', '%' . $search . '%')
 					->orWhere('sale_invoice.document_identity', 'like', '%' . $search . '%')
 					->orWhere('event.event_code', 'like', '%' . $search . '%')
-					->orWhere('vessel.name', 'like', '%' . $search . '%');
+					->orWhere('vessel.name', 'like', '%' . $search . '%')
+					->orWhere('customer.name', 'like', '%' . $search . '%');
 			});
 		}
 
-		$data = $data->select("credit_note.*", "sale_invoice.document_identity as sale_invoice_no", DB::raw("(SELECT CONCAT(event_code, ' (', IF(status = 1, 'Active', 'Inactive'), ')') FROM event WHERE event_id = credit_note.event_id) as event_code"),'vessel.name as vessel_name','vessel.vessel_id as vessel_id');
+		$data = $data->select("credit_note.*", "sale_invoice.document_identity as sale_invoice_no", DB::raw("(SELECT CONCAT(event_code, ' (', IF(status = 1, 'Active', 'Inactive'), ')') FROM event WHERE event_id = credit_note.event_id) as event_code"),'vessel.name as vessel_name','vessel.vessel_id as vessel_id','customer.name as customer_name','customer.customer_id as customer_id');
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
