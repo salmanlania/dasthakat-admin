@@ -204,6 +204,50 @@ const CreditNote = () => {
       ellipsis: true,
     },
     {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Vessel</p>
+          <AsyncSelect
+            endpoint="/vessel"
+            size="small"
+            className="w-full font-normal"
+            valueKey="vessel_id"
+            allowClear
+            labelKey="name"
+            value={params.vessel_id}
+            onChange={(value) => dispatch(setCreditNoteListParams({ vessel_id: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'vessel_name',
+      key: 'vessel_name',
+      sorter: true,
+      width: 200,
+      ellipsis: true,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Customer</p>
+          <AsyncSelect
+            endpoint="/customer"
+            allowClear
+            size="small"
+            className="w-full font-normal"
+            valueKey="customer_id"
+            labelKey="name"
+            value={params.customer_id}
+            onChange={(value) => dispatch(setCreditNoteListParams({ customer_id: value }))}
+          />
+        </div>
+      ),
+      dataIndex: 'customer_name',
+      key: 'customer_name',
+      sorter: true,
+      width: 200,
+      ellipsis: true,
+    },
+    {
       title: 'Created At',
       dataIndex: 'created_at',
       key: 'created_at',
@@ -277,12 +321,13 @@ const CreditNote = () => {
     params.sort_direction,
     params.document_date,
     params.event_id,
+    params.vessel_id,
+    params.customer_id,
     params.sale_invoice_id,
     params.sale_invoice_no,
     params.credit_amount,
     params.sales_team_ids,
     params.sales_team_id,
-    params.vessel_id,
     debouncedSearch,
     debouncedSaleInvoiceNo,
     debouncedChargeNo,
