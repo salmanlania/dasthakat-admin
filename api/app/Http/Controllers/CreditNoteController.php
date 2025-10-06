@@ -29,7 +29,8 @@ class CreditNoteController extends Controller
 
 		$data = CreditNote::leftJoin('sale_invoice', 'credit_note.sale_invoice_id', '=', 'sale_invoice.sale_invoice_id')
 		->leftJoin('charge_order as co', 'co.charge_order_id', '=', 'sale_invoice.charge_order_id')
-			->leftJoin('event', 'co.event_id', '=', 'event.event_id');
+			->leftJoin('event', 'co.event_id', '=', 'event.event_id')
+			->leftJoin('vessel', 'co.vessel_id', '=', 'vessel.vessel_id');
 
 		$data = $data->where('credit_note.company_id', '=', $request->company_id);
 		$data = $data->where('credit_note.company_branch_id', '=', $request->company_branch_id);
@@ -45,11 +46,12 @@ class CreditNoteController extends Controller
 				$query
 					->where('credit_note.document_identity', 'like', '%' . $search . '%')
 					->orWhere('sale_invoice.document_identity', 'like', '%' . $search . '%')
-					->orWhere('event.event_code', 'like', '%' . $search . '%');
+					->orWhere('event.event_code', 'like', '%' . $search . '%')
+					->orWhere('vessel.name', 'like', '%' . $search . '%');
 			});
 		}
 
-		$data = $data->select("credit_note.*", "sale_invoice.document_identity as sale_invoice_no", DB::raw("(SELECT CONCAT(event_code, ' (', IF(status = 1, 'Active', 'Inactive'), ')') FROM event WHERE event_id = credit_note.event_id) as event_code"));
+		$data = $data->select("credit_note.*", "sale_invoice.document_identity as sale_invoice_no", DB::raw("(SELECT CONCAT(event_code, ' (', IF(status = 1, 'Active', 'Inactive'), ')') FROM event WHERE event_id = credit_note.event_id) as event_code"),'vessel.name as vessel_name','vessel.vessel_id as vessel_id');
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
