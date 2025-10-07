@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Log;
 
 class VendorBillController extends Controller
 {
-    protected $document_type_id = 63;
+    protected $document_type_id = 64;
     protected $db;
 
     public function index(Request $request)
