@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Proforma-{{ $document_identity ?? "" }}-{{ $vessel['name'] ?? "" }}</title>
+    <title>Credit Note-{{ $document_identity ?? "" }}</title>
     <style>
         @page {
             margin: 2px 40px 10px 40px; 
