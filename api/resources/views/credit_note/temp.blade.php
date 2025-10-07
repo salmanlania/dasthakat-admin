@@ -69,7 +69,7 @@
     <tr>
     <th>S. No </th>
     <th>Description</th>
-    <th>Sale Invoice Amount</th>
+    <th>Invoice Amount</th>
     <th>Credit %</th>
     <th>Credit Amount</th>
   </tr>
