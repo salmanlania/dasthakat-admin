@@ -46,6 +46,6 @@ create table vendor_bill_detail (
 );
 
 INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `document_prefix`, `table_name`, `primary_key`)
-VALUES ( 63, 'Vendor Bill', '{BC}/VB-', 'vendor_bill', 'vendor_bill_id' );
+VALUES ( 64, 'Vendor Bill', '{BC}/VB-', 'vendor_bill', 'vendor_bill_id' );
 
 ALTER TABLE `credit_note` ADD `remarks` TEXT DEFAULT NULL;
