@@ -208,8 +208,9 @@ export const creditNoteListSlice = createSlice({
       const data = action.payload;
       state.initialFormValues = {
         ...data,
-        document_identity: data.document_identity || '',
-        status: data.status || '',
+        document_identity: data?.document_identity || '',
+        status: data?.status || '',
+        remarks: data?.remarks || '',
         document_date: data?.document_date ? dayjs(data.document_date) : null,
         credit_percent: data?.credit_percent ? data?.credit_percent : null,
         credit_amount: data?.credit_amount ? data?.credit_amount : null,
