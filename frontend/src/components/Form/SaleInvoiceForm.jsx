@@ -24,6 +24,8 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
 
   const [totalQuantity, setTotalQuantity] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
+  const [totalDiscount, setTotalDiscount] = useState('');
+  const [totalNetAmount, setTotalNetAmount] = useState('');
   const [submitAction, setSubmitAction] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -32,7 +34,14 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
   const totalGrossAmount = saleInvoiceDetail?.reduce((acc, item) => {
     const extCost = Number(item?.amount || 0);
     const disAmount = Number(item?.discount_amount || 0);
-    return acc + (extCost - disAmount);
+    const newCost = acc + (extCost - disAmount);
+    return newCost;
+  }, 0) || 0;
+
+  const totalQuantitySum = saleInvoiceDetail?.reduce((acc, item) => {
+    const quantity = Number(item?.quantity || 0);
+    const newQuantity = acc + quantity;
+    return newQuantity;
   }, 0) || 0;
 
   const onFinish = (values) => {
@@ -42,12 +51,20 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
 
     const data = {
       ...values,
+      ...initialFormValues,
       ship_date: formatDate(values.ship_date),
       document_date: formatDate(values.document_date),
       required_date: formatDate(values.required_date),
       vessel_billing_address: values?.vessel_billing_address ? values?.vessel_billing_address : null,
-      net_amount: Number(totalGrossAmount).toFixed(2).replace(/\.?0+$/, '')
+      // net_amount: Number(totalGrossAmount).toFixed(2).replace(/\.?0+$/, '')
+      net_amount: initialFormValues?.netAmount ? initialFormValues?.netAmount : totalNetAmount,
+      total_amount: initialFormValues?.totalAmount ? initialFormValues?.totalAmount : totalAmount,
+      total_discount: initialFormValues?.totalDiscount ? initialFormValues?.totalDiscount : totalDiscount,
+      total_quantity: initialFormValues?.totalQuantity ? initialFormValues?.totalQuantity : totalQuantity ? totalQuantity : totalQuantitySum,
     };
+
+    console.log(data);
+    // return 
 
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
@@ -97,6 +114,8 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
       const salesmanId = initialFormValues?.salesman_id || '';
       const quantity = initialFormValues?.totalQuantity || '';
       const amount = initialFormValues?.totalAmount || '';
+      const discount = initialFormValues?.totalDiscount || 0
+      const netAmount = initialFormValues?.netAmount ? initialFormValues?.netAmount : amount - discount;
       const customerPoNo = initialFormValues?.customer_po_no || '';
       const eventName = initialFormValues?.event_id || '';
       const status = initialFormValues?.status || '';
@@ -109,6 +128,8 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
 
       setTotalQuantity(quantity);
       setTotalAmount(amount);
+      setTotalDiscount(discount);
+      setTotalNetAmount(netAmount);
       form.setFieldsValue({
         salesman_id: salesmanId,
         totalQuantity: quantity,
@@ -134,7 +155,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
           : null,
       });
     }
-  }, [initialFormValues, form, mode]);
+  }, [initialFormValues, form, mode, ]);
 
   const columns = [
     {
@@ -480,7 +501,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
             <Col span={24} sm={12} md={6} lg={6}>
               <DetailSummaryInfo
                 title="Total Quantity:"
-                value={formatThreeDigitCommas(totalQuantity || 0)}
+                value={formatThreeDigitCommas(totalQuantity ? totalQuantity : totalQuantitySum || 0)}
               />
               <DetailSummaryInfo
                 title="Total Amount:"
@@ -488,11 +509,11 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
               />
               <DetailSummaryInfo
                 title="Total Discount:"
-                value={formatThreeDigitCommas(initialFormValues?.totalDiscount || 0)}
+                value={formatThreeDigitCommas(initialFormValues?.totalDiscount ? initialFormValues?.totalDiscount : totalDiscount || 0)}
               />
               <DetailSummaryInfo
                 title="Net Amount:"
-                value={formatThreeDigitCommas(initialFormValues?.netAmount ? initialFormValues?.netAmount : totalGrossAmount ? Number(totalGrossAmount).toFixed(2).replace(/\.?0+$/, '') : "0")}
+                value={formatThreeDigitCommas(initialFormValues?.netAmount ? initialFormValues?.netAmount : totalNetAmount || 0)}
               />
             </Col>
           </Row>
