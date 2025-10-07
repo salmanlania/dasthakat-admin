@@ -28,6 +28,11 @@ class CreditNote extends Model
         'created_by',
         'updated_by'
     ];
+
+    protected $casts = [
+        'credit_amount' => 'float',
+        'credit_percent' => 'float',
+    ];
     public function company()
     {
         return $this->belongsTo(Company::class, 'company_id', 'company_id');
