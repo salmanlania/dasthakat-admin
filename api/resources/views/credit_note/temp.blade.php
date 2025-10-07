@@ -70,8 +70,8 @@
     <th>S. No </th>
     <th>Description</th>
     <th>Sale Invoice Amount</th>
-    <th>Cr Percentage</th>
-    <th>Cr Amount</th>
+    <th>Credit %</th>
+    <th>Credit Amount</th>
   </tr>
 
    @php

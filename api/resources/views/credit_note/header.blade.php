@@ -26,7 +26,7 @@
          <th> Date</th>
         <td class="text-left first">{{ \Carbon\Carbon::parse($document_date)->format('m-d-Y') }}</td>
       
-        <th>CRN #</th>
+        <th>Doc no #</th>
         <td class="text-left first">{{ $document_identity ?? "" }}</td>
       
          <th>Event No.</th>
