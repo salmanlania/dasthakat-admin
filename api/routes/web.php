@@ -397,6 +397,7 @@ $router->group(['prefix' => 'purchase-return'], function ($router) {
 
 $router->group(['prefix' => 'credit-note'], function ($router) {
    $router->get('/', 'CreditNoteController@index');
+   $router->get('/print/{id}', 'CreditNoteController@print');
    $router->get('/{id}', 'CreditNoteController@show');
    $router->post('/', 'CreditNoteController@store');
    $router->post('/bulk-store', 'CreditNoteController@bulkStore');
@@ -451,6 +452,7 @@ $router->group(['prefix' => 'servicelist-received'], function ($router) {
 
 $router->group(['prefix' => 'purchase-order'], function ($router) {
    $router->get('/', 'PurchaseOrderController@index');
+   $router->get('/print/{id}', 'PurchaseOrderController@print');
    $router->get('/{id}', 'PurchaseOrderController@show');
    $router->post('/', 'PurchaseOrderController@store');
    $router->put('/{id}', 'PurchaseOrderController@update');

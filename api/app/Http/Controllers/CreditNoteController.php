@@ -8,6 +8,8 @@ use App\Models\CreditNote;
 use App\Models\DocumentType;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\PDF as DomPDF;
+use Illuminate\Support\Facades\App;
 
 class CreditNoteController extends Controller
 {
@@ -23,7 +25,6 @@ class CreditNoteController extends Controller
 		$sale_invoice_no = $request->input('sale_invoice_no', '');
 		$credit_amount = $request->input('credit_amount', '');
 		$credit_percent = $request->input('credit_percent', '');
-		$remarks = $request->input('remarks', '');
 		$search = $request->input('search', '');
 		$page =  $request->input('page', 1);
 		$perPage =  $request->input('limit', 10);
@@ -45,7 +46,7 @@ class CreditNoteController extends Controller
 		if (!empty($sale_invoice_no)) $data = $data->where('sale_invoice.document_identity', 'like', '%' . $sale_invoice_no . '%');
 		if (!empty($credit_amount)) $data = $data->where('credit_note.credit_amount', 'like', '%' . $credit_amount . '%');
 		if (!empty($credit_percent)) $data = $data->where('credit_note.credit_percent', 'like', '%' . $credit_percent . '%');
-		if (!empty($remarks)) $data = $data->where('credit_note.remarks', 'like', '%' . $remarks . '%');
+
 		if (!empty($search)) {
 			$search = strtolower($search);
 			$data = $data->where(function ($query) use ($search) {
@@ -54,8 +55,7 @@ class CreditNoteController extends Controller
 					->orWhere('sale_invoice.document_identity', 'like', '%' . $search . '%')
 					->orWhere('event.event_code', 'like', '%' . $search . '%')
 					->orWhere('vessel.name', 'like', '%' . $search . '%')
-					->orWhere('customer.name', 'like', '%' . $search . '%')
-					->orWhere('credit_note.remarks', 'like', '%' . $search . '%');
+					->orWhere('customer.name', 'like', '%' . $search . '%');
 			});
 		}
 
@@ -63,6 +63,29 @@ class CreditNoteController extends Controller
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
+	}
+
+	public function print($id, $jsonResponse = true){
+		$data = CreditNote::with('sale_invoice',
+			'sale_invoice.charge_order',
+			'sale_invoice.charge_order.quotation',
+			'sale_invoice.charge_order.quotation.payment',
+			'sale_invoice.charge_order.vessel',
+			'sale_invoice.charge_order.port',
+			'event')->find($id);
+		if (!$data) {
+			return $this->jsonResponse(null, 404, "Credit Note not found");
+		}
+
+		$dompdf = App::make('dompdf.wrapper');
+	    // return $html = view('pdf_template',$data); // this now works
+	    $html = view('credit_note.temp',$data)->render(); // this now works
+
+	    $dompdf->loadHTML($html );
+	    $pdfData = $dompdf->output();
+		return $base64Pdf = base64_encode($pdfData);
+	    $title = 'Credit Note-'.'.pdf';
+	    // return $dompdf->stream($title);
 	}
 
 	public function show($id, $jsonResponse = true)
@@ -82,7 +105,6 @@ class CreditNoteController extends Controller
 			'sale_invoice_id' => 'required|string|size:36',
 			'credit_amount' => 'required|numeric|min:0',
 			'credit_percent' => 'required|numeric|min:0',
-			'remarks' => 'nullable|string',
 		];
 
 
@@ -124,7 +146,6 @@ class CreditNoteController extends Controller
 			'sale_invoice_id' => $request->sale_invoice_id,
 			'credit_amount' => $request->credit_amount,
 			'credit_percent' => $request->credit_percent,
-			'remarks' => $request->remarks,
 			'created_at' => Carbon::now(),
 			'created_by' => $request->login_user_id,
 		];
@@ -152,7 +173,6 @@ class CreditNoteController extends Controller
 		$data->sale_invoice_id  = $request->sale_invoice_id;
 		$data->credit_amount  = $request->credit_amount;
 		$data->credit_percent  = $request->credit_percent;
-		$data->remarks  = $request->remarks;
 		$data->updated_at = Carbon::now();
 		$data->updated_by = $request->login_user_id;
 		$data->update();
