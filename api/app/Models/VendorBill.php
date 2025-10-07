@@ -39,7 +39,7 @@ class VendorBill extends Model
 
     protected $casts = [
         'document_date'  => 'date',
-        'total_amount'   => 'decimal:2',
+        'total_amount'   => 'float',
     ];
 
     // Relationships
