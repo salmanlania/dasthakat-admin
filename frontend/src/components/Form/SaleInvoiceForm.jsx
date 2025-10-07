@@ -57,7 +57,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
       required_date: formatDate(values.required_date),
       vessel_billing_address: values?.vessel_billing_address ? values?.vessel_billing_address : null,
       // net_amount: Number(totalGrossAmount).toFixed(2).replace(/\.?0+$/, '')
-      net_amount: initialFormValues?.netAmount ? initialFormValues?.netAmount : totalNetAmount,
+      net_amount: initialFormValues?.netAmount ? initialFormValues?.netAmount : totalNetAmount ? totalNetAmount : totalGrossAmount,
       total_amount: initialFormValues?.totalAmount ? initialFormValues?.totalAmount : totalAmount,
       total_discount: initialFormValues?.totalDiscount ? initialFormValues?.totalDiscount : totalDiscount,
       total_quantity: initialFormValues?.totalQuantity ? initialFormValues?.totalQuantity : totalQuantity ? totalQuantity : totalQuantitySum,
@@ -155,7 +155,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
           : null,
       });
     }
-  }, [initialFormValues, form, mode, ]);
+  }, [initialFormValues, form, mode,]);
 
   const columns = [
     {
@@ -513,7 +513,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
               />
               <DetailSummaryInfo
                 title="Net Amount:"
-                value={formatThreeDigitCommas(initialFormValues?.netAmount ? initialFormValues?.netAmount : totalNetAmount || 0)}
+                value={formatThreeDigitCommas(totalAmount ? totalAmount : totalGrossAmount || 0)}
               />
             </Col>
           </Row>
