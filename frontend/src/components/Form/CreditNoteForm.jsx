@@ -47,7 +47,7 @@ const CreditNoteForm = ({ mode, onSubmit, onSave }) => {
       event_id: values?.event_id ? values?.event_id?.value : null,
       sale_invoice_id: values?.sale_invoice_id ? values?.sale_invoice_id?.value : null,
     };
-    
+
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 
@@ -311,7 +311,7 @@ const CreditNoteForm = ({ mode, onSubmit, onSave }) => {
       </p>
 
       <Row gutter={12}>
-        <Col span={24} sm={6} md={4} lg={4}>
+        <Col span={24} sm={6} md={6} lg={6}>
           <Form.Item
             name="document_date"
             label="Credit Note Date"
@@ -319,7 +319,7 @@ const CreditNoteForm = ({ mode, onSubmit, onSave }) => {
             <DatePicker format="MM-DD-YYYY" className="w-full" />
           </Form.Item>
         </Col>
-        <Col span={24} sm={6} md={4} lg={4}>
+        <Col span={24} sm={6} md={6} lg={6}>
           <Form.Item
             name="document_no"
             label="Credit Note No"
@@ -327,7 +327,7 @@ const CreditNoteForm = ({ mode, onSubmit, onSave }) => {
             <Input className="w-full" disabled />
           </Form.Item>
         </Col>
-        <Col span={24} sm={6} md={4} lg={4}>
+        <Col span={24} sm={6} md={6} lg={6}>
           <Form.Item name="event_id" label="Event">
             <AsyncSelect
               key={id}
@@ -356,7 +356,7 @@ const CreditNoteForm = ({ mode, onSubmit, onSave }) => {
           </Form.Item>
         </Col>
 
-        <Col span={24} sm={6} md={4} lg={4}>
+        <Col span={24} sm={6} md={6} lg={6}>
           <Form.Item name="sale_invoice_id" label="Sale Invoice">
             <AsyncSelectProduct
               key={uuidv4()}
@@ -388,7 +388,9 @@ const CreditNoteForm = ({ mode, onSubmit, onSave }) => {
             />
           </Form.Item>
         </Col>
-        <Col span={24} sm={6} md={4} lg={4}>
+      </Row>
+      <Row gutter={12}>
+        <Col span={24} sm={6} md={4} lg={5}>
           <Form.Item
             name="credit_total_amount"
             label="Sale Invoice Amount"
@@ -420,10 +422,10 @@ const CreditNoteForm = ({ mode, onSubmit, onSave }) => {
             />
           </Form.Item>
         </Col>
-        <Col span={24} sm={16} md={12} lg={12}>
+        <Col span={24} sm={16} md={12} lg={11}>
           <Form.Item
             name="remarks"
-            label="Remarks"
+            label="Description"
           >
             <Input />
           </Form.Item>
