@@ -50,8 +50,8 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
     const formatDate = (date) => (date ? dayjs(date).format('YYYY-MM-DD') : null);
 
     const data = {
-      ...values,
       ...initialFormValues,
+      ...values,
       ship_date: formatDate(values.ship_date),
       document_date: formatDate(values.document_date),
       required_date: formatDate(values.required_date),
@@ -62,9 +62,6 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
       total_discount: initialFormValues?.totalDiscount ? initialFormValues?.totalDiscount : totalDiscount,
       total_quantity: initialFormValues?.totalQuantity ? initialFormValues?.totalQuantity : totalQuantity ? totalQuantity : totalQuantitySum,
     };
-
-    console.log(data);
-    // return 
 
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
