@@ -89,7 +89,7 @@
     
       @for($i = 0; $i < 23 - count($chunks); $i++)
         <tr class="">
-            <td >{{ $i+2 }}</td>
+            <td >&nbsp;</td>
             <td >&nbsp;</td>
             <td >&nbsp;</td>
             <td >&nbsp;</td>
