@@ -145,7 +145,13 @@
   ('General Ledger', 'Payment Voucher Tagging', 'payment_voucher_tagging', 'add', 'Add', 1.102),
   -- ('General Ledger', 'Payment Voucher Tagging', 'payment_voucher_tagging', 'edit', 'Edit', 1.103),
   -- ('General Ledger', 'Payment Voucher Tagging', 'payment_voucher_tagging', 'delete', 'Delete', 1.104),
-  
+
+    ('General Ledger', 'Vendor Bill', 'vendor_bill', 'list', 'List', 1.101),
+    ('General Ledger', 'Vendor Bill', 'vendor_bill', 'add', 'Add', 1.102),
+    ('General Ledger', 'Vendor Bill', 'vendor_bill', 'edit', 'Edit', 1.103),
+    ('General Ledger', 'Vendor Bill', 'vendor_bill', 'delete', 'Delete', 1.104),
+
+
   ('Inventory Setup', 'Category', 'category', 'list', 'List', 1.101),
   ('Inventory Setup', 'Category', 'category', 'add', 'Add', 1.102),
   ('Inventory Setup', 'Category', 'category', 'edit', 'Edit', 1.103),

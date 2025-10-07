@@ -405,6 +405,16 @@ $router->group(['prefix' => 'credit-note'], function ($router) {
    $router->post('/bulk-delete', 'CreditNoteController@bulkDelete');
 });
 
+$router->group(['prefix' => 'vendor-bill'], function ($router) {
+   $router->get('/', 'VendorBillController@index');
+   $router->get('/{id}', 'VendorBillController@show');
+   $router->post('/', 'VendorBillController@store');
+   $router->post('/bulk-store', 'VendorBillController@bulkStore');
+   $router->put('/{id}', 'VendorBillController@update');
+   $router->delete('/{id}', 'VendorBillController@delete');
+   $router->post('/bulk-delete', 'VendorBillController@bulkDelete');
+});
+
 // pick list routes
 $router->group(['prefix' => 'picklist'], function ($router) {
    $router->get('/', 'PicklistController@index');
