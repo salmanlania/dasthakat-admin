@@ -367,7 +367,6 @@ class SaleInvoiceController extends Controller
 		$data->ship_date = $request->ship_date;
 		$data->vessel_billing_address = $request->vessel_billing_address;
 		$data->status = $request->status ?? $data->status;
-		$data->vessel_billing_address = $request->vessel_billing_address;
 		$data->total_quantity = $request->total_quantity;
 		$data->total_amount = $request->total_amount;
 		$data->total_discount = $request->total_discount;
