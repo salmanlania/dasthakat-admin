@@ -11,12 +11,14 @@ import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
 import useDebounce from '../../hooks/useDebounce';
 import useError from '../../hooks/useError';
+import { FaRegFilePdf } from 'react-icons/fa';
 
 import {
   bulkDeleteCreditNote,
   clearCreditNoteList,
   creditNoteDelete,
   getCreditNoteList,
+  getCreditNotePrint,
   setCreditNoteDeleteIDs,
   setCreditNoteListParams
 } from '../../store/features/creditNoteSlice';
@@ -67,6 +69,18 @@ const CreditNote = () => {
       await dispatch(getCreditNoteList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
+    }
+  };
+
+  const printCreditNote = async (id) => {
+    const loadingToast = toast.loading('Loading print...');
+
+    try {
+      await dispatch(getCreditNotePrint(id)).unwrap();
+    } catch (error) {
+      handleError(error);
+    } finally {
+      toast.dismiss(loadingToast);
     }
   };
 
@@ -260,8 +274,19 @@ const CreditNote = () => {
       key: 'action',
       render: (_, { credit_note_id }) => (
         <div className="flex items-center justify-center gap-2">
-          {permissions.edit ? (
-            <>
+          <>
+            {permissions.edit ? (
+              <Tooltip title="Print">
+                <Button
+                  size="small"
+                  type="primary"
+                  className="bg-rose-600 hover:!bg-rose-500"
+                  icon={<FaRegFilePdf size={14} />}
+                  onClick={() => printCreditNote(credit_note_id)}
+                />
+              </Tooltip>
+            ) : null}
+            {permissions.edit ? (
               <Tooltip title="Edit">
                 <Link to={`/credit-note/edit/${credit_note_id}`}>
                   <Button
@@ -272,21 +297,21 @@ const CreditNote = () => {
                   />
                 </Link>
               </Tooltip>
-              {permissions.delete ? (
-                <Tooltip title="Delete">
-                  <Popconfirm
-                    title="Are you sure you want to delete?"
-                    description="After deleting, You will not be able to recover it."
-                    okButtonProps={{ danger: true }}
-                    okText="Yes"
-                    cancelText="No"
-                    onConfirm={() => onCreditNoteDelete(credit_note_id)}>
-                    <Button size="small" type="primary" danger icon={<GoTrash size={16} />} />
-                  </Popconfirm>
-                </Tooltip>
-              ) : null}
-            </>
-          ) : null}
+            ) : null}
+            {permissions.delete ? (
+              <Tooltip title="Delete">
+                <Popconfirm
+                  title="Are you sure you want to delete?"
+                  description="After deleting, You will not be able to recover it."
+                  okButtonProps={{ danger: true }}
+                  okText="Yes"
+                  cancelText="No"
+                  onConfirm={() => onCreditNoteDelete(credit_note_id)}>
+                  <Button size="small" type="primary" danger icon={<GoTrash size={16} />} />
+                </Popconfirm>
+              </Tooltip>
+            ) : null}
+          </>
         </div>
       ),
       width: 90,

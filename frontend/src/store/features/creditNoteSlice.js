@@ -75,12 +75,24 @@ export const getCreditNote = createAsyncThunk(
   }
 );
 
-export const getCreditNoteInvoice = createAsyncThunk(
-  'creditNote/get',
+export const getCreditNotePrint = createAsyncThunk(
+  'creditNote/getPrint',
   async (id, { rejectWithValue }) => {
+
     try {
-      const res = await api.get(`/credit-note/${id}`);
-      return res.data.data;
+      const response = await api.get("credit-note/print/" + id);
+
+      const byteCharacters = atob(response?.data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+
+      const url = window.URL.createObjectURL(blob);
+
+      window.open(url, '_blank');
     } catch (err) {
       throw rejectWithValue(err);
     }
@@ -221,7 +233,7 @@ export const creditNoteListSlice = createSlice({
         event_id: data?.event ?
           { value: data?.event_id, label: data?.event?.event_name }
           : null,
-          saleInvoiceId: data?.sale_invoice_id ? data?.sale_invoice_id : null,
+        saleInvoiceId: data?.sale_invoice_id ? data?.sale_invoice_id : null,
       };
       state.purchaseReturnDetail = data
       state.stockReturnDetail = data
