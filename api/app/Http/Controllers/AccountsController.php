@@ -212,11 +212,23 @@ class AccountsController extends Controller
             }
         }
 
-        // Recursive sorting function
+        // ✅ Recursive numeric sorting function (based on parts of account_code)
         $sortFn = function (&$nodes) use (&$sortFn) {
             usort($nodes, function ($a, $b) {
-                return strcmp($a['account_code'], $b['account_code']);
+                $aParts = array_map('intval', explode('-', $a['account_code']));
+                $bParts = array_map('intval', explode('-', $b['account_code']));
+
+                $len = max(count($aParts), count($bParts));
+                for ($i = 0; $i < $len; $i++) {
+                    $aVal = $aParts[$i] ?? 0;
+                    $bVal = $bParts[$i] ?? 0;
+                    if ($aVal != $bVal) {
+                        return $aVal <=> $bVal;
+                    }
+                }
+                return 0;
             });
+
             foreach ($nodes as &$n) {
                 if (!empty($n['children'])) {
                     $sortFn($n['children']);
