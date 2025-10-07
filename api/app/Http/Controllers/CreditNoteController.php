@@ -23,6 +23,7 @@ class CreditNoteController extends Controller
 		$sale_invoice_no = $request->input('sale_invoice_no', '');
 		$credit_amount = $request->input('credit_amount', '');
 		$credit_percent = $request->input('credit_percent', '');
+		$remarks = $request->input('remarks', '');
 		$search = $request->input('search', '');
 		$page =  $request->input('page', 1);
 		$perPage =  $request->input('limit', 10);
@@ -44,7 +45,7 @@ class CreditNoteController extends Controller
 		if (!empty($sale_invoice_no)) $data = $data->where('sale_invoice.document_identity', 'like', '%' . $sale_invoice_no . '%');
 		if (!empty($credit_amount)) $data = $data->where('credit_note.credit_amount', 'like', '%' . $credit_amount . '%');
 		if (!empty($credit_percent)) $data = $data->where('credit_note.credit_percent', 'like', '%' . $credit_percent . '%');
-
+		if (!empty($remarks)) $data = $data->where('credit_note.remarks', 'like', '%' . $remarks . '%');
 		if (!empty($search)) {
 			$search = strtolower($search);
 			$data = $data->where(function ($query) use ($search) {
@@ -53,7 +54,8 @@ class CreditNoteController extends Controller
 					->orWhere('sale_invoice.document_identity', 'like', '%' . $search . '%')
 					->orWhere('event.event_code', 'like', '%' . $search . '%')
 					->orWhere('vessel.name', 'like', '%' . $search . '%')
-					->orWhere('customer.name', 'like', '%' . $search . '%');
+					->orWhere('customer.name', 'like', '%' . $search . '%')
+					->orWhere('credit_note.remarks', 'like', '%' . $search . '%');
 			});
 		}
 
@@ -80,6 +82,7 @@ class CreditNoteController extends Controller
 			'sale_invoice_id' => 'required|string|size:36',
 			'credit_amount' => 'required|numeric|min:0',
 			'credit_percent' => 'required|numeric|min:0',
+			'remarks' => 'nullable|string',
 		];
 
 
@@ -121,6 +124,7 @@ class CreditNoteController extends Controller
 			'sale_invoice_id' => $request->sale_invoice_id,
 			'credit_amount' => $request->credit_amount,
 			'credit_percent' => $request->credit_percent,
+			'remarks' => $request->remarks,
 			'created_at' => Carbon::now(),
 			'created_by' => $request->login_user_id,
 		];
@@ -148,6 +152,7 @@ class CreditNoteController extends Controller
 		$data->sale_invoice_id  = $request->sale_invoice_id;
 		$data->credit_amount  = $request->credit_amount;
 		$data->credit_percent  = $request->credit_percent;
+		$data->remarks  = $request->remarks;
 		$data->updated_at = Carbon::now();
 		$data->updated_by = $request->login_user_id;
 		$data->update();

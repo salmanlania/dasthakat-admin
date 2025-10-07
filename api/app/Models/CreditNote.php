@@ -24,6 +24,7 @@ class CreditNote extends Model
         'sale_invoice_id',
         'credit_amount',
         'credit_percent',
+        'remarks',
         'created_by',
         'updated_by'
     ];

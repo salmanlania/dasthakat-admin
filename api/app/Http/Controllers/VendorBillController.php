@@ -7,11 +7,7 @@ use App\Models\Currency;
 use App\Models\DocumentType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Models\PaymentVoucher;
-use App\Models\PaymentVoucherDetail;
 use App\Models\Ledger;
-use App\Models\PaymentVoucherTagging;
-use App\Models\PaymentVoucherTaggingDetail;
 use App\Models\Supplier;
 use App\Models\VendorBill;
 use App\Models\VendorBillDetail;
@@ -24,79 +20,6 @@ class VendorBillController extends Controller
     protected $document_type_id = 63;
     protected $db;
 
-    // public function index(Request $request)
-    // {
-    //     $document_identity = $request->input('document_identity', '');
-    //     $document_date = $request->input('document_date', '');
-    //     $transaction_account_id = $request->input('transaction_account_id', '');
-    //     $remarks = $request->input('remarks', '');
-    //     $total_amount = $request->input('total_amount', '');
-
-    //     $search = $request->input('search', '');
-    //     $page = $request->input('page', 1);
-    //     $perPage = $request->input('limit', 10);
-    //     $sort_column = $request->input('sort_column', 'payment_voucher.created_at');
-    //     $sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
-
-    //     $data = PaymentVoucher::LeftJoin('accounts as a', 'a.account_id', '=', 'payment_voucher.transaction_account_id');
-
-    //     $data = $data->where('payment_voucher.company_id', '=', $request->company_id);
-    //     $data = $data->where('payment_voucher.company_branch_id', '=', $request->company_branch_id);
-
-    //     if (!empty($document_identity)) $data->where('payment_voucher.document_identity', 'like', "%$document_identity%");
-    //     if (!empty($remarks)) $data->where('payment_voucher.remarks', 'like', "%$remarks%");
-    //     if (!empty($total_amount)) $data->where('payment_voucher.total_amount', 'like', "%$total_amount%");
-    //     if (!empty($document_date)) $data->where('payment_voucher.document_date', $document_date);
-    //     if (!empty($transaction_account_id)) $data->where('a.account_id', $transaction_account_id);
-
-    //     if (!empty($search)) {
-    //         $search = strtolower($search);
-    //         $data->where(function ($query) use ($search) {
-    //             $query
-    //                 ->orWhere('payment_voucher.document_identity', 'like', "%$search%")
-    //                 ->orWhere('payment_voucher.remarks', 'like', "%$search%")
-
-    //                 ->orWhere('a.name', 'like', "%$search%");
-    //         });
-    //     }
-    //     $data = $data->selectRaw(
-    //         'payment_voucher.*,
-    //         a.name as transaction_account_name,
-    //         (
-    //         (
-    //             SELECT COALESCE(SUM(pvd.payment_amount),0)
-    //             FROM payment_voucher_detail pvd
-    //             INNER JOIN payment_voucher pv 
-    //                 ON pv.payment_voucher_id = pvd.payment_voucher_id
-    //             WHERE pv.payment_voucher_id = payment_voucher.payment_voucher_id
-    //         ) 
-    //         -
-    //         (
-    //             SELECT COALESCE(SUM(pvd.amount),0)
-    //             FROM payment_voucher_tagging_detail pvd
-    //             INNER JOIN payment_voucher_tagging pvt 
-    //                 ON pvt.payment_voucher_tagging_id = pvd.payment_voucher_tagging_id
-    //             INNER JOIN payment_voucher pv 
-    //                 ON pv.payment_voucher_id = pvt.payment_voucher_id
-    //             WHERE pvt.payment_voucher_id = payment_voucher.payment_voucher_id
-    //         ) 
-    //         ) AS balance_amount,
-    //       (
-    //     SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
-    //     FROM payment_voucher_detail pvd3
-    //     WHERE pvd3.payment_voucher_id = payment_voucher.payment_voucher_id
-    //       AND pvd3.supplier_id IS NOT NULL  AND pvd3.supplier_id != ""
-    //     ) AS has_supplier'
-    //     );
-
-    //     $data = $data->orderBy($sort_column, $sort_direction)
-    //         ->paginate($perPage, ['*'], 'page', $page);
-
-
-    //     return response()->json($data);
-    // }
-
-    //create index api 
     public function index(Request $request)
     {
         $document_identity = $request->input('document_identity', '');
@@ -350,58 +273,69 @@ class VendorBillController extends Controller
                 ->where('document_type_id', $this->document_type_id)
                 ->delete();
 
+            Ledger::create([
+                'ledger_id' => $this->get_uuid(),
+                'company_id' => $request->company_id,
+                'company_branch_id' => $request->company_branch_id,
+                'document_type_id' => $this->document_type_id,
+                'document_id' => $id,
+                'document_detail_id' => "",
+                'document_identity' => $data->document_identity,
+                'document_date' => $request->document_date,
+                'sort_order' => 0,
+                'partner_type' => 'Vendor',
+                'partner_id' => $request->supplier_id,
+                'event_id' => "",
+                'cost_center_id' => "",
+                'ref_document_type_id' => "",
+                'ref_document_identity' => "",
+                'account_id' => $outstanding_account_id ?? "",
+                'remarks' => '',
+                'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
+                'document_debit' => 0,
+                'document_credit' => $request->total_amount ?? "",
+                'base_currency_id' => $base_currency_id,
+                'conversion_rate' => $conversion_rate,
+                'debit' => 0,
+                'credit' => ($request->total_amount ?? 0) * $conversion_rate,
+                'document_amount' => $request->total_amount ?? "",
+                'amount' => ($request->total_amount ?? 0) * $conversion_rate,
+                'created_at' => Carbon::now(),
+                'created_by_id' => $request->login_user_id,
+            ]);
+
             if ($request->details) {
                 foreach ($request->details as $value) {
                     $detail_uuid = null;
                     if ($value['row_status'] == 'I') {
                         $detail_uuid = $this->get_uuid();
                         $insert = [
-                            'payment_voucher_id' => $id,
-                            'payment_voucher_detail_id' => $detail_uuid,
+                            'vendor_bill_id' => $id,
+                            'vendor_bill_detail_id' => $detail_uuid,
                             'sort_order' => $value['sort_order'] ?? "",
                             'account_id' => $value['account_id'] ?? "",
-                            'cheque_no' => $value['cheque_no'] ?? "",
-                            'event_id' => $value['event_id'] ?? "",
-                            'cost_center_id' => $value['cost_center_id'] ?? "",
-                            // 'cheque_date' => $value['cheque_date'] ?? "",
-                            'ledger_date' => $value['ledger_date'] ?? "",
-                            'supplier_id' => $value['supplier_id'] ?? "",
-                            // 'document_amount' => $value['document_amount'] ?? "",
-                            'payment_amount' => $value['payment_amount'] ?? "",
-                            // 'tax_amount' => $value['tax_amount'] ?? "",
-                            // 'tax_percent' => $value['tax_percent'] ?? "",
-                            // 'net_amount' => $value['net_amount'] ?? "",
+                            'amount' => $value['amount'] ?? "",
                             'created_at' => Carbon::now(),
                             'created_by' => $request->login_user_id,
                         ];
-                        PaymentVoucherDetail::create($insert);
+                        VendorBillDetail::create($insert);
                     }
                     if ($value['row_status'] == 'U') {
                         $update = [
                             'sort_order' => $value['sort_order'] ?? "",
                             'account_id' => $value['account_id'] ?? "",
-                            'cheque_no' => $value['cheque_no'] ?? "",
-                            'event_id' => $value['event_id'] ?? "",
-                            'cost_center_id' => $value['cost_center_id'] ?? "",
-                            // 'cheque_date' => $value['cheque_date'] ?? "",
-                            'ledger_date' => $value['ledger_date'] ?? "",
-                            'supplier_id' => $value['supplier_id'] ?? "",
-                            // 'document_amount' => $value['document_amount'] ?? "",
-                            'payment_amount' => $value['payment_amount'] ?? "",
-                            // 'tax_amount' => $value['tax_amount'] ?? "",
-                            // 'tax_percent' => $value['tax_percent'] ?? "",
-                            // 'net_amount' => $value['net_amount'] ?? "",
+                            'amount' => $value['amount'] ?? "",
                             'updated_at' => Carbon::now(),
                             'updated_by' => $request->login_user_id,
                         ];
-                        PaymentVoucherDetail::where('payment_voucher_detail_id', $value['payment_voucher_detail_id'])->update($update);
+                        VendorBillDetail::where('vendor_bill_detail_id', $value['vendor_bill_detail_id'])->update($update);
                     }
                     if ($value['row_status'] == 'D') {
-                        PaymentVoucherDetail::where('payment_voucher_detail_id', $value['payment_voucher_detail_id'])->delete();
+                        VendorBillDetail::where('vendor_bill_detail_id', $value['vendor_bill_detail_id'])->delete();
                     }
 
                     if ($value['row_status'] != 'D') {
-                        if ((float)$value['payment_amount'] > 0) {
+                        if ((float)$value['amount'] > 0) {
 
                             Ledger::create([
                                 'ledger_id' => $this->get_uuid(),
@@ -411,124 +345,55 @@ class VendorBillController extends Controller
                                 'document_id' => $id,
                                 'document_detail_id' => "",
                                 'document_identity' => $request->document_identity ?? "",
-                                'document_date' => $value['ledger_date'] ?? "",
-                                'sort_order' => 0,
-                                'event_id' => $value['event_id'],
-                                'cost_center_id' => $value['cost_center_id'],
+                                'document_date' => $request->document_date,
+                                'sort_order' => $value['sort_order'],
+                                'event_id' => '',
+                                'cost_center_id' => '',
                                 'partner_type' => '',
-                                'partner_id' => '',
-                                'ref_document_type_id' => "",
-                                'ref_document_identity' => "",
-                                'account_id' => $request->transaction_account_id ?? "",
-                                'remarks' => '',
-                                'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
-                                'document_debit' => 0,
-                                'document_credit' => $value['payment_amount'] ?? "",
-                                'base_currency_id' => $base_currency_id,
-                                'conversion_rate' => $conversion_rate,
-                                'debit' => 0,
-                                'credit' => ($value['payment_amount'] ?? 0) * $conversion_rate,
-                                'document_amount' => $value['payment_amount'] ?? "",
-                                'amount' => ($value['payment_amount'] ?? 0) * $conversion_rate,
-                                'created_at' => Carbon::now(),
-                                'created_by_id' => $request->login_user_id,
-                                'cheque_no' => $value['cheque_no'] ?? "",
-                                // 'cheque_date' => $value['cheque_date'] ?? "",
-                            ]);
-                            Ledger::create([
-                                'ledger_id' => $this->get_uuid(),
-                                'company_id' => $request->company_id,
-                                'company_branch_id' => $request->company_branch_id,
-                                'document_type_id' => $this->document_type_id,
-                                'document_id' => $id,
-                                'document_detail_id' => $value['payment_voucher_detail_id'] ?? $detail_uuid,
-                                'document_identity' => $request->document_identity ?? "",
-                                'document_date' => $value['ledger_date'] ?? $request->document_date,
-                                'sort_order' => $value['sort_order'] ?? "",
-                                'partner_type' => '',
-                                'event_id' => $value['event_id'],
-                                'cost_center_id' => $value['cost_center_id'],
                                 'partner_id' => '',
                                 'ref_document_type_id' => "",
                                 'ref_document_identity' => "",
                                 'account_id' => $value['account_id'] ?? "",
                                 'remarks' => '',
                                 'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
-                                'document_debit' => $value['payment_amount'] ?? "",
-                                'document_credit' => 0,
+                                'document_debit' => 0,
+                                'document_credit' => $value['amount'] ?? "",
                                 'base_currency_id' => $base_currency_id,
                                 'conversion_rate' => $conversion_rate,
-                                'debit' => ($value['payment_amount'] ?? 0) * $conversion_rate,
-                                'credit' => 0,
-                                'document_amount' => $value['payment_amount'] ?? "",
-                                'amount' => ($value['payment_amount'] ?? 0) * $conversion_rate,
+                                'debit' => 0,
+                                'credit' => ($value['amount'] ?? 0) * $conversion_rate,
+                                'document_amount' => $value['amount'] ?? "",
+                                'amount' => ($value['amount'] ?? 0) * $conversion_rate,
                                 'created_at' => Carbon::now(),
                                 'created_by_id' => $request->login_user_id,
-                                'cheque_no' => $value['cheque_no'] ?? "",
-                                // 'cheque_date' => $value['cheque_date'] ?? "",
                             ]);
                         }
                     }
-
-                    // if ((float)$value['tax_amount'] > 0)
-                    //     Ledger::create([
-                    //         'ledger_id' => $this->get_uuid(),
-                    //         'company_id' => $request->company_id,
-                    //         'company_branch_id' => $request->company_branch_id,
-                    //         'document_type_id' => $this->document_type_id,
-                    //         'document_id' => $id,
-                    //         'document_detail_id' => $value['payment_voucher_detail_id'] ?? $detail_uuid,
-                    //         'document_identity' => $request->document_identity ?? "",
-                    //         'document_date' => $request->document_date ?? "",
-                    //         'sort_order' => $value['sort_order'] ?? "",
-                    //         'partner_type' => '',
-                    //         'partner_id' => '',
-                    //         'ref_document_type_id' => "",
-                    //         'ref_document_identity' => "",
-                    //         'account_id' => $value['account_id'] ?? "",
-                    //         'remarks' => '',
-                    //         'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
-                    //         'document_debit' => 0,
-                    //         'document_credit' => $value['tax_amount'] ?? "",
-                    //         'base_currency_id' => $base_currency_id,
-                    //         'conversion_rate' => $conversion_rate,
-                    //         'debit' => 0,
-                    //         'credit' => ($value['tax_amount'] ?? 0) * $conversion_rate,
-                    //         'document_amount' => $value['tax_amount'] ?? "",
-                    //         'amount' => ($value['tax_amount'] ?? 0) * $conversion_rate,
-                    //         'created_at' => Carbon::now(),
-                    //         'created_by_id' => $request->login_user_id,
-                    //         'cheque_no' => $value['cheque_no'] ?? "",
-                    //         'cheque_date' => $value['cheque_date'] ?? "",
-                    //     ]);
                 }
             }
             DB::commit();
 
-            return $this->jsonResponse(['payment_voucher_id' => $id], 200, "Update Payment Voucher Successfully!");
+            return $this->jsonResponse(['vendor_bill_id' => $id], 200, "Update Vendor Bill Successfully!");
         } catch (\Exception $e) {
             DB::rollBack(); // Rollback on error
-            Log::error('Payment Voucher Updating Error: ' . $e->getMessage());
-            return $this->jsonResponse("Something went wrong while updating Payment Voucher." . $e->getMessage(), 500, "Transaction Failed");
+            Log::error('Vendor Bill Updating Error: ' . $e->getMessage());
+            return $this->jsonResponse("Something went wrong while updating Vendor Bill." . $e->getMessage(), 500, "Transaction Failed");
         }
     }
     public function delete($id, Request $request)
     {
         if (!isPermission('delete', 'vendor_bill', $request->permission_list))
             return $this->jsonResponse('Permission Denied!', 403, "No Permission");
-        $data  = PaymentVoucher::where('payment_voucher_id', $id)->first();
-        if ($data) {
-            $data->delete();
+        $record  = VendorBill::where('vendor_bill_id', $id)->first();
+        if ($record) {
+            $record->delete();
             Ledger::where('document_id', $id)
                 ->where('document_type_id', $this->document_type_id)
                 ->delete();
-            $payment_voucher_tagging_ids = PaymentVoucherTagging::where('payment_voucher_id', $id)->pluck('payment_voucher_tagging_id')->toArray();
-            PaymentVoucherTaggingDetail::whereIn('payment_voucher_tagging_id', $payment_voucher_tagging_ids)->delete();
-            PaymentVoucherTagging::where('payment_voucher_id', $id)->delete();
 
-            PaymentVoucherDetail::where('payment_voucher_id', $id)->delete();
+            VendorBillDetail::where('vendor_bill_id', $id)->delete();
         }
-        return $this->jsonResponse(['payment_voucher_id' => $id], 200, "Delete Payment Voucher Successfully!");
+        return $this->jsonResponse(['vendor_bill_id' => $id], 200, "Delete Vendor Bill Successfully!");
     }
     public function bulkDelete(Request $request)
     {
@@ -537,22 +402,19 @@ class VendorBillController extends Controller
 
         try {
             if (isset($request->id) && !empty($request->id) && is_array($request->id)) {
-                foreach ($request->id as $payment_voucher_id) {
-                    $user = PaymentVoucher::where(['payment_voucher_id' => $payment_voucher_id])->first();
-                    if ($user) {
-                        $user->delete();
-                        Ledger::where('document_id', $payment_voucher_id)
+                foreach ($request->id as $vendor_bill_id) {
+                    $record = VendorBill::where(['vendor_bill_id' => $vendor_bill_id])->first();
+                    if ($record) {
+                        $record->delete();
+                        Ledger::where('document_id', $vendor_bill_id)
                             ->where('document_type_id', $this->document_type_id)
                             ->delete();
-                        $payment_voucher_tagging_ids = PaymentVoucherTagging::where('payment_voucher_id', $payment_voucher_id)->pluck('payment_voucher_tagging_id')->toArray();
-                        PaymentVoucherTaggingDetail::whereIn('payment_voucher_tagging_id', $payment_voucher_tagging_ids)->delete();
-                        PaymentVoucherTagging::where('payment_voucher_id', $payment_voucher_id)->delete();
-                        PaymentVoucherDetail::where('payment_voucher_id', $payment_voucher_id)->delete();
+                        VendorBillDetail::where('vendor_bill_id', $vendor_bill_id)->delete();
                     }
                 }
             }
 
-            return $this->jsonResponse('Deleted', 200, "Delete Payment Voucher successfully!");
+            return $this->jsonResponse('Deleted', 200, "Delete Vendor Bill successfully!");
         } catch (\Exception $e) {
             return $this->jsonResponse('some error occured', 500, $e->getMessage());
         }
