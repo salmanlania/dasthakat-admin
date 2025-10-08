@@ -177,6 +177,9 @@ const CustomerPaymentSettlement = lazy(() => import('./pages/CustomerPaymentSett
 const CreateCustomerPaymentSettlement = lazy(() => import('./pages/CustomerPaymentSettlement/CreateCustomerPaymentSettlement'));
 const EditCustomerPaymentSettlement = lazy(() => import('./pages/CustomerPaymentSettlement/EditCustomerPaymentSettlement'));
 
+const VendorBill = lazy(() => import('./pages/VendorBill'));
+const CreateVendorBill = lazy(() => import('./pages/VendorBill/CreateVendorBill'));
+const EditVendorBill = lazy(() => import('./pages/VendorBill/EditVendorBill'));
 
 function Routes() {
   const router = createBrowserRouter(
@@ -1148,6 +1151,30 @@ function Routes() {
                     element: (
                       <Suspense fallback={<PageLoader />}>
                         <EditCustomerPaymentSettlement />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'vendor-bill',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <VendorBill />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'vendor-bill/create',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <CreateVendorBill />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'vendor-bill/edit/:id',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <EditVendorBill />
                       </Suspense>
                     ),
                   },

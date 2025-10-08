@@ -55,6 +55,7 @@ import customerPaymentReducer from './features/customerPaymentSlice'
 import customerPaymentSettlementReducer from './features/customerPaymentSettlementSlice'
 import vendorPaymentReducer from './features/vendorPaymentSlice'
 import paymentVoucherReducer from './features/paymentVoucherSlice'
+import vendorBillReducer from './features/vendorBillSlice'
 
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
@@ -112,6 +113,7 @@ const rootReducer = combineReducers({
   customerPaymentSettlement: customerPaymentSettlementReducer,
   vendorPayment: vendorPaymentReducer,
   paymentVoucher: paymentVoucherReducer,
+  vendorBill: vendorBillReducer,
 });
 
 export const store = configureStore({

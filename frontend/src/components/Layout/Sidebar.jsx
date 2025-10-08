@@ -620,6 +620,11 @@ const Sidebar = () => {
               label: <Link to="/general-ledger/transactions/customer-payment-settlement">Customer Payment Settlement</Link>,
               disabled: !permissions?.customer_payment_settlement?.list,
             },
+            {
+              key: 'general-ledger/transactions/vendor-bill',
+              label: <Link to="/general-ledger/transactions/vendor-bill">Vendor Bill</Link>,
+              disabled: !permissions?.customer_payment_settlement?.list,
+            },
           ]
         },
       ],

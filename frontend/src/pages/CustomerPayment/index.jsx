@@ -167,7 +167,7 @@ const CustomerPayment = () => {
       onCell: () => ({
         style: { textAlign: 'right' },
       }),
-      render: (value) => `${value}.`,
+      render: (value) => `${value}s`,
     },
     {
       title: (

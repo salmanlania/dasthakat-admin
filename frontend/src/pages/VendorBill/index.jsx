@@ -14,21 +14,21 @@ import useDebounce from '../../hooks/useDebounce.js';
 import useDocumentTitle from '../../hooks/useDocumentTitle.js';
 import useError from '../../hooks/useError.jsx';
 import {
-  bulkDeletePaymentVoucher,
-  deletePaymentVoucher,
-  getPaymentVoucherList,
-  resetPaymentVoucherSettlementForm,
-  setPaymentVoucherDeleteIDs,
-  setPaymentVoucherListParams,
-} from '../../store/features/paymentVoucherSlice.js';
+  bulkDeleteVendorBill,
+  deleteVendorBill,
+  getVendorBillList,
+  resetVendorBillSettlementForm,
+  setVendorBillDeleteIDs,
+  setVendorBillListParams,
+} from '../../store/features/vendorBillSlice.js';
 import VendorSettlementTaggingModal from '../../components/Modals/vendorSettlementTaggingModal.jsx';
 
-const PaymentVoucher = () => {
-  useDocumentTitle('Payment Voucher List');
+const VendorBill = () => {
+  useDocumentTitle('Vendor Bill List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs, balanceAmount } = useSelector(
-    (state) => state.paymentVoucher,
+    (state) => state.vendorBill,
   );
 
   const { user } = useSelector((state) => state.auth);
@@ -37,7 +37,7 @@ const PaymentVoucher = () => {
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const [taggingModalOpen, setTaggingModalOpen] = useState(false);
-  const [paymentVoucherId, setPaymentVoucherId] = useState(null);
+  const [vendorBillId, setVendorBillId] = useState(null);
   // const [selectedTotalAmount, setSelectedTotalAmount] = useState(0);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
@@ -54,9 +54,9 @@ const PaymentVoucher = () => {
 
   const onQuotationDelete = async (id) => {
     try {
-      await dispatch(deletePaymentVoucher(id)).unwrap();
-      toast.success('Payment Voucher deleted successfully');
-      dispatch(getPaymentVoucherList(formattedParams)).unwrap();
+      await dispatch(deleteVendorBill(id)).unwrap();
+      toast.success('Vendor Bill deleted successfully');
+      dispatch(getVendorBillList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -64,10 +64,10 @@ const PaymentVoucher = () => {
 
   const onBulkDelete = async () => {
     try {
-      await dispatch(bulkDeletePaymentVoucher(deleteIDs)).unwrap();
-      toast.success('Payment Vouchers deleted successfully');
+      await dispatch(bulkDeleteVendorBill(deleteIDs)).unwrap();
+      toast.success('Vendor Bills deleted successfully');
       closeDeleteModal();
-      await dispatch(getPaymentVoucherList(formattedParams)).unwrap();
+      await dispatch(getVendorBillList(formattedParams)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -93,10 +93,10 @@ const PaymentVoucher = () => {
               // value={params.document_date}
               value={params.document_date ? dayjs(params.document_date) : null}
               className="font-normal"
-              // onChange={(date) => dispatch(setPaymentVoucherListParams({ document_date: date }))}
+              // onChange={(date) => dispatch(setVendorBillListParams({ document_date: date }))}
               onChange={(date) => {
                 dispatch(
-                  setPaymentVoucherListParams({
+                  setVendorBillListParams({
                     document_date: date ? dayjs(date).format("YYYY-MM-DD") : null,
                   })
                 );
@@ -117,7 +117,7 @@ const PaymentVoucher = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
-          <p>Voucher No</p>
+          <p>Vendor Bill No</p>
           <Input
             className="font-normal"
             size="small"
@@ -125,7 +125,7 @@ const PaymentVoucher = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.document_identity}
             onChange={(e) => {
-              dispatch(setPaymentVoucherListParams({ document_identity: e.target.value }));
+              dispatch(setVendorBillListParams({ document_identity: e.target.value }));
             }}
           />
         </div>
@@ -141,18 +141,18 @@ const PaymentVoucher = () => {
         <div onClick={(e) => e.stopPropagation()}>
           <p>Transaction Account</p>
           <AsyncSelect
-            endpoint="/accounts"
+            endpoint="/supplier"
             size="small"
             className="w-full font-normal"
-            valueKey="account_id"
+            valueKey="supplier_id"
             labelKey="name"
-            value={params.transaction_account_id}
-            onChange={(value) => dispatch(setPaymentVoucherListParams({ transaction_account_id: value }))}
+            value={params.supplier_id}
+            onChange={(value) => dispatch(setVendorBillListParams({ supplier_id: value }))}
           />
         </div>
       ),
-      dataIndex: 'transaction_account_name',
-      key: 'transaction_account_name',
+      dataIndex: 'supplier_name',
+      key: 'supplier_name',
       sorter: true,
       width: 150,
       ellipsis: true,
@@ -168,33 +168,7 @@ const PaymentVoucher = () => {
             onClick={(e) => e.stopPropagation()}
             value={params.total_amount}
             onChange={(e) => {
-              dispatch(setPaymentVoucherListParams({ total_amount: e.target.value }));
-            }}
-          />
-        </div>
-      ),
-      dataIndex: 'total_amount',
-      key: 'total_amount',
-      sorter: true,
-      width: 140,
-      ellipsis: true,
-      onCell: () => ({
-        style: { textAlign: 'right' },
-      }),
-      render: (value) => `${value}`,
-    },
-    {
-      title: (
-        <div onClick={(e) => e.stopPropagation()}>
-          <p>Balance Amount</p>
-          <Input
-            className="font-normal"
-            size="small"
-            allowClear
-            onClick={(e) => e.stopPropagation()}
-            value={params.total_amount}
-            onChange={(e) => {
-              dispatch(setPaymentVoucherListParams({ total_amount: e.target.value }));
+              dispatch(setVendorBillListParams({ total_amount: e.target.value }));
             }}
           />
         </div>
@@ -219,7 +193,7 @@ const PaymentVoucher = () => {
             size="small"
             onClick={(e) => e.stopPropagation()}
             value={params.remarks}
-            onChange={(e) => dispatch(setPaymentVoucherListParams({ remarks: e.target.value }))}
+            onChange={(e) => dispatch(setVendorBillListParams({ remarks: e.target.value }))}
           />
         </div>
       ),
@@ -239,7 +213,7 @@ const PaymentVoucher = () => {
             <div className="flex items-center gap-1">
               {permissions.edit ? (
                 <Tooltip title="Edit">
-                  <Link to={`/general-ledger/transactions/payment-voucher/edit/${record?.payment_voucher_id}`}>
+                  <Link to={`/general-ledger/transactions/vendor-bill/edit/${record?.vendor_bill_id}`}>
                     <Button
                       size="small"
                       type="primary"
@@ -257,7 +231,7 @@ const PaymentVoucher = () => {
                     okButtonProps={{ danger: true }}
                     okText="Yes"
                     cancelText="No"
-                    onConfirm={() => onQuotationDelete(record?.payment_voucher_id)}
+                    onConfirm={() => onQuotationDelete(record?.vendor_bill_id)}
                   >
                     <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                   </Popconfirm>
@@ -270,9 +244,9 @@ const PaymentVoucher = () => {
                     type="primary"
                     icon={<AiOutlineTag size={14} />}
                     onClick={() => {
-                      dispatch(resetPaymentVoucherSettlementForm());
+                      dispatch(resetVendorBillSettlementForm());
                       // setSelectedTotalAmount(record?.total_amount);
-                      setPaymentVoucherId(record?.payment_voucher_id);
+                      setVendorBillId(record?.vendor_bill_id);
                       setTaggingModalOpen(true);
                     }}
                   />
@@ -293,8 +267,8 @@ const PaymentVoucher = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    dispatch(getPaymentVoucherList(formattedParams)).unwrap().catch(handleError);
-    const savedLimit = sessionStorage.getItem('paymentVoucher');
+    dispatch(getVendorBillList(formattedParams)).unwrap().catch(handleError);
+    const savedLimit = sessionStorage.getItem('vendorBill');
   }, [
     params.page,
     params.limit,
@@ -307,6 +281,7 @@ const PaymentVoucher = () => {
     params.voucher_id,
     params.vessel_id,
     params.transaction_account_id,
+    params.supplier_id,
     params.event_id,
     params.port_id,
     params.status,
@@ -320,8 +295,8 @@ const PaymentVoucher = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>PAYMENT VOUCHER</PageHeading>
-        <Breadcrumb items={[{ title: 'Payment Voucher' }, { title: 'List' }]} separator=">" />
+        <PageHeading>VENDOR BILL</PageHeading>
+        <Breadcrumb items={[{ title: 'Vendor Bill' }, { title: 'List' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
@@ -331,7 +306,7 @@ const PaymentVoucher = () => {
             allowClear
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) => dispatch(setPaymentVoucherListParams({ search: e.target.value }))}
+            onChange={(e) => dispatch(setVendorBillListParams({ search: e.target.value }))}
           />
 
           <div className="flex items-center gap-2">
@@ -345,7 +320,7 @@ const PaymentVoucher = () => {
               </Button>
             ) : null}
             {permissions.add ? (
-              <Link to="/general-ledger/transactions/payment-voucher/create">
+              <Link to="/general-ledger/transactions/vendor-bill/create">
                 <Button type="primary">Add New</Button>
               </Link>
             ) : null}
@@ -360,7 +335,7 @@ const PaymentVoucher = () => {
                 type: 'checkbox',
                 selectedRowKeys: deleteIDs,
                 onChange: (selectedRowKeys) =>
-                  dispatch(setPaymentVoucherDeleteIDs(selectedRowKeys)),
+                  dispatch(setVendorBillDeleteIDs(selectedRowKeys)),
                 getCheckboxProps: (record) => ({
                   disabled: record.isEventHeader,
                 }),
@@ -369,7 +344,7 @@ const PaymentVoucher = () => {
           }
           loading={isListLoading}
           className="mt-2"
-          rowKey={(record) => record.payment_voucher_id}
+          rowKey={(record) => record.vendor_bill_id}
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
             total: paginationInfo.total_records,
@@ -378,9 +353,9 @@ const PaymentVoucher = () => {
             showTotal: (total) => `Total ${total} payment vouchers`,
           }}
           onChange={(page, _, sorting) => {
-            sessionStorage.setItem('paymentVouchers', page.pageSize);
+            sessionStorage.setItem('vendorBills', page.pageSize);
             dispatch(
-              setPaymentVoucherListParams({
+              setVendorBillListParams({
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
@@ -414,15 +389,15 @@ const PaymentVoucher = () => {
       {
         <VendorSettlementTaggingModal
           open={taggingModalOpen}
-          paymentVoucherId={paymentVoucherId}
+          vendorBillId={vendorBillId}
           // totalAmountValue={selectedTotalAmount}
           onClose={() => {
             setTaggingModalOpen(false)
-            dispatch(getPaymentVoucherList(formattedParams))}}
+            dispatch(getVendorBillList(formattedParams))}}
         />
       }
     </>
   );
 };
 
-export default PaymentVoucher;
+export default VendorBill;

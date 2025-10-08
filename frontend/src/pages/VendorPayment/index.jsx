@@ -167,7 +167,7 @@ const VendorPayment = () => {
       onCell: () => ({
         style: { textAlign: 'right' },
       }),
-      render: (value) => `${value}.`,
+      render: (value) => `${value}`,
     },
     {
       title: (
