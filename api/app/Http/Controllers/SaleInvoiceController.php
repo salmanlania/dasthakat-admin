@@ -288,7 +288,13 @@ class SaleInvoiceController extends Controller
 			$index = 0;
 
 			$outstanding_account_id = Customer::where('customer_id', $chargeOrder->customer_id)->pluck('outstanding_account_id')->first();
-			$discount_account_id = Setting::where('module', 'inventory_accounts_setting')->where('field', 'sale_discount_account')->value('value');
+			$discount_account = Setting::where('module', 'inventory_accounts_setting')
+				->where('field', 'sale_discount_account')
+				->value('value');
+
+			$discount_account_id = is_string($discount_account)
+				? json_decode($discount_account, true)[0] ?? null
+				: null;
 
 			$base_currency_id = Company::where('company_id', $request->company_id)->pluck('base_currency_id')->first();
 			$default_currency_id = Currency::where('company_id', $request->company_id)
@@ -449,7 +455,7 @@ class SaleInvoiceController extends Controller
 				return $this->jsonResponse(['sale_invoice_id' => $uuid], 500, "Cannot generate invoice: No items with available quantity.");
 			}
 		} catch (\Exception $e) {
-			DB::rollBack(); 
+			DB::rollBack();
 			Log::error('Sale Invoice Store Error: ' . $e->getMessage());
 			return $this->jsonResponse("Something went wrong while saving Sale Invoice.", 500, "Transaction Failed");
 		}
@@ -470,7 +476,14 @@ class SaleInvoiceController extends Controller
 		try {
 
 			$outstanding_account_id = Customer::where('customer_id', $request->customer_id)->pluck('outstanding_account_id')->first();
-			$discount_account_id = Setting::where('module', 'inventory_accounts_setting')->where('field', 'sale_discount_account')->value('value');
+			$discount_account = Setting::where('module', 'inventory_accounts_setting')
+				->where('field', 'sale_discount_account')
+				->value('value');
+
+			$discount_account_id = is_string($discount_account)
+				? json_decode($discount_account, true)[0] ?? null
+				: null;
+
 			$chargeOrder = ChargeOrder::where('charge_order_id', $request->charge_order_id)->first();
 			$base_currency_id = Company::where('company_id', $request->company_id)->pluck('base_currency_id')->first();
 			$default_currency_id = Currency::where('company_id', $request->company_id)
@@ -554,7 +567,7 @@ class SaleInvoiceController extends Controller
 				]);
 			}
 
-			foreach($data->sale_invoice_detail as $detail){
+			foreach ($data->sale_invoice_detail as $detail) {
 				Ledger::create([
 					'ledger_id' => $this->get_uuid(),
 					'company_id' => $request->company_id,
