@@ -568,6 +568,8 @@ class SaleInvoiceController extends Controller
 			}
 
 			foreach ($data->sale_invoice_detail as $detail) {
+				$product = Product::where('product_id', $detail['product_id'])->first();
+				$revenue_account_id = $product->revenue_account_id;
 				Ledger::create([
 					'ledger_id' => $this->get_uuid(),
 					'company_id' => $request->company_id,
@@ -582,7 +584,7 @@ class SaleInvoiceController extends Controller
 					'partner_id' => '',
 					'ref_document_type_id' => $chargeOrder->document_type_id,
 					'ref_document_identity' => $chargeOrder->document_identity,
-					'account_id' => $detail['product']->revenue_account_id ?? null,
+					'account_id' => $revenue_account_id ?? null,
 					'remarks' => '',
 					'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
 					'document_debit' => 0,
