@@ -63,9 +63,6 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
       total_quantity: initialFormValues?.totalQuantity ? initialFormValues?.totalQuantity : totalQuantity ? totalQuantity : totalQuantitySum,
     };
 
-    console.log(data);
-    // return 
-
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 

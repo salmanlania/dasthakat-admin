@@ -86,8 +86,6 @@ export const getSaleReturnInvoice = createAsyncThunk(
   }
 );
 
-// return start
-
 export const saleReturn = createAsyncThunk(
   'saleReturn/detailPost',
   async (data, { rejectWithValue }) => {

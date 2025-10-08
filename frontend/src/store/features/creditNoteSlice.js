@@ -99,8 +99,6 @@ export const getCreditNotePrint = createAsyncThunk(
   }
 );
 
-// return start
-
 export const createCreditNote = createAsyncThunk(
   'createCreditNote/detailPost',
   async (data, { rejectWithValue }) => {

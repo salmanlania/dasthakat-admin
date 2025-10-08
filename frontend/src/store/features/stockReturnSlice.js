@@ -86,8 +86,6 @@ export const getStockReturnInvoice = createAsyncThunk(
   }
 );
 
-// return start
-
 export const stockReturn = createAsyncThunk(
   'stockReturn/detailPost',
   async (data, { rejectWithValue }) => {
