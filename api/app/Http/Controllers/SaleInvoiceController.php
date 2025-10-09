@@ -51,12 +51,12 @@ class SaleInvoiceController extends Controller
 		$sort_column = $request->input('sort_column', 'sale_invoice.created_at');
 		$sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
-		$data = SaleInvoice::LeftJoin('charge_order as co', 'co.charge_order_id', '=', 'sale_invoice.charge_order_id')
-			->LeftJoin('event as e', 'e.event_id', '=', 'co.event_id')
-			->LeftJoin('customer as c', 'c.customer_id', '=', 'co.customer_id')
-			->LeftJoin('vessel as v', 'v.vessel_id', '=', 'co.vessel_id')
-			->LeftJoin('quotation as q', 'q.document_identity', '=', 'co.ref_document_identity')
-			->LeftJoin('sales_team as st', 'st.sales_team_id', '=', 'e.sales_team_id');
+		$data = SaleInvoice::leftJoin('charge_order as co', 'co.charge_order_id', '=', 'sale_invoice.charge_order_id')
+			->leftJoin('event as e', 'e.event_id', '=', 'co.event_id')
+			->leftJoin('customer as c', 'c.customer_id', '=', 'co.customer_id')
+			->leftJoin('vessel as v', 'v.vessel_id', '=', 'co.vessel_id')
+			->leftJoin('quotation as q', 'q.document_identity', '=', 'co.ref_document_identity')
+			->leftJoin('sales_team as st', 'st.sales_team_id', '=', 'e.sales_team_id');
 
 		$data = $data->where('sale_invoice.company_id', '=', $request->company_id);
 		$data = $data->where('sale_invoice.company_branch_id', '=', $request->company_branch_id);
@@ -87,16 +87,46 @@ class SaleInvoiceController extends Controller
 			});
 		}
 
-		$data = $data->select(
-			"sale_invoice.*",
-			"q.document_identity as quotation_no",
-			"co.document_identity as charge_no",
-			"e.event_code",
-			"v.name as vessel_name",
-			"e.sales_team_id",
-			"c.name as customer_name",
-			"st.name as sales_team_name"
-		);
+		$data = $data->selectRaw("
+				sale_invoice.sale_invoice_id,
+				sale_invoice.document_identity,
+				sale_invoice.document_no,
+				sale_invoice.document_prefix,
+				sale_invoice.document_type_id,
+				sale_invoice.document_date,
+				sale_invoice.vessel_billing_address,
+				sale_invoice.charge_order_id,
+				sale_invoice.total_quantity,
+				sale_invoice.total_amount,
+				sale_invoice.total_discount,
+				sale_invoice.net_amount,
+				sale_invoice.status,
+				sale_invoice.created_by,
+				sale_invoice.updated_by,
+				MAX(q.document_identity) as quotation_no,
+				MAX(co.document_identity) as charge_no,
+				MAX(e.event_code) as event_code,
+				MAX(v.name) as vessel_name,
+				MAX(c.name) as customer_name,
+				MAX(st.name) as sales_team_name,
+				MAX(e.sales_team_id) as sales_team_id
+			")->groupBy(
+				'sale_invoice.sale_invoice_id',
+				'sale_invoice.document_identity',
+				'sale_invoice.document_no',
+				'sale_invoice.document_prefix',
+				'sale_invoice.document_type_id',
+				'sale_invoice.document_date',
+				'sale_invoice.vessel_billing_address',
+				'sale_invoice.charge_order_id',
+				'sale_invoice.total_quantity',
+				'sale_invoice.total_amount',
+				'sale_invoice.total_discount',
+				'sale_invoice.net_amount',
+				'sale_invoice.status',
+				'sale_invoice.created_by',
+				'sale_invoice.updated_by'
+			);
 		$data =  $data->orderBy($sort_column, $sort_direction)->paginate($perPage, ['*'], 'page', $page);
 
 		return response()->json($data);
