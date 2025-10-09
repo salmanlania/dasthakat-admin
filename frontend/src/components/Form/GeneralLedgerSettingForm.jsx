@@ -14,6 +14,7 @@ export default function GeneralLedgerSettingForm() {
             >
                 <AsyncSelectLedger
                     endpoint="/accounts?only_leaf=1"
+                    params={{ searchKey: 'name' }}
                     size="small"
                     className="w-full font-normal custom-transaction-select"
                     valueKey="account_id"
@@ -28,6 +29,7 @@ export default function GeneralLedgerSettingForm() {
                     <Form.Item label="Cash Account" name="cash_account">
                         <AsyncSelectLedger
                             endpoint="/accounts?only_leaf=1"
+                            params={{ searchKey: 'name' }}
                             size="small"
                             className="w-full font-normal custom-transaction-select-others"
                             valueKey="account_id"
@@ -41,6 +43,7 @@ export default function GeneralLedgerSettingForm() {
                     <Form.Item label="Sales Tax Account" name="sales_tax_account">
                         <AsyncSelectLedger
                             endpoint="/accounts?only_leaf=1"
+                            params={{ searchKey: 'name' }}
                             size="small"
                             className="w-full font-normal custom-transaction-select-others"
                             valueKey="account_id"
@@ -56,6 +59,7 @@ export default function GeneralLedgerSettingForm() {
                     <Form.Item label="Suspense Account" name="suspense_account">
                         <AsyncSelectLedger
                             endpoint="/accounts?only_leaf=1"
+                            params={{ searchKey: 'name' }}
                             size="small"
                             className="w-full font-normal custom-transaction-select-others"
                             valueKey="account_id"
@@ -68,6 +72,7 @@ export default function GeneralLedgerSettingForm() {
                     <Form.Item label="Default Receivable Account" name="default_receivable_account">
                         <AsyncSelectLedger
                             endpoint="/accounts?only_leaf=1"
+                            params={{ searchKey: 'name' }}
                             size="small"
                             className="w-full font-normal custom-transaction-select-others"
                             valueKey="account_id"
@@ -84,6 +89,7 @@ export default function GeneralLedgerSettingForm() {
                     <Form.Item label="Default Payable Account" name="default_payable_account">
                         <AsyncSelectLedger
                             endpoint="/accounts?only_leaf=1"
+                            params={{ searchKey: 'name' }}
                             size="small"
                             className="w-full font-normal custom-transaction-select-others"
                             valueKey="account_id"
@@ -97,6 +103,7 @@ export default function GeneralLedgerSettingForm() {
                     <Form.Item label="Undeposited Account" name="undeposited_account">
                         <AsyncSelectLedger
                             endpoint="/accounts?only_leaf=1"
+                            params={{ searchKey: 'name' }}
                             size="small"
                             className="w-full font-normal custom-transaction-select-others"
                             valueKey="account_id"

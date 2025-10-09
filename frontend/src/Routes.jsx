@@ -152,6 +152,7 @@ const Scheduling = lazy(() => import('./pages/Scheduling'));
 // Reports
 const QuotationReport = lazy(() => import('./pages/QuotationReport'));
 const BidResponseReport = lazy(() => import('./pages/BidResponseReport'));
+const LedgerReport = lazy(() => import('./pages/LedgerReport'));
 
 //ledger
 
@@ -996,6 +997,14 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <BidResponseReport />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/ledger-report',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <LedgerReport />
               </Suspense>
             ),
           },

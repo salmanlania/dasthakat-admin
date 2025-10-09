@@ -100,6 +100,7 @@ const Accounts = () => {
           <p>Parent Account</p>
           <AsyncSelectLedger
             endpoint="/accounts"
+            params={{ searchKey: 'name' }}
             size="small"
             className="w-full font-normal"
             valueKey="account_id"
@@ -177,6 +178,7 @@ const Accounts = () => {
           <p>Head Account</p>
           <AsyncSelectLedger
             endpoint="/accounts/account/heads"
+            params={{ searchKey: 'name' }}
             size="small"
             className="w-full font-normal"
             valueKey="head_account_id"

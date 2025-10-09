@@ -543,6 +543,11 @@ const Sidebar = () => {
           label: <Link to="/bid-response-report">Bid Response Report</Link>,
           disabled: !permissions?.bid_response?.show,
         },
+        {
+          key: 'ledger-report',
+          label: <Link to="/ledger-report">Ledger Report</Link>,
+          disabled: !permissions?.bid_response?.show,
+        },
       ],
     },
     {

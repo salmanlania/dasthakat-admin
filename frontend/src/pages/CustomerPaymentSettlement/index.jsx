@@ -193,6 +193,7 @@ const CustomerPaymentSettlement = () => {
           <p>Deposit To</p>
           <AsyncSelect
             endpoint="/accounts?only_leaf=1"
+            params={{ searchKey: 'name' }}
             size="small"
             className="w-full font-normal"
             valueKey="account_id"

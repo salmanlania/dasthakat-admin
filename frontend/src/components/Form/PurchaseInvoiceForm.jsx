@@ -1,30 +1,22 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from 'react';
-import { Button, Col, DatePicker, Divider, Dropdown, Form, Input, Row, Select, Table } from 'antd';
+import { Button, Col, DatePicker, Form, Input, Row, Table } from 'antd';
 import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { BiPlus } from 'react-icons/bi';
-import { BsThreeDotsVertical } from 'react-icons/bs';
-import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
-import { v4 as uuidv4 } from 'uuid';
 import useError from '../../hooks/useError';
 import { getProduct, getProductList } from '../../store/features/productSlice';
 import {
-  addPurchaseInvoiceDetail,
-  changePurchaseInvoiceDetailOrder,
   changePurchaseInvoiceDetailValue,
-  copyPurchaseInvoiceDetail,
-  getPurchaseInvoiceForPrint,
-  updatePurchaseInvoice,
-  removePurchaseInvoiceDetail
+  getPurchaseInvoiceForPrint
 } from '../../store/features/purchaseInvoiceSlice';
 import { createPurchaseInvoicePrint } from '../../utils/prints/purchase-invoice-print';
 import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
 import { DetailSummaryInfo } from './QuotationForm';
+import LedgerModal from '../Modals/LedgerModal';
 
 const PurchaseInvoiceForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
@@ -38,6 +30,7 @@ const PurchaseInvoiceForm = ({ mode, onSubmit, onSave }) => {
   const [freightRate, setFreightRate] = useState(0);
   const [netAmount, setNetAmount] = useState(0);
   const [submitAction, setSubmitAction] = useState(null);
+  const [ledgerModalOpen, setLedgerModalOpen] = useState(false);
 
   const POType = Form.useWatch('type', form);
   const isBillable = POType === 'Billable';
@@ -56,6 +49,8 @@ const PurchaseInvoiceForm = ({ mode, onSubmit, onSave }) => {
   const onFinish = (values) => {
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
     const data = {
+      ...values,
+      ...initialFormValues,
       type: values.type,
       remarks: values.remarks,
       ship_to: values.ship_to,
@@ -474,154 +469,176 @@ const PurchaseInvoiceForm = ({ mode, onSubmit, onSave }) => {
   ];
 
   return (
-    <Form
-      name="purchaseInvoice"
-      layout="vertical"
-      autoComplete="off"
-      form={form}
-      onFinish={onFinish}
-      initialValues={
-        mode === 'edit'
-          ? {
-            ...initialFormValues
-          }
-          : { document_date: dayjs() }
-      }
-      scrollToFirstError>
-      {/* Make this sticky */}
-      <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-base font-semibold">
-        <span className="text-sm text-gray-500">Purchase Invoice No:</span>
-        <span
-          className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
-            } rounded px-1`}
-          onClick={() => {
-            if (mode !== 'edit') return;
-            navigator.clipboard.writeText(initialFormValues?.document_identity);
-            toast.success('Copied');
-          }}>
-          {mode === 'edit' ? initialFormValues?.document_identity : 'AUTO'}
-        </span>
-      </p>
-      <Row gutter={12}>
-        <Col span={6} sm={6} md={6} lg={6}>
-          <Form.Item
-            name="document_date"
-            label="Purchase Invoice Date"
-            rules={[{ required: true, message: 'Purchase Invoice date is required' }]}
-            className="w-full">
-            <DatePicker format="MM-DD-YYYY" className="w-full" disabled />
-          </Form.Item>
-        </Col>
-        <Col span={6} sm={6} md={6} lg={6}>
-          <Form.Item
-            name="required_date"
-            label="Required Date"
-            rules={[{ required: true, message: 'Required date is required' }]}
-            className="w-full">
-            <DatePicker format="MM-DD-YYYY" className="w-full" disabled />
-          </Form.Item>
-        </Col>
+    <>
+      <Form
+        name="purchaseInvoice"
+        layout="vertical"
+        autoComplete="off"
+        form={form}
+        onFinish={onFinish}
+        initialValues={
+          mode === 'edit'
+            ? {
+              ...initialFormValues
+            }
+            : { document_date: dayjs() }
+        }
+        scrollToFirstError>
+        {/* Make this sticky */}
+        <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-base font-semibold">
+          <span className="text-sm text-gray-500">Purchase Invoice No:</span>
+          <span
+            className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
+              } rounded px-1`}
+            onClick={() => {
+              if (mode !== 'edit') return;
+              navigator.clipboard.writeText(initialFormValues?.document_identity);
+              toast.success('Copied');
+            }}>
+            {mode === 'edit' ? initialFormValues?.document_identity : 'AUTO'}
+          </span>
+        </p>
+        <Row gutter={12}>
+          <Col span={6} sm={6} md={6} lg={6}>
+            <Form.Item
+              name="document_date"
+              label="Purchase Invoice Date"
+              rules={[{ required: true, message: 'Purchase Invoice date is required' }]}
+              className="w-full">
+              <DatePicker format="MM-DD-YYYY" className="w-full" disabled />
+            </Form.Item>
+          </Col>
+          <Col span={6} sm={6} md={6} lg={6}>
+            <Form.Item
+              name="required_date"
+              label="Required Date"
+              rules={[{ required: true, message: 'Required date is required' }]}
+              className="w-full">
+              <DatePicker format="MM-DD-YYYY" className="w-full" disabled />
+            </Form.Item>
+          </Col>
 
-        <Col span={6} sm={6} md={6} lg={6}>
-          <Form.Item name="supplier_id" label="Vendor">
-            <Input disabled />
-          </Form.Item>
-        </Col>
+          <Col span={6} sm={6} md={6} lg={6}>
+            <Form.Item name="supplier_id" label="Vendor">
+              <Input disabled />
+            </Form.Item>
+          </Col>
 
-        <Col span={6} sm={6} md={6} lg={6}>
-          <Form.Item name="vendor_invoice_no" label="Vendor Invoice No">
-            <Input />
-          </Form.Item>
-        </Col>
+          <Col span={6} sm={6} md={6} lg={6}>
+            <Form.Item name="vendor_invoice_no" label="Vendor Invoice No">
+              <Input />
+            </Form.Item>
+          </Col>
 
-        <Col span={8} sm={8} md={8} lg={8}>
-          <Form.Item name="ship_via" label="Ship Via">
-            <Input disabled />
-          </Form.Item>
-        </Col>
+          <Col span={8} sm={8} md={8} lg={8}>
+            <Form.Item name="ship_via" label="Ship Via">
+              <Input disabled />
+            </Form.Item>
+          </Col>
 
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="department" label="Department">
-            <Input disabled />
-          </Form.Item>
-        </Col>
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="department" label="Department">
+              <Input disabled />
+            </Form.Item>
+          </Col>
 
-        <Col span={24} sm={12} md={8} lg={8}>
-          <Form.Item name="ship_to" label="Ship To">
-            <Input.TextArea rows={1} disabled />
-          </Form.Item>
-        </Col>
-      </Row>
-
-      <Table
-        columns={columns}
-        dataSource={purchaseOrderDetails}
-        rowKey={'id'}
-        size="small"
-        scroll={{ x: 'calc(100% - 200px)' }}
-        pagination={false}
-        sticky={{
-          offsetHeader: 56
-        }}
-      />
-
-      <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
-        <Row gutter={[16, 16]}>
-          <Col span={24} sm={12} md={8} lg={6}>
-            <DetailSummaryInfo title="Total Quantity:" value={totalQuantity} />
-            <DetailSummaryInfo title="Total Amount:" value={totalAmount} />
-            <DetailSummaryInfo
-              title="Freight Rate:"
-              value={
-                <DebouncedCommaSeparatedInput
-                  value={freightRate}
-                  type="decimal"
-                  size="small"
-                  className="w-20 text-right"
-                  onChange={(value) => {
-                    // setFreightRate(Number(value))
-                    const parsedValue = value ? parseFloat(value) : freightRate;
-                    setFreightRate(isNaN(parsedValue) ? 0 : parsedValue);
-                  }
-                  }
-                  decimalPlaces={2}
-                />
-              }
-            />
-            <DetailSummaryInfo
-              title="Net Amount:"
-              value={netAmount}
-            />
+          <Col span={24} sm={12} md={8} lg={8}>
+            <Form.Item name="ship_to" label="Ship To">
+              <Input.TextArea rows={1} disabled />
+            </Form.Item>
           </Col>
         </Row>
-      </div>
 
-      <div className="mt-4 flex items-center justify-end gap-2">
-        <Link to="/purchase-invoice">
-          <Button className="w-28">Exit</Button>
-        </Link>
-        <Button
-          type="primary"
-          className="w-28"
-          loading={isFormSubmitting && submitAction === 'save'}
-          onClick={() => {
-            setSubmitAction('save');
-            form.submit();
-          }}>
-          Save
-        </Button>
-        <Button
-          type="primary"
-          className="w-28 bg-green-600 hover:!bg-green-500"
-          loading={isFormSubmitting && submitAction === 'saveAndExit'}
-          onClick={() => {
-            setSubmitAction('saveAndExit');
-            form.submit();
-          }}>
-          Save & Exit
-        </Button>
-      </div>
-    </Form>
+        <Table
+          columns={columns}
+          dataSource={purchaseOrderDetails}
+          rowKey={'id'}
+          size="small"
+          scroll={{ x: 'calc(100% - 200px)' }}
+          pagination={false}
+          sticky={{
+            offsetHeader: 56
+          }}
+        />
+
+        <div className="rounded-lg rounded-t-none border border-t-0 border-slate-300 bg-slate-50 px-6 py-3">
+          <Row gutter={[16, 16]}>
+            <Col span={24} sm={12} md={8} lg={6}>
+              <DetailSummaryInfo title="Total Quantity:" value={totalQuantity} />
+              <DetailSummaryInfo title="Total Amount:" value={totalAmount} />
+              <DetailSummaryInfo
+                title="Freight Rate:"
+                value={
+                  <DebouncedCommaSeparatedInput
+                    value={freightRate}
+                    type="decimal"
+                    size="small"
+                    className="w-20 text-right"
+                    onChange={(value) => {
+                      // setFreightRate(Number(value))
+                      const parsedValue = value ? parseFloat(value) : freightRate;
+                      setFreightRate(isNaN(parsedValue) ? 0 : parsedValue);
+                    }
+                    }
+                    decimalPlaces={2}
+                  />
+                }
+              />
+              <DetailSummaryInfo
+                title="Net Amount:"
+                value={netAmount}
+              />
+            </Col>
+          </Row>
+        </div>
+
+        <div className="mt-4 flex items-center justify-end gap-2">
+          <Link to="/purchase-invoice">
+            <Button className="w-28">Exit</Button>
+          </Link>
+          <Button
+            type="primary"
+            className="w-28"
+            loading={isFormSubmitting && submitAction === 'save'}
+            onClick={() => {
+              setSubmitAction('save');
+              form.submit();
+            }}>
+            Save
+          </Button>
+          <Button
+            type="primary"
+            className="w-28 bg-green-600 hover:!bg-green-500"
+            loading={isFormSubmitting && submitAction === 'saveAndExit'}
+            onClick={() => {
+              setSubmitAction('saveAndExit');
+              form.submit();
+            }}>
+            Save & Exit
+          </Button>
+          {
+            mode === 'edit'
+              ? (
+                <Button
+                  type="primary"
+                  className="w-28 bg-indigo-600 hover:!bg-indigo-500"
+                  onClick={() => setLedgerModalOpen(true)}
+                >
+                  Ledger
+                </Button>
+              ) : null
+          }
+        </div>
+      </Form>
+
+      {/* modals */}
+
+      <LedgerModal
+        open={ledgerModalOpen}
+        initialFormValues={initialFormValues}
+        onClose={() => setLedgerModalOpen(false)}
+      />
+    </>
   );
 };
 

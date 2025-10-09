@@ -200,6 +200,7 @@ export const saleInvoiceSlice = createSlice({
       state.isItemLoading = false;
       const data = action.payload;
       state.initialFormValues = {
+        ...data,
         document_identity: data.document_identity || '',
         // document_date: data.document_date || '',
         document_date: data.document_date ? dayjs(data.document_date) : null,
@@ -211,9 +212,20 @@ export const saleInvoiceSlice = createSlice({
         customer_po_no: data?.charge_order?.customer_po_no,
         vessel: data?.charge_order?.vessel,
         vessel_billing_address: data?.vessel_billing_address,
-        event_id: data?.charge_order?.event?.event_name,
+        event_id: data?.charge_order?.event
+          ? {
+            value: data?.charge_order?.event?.event_id,
+            label: data?.charge_order?.event?.event_name
+          }
+          : null,
         vessel_id: data?.charge_order?.vessel?.name,
-        customer_id: data?.charge_order?.customer?.name,
+        // customer_id: data?.charge_order?.customer?.name,
+        customer_id: data?.charge_order?.customer
+          ? {
+            value: data?.charge_order?.customer?.customer_id,
+            label: data?.charge_order?.customer?.name
+          }
+          : null,
         status: data?.status || '',
         charger_order_id: data?.charge_order?.document_identity,
         port_id: data?.charge_order?.port?.name,

@@ -13,6 +13,7 @@ import DebounceInput from '../Input/DebounceInput';
 import { DetailSummaryInfo } from './QuotationForm';
 import SaleReturnModal from '../Modals/ReturnModal'
 import { formatThreeDigitCommas } from '../../utils/number';
+import LedgerModal from '../Modals/LedgerModal';
 
 const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
@@ -30,6 +31,7 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [returnModalVisible, setReturnModalVisible] = useState(false);
+  const [ledgerModalOpen, setLedgerModalOpen] = useState(false);
 
   const totalGrossAmount = saleInvoiceDetail?.reduce((acc, item) => {
     const extCost = Number(item?.amount || 0);
@@ -45,6 +47,9 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
   }, 0) || 0;
 
   const onFinish = (values) => {
+    // console.log('Form Values:', values);
+    // console.log('Initial Form Values:', initialFormValues);
+    // return
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
 
     const formatDate = (date) => (date ? dayjs(date).format('YYYY-MM-DD') : null);
@@ -55,6 +60,8 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
       ship_date: formatDate(values.ship_date),
       document_date: formatDate(values.document_date),
       required_date: formatDate(values.required_date),
+      customer_id: values?.customer_id ? values?.customer_id?.value : initialFormValues?.customer_id ? initialFormValues?.customer_id?.value : null,
+      event_id: values?.event_id ? values?.event_id?.value : initialFormValues?.event_id ? initialFormValues?.event_id?.value : null,
       vessel_billing_address: values?.vessel_billing_address ? values?.vessel_billing_address : null,
       net_amount: totalGrossAmount ? totalGrossAmount : totalAmount,
       // net_amount: initialFormValues?.netAmount ? initialFormValues?.netAmount : totalNetAmount ? totalNetAmount : totalGrossAmount,
@@ -564,6 +571,18 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
               </>
               : null
           }
+          {
+            mode === 'edit'
+              ? (
+                <Button
+                  type="primary"
+                  className="w-28 bg-indigo-600 hover:!bg-indigo-500"
+                  onClick={() => setLedgerModalOpen(true)}
+                >
+                  Ledger
+                </Button>
+              ) : null
+          }
           <Button
             type="primary"
             className="w-28 bg-gray-600 hover:!bg-gray-500"
@@ -580,6 +599,12 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
           setReturnModalVisible(false)
         }}
         data={saleReturnRows}
+      />
+
+      <LedgerModal
+        open={ledgerModalOpen}
+        initialFormValues={initialFormValues}
+        onClose={() => setLedgerModalOpen(false)}
       />
     </>
   );

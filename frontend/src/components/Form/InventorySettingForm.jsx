@@ -12,6 +12,7 @@ export default function InventorySettingForm() {
                     >
                         <AsyncSelectLedger
                             endpoint="/accounts?only_leaf=1"
+                            params={{ searchKey: 'name' }}
                             size="small"
                             className="w-full font-normal custom-transaction-select"
                             valueKey="account_id"
@@ -28,6 +29,7 @@ export default function InventorySettingForm() {
                     >
                         <AsyncSelectLedger
                             endpoint="/accounts?only_leaf=1"
+                            params={{ searchKey: 'name' }}
                             size="small"
                             className="w-full font-normal custom-transaction-select"
                             valueKey="account_id"
@@ -47,6 +49,7 @@ export default function InventorySettingForm() {
                     >
                         <AsyncSelectLedger
                             endpoint="/accounts?only_leaf=1"
+                            params={{ searchKey: 'name' }}
                             size="small"
                             className="w-full font-normal custom-transaction-select"
                             valueKey="account_id"
@@ -63,6 +66,7 @@ export default function InventorySettingForm() {
                     >
                         <AsyncSelectLedger
                             endpoint="/accounts?only_leaf=1"
+                            params={{ searchKey: 'name' }}
                             size="small"
                             className="w-full font-normal custom-transaction-select"
                             valueKey="account_id"
@@ -82,6 +86,7 @@ export default function InventorySettingForm() {
                     >
                         <AsyncSelectLedger
                             endpoint="/accounts?only_leaf=1"
+                            params={{ searchKey: 'name' }}
                             size="small"
                             className="w-full font-normal custom-transaction-select-others"
                             valueKey="account_id"
@@ -97,6 +102,7 @@ export default function InventorySettingForm() {
                     >
                         <AsyncSelectLedger
                             endpoint="/accounts?only_leaf=1"
+                            params={{ searchKey: 'name' }}
                             size="small"
                             className="w-full font-normal custom-transaction-select-others"
                             valueKey="account_id"
@@ -115,6 +121,7 @@ export default function InventorySettingForm() {
                     >
                         <AsyncSelectLedger
                             endpoint="/accounts?only_leaf=1"
+                            params={{ searchKey: 'name' }}
                             size="small"
                             className="w-full font-normal custom-transaction-select-others"
                             valueKey="account_id"
@@ -130,6 +137,7 @@ export default function InventorySettingForm() {
                     >
                         <AsyncSelectLedger
                             endpoint="/accounts?only_leaf=1"
+                            params={{ searchKey: 'name' }}
                             size="small"
                             className="w-full font-normal custom-transaction-select-others"
                             valueKey="account_id"
@@ -148,6 +156,7 @@ export default function InventorySettingForm() {
                     >
                         <AsyncSelectLedger
                             endpoint="/accounts?only_leaf=1"
+                            params={{ searchKey: 'name' }}
                             size="small"
                             className="w-full font-normal custom-transaction-select-others"
                             valueKey="account_id"

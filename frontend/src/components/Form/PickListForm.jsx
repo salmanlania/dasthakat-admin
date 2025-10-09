@@ -1,16 +1,16 @@
 /* eslint-disable react/prop-types */
 import { Button, Col, DatePicker, Form, Input, Row, Select, Table } from 'antd';
 import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { useState, useEffect } from 'react';
-import ReturnModal from '../Modals/PickListReturnModal'
-import { useSelector, useDispatch } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import useError from '../../hooks/useError';
 import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
-import { DetailSummaryInfo } from './QuotationForm';
+import ReturnModal from '../Modals/PickListReturnModal';
+import LedgerModal from '../Modals/LedgerModal';
 
 const PickListForm = ({ mode, onSubmit, onSave, onRefresh }) => {
     const [form] = Form.useForm();
@@ -23,6 +23,7 @@ const PickListForm = ({ mode, onSubmit, onSave, onRefresh }) => {
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [selectedRows, setSelectedRows] = useState([]);
     const [returnModalVisible, setReturnModalVisible] = useState(false);
+    const [ledgerModalOpen, setLedgerModalOpen] = useState(false);
 
     useEffect(() => {
         if (initialFormValues) {
@@ -374,8 +375,21 @@ const PickListForm = ({ mode, onSubmit, onSave, onRefresh }) => {
                     >
                         Return
                     </Button>
+                    {
+                        mode === 'edit'
+                            ? (
+                                <Button
+                                    type="primary"
+                                    className="w-28 bg-indigo-600 hover:!bg-indigo-500"
+                                    onClick={() => setLedgerModalOpen(true)}
+                                >
+                                    Ledger
+                                </Button>
+                            ) : null
+                    }
                 </div>
             </Form>
+
             <ReturnModal
                 visible={returnModalVisible}
                 onClose={() => {
@@ -383,6 +397,12 @@ const PickListForm = ({ mode, onSubmit, onSave, onRefresh }) => {
                 }}
                 data={selectedRows}
                 onRefresh={onRefresh}
+            />
+
+            <LedgerModal
+                open={ledgerModalOpen}
+                initialFormValues={initialFormValues}
+                onClose={() => setLedgerModalOpen(false)}
             />
         </>
     );

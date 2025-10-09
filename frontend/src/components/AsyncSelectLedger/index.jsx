@@ -39,11 +39,15 @@ const AsyncSelectLedger = ({
   const fetchData = async (inputValue = '', page = 1, merge = false) => {
     setLoading(true);
     try {
-      const response = await api.get(endpoint, {
-        params: { ...params, search: inputValue, page }
-      });
+      const searchParamKey = params?.searchKey || 'search';
+      const queryParams = { ...params, [searchParamKey]: inputValue, page };
+      delete queryParams.searchKey;
+      const response = await api.get(endpoint, { params: queryParams });
+      // const response = await api.get(endpoint, {
+      //   params: { ...params, search: inputValue, page }
+      // });
       let data = Array.isArray(response.data) ? response.data : response.data.data;
-      
+
       let optionsData = [];
       if (valueKey && labelKey) {
         optionsData = data.map((item) => ({

@@ -123,6 +123,7 @@ const CustomerPaymentSettlementForm = ({ mode, onSubmit, onSave }) => {
         return (
           <AsyncSelect
             endpoint="/accounts?only_leaf=1"
+            params={{ searchKey: 'name' }}
             valueKey="account_id"
             labelKey="name"
             value={record?.account_id}
@@ -323,6 +324,7 @@ const CustomerPaymentSettlementForm = ({ mode, onSubmit, onSave }) => {
             >
               <AsyncSelectProduct
                 endpoint="/accounts?only_leaf=1"
+                params={{ searchKey: 'name' }}
                 // size="small"
                 className="w-full"
                 valueKey="account_id"

@@ -111,6 +111,7 @@ const VendorBillForm = ({ mode, onSubmit, onSave }) => {
           <AsyncSelect
             key={record.id}
             endpoint="/accounts?only_leaf=1"
+            params={{ searchKey: 'name' }}
             valueKey="account_id"
             labelKey="name"
             value={record?.account_id}

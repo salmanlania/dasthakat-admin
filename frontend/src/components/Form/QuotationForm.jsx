@@ -1721,6 +1721,7 @@ const QuotationForm = ({ mode, onSubmit, onSave, onVendor }) => {
           dataSource={quotationDetails}
           rowClassName={(record) => (record.isDeleted ? 'hidden-row' : '')}
           rowKey={'id'}
+          virtual={true}
           size="small"
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={false}

@@ -142,6 +142,7 @@ const PaymentVoucher = () => {
           <p>Transaction Account</p>
           <AsyncSelect
             endpoint="/accounts"
+            params={{ searchKey: 'name' }}
             size="small"
             className="w-full font-normal"
             valueKey="account_id"

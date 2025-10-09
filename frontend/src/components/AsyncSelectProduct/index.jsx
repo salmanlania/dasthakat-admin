@@ -39,9 +39,13 @@ const AsyncSelectProduct = ({
   const fetchData = async (inputValue = '', page = 1, merge = false) => {
     setLoading(true);
     try {
-      const response = await api.get(endpoint, {
-        params: { ...params, search: inputValue, page }
-      });
+      const searchParamKey = params?.searchKey || 'search';
+      const queryParams = { ...params, [searchParamKey]: inputValue, page };
+      delete queryParams.searchKey;
+      const response = await api.get(endpoint, { params: queryParams });
+      // const response = await api.get(endpoint, {
+      //   params: { ...params, search: inputValue, page }
+      // });
       let data = []
 
       if (Array.isArray(response.data)) {

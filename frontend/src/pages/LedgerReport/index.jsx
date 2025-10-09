@@ -25,8 +25,8 @@ import { FaRegFilePdf } from 'react-icons/fa';
 import { FaRegFileExcel } from 'react-icons/fa6';
 import useDocumentTitle from '../../hooks/useDocumentTitle.js';
 
-const QuotationReport = () => {
-  useDocumentTitle('Quotation Report');
+const LedgerReport = () => {
+  useDocumentTitle('Ledger Report');
   const { RangePicker } = DatePicker;
   const dispatch = useDispatch();
   const handleError = useError();
@@ -100,6 +100,7 @@ const QuotationReport = () => {
     params.start_date,
     params.end_date,
     params.status,
+    params.account_id,
     debouncedSearch,
     debouncedQuotationNo,
     debouncedCustomerRef,
@@ -111,9 +112,10 @@ const QuotationReport = () => {
       params.end_date ||
       params.event_id ||
       params.vessel_id ||
-      params.customer_id
+      params.customer_id ||
+      params.account_id
     );
-  }, [params.start_date, params.end_date, params.event_id, params.vessel_id, params.customer_id]);
+  }, [params.start_date, params.end_date, params.event_id, params.vessel_id, params.customer_id, params.account_id]);
 
   const exportPdf = async () => {
     if (!filtersAreActive) {
@@ -214,8 +216,8 @@ const QuotationReport = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>QUOTATION REPORT</PageHeading>
-        <Breadcrumb items={[{ title: 'Quotation Report' }, { title: 'List' }]} separator=">" />
+        <PageHeading>LEDGER REPORT</PageHeading>
+        <Breadcrumb items={[{ title: 'Ledger Report' }, { title: 'List' }]} separator=">" />
       </div>
       <div className="mt-4 rounded-md bg-white p-2">
         <Form form={form} name="quotation_report_form" layout="vertical">
@@ -254,7 +256,7 @@ const QuotationReport = () => {
                 />
               </Form.Item>
             </div>
-            <div className="min-w-[200px]">
+            {/* <div className="min-w-[200px]">
               <Form.Item name="event_id" label="Event" layout="vertical">
                 <AsyncSelect
                   endpoint="/event"
@@ -298,18 +300,17 @@ const QuotationReport = () => {
                   allowClear
                 />
               </Form.Item>
-            </div>
+            </div> */}
 
             <div className="min-w-[240px]">
-              <Form.Item name="customer_id" label="Customer" layout="vertical">
+              <Form.Item name="customer_id" label="Accounts" layout="vertical">
                 <AsyncSelect
-                  endpoint="/customer"
-                  className="w-full"
-                  valueKey="customer_id"
+                  endpoint="/accounts?only_leaf=1"
+                  params={{ searchKey: 'name' }}
+                  className="w-full font-normal"
+                  valueKey="account_id"
                   labelKey="name"
-                  placeholder="Select Customer"
-                  value={params.customer_id}
-                  labelInValue={true}
+                  allowClear
                   onChange={(selected) => {
                     dispatch(
                       setQuotationListParams({
@@ -318,7 +319,6 @@ const QuotationReport = () => {
                       }),
                     );
                   }}
-                  allowClear
                 />
               </Form.Item>
             </div>
@@ -335,14 +335,14 @@ const QuotationReport = () => {
               disabled={!filtersAreActive}>
               Clear Filters
             </Button>
-            <Button
+            {/* <Button
               type="primary"
               icon={<FaRegFileExcel size={14} />}
               className="bg-emerald-800 hover:!bg-emerald-700"
               disabled={!filtersAreActive}
               onClick={exportExcel}>
               Export
-            </Button>
+            </Button> */}
             <Button
               type="primary"
               icon={<FaRegFilePdf size={14} />}
@@ -367,4 +367,4 @@ const QuotationReport = () => {
   );
 };
 
-export default QuotationReport;
+export default LedgerReport;
