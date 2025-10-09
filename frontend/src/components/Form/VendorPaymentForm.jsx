@@ -54,7 +54,7 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
       ...initialFormValues,
       ...values,
       supplier_id: values?.supplier_id?.value ? values?.supplier_id?.value : values?.supplier_id?.key ? values?.supplier_id?.key : null,
-      transaction_account_id: values?.transaction_account_id?.value ? values?.transaction_account_id?.value : values?.transaction_account_id?.key ? values?.transaction_account_id?.key : null,
+      transaction_account_id: values?.transaction_account_id?.value ? values?.transaction_account_id?.value : values?.transaction_account_id?.key ? values?.transaction_account_id?.key : values?.transaction_account_id.length > 0 ? values?.transaction_account_id : null,
       total_amount: totalSettled ? totalSettled : totalAmountVal,
       payment_amount: paymentAmount,
       document_date: formatDate(values.document_date),
@@ -87,6 +87,8 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
             row_status: row?.row_status
           }))
     };
+
+    // return console.log('data', data)
 
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
