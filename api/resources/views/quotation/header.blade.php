@@ -51,7 +51,7 @@
         <th>Class.</th>
         <td class="text-left first">{{ ($class1['name'] ?? '').' '.($class1['name'] ?? '')  }}</td>
        
-        <th>Date of Serv.</th>
+        <th>Serv. Date</th>
         <td class="text-left">
           @php
             $formattedShipDate = '';
@@ -75,9 +75,9 @@
 
        <tr>
          <th>Payment.</th>
-        <td class="text-left">{{ $payment']['name'] : '' }}</td>
+        <td class="text-left">{{ $payment['name'] ?? "" }}</td>
         <th>Bill To.</th>
-        <td colspan="3" class="text-left">{{ $vessel['billing_address'] ?? '' }}</td>
+        <td colspan="3" class="text-left">{{ $customer['name'].' , '.$vessel['billing_address'] ?? '' }}</td>
       </tr>
       
     </tbody>

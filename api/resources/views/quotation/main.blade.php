@@ -140,7 +140,7 @@
   border: none !important;
   padding: 0 !important;
   margin: 0 !important;
-  height: 320px !important;
+  height: 325px !important;
 }
 .footer{
     font-size: 12px;
