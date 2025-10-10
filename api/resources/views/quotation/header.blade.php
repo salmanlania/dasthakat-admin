@@ -49,7 +49,7 @@
         <th>Ship To.</th>
         <td class="text-left first">{{ $vessel['name'] ?? '' }}</td>
         <th>Class.</th>
-        <td class="text-left first">{{ ($class1['name'] ?? '').' '.($class1['name'] ?? '')  }}</td>
+        <td class="text-left first">{{ $class1['name'] ?? ''  }}</td>
        
         <th>Serv. Date</th>
         <td class="text-left">

@@ -237,7 +237,10 @@ class QuotationController extends Controller
 	    $fpdi->useTemplate($tplId);
 	}
 
-$pdfData = $fpdi->Output($title, 'S');
+
+$title = 'Quotation-' . ($data->document_identity ?? "").'.pdf';
+$fpdi->SetTitle($title); // ✅ This sets the metadata title
+$pdfData = $fpdi->Output($title, 'S'); // This name is only for saving/downloading
 return $base64Pdf = base64_encode($pdfData);
 // Final output
    // return response($fpdi->Output($title, 'S'), 200)
