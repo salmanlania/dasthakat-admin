@@ -327,7 +327,7 @@ $chunks = [];
 $chunk = '';
 foreach ($words as $word) {
     // Check if adding the next word exceeds 45 characters
-    if (strlen($chunk . ' ' . $word) > 45) {
+    if (strlen($chunk . ' ' . $word) > 40) {
         $chunks[] = trim($chunk); // Add the current chunk to result
         $chunk = $word; // Start a new chunk
     } else {
