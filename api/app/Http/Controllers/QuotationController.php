@@ -238,7 +238,7 @@ class QuotationController extends Controller
 	}
 
 
-$title = 'Quotation-' . ($data->document_identity ?? "").'.pdf';
+$title = 'Quotation-' . ($data->document_identity ?? "").'-'.(@$data->vessel->name ?? "");
 $fpdi->SetTitle($title); // ✅ This sets the metadata title
 $pdfData = $fpdi->Output($title, 'S'); // This name is only for saving/downloading
 return $base64Pdf = base64_encode($pdfData);
