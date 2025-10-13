@@ -300,7 +300,7 @@ $termCount = (!empty($term_desc) ? (count($term_desc)>2 ? 3  : count($term_desc)
         @if($i==0)
           @if($emtyRows<= 3 && count($term_desc)+$count != 31)
 
-        <td rowspan="{{ $key == 0 ? ( $all_tds <4 ? $all_tds : 3 ) : ( ($all_tds < 4) ? count($term_desc)-($all_tds) : count($term_desc)-3 ) }}" colspan="1" class="text-center">Note.</td>
+        <td rowspan="{{ $key == 0 ? ( $all_tds <5 ? count($term_desc) : 3 ) : ( ($all_tds < 4) ? count($term_desc)-($all_tds) : count($term_desc)-3 ) }}" colspan="1" class="text-center">Note.</td>
           @else 
             <td rowspan="{{ count($term_desc) }}" colspan="1" class="text-center">Note.</td>
           @endif
@@ -327,7 +327,7 @@ $chunks = [];
 $chunk = '';
 foreach ($words as $word) {
     // Check if adding the next word exceeds 45 characters
-    if (strlen($chunk . ' ' . $word) > 40) {
+    if (strlen($chunk . ' ' . $word) > 42) {
         $chunks[] = trim($chunk); // Add the current chunk to result
         $chunk = $word; // Start a new chunk
     } else {
