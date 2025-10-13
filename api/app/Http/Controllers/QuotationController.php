@@ -208,6 +208,7 @@ class QuotationController extends Controller
     $html = view('quotation.temp',$data)->render(); // this now works
 
     $dompdf->loadHTML($html );
+    $dompdf->setPaper('Letter', 'portrait');
     $title = 'Quotation-'.($data->document_identity ?? "" ).'-'.($data->vessel['name'] ?? "").'.pdf';
 	$mainPdfContent = $dompdf->output();
 	    // Save to temp file
@@ -236,7 +237,10 @@ class QuotationController extends Controller
 	    $fpdi->useTemplate($tplId);
 	}
 
-$pdfData = $fpdi->Output($title, 'S');
+
+$title = 'Quotation-' . ($data->document_identity ?? "").'-'.(@$data->vessel->name ?? "");
+$fpdi->SetTitle($title); // ✅ This sets the metadata title
+$pdfData = $fpdi->Output($title, 'S'); // This name is only for saving/downloading
 return $base64Pdf = base64_encode($pdfData);
 // Final output
    // return response($fpdi->Output($title, 'S'), 200)

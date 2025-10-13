@@ -18,7 +18,7 @@
 
 
   
-  <div class="invoice-title" style="margin:10px 0px 0px 0px;font-size: 20px;font-weight: bold;"><u>Quotaion </u></div>
+  <div class="invoice-title" style="margin:10px 0px 0px 0px;font-size: 20px;font-weight: bold;"><u>Quotation </u></div>
 
  <table style="margin-bottom: 300px;">
     <tbody>
@@ -49,9 +49,9 @@
         <th>Ship To.</th>
         <td class="text-left first">{{ $vessel['name'] ?? '' }}</td>
         <th>Class.</th>
-        <td class="text-left first">{{ ($class1['name'] ?? '').' '.($class1['name'] ?? '')  }}</td>
+        <td class="text-left first">{{ $class1['name'] ?? ''  }}</td>
        
-        <th>Date of Serv.</th>
+        <th>Serv. Date</th>
         <td class="text-left">
           @php
             $formattedShipDate = '';
@@ -75,9 +75,9 @@
 
        <tr>
          <th>Payment.</th>
-        <td class="text-left">{{ $payment']['name'] : '' }}</td>
+        <td class="text-left">{{ $payment['name'] ?? "" }}</td>
         <th>Bill To.</th>
-        <td colspan="3" class="text-left">{{ $vessel['billing_address'] ?? '' }}</td>
+        <td colspan="3" class="text-left">{{ $customer['name'].' , '.$vessel['billing_address'] ?? '' }}</td>
       </tr>
       
     </tbody>

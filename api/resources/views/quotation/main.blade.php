@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Proforma-{{ $document_identity ?? "" }}-{{ $vessel['name'] ?? "" }}</title>
+    <title>Quotation-{{ $document_identity ?? "" }}-{{ $vessel['name'] ?? "" }}</title>
     <style>
         @page {
             margin: 2px 40px 10px 40px; 
@@ -140,7 +140,7 @@
   border: none !important;
   padding: 0 !important;
   margin: 0 !important;
-  height: 320px !important;
+  height: 325px !important;
 }
 .footer{
     font-size: 12px;

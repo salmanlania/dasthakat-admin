@@ -269,34 +269,34 @@ class PurchaseInvoiceController extends Controller
 					'created_by'                 => $request->login_user_id,
 				]);
 
-				Ledger::create([
-					'ledger_id' => $this->get_uuid(),
-					'company_id' => $request->company_id,
-					'company_branch_id' => $request->company_branch_id,
-					'document_type_id' => $this->document_type_id,
-					'document_id' => $uuid,
-					'document_detail_id' => $detail_id,
-					'document_identity' => $document['document_identity'] ?? "",
-					'document_date' => $request->document_date ?? "",
-					'sort_order' => $detail->sort_order + 2,
-					'partner_type' => '',
-					'partner_id' => '',
-					'ref_document_type_id' => $purchaseOrder->document_type_id,
-					'ref_document_identity' => $purchaseOrder->document_identity,
-					'account_id' => $inventory_account_id ?? null,
-					'remarks' => '',
-					'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
-					'document_debit' => $amount ?? "",
-					'document_credit' => 0,
-					'base_currency_id' => $base_currency_id,
-					'conversion_rate' => $conversion_rate,
-					'debit' => ($amount ?? 0) * $conversion_rate,
-					'credit' => 0,
-					'document_amount' => $amount ?? "",
-					'amount' => ($amount ?? 0) * $conversion_rate,
-					'created_at' => Carbon::now(),
-					'created_by_id' => $request->login_user_id,
-				]);
+				// Ledger::create([
+				// 	'ledger_id' => $this->get_uuid(),
+				// 	'company_id' => $request->company_id,
+				// 	'company_branch_id' => $request->company_branch_id,
+				// 	'document_type_id' => $this->document_type_id,
+				// 	'document_id' => $uuid,
+				// 	'document_detail_id' => $detail_id,
+				// 	'document_identity' => $document['document_identity'] ?? "",
+				// 	'document_date' => $request->document_date ?? "",
+				// 	'sort_order' => $detail->sort_order + 2,
+				// 	'partner_type' => '',
+				// 	'partner_id' => '',
+				// 	'ref_document_type_id' => $purchaseOrder->document_type_id,
+				// 	'ref_document_identity' => $purchaseOrder->document_identity,
+				// 	'account_id' => $inventory_account_id ?? null,
+				// 	'remarks' => '',
+				// 	'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
+				// 	'document_debit' => $amount ?? "",
+				// 	'document_credit' => 0,
+				// 	'base_currency_id' => $base_currency_id,
+				// 	'conversion_rate' => $conversion_rate,
+				// 	'debit' => ($amount ?? 0) * $conversion_rate,
+				// 	'credit' => 0,
+				// 	'document_amount' => $amount ?? "",
+				// 	'amount' => ($amount ?? 0) * $conversion_rate,
+				// 	'created_at' => Carbon::now(),
+				// 	'created_by_id' => $request->login_user_id,
+				// ]);
 			}
 
 			// 6. Finalize and Save Invoice
@@ -306,64 +306,64 @@ class PurchaseInvoiceController extends Controller
 			if ($totalQuantity > 0) {
 				PurchaseInvoice::create($invoiceData);
 
-				Ledger::create([
-					'ledger_id' => $this->get_uuid(),
-					'company_id' => $request->company_id,
-					'company_branch_id' => $request->company_branch_id,
-					'document_type_id' => $this->document_type_id,
-					'document_id' => $uuid,
-					'document_detail_id' => "",
-					'document_identity' => $document['document_identity'] ?? "",
-					'document_date' => $request->document_date ?? "",
-					'sort_order' => 0,
-					'partner_type' => 'Vendor',
-					'partner_id' => $request->supplier_id,
-					'ref_document_type_id' => $purchaseOrder->document_type_id,
-					'ref_document_identity' => $purchaseOrder->document_identity,
-					'account_id' => $outstanding_account_id ?? null,
-					'remarks' => '',
-					'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
-					'document_debit' => $invoiceData['net_amount'] ?? "",
-					'document_credit' => 0,
-					'base_currency_id' => $base_currency_id,
-					'conversion_rate' => $conversion_rate,
-					'debit' => ($invoiceData['net_amount'] ?? 0) * $conversion_rate,
-					'credit' => 0,
-					'document_amount' => $invoiceData['net_amount'] ?? "",
-					'amount' => ($invoiceData['net_amount'] ?? 0) * $conversion_rate,
-					'created_at' => Carbon::now(),
-					'created_by_id' => $request->login_user_id,
-				]);
-				if ((float)$purchaseOrder->freight > 0) {
-					Ledger::create([
-						'ledger_id' => $this->get_uuid(),
-						'company_id' => $request->company_id,
-						'company_branch_id' => $request->company_branch_id,
-						'document_type_id' => $this->document_type_id,
-						'document_id' => $uuid,
-						'document_detail_id' => "",
-						'document_identity' => $document['document_identity'] ?? "",
-						'document_date' => $request->document_date ?? "",
-						'sort_order' => 1,
-						'partner_type' => '',
-						'partner_id' => '',
-						'ref_document_type_id' => $purchaseOrder->document_type_id,
-						'ref_document_identity' => $purchaseOrder->document_identity,
-						'account_id' => $freight_account_id ?? null,
-						'remarks' => '',
-						'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
-						'document_debit' => $purchaseOrder->freight ?? "",
-						'document_credit' => 0,
-						'base_currency_id' => $base_currency_id,
-						'conversion_rate' => $conversion_rate,
-						'debit' => ($purchaseOrder->freight ?? 0) * $conversion_rate,
-						'credit' => 0,
-						'document_amount' => $purchaseOrder->freight ?? "",
-						'amount' => ($purchaseOrder->freight ?? 0) * $conversion_rate,
-						'created_at' => Carbon::now(),
-						'created_by_id' => $request->login_user_id,
-					]);
-				}
+				// Ledger::create([
+				// 	'ledger_id' => $this->get_uuid(),
+				// 	'company_id' => $request->company_id,
+				// 	'company_branch_id' => $request->company_branch_id,
+				// 	'document_type_id' => $this->document_type_id,
+				// 	'document_id' => $uuid,
+				// 	'document_detail_id' => "",
+				// 	'document_identity' => $document['document_identity'] ?? "",
+				// 	'document_date' => $request->document_date ?? "",
+				// 	'sort_order' => 0,
+				// 	'partner_type' => 'Vendor',
+				// 	'partner_id' => $request->supplier_id,
+				// 	'ref_document_type_id' => $purchaseOrder->document_type_id,
+				// 	'ref_document_identity' => $purchaseOrder->document_identity,
+				// 	'account_id' => $outstanding_account_id ?? null,
+				// 	'remarks' => '',
+				// 	'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
+				// 	'document_debit' => $invoiceData['net_amount'] ?? "",
+				// 	'document_credit' => 0,
+				// 	'base_currency_id' => $base_currency_id,
+				// 	'conversion_rate' => $conversion_rate,
+				// 	'debit' => ($invoiceData['net_amount'] ?? 0) * $conversion_rate,
+				// 	'credit' => 0,
+				// 	'document_amount' => $invoiceData['net_amount'] ?? "",
+				// 	'amount' => ($invoiceData['net_amount'] ?? 0) * $conversion_rate,
+				// 	'created_at' => Carbon::now(),
+				// 	'created_by_id' => $request->login_user_id,
+				// ]);
+				// if ((float)$purchaseOrder->freight > 0) {
+				// 	Ledger::create([
+				// 		'ledger_id' => $this->get_uuid(),
+				// 		'company_id' => $request->company_id,
+				// 		'company_branch_id' => $request->company_branch_id,
+				// 		'document_type_id' => $this->document_type_id,
+				// 		'document_id' => $uuid,
+				// 		'document_detail_id' => "",
+				// 		'document_identity' => $document['document_identity'] ?? "",
+				// 		'document_date' => $request->document_date ?? "",
+				// 		'sort_order' => 1,
+				// 		'partner_type' => '',
+				// 		'partner_id' => '',
+				// 		'ref_document_type_id' => $purchaseOrder->document_type_id,
+				// 		'ref_document_identity' => $purchaseOrder->document_identity,
+				// 		'account_id' => $freight_account_id ?? null,
+				// 		'remarks' => '',
+				// 		'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
+				// 		'document_debit' => $purchaseOrder->freight ?? "",
+				// 		'document_credit' => 0,
+				// 		'base_currency_id' => $base_currency_id,
+				// 		'conversion_rate' => $conversion_rate,
+				// 		'debit' => ($purchaseOrder->freight ?? 0) * $conversion_rate,
+				// 		'credit' => 0,
+				// 		'document_amount' => $purchaseOrder->freight ?? "",
+				// 		'amount' => ($purchaseOrder->freight ?? 0) * $conversion_rate,
+				// 		'created_at' => Carbon::now(),
+				// 		'created_by_id' => $request->login_user_id,
+				// 	]);
+				// }
 
 				DB::commit(); // Rollback on error
 				return $this->jsonResponse(['purchase_invoice_id' => $uuid], 200, "Add Purchase Invoice Successfully!");
@@ -425,66 +425,66 @@ class PurchaseInvoiceController extends Controller
 			$data->updated_by = $request->login_user_id;
 			$data->update();
 
-			Ledger::where('document_id', $id)->delete();
+			// Ledger::where('document_id', $id)->delete();
 
-			Ledger::create([
-				'ledger_id' => $this->get_uuid(),
-				'company_id' => $request->company_id,
-				'company_branch_id' => $request->company_branch_id,
-				'document_type_id' => $this->document_type_id,
-				'document_id' => $id,
-				'document_detail_id' => "",
-				'document_identity' => $request->document_identity ?? "",
-				'document_date' => $request->document_date ?? "",
-				'sort_order' => 0,
-				'partner_type' => 'Vendor',
-				'partner_id' => $request->supplier_id,
-				'ref_document_type_id' => $purchaseOrder->document_type_id,
-				'ref_document_identity' => $purchaseOrder->document_identity,
-				'account_id' => $outstanding_account_id ?? null,
-				'remarks' => '',
-				'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
-				'document_debit' => $request->net_amount ?? "",
-				'document_credit' => 0,
-				'base_currency_id' => $base_currency_id,
-				'conversion_rate' => $conversion_rate,
-				'debit' => ($request->net_amount ?? 0) * $conversion_rate,
-				'credit' => 0,
-				'document_amount' => $request->net_amount ?? "",
-				'amount' => ($request->net_amount ?? 0) * $conversion_rate,
-				'created_at' => Carbon::now(),
-				'created_by_id' => $request->login_user_id,
-			]);
-			if ((float)$purchaseOrder->freight > 0) {
-				Ledger::create([
-					'ledger_id' => $this->get_uuid(),
-					'company_id' => $request->company_id,
-					'company_branch_id' => $request->company_branch_id,
-					'document_type_id' => $this->document_type_id,
-					'document_id' => $id,
-					'document_detail_id' => "",
-					'document_identity' => $request->document_identity ?? "",
-					'document_date' => $request->document_date ?? "",
-					'sort_order' => 1,
-					'partner_type' => '',
-					'partner_id' => '',
-					'ref_document_type_id' => $purchaseOrder->document_type_id,
-					'ref_document_identity' => $purchaseOrder->document_identity,
-					'account_id' => $freight_account_id ?? null,
-					'remarks' => '',
-					'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
-					'document_debit' => $purchaseOrder->freight ?? "",
-					'document_credit' => 0,
-					'base_currency_id' => $base_currency_id,
-					'conversion_rate' => $conversion_rate,
-					'debit' => ($request->freight ?? 0) * $conversion_rate,
-					'credit' => 0,
-					'document_amount' => $request->freight ?? "",
-					'amount' => ($request->freight ?? 0) * $conversion_rate,
-					'created_at' => Carbon::now(),
-					'created_by_id' => $request->login_user_id,
-				]);
-			}
+			// Ledger::create([
+			// 	'ledger_id' => $this->get_uuid(),
+			// 	'company_id' => $request->company_id,
+			// 	'company_branch_id' => $request->company_branch_id,
+			// 	'document_type_id' => $this->document_type_id,
+			// 	'document_id' => $id,
+			// 	'document_detail_id' => "",
+			// 	'document_identity' => $request->document_identity ?? "",
+			// 	'document_date' => $request->document_date ?? "",
+			// 	'sort_order' => 0,
+			// 	'partner_type' => 'Vendor',
+			// 	'partner_id' => $request->supplier_id,
+			// 	'ref_document_type_id' => $purchaseOrder->document_type_id,
+			// 	'ref_document_identity' => $purchaseOrder->document_identity,
+			// 	'account_id' => $outstanding_account_id ?? null,
+			// 	'remarks' => '',
+			// 	'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
+			// 	'document_debit' => $request->net_amount ?? "",
+			// 	'document_credit' => 0,
+			// 	'base_currency_id' => $base_currency_id,
+			// 	'conversion_rate' => $conversion_rate,
+			// 	'debit' => ($request->net_amount ?? 0) * $conversion_rate,
+			// 	'credit' => 0,
+			// 	'document_amount' => $request->net_amount ?? "",
+			// 	'amount' => ($request->net_amount ?? 0) * $conversion_rate,
+			// 	'created_at' => Carbon::now(),
+			// 	'created_by_id' => $request->login_user_id,
+			// ]);
+			// if ((float)$purchaseOrder->freight > 0) {
+			// 	Ledger::create([
+			// 		'ledger_id' => $this->get_uuid(),
+			// 		'company_id' => $request->company_id,
+			// 		'company_branch_id' => $request->company_branch_id,
+			// 		'document_type_id' => $this->document_type_id,
+			// 		'document_id' => $id,
+			// 		'document_detail_id' => "",
+			// 		'document_identity' => $request->document_identity ?? "",
+			// 		'document_date' => $request->document_date ?? "",
+			// 		'sort_order' => 1,
+			// 		'partner_type' => '',
+			// 		'partner_id' => '',
+			// 		'ref_document_type_id' => $purchaseOrder->document_type_id,
+			// 		'ref_document_identity' => $purchaseOrder->document_identity,
+			// 		'account_id' => $freight_account_id ?? null,
+			// 		'remarks' => '',
+			// 		'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
+			// 		'document_debit' => $purchaseOrder->freight ?? "",
+			// 		'document_credit' => 0,
+			// 		'base_currency_id' => $base_currency_id,
+			// 		'conversion_rate' => $conversion_rate,
+			// 		'debit' => ($request->freight ?? 0) * $conversion_rate,
+			// 		'credit' => 0,
+			// 		'document_amount' => $request->freight ?? "",
+			// 		'amount' => ($request->freight ?? 0) * $conversion_rate,
+			// 		'created_at' => Carbon::now(),
+			// 		'created_by_id' => $request->login_user_id,
+			// 	]);
+			// }
 
 			if ($request->purchase_invoice_detail) {
 
@@ -537,38 +537,38 @@ class PurchaseInvoiceController extends Controller
 						PurchaseInvoiceDetail::where('purchase_invoice_detail_id', $value['purchase_invoice_detail_id'])->delete();
 					}
 
-					if ($value['row_status'] != 'D') {
-						$product = Product::where('product_id', $value['product_id'])->first();
-						$inventory_account_id = $product->inventory_account_id;
-						Ledger::create([
-							'ledger_id' => $this->get_uuid(),
-							'company_id' => $request->company_id,
-							'company_branch_id' => $request->company_branch_id,
-							'document_type_id' => $this->document_type_id,
-							'document_id' => $id,
-							'document_detail_id' => $value['purchase_invoice_detail_id'] ?? $detail_uuid,
-							'document_identity' => $request->document_identity ?? "",
-							'document_date' => $request->document_date ?? "",
-							'sort_order' => $value['sort_order'] + 2,
-							'partner_type' => '',
-							'partner_id' => '',
-							'ref_document_type_id' => $purchaseOrder->document_type_id,
-							'ref_document_identity' => $purchaseOrder->document_identity,
-							'account_id' => $inventory_account_id ?? null,
-							'remarks' => '',
-							'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
-							'document_debit' => $value['amount'] ?? "",
-							'document_credit' => 0,
-							'base_currency_id' => $base_currency_id,
-							'conversion_rate' => $conversion_rate,
-							'debit' => ($value['amount'] ?? 0) * $conversion_rate,
-							'credit' => 0,
-							'document_amount' => $value['amount'] ?? "",
-							'amount' => ($value['amount'] ?? 0) * $conversion_rate,
-							'created_at' => Carbon::now(),
-							'created_by_id' => $request->login_user_id,
-						]);
-					}
+					// if ($value['row_status'] != 'D') {
+					// 	$product = Product::where('product_id', $value['product_id'])->first();
+					// 	$inventory_account_id = $product->inventory_account_id;
+					// 	Ledger::create([
+					// 		'ledger_id' => $this->get_uuid(),
+					// 		'company_id' => $request->company_id,
+					// 		'company_branch_id' => $request->company_branch_id,
+					// 		'document_type_id' => $this->document_type_id,
+					// 		'document_id' => $id,
+					// 		'document_detail_id' => $value['purchase_invoice_detail_id'] ?? $detail_uuid,
+					// 		'document_identity' => $request->document_identity ?? "",
+					// 		'document_date' => $request->document_date ?? "",
+					// 		'sort_order' => $value['sort_order'] + 2,
+					// 		'partner_type' => '',
+					// 		'partner_id' => '',
+					// 		'ref_document_type_id' => $purchaseOrder->document_type_id,
+					// 		'ref_document_identity' => $purchaseOrder->document_identity,
+					// 		'account_id' => $inventory_account_id ?? null,
+					// 		'remarks' => '',
+					// 		'document_currency_id' => $request->document_currency_id ?? $default_currency_id,
+					// 		'document_debit' => $value['amount'] ?? "",
+					// 		'document_credit' => 0,
+					// 		'base_currency_id' => $base_currency_id,
+					// 		'conversion_rate' => $conversion_rate,
+					// 		'debit' => ($value['amount'] ?? 0) * $conversion_rate,
+					// 		'credit' => 0,
+					// 		'document_amount' => $value['amount'] ?? "",
+					// 		'amount' => ($value['amount'] ?? 0) * $conversion_rate,
+					// 		'created_at' => Carbon::now(),
+					// 		'created_by_id' => $request->login_user_id,
+					// 	]);
+					// }
 				}
 			}
 			DB::commit();
@@ -587,6 +587,7 @@ class PurchaseInvoiceController extends Controller
 		$data  = PurchaseInvoice::where('purchase_invoice_id', $id)->first();
 		if (!$data) return $this->jsonResponse(['purchase_invoice_id' => $id], 404, "Purchase Invoice Not Found!");
 		$data->delete();
+		Ledger::where('document_id', $id)->delete();
 		PurchaseInvoiceDetail::where('purchase_invoice_id', $id)->delete();
 		return $this->jsonResponse(['purchase_invoice_id' => $id], 200, "Delete Purchase Invoice Successfully!");
 	}
@@ -600,6 +601,7 @@ class PurchaseInvoiceController extends Controller
 				foreach ($request->purchase_invoice_ids as $purchase_invoice_id) {
 					$user = PurchaseInvoice::where(['purchase_invoice_id' => $purchase_invoice_id])->first();
 					$user->delete();
+					Ledger::where('document_id', $purchase_invoice_id)->delete();
 					PurchaseInvoiceDetail::where('purchase_invoice_id', $purchase_invoice_id)->delete();
 				}
 			}

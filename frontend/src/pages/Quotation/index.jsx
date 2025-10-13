@@ -86,12 +86,14 @@ const Quotation = () => {
     }
   };
 
+ 
   const printQuotation = async (id) => {
     const loadingToast = toast.loading('Loading print...');
 
     try {
-      const data = await dispatch(getQuotationForPrint(id)).unwrap();
-      createQuotationPrint(data);
+      // const data = await dispatch(getQuotationForPrint(id)).unwrap();
+      // createQuotationPrint(data);
+      await dispatch(getQuotationForPrintPdf(id)).unwrap();
     } catch (error) {
       handleError(error);
     } finally {
