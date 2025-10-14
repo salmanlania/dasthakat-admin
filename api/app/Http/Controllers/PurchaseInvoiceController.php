@@ -197,7 +197,7 @@ class PurchaseInvoiceController extends Controller
 
 			if (!$purchaseOrder) return $this->jsonResponse('Purchase Order not found.', 404);
 			if (empty($outstanding_account_id)) return $this->jsonResponse(null, 400, "Customer Outstanding Account not found");
-			if (empty($freight_account_id)) return $this->jsonResponse(null, 400, "Freight Account not found");
+			// if (empty($freight_account_id)) return $this->jsonResponse(null, 400, "Freight Account not found");
 
 			// 4. Prepare Invoice Header Data
 			$uuid = $this->get_uuid();
@@ -399,7 +399,7 @@ class PurchaseInvoiceController extends Controller
 
 		if (!$purchaseOrder) return $this->jsonResponse('Purchase Order not found.', 404);
 		if (empty($outstanding_account_id)) return $this->jsonResponse(null, 400, "Customer Outstanding Account not found");
-		if (empty($freight_account_id)) return $this->jsonResponse(null, 400, "Freight Account not found");
+		// if (empty($freight_account_id)) return $this->jsonResponse(null, 400, "Freight Account not found");
 
 		DB::beginTransaction();
 		try {
