@@ -29,7 +29,7 @@
 
     td.description {
       text-align: left;
-      width: 40%;
+/*      width: 40%;*/
     }
     tr{
 /*       border-bottom: 1px solid #747474 !important;*/
@@ -80,22 +80,19 @@ $termCount = (!empty($term_desc) ? (count($term_desc)>2 ? 3  : count($term_desc)
 @section('content')
   
  <table id="detail" >
-  <thead>
-  
-</thead>
+
   <tbody>
 
     <tr>
     <th width="5%">S.No</th>
-    <th width="25%">Description</th>
-    <th width="25%">Customer Notes</th>
-    <th width="10">UOM</th>
+    <th width="35%">Description</th>
+    <th width="10%">UOM</th>
     <th width="8%">QTY</th>
     <th width="10%">Price per Unit</th>
     <th width="10%">Gross Amount</th>
-    <th width="5%">Disc %</th>
-    <th width="8%">Discount Amount</th>
-    <th  width="18%">Net Amount</th>
+    <th width="4%">Disc %</th>
+    <th width="8%">Disc Amount</th>
+    <th  width="10%">Net Amount</th>
   </tr>
     @php
     $next = 0;
@@ -112,20 +109,13 @@ $termCount = (!empty($term_desc) ? (count($term_desc)>2 ? 3  : count($term_desc)
 
       @php
         $productName = $detail['product_description'] ?? '';
-        $product_chunks = str_split_word($productName,35);
-
-
-        $customerNote = $detail['description'] ?? '';
-        $customer_chunks = str_split_word($customerNote,32);
-        $chunks = (count($product_chunks) > count($customer_chunks)) ? $product_chunks : $customer_chunks; 
-
+        $chunks = str_split_word($productName);
        
         $qty+=$detail['quantity'];
         $gross_amount+=$detail['amount'];
         $disc_amount+=$detail['discount_amount'];
         $net_amount+=$detail['gross_amount'];
         $add_class = count($chunks) > 1 ? 'bottom' : '';
-
     @endphp
 
 
@@ -146,22 +136,21 @@ $termCount = (!empty($term_desc) ? (count($term_desc)>2 ? 3  : count($term_desc)
 
       @if($addBreak)
       <tr>
-     <td colspan="10" style="padding-top:16px;font-size: 1rem;border:none;"> Continue to next page ...</td>
+     <td colspan="9" style="padding-top:16px;font-size: 1rem;border:none;"> Continue to next page ...</td>
 </tr>
         <tr class="page-break-with-space">
-          <td colspan="10"></td>
+          <td colspan="9"></td>
         </tr>
           <tr style="margin-top:10px !important">
-              <th width="5%">S.No</th>
-              <th width="25%">Description</th>
-              <th width="25%">Customer Notes</th>
-              <th width="10">UOM</th>
-              <th width="8%">QTY</th>
-              <th width="10%">Price per Unit</th>
-              <th width="10%">Gross Amount</th>
-              <th width="5%">Disc %</th>
-              <th width="8%">Discount Amount</th>
-              <th  width="18%">Net Amount</th>
+            <th width="5%">S.No</th>
+    <th width="35%">Description</th>
+    <th width="10%">UOM</th>
+    <th width="8%">QTY</th>
+    <th width="10%">Price per Unit</th>
+    <th width="10%">Gross Amount</th>
+    <th width="4%">Disc %</th>
+    <th width="8%">Disc Amount</th>
+    <th  width="10%">Net Amount</th>
             </tr>
 
       @endif
@@ -169,33 +158,32 @@ $termCount = (!empty($term_desc) ? (count($term_desc)>2 ? 3  : count($term_desc)
 
        @php 
 
-        $remain = 31 - $count;  
-        $rows = (count($chunks)>$remain) ? count($chunks)-$remain : count($chunks);
+        $remain = max(0, 31 - $count);
+       $rows = ($remain > 0 && count($chunks) > $remain) ? $remain : count($chunks);
 
-        $next = (count($chunks)>$remain) ? count($chunks)-$remain : 0;
+       $next  = ($remain > 0 && count($chunks) > $remain) ? 31 - $count - $rows : 0;
+       $next  = ($remain > 0 && count($chunks) > $remain) ? count($chunks) - $remain : 0;
 
+     
         @endphp
 
         <tr>
         <td rowspan="{{ $rows  }}">{{ $key + 1 }}</td>
         <td class="description {{ $count!=30 ? $add_class : ''}}" >
-          {{ $product_chunks[$k] ?? '' }}
-        </td>
-        <td class="description {{ $count!=30 ? $add_class : ''}}" >
-          {{  $customer_chunks[$k] ?? '' }}
+          {{ $value }}
         </td>
        
 
 
         <td rowspan="{{ $rows  }}">{{ $detail['unit']['name'] ?? '' }}</td>
-        <td rowspan="{{ $rows  }}" style="text-align: center; vertical-align: middle;" class="text-center">{{ $detail['quantity'] }}</td>
+        <td rowspan="{{ $rows  }}">{{ $detail['quantity'] }}</td>
         <td rowspan="{{ $rows  }}" class="text-right">${{ $detail['rate'] }}</td>
         <td rowspan="{{ $rows  }}" class="text-right">${{ $detail['amount'] }}</td>
         <td rowspan="{{ $rows  }}" class="">{{ $detail['discount_percent'] }}</td>
         <td rowspan="{{ $rows  }}" class="text-right">${{ $detail['discount_amount'] }}</td>
         <td rowspan="{{ $rows  }}" style="" class="text-right">
       
-        ${{ $detail['gross_amount'] }}
+        ${{ $detail['gross_amount'] }} {{ $count }}
       </td>
       </tr>
 
@@ -203,7 +191,7 @@ $termCount = (!empty($term_desc) ? (count($term_desc)>2 ? 3  : count($term_desc)
 
         @php
            $addBreak = false;
-        if ($count >= 30) { 
+        if ($count >=30) { 
           $addBreak = true;
 
           $count = 0; // reset after break
@@ -215,40 +203,35 @@ $termCount = (!empty($term_desc) ? (count($term_desc)>2 ? 3  : count($term_desc)
 
       @if($addBreak)
       <tr>
-          <td colspan="10" style="padding-top:16px;font-size: 1rem;border:none;"> Continue to next page ...</td>
+          <td colspan="9" style="padding-top:16px;font-size: 1rem;border:none;"> Continue to next page ...</td>
       </tr>
         <tr class="page-break-with-space">
-          <td colspan="10"></td>
+          <td colspan="9"></td>
         </tr>
           <tr style="margin-top:10px !important">
-              <th>S. No</th>
-              <th>Description</th>
-              <th >Customer Notes</th>
-              <th>UOM</th>
-              <th>QTY</th>
-              <th>Price per Unit</th>
-              <th>Gross Amount</th>
-              <th>Disc %</th>
-              <th>Discount Amount</th>
-              <th>Net Amount</th>
+                  <th width="5%">S.No</th>
+    <th width="35%">Description</th>
+    <th width="10%">UOM</th>
+    <th width="8%">QTY</th>
+    <th width="10%">Price per Unit</th>
+    <th width="10%">Gross Amount</th>
+    <th width="4%">Disc %</th>
+    <th width="8%">Disc Amount</th>
+    <th  width="10%">Net Amount</th>
             </tr>
 
       @endif
       <tr>
-         @if($next!=0)
+         @if($count ==1 && $next!=0)
           <td rowspan="{{ $next  }}"></td>
          @endif
 
           <td class="description {{ ($count==30 || count($chunks)-1==$k) ? 'top' : 'top-bottom' }}" >
-             {{ $product_chunks[$k] ?? '' }}
-          </td>
-
-          <td class="description {{ ($count==30 || count($chunks)-1==$k) ? 'top' : 'top-bottom' }}" >
-            {{ $customer_chunks[$k] ?? '' }}
+            {{ $value }} {{ $next }}
           </td>
 
 
-           @if($next!=0)
+            @if($count ==1 && $next!=0)
              <td rowspan="{{ $next  }}"></td>
               <td rowspan="{{ $next  }}"></td>
               <td rowspan="{{ $next  }}"></td>
@@ -256,17 +239,18 @@ $termCount = (!empty($term_desc) ? (count($term_desc)>2 ? 3  : count($term_desc)
               <td rowspan="{{ $next  }}"></td>
               <td rowspan="{{ $next  }}"></td>
               <td rowspan="{{ $next  }}"></td>
-            </tr>
             @endif
+            </tr>
 
 
 
 
-
+    
     @endif
     @endforeach
     @endforeach
-      @php $length = 30 -count($term_desc); 
+      @php  $next = 0;
+         $length = 30 -count($term_desc); 
       $emtyRows = 0;
       @endphp
 
@@ -284,12 +268,11 @@ $termCount = (!empty($term_desc) ? (count($term_desc)>2 ? 3  : count($term_desc)
             <td >&nbsp;</td>
             <td >&nbsp;</td>
             <td >&nbsp;</td>
-            <td >&nbsp;</td>
         </tr>
       @endfor
 
      <tr class="total_amount_row">
-        <th colspan="4">Total</th>
+        <th colspan="3">Total</th>
         <th colspan="3" class=" text-right">${{$gross_amount}}</th>
         <th colspan="2" class="  text-right">${{$disc_amount}}</th>
         <th class=" text-right">${{$net_amount}}</th>
@@ -308,7 +291,7 @@ $termCount = (!empty($term_desc) ? (count($term_desc)>2 ? 3  : count($term_desc)
 
      @if($emtyRows <= 3  && count($term_desc)+$count != 31 && (($key==$all_tds && $all_tds < 4) || $key==3))
       <tr class="page-break-with-space">
-          <td colspan="10"></td>
+          <td colspan="9"></td>
       </tr>
        @php $i=0; @endphp
 
@@ -325,7 +308,7 @@ $termCount = (!empty($term_desc) ? (count($term_desc)>2 ? 3  : count($term_desc)
 
 
         @endif
-        <td colspan="9" class="text-left">{{ $desc }} </td>
+        <td colspan="8" class="text-left">{{ $desc }} </td>
 
          @php $i++; @endphp
       </tr>
@@ -338,14 +321,14 @@ $termCount = (!empty($term_desc) ? (count($term_desc)>2 ? 3  : count($term_desc)
 
 
 @php
-function str_split_word($remarks,$length= 32){
+function str_split_word($remarks){
 $words = explode(' ', $remarks);
 
 $chunks = [];
 $chunk = '';
 foreach ($words as $word) {
     // Check if adding the next word exceeds 45 characters
-    if (strlen($chunk . ' ' . $word) > $length) {
+    if (strlen($chunk . ' ' . $word) > 42) {
         $chunks[] = trim($chunk); // Add the current chunk to result
         $chunk = $word; // Start a new chunk
     } else {
