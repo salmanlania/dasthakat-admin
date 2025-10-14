@@ -246,7 +246,7 @@ class PurchaseInvoiceController extends Controller
 				$totalAmount += $amount;
 				$detail_id = $this->get_uuid();
 				$product = Product::where('product_id', $detail->product_id)->first();
-				$inventory_account_id = $product->inventory_account_id;
+				// $inventory_account_id = $product->inventory_account_id;
 
 				PurchaseInvoiceDetail::create([
 					'purchase_invoice_detail_id' => $detail_id,
