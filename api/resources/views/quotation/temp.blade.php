@@ -57,6 +57,9 @@
 .total_amount_row th{
   border: 1.5px solid #203272 !important;
 }
+.yellow{
+  color: darkgoldenrod;
+}
 
   </style>
 @endpush
@@ -110,6 +113,12 @@ $termCount = (!empty($term_desc) ? (count($term_desc)>2 ? 3  : count($term_desc)
       @php
         $productName = $detail['product_description'] ?? '';
         $chunks = str_split_word($productName);
+        $productDesc = count($chunks)-1;
+
+        $customerNote = $detail['description'] ?? '';
+        $chunks = array_merge( $chunks,str_split_word($customerNote,32));
+    
+
        
         $qty+=$detail['quantity'];
         $gross_amount+=$detail['amount'];
@@ -169,8 +178,8 @@ $termCount = (!empty($term_desc) ? (count($term_desc)>2 ? 3  : count($term_desc)
 
         <tr>
         <td rowspan="{{ $rows  }}">{{ $key + 1 }}</td>
-        <td class="description {{ $count!=30 ? $add_class : ''}}" >
-          {{ $value }}
+        <td  class="description {{ $count!=30 ? $add_class : ''}}" >
+          {{ $value }}  
         </td>
        
 
@@ -226,8 +235,8 @@ $termCount = (!empty($term_desc) ? (count($term_desc)>2 ? 3  : count($term_desc)
           <td rowspan="{{ $next  }}"></td>
          @endif
 
-          <td class="description {{ ($count==30 || count($chunks)-1==$k) ? 'top' : 'top-bottom' }}" >
-            {{ $value }} {{ $next }}
+          <td class="description  {{ $productDesc<$k ? 'yellow' : '' }}  {{ ($count==30 || count($chunks)-1==$k) ? 'top' : 'top-bottom' }}" >
+            {{ $value }}  
           </td>
 
 
