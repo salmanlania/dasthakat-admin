@@ -406,11 +406,6 @@ class PurchaseInvoiceController extends Controller
 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
 		}
 
-		$request->validate([
-			'purchase_order_id' => 'required',
-			'good_received_note_id' => 'required|array|min:1',
-		]);
-
 		DB::beginTransaction();
 		try {
 			$purchaseOrder = PurchaseOrder::find($request->purchase_order_id);
