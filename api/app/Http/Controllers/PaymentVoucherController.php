@@ -178,7 +178,7 @@ class PaymentVoucherController extends Controller
     public function show($id, Request $request)
     {
 
-        $data = PaymentVoucher::with('details', 'details.supplier', 'details.event', 'details.cost_center', 'details.account', 'transaction_account', 'document_currency', 'base_currency')
+        $data = PaymentVoucher::with('details', 'details.supplier','details.payee', 'details.event', 'details.cost_center', 'details.account', 'transaction_account', 'document_currency', 'base_currency')
             ->where('payment_voucher.payment_voucher_id', $id)
             ->first();
 
