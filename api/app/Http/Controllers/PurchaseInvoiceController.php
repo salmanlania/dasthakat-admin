@@ -180,15 +180,15 @@ class PurchaseInvoiceController extends Controller
 				->find($request->purchase_order_id);
 
 
-			$outstanding_account_id = Supplier::where('supplier_id', $purchaseOrder->supplier_id)->pluck('outstanding_account_id')->first();
+			// $outstanding_account_id = Supplier::where('supplier_id', $purchaseOrder->supplier_id)->pluck('outstanding_account_id')->first();
 			// $freight_account_id = Setting::where('module', 'inventory_accounts_setting')->where('field', 'purchase_freight_account')->value('value');
-			$freight_account = Setting::where('module', 'inventory_accounts_setting')
-				->where('field', 'sale_freight_account')
-				->value('value');
+			// $freight_account = Setting::where('module', 'inventory_accounts_setting')
+			// 	->where('field', 'sale_freight_account')
+			// 	->value('value');
 
-			$freight_account_id = is_string($freight_account)
-				? json_decode($freight_account, true)[0] ?? null
-				: null;
+			// $freight_account_id = is_string($freight_account)
+			// 	? json_decode($freight_account, true)[0] ?? null
+			// 	: null;
 
 
 			$base_currency_id = Company::where('company_id', $request->company_id)->pluck('base_currency_id')->first();
@@ -196,8 +196,8 @@ class PurchaseInvoiceController extends Controller
 			$conversion_rate = 1;
 
 			if (!$purchaseOrder) return $this->jsonResponse('Purchase Order not found.', 404);
-			if (empty($outstanding_account_id)) return $this->jsonResponse(null, 400, "Customer Outstanding Account not found");
-			if (empty($freight_account_id)) return $this->jsonResponse(null, 400, "Freight Account not found");
+			// if (empty($outstanding_account_id)) return $this->jsonResponse(null, 400, "Customer Outstanding Account not found");
+			// if (empty($freight_account_id)) return $this->jsonResponse(null, 400, "Freight Account not found");
 
 			// 4. Prepare Invoice Header Data
 			$uuid = $this->get_uuid();
@@ -246,7 +246,7 @@ class PurchaseInvoiceController extends Controller
 				$totalAmount += $amount;
 				$detail_id = $this->get_uuid();
 				$product = Product::where('product_id', $detail->product_id)->first();
-				$inventory_account_id = $product->inventory_account_id;
+				// $inventory_account_id = $product->inventory_account_id;
 
 				PurchaseInvoiceDetail::create([
 					'purchase_invoice_detail_id' => $detail_id,
@@ -390,16 +390,16 @@ class PurchaseInvoiceController extends Controller
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
 
 		$purchaseOrder = PurchaseOrder::with('purchase_order_detail')->find($request->purchase_order_id);
-		$outstanding_account_id = Supplier::where('supplier_id', $purchaseOrder->supplier_id)->pluck('outstanding_account_id')->first();
-		$freight_account_id = Setting::where('module', 'inventory_accounts_setting')->where('field', 'purchase_freight_account')->value('value');
+		// $outstanding_account_id = Supplier::where('supplier_id', $purchaseOrder->supplier_id)->pluck('outstanding_account_id')->first();
+		// $freight_account_id = Setting::where('module', 'inventory_accounts_setting')->where('field', 'purchase_freight_account')->value('value');
 
 		$base_currency_id = Company::where('company_id', $request->company_id)->pluck('base_currency_id')->first();
 		$default_currency_id = Currency::where('company_id', $request->company_id)->where('company_branch_id', $request->company_branch_id)->value('currency_id');
 		$conversion_rate = 1;
 
 		if (!$purchaseOrder) return $this->jsonResponse('Purchase Order not found.', 404);
-		if (empty($outstanding_account_id)) return $this->jsonResponse(null, 400, "Customer Outstanding Account not found");
-		if (empty($freight_account_id)) return $this->jsonResponse(null, 400, "Freight Account not found");
+		// if (empty($outstanding_account_id)) return $this->jsonResponse(null, 400, "Customer Outstanding Account not found");
+		// if (empty($freight_account_id)) return $this->jsonResponse(null, 400, "Freight Account not found");
 
 		DB::beginTransaction();
 		try {
