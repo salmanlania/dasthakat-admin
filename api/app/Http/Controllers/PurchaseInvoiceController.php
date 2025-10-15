@@ -460,7 +460,7 @@ class PurchaseInvoiceController extends Controller
 			$sortIndex = 0;
 
 			// ✅ NEW: Only consider GRN details from selected GRNs
-			$selectedGrnIds = $request->good_received_note_ids ?? [];
+			$selectedGrnIds = $request->good_received_note_id ?? [];
 			$grnDetails = GRNDetail::with('purchase_invoice_detail')
 				->whereIn('good_received_note_id', $selectedGrnIds)
 				->get();
