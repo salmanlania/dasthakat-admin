@@ -26,7 +26,6 @@ const EditSaleInvoice = () => {
       toast.success('Sale invoice updated successfully');
       dispatch(getSaleInvoice(id)).unwrap();
     } catch (error) {
-      console.log('error' , error);
       handleError(error);
     }
   };

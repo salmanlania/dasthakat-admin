@@ -15,6 +15,7 @@ import dispatchReducer from './features/dispatchSlice';
 import eventReducer from './features/eventSlice';
 import flagReducer from './features/flagSlice';
 import costCenterReducer from './features/costCenterSlice';
+import payeeReducer from './features/payeeSlice';
 import goodsReceivedNoteReducer from './features/goodsReceivedNoteSlice';
 import openingStockReducer from './features/openingStockSlice';
 import ijoReducer from './features/ijoSlice';
@@ -55,6 +56,7 @@ import customerPaymentReducer from './features/customerPaymentSlice'
 import customerPaymentSettlementReducer from './features/customerPaymentSettlementSlice'
 import vendorPaymentReducer from './features/vendorPaymentSlice'
 import paymentVoucherReducer from './features/paymentVoucherSlice'
+import journalVoucherReducer from './features/journalVoucherSlice'
 import vendorBillReducer from './features/vendorBillSlice'
 
 const rootReducer = combineReducers({
@@ -73,6 +75,7 @@ const rootReducer = combineReducers({
   terms: termsReducer,
   flag: flagReducer,
   costCenter: costCenterReducer,
+  payee: payeeReducer,
   agent: agentReducer,
   commissionAgent: commissionAgentReducer,
   dispatch: dispatchReducer,
@@ -113,6 +116,7 @@ const rootReducer = combineReducers({
   customerPaymentSettlement: customerPaymentSettlementReducer,
   vendorPayment: vendorPaymentReducer,
   paymentVoucher: paymentVoucherReducer,
+  journalVoucher: journalVoucherReducer,
   vendorBill: vendorBillReducer,
 });
 

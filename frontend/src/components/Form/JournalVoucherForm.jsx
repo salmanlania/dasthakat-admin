@@ -8,7 +8,7 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IoMdArrowDropdown, IoMdArrowDropup } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { addPaymentVoucherDetail, changePaymentVoucherDetailOrder, updatePaymentVoucherDetail, removePaymentVoucherDetail, copyPaymentVoucherDetail } from '../../store/features/paymentVoucherSlice';
+import { addJournalVoucherDetail, changeJournalVoucherDetailOrder, updateJournalVoucherDetail, removeJournalVoucherDetail, copyJournalVoucherDetail } from '../../store/features/journalVoucherSlice';
 import AsyncSelect from '../AsyncSelect';
 import AsyncSelectPaymentVoucher from '../AsyncSelectPaymentVoucher';
 import AsyncSelectProduct from '../AsyncSelectProduct';
@@ -16,44 +16,40 @@ import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput'
 import DebounceInput from '../Input/DebounceInput';
 import LedgerModal from '../Modals/LedgerModal';
 
-const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
+const JournalVoucherForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const { isFormSubmitting, initialFormValues, paymentVoucherDetails } = useSelector(
-    (state) => state.paymentVoucher
+  const { isFormSubmitting, initialFormValues, journalVoucherDetails } = useSelector(
+    (state) => state.journalVoucher
   );
 
   const { user } = useSelector((state) => state.auth);
   const permissions = user?.permission;
 
   const [submitAction, setSubmitAction] = useState(null);
-  const [settledAmounts, setSettledAmounts] = useState({});
-  const [totalSettled, setTotalSettled] = useState(0);
+  const [totalDebit, setTotalDebit] = useState(0);
+  const [totalCredit, setTotalCredit] = useState(0);
   const [ledgerModalOpen, setLedgerModalOpen] = useState(false);
 
   const onFinish = (values) => {
-    const checkDate = paymentVoucherDetails.map((row) => row.ledger_date ? row.ledger_date : null);
-    if (checkDate.includes(null)) {
-      toast.error("Transaction Date is required");
-      return;
+    const checkBothCreditDebit = totalDebit === totalCredit
+    if (!checkBothCreditDebit) {
+      toast.error('Both total debit and credit must be same')
+      return
     }
+
     const data = {
       ...initialFormValues,
       ...values,
-      transaction_account_id: values?.transaction_account_id ? values?.transaction_account_id?.value || values?.transaction_account_id : null,
-      total_amount: totalSettled,
-      net_amount: totalSettled + 100,
+      total_debit: totalDebit,
+      total_credit: totalCredit,
       document_date: values?.document_date ? dayjs(values?.document_date).format("YYYY-MM-DD") : null,
-      details: paymentVoucherDetails.map((row, index) => ({
+      details: journalVoucherDetails.map((row, index) => ({
         ...row,
         sort_order: index + 1,
         account_id: row?.account_id ? row?.account_id?.value || row?.account_id : null,
-        cost_center_id: row?.cost_center_id ? row?.cost_center_id?.value || row?.cost_center_id : null,
-        payee_id: row?.payee_id ? row?.payee_id?.value || row?.payee_id : null,
-        event_id: row?.event_id ? row?.event_id?.value || row?.event_id : null,
-        supplier_id: row?.supplier_id ? row?.supplier_id?.value || row?.supplier_id : null,
-        cheque_date: row?.cheque_date ? dayjs(row?.cheque_date).format("YYYY-MM-DD") : null,
-        ledger_date: row?.ledger_date ? dayjs(row?.ledger_date).format("YYYY-MM-DD") : null,
+        debit: row?.debit ? row?.debit : 0,
+        credit: row?.credit ? row?.credit : 0,
       }))
     };
     submitAction === 'save'
@@ -62,16 +58,6 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
         ? onSave(data)
         : null;
   };
-
-  useEffect(() => {
-    const total = paymentVoucherDetails.reduce((sum, row) => {
-      const settled = settledAmounts[row.id] ?? row.payment_amount ?? 0;
-      return sum + (Number(settled) || 0);
-    }, 0);
-
-    setTotalSettled(total);
-  }, [paymentVoucherDetails, settledAmounts]);
-
   const columns = [
     {
       title: (
@@ -80,7 +66,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
           type="primary"
           className="!w-8"
           icon={<BiPlus size={14} />}
-          onClick={() => dispatch(addPaymentVoucherDetail())}
+          onClick={() => dispatch(addJournalVoucherDetail())}
 
         />
       ),
@@ -95,7 +81,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
               icon={<IoMdArrowDropup size={16} />}
               disabled={index === 0}
               onClick={() => {
-                dispatch(changePaymentVoucherDetailOrder({ from: index, to: index - 1 }));
+                dispatch(changeJournalVoucherDetailOrder({ from: index, to: index - 1 }));
               }}
             />
             <Button
@@ -103,7 +89,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
               size="small"
               icon={<IoMdArrowDropdown size={16} />}
               onClick={() => {
-                dispatch(changePaymentVoucherDetailOrder({ from: index, to: index + 1 }));
+                dispatch(changeJournalVoucherDetailOrder({ from: index, to: index + 1 }));
               }}
             />
           </div>
@@ -111,41 +97,6 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
       },
       width: 50,
       fixed: 'left'
-    },
-    {
-      title: "Vendor",
-      dataIndex: "supplier_id",
-      key: "supplier_id",
-      width: 250,
-      render: (val, record) => (
-        <AsyncSelectPaymentVoucher
-          key={record.id}
-          endpoint="/supplier"
-          size="medium"
-          className="w-full font-normal"
-          valueKey="supplier_id"
-          labelKey="name"
-          value={val}
-          allowClear
-          onChange={(newVal, supplier) => {
-            dispatch(updatePaymentVoucherDetail({
-              id: record.id,
-              field: "supplier_id",
-              value: newVal,
-            }))
-            if (supplier?.outstanding_account_id) {
-              dispatch(updatePaymentVoucherDetail({
-                id: record.id,
-                field: "account_id",
-                value: {
-                  value: supplier.outstanding_account_id,
-                  label: supplier.outstanding_account_name,
-                },
-              }));
-            }
-          }}
-        />
-      ),
     },
     {
       title: "Account",
@@ -162,85 +113,37 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
             value={record?.account_id}
             onChange={(newVal) => {
               if (!newVal) {
-                dispatch(updatePaymentVoucherDetail({
+                dispatch(updateJournalVoucherDetail({
                   id: record.id,
                   field: "account_id",
                   value: null,
                 }));
                 return;
               }
-              dispatch(updatePaymentVoucherDetail({
+              dispatch(updateJournalVoucherDetail({
                 id: record.id,
                 field: "account_id",
                 value: newVal,
               }));
             }}
             style={{ width: "100%" }}
-            disabled={!!record.supplier_id}
           />
         );
       },
       width: 200,
     },
     {
-      title: "Payee",
-      dataIndex: "payee_id",
-      key: "payee_id",
-      width: 150,
-      render: (val, record) => (
-        <AsyncSelectProduct
-          endpoint="/payee"
-          size="medium"
-          className="w-full font-normal"
-          valueKey="payee_id"
-          labelKey="name"
-          value={val}
-          allowClear
-          addNewLink={
-            permissions?.payee.list && permissions?.payee?.add ? '/payee' : null
-          }
-          onChange={(newVal) => {
-            dispatch(updatePaymentVoucherDetail({
-              id: record.id,
-              field: "payee_id",
-              value: newVal,
-            }))
-          }}
-        />
-      ),
-    },
-    {
-      title: "Transaction Date",
-      dataIndex: "ledger_date",
-      key: "ledger_date",
-      width: 180,
-      render: (val, record) => (
-        <DatePicker
-          value={val ? dayjs(val) : null}
-          format="MM-DD-YYYY"
-          onChange={(date) => {
-            dispatch(updatePaymentVoucherDetail({
-              id: record.id,
-              field: "ledger_date",
-              value: date ? date.format("YYYY-MM-DD") : null,
-            }));
-          }}
-          style={{ width: "100%" }}
-        />
-      ),
-    },
-    {
-      title: "Transaction No",
-      dataIndex: "cheque_no",
-      key: "cheque_no",
+      title: "Remarks",
+      dataIndex: "remarks",
+      key: "remarks",
       width: 150,
       render: (val, record) => (
         <DebounceInput
           value={val}
           onChange={(newVal) =>
-            dispatch(updatePaymentVoucherDetail({
+            dispatch(updateJournalVoucherDetail({
               id: record.id,
-              field: "cheque_no",
+              field: "remarks",
               value: newVal,
             }))
           }
@@ -248,74 +151,62 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
       ),
     },
     {
-      title: "Cost Center",
-      dataIndex: "cost_center_id",
-      key: "cost_center_id",
-      width: 150,
-      render: (val, record) => (
-        <AsyncSelectProduct
-          endpoint="/cost-center"
-          size="medium"
-          className="w-full font-normal"
-          valueKey="cost_center_id"
-          labelKey="name"
-          value={val}
-          allowClear
-          addNewLink={
-            permissions?.cost_center.list && permissions.cost_center.add ? '/cost-center' : null
-          }
-          onChange={(newVal) => {
-            dispatch(updatePaymentVoucherDetail({
-              id: record.id,
-              field: "cost_center_id",
-              value: newVal,
-            }))
-          }}
-        />
-      ),
-    },
-    {
-      title: "Event",
-      dataIndex: "event_id",
-      key: "event_id",
-      width: 150,
-      render: (value, record) => (
-        <AsyncSelectProduct
-          endpoint="/event"
-          size="medium"
-          className="w-full font-normal"
-          valueKey="event_id"
-          labelKey="event_name"
-          value={value}
-          allowClear
-          onChange={(newVal) => {
-            dispatch(updatePaymentVoucherDetail({
-              id: record?.id,
-              field: "event_id",
-              value: newVal,
-            }))
-          }}
-        />
-      ),
-    },
-    {
-      title: "Pay Amount",
-      dataIndex: "payment_amount",
-      key: "payment_amount",
+      title: "Debit",
+      dataIndex: "debit",
+      key: "debit",
       width: 150,
       render: (_, record) => (
         <DebouncedCommaSeparatedInput
-          value={record.payment_amount}
+          value={record.debit}
           className="text-right"
+          disabled={!!record.credit && record.credit > 0}
           onChange={(val) => {
             const rawValue = String(val ?? "0");
             const clean = parseFloat(rawValue.replace(/,/g, "")) || 0;
 
-            dispatch(updatePaymentVoucherDetail({
+            dispatch(updateJournalVoucherDetail({
               id: record.id,
-              field: "payment_amount",
+              field: "debit",
               value: clean,
             }));
+
+            if (clean > 0 && record.credit > 0) {
+              dispatch(updateJournalVoucherDetail({
+                id: record.id,
+                field: "credit",
+                value: 0,
+              }));
+            }
+          }}
+        />
+      ),
+    },
+    {
+      title: "Credit",
+      dataIndex: "credit",
+      key: "credit",
+      width: 150,
+      render: (_, record) => (
+        <DebouncedCommaSeparatedInput
+          value={record.credit}
+          className="text-right"
+          disabled={!!record.debit && record.debit > 0}
+          onChange={(val) => {
+            const rawValue = String(val ?? "0");
+            const clean = parseFloat(rawValue.replace(/,/g, "")) || 0;
+
+            dispatch(updateJournalVoucherDetail({
+              id: record.id,
+              field: "credit",
+              value: clean,
+            }));
+            if (clean > 0 && record.debit > 0) {
+              dispatch(updateJournalVoucherDetail({
+                id: record.id,
+                field: "debit",
+                value: 0,
+              }));
+            }
           }}
         />
       ),
@@ -327,36 +218,33 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
           type="primary"
           className="!w-8"
           icon={<BiPlus size={14} />}
-          onClick={() => dispatch(addPaymentVoucherDetail())}
+          onClick={() => dispatch(addJournalVoucherDetail())}
         />
       ),
       key: 'action',
       render: (record, { id, editable }, index) => {
-        // if (record.isDeleted) {
-        //   return null;
-        // }
+
         return (
           <Dropdown
             trigger={['click']}
-            // disabled={isDisable}
             arrow
             menu={{
               items: [
                 {
                   key: '1',
                   label: 'Add',
-                  onClick: () => dispatch(addPaymentVoucherDetail(index))
+                  onClick: () => dispatch(addJournalVoucherDetail(index))
                 },
                 {
                   key: '2',
                   label: 'Copy',
-                  onClick: () => dispatch(copyPaymentVoucherDetail(index))
+                  onClick: () => dispatch(copyJournalVoucherDetail(index))
                 },
                 {
                   key: '3',
                   label: 'Delete',
                   danger: true,
-                  onClick: () => dispatch(removePaymentVoucherDetail(id)),
+                  onClick: () => dispatch(removeJournalVoucherDetail(id)),
                   disabled: editable === false
                 }
               ]
@@ -371,6 +259,28 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
       fixed: 'right',
     }
   ];
+
+  useEffect(() => {
+    if (journalVoucherDetails && journalVoucherDetails.length > 0) {
+      const debitSum = journalVoucherDetails.reduce((acc, curr) => {
+        if (curr.row_status === 'D') return acc;
+        const val = parseFloat(curr.debit || 0);
+        return acc + (isNaN(val) ? 0 : val);
+      }, 0);
+
+      const creditSum = journalVoucherDetails.reduce((acc, curr) => {
+        if (curr.row_status === 'D') return acc;
+        const val = parseFloat(curr.credit || 0);
+        return acc + (isNaN(val) ? 0 : val);
+      }, 0);
+
+      setTotalDebit(debitSum);
+      setTotalCredit(creditSum);
+    } else {
+      setTotalDebit(0);
+      setTotalCredit(0);
+    }
+  }, [journalVoucherDetails]);
 
   return (
     <>
@@ -390,7 +300,7 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
         }
       >
         <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold mb-4">
-          <span className="text-gray-500">Payment Voucher No:</span>
+          <span className="text-gray-500">Journal Voucher No:</span>
           <span
             className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
               } rounded px-1`}
@@ -417,22 +327,6 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
               <DatePicker format="MM-DD-YYYY" className="w-full" />
             </Form.Item>
           </Col>
-          <Col span={8}>
-            <Form.Item
-              name="transaction_account_id"
-              label="Transaction Account"
-              rules={[{ required: true, message: "Transaction Account is required" }]}
-            >
-              <AsyncSelectProduct
-                endpoint="/setting?field=transaction_account"
-                size="medium"
-                className="w-full font-normal"
-                valueKey="account_id"
-                labelKey="name"
-                allowClear
-              />
-            </Form.Item>
-          </Col>
         </Row>
         <Row gutter={12}>
           <Col span={12}>
@@ -444,24 +338,40 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
 
         <Table
           columns={columns}
-          dataSource={paymentVoucherDetails}
+          dataSource={journalVoucherDetails}
           rowClassName={(record) => (record.isDeleted ? 'hidden-row' : '')}
           rowKey="id"
           pagination={false}
           size="small"
           scroll={{ x: 'calc(100% - 200px)' }}
+          summary={() => {
+            if (!journalVoucherDetails?.length) {
+              return null;
+            }
+            return (
+              <>
+                <Table.Summary.Row>
+                  <Table.Summary.Cell index={0}><strong>Total</strong></Table.Summary.Cell>
+                  <Table.Summary.Cell index={1} />
+                  <Table.Summary.Cell index={2} />
+                  <Table.Summary.Cell index={3} align="right" style={{ textAlign: 'right', fontWeight: 'bold' }}><strong>{totalDebit}</strong></Table.Summary.Cell>
+                  <Table.Summary.Cell index={4} align="right" style={{ textAlign: 'right', fontWeight: 'bold' }}><strong>{totalCredit}</strong></Table.Summary.Cell>
+                </Table.Summary.Row>
+              </>
+            );
+          }}
         />
 
-        <Row justify="end" gutter={12} className="mt-4">
+        {/* <Row justify="end" gutter={12} className="mt-4">
           <Col span={6}>
             <Form.Item labelCol={{ style: { fontWeight: 'bold' } }} label="Total Amount">
-              <Input className='text-right' disabled value={totalSettled} />
+              <Input className='text-right' disabled value={totalDebit} />
             </Form.Item>
           </Col>
-        </Row>
+        </Row> */}
 
         <div className="mt-4 flex items-center justify-end gap-2">
-          <Link to="/general-ledger/transactions/payment-voucher">
+          <Link to="/general-ledger/transactions/journal-voucher">
             <Button className="w-28">Exit</Button>
           </Link>
           <Button
@@ -512,4 +422,4 @@ const PaymentVoucherForm = ({ mode, onSubmit, onSave }) => {
   );
 };
 
-export default PaymentVoucherForm;
+export default JournalVoucherForm;

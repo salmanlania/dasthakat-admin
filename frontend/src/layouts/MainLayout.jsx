@@ -68,6 +68,8 @@ const MainLayout = () => {
   if (href === '/sales-team' && !permissions.sales_team.list) return <NotFound />;
   if (href === '/notes' && !permissions.terms.list) return <NotFound />;
   if (href === '/flag' && !permissions.flag.list) return <NotFound />;
+  if (href === '/cost-center' && !permissions?.cost_center?.list) return <NotFound />;
+  if (href === '/payee' && !permissions?.cost_center?.list) return <NotFound />;
   if (href === '/class' && !permissions.class.list) return <NotFound />;
   if (href === '/port' && !permissions.port.list) return <NotFound />;
 

@@ -87,9 +87,6 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
             row_status: row?.row_status
           }))
     };
-    
-
-    // return console.log('data' , data)
 
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };

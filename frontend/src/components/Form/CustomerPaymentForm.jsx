@@ -451,7 +451,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
         </Row>
         <Row gutter={12}>
           <Col span={24} sm={6} md={6} lg={6}>
-            <Form.Item name="payment_amount" label="Receipt Amount">
+            <Form.Item name="payment_amount" label="Payment Amount">
               <DebouncedNumberInputMarkup className="text-right" />
             </Form.Item>
           </Col>
@@ -562,7 +562,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
 
             <div className="p-4">
               <DetailSummaryInfoCP
-                title="Amount Due"
+                title="Total Amount"
                 disabled
                 value={
                   (totalSettled || totalAmountVal)
@@ -571,7 +571,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
                 }
               />
               <DetailSummaryInfoCP
-                title="Under Payment"
+                title="Balance Amount"
                 disabled
                 value={totalDueAfterSettlement || "0.00"}
               />

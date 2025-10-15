@@ -62,6 +62,7 @@ const Technician = lazy(() => import('./pages/Technician'));
 const Notes = lazy(() => import('./pages/Notes'));
 const Flag = lazy(() => import('./pages/Flag'));
 const CostCenter = lazy(() => import('./pages/CostCenter'));
+const Payee = lazy(() => import('./pages/Payee'));
 const Class = lazy(() => import('./pages/Class'));
 const Port = lazy(() => import('./pages/Port'));
 
@@ -181,6 +182,10 @@ const EditCustomerPaymentSettlement = lazy(() => import('./pages/CustomerPayment
 const VendorBill = lazy(() => import('./pages/VendorBill'));
 const CreateVendorBill = lazy(() => import('./pages/VendorBill/CreateVendorBill'));
 const EditVendorBill = lazy(() => import('./pages/VendorBill/EditVendorBill'));
+
+const JournalVoucher = lazy(() => import('./pages/JournalVoucher'));
+const CreateJournalVoucher = lazy(() => import('./pages/JournalVoucher/CreateJournalVoucher'));
+const EditJournalVoucher = lazy(() => import('./pages/JournalVoucher/EditJournalVoucher'));
 
 function Routes() {
   const router = createBrowserRouter(
@@ -467,6 +472,14 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <CostCenter />
+              </Suspense>
+            ),
+          },
+          {
+            path: '/payee',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Payee />
               </Suspense>
             ),
           },
@@ -1184,6 +1197,30 @@ function Routes() {
                     element: (
                       <Suspense fallback={<PageLoader />}>
                         <EditVendorBill />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'journal-voucher',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <JournalVoucher />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'journal-voucher/create',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <CreateJournalVoucher />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'journal-voucher/edit/:id',
+                    element: (
+                      <Suspense fallback={<PageLoader />}>
+                        <EditJournalVoucher />
                       </Suspense>
                     ),
                   },

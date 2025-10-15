@@ -212,7 +212,7 @@ const CustomerPaymentSettlement = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
-          <p>Payment Amount</p>
+          <p>Total Amount</p>
           <Input
             className="font-normal"
             size="small"
@@ -233,12 +233,12 @@ const CustomerPaymentSettlement = () => {
       onCell: () => ({
         style: { textAlign: 'right' },
       }),
-      render: (value) => `${value}`,
+      render: (value) => `${value ? value : ''}`,
     },
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
-          <p>Bank Amount</p>
+          <p>Bank Charges</p>
           <Input
             className="font-normal"
             size="small"
@@ -259,7 +259,33 @@ const CustomerPaymentSettlement = () => {
       onCell: () => ({
         style: { textAlign: 'right' },
       }),
-      render: (value) => `${value}`,
+      render: (value) => `${value ? value : ''}`,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
+          <p>Net Amount</p>
+          <Input
+            className="font-normal"
+            size="small"
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.net_amount}
+            onChange={(e) => {
+              dispatch(setCustomerPaymentSettlementListParams({ net_amount: e.target.value }));
+            }}
+          />
+        </div>
+      ),
+      dataIndex: 'net_amount',
+      key: 'net_amount',
+      sorter: true,
+      width: 160,
+      ellipsis: true,
+      onCell: () => ({
+        style: { textAlign: 'right' },
+      }),
+      render: (value) => `${value ? value : ''}`,
     },
     {
       title: (
@@ -345,6 +371,7 @@ const CustomerPaymentSettlement = () => {
     params.port_id,
     params.total_amount,
     params.bank_amount,
+    params.net_amount,
     params.transaction_account_id,
     params.customer_payment_no,
     params.transaction_no,

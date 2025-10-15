@@ -47,9 +47,6 @@ const SaleInvoiceForm = ({ mode, onSubmit, onSave }) => {
   }, 0) || 0;
 
   const onFinish = (values) => {
-    // console.log('Form Values:', values);
-    // console.log('Initial Form Values:', initialFormValues);
-    // return
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
 
     const formatDate = (date) => (date ? dayjs(date).format('YYYY-MM-DD') : null);

@@ -53,7 +53,6 @@ const DebouncedCommaSeparatedInputCal = ({
         }
       }
     } catch (err) {
-      console.warn('Invalid expression:', err);
     }
 
     // Fallback if invalid
