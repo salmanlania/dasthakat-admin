@@ -34,8 +34,10 @@ const CustomerPaymentSettlementForm = ({ mode, onSubmit, onSave }) => {
       (sum, row) => sum + (parseFloat(row?.amount) || 0),
       0
     );
+    const totalAmount = form.getFieldValue('total_amount')
+    const newValue = totalAmount - total
 
-    setTotalSettled(total);
+    setTotalSettled(newValue);
     setCustomerId(initialFormValues?.customerId || null);
 
   }, [customerPaymentSettlementDetails, customerPaymentSettlementPayments, setFinalData]);
@@ -59,7 +61,7 @@ const CustomerPaymentSettlementForm = ({ mode, onSubmit, onSave }) => {
         customer_payment_id: row?.customer_payment_id ? row?.customer_payment_id : null
       }))
     };
-
+    
     submitAction === 'save'
       ? onSubmit(data)
       : submitAction === 'saveAndExit'
@@ -342,23 +344,11 @@ const CustomerPaymentSettlementForm = ({ mode, onSubmit, onSave }) => {
           pagination={false}
           size="small"
           scroll={{ x: 'calc(100% - 200px)' }}
-        // summary={() => {
-        //   return (
-        //     <>
-        //       <Table.Summary.Row>
-        //         <Table.Summary.Cell index={0} colSpan={2} className="tracking-wide font-bold">Deposited Sub Total</Table.Summary.Cell>
-        //         <Table.Summary.Cell index={2} />
-        //         {/* <Table.Summary.Cell index={3} /> */}
-        //         <Table.Summary.Cell index={3} colSpan={2} className="text-right font-bold">{totalSettled.toFixed(2)}</Table.Summary.Cell>
-        //       </Table.Summary.Row>
-        //     </>
-        //   );
-        // }}
         />
 
         <Row justify="end" gutter={12} className="mt-4">
           <Col span={6}>
-            <Form.Item labelCol={{ style: { fontWeight: 'bold' } }} label="Total Amount">
+            <Form.Item labelCol={{ style: { fontWeight: 'bold' } }} label="Net Amount">
               <Input className='text-right' disabled value={totalSettled ? totalSettled.toFixed(2) : "0.00"} />
             </Form.Item>
           </Col>

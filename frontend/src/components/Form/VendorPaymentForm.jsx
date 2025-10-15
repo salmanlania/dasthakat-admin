@@ -12,6 +12,7 @@ import DebounceInput from '../Input/DebounceInput';
 import DebouncedCommaSeparatedInputRate from '../Input/DebouncedCommaSeparatedInputRate';
 import LedgerModal from '../Modals/LedgerModal';
 import AsyncSelectProduct from '../AsyncSelectProduct';
+import DebouncedNumberInputMarkup from '../Input/DebouncedNumberInputMarkup';
 
 const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
@@ -36,6 +37,8 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
   const [totalAmountDue, setTotalAmountDue] = useState('');
   const [totalSettled, setTotalSettled] = useState(0);
   const [totalAmountVal, setTotalAmountVal] = useState(0);
+  const [totalDueAfterSettlement, setTotalDueAfterSettlement] = useState(0);
+  const [autoDistributeEnabled, setAutoDistributeEnabled] = useState(true);
   const [submitAction, setSubmitAction] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -87,14 +90,12 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
             row_status: row?.row_status
           }))
     };
-    
-
-    // return console.log('data' , data)
 
     submitAction === 'save' ? onSubmit(data) : submitAction === 'saveAndExit' ? onSave(data) : null;
   };
 
   const handleSettledAmountChange = (value, record) => {
+    setAutoDistributeEnabled(false);
     const rawValue = typeof value === "string" ? value : String(value ?? "0");
     const settledAmount = parseFloat(rawValue.replace(/,/g, "")) || 0
 
@@ -103,11 +104,150 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
       return;
     }
 
+    const id = String(record.purchase_invoice_id);
     setSettledAmounts(prev => ({
       ...prev,
-      [record.purchase_invoice_id]: settledAmount
+      [id]: settledAmount
     }));
   };
+
+  const watchedReceiptAmount = Form.useWatch("payment_amount", form);
+
+  useEffect(() => {
+    let totalDue = 0;
+    let totalSettledLocal = 0;
+
+    selectedRows.forEach((row) => {
+      const balance = Number(row.balance_amount || 0);
+      const settled = Number(settledAmounts[row.purchase_invoice_id] || 0);
+
+      totalSettledLocal += settled;
+      totalDue += balance - settled;
+    });
+
+    setTotalSettled(totalSettledLocal);
+    setTotalDueAfterSettlement(totalDue);
+
+    const receiptAmount = form.getFieldValue("payment_amount");
+
+    if (autoDistributeEnabled && totalSettledLocal && totalSettledLocal !== receiptAmount) {
+      form.setFieldsValue({
+        payment_amount: Number(totalSettledLocal).toFixed(2),
+      });
+    }
+  }, [selectedRows, settledAmounts]);
+
+  // useEffect(() => {
+  //   const amountValue = watchedReceiptAmount;
+  //   if (!amountValue) {
+  //     setSelectedRowKeys([]);
+  //     setSelectedRows([]);
+  //     setSettledAmounts({});
+  //     setTotalDueAfterSettlement(0);
+  //     return;
+  //   }
+
+  //   if (!autoDistributeEnabled) return;
+  //   const receiptAmount = parseFloat(amountValue.toString().replace(/,/g, ""));
+  //   if (!receiptAmount || !ledgerInvoices?.length) return;
+
+  //   let remainingAmount = receiptAmount;
+  //   const newSelectedRows = [];
+  //   const newSelectedKeys = [];
+  //   const newSettledAmounts = {};
+
+  //   const orderedInvoices = [...ledgerInvoices].sort((a, b) => {
+  //     const aSort = a.sort_order || 0;
+  //     const bSort = b.sort_order || 0;
+  //     return aSort - bSort;
+  //   });
+
+  //   for (const row of orderedInvoices) {
+  //     const balance = Number(row.balance_amount || 0);
+
+  //     if (remainingAmount <= 0) {
+  //       break;
+  //     }
+
+  //     newSelectedKeys.push(row.purchase_invoice_id);
+  //     newSelectedRows.push(row);
+
+  //     if (remainingAmount >= balance) {
+  //       newSettledAmounts[row.purchase_invoice_id] = balance;
+  //       remainingAmount -= balance;
+  //     } else {
+  //       newSettledAmounts[row.purchase_invoice_id] = remainingAmount;
+  //       remainingAmount = 0;
+  //     }
+  //   }
+
+  //   setSelectedRowKeys(newSelectedKeys);
+  //   setSelectedRows(newSelectedRows);
+  //   setSettledAmounts(newSettledAmounts);
+
+  //   let totalDue = 0;
+  //   for (const row of newSelectedRows) {
+  //     const balance = Number(row.balance_amount || 0);
+  //     const settled = Number(newSettledAmounts[row.purchase_invoice_id] || 0);
+  //     totalDue += balance - settled;
+  //   }
+
+  //   setTotalDueAfterSettlement(totalDue);
+  // }, [watchedReceiptAmount, ledgerInvoices]);
+
+  useEffect(() => {
+    const amountValue = watchedReceiptAmount;
+    if (!amountValue) {
+      // Reset if receipt amount is empty
+      setSelectedRowKeys([]);
+      setSelectedRows([]);
+      setSettledAmounts({});
+      setTotalDueAfterSettlement(0);
+      setAutoDistributeEnabled(true);
+      return;
+    }
+
+    if (!autoDistributeEnabled) return;
+    if (!ledgerInvoices?.length) return;
+
+    const receiptAmount = parseFloat(amountValue.toString().replace(/,/g, ""));
+    if (!receiptAmount) return;
+
+    let remainingAmount = receiptAmount;
+    const newSelectedRows = [];
+    const newSelectedKeys = [];
+    const newSettledAmounts = {};
+
+    const orderedInvoices = [...ledgerInvoices].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+
+    for (const row of orderedInvoices) {
+      const balance = Number(row.balance_amount || 0);
+      if (remainingAmount <= 0) break;
+
+      newSelectedKeys.push(row.purchase_invoice_id);
+      newSelectedRows.push(row);
+
+      if (remainingAmount >= balance) {
+        newSettledAmounts[row.purchase_invoice_id] = balance;
+        remainingAmount -= balance;
+      } else {
+        newSettledAmounts[row.purchase_invoice_id] = remainingAmount;
+        remainingAmount = 0;
+      }
+    }
+
+    setSelectedRowKeys(newSelectedKeys);
+    setSelectedRows(newSelectedRows);
+    setSettledAmounts(newSettledAmounts);
+
+    const totalDue = newSelectedRows.reduce((sum, row) => {
+      const balance = Number(row.balance_amount || 0);
+      const settled = Number(newSettledAmounts[row.purchase_invoice_id] || 0);
+      return sum + (balance - settled);
+    }, 0);
+
+    setTotalDueAfterSettlement(totalDue);
+  }, [watchedReceiptAmount, ledgerInvoices, autoDistributeEnabled]);
 
   useEffect(() => {
     const total = selectedRowKeys.reduce(
@@ -229,17 +369,20 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'settled_amount',
       key: 'settled_amount',
       render: (_, record) => {
-        const value = settledAmounts[record?.purchase_invoice_id] ?? '';
+        const id = record.purchase_invoice_id;
+        const value = settledAmounts[id] ?? record.settled_amount ?? 0;
+
         return (
           <DebouncedCommaSeparatedInputRate
             className="text-right"
-            value={value ? Number(value).toFixed(2) : Number(record?.settled_amount).toFixed(2) ? record?.settled_amount : null}
+            value={Number(value).toFixed(2)}
             onChange={(val) => handleSettledAmountChange(val, record)}
+            key={`settle-input-${id}`}
           />
-        )
+        );
       },
-      width: 120
-    },
+      width: 120,
+    }
   ];
 
   return (
@@ -325,7 +468,7 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
         <Row gutter={12}>
           <Col span={24} sm={6} md={6} lg={6}>
             <Form.Item name="payment_amount" label="Receipt Amount">
-              <DebouncedCommaSeparatedInput className="text-right" />
+              <DebouncedNumberInputMarkup className="text-right" />
             </Form.Item>
           </Col>
           <Col span={24} sm={6} md={6} lg={6}>
@@ -345,22 +488,76 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
           sticky={{
             offsetHeader: 56
           }}
+          // rowSelection={{
+          //   selectedRowKeys,
+          //   onChange: (newSelectedRowKeys) => {
+          //     setAutoDistributeEnabled(false);
+          //     const newKeysStr = newSelectedRowKeys.map(String);
+          //     const newSelectedRows = ledgerInvoices.filter(inv =>
+          //       newKeysStr.includes(String(inv.purchase_invoice_id))
+          //     );
+          //     setSettledAmounts(prev => {
+          //       const updated = { ...prev };
+
+          //       newSelectedRows.forEach(row => {
+          //         const k = String(row.purchase_invoice_id);
+          //         if (!(k in updated)) {
+          //           updated[k] = Number(row.balance_amount || 0);
+          //         }
+          //       });
+
+          //       const keepSet = new Set(newKeysStr);
+          //       Object.keys(updated).forEach(k => {
+          //         if (!keepSet.has(String(k))) {
+          //           delete updated[k];
+          //         }
+          //       });
+
+          //       return updated;
+          //     });
+
+          //     setSelectedRowKeys(newKeysStr);
+          //     setSelectedRows(newSelectedRows);
+          //   }
+          // }}
           rowSelection={{
             selectedRowKeys,
-            onChange: (newSelectedRowKeys, newSelectedRows) => {
-              setSelectedRowKeys(newSelectedRowKeys);
-              setSelectedRows(newSelectedRows);
+            onChange: (newSelectedRowKeys) => {
+              const newKeysStr = newSelectedRowKeys.map(String);
+
+              if (newKeysStr.length === 0) {
+                // Reset everything when all rows are deselected
+                setAutoDistributeEnabled(true);
+                setSelectedRows([]);
+                setSettledAmounts({});
+                setSelectedRowKeys([]);
+                setTotalDueAfterSettlement(0);
+                return;
+              } else {
+                setAutoDistributeEnabled(false);
+              }
+
+              const newSelectedRows = ledgerInvoices.filter(inv =>
+                newKeysStr.includes(String(inv.purchase_invoice_id))
+              );
 
               setSettledAmounts(prev => {
                 const updated = { ...prev };
                 newSelectedRows.forEach(row => {
-                  if (!(row.purchase_invoice_id in updated)) {
-                    updated[row.purchase_invoice_id] = row.balance_amount || 0;
-                  }
+                  const k = String(row.purchase_invoice_id);
+                  if (!(k in updated)) updated[k] = Number(row.balance_amount || 0);
+                });
+
+                const keepSet = new Set(newKeysStr);
+                Object.keys(updated).forEach(k => {
+                  if (!keepSet.has(k)) delete updated[k];
                 });
 
                 return updated;
               });
+
+              setSelectedRowKeys(newKeysStr);
+              setSelectedRows(newSelectedRows);
             }
           }}
         />
@@ -382,6 +579,11 @@ const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
                     ? (Number(totalSettled || totalAmountVal)).toFixed(2)
                     : "0.00"
                 }
+              />
+              <DetailSummaryInfo
+                title="Under Payment"
+                disabled
+                value={totalDueAfterSettlement || "0.00"}
               />
               <DetailSummaryInfo
                 title="Applied"

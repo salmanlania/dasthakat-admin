@@ -238,6 +238,32 @@ const CustomerPaymentSettlement = () => {
     {
       title: (
         <div onClick={(e) => e.stopPropagation()}>
+          <p>Bank Amount</p>
+          <Input
+            className="font-normal"
+            size="small"
+            allowClear
+            onClick={(e) => e.stopPropagation()}
+            value={params.bank_amount}
+            onChange={(e) => {
+              dispatch(setCustomerPaymentSettlementListParams({ bank_amount: e.target.value }));
+            }}
+          />
+        </div>
+      ),
+      dataIndex: 'bank_amount',
+      key: 'bank_amount',
+      sorter: true,
+      width: 160,
+      ellipsis: true,
+      onCell: () => ({
+        style: { textAlign: 'right' },
+      }),
+      render: (value) => `${value}`,
+    },
+    {
+      title: (
+        <div onClick={(e) => e.stopPropagation()}>
           <p>Reference No.</p>
           <Input
             className="font-normal"
@@ -318,6 +344,7 @@ const CustomerPaymentSettlement = () => {
     params.event_id,
     params.port_id,
     params.total_amount,
+    params.bank_amount,
     params.transaction_account_id,
     params.customer_payment_no,
     params.transaction_no,

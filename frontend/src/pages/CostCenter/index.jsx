@@ -33,7 +33,7 @@ const CostCenter = () => {
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, isSubmitting, deleteIDs } =
     useSelector((state) => state.costCenter);
   const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.flag;
+  const permissions = user?.permission?.cost_center;
 
   const debouncedSearch = useDebounce(params.search, 500);
 

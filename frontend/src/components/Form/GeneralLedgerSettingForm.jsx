@@ -35,7 +35,6 @@ export default function GeneralLedgerSettingForm() {
                             valueKey="account_id"
                             labelKey="name"
                             allowClear
-                            // addNewLink={permissions?.accounts?.list && permissions?.accounts?.add ? '/general-ledger/gl-setup/accounts' : null}
                         />
                     </Form.Item>
                 </Col>

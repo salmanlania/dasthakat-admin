@@ -2,6 +2,7 @@ import { Button, DatePicker, Form, Input, Modal, Table, Tabs } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { TbEdit } from 'react-icons/tb';
 import { useDispatch, useSelector } from 'react-redux';
 import useError from '../../hooks/useError';
 import {
@@ -12,6 +13,7 @@ import {
 } from '../../store/features/pickListSlice';
 import NumberInput from '../Input/NumberInput';
 import AsyncSelect from '../AsyncSelect/index.jsx';
+import NotesModal from './NotesModal.jsx';
 
 const HistoryTab = ({ details }) => {
   const columns = [
@@ -85,7 +87,27 @@ const NewReceivesTab = ({ details }) => {
     (state) => state.pickList
   );
 
-  
+  const [remarksModalIsOpen, setRemarksModalIsOpen] = useState({
+    open: false,
+    id: null,
+    notes: ''
+  });
+
+  const [localRemarks, setLocalRemarks] = useState(
+    details.reduce((acc, d) => {
+      acc[d.picklist_detail_id] = d.remarks || '';
+      return acc;
+    }, {})
+  );
+
+  const handleRemarksSave = ({ notes }) => {
+    setLocalRemarks((prev) => ({
+      ...prev,
+      [remarksModalIsOpen.id]: notes
+    }));
+    setRemarksModalIsOpen({ open: false, id: null, notes: '' });
+  };
+
   const dataSource = details.map((detail) => ({
     id: detail.picklist_detail_id,
     key: detail.picklist_detail_id,
@@ -95,9 +117,9 @@ const NewReceivesTab = ({ details }) => {
     charge_order_detail_id: detail.charge_order_detail_id,
     remaining_quantity: detail.remaining_quantity ? parseFloat(detail.remaining_quantity) : 0,
     original_quantity: detail.original_quantity ? parseFloat(detail.original_quantity) : 0,
-    remarks: detail.remarks
+    remarks: localRemarks[detail.picklist_detail_id] || detail?.remarks
   }));
-  
+
   const detailColumns = [
     {
       title: 'Sr #',
@@ -167,14 +189,14 @@ const NewReceivesTab = ({ details }) => {
 
         const quantityValue = newRules[index] || dataSource[index]?.remaining_quantity;
 
-        const rules = quantityValue  > 0
-      ? [
-          {
-            required: true,
-            message: 'Warehouse is required',
-          }
-        ]
-      : [];
+        const rules = quantityValue > 0
+          ? [
+            {
+              required: true,
+              message: 'Warehouse is required',
+            }
+          ]
+          : [];
 
         return (
           <Form.Item
@@ -205,6 +227,24 @@ const NewReceivesTab = ({ details }) => {
           <Input />
         </Form.Item>
       )
+      // render: (_, record) => (
+      //   <div className="relative cursor-pointer">
+      //     <p>{localRemarks[record.id]}</p>
+      //     <div className="absolute -right-2.5 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white">
+      //       <TbEdit
+      //         size={22}
+      //         className="text-primary hover:text-blue-600"
+      //         onClick={() =>
+      //           setRemarksModalIsOpen({
+      //             open: true,
+      //             id: record.id,
+      //             notes: localRemarks[record.id]
+      //           })
+      //         }
+      //       />
+      //     </div>
+      //   </div>
+      // )
     }
   ];
 
@@ -239,50 +279,60 @@ const NewReceivesTab = ({ details }) => {
   };
 
   return (
-    <Form
-      name="pick-list-receives"
-      form={form}
-      layout="vertical"
-      autoComplete="off"
-      initialValues={{
-        document_date: dayjs(),
-        details: dataSource
-      }}
-      onFinish={onSubmit}>
-      <Form.Item
-        name="document_date"
-        label="Receive Date"
-        rules={[
-          {
-            required: true,
-            message: 'Receive Date is required!'
-          }
-        ]}>
-        <DatePicker format="MM-DD-YYYY" />
-      </Form.Item>
+    <>
+      <Form
+        name="pick-list-receives"
+        form={form}
+        layout="vertical"
+        autoComplete="off"
+        initialValues={{
+          document_date: dayjs(),
+          details: dataSource
+        }}
+        onFinish={onSubmit}>
+        <Form.Item
+          name="document_date"
+          label="Receive Date"
+          rules={[
+            {
+              required: true,
+              message: 'Receive Date is required!'
+            }
+          ]}>
+          <DatePicker format="MM-DD-YYYY" />
+        </Form.Item>
 
-      <Form.List name="details">
-        {(fields) => (
-          <Table
-            dataSource={fields}
-            columns={detailColumns}
-            size="small"
-            pagination={false}
-            rowKey="key"
-          />
-        )}
-      </Form.List>
+        <Form.List name="details">
+          {(fields) => (
+            <Table
+              dataSource={fields}
+              columns={detailColumns}
+              size="small"
+              pagination={false}
+              rowKey="key"
+            />
+          )}
+        </Form.List>
 
-      <div className="mt-4 flex items-center justify-end">
-        <Button
-          type="primary"
-          className="w-28"
-          onClick={() => form.submit()}
-          loading={isPickListReceivesSaving}>
-          Save
-        </Button>
-      </div>
-    </Form>
+        <div className="mt-4 flex items-center justify-end">
+          <Button
+            type="primary"
+            className="w-28"
+            onClick={() => form.submit()}
+            loading={isPickListReceivesSaving}>
+            Save
+          </Button>
+        </div>
+      </Form>
+      <NotesModal
+        title="Remarks"
+        initialValue={remarksModalIsOpen.notes}
+        isSubmitting={isPickListReceivesSaving}
+        open={remarksModalIsOpen.open}
+        onCancel={() => setRemarksModalIsOpen({ open: false, id: null, notes: '' })}
+        onSubmit={handleRemarksSave}
+      />
+    </>
   );
 };
 
@@ -306,43 +356,45 @@ const PickListReceiveModal = () => {
   }, [pickListOpenModalId]);
 
   return (
-    <Modal
-      open={pickListOpenModalId}
-      onCancel={closeModal}
-      loading={isPickListReceivesLoading}
-      footer={null}
-      width={1000}>
-      {pickListReceives ? (
-        <Tabs
-          defaultActiveKey={
-            pickListReceives.picklist.length
-              ? 'newReceives'
-              : pickListReceives.history.length
-                ? pickListReceives.history.at(-1).document_identity
-                : null
-          }
-          items={[
-            ...pickListReceives.history.map((history) => ({
-              label: history.document_date
-                ? dayjs(history.document_date).format('MMM-DD-YYYY')
-                : dayjs().format('MMM-DD-YYYY'),
-              key: history.document_identity,
-              children: <HistoryTab details={history.picklist_received_detail || []} />
-            }))
-          ].concat(
-            pickListReceives.picklist.length
-              ? [
+    <>
+      <Modal
+        open={pickListOpenModalId}
+        onCancel={closeModal}
+        loading={isPickListReceivesLoading}
+        footer={null}
+        width={1000}>
+        {pickListReceives ? (
+          <Tabs
+            defaultActiveKey={
+              pickListReceives.picklist.length
+                ? 'newReceives'
+                : pickListReceives.history.length
+                  ? pickListReceives.history.at(-1).document_identity
+                  : null
+            }
+            items={[
+              ...pickListReceives.history.map((history) => ({
+                label: history.document_date
+                  ? dayjs(history.document_date).format('MMM-DD-YYYY')
+                  : dayjs().format('MMM-DD-YYYY'),
+                key: history.document_identity,
+                children: <HistoryTab details={history.picklist_received_detail || []} />
+              }))
+            ].concat(
+              pickListReceives.picklist.length
+                ? [
                   {
                     label: 'New Receives',
                     key: 'newReceives',
                     children: <NewReceivesTab details={pickListReceives.picklist || []} />
                   }
                 ]
-              : []
-          )}
-        />
-      ) : null}
-    </Modal>
+                : []
+            )}
+          />
+        ) : null}
+      </Modal>
+    </>
   );
 };
 
