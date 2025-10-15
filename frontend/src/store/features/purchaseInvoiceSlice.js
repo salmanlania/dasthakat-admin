@@ -232,7 +232,6 @@ export const purchaseInvoiceSlice = createSlice({
       state.isItemLoading = false;
       const data = action.payload;
       state.initialFormValues = {
-        ...data,
         document_identity: data.document_identity,
         document_date: data.document_date ? dayjs(data.document_date) : null,
         required_date: data.required_date ? dayjs(data.required_date) : null,
