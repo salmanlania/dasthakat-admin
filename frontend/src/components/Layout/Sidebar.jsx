@@ -300,6 +300,11 @@ const Sidebar = () => {
               // disabled: !permissions?.flag?.list,
             },
             {
+              key: 'payee',
+              label: <Link to="/payee">Payee</Link>,
+              disabled: !permissions?.cost_center?.list,
+            },
+            {
               key: 'class',
               label: <Link to="/class">Class</Link>,
               disabled: !permissions?.class?.list,
@@ -628,6 +633,11 @@ const Sidebar = () => {
             {
               key: 'general-ledger/transactions/vendor-bill',
               label: <Link to="/general-ledger/transactions/vendor-bill">Vendor Bill</Link>,
+              disabled: !permissions?.customer_payment_settlement?.list,
+            },
+            {
+              key: 'general-ledger/transactions/journal-voucher',
+              label: <Link to="/general-ledger/transactions/journal-voucher">Journal Voucher</Link>,
               disabled: !permissions?.customer_payment_settlement?.list,
             },
           ]

@@ -5,10 +5,20 @@ import { toggleSidebar } from '../../store/features/sidebarSlice';
 import ProfileMenu from '../Menu/ProfileMenu';
 
 import LOGO from '../../assets/logo.jpg';
+import { useEffect, useState } from 'react';
 
 const Navbar = () => {
   const { isCollapsed } = useSelector((state) => state.sidebar);
   const dispatch = useDispatch();
+
+  const [branch, setBranch] = useState(null);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user?.company_branch_name) {
+      setBranch(user.company_branch_name);
+    }
+  }, []);
 
   return (
     <nav className="sticky top-0 z-40 flex h-14 items-center justify-between border-b bg-primary px-4 text-white">
@@ -31,6 +41,10 @@ const Navbar = () => {
             Global Marine Safety - America
           </span>
         </div>
+      </div>
+
+      <div>
+        <h1>{branch}</h1>
       </div>
 
       <ProfileMenu />

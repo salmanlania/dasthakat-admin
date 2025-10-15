@@ -43,6 +43,11 @@ class GRN extends Model
     {
         return $this->hasMany(GRNDetail::class, 'good_received_note_id', 'good_received_note_id')->orderBy('sort_order');
     }
+    
+    public function purchase_invoice_detail()
+    {
+        return $this->hasMany(PurchaseInvoiceDetail::class, 'good_received_note_id', 'good_received_note_id');
+    }
 
     public function payment()
     {

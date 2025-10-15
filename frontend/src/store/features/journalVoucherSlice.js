@@ -3,11 +3,11 @@ import api from '../../axiosInstance';
 import dayjs from 'dayjs';
 import { v4 as uuidv4 } from 'uuid';
 
-export const getPaymentVoucherList = createAsyncThunk(
-  'paymentVoucher/list',
+export const getJournalVoucherList = createAsyncThunk(
+  'journalVoucher/list',
   async (params, { rejectWithValue }) => {
     try {
-      const res = await api.get('/payment-voucher', {
+      const res = await api.get('/journal-voucher', {
         params: {
           ...params,
           all: 1
@@ -20,11 +20,11 @@ export const getPaymentVoucherList = createAsyncThunk(
   }
 );
 
-export const getPaymentVoucher = createAsyncThunk(
-  'paymentVoucher/get',
+export const getJournalVoucher = createAsyncThunk(
+  'journalVoucher/get',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/payment-voucher/${id}`);
+      const res = await api.get(`/journal-voucher/${id}`);
       return res.data.data;
     } catch (err) {
       throw rejectWithValue(err);
@@ -32,22 +32,22 @@ export const getPaymentVoucher = createAsyncThunk(
   }
 );
 
-export const updatePaymentVoucherForm = createAsyncThunk(
-  'paymentVoucher/update',
+export const updateJournalVoucherForm = createAsyncThunk(
+  'journalVoucher/update',
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      await api.put(`/payment-voucher/${id}`, data);
+      await api.put(`/journal-voucher/${id}`, data);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const createPaymentVoucher = createAsyncThunk(
-  'paymentVoucher/create',
+export const createJournalVoucher = createAsyncThunk(
+  'journalVoucher/create',
   async (data, { rejectWithValue }) => {
     try {
-      const res = await api.post('/payment-voucher', data);
+      const res = await api.post('/journal-voucher', data);
       return res?.data
     } catch (err) {
       throw rejectWithValue(err);
@@ -55,11 +55,11 @@ export const createPaymentVoucher = createAsyncThunk(
   }
 );
 
-export const createPaymentVoucherSettlement = createAsyncThunk(
-  'paymentVoucherSettlement/create',
+export const createJournalVoucherSettlement = createAsyncThunk(
+  'journalVoucherSettlement/create',
   async (payload, { rejectWithValue }) => {
     try {
-      const res = await api.post('/payment-voucher-tagging', payload);
+      const res = await api.post('/journal-voucher-tagging', payload);
       return res?.data
     } catch (err) {
       throw rejectWithValue(err);
@@ -67,22 +67,22 @@ export const createPaymentVoucherSettlement = createAsyncThunk(
   }
 );
 
-export const deletePaymentVoucher = createAsyncThunk(
-  'paymentVoucher/delete',
+export const deleteJournalVoucher = createAsyncThunk(
+  'journalVoucher/delete',
   async (id, { rejectWithValue }) => {
     try {
-      await api.delete(`/payment-voucher/${id}`);
+      await api.delete(`/journal-voucher/${id}`);
     } catch (err) {
       throw rejectWithValue(err);
     }
   }
 );
 
-export const bulkDeletePaymentVoucher = createAsyncThunk(
-  'paymentVoucher/bulkDelete',
+export const bulkDeleteJournalVoucher = createAsyncThunk(
+  'journalVoucher/bulkDelete',
   async (ids, { rejectWithValue }) => {
     try {
-      await api.post('/payment-voucher/bulk-delete', {
+      await api.post('/journal-voucher/bulk-delete', {
         id: ids
       });
     } catch (err) {
@@ -92,7 +92,7 @@ export const bulkDeletePaymentVoucher = createAsyncThunk(
 );
 
 export const getCustomerLedgerInvoices = createAsyncThunk(
-  'paymentVoucher/paymentVoucherDetails',
+  'journalVoucher/journalVoucherDetails',
   async (customerId, { rejectWithValue }) => {
     try {
       const res = await api.get(`/customer/${customerId}/ledger-invoices`);
@@ -104,12 +104,12 @@ export const getCustomerLedgerInvoices = createAsyncThunk(
 );
 
 export const getUnsettledInvoices = createAsyncThunk(
-  'paymentVoucher/getUnsettledInvoices',
-  async ({ supplierId, paymentVoucherId }, { rejectWithValue }) => {
+  'journalVoucher/getUnsettledInvoices',
+  async ({ supplierId, journalVoucherId }, { rejectWithValue }) => {
     try {
       const res = await api.get(`/supplier/${supplierId}/unsettled-invoices`, {
         params: {
-          payment_voucher_id: paymentVoucherId
+          journal_voucher_id: journalVoucherId
         }
       });
       return res.data.data;
@@ -126,7 +126,7 @@ const initialState = {
   initialFormValues: null,
   saleInvoiceDetail: null,
   isItemLoading: false,
-  paymentVoucherDetails: [],
+  journalVoucherDetails: [],
   vendorPaymentSettlementDetails: [],
   isLedgerLoading: false,
   list: [],
@@ -146,27 +146,27 @@ const initialState = {
   }
 };
 
-export const paymentVoucherSlice = createSlice({
-  name: 'paymentVoucher',
+export const journalVoucherSlice = createSlice({
+  name: 'journalVoucher',
   initialState,
   reducers: {
-    setPaymentVoucherListParams: (state, action) => {
+    setJournalVoucherListParams: (state, action) => {
       state.params = {
         ...state.params,
         ...action.payload
       };
     },
 
-    setPaymentVoucherDeleteIDs: (state, action) => {
+    setJournalVoucherDeleteIDs: (state, action) => {
       state.deleteIDs = action.payload;
     },
 
-    resetPaymentVoucherForm: (state) => {
+    resetJournalVoucherForm: (state) => {
       state.initialFormValues = null;
-      state.paymentVoucherDetails = [];
+      state.journalVoucherDetails = [];
     },
 
-    resetPaymentVoucherSettlementForm: (state) => {
+    resetJournalVoucherSettlementForm: (state) => {
       state.initialFormValues = null;
       state.vendorPaymentSettlementDetails = [];
     },
@@ -178,11 +178,11 @@ export const paymentVoucherSlice = createSlice({
       }
     },
 
-    changePaymentVoucherDetailOrder: (state, action) => {
+    changeJournalVoucherDetailOrder: (state, action) => {
       const { from, to } = action.payload;
-      const temp = state.paymentVoucherDetails[from];
-      state.paymentVoucherDetails[from] = state.paymentVoucherDetails[to];
-      state.paymentVoucherDetails[to] = temp;
+      const temp = state.journalVoucherDetails[from];
+      state.journalVoucherDetails[from] = state.journalVoucherDetails[to];
+      state.journalVoucherDetails[to] = temp;
     },
 
     changeVendorSettlementDetail: (state, action) => {
@@ -192,33 +192,25 @@ export const paymentVoucherSlice = createSlice({
       state.vendorPaymentSettlementDetails[to] = temp;
     },
 
-    addPaymentVoucherDetail: (state, action) => {
+    addJournalVoucherDetail: (state, action) => {
       const index = action.payload;
       const newDetail = {
         id: uuidv4(),
         document_no: null,
         account_id: null,
-        cheque_date: null,
-        ledger_date: null,
-        cheque_no: null,
-        event_no: null,
-        event_id: null,
-        cost_center_id: null,
-        payment_amount: 0,
-        supplier_id: null,
         net_amount: 0,
-        sort_order: state.paymentVoucherDetails.length + 1,
+        sort_order: state.journalVoucherDetails.length + 1,
         row_status: 'I',
         isDeleted: false
       };
 
       if (index || index === 0) {
-        state.paymentVoucherDetails.splice(index + 1, 0, newDetail);
+        state.journalVoucherDetails.splice(index + 1, 0, newDetail);
       } else {
-        state.paymentVoucherDetails.push(newDetail);
+        state.journalVoucherDetails.push(newDetail);
       }
 
-      state.paymentVoucherDetails = state.paymentVoucherDetails.map((item, i) => ({
+      state.journalVoucherDetails = state.journalVoucherDetails.map((item, i) => ({
         ...item,
         sort_order: i + 1,
       }));
@@ -230,14 +222,6 @@ export const paymentVoucherSlice = createSlice({
         id: uuidv4(),
         document_no: null,
         account_id: null,
-        cheque_date: null,
-        ledger_date: null,
-        cheque_no: null,
-        event_no: null,
-        event_id: null,
-        cost_center_id: null,
-        payment_amount: 0,
-        supplier_id: null,
         net_amount: 0,
         sort_order: state.vendorPaymentSettlementDetails.length + 1,
         row_status: 'I',
@@ -256,28 +240,28 @@ export const paymentVoucherSlice = createSlice({
       }));
     },
 
-    removePaymentVoucherDetail: (state, action) => {
-      const itemIndex = state.paymentVoucherDetails.findIndex(
+    removeJournalVoucherDetail: (state, action) => {
+      const itemIndex = state.journalVoucherDetails.findIndex(
         (item) => item.id === action.payload
       );
 
       if (itemIndex !== -1) {
-        if (state.paymentVoucherDetails[itemIndex].row_status === 'I') {
-          state.paymentVoucherDetails = state.paymentVoucherDetails.filter(
+        if (state.journalVoucherDetails[itemIndex].row_status === 'I') {
+          state.journalVoucherDetails = state.journalVoucherDetails.filter(
             (item) => item.id !== action.payload
           );
         } else {
-          state.paymentVoucherDetails[itemIndex].row_status = 'D';
-          state.paymentVoucherDetails[itemIndex].isDeleted = true;
+          state.journalVoucherDetails[itemIndex].row_status = 'D';
+          state.journalVoucherDetails[itemIndex].isDeleted = true;
         }
       }
     },
 
-    copyPaymentVoucherDetail: (state, action) => {
+    copyJournalVoucherDetail: (state, action) => {
       const index = action.payload;
 
-      if (index >= 0 && index < state.paymentVoucherDetails.length) {
-        const { editable, ...detail } = state.paymentVoucherDetails[index];
+      if (index >= 0 && index < state.journalVoucherDetails.length) {
+        const { editable, ...detail } = state.journalVoucherDetails[index];
 
         const newDetail = {
           ...detail,
@@ -288,23 +272,23 @@ export const paymentVoucherSlice = createSlice({
                 ? { value: detail.account_id, label: "" }
                 : null,
           id: uuidv4(),
-          payment_voucher_id: null,
-          payment_voucher_detail_id: null,
-          sort_order: state.paymentVoucherDetails.length + 1,
+          journal_voucher_id: null,
+          journal_voucher_detail_id: null,
+          sort_order: state.journalVoucherDetails.length + 1,
           row_status: 'I',
           isDeleted: false,
         };
 
-        state.paymentVoucherDetails.splice(index + 1, 0, newDetail);
+        state.journalVoucherDetails.splice(index + 1, 0, newDetail);
       }
     },
 
-    updatePaymentVoucherDetail: (state, action) => {
+    updateJournalVoucherDetail: (state, action) => {
       const { id, field, value } = action.payload;
-      const index = state.paymentVoucherDetails.findIndex((d) => d.id === id);
+      const index = state.journalVoucherDetails.findIndex((d) => d.id === id);
       if (index !== -1) {
-        state.paymentVoucherDetails[index] = {
-          ...state.paymentVoucherDetails[index],
+        state.journalVoucherDetails[index] = {
+          ...state.journalVoucherDetails[index],
           [field]: value,
         };
       }
@@ -323,11 +307,11 @@ export const paymentVoucherSlice = createSlice({
 
   },
   extraReducers: ({ addCase }) => {
-    addCase(getPaymentVoucherList.pending, (state) => {
+    addCase(getJournalVoucherList.pending, (state) => {
       state.isListLoading = true;
       state.initialFormValues = null;
     });
-    addCase(getPaymentVoucherList.fulfilled, (state, action) => {
+    addCase(getJournalVoucherList.fulfilled, (state, action) => {
       state.isListLoading = false;
       const { data, ...rest } = action.payload;
       state.list = data;
@@ -342,50 +326,50 @@ export const paymentVoucherSlice = createSlice({
         total_pages: rest.last_page
       };
     });
-    addCase(getPaymentVoucherList.rejected, (state) => {
+    addCase(getJournalVoucherList.rejected, (state) => {
       state.isListLoading = false;
     });
 
-    addCase(createPaymentVoucher.pending, (state) => {
+    addCase(createJournalVoucher.pending, (state) => {
       state.isFormSubmitting = true;
     });
-    addCase(createPaymentVoucher.fulfilled, (state) => {
+    addCase(createJournalVoucher.fulfilled, (state) => {
       state.isFormSubmitting = false;
     });
-    addCase(createPaymentVoucher.rejected, (state) => {
+    addCase(createJournalVoucher.rejected, (state) => {
       state.isFormSubmitting = false;
     });
 
 
-    addCase(createPaymentVoucherSettlement.pending, (state) => {
+    addCase(createJournalVoucherSettlement.pending, (state) => {
       state.isFormSubmitting = true;
     });
-    addCase(createPaymentVoucherSettlement.fulfilled, (state) => {
+    addCase(createJournalVoucherSettlement.fulfilled, (state) => {
       state.isFormSubmitting = false;
     });
-    addCase(createPaymentVoucherSettlement.rejected, (state) => {
+    addCase(createJournalVoucherSettlement.rejected, (state) => {
       state.isFormSubmitting = false;
     });
 
     // start bulk delete
 
-    addCase(bulkDeletePaymentVoucher.pending, (state) => {
+    addCase(bulkDeleteJournalVoucher.pending, (state) => {
       state.isBulkDeleting = true;
     });
-    addCase(bulkDeletePaymentVoucher.fulfilled, (state) => {
+    addCase(bulkDeleteJournalVoucher.fulfilled, (state) => {
       state.isBulkDeleting = false;
       state.deleteIDs = [];
     });
-    addCase(bulkDeletePaymentVoucher.rejected, (state) => {
+    addCase(bulkDeleteJournalVoucher.rejected, (state) => {
       state.isBulkDeleting = false;
     });
 
     // end bulk delete
 
-    addCase(getPaymentVoucher.pending, (state) => {
+    addCase(getJournalVoucher.pending, (state) => {
       state.isItemLoading = true;
     });
-    addCase(getPaymentVoucher.fulfilled, (state, action) => {
+    addCase(getJournalVoucher.fulfilled, (state, action) => {
       state.isItemLoading = false;
       const data = action.payload;
       state.initialFormValues = {
@@ -400,13 +384,12 @@ export const paymentVoucherSlice = createSlice({
           : null,
         total_amount: data?.total_amount ? parseInt(data?.total_amount) : null,
         remarks: data?.remarks ? data?.remarks : null,
-        payment_amount: data?.payment_amount ? parseInt(data?.payment_amount) : null,
       };
-      state.paymentVoucherDetails = data?.details.map((detail) => ({
+      state.journalVoucherDetails = data?.details.map((detail) => ({
         ...detail,
-        id: detail?.payment_voucher_detail_id ? detail?.payment_voucher_detail_id : null,
-        payment_voucher_id: detail?.payment_voucher_id ? detail?.payment_voucher_id : null,
-        payment_voucher_detail_id: detail?.payment_voucher_detail_id ? detail?.payment_voucher_detail_id : null,
+        id: detail?.journal_voucher_detail_id ? detail?.journal_voucher_detail_id : null,
+        journal_voucher_id: detail?.journal_voucher_id ? detail?.journal_voucher_id : null,
+        journal_voucher_detail_id: detail?.journal_voucher_detail_id ? detail?.journal_voucher_detail_id : null,
         sort_order: detail?.sort_order ? detail?.sort_order : null,
         account_id: detail?.account
           ? {
@@ -414,51 +397,23 @@ export const paymentVoucherSlice = createSlice({
             label: detail?.account?.name
           }
           : null,
-        cost_center_id: detail?.cost_center
-          ? {
-            value: detail?.cost_center?.cost_center_id,
-            label: detail?.cost_center?.name
-          }
-          : null,
-        payee_id: detail?.payee
-          ? {
-            value: detail?.payee?.payee_id,
-            label: detail?.payee?.name
-          }
-          : null,
-        supplier_id: detail?.supplier
-          ? {
-            value: detail?.supplier?.supplier_id,
-            label: detail?.supplier?.name
-          }
-          : null,
-        event_id: detail?.event
-          ? {
-            value: detail?.event?.event_id,
-            label: detail?.event?.event_name
-          }
-          : null,
-        cheque_date: detail?.cheque_date ? dayjs(detail?.cheque_date) : null,
-        ledger_date: detail?.ledger_date ? dayjs(detail?.ledger_date) : null,
-        cheque_no: detail?.cheque_no ? detail?.cheque_no : null,
-        payment_amount: detail?.payment_amount ? detail?.payment_amount : null,
         row_status: 'U',
         isDeleted: false
       }));
     });
-    addCase(getPaymentVoucher.rejected, (state) => {
+    addCase(getJournalVoucher.rejected, (state) => {
       state.isItemLoading = false;
       state.initialFormValues = null;
-      state.paymentVoucherDetails = []
+      state.journalVoucherDetails = []
     });
 
     addCase(getCustomerLedgerInvoices.pending, (state) => {
       state.isLedgerLoading = true;
-      state.paymentVoucherDetails = [];
+      state.journalVoucherDetails = [];
     });
     addCase(getCustomerLedgerInvoices.fulfilled, (state, action) => {
       state.isLedgerLoading = false;
-      state.paymentVoucherDetails = action.payload;
+      state.journalVoucherDetails = action.payload;
     });
     addCase(getCustomerLedgerInvoices.rejected, (state) => {
       state.isLedgerLoading = false;
@@ -488,6 +443,6 @@ export const paymentVoucherSlice = createSlice({
   }
 });
 
-export const { setPaymentVoucherListParams, setPaymentVoucherDeleteIDs, setFormField, resetPaymentVoucherForm, resetPaymentVoucherSettlementForm, changePaymentVoucherDetailOrder, addPaymentVoucherDetail,
-  addVendorSettlementDetail, updatePaymentVoucherDetail, updateVendorSettlementDetail, copyPaymentVoucherDetail, removePaymentVoucherDetail, changeVendorSettlementDetail } = paymentVoucherSlice.actions;
-export default paymentVoucherSlice.reducer;
+export const { setJournalVoucherListParams, setJournalVoucherDeleteIDs, setFormField, resetJournalVoucherForm, resetJournalVoucherSettlementForm, changeJournalVoucherDetailOrder, addJournalVoucherDetail,
+  addVendorSettlementDetail, updateJournalVoucherDetail, updateVendorSettlementDetail, copyJournalVoucherDetail, removeJournalVoucherDetail, changeVendorSettlementDetail } = journalVoucherSlice.actions;
+export default journalVoucherSlice.reducer;

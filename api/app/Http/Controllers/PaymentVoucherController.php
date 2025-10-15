@@ -178,7 +178,7 @@ class PaymentVoucherController extends Controller
     public function show($id, Request $request)
     {
 
-        $data = PaymentVoucher::with('details', 'details.supplier', 'details.event', 'details.cost_center', 'details.account', 'transaction_account', 'document_currency', 'base_currency')
+        $data = PaymentVoucher::with('details', 'details.supplier','details.payee', 'details.event', 'details.cost_center', 'details.account', 'transaction_account', 'document_currency', 'base_currency')
             ->where('payment_voucher.payment_voucher_id', $id)
             ->first();
 
@@ -269,6 +269,7 @@ class PaymentVoucherController extends Controller
                         // 'cheque_date' => $value['cheque_date'] ?? "",
                         'ledger_date' => $value['ledger_date'] ?? "",
                         'supplier_id' => $value['supplier_id'] ?? "",
+                        'payee_id' => $value['payee_id'] ?? "",
                         // 'document_amount' => $value['document_amount'] ?? "",
                         'payment_amount' => $value['payment_amount'] ?? "",
                         // 'tax_amount' => $value['tax_amount'] ?? "",
@@ -443,6 +444,7 @@ class PaymentVoucherController extends Controller
                             // 'cheque_date' => $value['cheque_date'] ?? "",
                             'ledger_date' => $value['ledger_date'] ?? "",
                             'supplier_id' => $value['supplier_id'] ?? "",
+                            'payee_id' => $value['payee_id'] ?? "",
                             // 'document_amount' => $value['document_amount'] ?? "",
                             'payment_amount' => $value['payment_amount'] ?? "",
                             // 'tax_amount' => $value['tax_amount'] ?? "",
@@ -463,6 +465,7 @@ class PaymentVoucherController extends Controller
                             // 'cheque_date' => $value['cheque_date'] ?? "",
                             'ledger_date' => $value['ledger_date'] ?? "",
                             'supplier_id' => $value['supplier_id'] ?? "",
+                            'payee_id' => $value['payee_id'] ?? "",
                             // 'document_amount' => $value['document_amount'] ?? "",
                             'payment_amount' => $value['payment_amount'] ?? "",
                             // 'tax_amount' => $value['tax_amount'] ?? "",

@@ -13,27 +13,27 @@ import useDebounce from '../../hooks/useDebounce';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 import {
-  addNewCostCenter,
-  bulkDeleteCostCenter,
-  createCostCenter,
-  deleteCostCenter,
-  getCostCenterList,
-  removeNewCostCenter,
-  setCostCenterDeleteIDs,
-  setCostCenterEditable,
-  setCostCenterListParams,
-  updateCostCenter,
-  updateCostCenterListValue,
-} from '../../store/features/costCenterSlice';
+  addNewPayee,
+  bulkDeletePayee,
+  createPayee,
+  deletePayee,
+  getPayeeList,
+  removeNewPayee,
+  setPayeeDeleteIDs,
+  setPayeeEditable,
+  setPayeeListParams,
+  updatePayee,
+  updatePayeeListValue,
+} from '../../store/features/payeeSlice';
 
-const CostCenter = () => {
-  useDocumentTitle('Cost Center List');
+const Payee = () => {
+  useDocumentTitle('Payee List');
   const dispatch = useDispatch();
   const handleError = useError();
   const { list, isListLoading, params, paginationInfo, isBulkDeleting, isSubmitting, deleteIDs } =
-    useSelector((state) => state.costCenter);
+    useSelector((state) => state.payee);
   const { user } = useSelector((state) => state.auth);
-  const permissions = user?.permission?.cost_center;
+  const permissions = user.permission.flag;
 
   const debouncedSearch = useDebounce(params.search, 500);
 
@@ -41,7 +41,7 @@ const CostCenter = () => {
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const onChange = (id, field, value) => {
-    dispatch(updateCostCenterListValue({ id, field, value }));
+    dispatch(updatePayeeListValue({ id, field, value }));
   };
 
   const onCreate = async (record) => {
@@ -49,41 +49,41 @@ const CostCenter = () => {
     if (!name.trim()) return toast.error('Name field is required');
 
     try {
-      await dispatch(createCostCenter({ name })).unwrap();
-      await dispatch(getCostCenterList(params)).unwrap();
+      await dispatch(createPayee({ name })).unwrap();
+      await dispatch(getPayeeList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
   };
 
   const onUpdate = async (record) => {
-    const { cost_center_id, name } = record;
+    const { payee_id, name } = record;
 
     if (!name.trim()) return toast.error('Name field is required');
 
     try {
       await dispatch(
-        updateCostCenter({
-          id: cost_center_id,
+        updatePayee({
+          id: payee_id,
           data: { name },
         }),
       ).unwrap();
-      await dispatch(getCostCenterList(params)).unwrap();
+      await dispatch(getPayeeList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
   };
 
   const onCancel = async (id) => {
-    if (id === 'new') return dispatch(removeNewCostCenter());
-    dispatch(setCostCenterEditable({ id, editable: false }));
+    if (id === 'new') return dispatch(removeNewPayee());
+    dispatch(setPayeeEditable({ id, editable: false }));
   };
 
-  const onCostCenterDelete = async (id) => {
+  const onPayeeDelete = async (id) => {
     try {
-      await dispatch(deleteCostCenter(id)).unwrap();
-      toast.success('Cost Center deleted successfully');
-      dispatch(getCostCenterList(params)).unwrap();
+      await dispatch(deletePayee(id)).unwrap();
+      toast.success('Payee deleted successfully');
+      dispatch(getPayeeList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -91,10 +91,10 @@ const CostCenter = () => {
 
   const onBulkDelete = async () => {
     try {
-      await dispatch(bulkDeleteCostCenter(deleteIDs)).unwrap();
-      toast.success('Cost Center deleted successfully');
+      await dispatch(bulkDeletePayee(deleteIDs)).unwrap();
+      toast.success('Payee deleted successfully');
       closeDeleteModal();
-      await dispatch(getCostCenterList(params)).unwrap();
+      await dispatch(getPayeeList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -108,12 +108,12 @@ const CostCenter = () => {
       sorter: true,
       width: 120,
       ellipsis: true,
-      render: (_, { name, editable, cost_center_id }) =>
+      render: (_, { name, editable, payee_id }) =>
         editable ? (
           <Input
             autoFocus
             defaultValue={name}
-            onBlur={(e) => onChange(cost_center_id, 'name', e.target.value)}
+            onBlur={(e) => onChange(payee_id, 'name', e.target.value)}
           />
         ) : (
           <span>{name}</span>
@@ -136,12 +136,12 @@ const CostCenter = () => {
       title: 'Action',
       key: 'action',
       render: (_, record) => {
-        const { cost_center_id, editable } = record;
+        const { payee_id, editable } = record;
 
         if (editable) {
           return (
             <div className="flex items-center gap-2">
-              <Tooltip title="Cancel" onClick={() => onCancel(cost_center_id)}>
+              <Tooltip title="Cancel" onClick={() => onCancel(payee_id)}>
                 <Button danger icon={<FcCancel size={20} />} size="small" />
               </Tooltip>
               <Tooltip title="Save">
@@ -149,8 +149,8 @@ const CostCenter = () => {
                   type="primary"
                   size="small"
                   icon={<FaRegSave size={16} />}
-                  loading={isSubmitting === cost_center_id}
-                  onClick={() => (cost_center_id === 'new' ? onCreate(record) : onUpdate(record))}
+                  loading={isSubmitting === payee_id}
+                  onClick={() => (payee_id === 'new' ? onCreate(record) : onUpdate(record))}
                 />
               </Tooltip>
             </div>
@@ -168,8 +168,8 @@ const CostCenter = () => {
                   icon={<MdOutlineEdit size={14} />}
                   onClick={() =>
                     dispatch(
-                      setCostCenterEditable({
-                        id: cost_center_id,
+                      setPayeeEditable({
+                        id: payee_id,
                         editable: true,
                       }),
                     )
@@ -185,7 +185,7 @@ const CostCenter = () => {
                   okButtonProps={{ danger: true }}
                   okText="Yes"
                   cancelText="No"
-                  onConfirm={() => onCostCenterDelete(cost_center_id)}>
+                  onConfirm={() => onPayeeDelete(payee_id)}>
                   <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                 </Popconfirm>
               </Tooltip>
@@ -203,14 +203,14 @@ const CostCenter = () => {
   }
 
   useEffect(() => {
-    dispatch(getCostCenterList(params)).unwrap().catch(handleError);
+    dispatch(getPayeeList(params)).unwrap().catch(handleError);
   }, [params.page, params.limit, params.sort_column, params.sort_direction, debouncedSearch]);
 
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>COST CENTER</PageHeading>
-        <Breadcrumb items={[{ title: 'Cost Center' }, { title: 'List' }]} separator=">" />
+        <PageHeading>PAYEE</PageHeading>
+        <Breadcrumb items={[{ title: 'Payee' }, { title: 'List' }]} separator=">" />
       </div>
 
       <div className="mt-4 rounded-md bg-white p-2">
@@ -220,7 +220,7 @@ const CostCenter = () => {
             allowClear
             className="w-full sm:w-64"
             value={params.search}
-            onChange={(e) => dispatch(setCostCenterListParams({ search: e.target.value }))}
+            onChange={(e) => dispatch(setPayeeListParams({ search: e.target.value }))}
           />
 
           <div className="flex items-center gap-2">
@@ -232,7 +232,7 @@ const CostCenter = () => {
               Delete
             </Button>
             {permissions.add ? (
-              <Button type="primary" onClick={() => dispatch(addNewCostCenter())}>
+              <Button type="primary" onClick={() => dispatch(addNewPayee())}>
                 Add New
               </Button>
             ) : null}
@@ -246,16 +246,16 @@ const CostCenter = () => {
               ? {
                   type: 'checkbox',
                   selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setCostCenterDeleteIDs(selectedRowKeys)),
+                  onChange: (selectedRowKeys) => dispatch(setPayeeDeleteIDs(selectedRowKeys)),
                   getCheckboxProps: (record) => ({
-                    disabled: record.cost_center_id === 'new',
+                    disabled: record.payee_id === 'new',
                   }),
                 }
               : null
           }
           onChange={(page, _, sorting) => {
             dispatch(
-              setCostCenterListParams({
+              setPayeeListParams({
                 page: page.current,
                 limit: page.pageSize,
                 sort_column: sorting.field,
@@ -264,7 +264,7 @@ const CostCenter = () => {
             );
           }}
           loading={isListLoading}
-          rowKey="cost_center_id"
+          rowKey="payee_id"
           className="mt-2"
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
@@ -294,4 +294,4 @@ const CostCenter = () => {
   );
 };
 
-export default CostCenter;
+export default Payee;

@@ -49,3 +49,71 @@ INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `docume
 VALUES ( 64, 'Vendor Bill', '{BC}/VB-', 'vendor_bill', 'vendor_bill_id' );
 
 ALTER TABLE `credit_note` ADD `remarks` TEXT DEFAULT NULL;
+
+
+
+create table payee (
+    `payee_id` char(36) NOT NULL,
+    `company_id` char(36) NOT NULL,
+    `company_branch_id` char(36) NOT NULL,
+    `name` varchar(255) NOT NULL,
+    `created_at` timestamp NULL DEFAULT NULL,
+    `created_by` char(36) DEFAULT NULL,
+    `updated_at` timestamp NULL DEFAULT NULL,
+    `updated_by` char(36) DEFAULT NULL,
+    PRIMARY KEY (`payee_id`),
+    KEY `idx_payee_company_id` (`company_id`),
+    KEY `idx_payee_company_branch_id` (`company_branch_id`),
+    KEY `idx_payee_name` (`name`)
+);
+
+ALTER TABLE `payment_voucher_detail` ADD `payee_id` char(36) DEFAULT NULL;
+
+INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `document_prefix`, `table_name`, `primary_key`)
+VALUES ( 65, 'Journal Voucher', '{BC}/JV-', 'journal_voucher', 'journal_voucher_id' );
+
+create table journal_voucher (
+    `journal_voucher_id` char(36) NOT NULL,
+    `company_id` char(36) NOT NULL,
+    `company_branch_id` char(36) NOT NULL,
+    `document_type_id` int NOT NULL,
+    `document_no` int NOT NULL,
+    `document_prefix` varchar(255) NOT NULL,
+    `document_identity` varchar(255) NOT NULL,
+    `document_date` date DEFAULT NULL,
+    `base_currency_id` char(36) DEFAULT NULL,
+    `document_currency_id` char(36) DEFAULT NULL,
+    `conversion_rate` decimal(10,2) DEFAULT NULL,
+    `total_credit` decimal(10,2) DEFAULT NULL,
+    `total_debit` decimal(10,2) DEFAULT NULL,
+    `remarks` varchar(255) DEFAULT NULL,
+    `created_at` timestamp NULL DEFAULT NULL,
+    `created_by` char(36) DEFAULT NULL,
+    `updated_at` timestamp NULL DEFAULT NULL,
+    `updated_by` char(36) DEFAULT NULL,
+    PRIMARY KEY (`journal_voucher_id`),
+    KEY `idx_journal_voucher_company_id` (`company_id`),
+    KEY `idx_journal_voucher_company_branch_id` (`company_branch_id`),
+    KEY `idx_journal_voucher_document_type_id` (`document_type_id`),
+    KEY `idx_journal_voucher_document_identity` (`document_identity`),
+    KEY `idx_journal_voucher_document_date` (`document_date`)
+);
+
+
+create table journal_voucher_detail (
+    `journal_voucher_detail_id` char(36) NOT NULL,
+    `journal_voucher_id` char(36) NOT NULL,
+    `sort_order` int NOT NULL,
+    `account_id` char(36) NOT NULL,
+    `debit` decimal(10,2) DEFAULT NULL,
+    `credit` decimal(10,2) DEFAULT NULL,
+    `remarks` varchar(255) DEFAULT NULL,
+    `created_at` timestamp NULL DEFAULT NULL,
+    `created_by` char(36) DEFAULT NULL,
+    `updated_at` timestamp NULL DEFAULT NULL,
+    `updated_by` char(36) DEFAULT NULL,
+    PRIMARY KEY (`journal_voucher_detail_id`),
+    KEY `idx_journal_voucher_detail_journal_voucher_id` (`journal_voucher_id`),
+    KEY `idx_journal_voucher_detail_account_id` (`account_id`),
+    KEY `idx_journal_voucher_detail_sort_order` (`sort_order`)
+);

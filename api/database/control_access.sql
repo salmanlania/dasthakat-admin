@@ -36,6 +36,11 @@
   ('General Group', 'Vendor', 'supplier', 'edit', 'Edit', 1.103),
   ('General Group', 'Vendor', 'supplier', 'delete', 'Delete', 1.104),
 
+  ('General Group', 'Payee', 'payee', 'list', 'List', 1.101),
+  ('General Group', 'Payee', 'payee', 'add', 'Add', 1.102),
+  ('General Group', 'Payee', 'payee', 'edit', 'Edit', 1.103),
+  ('General Group', 'Payee', 'payee', 'delete', 'Delete', 1.104),
+
   ('General Group', 'Agent', 'agent', 'list', 'List', 1.101),
   ('General Group', 'Agent', 'agent', 'add', 'Add', 1.102),
   ('General Group', 'Agent', 'agent', 'edit', 'Edit', 1.103),
@@ -120,6 +125,11 @@
   -- ('General Ledger', 'Coa Level 3', 'coa_level3', 'add', 'Add', 1.102),
   -- ('General Ledger', 'Coa Level 3', 'coa_level3', 'edit', 'Edit', 1.103),
   -- ('General Ledger', 'Coa Level 3', 'coa_level3', 'delete', 'Delete', 1.104),
+  
+  ('General Ledger', 'Journal Voucher', 'journal_voucher', 'list', 'List', 1.101),
+  ('General Ledger', 'Journal Voucher', 'journal_voucher', 'add', 'Add', 1.102),
+  ('General Ledger', 'Journal Voucher', 'journal_voucher', 'edit', 'Edit', 1.103),
+  ('General Ledger', 'Journal Voucher', 'journal_voucher', 'delete', 'Delete', 1.104),
   
   ('General Ledger', 'Customer Payment', 'customer_payment', 'list', 'List', 1.101),
   ('General Ledger', 'Customer Payment', 'customer_payment', 'add', 'Add', 1.102),

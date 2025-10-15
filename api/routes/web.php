@@ -114,6 +114,15 @@ $router->group(['prefix' => 'supplier'], function ($router) {
    $router->post('/bulk-delete', 'SupplierController@bulkDelete');
 });
 
+$router->group(['prefix' => 'payee'], function ($router) {
+   $router->get('/', 'PayeeController@index');
+   $router->get('/{id}', 'PayeeController@show');
+   $router->post('/', 'PayeeController@store');
+   $router->put('/{id}', 'PayeeController@update');
+   $router->delete('/{id}', 'PayeeController@delete');
+   $router->post('/bulk-delete', 'PayeeController@bulkDelete');
+});
+
 $router->group(['prefix' => 'agent'], function ($router) {
    $router->get('/', 'AgentController@index');
    $router->get('/{id}', 'AgentController@show');
@@ -464,6 +473,7 @@ $router->group(['prefix' => 'purchase-order'], function ($router) {
 
 $router->group(['prefix' => 'purchase-invoice'], function ($router) {
    $router->get('/', 'PurchaseInvoiceController@index');
+   $router->get('/view-before-create/{purchase_order_id}', 'PurchaseInvoiceController@viewBeforeCreate');
    $router->get('/{id}', 'PurchaseInvoiceController@show');
    $router->post('/', 'PurchaseInvoiceController@store');
    $router->put('/{id}', 'PurchaseInvoiceController@update');
@@ -548,6 +558,16 @@ $router->group(['prefix' => 'customer-payment'], function ($router) {
     $router->get('/{id}', 'CustomerPaymentController@show');
     $router->put('/{id}', 'CustomerPaymentController@update');
     $router->delete('/{id}', 'CustomerPaymentController@delete');
+});
+
+// journal voucher routes
+$router->group(['prefix' => 'journal-voucher'], function ($router) {
+    $router->get('/', 'JournalVoucherController@index');
+    $router->post('/', 'JournalVoucherController@store');
+    $router->post('/bulk-delete', 'JournalVoucherController@bulkDelete');
+    $router->get('/{id}', 'JournalVoucherController@show');
+    $router->put('/{id}', 'JournalVoucherController@update');
+    $router->delete('/{id}', 'JournalVoucherController@delete');
 });
 
 // customer payment routes

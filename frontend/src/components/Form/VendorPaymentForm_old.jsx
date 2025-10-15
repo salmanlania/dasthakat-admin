@@ -5,39 +5,36 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { getCustomerLedgerInvoices } from '../../store/features/customerPaymentSlice';
+import { getVendorLedgerInvoices, updateVendorPaymentDetail } from '../../store/features/vendorPaymentSlice';
 import AsyncSelect from '../AsyncSelect';
 import DebouncedCommaSeparatedInput from '../Input/DebouncedCommaSeparatedInput';
 import DebounceInput from '../Input/DebounceInput';
 import DebouncedCommaSeparatedInputRate from '../Input/DebouncedCommaSeparatedInputRate';
 import LedgerModal from '../Modals/LedgerModal';
-import DebouncedNumberInputMarkup from '../Input/DebouncedNumberInputMarkup';
+import AsyncSelectProduct from '../AsyncSelectProduct';
 
-export const DetailSummaryInfoCP = ({ title, value, disabled }) => {
-  return (
-    <div className="grid grid-cols-2 items-center gap-4 mb-2">
-      <span className="text-sm text-gray-600">{title}</span>
-      <DebouncedCommaSeparatedInputRate
-        disabled={disabled}
-        className="text-sm font-semibold text-black text-right"
-        value={value}
-      />
-    </div>
-  );
-};
-
-const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
+const VendorPaymentForm = ({ mode, onSubmit, onSave }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const { isFormSubmitting, initialFormValues, ledgerInvoices, isLedgerLoading } = useSelector(
-    (state) => state.customerPayment
+    (state) => state.vendorPayment
   );
 
+  const DetailSummaryInfo = ({ title, value, disabled }) => {
+    return (
+      <div className="grid grid-cols-2 items-center gap-4 mb-2">
+        <span className="text-sm text-gray-600">{title}</span>
+        <DebouncedCommaSeparatedInputRate
+          disabled={disabled}
+          className="text-sm font-semibold text-black text-right"
+          value={value}
+        />
+      </div>
+    );
+  };
 
   const [totalAmountDue, setTotalAmountDue] = useState('');
   const [totalSettled, setTotalSettled] = useState(0);
-  const [autoDistributeEnabled, setAutoDistributeEnabled] = useState(true);
-  const [totalDueAfterSettlement, setTotalDueAfterSettlement] = useState(0);
   const [totalAmountVal, setTotalAmountVal] = useState(0);
   const [submitAction, setSubmitAction] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -56,34 +53,36 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
     const data = {
       ...initialFormValues,
       ...values,
-      customer_id: values?.customer_id?.value ? values?.customer_id?.value : values?.customer_id?.key ? values?.customer_id?.key : null,
+      supplier_id: values?.supplier_id?.value ? values?.supplier_id?.value : values?.supplier_id?.key ? values?.supplier_id?.key : null,
+      transaction_account_id: values?.transaction_account_id?.value ? values?.transaction_account_id?.value : values?.transaction_account_id?.key ? values?.transaction_account_id?.key : values?.transaction_account_id.length > 0 ? values?.transaction_account_id : null,
       total_amount: totalSettled ? totalSettled : totalAmountVal,
       payment_amount: paymentAmount,
       document_date: formatDate(values.document_date),
       details:
         mode === 'edit' ?
           ledgerInvoices.map((row, index) => {
-            const isSelected = selectedRowKeys.includes(row.sale_invoice_id);
+            const isSelected = selectedRowKeys.includes(row?.purchase_invoice_id);
             return {
               ...row,
-              sale_invoice_id: row?.sale_invoice_id,
+              purchase_invoice_id: row?.purchase_invoice_id,
               ref_document_identity: row?.document_identity || row?.ref_document_identity,
               ref_document_type_id: row?.document_type_id,
               original_amount: row?.net_amount,
               balance_amount: parseInt(row?.balance_amount),
-              settled_amount: settledAmounts[row.sale_invoice_id] || 0,
+              settled_amount: settledAmounts[row.purchase_invoice_id] || 0,
+              account_id: row?.account_id ? row?.account_id?.value || row?.account_id : null,
               sort_order: index + 1,
               row_status: isSelected ? (row?.row_status || "U") : "D"
             };
           })
           : selectedRows.map((row, index) => ({
             ...row,
-            sale_invoice_id: row?.sale_invoice_id,
+            purchase_invoice_id: row?.purchase_invoice_id,
             ref_document_identity: row?.document_identity,
             ref_document_type_id: row?.document_type_id,
             original_amount: row?.net_amount,
             balance_amount: parseInt(row?.balance_amount),
-            settled_amount: settledAmounts[row.sale_invoice_id] || 0,
+            settled_amount: settledAmounts[row.purchase_invoice_id] || 0,
             sort_order: index + 1,
             row_status: row?.row_status
           }))
@@ -93,7 +92,6 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
   };
 
   const handleSettledAmountChange = (value, record) => {
-    setAutoDistributeEnabled(false);
     const rawValue = typeof value === "string" ? value : String(value ?? "0");
     const settledAmount = parseFloat(rawValue.replace(/,/g, "")) || 0
 
@@ -101,10 +99,10 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       toast.error("Settled amount cannot be greater than Balance Amount");
       return;
     }
-    const id = String(record.sale_invoice_id);
+
     setSettledAmounts(prev => ({
       ...prev,
-      [id]: settledAmount
+      [record.purchase_invoice_id]: settledAmount
     }));
   };
 
@@ -125,174 +123,29 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
 
   }, [selectedRowKeys, settledAmounts]);
 
-  const watchedReceiptAmount = Form.useWatch("payment_amount", form);
-
-  // useEffect(() => {
-  //   const amountValue = watchedReceiptAmount;
-  //   if (!amountValue) {
-  //     setSelectedRowKeys([]);
-  //     setSelectedRows([]);
-  //     setSettledAmounts({});
-  //     setTotalDueAfterSettlement(0);
-  //     setAutoDistributeEnabled(true);
-  //     return;
-  //   }
-
-  //   if (!autoDistributeEnabled) return;
-  //   if (!ledgerInvoices?.length) return;
-  //   const receiptAmount = parseFloat(amountValue.toString().replace(/,/g, ""));
-  //   if (!receiptAmount || !ledgerInvoices?.length) return;
-
-  //   let remainingAmount = receiptAmount;
-  //   const newSelectedRows = [];
-  //   const newSelectedKeys = [];
-  //   const newSettledAmounts = {};
-
-  //   const orderedInvoices = [...ledgerInvoices].sort((a, b) => {
-  //     const aSort = a.sort_order || 0;
-  //     const bSort = b.sort_order || 0;
-  //     return aSort - bSort;
-  //   });
-
-  //   for (const row of orderedInvoices) {
-  //     const balance = Number(row.balance_amount || 0);
-  //     if (remainingAmount <= 0) break;
-
-  //     newSelectedKeys.push(row.sale_invoice_id);
-  //     newSelectedRows.push(row);
-
-  //     if (remainingAmount >= balance) {
-  //       newSettledAmounts[row.sale_invoice_id] = balance;
-  //       remainingAmount -= balance;
-  //     } else {
-  //       newSettledAmounts[row.sale_invoice_id] = remainingAmount;
-  //       remainingAmount = 0;
-  //     }
-  //   }
-
-  //   setSelectedRowKeys(newSelectedKeys);
-  //   setSelectedRows(newSelectedRows);
-  //   setSettledAmounts(newSettledAmounts);
-
-  //   let totalDue = 0;
-  //   for (const row of newSelectedRows) {
-  //     const balance = Number(row.balance_amount || 0);
-  //     const settled = Number(newSettledAmounts[row.sale_invoice_id] || 0);
-  //     totalDue += balance - settled;
-  //   }
-
-  //   setTotalDueAfterSettlement(totalDue);
-  // }, [watchedReceiptAmount, ledgerInvoices, autoDistributeEnabled]);
-
-  useEffect(() => {
-    const amountValue = watchedReceiptAmount;
-    if (!amountValue) {
-      // clear all if receipt amount is empty
-      setSelectedRowKeys([]);
-      setSelectedRows([]);
-      setSettledAmounts({});
-      setTotalDueAfterSettlement(0);
-      setAutoDistributeEnabled(true);
-      return;
-    }
-
-    if (!ledgerInvoices?.length) return;
-    if (!autoDistributeEnabled) return; // only auto-distribute if enabled
-
-    const receiptAmount = parseFloat(amountValue.toString().replace(/,/g, ""));
-    let remainingAmount = receiptAmount;
-    const newSelectedRows = [];
-    const newSelectedKeys = [];
-    const newSettledAmounts = {};
-
-    const orderedInvoices = [...ledgerInvoices].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
-
-    for (const row of orderedInvoices) {
-      const balance = Number(row.balance_amount || 0);
-      if (remainingAmount <= 0) break;
-
-      newSelectedKeys.push(row.sale_invoice_id);
-      newSelectedRows.push(row);
-
-      if (remainingAmount >= balance) {
-        newSettledAmounts[row.sale_invoice_id] = balance;
-        remainingAmount -= balance;
-      } else {
-        newSettledAmounts[row.sale_invoice_id] = remainingAmount;
-        remainingAmount = 0;
-      }
-    }
-
-    setSelectedRowKeys(newSelectedKeys);
-    setSelectedRows(newSelectedRows);
-    setSettledAmounts(newSettledAmounts);
-
-    const totalDue = newSelectedRows.reduce((sum, row) => {
-      const balance = Number(row.balance_amount || 0);
-      const settled = Number(newSettledAmounts[row.sale_invoice_id] || 0);
-      return sum + (balance - settled);
-    }, 0);
-
-    setTotalDueAfterSettlement(totalDue);
-  }, [watchedReceiptAmount, ledgerInvoices, autoDistributeEnabled]);
-
-  useEffect(() => {
-    if (!selectedRows.length) {
-      setTotalDueAfterSettlement(0);
-      return;
-    }
-
-    let totalBalance = 0;
-    let totalSettledLocal = 0;
-
-    selectedRows.forEach((row) => {
-      const balance = Number(row.balance_amount || 0);
-      const settled = Number(settledAmounts[row.sale_invoice_id] || 0);
-      totalBalance += balance;
-      totalSettledLocal += settled;
-    });
-
-    const dueAfterSettlement = totalBalance - totalSettledLocal;
-
-    setTotalDueAfterSettlement(dueAfterSettlement);
-
-    const totalSettledSum = Object.keys(settledAmounts).reduce(
-      (sum, key) => sum + Number(settledAmounts[key] || 0),
-      0
-    );
-
-    const receiptAmount = Number(form.getFieldValue("payment_amount") || 0);
-
-    if (autoDistributeEnabled && totalSettledSum && totalSettledSum !== receiptAmount) {
-      form.setFieldsValue({
-        payment_amount: Number(totalSettledSum).toFixed(2),
-      });
-    }
-  }, [selectedRows, settledAmounts, autoDistributeEnabled]);
-
   useEffect(() => {
     if (mode === 'edit' && initialFormValues) {
-      const customerId = initialFormValues?.customer_id || '';
+      const vendorId = initialFormValues?.supplier_id || '';
       const documentDate = initialFormValues?.document_date ? dayjs(initialFormValues?.document_date) : null;
       const amount = initialFormValues?.total_amount ? initialFormValues?.total_amount : 0
       const paymentAmount = initialFormValues?.payment_amount ? initialFormValues?.payment_amount : null
       const remarks = initialFormValues?.remarks ? initialFormValues?.remarks : null
       setTotalAmountVal(amount)
       form.setFieldsValue({
-        customer_id: customerId,
+        supplier_id: vendorId,
         document_date: documentDate,
         payment_amount: paymentAmount,
         remarks: remarks,
       });
 
       if (initialFormValues?.details?.length > 0) {
-        const keys = initialFormValues.details.map((d) => d.sale_invoice_id);
+        const keys = initialFormValues.details.map((d) => d.purchase_invoice_id);
         setSelectedRowKeys(keys);
         setSelectedRows(initialFormValues.details);
 
         const settledMap = {};
         initialFormValues.details.forEach((d) => {
-          settledMap[d.sale_invoice_id] = d.settled_amount || 0;
+          settledMap[d.purchase_invoice_id] = d.settled_amount || 0;
         });
         setSettledAmounts(settledMap);
       }
@@ -373,7 +226,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
       dataIndex: 'settled_amount',
       key: 'settled_amount',
       render: (_, record) => {
-        const value = settledAmounts[record?.sale_invoice_id] ?? '';
+        const value = settledAmounts[record?.purchase_invoice_id] ?? '';
         return (
           <DebouncedCommaSeparatedInputRate
             className="text-right"
@@ -389,7 +242,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
   return (
     <>
       <Form
-        name="customerPayment"
+        name="vendorPayment"
         layout="vertical"
         autoComplete="off"
         form={form}
@@ -407,7 +260,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
         scrollToFirstError>
         {/* Make this sticky */}
         <p className="sticky top-14 z-10 m-auto -mt-8 w-fit rounded border bg-white p-1 px-2 text-xs font-semibold">
-          <span className="text-gray-500">Customer Payment No:</span>
+          <span className="text-gray-500">Vendor Payment No:</span>
           <span
             className={`ml-4 text-amber-600 ${mode === 'edit' ? 'cursor-pointer hover:bg-slate-200' : ''
               } rounded px-1`}
@@ -432,27 +285,44 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
           </Col>
           <Col span={24} sm={6} md={6} lg={6}>
             <Form.Item
-              name="customer_id"
-              label="Select Customer"
-              rules={[{ required: true, message: 'Customer is required' }]}>
+              name="supplier_id"
+              label="Select Vendor"
+              rules={[{ required: true, message: 'Vendor is required' }]}>
               <AsyncSelect
-                endpoint="/customer"
-                valueKey="customer_id"
+                endpoint="/supplier"
+                valueKey="supplier_id"
                 labelKey="name"
                 labelInValue
                 onChange={(value) => {
                   if (value?.value) {
-                    dispatch(getCustomerLedgerInvoices(value.value));
+                    dispatch(getVendorLedgerInvoices(value.value));
                   }
                 }}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={24} sm={6} md={6} lg={6}>
+            <Form.Item
+              name="transaction_account_id"
+              label="Select Bank"
+              rules={[{ required: true, message: 'Bank is required' }]}
+            >
+              <AsyncSelectProduct
+                key={'transaction_account_id'}
+                endpoint="/setting?field=transaction_account"
+                size="medium"
+                className="w-full font-normal"
+                valueKey="account_id"
+                labelKey="name"
+                allowClear
               />
             </Form.Item>
           </Col>
         </Row>
         <Row gutter={12}>
           <Col span={24} sm={6} md={6} lg={6}>
-            <Form.Item name="payment_amount" label="Payment Amount">
-              <DebouncedNumberInputMarkup className="text-right" />
+            <Form.Item name="payment_amount" label="Receipt Amount">
+              <DebouncedCommaSeparatedInput className="text-right" />
             </Form.Item>
           </Col>
           <Col span={24} sm={6} md={6} lg={6}>
@@ -465,7 +335,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
         <Table
           columns={columns}
           dataSource={ledgerInvoices}
-          rowKey={'sale_invoice_id'}
+          rowKey={'purchase_invoice_id'}
           size="small"
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={false}
@@ -474,82 +344,22 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
           }}
           rowSelection={{
             selectedRowKeys,
-            onChange: (newSelectedRowKeys) => {
-              const newKeysStr = newSelectedRowKeys.map(String);
+            onChange: (newSelectedRowKeys, newSelectedRows) => {
+              setSelectedRowKeys(newSelectedRowKeys);
+              setSelectedRows(newSelectedRows);
 
-              // If all rows are deselected, reset auto-distribute
-              if (newKeysStr.length === 0) {
-                setAutoDistributeEnabled(true);
-                setSelectedRows([]);
-                setSettledAmounts({});
-                setSelectedRowKeys([]);
-                setTotalDueAfterSettlement(0);
-                return; // exit early
-              } else {
-                setAutoDistributeEnabled(false);
-              }
-
-              const newSelectedRows = ledgerInvoices.filter(inv =>
-                newKeysStr.includes(String(inv.sale_invoice_id))
-              );
-
-              // Recalculate settledAmounts only for newly selected rows
               setSettledAmounts(prev => {
                 const updated = { ...prev };
                 newSelectedRows.forEach(row => {
-                  const k = String(row.sale_invoice_id);
-                  if (!(k in updated)) updated[k] = Number(row.balance_amount || 0);
+                  if (!(row.purchase_invoice_id in updated)) {
+                    updated[row.purchase_invoice_id] = row.balance_amount || 0;
+                  }
                 });
-                // remove unselected
-                Object.keys(updated).forEach(k => {
-                  if (!newKeysStr.includes(k)) delete updated[k];
-                });
+
                 return updated;
               });
-
-              setSelectedRowKeys(newKeysStr);
-              setSelectedRows(newSelectedRows);
             }
           }}
-        // rowSelection={{
-        //   selectedRowKeys,
-        //   onChange: (newSelectedRowKeys) => {
-        //     // setAutoDistributeEnabled(false);
-        //     const newKeysStr = newSelectedRowKeys.map(String);
-        //     if (newKeysStr.length === 0) {
-        //       setAutoDistributeEnabled(true);
-        //       setSettledAmounts({});
-        //     } else {
-        //       setAutoDistributeEnabled(false);
-        //     }
-        //     const newSelectedRows = ledgerInvoices.filter(inv =>
-        //       newKeysStr.includes(String(inv.sale_invoice_id))
-        //     );
-
-        //     setSettledAmounts(prev => {
-        //       const updated = { ...prev };
-
-        //       newSelectedRows.forEach(row => {
-        //         const k = String(row.sale_invoice_id);
-        //         if (!(k in updated)) {
-        //           updated[k] = Number(row.balance_amount || 0);
-        //         }
-        //       });
-
-        //       const keepSet = new Set(newKeysStr);
-        //       Object.keys(updated).forEach(k => {
-        //         if (!keepSet.has(String(k))) {
-        //           delete updated[k];
-        //         }
-        //       });
-
-        //       return updated;
-        //     });
-
-        //     setSelectedRowKeys(newKeysStr);
-        //     setSelectedRows(newSelectedRows);
-        //   }
-        // }}
         />
 
         <div className="flex justify-end w-full">
@@ -561,8 +371,8 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
             </div>
 
             <div className="p-4">
-              <DetailSummaryInfoCP
-                title="Total Amount"
+              <DetailSummaryInfo
+                title="Amount Due"
                 disabled
                 value={
                   (totalSettled || totalAmountVal)
@@ -570,17 +380,12 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
                     : "0.00"
                 }
               />
-              <DetailSummaryInfoCP
-                title="Balance Amount"
-                disabled
-                value={totalDueAfterSettlement || "0.00"}
-              />
-              <DetailSummaryInfoCP
+              <DetailSummaryInfo
                 title="Applied"
                 disabled
                 value={totalAmountDue || "0.00"}
               />
-              <DetailSummaryInfoCP
+              <DetailSummaryInfo
                 title="Discount & Credit Applied"
                 disabled
                 value={initialFormValues?.totalDiscount || "0.00"}
@@ -590,7 +395,7 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
         </div>
 
         <div className="mt-4 flex items-center justify-end gap-2">
-          <Link to="/general-ledger/transactions/customer-payment">
+          <Link to="/general-ledger/transactions/vendor-payment">
             <Button className="w-28">Exit</Button>
           </Link>
           <Button
@@ -639,4 +444,4 @@ const CustomerPaymentForm = ({ mode, onSubmit, onSave }) => {
   );
 };
 
-export default CustomerPaymentForm;
+export default VendorPaymentForm;

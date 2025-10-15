@@ -39,6 +39,7 @@ import { createPurchaseOrderPrint } from '../../utils/prints/purchase-order-prin
 import { createPurchaseOrderWithoutRatePrint } from '../../utils/prints/purchase-order-print-without-rate';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import { IoDuplicateOutline } from 'react-icons/io5';
+import GrnModal from '../../components/Modals/GrnModal';
 
 export const purchaseOrderTypes = [
   {
@@ -77,6 +78,8 @@ const PurchaseOrder = () => {
   const permissions = user.permission.purchase_order;
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
+  const [grnModalOpen, setGrnModalOpen] = useState(false);
+  const [selectedPurchaseOrderId, setSelectedPurchaseOrderId] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
   const debouncedSearch = useDebounce(params.search, 500);
@@ -158,6 +161,11 @@ const PurchaseOrder = () => {
       handleError(error);
     }
   };
+
+  const onCreatePurchaseInvoice = async (purchase_order_id) => {
+    setSelectedPurchaseOrderId(purchase_order_id);
+    setGrnModalOpen(true);
+  }
 
   const columns = [
     {
@@ -592,17 +600,7 @@ const PurchaseOrder = () => {
                   type="primary"
                   className="bg-indigo-600 hover:!bg-indigo-500"
                   icon={<FaFileInvoice size={14} />}
-                  onClick={async () => {
-                    try {
-                      const document_date = dayjs().format('YYYY-MM-DD');
-                      await dispatch(
-                        createPurchaseInvoice({ purchase_order_id, document_date }),
-                      ).unwrap();
-                      toast.success('Purchase invoice created successfully');
-                    } catch (error) {
-                      handleError(error);
-                    }
-                  }}
+                  onClick={() => onCreatePurchaseInvoice(purchase_order_id)}
                 />
               </Tooltip>
             ) : null}
@@ -744,6 +742,11 @@ const PurchaseOrder = () => {
       />
 
       <ChargeOrderModal />
+      <GrnModal
+        open={grnModalOpen}
+        onCancel={() => setGrnModalOpen(false)}
+        purchaseOrderId={selectedPurchaseOrderId}
+      />
     </>
   );
 };

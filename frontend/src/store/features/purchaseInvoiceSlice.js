@@ -52,6 +52,19 @@ export const getPurchaseInvoice = createAsyncThunk(
   }
 );
 
+export const getGrn = createAsyncThunk(
+  'purchase-invoice-grn/get',
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/purchase-invoice/view-before-create/${id}`);
+      const data = res?.data?.data;
+      return data
+    } catch (err) {
+      throw rejectWithValue(err);
+    }
+  }
+);
+
 export const getPurchaseInvoiceForPrint = createAsyncThunk(
   'purchase-invoiceForPrint/get',
   async (id, { rejectWithValue }) => {
@@ -247,23 +260,23 @@ export const purchaseInvoiceSlice = createSlice({
         vendor_invoice_no: data?.vendor_invoice_no,
         buyer_id: data.user
           ? {
-              value: data.user.user_id,
-              label: data.user.user_name
-            }
+            value: data.user.user_id,
+            label: data.user.user_name
+          }
           : null,
         payment_id: data.payment
           ? {
-              value: data.payment.payment_id,
-              label: data.payment.name
-            }
+            value: data.payment.payment_id,
+            label: data.payment.name
+          }
           : null,
         supplier: data?.supplier?.name,
         purchase_order: data?.purchase_order,
         supplier_id: data.supplier
           ? {
-              value: data.supplier.supplier_id,
-              label: data.supplier.name
-            }
+            value: data.supplier.supplier_id,
+            label: data.supplier.name
+          }
           : null
       };
 
@@ -276,9 +289,9 @@ export const purchaseInvoiceSlice = createSlice({
           : null,
         product_type_id: detail.product_type
           ? {
-              value: detail.product_type.product_type_id,
-              label: detail.product_type.name
-            }
+            value: detail.product_type.product_type_id,
+            label: detail.product_type.name
+          }
           : null,
         product_name: detail.product_name,
         product_description: detail.product_description,

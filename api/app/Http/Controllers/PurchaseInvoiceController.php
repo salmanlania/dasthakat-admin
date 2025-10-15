@@ -159,6 +159,28 @@ class PurchaseInvoiceController extends Controller
 		return [];
 	}
 
+	public function viewBeforeCreate($purchase_order_id, Request $request)
+	{
+		$grns = GRN::with(['grn_detail' => function ($q) {
+			$q->with(['purchase_invoice_detail']); // eager load invoices
+		}])
+			->where('purchase_order_id', $purchase_order_id)
+			->get();
+
+		// Filter out GRN details that are fully invoiced
+		$filtered = $grns->map(function ($grn) {
+			$remainingDetails = $grn->grn_detail->filter(function ($detail) {
+				$invoicedQty = $detail->purchase_invoice_detail->sum('quantity');
+				return $detail->quantity > $invoicedQty;
+			})->values();
+
+			$grn->remaining_details = $remainingDetails;
+			return $grn;
+		})->filter(fn($grn) => $grn->remaining_details->isNotEmpty())->values();
+
+		return $this->jsonResponse($filtered, 200, "Remaining GRNs for Purchase Order");
+	}
+
 
 
 	public function store(Request $request)
@@ -234,13 +256,15 @@ class PurchaseInvoiceController extends Controller
 			$sortIndex = 0;
 
 			foreach ($purchaseOrder->purchase_order_detail as $detail) {
-				if (PurchaseInvoiceDetail::where('purchase_order_detail_id', $detail->purchase_order_detail_id)->exists()) {
+				if (PurchaseInvoiceDetail::where('purchase_order_detail_id', $detail->purchase_order_detail_id)->sum('quantity') == $detail->quantity) {
 					continue;
 				}
 
-				$grnQty = GRNDetail::where('purchase_order_detail_id', $detail->purchase_order_detail_id)->sum('quantity') ?? 0;
-				if ($grnQty <= 0) continue;
-
+				$grnQty = GRNDetail::whereHas("grn", function ($query) use ($request) {
+					$query->whereIn('good_received_note_id', $request->good_received_note_id);
+				})
+				->where('purchase_order_detail_id', $detail->purchase_order_detail_id)->sum('quantity') ?? 0;
+				// if ($grnQty <= 0) continue;
 				$amount = $detail->rate * $grnQty;
 				$totalQuantity += $grnQty;
 				$totalAmount += $amount;
@@ -377,7 +401,127 @@ class PurchaseInvoiceController extends Controller
 			return $this->jsonResponse("Something went wrong while saving Purchase Invoice.", 500, "Transaction Failed");
 		}
 	}
+// 	public function store(Request $request)
+// 	{
+// 		// 1. Permission Check
+// 		if (!isPermission('add', 'purchase_invoice', $request->permission_list)) {
+// 			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+// 		}
 
+// 		// 2. Validate Request
+// 		$validationError = $this->validateRequest($request->all());
+// 		if (!empty($validationError)) {
+// 			return $this->jsonResponse($validationError, 400, "Request Failed!");
+// 		}
+
+// 		DB::beginTransaction();
+// 		try {
+// 			// 3. Fetch Related Purchase Order
+// 			$purchaseOrder = PurchaseOrder::with('purchase_order_detail')
+// 				->find($request->purchase_order_id);
+
+// 			if (!$purchaseOrder)
+// 				return $this->jsonResponse('Purchase Order not found.', 404);
+
+// 			$base_currency_id = Company::where('company_id', $request->company_id)->pluck('base_currency_id')->first();
+// 			$default_currency_id = Currency::where('company_id', $request->company_id)->where('company_branch_id', $request->company_branch_id)->value('currency_id');
+// 			$conversion_rate = 1;
+
+// 			// 4. Prepare Invoice Header Data
+// 			$uuid = $this->get_uuid();
+// 			$document = DocumentType::getNextDocument($this->document_type_id, $request);
+
+// 			$invoiceData = [
+// 				'purchase_invoice_id' => $uuid,
+// 				'company_id'          => $request->company_id ?? "",
+// 				'company_branch_id'   => $request->company_branch_id ?? "",
+// 				'document_type_id'    => $document['document_type_id'] ?? "",
+// 				'document_no'         => $document['document_no'] ?? "",
+// 				'document_prefix'     => $document['document_prefix'] ?? "",
+// 				'document_identity'   => $document['document_identity'] ?? "",
+// 				'document_date'       => $purchaseOrder->document_date ?? "",
+// 				'vendor_invoice_no'   => $purchaseOrder->vendor_invoice_no ?? "",
+// 				'required_date'       => $purchaseOrder->required_date ?? "",
+// 				'supplier_id'         => $purchaseOrder->supplier_id ?? "",
+// 				'buyer_id'            => $purchaseOrder->buyer_id ?? "",
+// 				'ship_via'            => $purchaseOrder->ship_via ?? "",
+// 				'ship_to'             => $purchaseOrder->ship_to ?? "",
+// 				'department'          => $purchaseOrder->department ?? "",
+// 				'charge_order_id'     => $purchaseOrder->charge_order_id ?? "",
+// 				'purchase_order_id'   => $purchaseOrder->purchase_order_id ?? "",
+// 				'payment_id'          => $purchaseOrder->payment_id ?? "",
+// 				'remarks'             => $purchaseOrder->remarks ?? "",
+// 				'freight'             => $purchaseOrder->freight ?? "",
+// 				'created_at'          => Carbon::now(),
+// 				'created_by'          => $request->login_user_id,
+// 			];
+
+// 			// 5. Process Line Items
+// 			$totalQuantity = 0;
+// 			$totalAmount = 0;
+// 			$sortIndex = 0;
+
+// 			// ✅ NEW: Only consider GRN details from selected GRNs
+// 			$selectedGrnIds = $request->good_received_note_id ?? [];
+// 			$grnDetails = GRNDetail::with('purchase_invoice_detail')
+// 				->whereIn('good_received_note_id', $selectedGrnIds)
+// 				->get();
+// return json_encode($grnDetails); 
+// 			foreach ($grnDetails as $grnDetail) {
+// 				// Skip if fully invoiced
+// 				$invoicedQty = $grnDetail->purchase_invoice_detail->sum('quantity');
+// 				$remainingQty = $grnDetail->quantity - $invoicedQty;
+// 				if ($remainingQty <= 0) continue;
+
+// 				$amount = $grnDetail->rate * $remainingQty;
+// 				$totalQuantity += $remainingQty;
+// 				$totalAmount += $amount;
+// 				$detail_id = $this->get_uuid();
+
+// 				$poDetail = $purchaseOrder->purchase_order_detail
+// 					->firstWhere('purchase_order_detail_id', $grnDetail->purchase_order_detail_id);
+
+// 				PurchaseInvoiceDetail::create([
+// 					'purchase_invoice_detail_id' => $detail_id,
+// 					'purchase_invoice_id'        => $uuid,
+// 					'charge_order_detail_id'     => $poDetail->charge_order_detail_id ?? "",
+// 					'purchase_order_detail_id'   => $grnDetail->purchase_order_detail_id,
+// 					'sort_order'                 => $sortIndex++,
+// 					'product_id'                 => $grnDetail->product_id ?? "",
+// 					'product_name'               => $poDetail->product_name ?? "",
+// 					'product_description'        => $poDetail->product_description ?? "",
+// 					'description'                => $poDetail->description ?? "",
+// 					'vpart'                      => $poDetail->vpart ?? "",
+// 					'unit_id'                    => $poDetail->unit_id ?? "",
+// 					'po_price'                   => $grnDetail->rate,
+// 					'quantity'                   => $remainingQty,
+// 					'rate'                       => $grnDetail->rate ?? 0,
+// 					'amount'                     => $amount,
+// 					'vendor_notes'               => $poDetail->vendor_notes ?? "",
+// 					'created_at'                 => Carbon::now(),
+// 					'created_by'                 => $request->login_user_id,
+// 				]);
+// 			}
+
+// 			// 6. Finalize and Save Invoice
+// 			$invoiceData['total_quantity'] = $totalQuantity;
+// 			$invoiceData['total_amount'] = $totalAmount;
+// 			$invoiceData['net_amount'] = $totalAmount;
+
+// 			if ($totalQuantity > 0) {
+// 				PurchaseInvoice::create($invoiceData);
+// 				DB::commit();
+// 				return $this->jsonResponse(['purchase_invoice_id' => $uuid], 200, "Add Purchase Invoice Successfully!");
+// 			} else {
+// 				DB::rollBack();
+// 				return $this->jsonResponse(['purchase_invoice_id' => $uuid], 500, "Cannot generate invoice: No items with available quantity.");
+// 			}
+// 		} catch (\Exception $e) {
+// 			DB::rollBack();
+// 			Log::error('Purchase Invoice Store Error: ' . $e->getMessage());
+// 			return $this->jsonResponse("Something went wrong while saving Purchase Invoice.", 500, "Transaction Failed");
+// 		}
+// 	}
 
 	public function update(Request $request, $id)
 	{
@@ -388,7 +532,7 @@ class PurchaseInvoiceController extends Controller
 		// Validation Rules
 		$isError = $this->validateRequest($request->all(), $id);
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
-			$PurchaseInvoice  = PurchaseInvoice::where('purchase_invoice_id', $id)->first();
+		$PurchaseInvoice  = PurchaseInvoice::where('purchase_invoice_id', $id)->first();
 
 		$purchaseOrder = PurchaseOrder::with('purchase_order_detail')->find($PurchaseInvoice->purchase_order_id);
 		// $outstanding_account_id = Supplier::where('supplier_id', $purchaseOrder->supplier_id)->pluck('outstanding_account_id')->first();
