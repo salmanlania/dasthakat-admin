@@ -416,7 +416,7 @@ public function store(Request $request)
         }
 
         // ✅ 3. Validate GRN selection
-        $selectedGrns = $request->good_received_note_ids ?? [];
+        $selectedGrns = $request->good_received_note_id ?? [];
         if (empty($selectedGrns)) {
             return $this->jsonResponse('No GRNs selected for invoicing.', 400);
         }
