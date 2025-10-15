@@ -560,6 +560,16 @@ $router->group(['prefix' => 'customer-payment'], function ($router) {
     $router->delete('/{id}', 'CustomerPaymentController@delete');
 });
 
+// journal voucher routes
+$router->group(['prefix' => 'journal-voucher'], function ($router) {
+    $router->get('/', 'JournalVoucherController@index');
+    $router->post('/', 'JournalVoucherController@store');
+    $router->post('/bulk-delete', 'JournalVoucherController@bulkDelete');
+    $router->get('/{id}', 'JournalVoucherController@show');
+    $router->put('/{id}', 'JournalVoucherController@update');
+    $router->delete('/{id}', 'JournalVoucherController@delete');
+});
+
 // customer payment routes
 $router->group(['prefix' => 'customer-payment-settlement'], function ($router) {
     $router->get('/', 'CustomerPaymentSettlementController@index');
