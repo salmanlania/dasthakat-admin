@@ -31,6 +31,7 @@ class CustomerPaymentSettlementController extends Controller
         $transaction_no = $request->input('transaction_no', '');
         $remarks = $request->input('remarks', '');
         $total_amount = $request->input('total_amount', '');
+        $bank_amount = $request->input('bank_amount', '');
         $search = $request->input('search', '');
         $page = $request->input('page', 1);
         $perPage = $request->input('limit', 10);
@@ -48,6 +49,7 @@ class CustomerPaymentSettlementController extends Controller
         if (!empty($transaction_no)) $data->where('customer_payment_settlement.transaction_no', 'like', "%$transaction_no%");
         if (!empty($customer_payment_no)) $data->where('cp.document_identity', 'like', "%$customer_payment_no%");
         if (!empty($total_amount)) $data->where('customer_payment_settlement.total_amount', 'like', "%$total_amount%");
+        if (!empty($bank_amount)) $data->where('customer_payment_settlement.bank_amount', 'like', "%$bank_amount%");
         if (!empty($remarks)) $data->where('customer_payment_settlement.remarks', 'like', "%$remarks%");
         if (!empty($document_date)) $data->where('customer_payment_settlement.document_date', $document_date);
         if (!empty($customer_id)) $data->where('c.customer_id', $customer_id);
