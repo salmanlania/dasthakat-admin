@@ -66,3 +66,5 @@ create table payee (
     KEY `idx_payee_company_branch_id` (`company_branch_id`),
     KEY `idx_payee_name` (`name`)
 );
+
+ALTER TABLE `payment_voucher_detail` ADD `payee_id` char(36) DEFAULT NULL;

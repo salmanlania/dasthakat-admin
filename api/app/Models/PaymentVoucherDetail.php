@@ -27,6 +27,7 @@ class PaymentVoucherDetail extends Model
         "event_id",
         "cost_center_id",
         "supplier_id",
+        "payee_id",
         // 'document_amount',
         'payment_amount',
         // 'tax_amount',
@@ -77,5 +78,8 @@ class PaymentVoucherDetail extends Model
     {
         return $this->belongsTo(Supplier::class, 'supplier_id', 'supplier_id');
     }
-
+    public function payee()
+    {
+        return $this->belongsTo(Payee::class, 'payee_id', 'payee_id');
+    }
 }
