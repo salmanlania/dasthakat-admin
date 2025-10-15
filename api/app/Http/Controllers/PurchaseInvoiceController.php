@@ -464,7 +464,7 @@ class PurchaseInvoiceController extends Controller
 			$grnDetails = GRNDetail::with('purchase_invoice_detail')
 				->whereIn('good_received_note_id', $selectedGrnIds)
 				->get();
-
+die($grnDetails);
 			foreach ($grnDetails as $grnDetail) {
 				// Skip if fully invoiced
 				$invoicedQty = $grnDetail->purchase_invoice_detail->sum('quantity');
