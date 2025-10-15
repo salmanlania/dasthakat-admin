@@ -49,3 +49,20 @@ INSERT INTO `const_document_type` ( `document_type_id`, `document_name`, `docume
 VALUES ( 64, 'Vendor Bill', '{BC}/VB-', 'vendor_bill', 'vendor_bill_id' );
 
 ALTER TABLE `credit_note` ADD `remarks` TEXT DEFAULT NULL;
+
+
+
+create table payee (
+    `payee_id` char(36) NOT NULL,
+    `company_id` char(36) NOT NULL,
+    `company_branch_id` char(36) NOT NULL,
+    `name` varchar(255) NOT NULL,
+    `created_at` timestamp NULL DEFAULT NULL,
+    `created_by` char(36) DEFAULT NULL,
+    `updated_at` timestamp NULL DEFAULT NULL,
+    `updated_by` char(36) DEFAULT NULL,
+    PRIMARY KEY (`payee_id`),
+    KEY `idx_payee_company_id` (`company_id`),
+    KEY `idx_payee_company_branch_id` (`company_branch_id`),
+    KEY `idx_payee_name` (`name`)
+);

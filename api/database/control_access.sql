@@ -36,6 +36,11 @@
   ('General Group', 'Vendor', 'supplier', 'edit', 'Edit', 1.103),
   ('General Group', 'Vendor', 'supplier', 'delete', 'Delete', 1.104),
 
+  ('General Group', 'Payee', 'payee', 'list', 'List', 1.101),
+  ('General Group', 'Payee', 'payee', 'add', 'Add', 1.102),
+  ('General Group', 'Payee', 'payee', 'edit', 'Edit', 1.103),
+  ('General Group', 'Payee', 'payee', 'delete', 'Delete', 1.104),
+
   ('General Group', 'Agent', 'agent', 'list', 'List', 1.101),
   ('General Group', 'Agent', 'agent', 'add', 'Add', 1.102),
   ('General Group', 'Agent', 'agent', 'edit', 'Edit', 1.103),

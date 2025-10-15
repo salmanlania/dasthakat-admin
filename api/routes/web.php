@@ -114,6 +114,15 @@ $router->group(['prefix' => 'supplier'], function ($router) {
    $router->post('/bulk-delete', 'SupplierController@bulkDelete');
 });
 
+$router->group(['prefix' => 'payee'], function ($router) {
+   $router->get('/', 'PayeeController@index');
+   $router->get('/{id}', 'PayeeController@show');
+   $router->post('/', 'PayeeController@store');
+   $router->put('/{id}', 'PayeeController@update');
+   $router->delete('/{id}', 'PayeeController@delete');
+   $router->post('/bulk-delete', 'PayeeController@bulkDelete');
+});
+
 $router->group(['prefix' => 'agent'], function ($router) {
    $router->get('/', 'AgentController@index');
    $router->get('/{id}', 'AgentController@show');
