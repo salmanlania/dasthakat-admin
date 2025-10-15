@@ -399,87 +399,108 @@ class PurchaseInvoiceController extends Controller
 	// 		return $this->jsonResponse("Something went wrong while saving Purchase Invoice.", 500, "Transaction Failed");
 	// 	}
 	// }
+public function store(Request $request)
+{
+    // ✅ 1. Permission check
+    if (!isPermission('add', 'purchase_invoice', $request->permission_list)) {
+        return $this->jsonResponse('Permission Denied!', 403, "No Permission");
+    }
 
-	public function store(Request $request)
-	{
-		if (!isPermission('add', 'purchase_invoice', $request->permission_list)) {
-			return $this->jsonResponse('Permission Denied!', 403, "No Permission");
-		}
+    DB::beginTransaction();
 
-		DB::beginTransaction();
-		try {
-			$purchaseOrder = PurchaseOrder::find($request->purchase_order_id);
-			if (!$purchaseOrder) {
-				return $this->jsonResponse('Purchase Order not found.', 404);
-			}
+    try {
+        // ✅ 2. Validate Purchase Order
+        $purchaseOrder = PurchaseOrder::find($request->purchase_order_id);
+        if (!$purchaseOrder) {
+            return $this->jsonResponse('Purchase Order not found.', 404);
+        }
 
-			$uuid = $this->get_uuid();
-			$document = DocumentType::getNextDocument($this->document_type_id, $request);
+        // ✅ 3. Validate GRN selection
+        $selectedGrns = $request->good_received_note_ids ?? [];
+        if (empty($selectedGrns)) {
+            return $this->jsonResponse('No GRNs selected for invoicing.', 400);
+        }
 
-			$invoiceData = [
-				'purchase_invoice_id' => $uuid,
-				'company_id'          => $request->company_id ?? "",
-				'company_branch_id'   => $request->company_branch_id ?? "",
-				'document_type_id'    => $document['document_type_id'] ?? "",
-				'document_no'         => $document['document_no'] ?? "",
-				'document_prefix'     => $document['document_prefix'] ?? "",
-				'document_identity'   => $document['document_identity'] ?? "",
-				'document_date'       => Carbon::now(),
-				'supplier_id'         => $purchaseOrder->supplier_id ?? "",
-				'purchase_order_id'   => $purchaseOrder->purchase_order_id ?? "",
-				'remarks'             => $request->remarks ?? "",
-				'created_at'          => Carbon::now(),
-				'created_by'          => $request->login_user_id,
-			];
+        // ✅ 4. Generate IDs and document details
+        $uuid = $this->get_uuid();
+        $document = DocumentType::getNextDocument($this->document_type_id, $request);
 
-			$totalQuantity = 0;
-			$totalAmount = 0;
+        // ✅ 5. Prepare invoice master data
+        $invoiceData = [
+            'purchase_invoice_id' => $uuid,
+            'company_id'          => $request->company_id ?? "",
+            'company_branch_id'   => $request->company_branch_id ?? "",
+            'document_type_id'    => $document['document_type_id'] ?? "",
+            'document_no'         => $document['document_no'] ?? "",
+            'document_prefix'     => $document['document_prefix'] ?? "",
+            'document_identity'   => $document['document_identity'] ?? "",
+            'document_date'       => Carbon::now(),
+            'supplier_id'         => $purchaseOrder->supplier_id ?? "",
+            'purchase_order_id'   => $purchaseOrder->purchase_order_id ?? "",
+            'remarks'             => $request->remarks ?? "",
+            'created_at'          => Carbon::now(),
+            'created_by'          => $request->login_user_id,
+        ];
 
-			// Fetch selected GRNs and details
-			$selectedGrns = $request->good_received_note_ids ?? [];
+        $totalQuantity = 0;
+        $totalAmount = 0;
 
-			$grnDetails = GRNDetail::whereIn('good_received_note_id', $selectedGrns)->get();
+        // ✅ 6. Fetch GRN details
+        $grnDetails = GRNDetail::whereIn('good_received_note_id', $selectedGrns)->get();
 
-			foreach ($grnDetails as $detail) {
-				$alreadyInvoicedQty = PurchaseInvoiceDetail::where('purchase_order_detail_id', $detail->purchase_order_detail_id)
-					->sum('quantity');
-				$remainingQty = $detail->quantity - $alreadyInvoicedQty;
-				if ($remainingQty <= 0) continue;
+        foreach ($grnDetails as $detail) {
+            // Calculate already invoiced quantity
+            $alreadyInvoicedQty = PurchaseInvoiceDetail::where('purchase_order_detail_id', $detail->purchase_order_detail_id)
+                ->sum('quantity');
 
-				$amount = $detail->rate * $remainingQty;
+            // Remaining quantity
+            $remainingQty = $detail->quantity - $alreadyInvoicedQty;
+            if ($remainingQty <= 0) continue;
 
-				PurchaseInvoiceDetail::create([
-					'purchase_invoice_detail_id' => $this->get_uuid(),
-					'purchase_invoice_id'        => $uuid,
-					'purchase_order_detail_id'   => $detail->purchase_order_detail_id,
-					'product_id'                 => $detail->product_id,
-					'quantity'                   => $remainingQty,
-					'rate'                       => $detail->rate,
-					'amount'                     => $amount,
-					'created_by'                 => $request->login_user_id,
-				]);
-			}
+            $amount = $detail->rate * $remainingQty;
 
+            // ✅ 7. Create Purchase Invoice Detail
+            PurchaseInvoiceDetail::create([
+                'purchase_invoice_detail_id' => $this->get_uuid(),
+                'purchase_invoice_id'        => $uuid,
+                'purchase_order_detail_id'   => $detail->purchase_order_detail_id,
+                'product_id'                 => $detail->product_id,
+                'quantity'                   => $remainingQty,
+                'rate'                       => $detail->rate,
+                'amount'                     => $amount,
+                'created_by'                 => $request->login_user_id,
+            ]);
 
-			$invoiceData['total_quantity'] = $totalQuantity;
-			$invoiceData['total_amount'] = $totalAmount;
-			$invoiceData['net_amount'] = $totalAmount;
+            // ✅ 8. Update totals
+            $totalQuantity += $remainingQty;
+            $totalAmount += $amount;
+        }
 
-			if ($totalQuantity > 0) {
-				PurchaseInvoice::create($invoiceData);
-				DB::commit();
-				return $this->jsonResponse(['purchase_invoice_id' => $uuid], 200, "Purchase Invoice Created Successfully!");
-			} else {
-				DB::rollBack();
-				return $this->jsonResponse(null, 400, "No remaining quantities to invoice.");
-			}
-		} catch (\Exception $e) {
-			DB::rollBack();
-			Log::error('Purchase Invoice Store Error: ' . $e->getMessage());
-			return $this->jsonResponse("Something went wrong while saving Purchase Invoice.", 500, "Transaction Failed");
-		}
-	}
+        // ✅ 9. Update totals and save master invoice
+        $invoiceData['total_quantity'] = $totalQuantity;
+        $invoiceData['total_amount'] = $totalAmount;
+        $invoiceData['net_amount'] = $totalAmount;
 
+        if ($totalQuantity > 0) {
+            PurchaseInvoice::create($invoiceData);
+            DB::commit();
+
+            return $this->jsonResponse(
+                ['purchase_invoice_id' => $uuid],
+                200,
+                "Purchase Invoice Created Successfully!"
+            );
+        } else {
+            DB::rollBack();
+            return $this->jsonResponse(null, 400, "No remaining quantities to invoice.");
+        }
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Purchase Invoice Store Error: ' . $e->getMessage());
+        return $this->jsonResponse("Something went wrong while saving Purchase Invoice.", 500, "Transaction Failed");
+    }
+}
 
 	public function update(Request $request, $id)
 	{
