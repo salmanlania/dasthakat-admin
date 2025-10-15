@@ -317,22 +317,22 @@ class SaleInvoiceController extends Controller
 			$grossAmount = 0;
 			$index = 0;
 
-			$outstanding_account_id = Customer::where('customer_id', $chargeOrder->customer_id)->pluck('outstanding_account_id')->first();
-			$discount_account = Setting::where('module', 'inventory_accounts_setting')
-				->where('field', 'sale_discount_account')
-				->value('value');
+			// $outstanding_account_id = Customer::where('customer_id', $chargeOrder->customer_id)->pluck('outstanding_account_id')->first();
+			// $discount_account = Setting::where('module', 'inventory_accounts_setting')
+			// 	->where('field', 'sale_discount_account')
+			// 	->value('value');
 
-			$discount_account_id = is_string($discount_account)
-				? json_decode($discount_account, true)[0] ?? null
-				: null;
+			// $discount_account_id = is_string($discount_account)
+			// 	? json_decode($discount_account, true)[0] ?? null
+			// 	: null;
 
 			$base_currency_id = Company::where('company_id', $request->company_id)->pluck('base_currency_id')->first();
 			$default_currency_id = Currency::where('company_id', $request->company_id)
 				->where('company_branch_id', $request->company_branch_id)
 				->value('currency_id');
 			$conversion_rate = 1;
-			if (empty($outstanding_account_id)) return $this->jsonResponse(null, 400, "Customer Outstanding Account not found");
-			if (empty($discount_account_id)) return $this->jsonResponse(null, 400, "Discount Account not found");
+			// if (empty($outstanding_account_id)) return $this->jsonResponse(null, 400, "Customer Outstanding Account not found");
+			// if (empty($discount_account_id)) return $this->jsonResponse(null, 400, "Discount Account not found");
 
 
 
@@ -505,14 +505,14 @@ class SaleInvoiceController extends Controller
 		DB::beginTransaction();
 		try {
 
-			$outstanding_account_id = Customer::where('customer_id', $request->customer_id)->pluck('outstanding_account_id')->first();
-			$discount_account = Setting::where('module', 'inventory_accounts_setting')
-				->where('field', 'sale_discount_account')
-				->value('value');
+			// $outstanding_account_id = Customer::where('customer_id', $request->customer_id)->pluck('outstanding_account_id')->first();
+			// $discount_account = Setting::where('module', 'inventory_accounts_setting')
+			// 	->where('field', 'sale_discount_account')
+			// 	->value('value');
 
-			$discount_account_id = is_string($discount_account)
-				? json_decode($discount_account, true)[0] ?? null
-				: null;
+			// $discount_account_id = is_string($discount_account)
+			// 	? json_decode($discount_account, true)[0] ?? null
+			// 	: null;
 
 			$chargeOrder = ChargeOrder::where('charge_order_id', $request->charge_order_id)->first();
 			$base_currency_id = Company::where('company_id', $request->company_id)->pluck('base_currency_id')->first();
@@ -520,8 +520,8 @@ class SaleInvoiceController extends Controller
 				->where('company_branch_id', $request->company_branch_id)
 				->value('currency_id');
 			$conversion_rate = 1;
-			if (empty($outstanding_account_id)) return $this->jsonResponse(null, 400, "Customer Outstanding Account not found");
-			if (empty($discount_account_id)) return $this->jsonResponse(null, 400, "Discount Account not found");
+			// if (empty($outstanding_account_id)) return $this->jsonResponse(null, 400, "Customer Outstanding Account not found");
+			// if (empty($discount_account_id)) return $this->jsonResponse(null, 400, "Discount Account not found");
 
 			$data  = SaleInvoice::find($id);
 			$data->document_date = $request->document_date;
@@ -599,7 +599,7 @@ class SaleInvoiceController extends Controller
 
 			foreach ($data->sale_invoice_detail as $detail) {
 				$product = Product::where('product_id', $detail['product_id'])->first();
-				$revenue_account_id = $product->revenue_account_id;
+				// $revenue_account_id = $product->revenue_account_id;
 				// Ledger::create([
 				// 	'ledger_id' => $this->get_uuid(),
 				// 	'company_id' => $request->company_id,
