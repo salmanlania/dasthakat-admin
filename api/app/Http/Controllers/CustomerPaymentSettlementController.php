@@ -51,7 +51,9 @@ class CustomerPaymentSettlementController extends Controller
         if (!empty($customer_payment_no)) $data->where('cp.document_identity', 'like', "%$customer_payment_no%");
         if (!empty($total_amount)) $data->where('customer_payment_settlement.total_amount', 'like', "%$total_amount%");
         if (!empty($bank_amount)) $data->where('customer_payment_settlement.bank_amount', 'like', "%$bank_amount%");
-        if (!empty($net_amount)) $data->where('net_amount', 'like', "%$net_amount%");
+        if (!empty($net_amount)) {
+            $data->whereRaw('(customer_payment_settlement.total_amount - customer_payment_settlement.bank_amount) like ?', ["%$net_amount%"]);
+        }
         if (!empty($remarks)) $data->where('customer_payment_settlement.remarks', 'like', "%$remarks%");
         if (!empty($document_date)) $data->where('customer_payment_settlement.document_date', $document_date);
         if (!empty($customer_id)) $data->where('c.customer_id', $customer_id);
