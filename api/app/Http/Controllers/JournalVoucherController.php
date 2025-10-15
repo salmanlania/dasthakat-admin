@@ -229,6 +229,7 @@ class JournalVoucherController extends Controller
             $data->updated_at = Carbon::now();
             $data->updated_by = $request->login_user_id;
             $data->save();
+            Ledger::where('document_id', $id)->delete();
             if ($request->details) {
                 foreach ($request->details as $value) {
                     $detail_uuid = null;
