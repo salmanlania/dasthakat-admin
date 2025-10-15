@@ -388,8 +388,9 @@ class PurchaseInvoiceController extends Controller
 		// Validation Rules
 		$isError = $this->validateRequest($request->all(), $id);
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
+			$PurchaseInvoice  = PurchaseInvoice::where('purchase_invoice_id', $id)->first();
 
-		$purchaseOrder = PurchaseOrder::with('purchase_order_detail')->find($request->purchase_order_id);
+		$purchaseOrder = PurchaseOrder::with('purchase_order_detail')->find($PurchaseInvoice->purchase_order_id);
 		// $outstanding_account_id = Supplier::where('supplier_id', $purchaseOrder->supplier_id)->pluck('outstanding_account_id')->first();
 		// $freight_account_id = Setting::where('module', 'inventory_accounts_setting')->where('field', 'purchase_freight_account')->value('value');
 
