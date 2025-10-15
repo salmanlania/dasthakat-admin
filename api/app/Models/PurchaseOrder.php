@@ -43,35 +43,38 @@ class PurchaseOrder extends Model
         'total_quantity' => 'float',
         'total_amount' => 'float',
     ];
-    
+
     public function purchase_order_detail()
     {
-        return $this->hasMany(PurchaseOrderDetail::class, 'purchase_order_id','purchase_order_id')->orderBy('sort_order');
+        return $this->hasMany(PurchaseOrderDetail::class, 'purchase_order_id', 'purchase_order_id')->orderBy('sort_order');
     }
-   
+
     public function payment()
     {
-        return $this->hasOne(Payment::class, 'payment_id','payment_id')->select('payment_id', 'name');
+        return $this->hasOne(Payment::class, 'payment_id', 'payment_id')->select('payment_id', 'name');
     }
-   
+
     public function user()
     {
-        return $this->hasOne(User::class, 'user_id','buyer_id')->select('user_id', 'email','user_name');
+        return $this->hasOne(User::class, 'user_id', 'buyer_id')->select('user_id', 'email', 'user_name');
     }
-   
+
     public function supplier()
     {
-        return $this->hasOne(Supplier::class, 'supplier_id','supplier_id')->select('*');
+        return $this->hasOne(Supplier::class, 'supplier_id', 'supplier_id')->select('*');
     }
 
     public function quotation()
     {
-        return $this->hasOne(Quotation::class, 'quotation_id','quotation_id')->select('*');
+        return $this->hasOne(Quotation::class, 'quotation_id', 'quotation_id')->select('*');
     }
-   
+
     public function charge_order()
     {
-        return $this->hasOne(ChargeOrder::class, 'charge_order_id','charge_order_id')->select('*');
+        return $this->hasOne(ChargeOrder::class, 'charge_order_id', 'charge_order_id')->select('*');
     }
-   
+    public function grn()
+    {
+        return $this->hasMany(GRN::class, 'purchase_order_id', 'purchase_order_id');
+    }
 }

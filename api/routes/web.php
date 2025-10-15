@@ -473,6 +473,7 @@ $router->group(['prefix' => 'purchase-order'], function ($router) {
 
 $router->group(['prefix' => 'purchase-invoice'], function ($router) {
    $router->get('/', 'PurchaseInvoiceController@index');
+   $router->get('/view-before-create/{purchase_order_id}', 'PurchaseInvoiceController@viewBeforeCreate');
    $router->get('/{id}', 'PurchaseInvoiceController@show');
    $router->post('/', 'PurchaseInvoiceController@store');
    $router->put('/{id}', 'PurchaseInvoiceController@update');

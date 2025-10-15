@@ -160,6 +160,34 @@ class PurchaseInvoiceController extends Controller
 	}
 
 
+	public function viewBeforeCreate($purchase_order_id, Request $request)
+	{
+		$purchaseOrder = PurchaseOrder::select('purchase_order_id', 'document_identity', 'supplier_id', 'document_date')
+			->with([
+				'grn' => function ($query) {
+					$query->with(['grn_detail' => function ($detailQuery) {
+						$detailQuery->with('product')
+							->withSum('purchase_invoice_detail as invoiced_qty', 'quantity')
+							->havingRaw('COALESCE(grn_detail.quantity,0) > COALESCE(invoiced_qty,0)');
+					}]);
+				},
+				'supplier'
+			])
+			->find($purchase_order_id);
+
+		if (!$purchaseOrder) {
+			return $this->jsonResponse(null, 404, "Purchase Order not found.");
+		}
+
+		// Remove GRNs that have no remaining items
+		$purchaseOrder->grn = $purchaseOrder->grn->filter(function ($grn) {
+			return $grn->grn_detail->count() > 0;
+		})->values();
+
+		return $this->jsonResponse($purchaseOrder, 200, "Purchase Order with remaining GRNs and quantities");
+	}
+
+
 
 	public function store(Request $request)
 	{
@@ -388,7 +416,7 @@ class PurchaseInvoiceController extends Controller
 		// Validation Rules
 		$isError = $this->validateRequest($request->all(), $id);
 		if (!empty($isError)) return $this->jsonResponse($isError, 400, "Request Failed!");
-			$PurchaseInvoice  = PurchaseInvoice::where('purchase_invoice_id', $id)->first();
+		$PurchaseInvoice  = PurchaseInvoice::where('purchase_invoice_id', $id)->first();
 
 		$purchaseOrder = PurchaseOrder::with('purchase_order_detail')->find($PurchaseInvoice->purchase_order_id);
 		// $outstanding_account_id = Supplier::where('supplier_id', $purchaseOrder->supplier_id)->pluck('outstanding_account_id')->first();
