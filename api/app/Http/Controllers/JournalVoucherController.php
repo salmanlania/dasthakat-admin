@@ -31,33 +31,30 @@ class JournalVoucherController extends Controller
         $search = $request->input('search', '');
         $page = $request->input('page', 1);
         $perPage = $request->input('limit', 10);
-        $sort_column = $request->input('sort_column', 'journal_voucher.created_at');
+        $sort_column = $request->input('sort_column', 'created_at');
         $sort_direction = ($request->input('sort_direction') == 'ascend') ? 'asc' : 'desc';
 
-        $data = JournalVoucher::LeftJoin('accounts as a', 'a.account_id', '=', 'journal_voucher.transaction_account_id');
+        $data = JournalVoucher::query();
 
-        $data = $data->where('journal_voucher.company_id', '=', $request->company_id);
-        $data = $data->where('journal_voucher.company_branch_id', '=', $request->company_branch_id);
+        $data = $data->where('company_id', '=', $request->company_id);
+        $data = $data->where('company_branch_id', '=', $request->company_branch_id);
 
-        if (!empty($document_identity)) $data->where('journal_voucher.document_identity', 'like', "%$document_identity%");
-        if (!empty($total_debit)) $data->where('journal_voucher.total_debit', 'like', "%$total_debit%");
-        if (!empty($total_credit)) $data->where('journal_voucher.total_credit', 'like', "%$total_credit%");
-        if (!empty($remarks)) $data->where('journal_voucher.remarks', 'like', "%$remarks%");
-        if (!empty($document_date)) $data->where('journal_voucher.document_date', $document_date);
+        if (!empty($document_identity)) $data->where('document_identity', 'like', "%$document_identity%");
+        if (!empty($total_debit)) $data->where('total_debit', 'like', "%$total_debit%");
+        if (!empty($total_credit)) $data->where('total_credit', 'like', "%$total_credit%");
+        if (!empty($remarks)) $data->where('remarks', 'like', "%$remarks%");
+        if (!empty($document_date)) $data->where('document_date', $document_date);
 
         if (!empty($search)) {
             $search = strtolower($search);
             $data->where(function ($query) use ($search) {
                 $query
-                    ->orWhere('journal_voucher.document_identity', 'like', "%$search%")
-                    ->orWhere('journal_voucher.remarks', 'like', "%$search%")
-                    ->orWhere('journal_voucher.remarks', 'like', "%$search%")
-                    ->orWhere('a.name', 'like', "%$search%");
+                    ->orWhere('document_identity', 'like', "%$search%")
+                    ->orWhere('remarks', 'like', "%$search%");
             });
         }
         $data = $data->select(
-            'journal_voucher.*',
-            'a.name as transaction_account_name'
+            '*',
         );
 
         $data = $data->orderBy($sort_column, $sort_direction)
