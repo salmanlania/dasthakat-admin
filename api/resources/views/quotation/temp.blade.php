@@ -192,7 +192,7 @@ $termCount = (!empty($term_desc) ? (count($term_desc)>2 ? 3  : count($term_desc)
         <td rowspan="{{ $rows  }}" class="text-right">${{ $detail['discount_amount'] }}</td>
         <td rowspan="{{ $rows  }}" style="" class="text-right">
       
-        ${{ $detail['gross_amount'] }} {{ $count }}
+        ${{ $detail['gross_amount'] }}
       </td>
       </tr>
 
@@ -351,7 +351,7 @@ if (!empty($chunk)) {
 }
 
 // Limit to 10 chunks if needed
-$chunks = array_slice($chunks, 0, 10);
+$chunks = array_slice($chunks, 0, 20);
 return $chunks;
 }
 
