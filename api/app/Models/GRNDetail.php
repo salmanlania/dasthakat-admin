@@ -55,6 +55,10 @@ class GRNDetail extends Model
     {
         return $this->belongsTo(PurchaseOrderDetail::class, 'purchase_order_detail_id')->select('*');
     }
+    public function purchase_invoice_detail()
+    {
+        return $this->hasMany(PurchaseInvoiceDetail::class, 'purchase_order_detail_id', 'purchase_order_detail_id');
+    }
     public function warehouse()
     {
         return $this->belongsTo(Warehouse::class, 'warehouse_id', 'warehouse_id')->select('*');

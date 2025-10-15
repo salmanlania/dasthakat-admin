@@ -159,32 +159,26 @@ class PurchaseInvoiceController extends Controller
 		return [];
 	}
 
-
 	public function viewBeforeCreate($purchase_order_id, Request $request)
 	{
-		$purchaseOrder = PurchaseOrder::select('purchase_order_id', 'document_identity', 'supplier_id', 'document_date')
-			->with([
-				'grn' => function ($query) {
-					$query->with(['grn_detail' => function ($detailQuery) {
-						$detailQuery->with('product')
-							->withSum('purchase_invoice_detail as invoiced_qty', 'quantity')
-							->havingRaw('COALESCE(grn_detail.quantity,0) > COALESCE(invoiced_qty,0)');
-					}]);
-				},
-				'supplier'
-			])
-			->find($purchase_order_id);
+		$grns = GRN::with(['grn_detail' => function ($q) {
+			$q->with(['purchase_invoice_detail']); // eager load invoices
+		}])
+			->where('purchase_order_id', $purchase_order_id)
+			->get();
 
-		if (!$purchaseOrder) {
-			return $this->jsonResponse(null, 404, "Purchase Order not found.");
-		}
+		// Filter out GRN details that are fully invoiced
+		$filtered = $grns->map(function ($grn) {
+			$remainingDetails = $grn->grn_detail->filter(function ($detail) {
+				$invoicedQty = $detail->purchase_invoice_detail->sum('quantity');
+				return $detail->quantity > $invoicedQty;
+			})->values();
 
-		// Remove GRNs that have no remaining items
-		$purchaseOrder->grn = $purchaseOrder->grn->filter(function ($grn) {
-			return $grn->grn_detail->count() > 0;
-		})->values();
+			$grn->remaining_details = $remainingDetails;
+			return $grn;
+		})->filter(fn($grn) => $grn->remaining_details->isNotEmpty())->values();
 
-		return $this->jsonResponse($purchaseOrder, 200, "Purchase Order with remaining GRNs and quantities");
+		return $this->jsonResponse($filtered, 200, "Remaining GRNs for Purchase Order");
 	}
 
 
@@ -447,39 +441,30 @@ class PurchaseInvoiceController extends Controller
 			$totalAmount = 0;
 
 			// Fetch selected GRNs and details
-			$selectedGRNs = GRN::whereIn('good_received_note_id', $request->good_received_note_id)
-				->with(['grn_detail' => function ($query) {
-					$query->withSum('purchase_invoice_detail as invoiced_qty', 'quantity');
-				}])
-				->get();
+			$selectedGrns = $request->good_received_note_ids ?? [];
 
-			foreach ($selectedGRNs as $grn) {
-				foreach ($grn->grn_detail as $detail) {
-					$invoicedQty = $detail->invoiced_qty ?? 0;
-					$remainingQty = $detail->quantity - $invoicedQty;
+			$grnDetails = GRNDetail::whereIn('good_received_note_id', $selectedGrns)->get();
 
-					if ($remainingQty <= 0) continue;
+			foreach ($grnDetails as $detail) {
+				$alreadyInvoicedQty = PurchaseInvoiceDetail::where('purchase_order_detail_id', $detail->purchase_order_detail_id)
+					->sum('quantity');
+				$remainingQty = $detail->quantity - $alreadyInvoicedQty;
+				if ($remainingQty <= 0) continue;
 
-					$amount = $detail->rate * $remainingQty;
-					$totalQuantity += $remainingQty;
-					$totalAmount += $amount;
+				$amount = $detail->rate * $remainingQty;
 
-					PurchaseInvoiceDetail::create([
-						'purchase_invoice_detail_id' => $this->get_uuid(),
-						'purchase_invoice_id'        => $uuid,
-						'good_received_note_id'      => $grn->good_received_note_id,
-						'grn_detail_id'              => $detail->grn_detail_id,
-						'purchase_order_detail_id'   => $detail->purchase_order_detail_id ?? "",
-						'product_id'                 => $detail->product_id ?? "",
-						'product_name'               => $detail->product_name ?? "",
-						'quantity'                   => $remainingQty,
-						'rate'                       => $detail->rate ?? 0,
-						'amount'                     => $amount,
-						'created_at'                 => Carbon::now(),
-						'created_by'                 => $request->login_user_id,
-					]);
-				}
+				PurchaseInvoiceDetail::create([
+					'purchase_invoice_detail_id' => $this->get_uuid(),
+					'purchase_invoice_id'        => $uuid,
+					'purchase_order_detail_id'   => $detail->purchase_order_detail_id,
+					'product_id'                 => $detail->product_id,
+					'quantity'                   => $remainingQty,
+					'rate'                       => $detail->rate,
+					'amount'                     => $amount,
+					'created_by'                 => $request->login_user_id,
+				]);
 			}
+
 
 			$invoiceData['total_quantity'] = $totalQuantity;
 			$invoiceData['total_amount'] = $totalAmount;
