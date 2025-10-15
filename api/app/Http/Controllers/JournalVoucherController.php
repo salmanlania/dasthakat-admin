@@ -120,10 +120,6 @@ class JournalVoucherController extends Controller
             $uuid = $this->get_uuid();
             $document = DocumentType::getNextDocument($this->document_type_id, $request);
             $base_currency_id = Company::where('company_id', $request->company_id)->pluck('base_currency_id')->first();
-            $outstanding_account_id = Customer::where('customer_id', $request->customer_id)->pluck('outstanding_account_id')->first();
-            $undeposited_account_id = Setting::getValue('gl_accounts_setting', 'undeposited_account', true)[0] ?? "";
-            if (empty($outstanding_account_id)) return $this->jsonResponse(null, 400, "Customer Outstanding Account not found");
-            if (empty($undeposited_account_id)) return $this->jsonResponse(null, 400, "Undeposited Transaction Account not found");
             $default_currency_id = Currency::where('company_id', $request->company_id)
                 ->where('company_branch_id', $request->company_branch_id)
                 ->value('currency_id');
