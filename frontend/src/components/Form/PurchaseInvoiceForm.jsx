@@ -56,6 +56,7 @@ const PurchaseInvoiceForm = ({ mode, onSubmit, onSave }) => {
   const onFinish = (values) => {
     if (!totalAmount) return toast.error('Total Amount cannot be zero');
     const data = {
+      ...initialFormValues,
       type: values.type,
       remarks: values.remarks,
       ship_to: values.ship_to,

@@ -200,6 +200,7 @@ export const saleInvoiceSlice = createSlice({
       state.isItemLoading = false;
       const data = action.payload;
       state.initialFormValues = {
+        ...data,
         document_identity: data.document_identity || '',
         // document_date: data.document_date || '',
         document_date: data.document_date ? dayjs(data.document_date) : null,
