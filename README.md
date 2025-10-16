@@ -1,4 +1,4 @@
-# Global Marine Safety - America (GMS)
+# Dasthakat Admin Panel (DAP)
 
 A comprehensive full-stack application built with **React** frontend and **Laravel Lumen** backend for marine safety management.
 

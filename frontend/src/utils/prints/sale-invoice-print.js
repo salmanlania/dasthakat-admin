@@ -351,7 +351,7 @@ export const createSaleInvoicePrint = async (data) => {
   let notes = [
     [
       {
-        content: 'Remit Payment to: Global Marine Safety Service Inc\nFrost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44',
+        content: 'Remit Payment to: Dasthakat Karachi Service Inc\nFrost Bank, ABA: 114000093, Account no: 502206269, SWIFT: FRSTUS44',
         colSpan: 6,
         styles: {
           fontStyle: 'bold',
