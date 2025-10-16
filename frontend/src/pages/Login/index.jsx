@@ -1,12 +1,11 @@
 import { Button, Form, Input } from 'antd';
 import { FaRegUser } from 'react-icons/fa6';
 import { MdLockOutline } from 'react-icons/md';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import LOGO from '../../assets/logo.jpg';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
-import { loginHandler } from '../../store/features/authSlice';
 
 const Login = () => {
   useDocumentTitle('Login');
@@ -14,12 +13,13 @@ const Login = () => {
   const handleError = useError();
   const navigate = useNavigate();
   const location = useLocation();
-  const { isLoggingIn } = useSelector((state) => state.auth);
 
   const onSubmit = async (values) => {
+    const { email, password } = values;
+    const credentials = { email, password };
+    localStorage.setItem('token', JSON.stringify(credentials));
     try {
-      await dispatch(loginHandler(values)).unwrap();
-      navigate('/session', {
+      navigate('/', {
         state: {
           prevUrl: location.state?.prevUrl,
         },
@@ -34,7 +34,7 @@ const Login = () => {
       <div className="mx-2 w-[450px] rounded-md border border-gray-300 bg-white px-4 py-6 sm:px-12">
         <div className="mb-1 flex flex-col items-center">
           <img src={LOGO} alt="" className="h-24 rounded-sm object-contain" />
-          <p className="text-green-1 mt-2 text-center text-base">Global Marine Safety - America</p>
+          <p className="text-green-1 mt-2 text-center text-base">Dasthakat</p>
           <p className="text-sm text-gray-700">Login to your account.</p>
         </div>
 
@@ -78,7 +78,7 @@ const Login = () => {
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" block size="large" loading={isLoggingIn}>
+            <Button type="primary" htmlType="submit" block size="large">
               Login
             </Button>
           </Form.Item>

@@ -59,6 +59,9 @@ import paymentVoucherReducer from './features/paymentVoucherSlice'
 import journalVoucherReducer from './features/journalVoucherSlice'
 import vendorBillReducer from './features/vendorBillSlice'
 
+// reports
+import reportsReducer from './features/reportsSlice';
+
 const rootReducer = combineReducers({
   sidebar: sidebarReducer,
   auth: authReducer,
@@ -118,6 +121,7 @@ const rootReducer = combineReducers({
   paymentVoucher: paymentVoucherReducer,
   journalVoucher: journalVoucherReducer,
   vendorBill: vendorBillReducer,
+  reports: reportsReducer,
 });
 
 export const store = configureStore({

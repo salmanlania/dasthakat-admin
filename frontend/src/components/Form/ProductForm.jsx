@@ -1,13 +1,11 @@
 import { Button, Col, Form, Image, Input, Row, Select, Tabs, Typography } from 'antd';
 import { useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import productImagePlaceholder from '../../assets/img-placeholder.png';
 import AsyncSelect from '../AsyncSelect';
 import AsyncSelectNoPaginate from '../AsyncSelect/AsyncSelectNoPaginate.jsx';
-import CommaSeparatedInput from '../Input/CommaSeparatedInput';
-import AsyncSelectLedger from '../AsyncSelectLedger/index.jsx';
 import AsyncSelectProduct from '../AsyncSelectProduct/index.jsx';
+import CommaSeparatedInput from '../Input/CommaSeparatedInput';
 
 const { TabPane } = Tabs;
 const { Title } = Typography;
@@ -15,12 +13,9 @@ const { Title } = Typography;
 const ProductForm = ({ mode, onSubmit }) => {
   const [form] = Form.useForm();
   const fileInputRef = useRef(null);
-  const { isFormSubmitting, initialFormValues } = useSelector((state) => state.product);
-  const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission;
 
   const [activeTab, setActiveTab] = useState('1');
-  const [imageSrc, setImageSrc] = useState(initialFormValues?.image_url || null);
+  const [imageSrc, setImageSrc] = useState(null);
 
   const categoryID = Form.useWatch('category_id', form);
 
@@ -43,16 +38,17 @@ const ProductForm = ({ mode, onSubmit }) => {
       sub_category_id: formValues.sub_category_id ? formValues.sub_category_id.value : null,
       brand_id: formValues.brand_id ? formValues.brand_id.value : null,
       unit_id: formValues.unit_id ? formValues.unit_id.value : null,
-      image: initialFormValues?.image_url === imageSrc ? null : imageSrc
+      // image: initialFormValues?.image_url === imageSrc ? null : imageSrc
+      image: imageSrc
     };
 
-    if (
-      mode === 'edit' &&
-      initialFormValues?.image_url &&
-      initialFormValues?.image_url !== imageSrc
-    ) {
-      data.delete_image = initialFormValues?.image;
-    }
+    // if (
+    //   mode === 'edit' &&
+    //   initialFormValues?.image_url &&
+    //   initialFormValues?.image_url !== imageSrc
+    // ) {
+    //   data.delete_image = initialFormValues?.image;
+    // }
 
     onSubmit(data);
   };
@@ -64,7 +60,8 @@ const ProductForm = ({ mode, onSubmit }) => {
       form={form}
       autoComplete="off"
       onFinish={onFinish}
-      initialValues={mode === 'edit' ? initialFormValues : { status: 1 }}>
+      initialValues={mode === 'edit' ? 'initialFormValues' : { status: 1 }}
+      >
       <Tabs activeKey={activeTab} onChange={setActiveTab} className="mb-6" type="card">
         <TabPane tab="Product Details" key="1">
           <div className="flex flex-col-reverse items-center justify-between gap-6 md:flex-row md:items-start">
@@ -117,9 +114,7 @@ const ProductForm = ({ mode, onSubmit }) => {
                     labelKey="name"
                     labelInValue
                     onChange={() => form.setFieldsValue({ sub_category_id: null })}
-                    addNewLink={
-                      permissions.category.list && permissions.category.add ? '/category' : null
-                    }
+                    addNewLink='/category'
                   />
                 </Form.Item>
               </Col>
@@ -133,11 +128,7 @@ const ProductForm = ({ mode, onSubmit }) => {
                     labelInValue
                     params={{ category_id: categoryID ? categoryID.value : null }}
                     dependencies={[categoryID]}
-                    addNewLink={
-                      permissions.sub_category.list && permissions.sub_category.add
-                        ? '/sub-category'
-                        : null
-                    }
+                    addNewLink='/sub-category'
                   />
                 </Form.Item>
               </Col>
@@ -149,7 +140,7 @@ const ProductForm = ({ mode, onSubmit }) => {
                     valueKey="brand_id"
                     labelKey="name"
                     labelInValue
-                    addNewLink={permissions.brand.list && permissions.brand.add ? '/brand' : null}
+                    addNewLink='/brand'
                   />
                 </Form.Item>
               </Col>
@@ -164,7 +155,7 @@ const ProductForm = ({ mode, onSubmit }) => {
                     valueKey="unit_id"
                     labelKey="name"
                     labelInValue
-                    addNewLink={permissions.unit.list && permissions.unit.add ? '/unit' : null}
+                    addNewLink='/unit'
                   />
                 </Form.Item>
               </Col>
@@ -304,7 +295,7 @@ const ProductForm = ({ mode, onSubmit }) => {
         <Link to="/product">
           <Button className="w-28">Cancel</Button>
         </Link>
-        <Button type="primary" htmlType="submit" className="w-28" loading={isFormSubmitting}>
+        <Button type="primary" htmlType="submit" className="w-28">
           Save
         </Button>
       </div>

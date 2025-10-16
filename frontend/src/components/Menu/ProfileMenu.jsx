@@ -3,10 +3,10 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { FaRegUser } from 'react-icons/fa';
 import { MdLockOutline, MdLogout } from 'react-icons/md';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { resetPassword } from '../../store/features/authSlice';
 import useError from '../../hooks/useError';
+import image_url from '../../assets/user-placeholder.jpg'
 
 const Logout = () => {
   const navigate = useNavigate();
@@ -30,7 +30,6 @@ const ChangePassword = () => {
   const handleError = useError();
   const [form] = Form.useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { isPasswordResetting } = useSelector((state) => state.auth);
 
   const onClose = () => {
     setIsModalOpen(false);
@@ -39,7 +38,6 @@ const ChangePassword = () => {
 
   const onFinish = async (values) => {
     try {
-      await dispatch(resetPassword(values)).unwrap();
       toast.success('Password updated successfully');
       setIsModalOpen(false);
       form.resetFields();
@@ -141,14 +139,14 @@ const ChangePassword = () => {
             >
               Cancel
             </Button>
-            <Button
+            {/* <Button
               type="primary"
               htmlType="submit"
               className="w-full"
               loading={isPasswordResetting}
             >
               Update
-            </Button>
+            </Button> */}
           </div>
         </Form>
       </Modal>
@@ -157,7 +155,6 @@ const ChangePassword = () => {
 };
 
 const ProfileMenu = () => {
-  const { user } = useSelector((state) => state.auth);
   return (
     <Dropdown
       menu={{
@@ -175,7 +172,7 @@ const ProfileMenu = () => {
       }}
       arrow
     >
-      <Avatar src={user.image_url} className='cursor-pointer' icon={<FaRegUser />} size={40} />
+      <Avatar src={image_url} className='cursor-pointer' icon={<FaRegUser />} size={40} />
     </Dropdown>
   );
 };

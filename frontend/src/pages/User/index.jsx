@@ -1,6 +1,6 @@
 import { Breadcrumb, Button, Input, Popconfirm, Select, Table, Tag, Tooltip } from 'antd';
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { GoTrash } from 'react-icons/go';
 import { MdOutlineEdit } from 'react-icons/md';
@@ -9,39 +9,21 @@ import { Link } from 'react-router-dom';
 import AsyncSelect from '../../components/AsyncSelect';
 import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
-import useDebounce from '../../hooks/useDebounce';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
-import {
-  bulkDeleteUser,
-  deleteUser,
-  getUserList,
-  setUserDeleteIDs,
-  setUserListParams,
-} from '../../store/features/userSlice';
 
 const User = () => {
   useDocumentTitle('User List');
   const dispatch = useDispatch();
   const handleError = useError();
-  const { list, isListLoading, params, paginationInfo, isBulkDeleting, deleteIDs } = useSelector(
-    (state) => state.user,
-  );
-  const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.user;
+  const [list , setList] = useState([])
 
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
-  const debouncedSearch = useDebounce(params.search, 500);
-  const debouncedUserName = useDebounce(params.user_name, 500);
-  const debouncedEmail = useDebounce(params.email, 500);
-
   const onUserDelete = async (id) => {
     try {
-      await dispatch(deleteUser(id)).unwrap();
       toast.success('User deleted successfully');
-      dispatch(getUserList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -49,10 +31,8 @@ const User = () => {
 
   const onBulkDelete = async () => {
     try {
-      await dispatch(bulkDeleteUser(deleteIDs)).unwrap();
       toast.success('Users deleted successfully');
       closeDeleteModal();
-      await dispatch(getUserList(params)).unwrap();
     } catch (error) {
       handleError(error);
     }
@@ -67,8 +47,6 @@ const User = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.user_name}
-            onChange={(e) => dispatch(setUserListParams({ user_name: e.target.value }))}
           />
         </div>
       ),
@@ -86,8 +64,6 @@ const User = () => {
             className="font-normal"
             size="small"
             onClick={(e) => e.stopPropagation()}
-            value={params.email}
-            onChange={(e) => dispatch(setUserListParams({ email: e.target.value }))}
           />
         </div>
       ),
@@ -107,8 +83,6 @@ const User = () => {
             labelKey="name"
             size="small"
             className="w-full font-normal"
-            value={params.permission_id}
-            onChange={(value) => dispatch(setUserListParams({ permission_id: value }))}
           />
         </div>
       ),
@@ -135,8 +109,6 @@ const User = () => {
                 label: 'Inactive',
               },
             ]}
-            value={params.status}
-            onChange={(value) => dispatch(setUserListParams({ status: value }))}
             allowClear
           />
         </div>
@@ -169,31 +141,27 @@ const User = () => {
       key: 'action',
       render: (_, { user_id }) => (
         <div className="flex items-center gap-2">
-          {permissions.edit ? (
-            <Tooltip title="Edit">
-              <Link to={`/user/edit/${user_id}`}>
-                <Button
-                  size="small"
-                  type="primary"
-                  className="bg-gray-500 hover:!bg-gray-400"
-                  icon={<MdOutlineEdit size={14} />}
-                />
-              </Link>
-            </Tooltip>
-          ) : null}
-          {permissions.delete ? (
-            <Tooltip title="Delete">
-              <Popconfirm
-                title="Are you sure you want to delete?"
-                description="After deleting, You will not be able to recover it."
-                okButtonProps={{ danger: true }}
-                okText="Yes"
-                cancelText="No"
-                onConfirm={() => onUserDelete(user_id)}>
-                <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
-              </Popconfirm>
-            </Tooltip>
-          ) : null}
+          <Tooltip title="Edit">
+            <Link to={`/user/edit/${user_id}`}>
+              <Button
+                size="small"
+                type="primary"
+                className="bg-gray-500 hover:!bg-gray-400"
+                icon={<MdOutlineEdit size={14} />}
+              />
+            </Link>
+          </Tooltip>
+          <Tooltip title="Delete">
+            <Popconfirm
+              title="Are you sure you want to delete?"
+              description="After deleting, You will not be able to recover it."
+              okButtonProps={{ danger: true }}
+              okText="Yes"
+              cancelText="No"
+              onConfirm={() => onUserDelete(user_id)}>
+              <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
+            </Popconfirm>
+          </Tooltip>
         </div>
       ),
       width: 70,
@@ -201,24 +169,9 @@ const User = () => {
     },
   ];
 
-  if (!permissions.edit && !permissions.delete) {
-    columns.pop();
-  }
-
-  useEffect(() => {
-    dispatch(getUserList(params)).unwrap().catch(handleError);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    params.page,
-    params.limit,
-    params.sort_column,
-    params.sort_direction,
-    params.permission_id,
-    params.status,
-    debouncedSearch,
-    debouncedUserName,
-    debouncedEmail,
-  ]);
+  // if (!permissions.edit && !permissions.delete) {
+  //   columns.pop();
+  // }
 
   return (
     <>
@@ -233,58 +186,32 @@ const User = () => {
             placeholder="Search..."
             allowClear
             className="w-full sm:w-64"
-            value={params.search}
-            onChange={(e) => dispatch(setUserListParams({ search: e.target.value }))}
           />
 
           <div className="flex items-center gap-2">
-            {permissions.delete ? (
-              <Button
-                type="primary"
-                danger
-                onClick={() => setDeleteModalIsOpen(true)}
-                disabled={!deleteIDs.length}>
-                Delete
-              </Button>
-            ) : null}
-            {permissions.add ? (
-              <Link to="/user/create">
-                <Button type="primary">Add New</Button>
-              </Link>
-            ) : null}
+            <Button
+              type="primary"
+              danger
+              onClick={() => setDeleteModalIsOpen(true)}
+              disabled
+            >
+              Delete
+            </Button>
+            <Link to="/user/create">
+              <Button type="primary">Add New</Button>
+            </Link>
           </div>
         </div>
 
         <Table
           size="small"
           rowSelection={
-            permissions.delete
-              ? {
-                  type: 'checkbox',
-                  selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setUserDeleteIDs(selectedRowKeys)),
-                }
-              : null
+            {
+              type: 'checkbox',
+            }
           }
           className="mt-2"
           scroll={{ x: 'calc(100% - 200px)' }}
-          loading={isListLoading}
-          pagination={{
-            total: paginationInfo.total_records,
-            pageSize: params.limit,
-            current: params.page,
-            showTotal: (total) => `Total ${total} users`,
-          }}
-          onChange={(page, _, sorting) => {
-            dispatch(
-              setUserListParams({
-                page: page.current,
-                limit: page.pageSize,
-                sort_column: sorting.field,
-                sort_direction: sorting.order,
-              }),
-            );
-          }}
           dataSource={list}
           rowKey="user_id"
           showSorterTooltip={false}
@@ -298,7 +225,7 @@ const User = () => {
       <DeleteConfirmModal
         open={deleteModalIsOpen ? true : false}
         onCancel={closeDeleteModal}
-        isDeleting={isBulkDeleting}
+        isDeleting={"isBulkDeleting"}
         onDelete={onBulkDelete}
         title="Are you sure you want to delete these users?"
         description="After deleting, you will not be able to recover."

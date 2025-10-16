@@ -1,24 +1,17 @@
-import { Button, Col, Form, Image, Input, Row, Select, TimePicker, Switch } from 'antd';
+import { Button, Col, Form, Image, Input, Row, Select, Switch, TimePicker } from 'antd';
 import dayjs from 'dayjs';
 import { useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 import { Link } from 'react-router-dom';
 import userImagePlaceholder from '../../assets/user-placeholder.jpg';
 import AsyncSelect from '../AsyncSelect';
-import UserCompanyTemplates from './UserCompanyTemplates';
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
 
 // eslint-disable-next-line react/prop-types
 const UserForm = ({ mode = 'create', onSubmit }) => {
   const fileInputRef = useRef(null);
-  const { isFormSubmitting, initialFormValues, selectedTemplates } = useSelector(
-    (state) => state.user
-  );
-  const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission;
 
-  const [imageSrc, setImageSrc] = useState(initialFormValues?.image_url || null);
+  const [imageSrc, setImageSrc] = useState(null);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -32,30 +25,18 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
   };
 
   const userTypeOptions = [
-    { label: 'Accounts', value: 'accounts' },
-    { label: 'Warehouse', value: 'warehouse' },
-    { label: 'Technicians', value: 'technicians' },
-    { label: 'Sales', value: 'sales' }
+    { label: "Admin", value: "admin" },
+    { label: "Orders Manager", value: "orders" },
+    { label: "Inventory / Warehouse", value: "warehouse" },
+    { label: "Tailor / Production", value: "production" },
+    { label: "Sales / Customer Support", value: "sales" },
+    { label: "Accounts / Finance", value: "accounts" }
   ];
 
   const onFinish = (formValues) => {
     const data = {
       ...formValues,
-      permission_id: formValues.permission_id.value,
-      image: initialFormValues?.image_url === imageSrc ? null : imageSrc,
-      from_time: formValues.from_time ? dayjs(formValues.from_time).format('HH:mm:ss') : null,
-      to_time: formValues.to_time ? dayjs(formValues.to_time).format('HH:mm:ss') : null,
-      company_access: selectedTemplates,
-      is_exempted: formValues.is_exempted ? 1 : 0
     };
-
-    if (
-      mode === 'edit' &&
-      initialFormValues?.image_url &&
-      initialFormValues?.image_url !== imageSrc
-    ) {
-      data.delete_image = initialFormValues?.image;
-    }
 
     onSubmit(data);
   };
@@ -69,9 +50,9 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
       initialValues={
         mode === 'create'
           ? {
-              status: 1
-            }
-          : initialFormValues
+            status: 1
+          }
+          : null //initialFormValues
       }>
       <div className="flex flex-col-reverse items-center justify-between gap-6 md:flex-row md:items-start">
         <Row gutter={[12, 12]}>
@@ -141,26 +122,7 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
               <Input.Password />
             </Form.Item>
           </Col>
-          <Col span={24} sm={12} md={12} lg={12}>
-            <Form.Item
-              label="User Permission"
-              name="permission_id"
-              rules={[
-                {
-                  required: true,
-                  message: 'User Permission is required!'
-                }
-              ]}>
-              <AsyncSelect
-                endpoint="/permission"
-                valueKey="user_permission_id"
-                labelKey="name"
-                labelInValue
-                addNewLink={permissions.user_permission.add ? '/user-permission/create' : null}
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={6} sm={6} md={6} lg={6}>
+          <Col xs={12} sm={12} md={6} lg={12}>
             <Form.Item name="status" label="Status">
               <Select
                 options={[
@@ -174,21 +136,6 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
                   }
                 ]}
               />
-            </Form.Item>
-          </Col>
-          <Col xs={6} sm={6} md={6} lg={6}>
-            <Form.Item label="Is Exempted" name="is_exempted" valuePropName="checked">
-              <Switch />
-            </Form.Item>
-          </Col>
-          <Col xs={12} sm={6} md={6} lg={6}>
-            <Form.Item name="from_time" label="From Time">
-              <TimePicker needConfirm={false} format="hh:mm A" className="w-full" />
-            </Form.Item>
-          </Col>
-          <Col xs={12} sm={6} md={6} lg={6}>
-            <Form.Item name="to_time" label="To Time">
-              <TimePicker needConfirm={false} format="hh:mm A" className="w-full" />
             </Form.Item>
           </Col>
         </Row>
@@ -226,13 +173,11 @@ const UserForm = ({ mode = 'create', onSubmit }) => {
         </div>
       </div>
 
-      <UserCompanyTemplates />
-
       <div className="mt-4 flex items-center justify-end gap-2">
         <Link to="/user">
           <Button className="w-28">Cancel</Button>
         </Link>
-        <Button type="primary" htmlType="submit" className="w-28" loading={isFormSubmitting}>
+        <Button type="primary" htmlType="submit" className="w-28">
           Save
         </Button>
       </div>

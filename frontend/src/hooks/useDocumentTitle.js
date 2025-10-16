@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 const useDocumentTitle = (title) => {
   useEffect(() => {
     if (title) {
-      document.title = `${title} | Global Marine Safety - America`;
+      document.title = `${title} | Dasthakat`;
     }
   }, [title]);
 };

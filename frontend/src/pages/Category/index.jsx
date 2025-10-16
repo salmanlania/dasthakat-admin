@@ -1,59 +1,44 @@
 import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from 'antd';
-import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { FaRegSave } from 'react-icons/fa';
 import { FcCancel } from 'react-icons/fc';
 import { GoTrash } from 'react-icons/go';
 import { MdOutlineEdit } from 'react-icons/md';
-import { useDispatch, useSelector } from 'react-redux';
 import PageHeading from '../../components/Heading/PageHeading';
 import DeleteConfirmModal from '../../components/Modals/DeleteConfirmModal';
-import useDebounce from '../../hooks/useDebounce';
-import useDocumentTitle from '../../hooks/useDocumentTitle';
-import useError from '../../hooks/useError';
-import {
-  addNewCategory,
-  bulkDeleteCategory,
-  createCategory,
-  deleteCategory,
-  getCategoryList,
-  removeNewCategory,
-  setCategoryDeleteIDs,
-  setCategoryEditable,
-  setCategoryListParams,
-  updateCategory,
-  updateCategoryListValue,
-} from '../../store/features/categorySlice';
 
 const Category = () => {
-  useDocumentTitle('Category List');
-  const dispatch = useDispatch();
-  const handleError = useError();
-  const { list, isListLoading, params, paginationInfo, isBulkDeleting, isSubmitting, deleteIDs } =
-    useSelector((state) => state.category);
-  const { user } = useSelector((state) => state.auth);
-  const permissions = user.permission.category;
+  const [list, setList] = useState([
+    { category_id: 1, name: 'Category 1', created_at: '2021-10-01', editable: false },
+    { category_id: 2, name: 'Category 2', created_at: '2021-11-01', editable: false },
+  ]);
+  const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
+  const [deleteIDs, setDeleteIDs] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(null);
+  const [permissions] = useState({
+    edit: true,
+    delete: true,
+    add: true,
+  });
 
-  const debouncedSearch = useDebounce(params.search, 500);
-
-  const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
-  const closeDeleteModal = () => setDeleteModalIsOpen(null);
+  const closeDeleteModal = () => setDeleteModalIsOpen(false);
 
   const onChange = (id, field, value) => {
-    dispatch(updateCategoryListValue({ id, field, value }));
+    setList((prevList) =>
+      prevList.map((item) => (item.category_id === id ? { ...item, [field]: value } : item)),
+    );
   };
 
   const onCreate = async (record) => {
     const { name } = record;
     if (!name.trim()) return toast.error('Name field is required');
 
-    try {
-      await dispatch(createCategory({ name })).unwrap();
-      await dispatch(getCategoryList(params)).unwrap();
-    } catch (error) {
-      handleError(error);
-    }
+    setList((prevList) => [
+      ...prevList,
+      { category_id: Date.now(), name, created_at: new Date().toISOString(), editable: false },
+    ]);
+    toast.success('Category created successfully');
   };
 
   const onUpdate = async (record) => {
@@ -61,43 +46,35 @@ const Category = () => {
 
     if (!name.trim()) return toast.error('Name field is required');
 
-    try {
-      await dispatch(
-        updateCategory({
-          id: category_id,
-          data: { name },
-        }),
-      ).unwrap();
-      await dispatch(getCategoryList(params)).unwrap();
-    } catch (error) {
-      handleError(error);
-    }
+    setList((prevList) =>
+      prevList.map((item) =>
+        item.category_id === category_id ? { ...item, name, editable: false } : item,
+      ),
+    );
+    toast.success('Category updated successfully');
   };
 
   const onCancel = async (id) => {
-    if (id === 'new') return dispatch(removeNewCategory());
-    dispatch(setCategoryEditable({ id, editable: false }));
+    if (id === 'new') {
+      setList((prevList) => prevList.filter((item) => item.category_id !== 'new'));
+    } else {
+      setList((prevList) =>
+        prevList.map((item) =>
+          item.category_id === id ? { ...item, editable: false } : item,
+        ),
+      );
+    }
   };
 
   const onCategoryDelete = async (id) => {
-    try {
-      await dispatch(deleteCategory(id)).unwrap();
-      toast.success('Category deleted successfully');
-      dispatch(getCategoryList(params)).unwrap();
-    } catch (error) {
-      handleError(error);
-    }
+    setList((prevList) => prevList.filter((item) => item.category_id !== id));
+    toast.success('Category deleted successfully');
   };
 
   const onBulkDelete = async () => {
-    try {
-      await dispatch(bulkDeleteCategory(deleteIDs)).unwrap();
-      toast.success('Category deleted successfully');
-      closeDeleteModal();
-      await dispatch(getCategoryList(params)).unwrap();
-    } catch (error) {
-      handleError(error);
-    }
+    setList((prevList) => prevList.filter((item) => !deleteIDs.includes(item.category_id)));
+    toast.success('Categories deleted successfully');
+    closeDeleteModal();
   };
 
   const columns = [
@@ -125,12 +102,7 @@ const Category = () => {
       key: 'created_at',
       sorter: true,
       width: 168,
-      render: (_, { created_at }) =>
-        created_at ? (
-          dayjs(created_at).format('MM-DD-YYYY hh:mm A')
-        ) : (
-          <span className="text-gray-400">AUTO</span>
-        ),
+      render: (_, { created_at }) => created_at || <span className="text-gray-400">AUTO</span>,
     },
     {
       title: 'Action',
@@ -159,25 +131,18 @@ const Category = () => {
 
         return (
           <div className="flex items-center gap-2">
-            {permissions.edit ? (
+            {permissions.edit && (
               <Tooltip title="Edit">
                 <Button
                   size="small"
                   type="primary"
                   className="bg-gray-500 hover:!bg-gray-400"
                   icon={<MdOutlineEdit size={14} />}
-                  onClick={() =>
-                    dispatch(
-                      setCategoryEditable({
-                        id: category_id,
-                        editable: true,
-                      }),
-                    )
-                  }
+                  onClick={() => onChange(category_id, 'editable', true)}
                 />
               </Tooltip>
-            ) : null}
-            {permissions.delete ? (
+            )}
+            {permissions.delete && (
               <Tooltip title="Delete">
                 <Popconfirm
                   title="Are you sure you want to delete?"
@@ -185,11 +150,12 @@ const Category = () => {
                   okButtonProps={{ danger: true }}
                   okText="Yes"
                   cancelText="No"
-                  onConfirm={() => onCategoryDelete(category_id)}>
+                  onConfirm={() => onCategoryDelete(category_id)}
+                >
                   <Button size="small" type="primary" danger icon={<GoTrash size={14} />} />
                 </Popconfirm>
               </Tooltip>
-            ) : null}
+            )}
           </div>
         );
       },
@@ -197,14 +163,6 @@ const Category = () => {
       fixed: 'right',
     },
   ];
-
-  if (!permissions.edit && !permissions.delete && !permissions.add) {
-    columns.pop();
-  }
-
-  useEffect(() => {
-    dispatch(getCategoryList(params)).unwrap().catch(handleError);
-  }, [params.page, params.limit, params.sort_column, params.sort_direction, debouncedSearch]);
 
   return (
     <>
@@ -219,8 +177,7 @@ const Category = () => {
             placeholder="Search..."
             allowClear
             className="w-full sm:w-64"
-            value={params.search}
-            onChange={(e) => dispatch(setCategoryListParams({ search: e.target.value }))}
+            onChange={(e) => {}}
           />
 
           <div className="flex items-center gap-2">
@@ -228,66 +185,45 @@ const Category = () => {
               type="primary"
               danger
               onClick={() => setDeleteModalIsOpen(true)}
-              disabled={!deleteIDs.length}>
+              disabled={!deleteIDs.length}
+            >
               Delete
             </Button>
-            {permissions.add ? (
-              <Button type="primary" onClick={() => dispatch(addNewCategory())}>
+            {permissions.add && (
+              <Button type="primary" onClick={() => setList([...list, { category_id: 'new', name: '', editable: true }])}>
                 Add New
               </Button>
-            ) : null}
+            )}
           </div>
         </div>
 
         <Table
           size="small"
-          rowSelection={
-            permissions.delete
-              ? {
-                  type: 'checkbox',
-                  selectedRowKeys: deleteIDs,
-                  onChange: (selectedRowKeys) => dispatch(setCategoryDeleteIDs(selectedRowKeys)),
-                  getCheckboxProps: (record) => ({
-                    disabled: record.category_id === 'new',
-                  }),
-                }
-              : null
-          }
-          onChange={(page, _, sorting) => {
-            dispatch(
-              setCategoryListParams({
-                page: page.current,
-                limit: page.pageSize,
-                sort_column: sorting.field,
-                sort_direction: sorting.order,
-              }),
-            );
+          rowSelection={{
+            type: 'checkbox',
+            selectedRowKeys: deleteIDs,
+            onChange: (selectedRowKeys) => setDeleteIDs(selectedRowKeys),
           }}
-          loading={isListLoading}
+          loading={false}
           rowKey="category_id"
           className="mt-2"
           scroll={{ x: 'calc(100% - 200px)' }}
           pagination={{
-            total: paginationInfo.total_records,
-            pageSize: params.limit,
-            current: params.page,
-            showTotal: (total) => `Total ${total} category`,
+            total: list.length,
+            pageSize: 50,
+            current: 1,
+            showTotal: (total) => `Total ${total} categories`,
           }}
           dataSource={list}
-          showSorterTooltip={false}
           columns={columns}
-          sticky={{
-            offsetHeader: 56,
-          }}
         />
       </div>
 
       <DeleteConfirmModal
-        open={deleteModalIsOpen ? true : false}
+        open={deleteModalIsOpen}
         onCancel={closeDeleteModal}
         onDelete={onBulkDelete}
-        isDeleting={isBulkDeleting}
-        title="Are you sure you want to delete these category?"
+        title="Are you sure you want to delete these categories?"
         description="After deleting, you will not be able to recover."
       />
     </>

@@ -1,23 +1,23 @@
-import { Breadcrumb, Spin } from 'antd';
+import { Breadcrumb } from 'antd';
 import toast from 'react-hot-toast';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import UserForm from '../../components/Form/UserForm';
+import OrderForm from '../../components/Form/OrderForm';
 import PageHeading from '../../components/Heading/PageHeading';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
 
-const EditUser = () => {
-  useDocumentTitle('Edit User');
+const EditOrders = () => {
+  useDocumentTitle('Edit Orders');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleError = useError();
   const { id } = useParams();
 
-  const onUserUpdate = async (data) => {
+  const onOrderUpdates = async (data) => {
     try {
-      toast.success('User updated successfully');
-      navigate('/user');
+      toast.success('Orders updated successfully');
+      navigate('/orders');
     } catch (error) {
       handleError(error);
     }
@@ -26,8 +26,8 @@ const EditUser = () => {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between">
-        <PageHeading>EDIT USER</PageHeading>
-        <Breadcrumb items={[{ title: 'User' }, { title: 'Edit' }]} separator=">" />
+        <PageHeading>EDIT ORDER</PageHeading>
+        <Breadcrumb items={[{ title: 'Orders' }, { title: 'Edit' }]} separator=">" />
       </div>
 
       {/* {isItemLoading && (
@@ -37,10 +37,10 @@ const EditUser = () => {
       )} */}
 
         <div className="mt-4 rounded-md bg-white p-2 sm:p-4">
-          <UserForm mode="edit" onSubmit={onUserUpdate} />
+          <OrderForm mode="edit" onSave={onOrderUpdates} />
         </div>
     </>
   );
 };
 
-export default EditUser;
+export default EditOrders;

@@ -65,7 +65,7 @@ const fillEmptyRowsForNotes = (rows, rowsPerPage, notesRowsNeeded = 2) => {
 const addHeader = (doc, data, pageWidth, sideMargin) => {
   doc.setFontSize(23);
   doc.setFont('times', 'bold');
-  doc.text('Global Marine Safety - America', pageWidth / 2, 12, {
+  doc.text('Dasthakat', pageWidth / 2, 12, {
     align: 'center'
   });
   doc.setFont('times', 'normal');
