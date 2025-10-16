@@ -218,7 +218,7 @@ const Product = () => {
               Delete
             </Button>
             <Link to="/product/create">
-              <Button disabled type="primary">Add New</Button>
+              <Button type="primary">Add New</Button>
             </Link>
           </div>
         </div>
