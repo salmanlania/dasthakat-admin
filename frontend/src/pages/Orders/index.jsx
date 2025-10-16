@@ -159,7 +159,7 @@ const Order = () => {
               Delete
             </Button>
             <Link to="/orders/create">
-              <Button type="primary">Add New</Button>
+              <Button disabled type="primary">Add New</Button>
             </Link>
           </div>
         </div>

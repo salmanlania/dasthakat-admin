@@ -1,6 +1,6 @@
 import { Breadcrumb, Button, Input, Popconfirm, Table, Tooltip } from 'antd';
 import dayjs from 'dayjs';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { GoTrash } from 'react-icons/go';
 import { MdOutlineEdit } from 'react-icons/md';
@@ -19,6 +19,55 @@ const Product = () => {
 
   const [list, setList] = useState([])
 
+  useEffect(() => {
+    const productsList = [
+      {
+        product_id: "1",
+        product_code: "AB01",
+        category: "Abaya",
+        brand: "Tahir Qadri Abayas",
+        name: "Elegant Black Abaya",
+        net_cost_price: 120,
+        net_tax_price: 144,
+        net_sale_price: 150,
+        created_at: "2023-10-01T08:30:00Z",
+      },
+      {
+        product_id: "2",
+        product_code: "AB02",
+        category: "Abaya",
+        brand: "Black Camel",
+        name: "Camel Brown Abaya",
+        net_cost_price: 110,
+        net_tax_price: 132,
+        net_sale_price: 140,
+        created_at: "2023-10-02T08:30:00Z",
+      },
+      {
+        product_id: "3",
+        product_code: "AB03",
+        category: "Abaya",
+        brand: "Asia Abayas",
+        name: "Royal Blue Abaya",
+        net_cost_price: 130,
+        net_tax_price: 156,
+        net_sale_price: 160,
+        created_at: "2023-10-03T08:30:00Z",
+      },
+      {
+        product_id: "4",
+        product_code: "AB04",
+        category: "Abaya",
+        brand: "Dasthakat",
+        name: "Sleek Black Abaya",
+        net_cost_price: 125,
+        net_tax_price: 150,
+        net_sale_price: 155,
+        created_at: "2023-10-04T08:30:00Z",
+      },
+    ];
+    setList(productsList);
+  }, []);
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(null);
   const closeDeleteModal = () => setDeleteModalIsOpen(null);
 
@@ -50,9 +99,16 @@ const Product = () => {
       ellipsis: true,
     },
     {
-      title: "Type",
-      dataIndex: 'product_type_name',
-      key: 'product_type_name',
+      title: "Category",
+      dataIndex: 'category',
+      key: 'category',
+      sorter: true,
+      width: 160,
+    },
+    {
+      title: "Brand",
+      dataIndex: 'brand',
+      key: 'brand',
       sorter: true,
       width: 160,
     },
@@ -61,74 +117,35 @@ const Product = () => {
       dataIndex: 'name',
       key: 'name',
       sorter: true,
-      width: 200,
-      ellipsis: true,
-    },
-    {
-      title: "Short Code",
-      dataIndex: 'short_code',
-      key: 'short_code',
-      sorter: true,
-      width: 140,
-      ellipsis: true,
-    },
-    {
-      title: "IMPA Code",
-      dataIndex: 'impa_code',
-      key: 'impa_code',
-      sorter: true,
-      width: 140,
-      ellipsis: true,
-    },
-    {
-      title: "Category",
-      dataIndex: 'category_name',
-      key: 'category_name',
-      sorter: true,
       width: 150,
       ellipsis: true,
     },
     {
-      title: "Sub Category",
-      dataIndex: 'sub_category_name',
-      key: 'sub_category_name',
+      title: "Net Cost Price",
+      dataIndex: 'net_cost_price',
+      key: 'net_cost_price',
       sorter: true,
       width: 150,
       ellipsis: true,
+      render: (_, { net_cost_price }) => formatThreeDigitCommas(net_cost_price),
     },
     {
-      title: "Brand",
-      dataIndex: 'brand_name',
-      key: 'brand_name',
+      title: "Tax Price",
+      dataIndex: 'net_tax_price',
+      key: 'net_tax_price',
       sorter: true,
       width: 150,
       ellipsis: true,
+      render: (_, { net_tax_price }) => formatThreeDigitCommas(net_tax_price),
     },
     {
-      title: "Unit",
-      dataIndex: 'unit_name',
-      key: 'unit_name',
+      title: "Net Sale Prices",
+      dataIndex: 'net_sale_price',
+      key: 'net_sale_price',
       sorter: true,
       width: 150,
       ellipsis: true,
-    },
-    {
-      title: "Cost Price",
-      dataIndex: 'cost_price',
-      key: 'cost_price',
-      sorter: true,
-      width: 150,
-      ellipsis: true,
-      render: (_, { cost_price }) => formatThreeDigitCommas(cost_price),
-    },
-    {
-      title: "Sale Prices",
-      dataIndex: 'sale_price',
-      key: 'sale_price',
-      sorter: true,
-      width: 150,
-      ellipsis: true,
-      render: (_, { sale_price }) => formatThreeDigitCommas(sale_price),
+      render: (_, { net_sale_price }) => formatThreeDigitCommas(net_sale_price),
     },
     {
       title: 'Created At',
@@ -188,7 +205,7 @@ const Product = () => {
             placeholder="Search..."
             allowClear
             className="w-full sm:w-64"
-            // value={params.search}
+          // value={params.search}
           />
 
           <div className="flex items-center gap-2">
@@ -201,7 +218,7 @@ const Product = () => {
               Delete
             </Button>
             <Link to="/product/create">
-              <Button type="primary">Add New</Button>
+              <Button disabled type="primary">Add New</Button>
             </Link>
           </div>
         </div>

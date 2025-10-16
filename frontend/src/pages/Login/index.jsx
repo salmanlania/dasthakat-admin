@@ -3,9 +3,10 @@ import { FaRegUser } from 'react-icons/fa6';
 import { MdLockOutline } from 'react-icons/md';
 import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
-import LOGO from '../../assets/logo.jpg';
+import LOGO from '../../assets/logo.png';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 import useError from '../../hooks/useError';
+import toast from 'react-hot-toast';
 
 const Login = () => {
   useDocumentTitle('Login');
@@ -16,8 +17,13 @@ const Login = () => {
 
   const onSubmit = async (values) => {
     const { email, password } = values;
-    const credentials = { email, password };
-    localStorage.setItem('token', JSON.stringify(credentials));
+    if (email !== "admin@gmail.com" && password !== "admin123@") {
+      toast.error("Invalid Email or Password!")
+    } else if (email === "admin@gmail.com" && password === "admin123@") {
+      const credentials = { email, password };
+      localStorage.setItem('token', JSON.stringify(credentials));
+      toast.success("Admin Login Successfully")
+    }
     try {
       navigate('/', {
         state: {
@@ -34,8 +40,8 @@ const Login = () => {
       <div className="mx-2 w-[450px] rounded-md border border-gray-300 bg-white px-4 py-6 sm:px-12">
         <div className="mb-1 flex flex-col items-center">
           <img src={LOGO} alt="" className="h-24 rounded-sm object-contain" />
-          <p className="text-green-1 mt-2 text-center text-base">Dasthakat</p>
-          <p className="text-sm text-gray-700">Login to your account.</p>
+          <p className="text-green-1 mt-2 text-center text-base"></p>
+          <p className="text-lg text-gray-700 font-bold mb-4 mt-4">Admin Login - Access Dashboard</p>
         </div>
 
         <Form name="login" autoComplete="off" layout="vertical" onFinish={onSubmit}>

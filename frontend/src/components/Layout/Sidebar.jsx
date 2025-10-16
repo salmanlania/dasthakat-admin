@@ -2,6 +2,11 @@ import { Avatar, Layout, Menu, Select } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { BiChevronLeft } from 'react-icons/bi';
 import { FaRegUser } from 'react-icons/fa';
+import { FaBox } from 'react-icons/fa';
+import { MdOutlineShoppingCart } from 'react-icons/md';
+import { FaUserAlt } from 'react-icons/fa';
+import { IoMdGrid } from 'react-icons/io';
+import { FaTrademark } from 'react-icons/fa';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import { IoSearchSharp } from 'react-icons/io5';
 import { MdOutlineDashboard } from 'react-icons/md';
@@ -26,34 +31,9 @@ const getLevelKeys = (items1) => {
   return key;
 };
 
-// function sortMenuItems(items) {
-//   return items
-//     .map(item => {
-//       if (item.children) {
-//         return {
-//           ...item,
-//           children: sortMenuItems(item.children), // sort children recursively
-//         };
-//       }
-//       return item;
-//     })
-//     .sort((a, b) => {
-//       const labelA = typeof a.label === 'string'
-//         ? a.label
-//         : a.label?.props?.children?.toString() || '';
-
-//       const labelB = typeof b.label === 'string'
-//         ? b.label
-//         : b.label?.props?.children?.toString() || '';
-
-//       return labelA.localeCompare(labelB);
-//     });
-// }
-
 function sortChildren(items) {
   return items.map(item => {
     if (item.children && item.children.length > 0) {
-      // sort the children alphabetically
       const sortedChildren = [...item.children].sort((a, b) => {
         const labelA = typeof a.label === 'string'
           ? a.label
@@ -66,7 +46,7 @@ function sortChildren(items) {
 
       return {
         ...item,
-        children: sortChildren(sortedChildren), // recursively sort deeper levels
+        children: sortChildren(sortedChildren),
       };
     }
     return item;
@@ -113,23 +93,31 @@ const Sidebar = () => {
     },
     {
       key: 'user',
+      icon: <FaUserAlt size={18} />,
       label: <Link to="/user">User</Link>,
     },
     {
       key: 'category',
+      icon: <IoMdGrid size={18} />,
       label: <Link to="/category">Category</Link>,
     },
     {
+      key: 'brand',
+       icon: <FaTrademark size={18} />,
+      label: <Link to="/brand">Brand</Link>,
+    },
+    {
       key: 'product',
+      icon: <MdOutlineShoppingCart size={18} />,
       label: <Link to="/product">Product</Link>,
     },
     {
       key: 'orders',
-      label: <Link to="/orders">Customer Payment</Link>,
+      icon: <FaBox size={18} />,
+      label: <Link to="/orders">Orders</Link>,
     },
   ];
   const sortedItems = sortChildren(items);
-  // const levelKeys = getLevelKeys(items);
   const levelKeys = getLevelKeys(sortedItems);
 
   function getEnabledLeafLabelsAndKeys(items) {
@@ -231,7 +219,6 @@ const Sidebar = () => {
           notFoundContent={null}
           value={null}
           optionFilterProp="label"
-          // options={getEnabledLeafLabelsAndKeys(items)}
           options={getEnabledLeafLabelsAndKeys(sortedItems)}
           onChange={(selectedKey) => {
             if (selectedKey) {
@@ -259,7 +246,6 @@ const Sidebar = () => {
           isSmallScreen && dispatch(toggleSidebar());
         }}
         mode="inline"
-        // items={items}
         items={sortedItems}
         openKeys={stateOpenKeys}
         onOpenChange={onOpenChange}

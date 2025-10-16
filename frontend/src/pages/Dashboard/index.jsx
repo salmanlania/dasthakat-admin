@@ -7,8 +7,8 @@ import PageHeading from '../../components/Heading/PageHeading';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const shortcuts = [
-  { title: 'Quotation', url: '/quotation/'},
-  { title: 'Charge Order', url: '/charge-order/'},
+  { title: 'Product', url: '/product/'},
+  { title: 'Orders', url: '/orders/'},
   { title: 'Scheduling', url: '/scheduling/'},
   { title: 'Purchase Order', url: '/purchase-order/'},
   { title: 'Pick List', url: '/pick-list/'},

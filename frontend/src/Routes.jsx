@@ -21,6 +21,7 @@ const CreateOrder = lazy(() => import('./pages/Orders/CreateOrder'));
 const EditOrder = lazy(() => import('./pages/Orders/EditOrder'));
 
 const Category = lazy(() => import('./pages/Category'));
+const Brand = lazy(() => import('./pages/Brand'));
 
 function Routes() {
   const router = createBrowserRouter(
@@ -115,6 +116,14 @@ function Routes() {
             element: (
               <Suspense fallback={<PageLoader />}>
                 <Category />
+              </Suspense>
+            ),
+          },
+          {
+            path: 'brand',
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <Brand />
               </Suspense>
             ),
           },
