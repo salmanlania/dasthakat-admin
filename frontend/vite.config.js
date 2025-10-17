@@ -6,7 +6,7 @@ export default ({ mode }) => {
 
   return defineConfig({
     plugins: [react()],
-    base: env.VITE_BASE_URL || '/',
+     base: mode === 'production' ? '/' : env.VITE_BASE_URL || '/',
      preview: {
       port: 5173,
     }
