@@ -6,6 +6,9 @@ export default ({ mode }) => {
 
   return defineConfig({
     plugins: [react()],
-    base: env.VITE_BASE_URL || '/'
+    base: env.VITE_BASE_URL || '/',
+     preview: {
+      port: 5173,
+    }
   });
 };
