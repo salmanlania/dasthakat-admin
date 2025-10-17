@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm cache clean --force && rm -rf node_modules package-lock.json && npm install && vite build",
-    "preview": "vite preview",
+    "build": "vite build",
+    "preview": "vite preview --port=5173",
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
     "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc"
